@@ -256,19 +256,24 @@ export function NotatnikFinalCta({
   secondaryLabel,
 }: NotatnikFinalCtaProps) {
   return (
-    <section className="notatnik-final">
-      <h2 dangerouslySetInnerHTML={{ __html: title }} />
-      {copy ? <p>{copy}</p> : null}
-      <div className="notatnik-final-actions">
-        <Link href={primaryHref} prefetch={false} className="notatnik-btn">
-          <span>{primaryLabel}</span>
-          <NotatnikButtonArrow />
-        </Link>
-        {secondaryHref && secondaryLabel ? (
-          <Link href={secondaryHref} prefetch={false} className="notatnik-btn notatnik-btn-ghost">
-            <span>{secondaryLabel}</span>
+    <section className="notatnik-final site-help-cta">
+      <div className="site-help-cta-copy">
+        <h2 dangerouslySetInnerHTML={{ __html: title }} />
+        {copy ? <p>{copy}</p> : null}
+        <div className="notatnik-final-actions site-help-cta-actions">
+          <Link href={primaryHref} prefetch={false} className="notatnik-btn">
+            <span>{primaryLabel}</span>
+            <NotatnikButtonArrow />
           </Link>
-        ) : null}
+          {secondaryHref && secondaryLabel ? (
+            <Link href={secondaryHref} prefetch={false} className="notatnik-btn notatnik-btn-ghost">
+              <span>{secondaryLabel}</span>
+            </Link>
+          ) : null}
+        </div>
+      </div>
+      <div className="site-help-cta-image" aria-hidden="true">
+        <Image src="/faq/faq-help-illustration-clean.png" alt="" width={355} height={208} sizes="(max-width: 760px) 58vw, 210px" />
       </div>
     </section>
   )

@@ -256,8 +256,8 @@ export function ContactLeadForm() {
           ? 'Wyślij kolejną prośbę'
           : 'Wyślij kolejną'
         : isUrgentNow
-          ? 'Wyślij opis sytuacji'
-          : 'Wyślij opis sytuacji'
+          ? 'Wyślij'
+          : 'Wyślij'
 
   return (
     <form className="form-grid top-gap" onSubmit={handleSubmit} noValidate>

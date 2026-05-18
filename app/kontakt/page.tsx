@@ -5,7 +5,6 @@ import { Suspense } from 'react'
 import {
   ArrowRight,
   CheckCircle2,
-  Clock3,
   Leaf,
   Mail,
   MessageSquare,
@@ -143,27 +142,6 @@ export default function ContactPage() {
           </div>
         </section>
 
-        <section className="contact-reference-info-strip" aria-label="Kontakt i czas odpowiedzi">
-          <div>
-            <span className="contact-reference-strip-icon" aria-hidden="true">
-              <Mail size={26} strokeWidth={1.7} />
-            </span>
-            <span>
-              <strong>{email}</strong>
-              <small>Odpowiadam osobiście</small>
-            </span>
-          </div>
-          <div>
-            <span className="contact-reference-strip-icon" aria-hidden="true">
-              <Clock3 size={28} strokeWidth={1.7} />
-            </span>
-            <span>
-              <strong>Czas odpowiedzi</strong>
-              <small>Zwykle w ciągu 24-48 h</small>
-            </span>
-          </div>
-        </section>
-
         <section className="contact-reference-form-section" id="formularz" aria-labelledby="contact-form-title">
           <div className="contact-reference-section-head">
             <span className="contact-reference-heading-icon" aria-hidden="true">
@@ -182,7 +160,7 @@ export default function ContactPage() {
               <Mail size={18} strokeWidth={1.8} aria-hidden="true" />
               <span>
                 Jeśli formularz się nie załaduje, możesz napisać bezpośrednio:{' '}
-                <a href={fallbackMailHref}>{email}</a>
+                <a href={fallbackMailHref} className="contact-fallback-email">{email}</a>
               </span>
             </div>
           </div>

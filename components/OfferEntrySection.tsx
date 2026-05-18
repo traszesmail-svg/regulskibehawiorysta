@@ -44,14 +44,14 @@ function getAudioDescription(species?: BookingSpecies | null) {
 
 function getFullConsultationDescription(species?: BookingSpecies | null) {
   if (species === 'pies') {
-    return 'Dla psa przy temacie bardziej złożonym, dłużej trwającym albo obejmującym kilka wątków.'
+    return 'Około 2h online dla psa przy temacie bardziej złożonym, dłużej trwającym albo obejmującym kilka wątków.'
   }
 
   if (species === 'kot') {
-    return 'Dla kota przy temacie szerszym, dłużej trwającym albo obejmującym kilka obszarów naraz.'
+    return 'Około 2h online dla kota przy temacie szerszym, dłużej trwającym albo obejmującym kilka obszarów naraz.'
   }
 
-  return 'Dla sytuacji bardziej złożonych, dłużej trwających albo wielowątkowych, gdy potrzebna jest pełniejsza konsultacja.'
+  return 'Około 2h online dla sytuacji bardziej złożonych, dłużej trwających albo wielowątkowych.'
 }
 
 export function OfferEntrySection({
@@ -126,11 +126,11 @@ export function OfferEntrySection({
         <article className="summary-card tree-backed-card">
           <div className="section-eyebrow">Pełna konsultacja</div>
           <h3>Pełna konsultacja behawioralna</h3>
-          <p>{getFullConsultationDescription(species)} Po rozmowie dostajesz diagnozę behawioralną opartą na danych, plan działania i 7 dni konsultacji tekstowych przez WhatsApp.</p>
+          <p>{getFullConsultationDescription(species)} Dostajesz diagnozę, prawdopodobną przyczynę problemu, plan działania i 7 dni wsparcia przez WhatsApp przy wdrażaniu zaleceń.</p>
           <div className="editorial-hero-meta" aria-label="Parametry usługi">
-            <span>pełny zakres online</span>
+            <span>ok. 2h online</span>
             <span>{formatPricePln(PUBLIC_OFFER_PRICES.premium)}</span>
-            <span>diagnoza behawioralna + 7 dni WhatsApp</span>
+            <span>plan + 7 dni WhatsApp</span>
           </div>
           <p className="muted">Dla {speciesLabel}, gdy sytuacja trwa dłużej, wraca albo obejmuje kilka obszarów naraz.</p>
           <p className="muted">{PUBLIC_OFFER_FULL_CONSULTATION_VALUE}</p>

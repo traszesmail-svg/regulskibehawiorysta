@@ -227,6 +227,10 @@ function getAvailabilitySlotStepMinutes(slots: AvailabilitySlot[]) {
 }
 
 function getServiceAvailabilitySlotSpan(slots: AvailabilitySlot[], serviceType: BookingServiceType) {
+  if (serviceType === 'konsultacja-30-min' || serviceType === 'konsultacja-behawioralna-online') {
+    return 1
+  }
+
   const slotStepMinutes = getAvailabilitySlotStepMinutes(slots)
   const configuredSlotSpan = getBookingServiceSlotSpan(serviceType)
 

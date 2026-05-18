@@ -177,7 +177,7 @@ export const LOCAL_SEO_PAGES: LocalSeoPage[] = [
   {
     path: '/behawiorysta-online-polska',
     title: 'Behawiorysta psów i kotów online - cała Polska',
-    description: 'Behawiorysta psów i kotów online dla opiekunów z całej Polski. 15 min audio na start, pełna konsultacja przy sprawach szerszych.',
+    description: 'Behawiorysta psów i kotów online dla opiekunów z całej Polski. 15 min audio na start, pełna konsultacja około 2h przy sprawach szerszych.',
     h1: 'Behawiorysta psów i kotów online',
     intro: [
       'Pracuję online z opiekunami psów i kotów z całej Polski.',
@@ -199,7 +199,7 @@ export const LOCAL_SEO_PAGES: LocalSeoPage[] = [
     firstStepCards: [
       { title: '15 min audio', copy: 'Krótka rozmowa głosowa bez kamery. Dobra na jedno pytanie, pierwszy ogląd sytuacji i ustalenie priorytetu.' },
       { title: 'Materiały PDF', copy: 'Materiały startowe, jeśli chcesz najpierw coś spokojnie przeczytać i uporządkować obserwacje.' },
-      { title: 'Pełna konsultacja', copy: 'Dłuższa rozmowa online dla spraw złożonych, utrwalonych albo wielowątkowych.' },
+      { title: 'Pełna konsultacja', copy: 'Około 2h online, diagnoza, plan działania i 7 dni wsparcia przez WhatsApp przy sprawach złożonych.' },
     ],
     faq: [
       { question: 'Czy konsultacja online jest dostępna dla całej Polski?', answer: 'Tak. Pracuję online z opiekunami z całej Polski, w tej samej formule niezależnie od miejsca.' },

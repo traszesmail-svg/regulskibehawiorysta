@@ -8,7 +8,7 @@ export const COPY_SERVICE_NAMES = {
   bridge: 'Dwa kwadranse z behawiorysta',
   bridgeOperational: 'Dwa kwadranse z behawiorysta: 30 min online',
   consultation: 'pełna konsultacja behawioralna',
-  consultationOperational: 'pełna konsultacja behawioralna online, diagnoza behawioralna oparta na danych + 7 dni wsparcia tekstowego przez WhatsApp',
+  consultationOperational: 'pełna konsultacja behawioralna online: około 2h, diagnoza, plan działania + 7 dni wsparcia przez WhatsApp',
   toolkit: 'Materiały PDF',
   toolkitOperational: 'Materiały PDF do samodzielnej pracy',
   contact: 'wiadomość',
@@ -26,7 +26,7 @@ export const COPY_HELPERS = {
   primaryLead: '15-minutowa konsultacja behawioralna to 15 min audio bez kamery.',
   startFromAudio: 'Jeśli nie wiesz, od czego zacząć, wybierz 15-minutowa konsultacja behawioralna.',
   startComparison:
-    '15-minutowa konsultacja behawioralna jest nazwą usługi. 15 min audio bez kamery opisuje tylko jej formę. Kwadrans na już to ta sama rozmowa, ale z priorytetem. Dwa kwadranse dają spokojniejszy start online, a pełna konsultacja behawioralna sprawdza się przy sytuacjach szerszych, dłuższych albo wielowątkowych.',
+    '15-minutowa konsultacja behawioralna jest nazwą usługi. 15 min audio bez kamery opisuje tylko jej formę. Kwadrans na już to ta sama rozmowa, ale z priorytetem. Dwa kwadranse dają spokojniejszy start online, a pełna konsultacja behawioralna obejmuje około 2h online, plan działania i 7 dni wsparcia przez WhatsApp.',
   contactResponseWindow: 'Staram się odpowiadać w ciągu 1-2 dni roboczych.',
   toolkitIntro:
     'Materiały PDF to zasoby, do których możesz wrócić przed rozmową, po rozmowie albo wtedy, gdy chcesz spokojnie uporządkować temat.',

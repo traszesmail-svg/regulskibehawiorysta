@@ -97,11 +97,11 @@ export const homepageSelectorRecommendations: Record<
   },
   full: {
     title: 'Pełna konsultacja',
-    summary: 'Dla sytuacji wielowarstwowych: diagnoza behawioralna oparta na danych, najbardziej prawdopodobna przyczyna i plan pracy.',
+    summary: 'Około 2h online dla spraw złożonych: diagnoza, prawdopodobna przyczyna problemu, plan działania i 7 dni wsparcia przez WhatsApp.',
     ctaLabel: 'Chcę pełną konsultację',
     service: 'konsultacja-behawioralna-online',
     price: '470 zł',
-    duration: 'pełny zakres online',
+    duration: 'ok. 2h online',
   },
 }
 

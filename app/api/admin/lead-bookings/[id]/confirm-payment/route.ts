@@ -10,7 +10,7 @@ const SERVICE_DURATION_MINUTES: Record<string, number> = {
   'kwadrans-na-juz': 15,
   'szybka-konsultacja-15-min': 15,
   'konsultacja-30-min': 30,
-  'konsultacja-behawioralna-online': 60,
+  'konsultacja-behawioralna-online': 120,
 }
 
 function toGoogleCalendarDate(date: Date): string {

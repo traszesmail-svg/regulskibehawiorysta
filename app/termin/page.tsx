@@ -10,7 +10,6 @@ import { TerminCalendarPicker, type TerminCalendarDay as PickerCalendarDay } fro
 import { Schema } from '@/components/schema'
 import {
   DEFAULT_BOOKING_SERVICE,
-  filterGroupedAvailabilityForService,
   getBookingServiceSlotBadge,
   getBookingServiceSlotSummary,
   normalizeBookingServiceType,
@@ -28,11 +27,16 @@ import {
 import { getProblemLabel, getProblemSpecies } from '@/lib/data'
 import { FUNNEL_CTA_LABELS, FUNNEL_SERVICE_CONFIG } from '@/lib/funnel'
 import { formatPricePln } from '@/lib/pricing'
+import {
+  buildScheduleDateKeys,
+  buildVisibleServiceSlotsForDate,
+  getServiceScheduleHorizonDays,
+} from '@/lib/scheduling/rules'
 import { getBreadcrumbJsonLd } from '@/lib/schema'
 import { buildMarketingMetadata } from '@/lib/seo'
-import { listAvailability } from '@/lib/server/db'
+import { listAvailabilityAdmin } from '@/lib/server/db'
 import { getDataModeStatus } from '@/lib/server/env'
-import type { GroupedAvailability, ProblemType } from '@/lib/types'
+import type { AvailabilitySlot, ProblemType } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -56,7 +60,10 @@ type CalendarDay = {
   dayNumber: number
   monthLabel: string
   isInPrimaryMonth: boolean
-  group: GroupedAvailability | null
+  label: string
+  slots: PickerCalendarDay['slots']
+  availableSlotCount: number
+  statusLabel: string
 }
 
 function parseDate(value: string) {
@@ -94,12 +101,20 @@ function getSundayEnd(date: Date) {
   return end
 }
 
-function buildCalendarDays(groups: GroupedAvailability[]): { days: CalendarDay[]; label: string; slotCount: number } {
-  const groupsByDate = new Map(groups.map((group) => [group.date, group]))
+function buildCalendarDays(
+  availabilitySlots: AvailabilitySlot[],
+  serviceType: BookingServiceType,
+  problem: ProblemType,
+  serviceQuery: BookingServiceType | null,
+  qaBooking: boolean,
+  requestedSpecies: 'pies' | 'kot' | null,
+  now = new Date(),
+): { days: CalendarDay[]; label: string; slotCount: number } {
+  const visibleDates = buildScheduleDateKeys(now, getServiceScheduleHorizonDays(serviceType))
   const fallbackDate = new Date()
   fallbackDate.setHours(12, 0, 0, 0)
-  const firstDate = groups[0] ? parseDate(groups[0].date) : fallbackDate
-  const lastDate = groups[groups.length - 1] ? parseDate(groups[groups.length - 1].date) : fallbackDate
+  const firstDate = visibleDates[0] ? parseDate(visibleDates[0]) : fallbackDate
+  const lastDate = visibleDates[visibleDates.length - 1] ? parseDate(visibleDates[visibleDates.length - 1]) : fallbackDate
   const primaryMonth = firstDate.getMonth()
   const primaryYear = firstDate.getFullYear()
   const visibleRangeStart = new Date(primaryYear, primaryMonth, 1, 12)
@@ -107,17 +122,38 @@ function buildCalendarDays(groups: GroupedAvailability[]): { days: CalendarDay[]
   const calendarStart = getMondayStart(visibleRangeStart)
   const calendarEnd = getSundayEnd(visibleRangeEnd)
   const days: CalendarDay[] = []
+  const visibleDateSet = new Set(visibleDates)
 
   for (const cursor = new Date(calendarStart); cursor <= calendarEnd; cursor.setDate(cursor.getDate() + 1)) {
     const date = new Date(cursor)
     const dateKey = formatDateKey(date)
+    const scheduleSlots = visibleDateSet.has(dateKey)
+      ? buildVisibleServiceSlotsForDate(availabilitySlots, dateKey, serviceType, now)
+      : []
+    const availableSlotCount = scheduleSlots.filter((slot) => slot.isBookable).length
+    const hasBusySlots = scheduleSlots.some((slot) => slot.statusLabel === 'Zajęte')
 
     days.push({
       date: dateKey,
       dayNumber: date.getDate(),
       monthLabel: date.toLocaleDateString('pl-PL', { month: 'short' }),
       isInPrimaryMonth: date >= visibleRangeStart && date <= visibleRangeEnd,
-      group: groupsByDate.get(dateKey) ?? null,
+      label: formatReadableDate(parseDate(dateKey)),
+      availableSlotCount,
+      statusLabel: availableSlotCount > 0 ? `${availableSlotCount} terminów` : hasBusySlots ? 'Zajęte' : 'Niedostępne',
+      slots: scheduleSlots.map((slot) => ({
+        id: slot.id,
+        date: dateKey,
+        dateLabel: formatReadableDate(parseDate(dateKey)),
+        time: slot.time,
+        href: slot.isBookable ? buildFormHref(problem, slot.id, serviceQuery, qaBooking, requestedSpecies) : null,
+        serviceType,
+        serviceTitle: FUNNEL_SERVICE_CONFIG[serviceType].title,
+        state: slot.state,
+        statusLabel: slot.statusLabel,
+        reasonLabel: slot.reasonLabel,
+        isBookable: slot.isBookable,
+      })),
     })
   }
 
@@ -129,7 +165,7 @@ function buildCalendarDays(groups: GroupedAvailability[]): { days: CalendarDay[]
   return {
     days,
     label,
-    slotCount: groups.reduce((total, group) => total + group.slots.length, 0),
+    slotCount: days.reduce((total, day) => total + day.availableSlotCount, 0),
   }
 }
 
@@ -154,12 +190,12 @@ export async function BookingSlotCalendar({
 
   const retryHref = buildSlotHref(problem, serviceQuery, qaBooking, requestedSpecies)
   const dataMode = getDataModeStatus()
-  let groupedAvailability: GroupedAvailability[] = []
+  let availabilitySlots: AvailabilitySlot[] = []
   let publicFlowMessage: string | null = null
 
   if (dataMode.isValid) {
     try {
-      groupedAvailability = filterGroupedAvailabilityForService(await listAvailability(), serviceType)
+      availabilitySlots = await listAvailabilityAdmin()
     } catch (error) {
       console.warn('[regulski][termin] failed to load availability', {
         dataMode: dataMode.summary,
@@ -172,10 +208,10 @@ export async function BookingSlotCalendar({
     publicFlowMessage = 'Terminy chwilowo się odświeżają. Spróbuj ponownie za moment.'
   }
 
-  const calendar = buildCalendarDays(groupedAvailability)
+  const calendar = buildCalendarDays(availabilitySlots, serviceType, problem, serviceQuery, qaBooking, requestedSpecies)
   const problemSpecies = requestedSpecies ?? getProblemSpecies(problem)
-  const petVisualSrc = problemSpecies === 'kot' ? '/wybor/cat-hero-photo.png' : '/branding/case-studies/German_Shepherd.jpg'
-  const petVisualAlt = problemSpecies === 'kot' ? 'Spokojny kot w domu' : 'Spokojny pies w naturalnym świetle'
+  const petVisualSrc = problemSpecies === 'kot' ? '/wybor/cat-choice-avatar.png' : '/wybor/dog-choice-avatar.png'
+  const petVisualAlt = problemSpecies === 'kot' ? 'Spokojny kot' : 'Spokojny pies'
   const contactHref = `/kontakt?species=${problemSpecies}#formularz`
   const isUrgentBooking = serviceType === 'kwadrans-na-juz'
   const sideVisualVariant = 'booking'
@@ -185,23 +221,13 @@ export async function BookingSlotCalendar({
       : serviceConfig.mode === 'audio'
         ? 'Online (audio)'
         : 'Online'
-  const calendarDays: PickerCalendarDay[] = calendar.days.map((day) => ({
-    date: day.date,
-    dayNumber: day.dayNumber,
-    monthLabel: day.monthLabel,
-    isInPrimaryMonth: day.isInPrimaryMonth,
-    label: day.group?.label ?? formatReadableDate(parseDate(day.date)),
-    slots:
-      day.group?.slots.map((slot) => ({
-        id: slot.id,
-        date: day.date,
-        dateLabel: formatReadableDate(parseDate(day.date)),
-        time: slot.bookingTime,
-        href: buildFormHref(problem, slot.id, serviceQuery, qaBooking, requestedSpecies),
-        serviceType,
-        serviceTitle: serviceConfig.title,
-      })) ?? [],
-  }))
+  const processOutcomeCopy =
+    serviceType === 'konsultacja-behawioralna-online'
+      ? 'W pełnej konsultacji dostajesz diagnozę, prawdopodobną przyczynę problemu, plan działania i 7 dni wsparcia przez WhatsApp.'
+      : serviceType === 'konsultacja-30-min'
+        ? 'W Dwóch kwadransach masz więcej czasu na kontekst, spokojniejsze zalecenia i decyzję, czy potrzebna jest pełna konsultacja.'
+        : 'W Kwadransie porządkujesz jedno główne pytanie i dostajesz pierwszy kierunek działania.'
+  const calendarDays: PickerCalendarDay[] = calendar.days
   const inlineChoicePanel = (
     <div className="termin-inline-choice-panel" aria-label="Szybka zmiana wyboru">
       <div>
@@ -249,8 +275,6 @@ export async function BookingSlotCalendar({
             <div className="termin-breadcrumb">
               <CalendarDays size={17} strokeWidth={1.8} aria-hidden="true" />
               <span>Wybór terminu</span>
-              <span>/</span>
-              <strong>Booking</strong>
             </div>
             {isUrgentBooking ? (
               <h1>Rezerwacja Kwadrans na już</h1>
@@ -288,7 +312,7 @@ export async function BookingSlotCalendar({
               </div>
             ) : null}
 
-            {!publicFlowMessage && groupedAvailability.length === 0 ? (
+            {!publicFlowMessage && calendar.slotCount === 0 ? (
               <div className="notatnik-callout termin-calendar-callout">
                 {serviceConfig.noAvailabilityMessage}{' '}
                 <Link href={contactHref} prefetch={false}>
@@ -336,7 +360,7 @@ export async function BookingSlotCalendar({
                 <article>
                   <Check size={30} strokeWidth={1.7} aria-hidden="true" />
                   <strong>3. Otrzymaj diagnozę behawioralną</strong>
-                  <span>W Kwadransie dostajesz diagnozę behawioralną opartą na informacjach przekazanych przez opiekuna i plan pierwszych kroków.</span>
+                  <span>{processOutcomeCopy}</span>
                 </article>
               </div>
             </section>

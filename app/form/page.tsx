@@ -27,7 +27,8 @@ import {
 import { formatDateTimeLabel, getProblemLabel, getProblemSpecies, isFutureAvailabilitySlot } from '@/lib/data'
 import { FUNNEL_CTA_LABELS } from '@/lib/funnel'
 import { DEFAULT_PRICE_PLN } from '@/lib/pricing'
-import { getAvailabilitySlot, getActiveConsultationPrice, listAvailability } from '@/lib/server/db'
+import { isAvailabilitySlotBookableForService } from '@/lib/scheduling/rules'
+import { getAvailabilitySlot, getActiveConsultationPrice, listAvailabilityAdmin } from '@/lib/server/db'
 import { getDataModeStatus } from '@/lib/server/env'
 import { buildTechnicalMetadata } from '@/lib/seo'
 import { getPublicContactDetails } from '@/lib/site'
@@ -70,10 +71,8 @@ export default async function FormPage({
   const slotsHref = buildSlotHref(problem, serviceQuery, qaBooking, species)
   const isCat = species === 'kot'
   const publicContact = getPublicContactDetails()
-  const petImage = isCat ? '/wybor/cat-hero-photo.png' : '/faq/faq-help-illustration-clean.png'
-  const heroImageAlt = isCat
-    ? 'Kot siedzący w spokojnym domowym świetle'
-    : 'Pies siedzący w spokojnym leśnym świetle'
+  const petImage = isCat ? '/wybor/cat-choice-avatar.png' : '/wybor/dog-choice-avatar.png'
+  const heroImageAlt = isCat ? 'Spokojny kot' : 'Spokojny pies'
   const dataMode = getDataModeStatus()
   let slot: Awaited<ReturnType<typeof getAvailabilitySlot>> = null
   let flowError: string | null = null
@@ -83,14 +82,17 @@ export default async function FormPage({
 
   if (dataMode.isValid) {
     try {
-      const [selectedSlot, groupedAvailability, quickConsultationPrice] = await Promise.all([
+      const [selectedSlot, availabilitySlots, quickConsultationPrice] = await Promise.all([
         getAvailabilitySlot(slotId),
-        listAvailability(),
+        listAvailabilityAdmin(),
         getActiveConsultationPrice(),
       ])
       slot = selectedSlot
-      const availableSlots = groupedAvailability.flatMap((group) => group.slots)
-      slotWindowAvailable = Boolean(selectedSlot && getBookableServiceAvailabilityWindow(availableSlots, slotId, serviceType))
+      slotWindowAvailable = Boolean(
+        selectedSlot &&
+          isAvailabilitySlotBookableForService(selectedSlot, serviceType) &&
+          getBookableServiceAvailabilityWindow(availabilitySlots, slotId, serviceType),
+      )
       amount = quickConsultationPrice.amount
       amountLabel = getBookingServicePriceLabel(serviceType, quickConsultationPrice.amount)
     } catch (error) {
@@ -119,8 +121,6 @@ export default async function FormPage({
           <div className="termin-breadcrumb">
             <CalendarDays size={15} strokeWidth={1.85} aria-hidden="true" />
             <span>Wybór terminu</span>
-            <span>/</span>
-            <strong>Booking</strong>
           </div>
           <div className="termin-step-track booking-flow-step-track" aria-label="Etapy rezerwacji">
             {bookingFlowSteps.map((step, index) => (

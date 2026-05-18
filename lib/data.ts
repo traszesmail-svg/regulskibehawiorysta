@@ -1,4 +1,5 @@
 import { PUBLIC_CAT_PROBLEM_OPTIONS, PUBLIC_DOG_PROBLEM_OPTIONS } from './funnel'
+import { buildScheduleAvailabilitySeed } from './scheduling/rules'
 import { AvailabilitySeed, ProblemOption, ProblemType } from './types'
 
 const LEGACY_CAT_PROBLEM_OPTIONS: ProblemOption[] = [
@@ -230,7 +231,7 @@ export function buildFullConsultAvailabilitySeed(now = new Date()): Availability
 
 // Legacy export used by local-store seed (generic pool, same as standard)
 export function buildRollingAvailabilitySeed(now = new Date()): AvailabilitySeed[] {
-  return buildStandardAvailabilitySeed(now)
+  return buildScheduleAvailabilitySeed(now)
 }
 
 export function getSecondsUntilBookingStart(bookingDate: string, bookingTime: string, now = new Date()): number {

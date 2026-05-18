@@ -270,8 +270,6 @@ export default async function ConfirmationPage({
           <div className="termin-breadcrumb">
             <CalendarDays size={15} strokeWidth={1.85} aria-hidden="true" />
             <span>Wybór terminu</span>
-            <span>/</span>
-            <strong>Booking</strong>
           </div>
           <div className="termin-step-track booking-flow-step-track" aria-label="Etapy rezerwacji">
             {bookingFlowSteps.map((step, index) => (

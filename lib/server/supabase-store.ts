@@ -11,11 +11,12 @@ import { compareDateAndTime, formatDateLabel, isFutureAvailabilitySlot } from '@
 import { createActiveConsultationPrice, DEFAULT_PRICE_PLN, parseConsultationPriceInput } from '@/lib/pricing'
 import { normalizePolishPhone } from '@/lib/phone'
 import { createFunnelEventRecord, normalizeFunnelEventProperties } from '@/lib/server/funnel-events'
-import { buildSeedAvailabilitySlots, hasFutureAvailabilitySlots } from '@/lib/server/availability-seed'
+import { buildSeedAvailabilitySlots } from '@/lib/server/availability-seed'
 import { createCustomerAccessToken, hashCustomerAccessToken } from '@/lib/server/customer-access'
 import { getReservationWindowMinutes, getSupabaseServerConfig } from '@/lib/server/env'
 import { createMeetingUrl, normalizeMeetingUrl } from '@/lib/server/jitsi'
 import { getManualPaymentConfig } from '@/lib/server/payment-options'
+import { isAvailabilitySlotBookableForService } from '@/lib/scheduling/rules'
 import {
   sendBookingConfirmationEmail,
   sendBookingPaymentConfirmedOwnerEmail,
@@ -850,13 +851,12 @@ async function ensureFutureAvailabilityRows(): Promise<AvailabilitySlot[]> {
   const currentRows = await listAvailabilityRows()
   const currentSlots = currentRows.map(mapAvailabilityRow)
 
-  if (hasFutureAvailabilitySlots(currentSlots)) {
-    return currentSlots
-  }
-
   const supabase = getSupabaseAdmin()
   const nowIso = new Date().toISOString()
-  const seedRows = buildSeedAvailabilitySlots(new Date(nowIso), nowIso).map(mapAvailabilitySlotToRow)
+  const existingIds = new Set(currentSlots.map((slot) => slot.id))
+  const seedRows = buildSeedAvailabilitySlots(new Date(nowIso), nowIso)
+    .filter((slot) => !existingIds.has(slot.id))
+    .map(mapAvailabilitySlotToRow)
 
   if (seedRows.length > 0) {
     const { error } = await supabase.from('availability').upsert(seedRows, { onConflict: 'id' })
@@ -1058,6 +1058,10 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
 
   if (!isFutureAvailabilitySlot(slot.bookingDate, slot.bookingTime)) {
     throw new Error('Wybrany termin jest już przeszły. Wybierz nową godzinę rozmowy.')
+  }
+
+  if (!isAvailabilitySlotBookableForService(slot, serviceType)) {
+    throw new Error('Wybrany termin nie jest dostępny dla tej usługi.')
   }
 
   const dayAvailability = (await listAvailabilityRowsForDate(slot.bookingDate)).map(mapAvailabilityRow)

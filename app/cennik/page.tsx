@@ -46,23 +46,23 @@ type PricingVisual = {
 const offerVisuals: Partial<Record<PublicBookingServiceType, PricingVisual>> = {
   'szybka-konsultacja-15-min': {
     title: 'Kwadrans',
-    copy: 'Pierwszy, szybki krok. Odpowiem na Twoje pytanie i podpowiem, co dalej.',
+    copy: '15 min audio bez kamery na jedno główne pytanie. Szybko porządkujesz sytuację i dostajesz pierwszy kierunek działania.',
     icon: Clock,
   },
   'kwadrans-na-juz': {
     title: 'Kwadrans priorytetowy',
-    copy: 'Szybszy termin i priorytet w kalendarzu. Dla pilnych spraw.',
+    copy: 'Ten sam zakres co Kwadrans, ale z najbliższym możliwym terminem. Dla spraw pilnych, które nie wymagają dłuższej analizy.',
     icon: Clock,
     featured: true,
   },
   'konsultacja-30-min': {
     title: 'Dwa kwadranse',
-    copy: 'Gdy z jednego pytania robi się kilka i potrzebujesz spokojniej ułożyć fakty.',
+    copy: '30 min online, gdy temat ma kilka wątków. Więcej czasu na kontekst, spokojniejsze zalecenia i decyzję, czy potrzebna jest pełna konsultacja.',
     icon: Clock,
   },
   'konsultacja-behawioralna-online': {
     title: 'Pełna konsultacja',
-    copy: 'Pełniejsza diagnoza, plan działania i dalsze kroki po rozmowie.',
+    copy: 'Około 2h online dla spraw złożonych: diagnoza, prawdopodobna przyczyna problemu, plan działania i 7 dni wsparcia przez WhatsApp.',
     icon: Leaf,
   },
 }
@@ -213,27 +213,22 @@ export default function PricingPage() {
           </div>
         </section>
 
-        <section className="pricing-2026-help">
-          <div>
+        <section className="pricing-2026-help site-help-cta">
+          <div className="site-help-cta-copy">
             <h2>Nie wiesz, czego potrzebujesz?</h2>
             <p>Zacznij od krótkiej rozmowy - wspólnie wybierzemy najlepszą opcję.</p>
+            <div className="pricing-2026-help-actions site-help-cta-actions">
+              <Link href={bookHref} prefetch={false} className="pricing-2026-btn pricing-2026-btn-primary">
+                Pomóż mi dobrać usługę
+              </Link>
+              <Link href="/blog" prefetch={false} className="pricing-2026-btn pricing-2026-btn-secondary">
+                Zobacz przykładowe sytuacje
+              </Link>
+            </div>
           </div>
-          <div className="pricing-2026-help-actions">
-            <Link href={bookHref} prefetch={false} className="pricing-2026-btn pricing-2026-btn-primary">
-              Pomóż mi dobrać usługę
-            </Link>
-            <Link href="/blog" prefetch={false} className="pricing-2026-btn pricing-2026-btn-secondary">
-              Zobacz przykładowe sytuacje
-            </Link>
+          <div className="site-help-cta-image pricing-2026-help-illustration" aria-hidden="true">
+            <Image src="/faq/faq-help-illustration-clean.png" alt="" width={355} height={208} sizes="(max-width: 760px) 58vw, 210px" />
           </div>
-          <Image
-            src="/pricing/pricing-help-illustration.png"
-            alt=""
-            width={185}
-            height={190}
-            className="pricing-2026-help-illustration"
-            aria-hidden="true"
-          />
         </section>
 
         <section className="pricing-2026-faq-contact">

@@ -55,7 +55,7 @@ export const referenceFaqItems: ReferenceFaqItem[] = [
     category: 'konsultacje',
     question: 'Kiedy pełna konsultacja ma więcej sensu niż szybka rozmowa?',
     answer:
-      'Gdy zachowanie trwa długo, dotyczy kilku sytuacji albo mocno wpływa na życie domowników. Wtedy potrzebna jest pełniejsza diagnoza behawioralna, plan i możliwość dopytania po rozmowie.',
+      'Gdy zachowanie trwa długo, dotyczy kilku sytuacji albo mocno wpływa na życie domowników. Wtedy potrzebne jest około 2h online, diagnoza, prawdopodobna przyczyna problemu, plan działania i 7 dni wsparcia przez WhatsApp.',
   },
   {
     id: 'problemy-kot',
@@ -97,7 +97,7 @@ export const referenceFaqItems: ReferenceFaqItem[] = [
     category: 'wspolpraca',
     question: 'Czy dostanę plan pracy po konsultacji?',
     answer:
-      'Po pełnej konsultacji otrzymujesz plan poprawy i 7 dni kontaktu tekstowego. Po Kwadransie dostajesz przede wszystkim priorytet i najbliższy sensowny krok.',
+      'Po pełnej konsultacji otrzymujesz plan działania i 7 dni wsparcia przez WhatsApp przy wdrażaniu zaleceń. Po Kwadransie dostajesz przede wszystkim priorytet i najbliższy sensowny krok.',
   },
   {
     id: 'nie-zachowanie',
@@ -132,7 +132,7 @@ export const referenceFaqItems: ReferenceFaqItem[] = [
     category: 'konsultacje',
     question: 'Czy zakres diagnozy behawioralnej zależy od długości rozmowy?',
     answer:
-      'Tak. W Kwadransie dostajesz wstępną diagnozę behawioralną opartą na informacjach przekazanych przez opiekuna i pierwszy kierunek działania. Przy sprawach złożonych pełniejsza diagnoza behawioralna wymaga dłuższej rozmowy, formularza, historii zachowania i czasem nagrań.',
+      'Tak. W Kwadransie dostajesz pierwszy kierunek działania na podstawie informacji od opiekuna. Przy sprawach złożonych pełniejsza diagnoza wymaga około 2h online, formularza, historii zachowania i czasem nagrań.',
   },
   {
     id: 'pies-reaktywny-na-spacerze',

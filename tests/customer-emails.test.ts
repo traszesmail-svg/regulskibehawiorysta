@@ -129,8 +129,8 @@ test('customer emails cover reservation, review, confirmation and cancel outcome
         const bookingDate = '2030-01-15'
 
         await createAvailabilitySlot(bookingDate, '10:00')
-        await createAvailabilitySlot(bookingDate, '10:20')
-        await createAvailabilitySlot(bookingDate, '10:40')
+        await createAvailabilitySlot(bookingDate, '10:30')
+        await createAvailabilitySlot(bookingDate, '11:00')
 
         const bookingA = await createPendingBooking(makeBookingForm(`${bookingDate}-10:00`))
         assert.equal(sentEmails.length, 2)
@@ -179,7 +179,7 @@ test('customer emails cover reservation, review, confirmation and cancel outcome
         assert.match(sentEmails[4].text ?? '', /Konsultacja opłacona i potwierdzona\./)
         assert.equal(Array.isArray(sentEmails[4].attachments), true)
 
-        const bookingB = await createPendingBooking(makeBookingForm(`${bookingDate}-10:20`))
+        const bookingB = await createPendingBooking(makeBookingForm(`${bookingDate}-10:30`))
         assert.equal(sentEmails.length, 7)
         assert.equal(includesNormalized(sentEmails[5].subject, 'Regulski Behawiorysta'), true)
         assert.equal(sentEmails[6].to?.[0], 'kontakt@regulskibehawiorysta.pl')
@@ -195,7 +195,7 @@ test('customer emails cover reservation, review, confirmation and cancel outcome
         assert.equal(rejectedRepeat?.paymentStatus, 'rejected')
         assert.equal(sentEmails.length, 8)
 
-        const bookingC = await createPendingBooking(makeBookingForm(`${bookingDate}-10:40`))
+        const bookingC = await createPendingBooking(makeBookingForm(`${bookingDate}-11:00`))
         assert.equal(sentEmails.length, 10)
         assert.equal(includesNormalized(sentEmails[8].subject, 'Regulski Behawiorysta'), true)
         assert.equal(sentEmails[9].to?.[0], 'kontakt@regulskibehawiorysta.pl')

@@ -14,13 +14,11 @@ import {
   Moon,
   PawPrint,
   RefreshCw,
-  ShieldCheck,
   Toilet,
   type LucideIcon,
 } from 'lucide-react'
 import { NotatnikFooter, NotatnikTopbar, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
 import { Schema } from '@/components/schema'
-import { buildBookHref, type BookingSpecies } from '@/lib/booking-routing'
 import { getBreadcrumbJsonLd } from '@/lib/schema'
 import { buildMarketingMetadata } from '@/lib/seo'
 import type { ProblemType } from '@/lib/types'
@@ -53,7 +51,6 @@ type AnimalCopy = {
   noteCopy: string
   heroImage: string
   heroAlt: string
-  species: BookingSpecies
 }
 
 const animalCopy: Record<Animal, AnimalCopy> = {
@@ -63,19 +60,17 @@ const animalCopy: Record<Animal, AnimalCopy> = {
     lead: 'Wybierz obszar, który najlepiej opisuje sytuację, z którą się zmagasz.',
     noteTitle: 'Nie wiesz, co wybrać?',
     noteCopy: 'Wybierz najbliższy temat. W formularzu możesz dopisać szczegóły własnymi słowami.',
-    heroImage: '/wybor/dog-reference-hero.png',
+    heroImage: '/wybor/dog-choice-avatar.png',
     heroAlt: 'Spokojny pies',
-    species: 'pies',
   },
   cat: {
     eyebrow: 'Mam kota',
     title: 'Skupmy się na Twoim kocie',
-    lead: 'Wybierz obszar, który najlepiej opisuje sytuację. Nie musisz mieć pewności - na końcu doprecyzujemy temat.',
+    lead: 'Wybierz obszar, który najlepiej opisuje sytuację, z którą się zmagasz.',
     noteTitle: 'Nie wiesz, co wybrać?',
     noteCopy: 'Wybierz najbliższy temat. W formularzu możesz dopisać szczegóły własnymi słowami.',
-    heroImage: '/wybor/cat-hero-photo.png',
+    heroImage: '/wybor/cat-choice-avatar.png',
     heroAlt: 'Spokojny kot',
-    species: 'kot',
   },
 }
 
@@ -86,7 +81,7 @@ const dogChoices: Choice[] = [
     desc: 'Niszczenie, szczekanie, problemy z zostawaniem samemu.',
     icon: Home,
     problem: 'pobudzenie',
-    image: '/wybor/dog-reference-home.png',
+    image: '/wybor/dog-choice-home.png',
     imageAlt: 'Pies w domu',
   },
   {
@@ -95,7 +90,7 @@ const dogChoices: Choice[] = [
     desc: 'Reakcje na inne psy/ludzi, ciągnięcie na smyczy, nadmierne pobudzenie.',
     icon: Footprints,
     problem: 'spacer',
-    image: '/wybor/dog-reference-walk.png',
+    image: '/wybor/dog-choice-walk.png',
     imageAlt: 'Pies na spacerze',
   },
   {
@@ -104,7 +99,7 @@ const dogChoices: Choice[] = [
     desc: 'Lęk separacyjny, strach przed burzą, fajerwerkami, nowymi sytuacjami.',
     icon: CloudLightning,
     problem: 'separacja',
-    image: '/wybor/dog-reference-stress.png',
+    image: '/wybor/dog-choice-stress.png',
     imageAlt: 'Pies odpoczywający w domu',
   },
   {
@@ -113,7 +108,7 @@ const dogChoices: Choice[] = [
     desc: 'Konflikty między psami, napięcie w relacjach, agresja.',
     icon: Cat,
     problem: 'agresja',
-    image: '/wybor/dog-reference-relacje.png',
+    image: '/wybor/dog-choice-relations.png',
     imageAlt: 'Pies i inne zwierzęta',
   },
   {
@@ -122,7 +117,7 @@ const dogChoices: Choice[] = [
     desc: 'Problemy z nauką, nadmierne pobudzenie, gryzienie, potrzeby szczeniaka.',
     icon: Baby,
     problem: 'szczeniak',
-    image: '/wybor/dog-reference-puppy.png',
+    image: '/wybor/dog-choice-puppy.png',
     imageAlt: 'Szczeniak',
   },
   {
@@ -131,17 +126,19 @@ const dogChoices: Choice[] = [
     desc: 'Nie musisz znać nazwy. Opiszesz sytuację w formularzu.',
     icon: MessageCircle,
     problem: 'inne',
+    image: '/wybor/dog-choice-other.png',
+    imageAlt: 'Notatka do opisania problemu',
   },
 ]
 
 const catChoices: Choice[] = [
   {
     id: 'kuweta',
-    title: 'Kuweta i znaczenie',
+    title: 'Kuweta i załatwianie poza kuwetą',
     desc: 'Załatwianie poza kuwetą, znaczenie miejsc albo nagła zmiana nawyków.',
     icon: Toilet,
     problem: 'kot-kuweta',
-    image: '/wybor/cat-hero-photo.png',
+    image: '/wybor/cat-choice-litter.png',
     imageAlt: 'Kot w domu',
   },
   {
@@ -150,7 +147,7 @@ const catChoices: Choice[] = [
     desc: 'Przeprowadzka, remont, nowy domownik albo napięcie w codzienności.',
     icon: RefreshCw,
     problem: 'kot-zmiany-w-domu',
-    image: '/wybor/cat-cta-photo.png',
+    image: '/wybor/cat-choice-change.png',
     imageAlt: 'Kot odpoczywający',
   },
   {
@@ -159,7 +156,7 @@ const catChoices: Choice[] = [
     desc: 'Syczenie, pościgi, blokowanie zasobów albo unikanie kontaktu.',
     icon: Cat,
     problem: 'kot-konflikt',
-    image: '/wybor/cat-hero-wide.png',
+    image: '/wybor/cat-choice-conflict.png',
     imageAlt: 'Kot w jasnym wnętrzu',
   },
   {
@@ -168,24 +165,26 @@ const catChoices: Choice[] = [
     desc: 'Chowanie się, ataki, gryzienie albo trudność z dotykiem.',
     icon: CloudLightning,
     problem: 'kot-stres',
-    image: '/wybor/cat-hero-photo.png',
+    image: '/wybor/cat-choice-fear.png',
     imageAlt: 'Spokojny kot',
   },
   {
     id: 'noc-aktywnosc',
-    title: 'Nocna aktywność',
+    title: 'Nocna aktywność i pobudzenie',
     desc: 'Miauczenie, bieganie nocą, pobudzenie albo domaganie się uwagi.',
     icon: Moon,
     problem: 'kot-wokalizacja',
-    image: '/wybor/cat-cta-photo.png',
+    image: '/wybor/cat-choice-night.png',
     imageAlt: 'Kot w legowisku',
   },
   {
     id: 'inne',
-    title: 'Inny problem',
+    title: 'Inny problem z kotem',
     desc: 'Nie musisz znać nazwy. Opiszesz sytuację w formularzu.',
     icon: MessageCircle,
     problem: 'inne',
+    image: '/wybor/cat-choice-other.png',
+    imageAlt: 'Notatka do opisania problemu z kotem',
   },
 ]
 
@@ -195,15 +194,19 @@ function getAnimal(searchParams?: { animal?: string | string[] }): Animal {
   return raw === 'cat' || raw === 'kot' ? 'cat' : 'dog'
 }
 
-function buildChoiceHref(choice: Choice, species: BookingSpecies) {
-  return buildBookHref(choice.problem, null, false, species)
+function buildChoiceHref(choice: Choice, animal: Animal) {
+  return `/format-konsultacji?animal=${animal}&problem=${choice.problem}`
 }
 
-export default function ChoicePage({ searchParams }: { searchParams?: { animal?: string | string[] } }) {
+export default function ChoicePage({
+  searchParams,
+}: {
+  searchParams?: { animal?: string | string[] }
+}) {
   const animal = getAnimal(searchParams)
   const copy = animalCopy[animal]
   const choices = animal === 'cat' ? catChoices : dogChoices
-  const fallbackHref = buildBookHref('inne', null, false, copy.species)
+  const fallbackHref = buildChoiceHref(choices[choices.length - 1], animal)
 
   return (
     <main className={`notatnik-page homepage-shell ${styles.page} ${animal === 'cat' ? styles.catPage : styles.dogPage}`}>
@@ -218,14 +221,14 @@ export default function ChoicePage({ searchParams }: { searchParams?: { animal?:
         <NotatnikTopbar tag="Regulski" navItems={PUBLIC_SITE_NAV_ITEMS} showUtilityLinks={false} />
 
         <div className={styles.content}>
-          <Link className={styles.backLink} href="/quiz" prefetch={false}>
+          <Link className={styles.backLink} href="/" prefetch={false}>
             <ArrowLeft size={17} strokeWidth={2} aria-hidden="true" />
-            <span>Wróć do quizu</span>
+            <span>Wróć</span>
           </Link>
 
           <section className={styles.intro} aria-labelledby="wybor-title">
             <div className={styles.progressGroup} aria-label="Wybór tematu">
-              <span>Krok 2 z 10</span>
+              <span>Krok 1 z 2</span>
               <span className={styles.progressTrack}>
                 <span className={styles.progressFill} />
               </span>
@@ -260,18 +263,18 @@ export default function ChoicePage({ searchParams }: { searchParams?: { animal?:
             <div className={styles.choiceGrid}>
               {choices.map((choice) => {
                 const Icon = choice.icon
-                const href = buildChoiceHref(choice, copy.species)
+                const href = buildChoiceHref(choice, animal)
 
                 return (
                   <Link
                     key={choice.id}
                     className={`${styles.choiceCard} ${choice.image ? styles.photoCard : styles.textOnlyCard}`}
+                    data-choice={choice.id}
                     href={href}
                     prefetch={false}
                   >
                     {choice.image ? (
                       <span className={styles.choicePhoto} aria-hidden="true">
-                        {choice.id === 'dom' ? <span className={styles.choiceBadge}>Najczęściej wybierane</span> : null}
                         <Image src={choice.image} alt={choice.imageAlt ?? ''} fill sizes="(max-width: 520px) 100vw, 220px" />
                       </span>
                     ) : null}
@@ -294,28 +297,6 @@ export default function ChoicePage({ searchParams }: { searchParams?: { animal?:
               <span>Dalej</span>
               <ArrowRight size={22} strokeWidth={2} aria-hidden="true" />
             </Link>
-          </section>
-
-          <section className={styles.safeBox} aria-label="Informacja o kolejnym kroku">
-            <span className={styles.safeIcon} aria-hidden="true">
-              <ShieldCheck size={26} strokeWidth={1.8} />
-            </span>
-            <div>
-              <strong>
-                {animal === 'cat'
-                  ? 'Dobrze, że zaczęliśmy od uporządkowania sytuacji, a nie od zgadywania.'
-                  : 'Dobrze, że tu trafiłam. Już po pierwszej rozmowie wiedziałam, że jestem w dobrych rękach.'}
-              </strong>
-              <p>{animal === 'cat' ? '— Kasia i Luna' : '— Kasia i Bruno'}</p>
-            </div>
-            <Image
-              src={animal === 'cat' ? '/wybor/cat-hero-photo.png' : '/wybor/dog-reference-avatar.png'}
-              alt=""
-              width={74}
-              height={74}
-              className={styles.safeAvatar}
-              aria-hidden="true"
-            />
           </section>
         </div>
 

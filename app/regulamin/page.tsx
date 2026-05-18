@@ -15,7 +15,7 @@ export const metadata: Metadata = buildLegalMetadata(
 const summaryItems: LegalSummaryItem[] = [
   {
     label: 'Usługi objęte dokumentem',
-    value: '15-minutowa konsultacja behawioralna, Dwa kwadranse oraz podstawowe zasady korzystania z serwisu.',
+    value: 'Kwadrans, Kwadrans na już, Dwa kwadranse oraz podstawowe zasady korzystania z serwisu.',
   },
   {
     label: 'Model płatności',
@@ -48,8 +48,9 @@ const sections: LegalSection[] = [
     body: (
       <>
         <ul className="premium-bullet-list">
-          <li>15-minutowa konsultacja behawioralna jest krótką konsultacją zdalną prowadzoną w formie audio.</li>
-          <li>Dwa kwadranse są rozszerzonym formatem audio dla tematów szerszych niż sam Kwadrans.</li>
+          <li>Kwadrans to 15 min audio bez kamery na jedno główne pytanie.</li>
+          <li>Kwadrans na już ma ten sam zakres co Kwadrans, ale z najbliższym możliwym terminem.</li>
+          <li>Dwa kwadranse to 30 min online dla tematów szerszych niż sam Kwadrans.</li>
           <li>Pełna konsultacja ma osobny regulamin i osobną stronę warunków.</li>
         </ul>
         <p>

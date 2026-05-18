@@ -5,10 +5,8 @@ import {
   ArrowRight,
   Baby,
   Brain,
-  CalendarDays,
   Cat,
   ChevronRight,
-  Clock3,
   Dog,
   Heart,
   Home,
@@ -221,7 +219,6 @@ export default function BlogPage({ searchParams }: { searchParams?: BlogSearchPa
   const query = ''
   const orderedPosts = orderBlogPosts(posts)
   const filteredPosts = filterBlogPosts(orderedPosts, activeCategory, query)
-  const featuredPost = filteredPosts[0] ?? orderedPosts[0]
   const totalPages = Math.max(1, Math.ceil(filteredPosts.length / BLOG_PAGE_SIZE))
   const currentPage = Math.min(parsePageParam(searchParams?.page), totalPages)
   const pageStart = (currentPage - 1) * BLOG_PAGE_SIZE
@@ -285,32 +282,6 @@ export default function BlogPage({ searchParams }: { searchParams?: BlogSearchPa
               )
             })}
           </nav>
-
-          {featuredPost ? (
-            <section className="blog-redesign-featured-card" aria-label="Polecany artykuł">
-              <Link href={featuredPost.path} prefetch={false} className="blog-redesign-featured-image" aria-label={repairCopy(featuredPost.title)}>
-                <Image src={getRedesignImage(featuredPost)} alt={featuredPost.cover.alt} fill sizes="(max-width: 760px) 42vw, 240px" />
-              </Link>
-              <div className="blog-redesign-featured-copy">
-                <span>Polecany artykuł</span>
-                <h2>
-                  <Link href={featuredPost.path} prefetch={false}>
-                    {repairCopy(featuredPost.title)}
-                  </Link>
-                </h2>
-                <p>{repairCopy(featuredPost.excerpt)}</p>
-                <div className="blog-redesign-card-meta">
-                  <Clock3 size={14} strokeWidth={1.8} aria-hidden="true" />
-                  <span>{featuredPost.readingTimeMinutes} min czytania</span>
-                  <CalendarDays size={14} strokeWidth={1.8} aria-hidden="true" />
-                  <time dateTime={featuredPost.publishedAt}>{repairCopy(featuredPost.publishedAtLabel)}</time>
-                </div>
-              </div>
-              <Link href={featuredPost.path} prefetch={false} className="blog-redesign-round-link" aria-label={`Czytaj artykuł: ${repairCopy(featuredPost.title)}`}>
-                <ArrowRight size={19} strokeWidth={2} aria-hidden="true" />
-              </Link>
-            </section>
-          ) : null}
 
           <section id="artykuly" className="blog-redesign-section-block" aria-label="Artykuły blogowe">
             <div className="blog-redesign-section-heading">
@@ -421,24 +392,21 @@ export default function BlogPage({ searchParams }: { searchParams?: BlogSearchPa
             </div>
           </section>
 
-          <section className="blog-redesign-help-card">
-            <div>
+          <section className="blog-redesign-help-card site-help-cta">
+            <div className="site-help-cta-copy">
               <h2>Potrzebujesz pomocy w rozwiązaniu problemu?</h2>
               <p>Skonsultuj się ze mną. Wspólnie znajdziemy najlepsze rozwiązanie dla Ciebie i Twojego zwierzęcia.</p>
-              <Link href="/wybor" prefetch={false} className="blog-redesign-help-link">
-                Umów konsultację
-                <ArrowRight size={17} strokeWidth={1.9} aria-hidden="true" />
-              </Link>
+              <div className="site-help-cta-actions">
+                <Link href="/wybor" prefetch={false} className="blog-redesign-help-link">
+                  Umów konsultację
+                  <ArrowRight size={17} strokeWidth={1.9} aria-hidden="true" />
+                </Link>
+              </div>
             </div>
-            <div className="blog-redesign-help-image" aria-hidden="true">
-              <Image src="/blog-covers/blog-jak-wyglada-konsultacja-behawioralna-online-photo.webp" alt="" fill sizes="150px" />
+            <div className="blog-redesign-help-image site-help-cta-image" aria-hidden="true">
+              <Image src="/faq/faq-help-illustration-clean.png" alt="" width={355} height={208} sizes="(max-width: 760px) 58vw, 210px" />
             </div>
           </section>
-
-          <p className="blog-redesign-footnote">
-            <Heart size={13} strokeWidth={2} aria-hidden="true" />
-            Tworzę relacje oparte na zrozumieniu, szacunku i empatii.
-          </p>
         </div>
 
         <NotatnikFooter showReviews={false} />

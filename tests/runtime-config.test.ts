@@ -301,8 +301,8 @@ test('booking form intro follows the selected service instead of a generic booki
 
   assert.match(bookingFormSource, /function getSelectedServiceIntro/)
   assert.match(bookingFormSource, /Wybrana rozmowa: \$\{option\.label\} \/ \$\{option\.price\}\./)
-  assert.match(bookingFormSource, /30 minut online daje więcej miejsca na dwa-trzy wątki/)
-  assert.match(bookingFormSource, /To osobny format z diagnoz[^\s]+ behawioraln[^\s]+ opart[^\s]+ na danych, planem działania i 7 dniami konsultacji tekstowych przez WhatsApp\./)
+  assert.match(bookingFormSource, /30 min online, gdy temat ma kilka wątków/)
+  assert.match(bookingFormSource, /Około 2h online dla spraw złożonych: diagnoza, prawdopodobna przyczyna problemu, plan działania i 7 dni wsparcia przez WhatsApp/)
   assert.doesNotMatch(bookingFormSource, /PUBLIC_OFFER_BOOKING_LEAD/)
   assert.doesNotMatch(bookingFormSource, /PUBLIC_OFFER_BOOKING_REASSURANCE/)
 })

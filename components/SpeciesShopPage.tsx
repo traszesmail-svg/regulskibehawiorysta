@@ -221,32 +221,30 @@ export function SpeciesShopPage({
           </div>
         </section>
 
-        <section className="panel section-panel shop-consult-panel leafy-section top-gap" id={`${species}-konsultacja`}>
-          <div className="shop-consult-grid">
-            <div>
-              <div className="section-eyebrow">Konsultacja 15 min</div>
-              <h2>Jeśli temat wraca, jest złożony albo trwa długo, przejdź do szerszej konsultacji.</h2>
-              <p className="hero-text">
-                15 min porządkuje pierwszy kierunek. Gdy problemów jest kilka, temat wraca mimo prób albo potrzeba szerszego planu, lepszy
-                będzie 30 min / pełna konsultacja.
-              </p>
+        <section className="panel section-panel shop-consult-panel site-help-cta top-gap" id={`${species}-konsultacja`}>
+          <div className="site-help-cta-copy shop-consult-copy">
+            <div className="section-eyebrow">Konsultacja 15 min</div>
+            <h2>Jeśli temat wraca, jest złożony albo trwa długo, przejdź do szerszej konsultacji.</h2>
+            <p className="hero-text">
+              15 min porządkuje pierwszy kierunek. Gdy problemów jest kilka, temat wraca mimo prób albo potrzeba szerszego planu, lepszy
+              będzie 30 min / pełna konsultacja.
+            </p>
+            <strong className="site-help-cta-note">Najpierw konsultacja 15 min, potem PDF, a przy większej złożoności 30 min / pełna.</strong>
+            <span className="site-help-cta-support">Wybierz 15 min, jeśli chcesz szybko sprawdzić kierunek. PDF jest materiałem wspierającym, a dłuższy format pojawia się przy większej złożoności.</span>
+            <div className="hero-actions site-help-cta-actions top-gap">
+              <Link href={consultHref} prefetch={false} className="button button-primary">
+                Umów 15 min
+              </Link>
+              <Link href={`#${species}-pdf`} prefetch={false} className="button button-ghost">
+                Zobacz materiały PDF
+              </Link>
             </div>
-
-            <div className="shop-consult-actions tree-backed-card">
-              <strong>Najpierw konsultacja 15 min, potem PDF, a przy większej złożoności 30 min / pełna.</strong>
-              <span>Wybierz 15 min, jeśli chcesz szybko sprawdzić kierunek. PDF jest materiałem wspierającym, a dłuższy format pojawia się przy większej złożoności.</span>
-              <div className="hero-actions top-gap">
-                <Link href={consultHref} prefetch={false} className="button button-primary">
-                  Umów 15 min
-                </Link>
-                <Link href={`#${species}-pdf`} prefetch={false} className="button button-ghost">
-                  Zobacz materiały PDF
-                </Link>
-              </div>
-              <p className="muted top-gap-small">
-                Upgrade: <Link href={FUNNEL_UPGRADE_HREF} prefetch={false} className="inline-link">{FUNNEL_UPGRADE_LABEL}</Link>
-              </p>
-            </div>
+            <p className="muted top-gap-small">
+              Upgrade: <Link href={FUNNEL_UPGRADE_HREF} prefetch={false} className="inline-link">{FUNNEL_UPGRADE_LABEL}</Link>
+            </p>
+          </div>
+          <div className="site-help-cta-image" aria-hidden="true">
+            <Image src="/faq/faq-help-illustration-clean.png" alt="" width={355} height={208} sizes="(max-width: 760px) 58vw, 210px" />
           </div>
         </section>
 

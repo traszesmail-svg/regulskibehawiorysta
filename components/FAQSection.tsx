@@ -24,7 +24,7 @@ const defaultFAQs: FAQ[] = [
   {
     icon: 'clipboard-list',
     question: 'Co obejmuje Pełna konsultacja 470 zł?',
-    answer: 'Rozmowę online, diagnozę behawioralną opartą na danych, plan działania i 7 dni konsultacji WhatsApp.',
+    answer: 'Około 2h online, diagnozę, prawdopodobną przyczynę problemu, plan działania i 7 dni wsparcia przez WhatsApp.',
   },
   {
     icon: 'lightbulb',

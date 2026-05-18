@@ -48,12 +48,12 @@ export default function HomePage() {
         'Konsultacje behawioralne online dla opiekunów psów i kotów. W każdej usłudze punktem wyjścia jest diagnoza behawioralna oparta na informacjach przekazanych przez opiekuna.',
       serviceUrl: serviceLandingHref,
       offerCatalog: [
-        { name: 'Kwadrans', description: '15 min audio bez kamery, gdy potrzebujesz pierwszego kierunku.', url: '/book?service=szybka-konsultacja-15-min', price: 69 },
-        { name: 'Kwadrans na już', description: 'Ten sam zakres co Kwadrans, ale z priorytetem terminu.', url: '/kwadrans-na-juz', price: 99 },
-        { name: 'Dwa kwadranse', description: '30 min online na spokojniejsze uporządkowanie kilku wątków.', url: '/book?service=konsultacja-30-min', price: 169 },
+        { name: 'Kwadrans', description: '15 min audio bez kamery na jedno główne pytanie. Szybko porządkujesz sytuację i dostajesz pierwszy kierunek działania.', url: '/book?service=szybka-konsultacja-15-min', price: 69 },
+        { name: 'Kwadrans na już', description: 'Ten sam zakres co Kwadrans, ale z najbliższym możliwym terminem. Dla spraw pilnych, które nie wymagają dłuższej analizy.', url: '/kwadrans-na-juz', price: 99 },
+        { name: 'Dwa kwadranse', description: '30 min online, gdy temat ma kilka wątków. Więcej czasu na kontekst, spokojniejsze zalecenia i decyzję, czy potrzebna jest pełna konsultacja.', url: '/book?service=konsultacja-30-min', price: 169 },
         {
           name: 'Pełna konsultacja',
-          description: 'Rozmowa online, diagnoza behawioralna oparta na danych od opiekuna, plan działania i 7 dni konsultacji tekstowych przez WhatsApp.',
+          description: 'Około 2h online dla spraw złożonych: diagnoza, prawdopodobna przyczyna problemu, plan działania i 7 dni wsparcia przez WhatsApp.',
           url: '/book?service=konsultacja-behawioralna-online',
           price: 470,
         },

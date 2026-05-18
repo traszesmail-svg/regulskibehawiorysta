@@ -25,10 +25,10 @@ export const pricingCards: Array<{
     title: 'Kwadrans - gdy potrzebujesz pierwszego kierunku',
     summaryTitle: 'Kwadrans  gdy potrzebujesz pierwszego kierunku',
     price: '69 zł',
-    copy: '15 minut rozmowy audio bez kamery. Dobre, gdy masz jedno główne pytanie i chcesz wiedzieć, co zrobić najpierw - a czego na razie nie ruszać.',
+    copy: '15 min audio bez kamery na jedno główne pytanie. Szybko porządkujesz sytuację i dostajesz pierwszy kierunek działania.',
     supportCopy:
       'Dostajesz wstępną diagnozę behawioralną na podstawie przekazanych informacji: co może być głównym mechanizmem zachowania, co warto sprawdzić i czego nie robić na ślepo.',
-    features: ['jedno główne pytanie albo pierwszy porządek', 'audio bez kamery', 'wstępna diagnoza behawioralna', 'dobry start przed większą decyzją'],
+    features: ['jedno główne pytanie', 'audio bez kamery', 'pierwszy kierunek działania', 'decyzja, czy potrzebny jest szerszy format'],
     cta: 'Chcę zacząć od Kwadransa',
     featured: true,
   },
@@ -38,10 +38,10 @@ export const pricingCards: Array<{
     title: 'Kwadrans priorytetowy - gdy nie chcesz czekać',
     summaryTitle: 'Kwadrans priorytetowy  gdy nie chcesz czekać',
     price: '99 zł',
-    copy: 'Ten sam 15-minutowy format, tylko z szybszym potraktowaniem wiadomości i terminu. Dla sytuacji, w których potrzebujesz kierunku możliwie szybko.',
+    copy: 'Ten sam zakres co Kwadrans, ale z najbliższym możliwym terminem. Dla spraw pilnych, które nie wymagają dłuższej analizy.',
     supportCopy:
-      'Na podstawie opisu i odpowiedzi dostajesz wstępną diagnozę sytuacji oraz pierwszy kierunek działania.',
-    features: ['ten sam zakres co Kwadrans', 'szybsze potwierdzenie', 'wstępna diagnoza sytuacji', 'dla tematów pilnych, ale krótkich'],
+      'Nie kupujesz dłuższej analizy, tylko priorytet terminu. Zakres rozmowy zostaje taki sam jak w zwykłym Kwadransie.',
+    features: ['ten sam zakres co Kwadrans', 'najbliższy możliwy termin', 'pierwszy kierunek działania', 'dla tematów pilnych, ale krótkich'],
     cta: 'Chcę szybszy termin',
   },
   {
@@ -50,22 +50,22 @@ export const pricingCards: Array<{
     title: 'Dwa kwadranse - gdy z jednego pytania robi się kilka',
     summaryTitle: 'Dwa kwadranse  gdy z jednego pytania robi się kilka',
     price: '169 zł',
-    copy: '30 minut rozmowy, gdy czujesz, że to nie jest jedna rzecz: zachowanie, emocje, dom, spacer albo relacje zaczynają się mieszać.',
+    copy: '30 min online, gdy temat ma kilka wątków. Więcej czasu na kontekst, spokojniejsze zalecenia i decyzję, czy potrzebna jest pełna konsultacja.',
     supportCopy:
       'Wspólnie układamy fakty, szukamy najbardziej prawdopodobnej przyczyny zachowania i tworzę diagnozę behawioralną opartą na Twoim opisie, formularzu i kontekście domu, spacerów albo relacji między zwierzętami.',
-    features: ['więcej kontekstu niż w Kwadransie', 'dobre przy kilku pytaniach naraz', 'diagnoza behawioralna oparta na danych', 'dobry most przed pełną konsultacją'],
+    features: ['więcej czasu na kontekst', 'spokojniejsze zalecenia', 'dwa-trzy wątki naraz', 'bez 7-dniowego wsparcia WhatsApp'],
     cta: 'Chcę spokojniej omówić temat',
   },
   {
     service: 'konsultacja-behawioralna-online',
-    badge: 'pełny zakres',
-    title: 'Pełna konsultacja - gdy potrzebny jest plan, nie tylko podpowiedź',
+    badge: 'ok. 2h online',
+    title: 'Pełna konsultacja - gdy potrzebny jest plan i wsparcie wdrożenia',
     summaryTitle: 'Pełna konsultacja  gdy potrzebny jest plan, nie tylko podpowiedź',
     price: '470 zł',
-    copy: 'Pełna rozmowa online, diagnoza behawioralna oparta na danych, plan działania i 7 dni wsparcia tekstowego.',
+    copy: 'Około 2h online dla spraw złożonych: diagnoza, prawdopodobna przyczyna problemu, plan działania i 7 dni wsparcia przez WhatsApp przy wdrażaniu zaleceń.',
     supportCopy:
       'To najlepszy wybór, gdy zachowanie trwa długo, ma kilka warstw albo wpływa na życie całego domu. Diagnoza powstaje na podstawie formularza, rozmowy, historii zachowania, kontekstu zdrowia, diety, środowiska, nagrań i danych, które przekażesz przed konsultacją.',
-    features: ['sprawy złożone albo trwające długo', 'pełniejsza diagnoza behawioralna', 'plan pracy po konsultacji', '7 dni kontaktu tekstowego'],
+    features: ['sprawy złożone albo trwające długo', 'prawdopodobna przyczyna problemu', 'plan działania', '7 dni wsparcia przez WhatsApp'],
     cta: 'Chcę pełną konsultację',
   },
 ]
@@ -88,7 +88,7 @@ export const pricingFaqItems = [
   {
     question: 'Kiedy od razu pełna konsultacja?',
     answer:
-      'Gdy zachowanie trwa długo, wraca mimo prób, wpływa na życie domowników albo dotyczy kilku obszarów naraz. Pełna konsultacja ma sens wtedy, gdy potrzebujesz nie tylko odpowiedzi, ale diagnozy behawioralnej, planu i możliwości dopytania po rozmowie.',
+      'Gdy zachowanie trwa długo, wraca mimo prób, wpływa na życie domowników albo dotyczy kilku obszarów naraz. Pełna konsultacja trwa około 2h online i ma sens wtedy, gdy potrzebujesz diagnozy, planu oraz 7 dni wsparcia przez WhatsApp przy wdrażaniu zaleceń.',
   },
   {
     question: 'Czy diagnoza behawioralna zastępuje wizytę u lekarza weterynarii?',

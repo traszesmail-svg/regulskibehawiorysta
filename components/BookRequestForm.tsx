@@ -87,23 +87,23 @@ function getSelectedServiceIntro(service: BookingServiceType) {
     case 'konsultacja-30-min':
       return {
         title: `Wybrana rozmowa: ${option.label} / ${option.price}.`,
-        copy: '30 minut online daje więcej miejsca na dwa-trzy wątki i spokojniejsze uporządkowanie sytuacji niż sam Kwadrans.',
+        copy: '30 min online, gdy temat ma kilka wątków. Masz więcej czasu na kontekst, spokojniejsze zalecenia i decyzję, czy potrzebna jest pełna konsultacja.',
       }
     case 'konsultacja-behawioralna-online':
       return {
         title: `Wybrana rozmowa: ${option.label} / ${option.price}.`,
-        copy: 'To osobny format z diagnozą behawioralną opartą na danych, planem działania i 7 dniami konsultacji tekstowych przez WhatsApp.',
+        copy: 'Około 2h online dla spraw złożonych: diagnoza, prawdopodobna przyczyna problemu, plan działania i 7 dni wsparcia przez WhatsApp przy wdrażaniu zaleceń.',
       }
     case 'kwadrans-na-juz':
       return {
         title: `Wybrana rozmowa: ${option.label} / ${option.price}.`,
-        copy: 'To ten sam 15-minutowy format co zwykły Kwadrans, tylko z priorytetem i szybszym potwierdzeniem terminu.',
+        copy: 'To ten sam zakres co Kwadrans, ale z najbliższym możliwym terminem. Dla spraw pilnych, które nie wymagają dłuższej analizy.',
       }
     case 'szybka-konsultacja-15-min':
     default:
       return {
         title: `Wybrana rozmowa: ${option.label} / ${option.price}.`,
-        copy: 'Kwadrans to 15 minut audio bez kamery. Dobry pierwszy krok, gdy chcesz spokojnie nazwać sytuację i ustalić priorytet.',
+        copy: 'Kwadrans to 15 min audio bez kamery na jedno główne pytanie. Szybko porządkujesz sytuację i dostajesz pierwszy kierunek działania.',
       }
   }
 }

@@ -273,13 +273,7 @@ export function ReferenceFaq({ contactHref }: ReferenceFaqProps) {
             </Link>
           </div>
         </div>
-        <Image
-          src="/faq/faq-help-illustration-clean.png"
-          alt=""
-          width={355}
-          height={208}
-          className="reference-faq-help-image"
-        />
+        <span className="reference-faq-help-sprite" aria-hidden="true" />
       </section>
     </>
   )

@@ -143,7 +143,7 @@ export const QUIZ_SERVICE_LABELS: Record<QuizServiceKey, { label: string; price:
   'pelna-konsultacja': {
     label: 'Pełna konsultacja',
     price: '470 zł',
-    duration: 'pełny zakres online',
+    duration: 'ok. 2h online',
   },
 }
 

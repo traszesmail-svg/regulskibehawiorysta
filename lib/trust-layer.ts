@@ -138,7 +138,7 @@ export const FAQ_SHORTLISTS = {
     {
       question: 'Czym jest 15-minutowa konsultacja behawioralna?',
       answer:
-        'To samodzielny format: 15 minut rozmowy audio bez kamery. Dostajesz priorytet i pierwszy kierunek działania.',
+        'To samodzielny format: 15 min audio bez kamery na jedno główne pytanie. Szybko porządkujesz sytuację i dostajesz pierwszy kierunek działania.',
     },
     {
       question: 'Czy Kwadrans to próbna konsultacja?',
@@ -148,12 +148,12 @@ export const FAQ_SHORTLISTS = {
     {
       question: 'Kiedy wybrać pełną konsultację zamiast Kwadransu?',
       answer:
-        'Gdy problem trwa dłużej, ma kilka wątków albo od razu wiesz, że potrzebujesz pełniejszej analizy i planu.',
+        'Gdy problem trwa dłużej, ma kilka wątków albo od razu wiesz, że potrzebujesz około 2h online, diagnozy, planu i 7 dni wsparcia przez WhatsApp.',
     },
     {
       question: 'Co dostaję po pełnej konsultacji?',
       answer:
-        'Pełniejszy obraz sytuacji, plan pierwszych kroków, wiedzę czego nie robić i podsumowanie pisemne wysyłane e-mailem.',
+        'Diagnozę, prawdopodobną przyczynę problemu, plan działania i 7 dni wsparcia przez WhatsApp przy wdrażaniu zaleceń.',
     },
     {
       question: 'Czy mogę od razu wejść w pełną konsultację?',
@@ -310,7 +310,7 @@ export const TRUST_SIGNAL_SETS = {
   pricing: [
     {
       title: 'Dwa formaty, nie lepszy i gorszy',
-      copy: '15-minutowa konsultacja behawioralna i pełna konsultacja rozwiązują różne potrzeby. Wybór zależy od złożoności tematu.',
+      copy: 'Kwadrans, Dwa kwadranse i Pełna konsultacja rozwiązują różne potrzeby. Wybór zależy od złożoności tematu.',
     },
     {
       title: 'Bez kamery, jeśli nie chcesz',
@@ -332,7 +332,7 @@ export const TRUST_SIGNAL_SETS = {
     },
     {
       title: 'Podsumowanie po pełnej konsultacji',
-      copy: 'Po pełnej konsultacji dostajesz plan i podsumowanie pisemne, żeby nie opierać wszystkiego na pamięci z rozmowy.',
+      copy: 'Po pełnej konsultacji dostajesz plan działania i 7 dni wsparcia przez WhatsApp przy wdrażaniu zaleceń.',
     },
   ] satisfies TrustSignalItem[],
   toolkit: [

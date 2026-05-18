@@ -4,7 +4,6 @@ import Link from 'next/link'
 import {
   Award,
   BookOpen,
-  CalendarDays,
   ChevronRight,
   ExternalLink,
   Heart,
@@ -260,19 +259,20 @@ export default function AboutPage() {
           </div>
         </section>
 
-        <section className="reference-about-green-cta">
-          <div className="reference-about-cta-icon" aria-hidden="true">
-            <CalendarDays size={34} strokeWidth={1.8} />
-          </div>
-          <div>
+        <section className="reference-about-green-cta site-help-cta">
+          <div className="site-help-cta-copy">
             <h2>Zróbmy pierwszy krok spokojnie</h2>
             <p>Umów konsultację i uporządkujmy sytuację Twojego psa lub kota. Wspólnie wybierzemy plan, który naprawdę ma sens.</p>
+            <div className="site-help-cta-actions">
+              <Link href="/wybor" prefetch={false}>
+                Umów konsultację
+                <ChevronRight size={19} strokeWidth={1.8} aria-hidden="true" />
+              </Link>
+            </div>
           </div>
-          <Link href="/wybor" prefetch={false}>
-            Umów konsultację
-            <ChevronRight size={19} strokeWidth={1.8} aria-hidden="true" />
-          </Link>
-          <span className="reference-about-leaf reference-about-leaf-cta" aria-hidden="true" />
+          <div className="site-help-cta-image" aria-hidden="true">
+            <Image src="/faq/faq-help-illustration-clean.png" alt="" width={355} height={208} sizes="(max-width: 760px) 58vw, 210px" />
+          </div>
         </section>
       </section>
     </ReferencePageShell>

@@ -11,12 +11,13 @@ import { getBookingAnalyticsContextParams } from '@/lib/analytics-schema'
 import { compareDateAndTime, formatDateLabel, isFutureAvailabilitySlot } from '@/lib/data'
 import { normalizePolishPhone } from '@/lib/phone'
 import { createActiveConsultationPrice, DEFAULT_PRICE_PLN, parseConsultationPriceInput } from '@/lib/pricing'
-import { buildSeedAvailabilitySlots, hasFutureAvailabilitySlots } from '@/lib/server/availability-seed'
+import { buildSeedAvailabilitySlots } from '@/lib/server/availability-seed'
 import { createCustomerAccessToken, hasValidCustomerAccessToken } from '@/lib/server/customer-access'
 import { getReservationWindowMinutes } from '@/lib/server/env'
 import { createMeetingUrl, normalizeMeetingUrl } from '@/lib/server/jitsi'
 import { getLocalStoreDataDir } from '@/lib/server/local-store-path'
 import { getManualPaymentConfig } from '@/lib/server/payment-options'
+import { isAvailabilitySlotBookableForService } from '@/lib/scheduling/rules'
 import {
   createUrgentNowRequest as createUrgentNowRequestRecord,
   listUrgentNowRequests as listUrgentNowRequestRecords,
@@ -248,10 +249,6 @@ function normalizeExpiredReservations(store: LocalStoreData): LocalStoreData {
 }
 
 function ensureFutureLocalAvailability(store: LocalStoreData): LocalStoreData {
-  if (hasFutureAvailabilitySlots(store.availability)) {
-    return store
-  }
-
   const nowIso = new Date().toISOString()
   const seeded = buildSeedAvailabilitySlots(new Date(nowIso), nowIso)
   const existingIds = new Set(store.availability.map((slot) => slot.id))
@@ -510,6 +507,10 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
 
     if (!isFutureAvailabilitySlot(slot.bookingDate, slot.bookingTime)) {
       throw new Error('Wybrany termin jest już przeszły. Wybierz nową godzinę rozmowy.')
+    }
+
+    if (!isAvailabilitySlotBookableForService(slot, serviceType)) {
+      throw new Error('Wybrany termin nie jest dostępny dla tej usługi.')
     }
 
     const nowIso = new Date().toISOString()

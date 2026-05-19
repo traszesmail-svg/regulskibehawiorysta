@@ -129,9 +129,14 @@ export default async function AdminPage() {
               <div className="section-eyebrow">Panel specjalisty</div>
               <h1>Rezerwacje, płatności i terminy</h1>
             </div>
-            <Link href="/book" className="button button-primary">
+            <div className="hero-actions">
+              <Link href="/admin/pokoj" className="button button-ghost">
+                Pokoje opiekunow
+              </Link>
+              <Link href="/book" className="button button-primary">
               Przejdź do ścieżki klienta
-            </Link>
+              </Link>
+            </div>
           </div>
 
           <div className="summary-grid top-gap">

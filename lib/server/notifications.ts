@@ -2377,3 +2377,39 @@ export async function sendCommerceAccessCodeCustomerEmail(order: CommerceOrder):
 
   return deliverEmail({ to: recipient, subject, html, text }, 'customer')
 }
+
+export async function sendAccountRoomReplyEmail(payload: {
+  email: string
+  conversationSubject: string
+  messageBody: string
+}): Promise<DeliveryResult> {
+  const recipient = payload.email.trim()
+  if (!isValidPublicEmail(recipient)) {
+    return { status: 'skipped', reason: 'customer email missing or invalid' }
+  }
+
+  const accountUrl = buildAbsoluteUrl(`/login?email=${encodeURIComponent(recipient)}`)
+  const subject = `Nowa odpowiedź w pokoju opiekuna - ${EMAIL_BRAND_NAME}`
+  const html = renderEmailShell(
+    'Nowa odpowiedź w pokoju opiekuna',
+    `W rozmowie "${payload.conversationSubject}" pojawiła się nowa odpowiedź.`,
+    `
+      <div style="margin:18px 0;padding:16px;border-radius:14px;background:#f6f3ee;border:1px solid #e9dfcf;">
+        ${formatMultilineHtml(payload.messageBody)}
+      </div>
+      ${renderEmailActionButton({ href: accountUrl, label: 'Otwórz pokój opiekuna' })}
+    `,
+    'Całą rozmowę, pliki i historię sprawy znajdziesz w swoim pokoju opiekuna.',
+  )
+  const text = [
+    `W rozmowie "${payload.conversationSubject}" pojawiła się nowa odpowiedź.`,
+    '',
+    payload.messageBody,
+    '',
+    `Pokój opiekuna: ${accountUrl}`,
+    '',
+    renderContactBlockText(),
+  ].join('\n')
+
+  return deliverEmail({ to: recipient, subject, html, text }, 'customer')
+}

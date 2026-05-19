@@ -21,6 +21,7 @@ import { listBookings } from '@/lib/server/db'
 import { listLeadBookings, type LeadBookingRecord } from '@/lib/server/lead-bookings'
 import { listCommerceOrdersByEmail } from '@/lib/server/commerce-store'
 import { getSupabaseServerConfig } from '@/lib/server/env'
+import { sendAccountRoomReplyEmail } from '@/lib/server/notifications'
 import type { BookingRecord } from '@/lib/types'
 
 const CUSTOMER_FILES_BUCKET = 'customer-room-files'
@@ -96,6 +97,14 @@ export type CreateAccountMessageInput = {
   file?: File | null
 }
 
+export type AccountAdminRoom = AccountHomePayload & {
+  userId: string
+  email: string
+  updatedAt: string
+  messageCount: number
+  lastMessageAt: string | null
+}
+
 function getSupabaseAdmin() {
   const config = getSupabaseServerConfig('konto opiekuna')
 
@@ -159,12 +168,16 @@ function normalizeState(value: unknown): StoredAccountState {
 }
 
 async function readAccountState(user: User): Promise<StoredAccountState> {
+  return readStoredAccountState(user.id)
+}
+
+async function readStoredAccountState(userId: string): Promise<StoredAccountState> {
   await ensureCustomerBucket()
 
   const supabase = getSupabaseAdmin()
   const { data, error } = await supabase.storage
     .from(CUSTOMER_FILES_BUCKET)
-    .download(statePath(user.id))
+    .download(statePath(userId))
 
   if (error || !data) {
     return emptyState()
@@ -178,13 +191,17 @@ async function readAccountState(user: User): Promise<StoredAccountState> {
 }
 
 async function saveAccountState(user: User, state: StoredAccountState) {
+  return saveStoredAccountState(user.id, state)
+}
+
+async function saveStoredAccountState(userId: string, state: StoredAccountState) {
   await ensureCustomerBucket()
 
   const supabase = getSupabaseAdmin()
   const payload = Buffer.from(JSON.stringify(state, null, 2), 'utf8')
   const { error } = await supabase.storage
     .from(CUSTOMER_FILES_BUCKET)
-    .upload(statePath(user.id), payload, {
+    .upload(statePath(userId), payload, {
       contentType: 'application/json; charset=utf-8',
       upsert: true,
     })
@@ -420,6 +437,64 @@ function buildTimeline(
   return events.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
 }
 
+function fallbackProfileForAdmin(user: User): AccountProfile | null {
+  const email = user.email?.trim().toLowerCase()
+  if (!email) return null
+
+  const createdAt = user.created_at ?? new Date().toISOString()
+
+  return {
+    userId: user.id,
+    email,
+    displayName: '',
+    createdAt,
+    updatedAt: createdAt,
+  }
+}
+
+function roomUpdatedAt(payload: AccountHomePayload) {
+  const candidates = [
+    payload.profile.updatedAt,
+    ...payload.pets.map((pet) => pet.updatedAt),
+    ...payload.conversations.map((conversation) => conversation.updatedAt),
+    ...payload.bookings.map((booking) => booking.createdAt),
+    ...payload.materials.map((material) => material.createdAt),
+  ].filter(Boolean)
+
+  return candidates.sort().at(-1) ?? payload.profile.updatedAt
+}
+
+async function buildAccountRoomFromState(user: User, state: StoredAccountState): Promise<AccountAdminRoom | null> {
+  const profile = state.profile ?? fallbackProfileForAdmin(user)
+  if (!profile) return null
+
+  const [pets, conversations, bookings, materials] = await Promise.all([
+    Promise.all(state.pets.map(petFromStored)),
+    Promise.all(state.conversations.map(conversationFromStored)),
+    safeBookingSummaries(profile.email),
+    safeMaterialSummaries(profile.email),
+  ])
+
+  const payload: AccountHomePayload = {
+    profile,
+    pets,
+    bookings,
+    materials,
+    conversations,
+    timeline: buildTimeline(pets, bookings, materials, conversations),
+  }
+  const allMessages = conversations.flatMap((conversation) => conversation.messages)
+
+  return {
+    ...payload,
+    userId: profile.userId,
+    email: profile.email,
+    updatedAt: roomUpdatedAt(payload),
+    messageCount: allMessages.length,
+    lastMessageAt: allMessages.map((message) => message.createdAt).sort().at(-1) ?? null,
+  }
+}
+
 async function safeBookingSummaries(email: string) {
   const [bookingsResult, leadBookingsResult] = await Promise.allSettled([
     listBookings(),
@@ -486,6 +561,42 @@ export async function getAccountHome(user: User): Promise<AccountHomePayload> {
     conversations,
     timeline: buildTimeline(pets, bookings, materials, conversations),
   }
+}
+
+export async function listAccountRoomsForAdmin(): Promise<AccountAdminRoom[]> {
+  await ensureCustomerBucket()
+
+  const supabase = getSupabaseAdmin()
+  const { data, error } = await supabase.auth.admin.listUsers({
+    page: 1,
+    perPage: 200,
+  })
+
+  if (error) {
+    throw new Error(error.message)
+  }
+
+  const rooms = await Promise.all(
+    data.users.map(async (user) => {
+      const state = await readStoredAccountState(user.id)
+      return buildAccountRoomFromState(user, state)
+    }),
+  )
+
+  return rooms
+    .filter((room): room is AccountAdminRoom => Boolean(room))
+    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+}
+
+export async function getAccountRoomForAdmin(userId: string): Promise<AccountAdminRoom | null> {
+  const supabase = getSupabaseAdmin()
+  const { data, error } = await supabase.auth.admin.getUserById(userId)
+
+  if (error || !data.user) {
+    return null
+  }
+
+  return buildAccountRoomFromState(data.user, await readStoredAccountState(userId))
 }
 
 export async function upsertAccountPet(user: User, input: UpsertAccountPetInput): Promise<AccountPet> {
@@ -654,6 +765,70 @@ export async function createAccountMessage(user: User, input: CreateAccountMessa
 
   await saveAccountState(user, state)
   return { conversationId: conversation.id, messageId: message.id }
+}
+
+export async function replyToAccountConversationFromAdmin(input: {
+  userId: string
+  conversationId: string
+  body: string
+  closeConversation?: boolean
+}) {
+  const body = input.body.trim()
+
+  if (!body && !input.closeConversation) {
+    throw new Error('Wpisz odpowiedz albo zamknij rozmowe.')
+  }
+
+  const state = await readStoredAccountState(input.userId)
+  const conversation = state.conversations.find((item) => item.id === input.conversationId)
+
+  if (!conversation) {
+    throw new Error('Nie znaleziono rozmowy.')
+  }
+
+  const now = new Date().toISOString()
+  let messageId: string | null = null
+
+  if (body) {
+    const message: StoredMessage = {
+      id: randomUUID(),
+      sender: 'specialist',
+      body,
+      attachments: [],
+      createdAt: now,
+    }
+
+    conversation.messages.push(message)
+    messageId = message.id
+  }
+
+  if (input.closeConversation) {
+    conversation.status = 'closed'
+  } else {
+    conversation.status = 'open'
+  }
+
+  conversation.updatedAt = now
+  state.conversations = [
+    conversation,
+    ...state.conversations.filter((item) => item.id !== conversation.id),
+  ]
+
+  await saveStoredAccountState(input.userId, state)
+
+  if (body && state.profile?.email) {
+    await sendAccountRoomReplyEmail({
+      email: state.profile.email,
+      conversationSubject: conversation.subject,
+      messageBody: body,
+    })
+  }
+
+  return {
+    conversationId: conversation.id,
+    messageId,
+    status: conversation.status,
+  }
 }
 
 export { CUSTOMER_FILES_BUCKET, MAX_ACCOUNT_UPLOAD_BYTES }

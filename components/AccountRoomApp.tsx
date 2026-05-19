@@ -411,7 +411,10 @@ export function AccountRoomApp({ initialView = 'start' }: AccountRoomAppProps) {
           <div className="account-pets-list">
             {account?.pets.map((pet) => (
               <button key={pet.id} type="button" className="account-pet-card" onClick={() => setPetDraft(petToDraft(pet))}>
-                {pet.photoUrl ? <img src={pet.photoUrl} alt="" /> : <span><PawPrint size={30} aria-hidden="true" /></span>}
+                {pet.photoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- private Supabase signed URL, not a stable image domain.
+                  <img src={pet.photoUrl} alt="" />
+                ) : <span><PawPrint size={30} aria-hidden="true" /></span>}
                 <strong>{pet.name}</strong>
                 <small>{pet.species === 'kot' ? 'Kot' : 'Pies'} {pet.age ? `- ${pet.age}` : ''}</small>
               </button>

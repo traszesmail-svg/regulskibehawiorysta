@@ -17,6 +17,307 @@
   --shadow: 0 28px 80px rgba(97, 74, 44, 0.12);
 }
 
+/* Customer room PWA */
+.account-page .notatnik-shell,
+.notatnik-page .account-room-panel {
+  color: var(--text, #17231f);
+}
+
+.account-room-panel {
+  width: min(1120px, 100%);
+  margin: clamp(28px, 5vw, 64px) auto;
+  padding: clamp(20px, 4vw, 34px);
+  border: 1px solid rgba(38, 78, 67, 0.16);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--surface, #fff) 94%, #eef6f1);
+  box-shadow: 0 18px 60px rgba(23, 35, 31, 0.08);
+}
+
+.account-login-panel {
+  max-width: 760px;
+  text-align: center;
+}
+
+.account-room-header,
+.account-install-strip,
+.account-tabbar,
+.account-auth-tabs,
+.account-attachment-link {
+  display: flex;
+  align-items: center;
+}
+
+.account-room-header {
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.account-room-header h1,
+.account-login-panel h1 {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  letter-spacing: 0;
+}
+
+.account-room-header p,
+.account-room-card p,
+.account-login-fallback {
+  color: rgba(23, 35, 31, 0.72);
+}
+
+.account-install-strip {
+  justify-content: space-between;
+  gap: 12px;
+  margin: 18px 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(47, 118, 103, 0.16);
+  border-radius: 8px;
+  background: rgba(237, 248, 242, 0.72);
+  font-size: 0.94rem;
+}
+
+.account-tabbar {
+  gap: 8px;
+  padding: 6px;
+  margin: 20px 0 22px;
+  border: 1px solid rgba(23, 35, 31, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.74);
+  overflow-x: auto;
+}
+
+.account-tabbar button,
+.account-auth-tabs button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 42px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: rgba(23, 35, 31, 0.76);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.account-tabbar button {
+  flex: 1 0 128px;
+  padding: 0 12px;
+}
+
+.account-auth-tabs button {
+  flex: 1 1 0;
+  padding: 0 10px;
+}
+
+.account-tabbar button.is-active,
+.account-auth-tabs button.is-active {
+  background: #264e43;
+  color: #fff;
+}
+
+.account-dashboard-grid,
+.account-list-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.account-list-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.account-split {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.8fr) minmax(0, 1.2fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.account-room-card,
+.account-auth-card,
+.account-timeline-item {
+  border: 1px solid rgba(23, 35, 31, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.86);
+  padding: 18px;
+}
+
+.account-room-card h2,
+.account-auth-form h2,
+.account-timeline-item h2 {
+  margin: 0 0 8px;
+  font-size: clamp(1.1rem, 2vw, 1.45rem);
+  letter-spacing: 0;
+}
+
+.account-room-card .button,
+.account-install-strip .button,
+.account-login-panel .button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.account-card-kicker,
+.account-message-meta,
+.account-timeline-item time {
+  display: block;
+  margin-bottom: 8px;
+  color: #2f7667;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.account-form textarea,
+.account-auth-form textarea,
+.account-form select,
+.account-auth-form select {
+  width: 100%;
+}
+
+.account-auth-card {
+  width: min(560px, 100%);
+  margin: 24px auto 0;
+  text-align: left;
+}
+
+.account-auth-tabs {
+  gap: 6px;
+  padding: 5px;
+  margin-bottom: 14px;
+  border-radius: 8px;
+  background: rgba(38, 78, 67, 0.08);
+}
+
+.account-login-fallback {
+  margin: 18px 0 0;
+  font-size: 0.95rem;
+}
+
+.account-login-fallback a {
+  color: #2f7667;
+  font-weight: 800;
+}
+
+.account-alert {
+  margin: 12px 0;
+}
+
+.form-success {
+  color: #246856;
+  font-weight: 700;
+}
+
+.account-pets-list,
+.account-message-list,
+.account-timeline {
+  display: grid;
+  gap: 12px;
+}
+
+.account-pet-card {
+  display: grid;
+  grid-template-columns: 70px 1fr;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid rgba(23, 35, 31, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.86);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.account-pet-card img,
+.account-pet-card > span {
+  width: 70px;
+  height: 70px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: #edf6f1;
+}
+
+.account-pet-card > span {
+  display: grid;
+  place-items: center;
+  color: #2f7667;
+}
+
+.account-pet-card small {
+  grid-column: 2;
+  color: rgba(23, 35, 31, 0.68);
+}
+
+.account-message-bubble {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  background: rgba(237, 248, 242, 0.76);
+}
+
+.account-message-bubble.is-specialist,
+.account-message-bubble.is-system {
+  background: rgba(244, 241, 232, 0.92);
+}
+
+.account-attachment-link {
+  gap: 7px;
+  margin-top: 8px;
+  color: #2f7667;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.account-timeline {
+  position: relative;
+}
+
+.account-timeline-item {
+  border-left: 4px solid #2f7667;
+}
+
+@media (max-width: 980px) {
+  .account-dashboard-grid,
+  .account-list-grid,
+  .account-split {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 680px) {
+  .account-room-panel {
+    margin-top: 18px;
+    padding: 16px;
+  }
+
+  .account-room-header,
+  .account-install-strip {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .account-dashboard-grid,
+  .account-list-grid,
+  .account-split {
+    grid-template-columns: 1fr;
+  }
+
+  .account-tabbar {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+  }
+}
+
 /* Final focus override: clicks and taps must not show browser square outlines. */
 :where(a, button, summary, [role='button']):focus,
 :where(a, button, summary, [role='button']):focus-visible {

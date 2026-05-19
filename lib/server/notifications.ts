@@ -711,6 +711,7 @@ export async function sendBookingReservationCreatedEmail(
   const subject = `Rezerwacja przyjęta - ${EMAIL_BRAND_NAME} - ${summary}`
   const customerEmailStatus = getCustomerEmailDeliveryStatus(booking.email)
   const bookingPageUrl = buildBookingViewerUrl('/payment', booking.id, accessToken)
+  const accountUrl = buildAbsoluteUrl(`/login?email=${encodeURIComponent(booking.email)}`)
   const emailDeliveryNote =
     customerEmailStatus.state === 'ready'
       ? 'Po potwierdzeniu klient automatycznie dostanie mail z linkiem do pokoju rozmowy, a przy braku wpłaty wróci do płatności.'
@@ -726,6 +727,8 @@ export async function sendBookingReservationCreatedEmail(
       <p><strong>Kwota:</strong> ${formatPricePln(booking.amount)}</p>
       <p><strong>Co dalej:</strong> dokończ płatność, aby ostatecznie potwierdzić konsultację i odblokować link do rozmowy.</p>
       ${renderEmailActionButton({ href: bookingPageUrl, label: 'Otwórz stronę rezerwacji' })}
+      <p>Po utworzeniu konta ten termin będzie widoczny w pokoju opiekuna razem z historią sprawy pupila.</p>
+      ${renderEmailActionButton({ href: accountUrl, label: 'Otwórz pokój opiekuna' })}
       ${renderContactBlockHtml()}
     `,
     emailDeliveryNote,
@@ -737,6 +740,7 @@ export async function sendBookingReservationCreatedEmail(
     `Kwota: ${formatPricePln(booking.amount)}`,
     'Co dalej: dokończ płatność, aby ostatecznie potwierdzić konsultację i odblokować link do rozmowy.',
     `Strona rezerwacji: ${bookingPageUrl}`,
+    `Pokój opiekuna: ${accountUrl}`,
     emailDeliveryNote,
     renderContactBlockText(),
   ].join('\n')
@@ -2331,7 +2335,8 @@ export async function sendCommerceAccessCodeCustomerEmail(order: CommerceOrder):
     return { status: 'skipped', reason: 'access code missing' }
   }
 
-  const accessUrl = buildAbsoluteUrl('/dostęp')
+  const accessUrl = buildAbsoluteUrl('/dostep')
+  const accountUrl = buildAbsoluteUrl(`/login?email=${encodeURIComponent(order.customerEmail)}`)
   const subject = 'Twój kod dostępu'
   const isFreeAccess = order.productType === 'ebook' && order.amount === 0
   const expiresLabel = order.accessCodeExpiresAt
@@ -2349,6 +2354,8 @@ export async function sendCommerceAccessCodeCustomerEmail(order: CommerceOrder):
       <p style="margin-top:24px;"><strong>Twój kod dostępu:</strong></p>
       <p style="font-size:28px;letter-spacing:4px;font-weight:700;background:#f0e5d6;padding:16px 24px;border-radius:6px;display:inline-block;">${escapeHtml(order.accessCode)}</p>
       <p style="margin-top:24px;"><strong>Wejdź tutaj:</strong><br /><a href="${escapeHtml(accessUrl)}">${escapeHtml(accessUrl)}</a></p>
+      <p>Możesz też utworzyć konto opiekuna. Ten materiał będzie wtedy widoczny w aplikacji razem z rezerwacjami i historią sprawy.</p>
+      ${renderEmailActionButton({ href: accountUrl, label: 'Otwórz pokój opiekuna' })}
       ${expiresLabel ? `<p><strong>Ważny do:</strong> ${escapeHtml(expiresLabel)}</p>` : ''}
     `,
     'Dziękujemy.',
@@ -2362,6 +2369,7 @@ export async function sendCommerceAccessCodeCustomerEmail(order: CommerceOrder):
     `Produkt: ${order.productName}`,
     `Twój kod dostępu: ${order.accessCode}`,
     `Wejdź tutaj: ${accessUrl}`,
+    `Pokój opiekuna: ${accountUrl}`,
     expiresLabel ? `Ważny do: ${expiresLabel}` : '',
     '',
     'Dziękujemy.',

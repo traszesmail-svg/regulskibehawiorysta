@@ -62,6 +62,7 @@ Uwaga:
 
 - `SUPABASE_SERVICE_ROLE_KEY` musi byc prawdziwym kluczem service role (`sb_secret_...` albo legacy JWT z rola `service_role`).
 - Klucz `sb_publishable_...` nie wystarczy do zapisu ceny, bookingow ani adminowych operacji.
+- `Pokoj opiekuna` loguje przez serwerowe endpointy i prywatne cookie, wiec nie wymaga publicznego klucza Supabase w przegladarce.
 - `ADMIN_NOTIFICATION_EMAIL` odbiera maile o kliknieciu `Zaplacilem, czekam na potwierdzenie` dla manualnych wplat.
 - `MAIL_PROVIDER=gmail` pozwala wysyłac maile klienta i admina przez Gmail SMTP zamiast Resend.
 - dla Gmail SMTP potrzebujesz `GMAIL_SMTP_USER`, `GMAIL_SMTP_APP_PASSWORD` i opcjonalnie `GMAIL_FROM_EMAIL` (domyslnie bierze `GMAIL_SMTP_USER`).

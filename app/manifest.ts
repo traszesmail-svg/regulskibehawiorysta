@@ -7,10 +7,10 @@ import { SITE } from '@/lib/seo.config';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: SITE.fullName,
+    name: 'Regulski Pokoj Opiekuna',
     short_name: 'Regulski',
     description: SITE.author.bio,
-    start_url: '/',
+    start_url: '/pokoj',
     display: 'standalone',
     background_color: '#faf9f7',
     theme_color: '#4a8d7a',

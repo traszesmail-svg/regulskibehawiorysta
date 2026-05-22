@@ -313,7 +313,7 @@ const SERVICE_LANDING_LINK: BlogSupportLink = {
 const CONSULTATION_PAGE_LINK: BlogSupportLink = {
   label: 'Konsultacja behawioralna online',
   href: '/konsultacja-behawioralna-online',
-  description: 'Opis pełnej konsultacji, przebiegu rozmowy i tego, kiedy warto wejść w szersza konsultacje.',
+    description: 'Opis pełnej konsultacji, przebiegu rozmowy i tego, kiedy warto wejść w szerszą konsultację.',
 }
 
 const PREP_GUIDE_LINK: BlogSupportLink = {
@@ -811,7 +811,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     supportLinks: [
       SEPARATION_LANDING_LINK,
       {
-        label: 'Jak nagrac psa zostawionego samemu',
+        label: 'Jak nagrać psa zostawionego samemu',
         href: '/blog',
         description: 'Daje materiał do oceny, jeśli po pracy nad rutyną potrzebujesz lepiej zobaczyć, co napędza problem.',
       },

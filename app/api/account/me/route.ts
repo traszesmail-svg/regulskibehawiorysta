@@ -30,7 +30,7 @@ export async function GET(request: Request) {
       return response
     }
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Nie udalo sie odczytac konta.'
+    const message = error instanceof Error ? error.message : 'Nie udało się odczytać konta.'
     const status = error instanceof ConfigurationError ? 401 : 500
     return NextResponse.json({ ok: false, error: message }, { status })
   }

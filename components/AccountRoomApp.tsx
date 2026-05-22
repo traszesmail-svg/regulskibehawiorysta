@@ -30,7 +30,7 @@ const ACCOUNT_VIEWS: Array<{ id: AccountView; label: string; icon: typeof PawPri
   { id: 'start', label: 'Start', icon: Smartphone },
   { id: 'pupil', label: 'Pupil', icon: PawPrint },
   { id: 'rozmowa', label: 'Rozmowa', icon: MessageCircle },
-  { id: 'materialy', label: 'Materialy', icon: BookOpen },
+  { id: 'materialy', label: 'Materiały', icon: BookOpen },
   { id: 'historia', label: 'Historia', icon: History },
 ]
 
@@ -108,7 +108,7 @@ function AccountInstallPrompt() {
     return (
       <div className="account-install-strip">
         <Smartphone size={18} aria-hidden="true" />
-        <span>Aplikacja dziala w trybie zainstalowanym.</span>
+        <span>Aplikacja działa w trybie zainstalowanym.</span>
       </div>
     )
   }
@@ -116,7 +116,7 @@ function AccountInstallPrompt() {
   return (
     <div className="account-install-strip">
       <Smartphone size={18} aria-hidden="true" />
-      <span>{isIos ? 'Na iPhonie dodaj strone przez Safari: Udostepnij -> Do ekranu poczatkowego.' : 'Dodaj pokoj opiekuna do ekranu telefonu.'}</span>
+      <span>{isIos ? 'Na iPhonie dodaj stronę przez Safari: Udostępnij -> Do ekranu początkowego.' : 'Dodaj pokój opiekuna do ekranu telefonu.'}</span>
       {deferredPrompt ? (
         <button type="button" className="button button-ghost" onClick={install}>
           Instaluj
@@ -155,7 +155,7 @@ export function AccountRoomApp({ initialView = 'start' }: AccountRoomAppProps) {
       }
 
       if (!response.ok || !payload.account) {
-        throw new Error(payload.error ?? 'Nie udalo sie odczytac pokoju opiekuna.')
+        throw new Error(payload.error ?? 'Nie udało się odczytać pokoju opiekuna.')
       }
 
       setAuthenticated(true)
@@ -164,7 +164,7 @@ export function AccountRoomApp({ initialView = 'start' }: AccountRoomAppProps) {
         setPetDraft(petToDraft(payload.account.pets[0]))
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Nie udalo sie odczytac pokoju opiekuna.')
+      setError(err instanceof Error ? err.message : 'Nie udało się odczytać pokoju opiekuna.')
     } finally {
       setLoading(false)
     }
@@ -197,7 +197,7 @@ export function AccountRoomApp({ initialView = 'start' }: AccountRoomAppProps) {
       const payload = (await response.json()) as { ok?: boolean; pet?: AccountPet; error?: string }
 
       if (!response.ok || !payload.pet) {
-        throw new Error(payload.error ?? 'Nie udalo sie zapisac pupila.')
+        throw new Error(payload.error ?? 'Nie udało się zapisać pupila.')
       }
 
       if (petPhoto) {
@@ -210,7 +210,7 @@ export function AccountRoomApp({ initialView = 'start' }: AccountRoomAppProps) {
         })
         const photoPayload = (await photoResponse.json()) as { ok?: boolean; error?: string }
         if (!photoResponse.ok || !photoPayload.ok) {
-          throw new Error(photoPayload.error ?? 'Nie udalo sie zapisac zdjecia pupila.')
+          throw new Error(photoPayload.error ?? 'Nie udało się zapisać zdjęcia pupila.')
         }
       }
 
@@ -218,7 +218,7 @@ export function AccountRoomApp({ initialView = 'start' }: AccountRoomAppProps) {
       setNotice('Profil pupila zapisany.')
       await loadAccount()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Nie udalo sie zapisac pupila.')
+      setError(err instanceof Error ? err.message : 'Nie udało się zapisać pupila.')
     } finally {
       setBusy(false)
     }
@@ -244,16 +244,16 @@ export function AccountRoomApp({ initialView = 'start' }: AccountRoomAppProps) {
       const payload = (await response.json()) as { ok?: boolean; error?: string }
 
       if (!response.ok || !payload.ok) {
-        throw new Error(payload.error ?? 'Nie udalo sie wyslac wiadomosci.')
+        throw new Error(payload.error ?? 'Nie udało się wysłać wiadomości.')
       }
 
       setMessageBody('')
       setMessageFile(null)
-      setNotice('Wiadomosc zapisana w pokoju opiekuna.')
+      setNotice('Wiadomość zapisana w pokoju opiekuna.')
       await loadAccount()
       setActiveView('rozmowa')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Nie udalo sie wyslac wiadomosci.')
+      setError(err instanceof Error ? err.message : 'Nie udało się wysłać wiadomości.')
     } finally {
       setBusy(false)
     }
@@ -262,8 +262,8 @@ export function AccountRoomApp({ initialView = 'start' }: AccountRoomAppProps) {
   if (loading) {
     return (
       <section className="account-room-panel">
-        <div className="section-eyebrow">Pokoj opiekuna</div>
-        <h1>Laduje konto...</h1>
+        <div className="section-eyebrow">Pokój opiekuna</div>
+        <h1>Ładuję konto...</h1>
       </section>
     )
   }
@@ -271,18 +271,18 @@ export function AccountRoomApp({ initialView = 'start' }: AccountRoomAppProps) {
   if (!authenticated) {
     return (
       <section className="account-room-panel">
-        <div className="section-eyebrow">Pokoj opiekuna</div>
-        <h1>Zaloguj sie, zeby zobaczyc swoje rezerwacje i materialy.</h1>
+        <div className="section-eyebrow">Pokój opiekuna</div>
+        <h1>Zaloguj się, żeby zobaczyć swoje rezerwacje i materiały.</h1>
         <p className="hero-text small-width center-text">
-          Konto laczy zakupione PDF-y, konsultacje, profil pupila, rozmowe i pliki w jednym miejscu.
+          Konto łączy zakupione PDF-y, konsultacje, profil pupila, rozmowę i pliki w jednym miejscu.
         </p>
         <div className="hero-actions centered-actions">
           <Link href="/login" className="button button-primary big-button">
             <LogIn size={18} aria-hidden="true" />
-            Zaloguj sie
+            Zaloguj się
           </Link>
           <Link href="/dostep" className="button button-ghost big-button">
-            Mam kod dostepu
+            Mam kod dostępu
           </Link>
         </div>
       </section>
@@ -293,7 +293,7 @@ export function AccountRoomApp({ initialView = 'start' }: AccountRoomAppProps) {
     <section className="account-room-panel">
       <div className="account-room-header">
         <div>
-          <div className="section-eyebrow">Pokoj opiekuna</div>
+          <div className="section-eyebrow">Pokój opiekuna</div>
           <h1>Moja aplikacja Regulski Behawiorysta</h1>
           <p>{account?.profile.email}</p>
         </div>
@@ -305,7 +305,7 @@ export function AccountRoomApp({ initialView = 'start' }: AccountRoomAppProps) {
 
       <AccountInstallPrompt />
 
-      <nav className="account-tabbar" aria-label="Pokoj opiekuna">
+      <nav className="account-tabbar" aria-label="Pokój opiekuna">
         {ACCOUNT_VIEWS.map((view) => {
           const Icon = view.icon
           return (
@@ -328,16 +328,16 @@ export function AccountRoomApp({ initialView = 'start' }: AccountRoomAppProps) {
       {activeView === 'start' ? (
         <div className="account-dashboard-grid">
           <article className="account-room-card">
-            <span className="account-card-kicker">Najblizszy krok</span>
+            <span className="account-card-kicker">Najbliższy krok</span>
             <h2>{account?.bookings[0]?.title ?? 'Brak aktywnej rezerwacji'}</h2>
-            <p>{account?.bookings[0]?.dateLabel ?? 'Po rezerwacji termin pojawi sie tutaj.'}</p>
+            <p>{account?.bookings[0]?.dateLabel ?? 'Po rezerwacji termin pojawi się tutaj.'}</p>
             {account?.bookings[0]?.meetingUrl ? (
               <a href={account.bookings[0].meetingUrl} className="button button-primary" target="_blank" rel="noopener noreferrer">
-                Otworz pokoj rozmowy
+                Otwórz pokój rozmowy
               </a>
             ) : (
               <Link href="/book" className="button button-primary">
-                Zarezerwuj konsultacje
+                Zarezerwuj konsultację
               </Link>
             )}
           </article>
@@ -345,27 +345,27 @@ export function AccountRoomApp({ initialView = 'start' }: AccountRoomAppProps) {
           <article className="account-room-card">
             <span className="account-card-kicker">Pupil</span>
             <h2>{account?.pets[0]?.name ?? 'Dodaj pupila'}</h2>
-            <p>{account?.pets[0]?.behaviorNotes || 'Zdjecie, wiek i krotka historia pomagaja trzymac sprawe w jednym miejscu.'}</p>
+            <p>{account?.pets[0]?.behaviorNotes || 'Zdjęcie, wiek i krótka historia pomagają trzymać sprawę w jednym miejscu.'}</p>
             <button type="button" className="button button-ghost" onClick={() => setActiveView('pupil')}>
               <PawPrint size={17} aria-hidden="true" />
-              Uzupelnij
+              Uzupełnij
             </button>
           </article>
 
           <article className="account-room-card">
-            <span className="account-card-kicker">Materialy</span>
+            <span className="account-card-kicker">Materiały</span>
             <h2>{account?.materials.length ?? 0} w koncie</h2>
-            <p>Zakupione ebooki i PDF-y beda widoczne po emailu konta.</p>
+            <p>Zakupione ebooki i PDF-y będą widoczne po emailu konta.</p>
             <button type="button" className="button button-ghost" onClick={() => setActiveView('materialy')}>
               <BookOpen size={17} aria-hidden="true" />
-              Otworz
+              Otwórz
             </button>
           </article>
 
           <article className="account-room-card">
             <span className="account-card-kicker">Rozmowa</span>
-            <h2>{account?.conversations[0]?.messages.length ?? 0} wiadomosci</h2>
-            <p>Dodaj opis, zdjecie, film albo PDF do sprawy pupila.</p>
+            <h2>{account?.conversations[0]?.messages.length ?? 0} wiadomości</h2>
+            <p>Dodaj opis, zdjęcie, film albo PDF do sprawy pupila.</p>
             <button type="button" className="button button-ghost" onClick={() => setActiveView('rozmowa')}>
               <MessageCircle size={17} aria-hidden="true" />
               Napisz
@@ -395,15 +395,15 @@ export function AccountRoomApp({ initialView = 'start' }: AccountRoomAppProps) {
                 <input value={petDraft.age} onChange={(event) => setPetDraft({ ...petDraft, age: event.target.value })} />
               </label>
               <label>
-                Krotka historia
+                Krótka historia
                 <textarea value={petDraft.behaviorNotes} onChange={(event) => setPetDraft({ ...petDraft, behaviorNotes: event.target.value })} rows={5} />
               </label>
               <label>
-                Zdjecie pupila
+                Zdjęcie pupila
                 <input type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => setPetPhoto(event.target.files?.[0] ?? null)} />
               </label>
               <button type="submit" className="button button-primary big-button" disabled={busy}>
-                {busy ? 'Zapisuje...' : 'Zapisz pupila'}
+                {busy ? 'Zapisuję...' : 'Zapisz pupila'}
               </button>
             </form>
           </div>
@@ -426,10 +426,10 @@ export function AccountRoomApp({ initialView = 'start' }: AccountRoomAppProps) {
       {activeView === 'rozmowa' ? (
         <div className="account-split">
           <div className="account-room-card">
-            <h2>Dodaj wiadomosc albo plik</h2>
+            <h2>Dodaj wiadomość albo plik</h2>
             <form className="materialy-form account-form" onSubmit={sendMessage}>
               <label>
-                Wiadomosc
+                Wiadomość
                 <textarea value={messageBody} onChange={(event) => setMessageBody(event.target.value)} rows={6} />
               </label>
               <label>
@@ -442,7 +442,7 @@ export function AccountRoomApp({ initialView = 'start' }: AccountRoomAppProps) {
               </label>
               <button type="submit" className="button button-primary big-button" disabled={busy}>
                 <Upload size={17} aria-hidden="true" />
-                {busy ? 'Wysylam...' : 'Dodaj do rozmowy'}
+                {busy ? 'Wysyłam...' : 'Dodaj do rozmowy'}
               </button>
             </form>
           </div>
@@ -451,13 +451,13 @@ export function AccountRoomApp({ initialView = 'start' }: AccountRoomAppProps) {
             {(account?.conversations.length ?? 0) === 0 ? (
               <div className="account-room-card">
                 <h2>Brak rozmowy</h2>
-                <p>Pierwsza wiadomosc utworzy watek w pokoju opiekuna.</p>
+                <p>Pierwsza wiadomość utworzy wątek w pokoju opiekuna.</p>
               </div>
             ) : null}
             {account?.conversations.map((conversation) => (
               <article key={conversation.id} className="account-room-card">
                 <span className="account-card-kicker">{conversation.subject}</span>
-                {conversation.messages.length === 0 ? <p>Watek jest pusty.</p> : null}
+                {conversation.messages.length === 0 ? <p>Wątek jest pusty.</p> : null}
                 {conversation.messages.map((message) => (
                   <div key={message.id} className={`account-message-bubble is-${message.sender}`}>
                     <div className="account-message-meta">{formatDateTime(message.createdAt)}</div>
@@ -480,8 +480,8 @@ export function AccountRoomApp({ initialView = 'start' }: AccountRoomAppProps) {
         <div className="account-list-grid">
           {(account?.materials.length ?? 0) === 0 ? (
             <article className="account-room-card">
-              <h2>Brak materialow w koncie</h2>
-              <p>Zakupione PDF-y pojawia sie tutaj po emailu konta. Starszy kod nadal wpiszesz na stronie dostepu.</p>
+              <h2>Brak materiałów w koncie</h2>
+              <p>Zakupione PDF-y pojawią się tutaj po emailu konta. Starszy kod nadal wpiszesz na stronie dostępu.</p>
               <Link href="/dostep" className="button button-ghost">Wpisz kod</Link>
             </article>
           ) : null}
@@ -493,7 +493,7 @@ export function AccountRoomApp({ initialView = 'start' }: AccountRoomAppProps) {
               {material.accessUrl ? (
                 <Link href={material.accessUrl} className="button button-primary">
                   <Download size={17} aria-hidden="true" />
-                  Otworz PDF
+                  Otwórz PDF
                 </Link>
               ) : null}
             </article>
@@ -506,7 +506,7 @@ export function AccountRoomApp({ initialView = 'start' }: AccountRoomAppProps) {
           {(account?.timeline.length ?? 0) === 0 ? (
             <article className="account-room-card">
               <h2>Historia jest pusta</h2>
-              <p>Rezerwacje, materialy, profil pupila i rozmowa beda tu widoczne chronologicznie.</p>
+              <p>Rezerwacje, materiały, profil pupila i rozmowa będą tu widoczne chronologicznie.</p>
             </article>
           ) : null}
           {account?.timeline.map((event) => (
@@ -516,7 +516,7 @@ export function AccountRoomApp({ initialView = 'start' }: AccountRoomAppProps) {
               <p>{event.description}</p>
               {event.href ? (
                 <a href={event.href} target="_blank" rel="noopener noreferrer">
-                  Otworz
+                  Otwórz
                 </a>
               ) : null}
             </article>

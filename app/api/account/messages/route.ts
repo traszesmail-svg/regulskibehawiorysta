@@ -20,7 +20,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ok: true, ...result })
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Nie udalo sie wyslac wiadomosci.'
+    const message = error instanceof Error ? error.message : 'Nie udało się wysłać wiadomości.'
     const status = error instanceof ConfigurationError ? 401 : 400
     return NextResponse.json({ ok: false, error: message }, { status })
   }

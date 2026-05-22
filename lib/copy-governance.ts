@@ -31,7 +31,7 @@ export const COPY_HELPERS = {
   toolkitIntro:
     'Materiały PDF to zasoby, do których możesz wrócić przed rozmową, po rozmowie albo wtedy, gdy chcesz spokojnie uporządkować temat.',
   reviewLead:
-    'Jeśli konsultacja była pomocna, możesz zostawrócić krótka opinie. Wystarczy kilka zdan o samej rozmowie.',
+    'Jeśli konsultacja była pomocna, możesz zostawić krótką opinię. Wystarczy kilka zdań o samej rozmowie.',
   reviewPrivacy:
     'Opinie publikowane są z inicjalami, opcjonalnie z imieniem zwierzęcia albo miastem, jeśli chcesz to podać.',
   reviewInternalNote: 'To ukryty formularz do zebrania krótkiej opinii po konsultacji.',

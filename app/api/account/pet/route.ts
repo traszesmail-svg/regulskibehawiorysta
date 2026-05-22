@@ -21,7 +21,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ok: true, pet })
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Nie udalo sie zapisac pupila.'
+    const message = error instanceof Error ? error.message : 'Nie udało się zapisać pupila.'
     const status = error instanceof ConfigurationError ? 401 : 400
     return NextResponse.json({ ok: false, error: message }, { status })
   }

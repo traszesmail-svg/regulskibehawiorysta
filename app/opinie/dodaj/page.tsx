@@ -94,7 +94,7 @@ export default function AddOpinionPage() {
     return (
       <main style={pageStyle}>
         <BrandHeader />
-        <h1 style={{ fontSize: '1.5rem' }}>Dzięki za opinię</h1>
+        <h1 style={headingStyle}>Dzięki za opinię</h1>
         <p>Opinia trafiła do weryfikacji. Odezwę się po sprawdzeniu, najczęściej w ciągu 1-2 dni roboczych.</p>
       </main>
     )
@@ -103,7 +103,7 @@ export default function AddOpinionPage() {
   return (
     <main style={pageStyle}>
       <BrandHeader />
-      <h1 style={{ fontSize: '1.5rem', marginBottom: 8 }}>Dodaj opinię</h1>
+      <h1 style={headingStyle}>Dodaj opinię</h1>
       <p style={{ color: '#6b625b', marginBottom: 32 }}>
         Ta strona jest dostępna tylko dla osób, które przeszły konsultacje. Opinia trafia do weryfikacji przed
         publikacją.
@@ -261,8 +261,17 @@ const pageStyle: CSSProperties = {
   maxWidth: 560,
   margin: '60px auto',
   padding: '0 20px',
-  fontFamily: 'sans-serif',
+  fontFamily: 'var(--font-body), system-ui, sans-serif',
   color: '#1f1a17',
+}
+
+const headingStyle: CSSProperties = {
+  margin: '0 0 8px',
+  fontFamily: 'var(--font-display), Georgia, serif',
+  fontSize: 'clamp(2.25rem, 7vw, 3rem)',
+  fontWeight: 560,
+  lineHeight: 1.05,
+  letterSpacing: 0,
 }
 
 const brandStyle: CSSProperties = {

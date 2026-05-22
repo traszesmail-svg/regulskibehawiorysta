@@ -74,8 +74,8 @@ const sections: LegalSection[] = [
       <>
         <p>
           Dane są przetwarzane w zakresie niezbędnym do zawarcia i wykonania umowy, udzielenia odpowiedzi na zgłoszenie,
-          wypelnienia obowiązków prawnych związanych z rozliczeniami oraz na podstawie prawnie uzasadnionego interesu
-          administratora polegajacego na zapewnieniu bezpieczeństwa serwisu i obsługi zgłoszen.
+          wypełnienia obowiązków prawnych związanych z rozliczeniami oraz na podstawie prawnie uzasadnionego interesu
+          administratora polegającego na zapewnieniu bezpieczeństwa serwisu i obsługi zgłoszeń.
         </p>
         <p>
           W zakresie analityki oraz w tych przypadkach, w których wymaga tego charakter formularza, przetwarzanie może
@@ -90,7 +90,7 @@ const sections: LegalSection[] = [
       <>
         <p>
           Dane mogą być przekazywane wyłącznie w zakresie niezbędnym do działania serwisu i realizacji usług, w
-          szczególności dostawcom obslugujacym baze danych, wysyłkę wiadomości e-mail, pokoj rozmowy online oraz
+          szczególności dostawcom obsługującym bazę danych, wysyłkę wiadomości e-mail, pokój rozmowy online oraz
           narzędzia analityczne.
         </p>
         <p>
@@ -129,15 +129,15 @@ const sections: LegalSection[] = [
           uruchamiane przed wyrażeniem zgody.
         </p>
         <p>
-          Serwis może ustawiac nastepujace rodzaje cookies:
+          Serwis może ustawiać następujące rodzaje cookies:
         </p>
         <ul className="premium-bullet-list">
           <li><strong>Niezbędne technicznie</strong> — zapisują decyzje o motywie (jasny/ciemny), sesję użytkownika oraz token dostępu do strony rezerwacji. Czas ważności: sesja przeglądarki albo do 30 dni (trwałe).</li>
-          <li><strong>Analityczne (za zgodą)</strong> — uruchamiane wyłącznie po wyrażeniu zgody w banerze; służą do pomiaru ruchu i źródel odwiedzin. Czas ważności: do 13 miesiecy.</li>
+          <li><strong>Analityczne (za zgodą)</strong> — uruchamiane wyłącznie po wyrażeniu zgody w banerze; służą do pomiaru ruchu i źródeł odwiedzin. Czas ważności: do 13 miesięcy.</li>
         </ul>
         <p>
           Użytkownik może w każdej chwili usunąć pliki cookie przez ustawienia przeglądarki lub wycofać zgodę na analitykę
-          ponownie otwierajac baner zgody.
+          ponownie otwierając baner zgody.
         </p>
       </>
     ),
@@ -147,11 +147,11 @@ const sections: LegalSection[] = [
     body: (
       <>
         <p>
-          Dane są przechowywane przez okres niezbędny do obsługi kontaktu, rezerwacji, realizacji usługi, rozliczen oraz
+          Dane są przechowywane przez okres niezbędny do obsługi kontaktu, rezerwacji, realizacji usługi, rozliczeń oraz
           wykonania obowiązków prawnych, a także przez okres potrzebny do dochodzenia lub obrony roszczeń.
         </p>
         <p>
-          Dane przetwarzane na podstawie zgody są przechowywane do czasu jej cofnięcia albo utraty celu, dla ktorego byly
+          Dane przetwarzane na podstawie zgody są przechowywane do czasu jej cofnięcia albo utraty celu, dla którego były
           przetwarzane.
         </p>
       </>
@@ -179,7 +179,7 @@ const sections: LegalSection[] = [
       <>
         <p>
           Polityka prywatności obowiązuje od dnia jej opublikowania w serwisie. Zmiany polityki są publikowane w tej samej
-          zakladce.
+          zakładce.
         </p>
       </>
     ),

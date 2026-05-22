@@ -47,7 +47,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  return createUnauthorizedResponse('Dostep do panelu specjalisty wymaga autoryzacji.', 401)
+  return createUnauthorizedResponse('Dostęp do panelu specjalisty wymaga autoryzacji.', 401)
 }
 
 export const config = {

@@ -22,14 +22,14 @@ export async function POST(request: Request) {
     const password = body.password ?? ''
 
     if (!accessToken || password.length < 8) {
-      return NextResponse.json({ ok: false, error: 'Haslo musi miec minimum 8 znakow.' }, { status: 400 })
+      return NextResponse.json({ ok: false, error: 'Hasło musi mieć minimum 8 znaków.' }, { status: 400 })
     }
 
     const supabase = getSupabaseAuthClient()
     const { data, error } = await supabase.auth.getUser(accessToken)
 
     if (error || !data.user) {
-      return NextResponse.json({ ok: false, error: 'Link do zmiany hasla wygasl.' }, { status: 401 })
+      return NextResponse.json({ ok: false, error: 'Link do zmiany hasła wygasł.' }, { status: 401 })
     }
 
     const { error: updateError } = await supabase.auth.admin.updateUserById(data.user.id, { password })
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ok: true })
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Nie udalo sie ustawic hasla.'
+    const message = error instanceof Error ? error.message : 'Nie udało się ustawić hasła.'
     const status = error instanceof ConfigurationError ? 400 : 500
     return NextResponse.json({ ok: false, error: message }, { status })
   }

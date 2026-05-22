@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     const pet = await uploadPetPhoto(user, petId, file)
     return NextResponse.json({ ok: true, pet })
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Nie udalo sie zapisac zdjecia.'
+    const message = error instanceof Error ? error.message : 'Nie udało się zapisać zdjęcia.'
     const status = error instanceof ConfigurationError ? 401 : 400
     return NextResponse.json({ ok: false, error: message }, { status })
   }

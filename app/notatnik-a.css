@@ -27542,9 +27542,75 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
 .contact-form-fallback a.contact-fallback-email {
   display: inline-block;
   max-width: 100%;
-  white-space: nowrap;
-  word-break: keep-all;
-  overflow-wrap: normal;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: anywhere;
+}
+
+.form-grid input.sr-only,
+.notatnik-page #formularz input.sr-only,
+.contact-page #formularz input.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  min-width: 1px !important;
+  max-width: 1px !important;
+  height: 1px !important;
+  min-height: 1px !important;
+  max-height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.notatnik-mobile-menu:not([open]) .notatnik-mobile-menu-panel {
+  display: none !important;
+}
+
+.blog-redesign-page .blog-redesign-hero-art img {
+  width: 100% !important;
+  height: 100% !important;
+  transform: none !important;
+}
+
+/* Typography consistency pass: keep public page headings on the same display system. */
+.notatnik-page:not(.homepage-shell) .notatnik-subhero h1,
+.notatnik-page:not(.homepage-shell) .notatnik-section-head h2 {
+  font-family: var(--font-display), Georgia, serif !important;
+  font-weight: 560 !important;
+  letter-spacing: 0 !important;
+}
+
+.notatnik-page:not(.homepage-shell) .notatnik-subhero h1 {
+  line-height: 1.03 !important;
+}
+
+.notatnik-page:not(.homepage-shell) .notatnik-section-head h2 {
+  line-height: 1.08 !important;
+}
+
+.reference-legal-hero h1 {
+  font-size: clamp(48px, 5vw, 64px) !important;
+  line-height: 1.02 !important;
+}
+
+.contact-reference-hero-copy h1 {
+  font-size: clamp(50px, 5.5vw, 68px) !important;
+}
+
+@media (max-width: 980px) {
+  .contact-reference-hero-copy h1 {
+    font-size: clamp(40px, 9.4vw, 58px) !important;
+  }
+}
+
+@media (max-width: 880px) {
+  .reference-legal-hero h1 {
+    font-size: clamp(45px, 10vw, 62px) !important;
+  }
 }
 
 @media (max-width: 760px) {
@@ -27953,7 +28019,7 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
   }
 
   .pricing-2026-hero h1 {
-    font-size: clamp(34px, 10vw, 46px) !important;
+    font-size: clamp(40px, 12.5vw, 48px) !important;
   }
 
   .pricing-2026-offer {

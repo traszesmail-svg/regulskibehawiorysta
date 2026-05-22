@@ -35,7 +35,7 @@ export default function AccessPage() {
           </p>
           <CommerceAccessForm />
           <p className="account-login-fallback">
-            Chcesz miec materialy i rezerwacje w aplikacji? <a href="/login">Zaloguj sie do pokoju opiekuna</a>.
+            Chcesz mieć materiały i rezerwacje w aplikacji? <a href="/login">Zaloguj się do pokoju opiekuna</a>.
           </p>
         </section>
       </div>

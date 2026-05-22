@@ -131,7 +131,7 @@ export default async function AdminPage() {
             </div>
             <div className="hero-actions">
               <Link href="/admin/pokoj" className="button button-ghost">
-                Pokoje opiekunow
+                Pokoje opiekunów
               </Link>
               <Link href="/book" className="button button-primary">
               Przejdź do ścieżki klienta

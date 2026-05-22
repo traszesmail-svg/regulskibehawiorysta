@@ -5669,10 +5669,24 @@ select:focus-visible {
 .payment-reference-value {
   letter-spacing: 0.02em;
   word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .payment-summary-value {
   font-size: clamp(20px, 2.5vw, 28px);
+}
+
+.booking-flow-panel .summary-value,
+.payment-ref-page .summary-value {
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+}
+
+.booking-flow-panel .payment-reference-value,
+.payment-ref-page .payment-reference-value {
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .payment-logo-grid {
@@ -19231,11 +19245,25 @@ select:focus-visible {
 }
 
 .payment-ref-total-line {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
   gap: 18px;
   color: #27352c;
   font-size: 14px;
+}
+
+.payment-ref-total-line span {
+  min-width: 0;
+}
+
+.payment-ref-total-line strong {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+  text-align: right;
 }
 
 .payment-ref-total-final strong {
@@ -20036,6 +20064,10 @@ select:focus-visible {
     font-size: 28px;
   }
 
+  .payment-ref-total-line {
+    gap: 12px;
+  }
+
   .cat-ref-animal-options,
   .payment-ref-button-row {
     grid-template-columns: 1fr;
@@ -20635,6 +20667,12 @@ select:focus-visible {
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.16);
 }
 
+.opinions-showcase-page a.opinions-story-button,
+.opinions-showcase-page a.opinions-story-button:visited {
+  background: #fffdf8;
+  color: #123929;
+}
+
 .opinions-story-photo {
   position: absolute;
   top: -90px;
@@ -20962,7 +21000,7 @@ html[data-theme='dark'] .opinions-showcase-wave {
   }
 
   .opinions-story-photo {
-    right: -30px;
+    right: 0;
     width: 330px;
     opacity: 0.38;
   }

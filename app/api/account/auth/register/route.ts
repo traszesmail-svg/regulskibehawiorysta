@@ -18,11 +18,11 @@ export async function POST(request: Request) {
     const password = body.password ?? ''
 
     if (!email || !password) {
-      return NextResponse.json({ ok: false, error: 'Podaj email i haslo.' }, { status: 400 })
+      return NextResponse.json({ ok: false, error: 'Podaj email i hasło.' }, { status: 400 })
     }
 
     if (password.length < 8) {
-      return NextResponse.json({ ok: false, error: 'Haslo musi miec minimum 8 znakow.' }, { status: 400 })
+      return NextResponse.json({ ok: false, error: 'Hasło musi mieć minimum 8 znaków.' }, { status: 400 })
     }
 
     const session = await signUpAccount(email, password, `${getBaseUrl(request)}/login`)
@@ -30,7 +30,7 @@ export async function POST(request: Request) {
     if (session) setAccountSessionCookies(response, session)
     return response
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Nie udalo sie utworzyc konta.'
+    const message = error instanceof Error ? error.message : 'Nie udało się utworzyć konta.'
     const status = error instanceof ConfigurationError ? 400 : 500
     return NextResponse.json({ ok: false, error: message }, { status })
   }

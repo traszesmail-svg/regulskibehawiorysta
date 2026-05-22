@@ -126,6 +126,10 @@ export function getBookingServiceRoomAccessLabel(serviceType: BookingServiceType
 }
 
 export function getBookingServicePrice(serviceType: BookingServiceType, quickConsultationPrice: number) {
+  if (serviceType === 'kwadrans-na-juz') {
+    return FUNNEL_SERVICE_CONFIG['kwadrans-na-juz'].priceAmount
+  }
+
   if (serviceType === 'konsultacja-30-min') {
     return BOOKING_SERVICE_30_PRICE
   }

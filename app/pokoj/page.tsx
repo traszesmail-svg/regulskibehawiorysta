@@ -18,9 +18,9 @@ export const revalidate = 0
 
 export function generateMetadata(): Metadata {
   return buildTechnicalMetadata({
-    title: 'Pokoj opiekuna',
+    title: 'Pokój opiekuna',
     path: '/pokoj',
-    description: 'Prywatny panel opiekuna: rezerwacje, materialy, rozmowa i historia pupila.',
+    description: 'Prywatny panel opiekuna: rezerwacje, materiały, rozmowa i historia pupila.',
     noIndex: true,
     follow: false,
   })

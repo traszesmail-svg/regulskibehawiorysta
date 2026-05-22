@@ -23,21 +23,21 @@ export default function LoginPage() {
       tag="Konto"
       navItems={PUBLIC_BOOKING_FLOW_NAV_ITEMS}
       ctaHref="/dostep"
-      ctaLabel="Kod dostepu"
+      ctaLabel="Kod dostępu"
       footerPrimaryHref="/pokoj"
-      footerPrimaryLabel="Pokoj opiekuna"
+      footerPrimaryLabel="Pokój opiekuna"
       pageClassName="account-page"
     >
       <div className="container">
         <section className="account-room-panel account-login-panel">
           <div className="section-eyebrow">Konto opiekuna</div>
-          <h1>Zaloguj sie albo utworz konto.</h1>
+          <h1>Zaloguj się albo utwórz konto.</h1>
           <p className="hero-text small-width center-text">
-            Konto laczy rezerwacje, materialy PDF, profil pupila, rozmowe i zalaczniki w jednym pokoju.
+            Konto łączy rezerwacje, materiały PDF, profil pupila, rozmowę i załączniki w jednym pokoju.
           </p>
           <AccountAuthForm />
           <p className="account-login-fallback">
-            Masz tylko kod do PDF? <Link href="/dostep">Wpisz kod dostepu</Link>.
+            Masz tylko kod do PDF? <Link href="/dostep">Wpisz kod dostępu</Link>.
           </p>
         </section>
       </div>

@@ -21,11 +21,11 @@ const newsletterCards = [
   },
   {
     title: 'Segment: pies, kot albo oba',
-    copy: 'Przy zapisie wybierasz najbliższy obszar. To pomaga nie mieszac tematów, które nie dotycza Twojej sytuacji.',
+    copy: 'Przy zapisie wybierasz najbliższy obszar. To pomaga nie mieszać tematów, które nie dotyczą Twojej sytuacji.',
   },
   {
-    title: 'Bez diagnozowania na sile',
-    copy: 'Newsletter ma pomagac nazwać sytuację i spokojnie przejść do następnego kroku, nie zastepuje konsultacji ani badania zdrowia.',
+    title: 'Bez diagnozowania na siłę',
+    copy: 'Newsletter ma pomagać nazwać sytuację i spokojnie przejść do następnego kroku, nie zastępuje konsultacji ani badania zdrowia.',
   },
 ] as const
 

@@ -59,7 +59,7 @@ function CaseCard({ caseStudy }: { caseStudy: (typeof REAL_CASE_STUDIES)[number]
 
   return (
     <article className="real-case-card tree-backed-card" data-case-id={caseStudy.id}>
-      <div className="real-case-gallery" aria-label={`${caseStudy.headline} - zdjecia`}>
+      <div className="real-case-gallery" aria-label={`${caseStudy.headline} - zdjęcia`}>
         {caseStudy.images.map((image, index) => {
           const dimensions = getCaseImageDimensions(image.src)
 
@@ -149,7 +149,7 @@ export function SocialProofSection({ showSubmissionForm = true }: SocialProofSec
         </div>
         <div className="summary-card tree-backed-card">
           <div className="stat-label">Reczne sprawdzićenie</div>
-          <span>Nic nie trafia na strone automatycznie.</span>
+          <span>Nic nie trafia na stronę automatycznie.</span>
         </div>
       </div>
 
@@ -187,9 +187,9 @@ export function SocialProofSection({ showSubmissionForm = true }: SocialProofSec
           <div className="section-head top-gap">
             <div>
               <div className="section-eyebrow">Wybrane opinie</div>
-              <h3>Krótkie opinie klientow</h3>
+              <h3>Krótkie opinie klientów</h3>
             </div>
-            <div className="muted">Opinie są dodawane dopiero po wczesniejszym sprawdzeniu zgody.</div>
+            <div className="muted">Opinie są dodawane dopiero po wcześniejszym sprawdzeniu zgody.</div>
           </div>
 
           <div className="summary-grid top-gap">
@@ -233,7 +233,7 @@ export function SocialProofSection({ showSubmissionForm = true }: SocialProofSec
         </>
       ) : (
         <div className="real-case-empty top-gap">
-          <strong>Wybrane opinie pojawia się po recznej akceptacji.</strong>
+          <strong>Wybrane opinie pojawią się po ręcznej akceptacji.</strong>
           <p>
             Na ten moment pokazujemy przede wszystkim realne przypadki, publiczne profile i publikacje. Dzięki temu sekcja nie opiera się na
             pustych deklaracjach.
@@ -241,7 +241,7 @@ export function SocialProofSection({ showSubmissionForm = true }: SocialProofSec
         </div>
       )}
 
-      <div className="info-box top-gap">Opinie i dane kontaktowe z formularza są sprawdzane recznie. Nic nie trafia na strone automatycznie.</div>
+      <div className="info-box top-gap">Opinie i dane kontaktowe z formularza są sprawdzane ręcznie. Nic nie trafia na stronę automatycznie.</div>
 
       {showSubmissionForm ? (
         <div className="top-gap">

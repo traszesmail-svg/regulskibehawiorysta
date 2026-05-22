@@ -20,10 +20,10 @@ export function AccountAuthForm() {
   const [recoveryToken, setRecoveryToken] = useState('')
 
   const title = useMemo(() => {
-    if (mode === 'new-password') return 'Ustaw nowe haslo'
-    if (mode === 'register') return 'Utworz konto opiekuna'
-    if (mode === 'reset') return 'Ustaw nowe haslo'
-    return 'Zaloguj sie do pokoju'
+    if (mode === 'new-password') return 'Ustaw nowe hasło'
+    if (mode === 'register') return 'Utwórz konto opiekuna'
+    if (mode === 'reset') return 'Ustaw nowe hasło'
+    return 'Zaloguj się do pokoju'
   }, [mode])
 
   useEffect(() => {
@@ -54,7 +54,7 @@ export function AccountAuthForm() {
         const payload = (await response.json()) as { ok?: boolean; error?: string }
 
         if (!response.ok || !payload.ok) {
-          throw new Error(payload.error ?? 'Nie udalo sie zalogowac.')
+          throw new Error(payload.error ?? 'Nie udało się zalogować.')
         }
         window.location.assign('/pokoj')
         return
@@ -69,7 +69,7 @@ export function AccountAuthForm() {
         const payload = (await response.json()) as { ok?: boolean; hasSession?: boolean; error?: string }
 
         if (!response.ok || !payload.ok) {
-          throw new Error(payload.error ?? 'Nie udalo sie utworzyc konta.')
+          throw new Error(payload.error ?? 'Nie udało się utworzyć konta.')
         }
 
         if (payload.hasSession) {
@@ -77,7 +77,7 @@ export function AccountAuthForm() {
           return
         }
 
-        setMessage('Konto zostalo utworzone. Sprawdz email, jesli Supabase wymaga potwierdzenia adresu.')
+        setMessage('Konto zostało utworzone. Sprawdź email, jeśli Supabase wymaga potwierdzenia adresu.')
         return
       }
 
@@ -90,12 +90,12 @@ export function AccountAuthForm() {
         const payload = (await response.json()) as { ok?: boolean; error?: string }
 
         if (!response.ok || !payload.ok) {
-          throw new Error(payload.error ?? 'Nie udalo sie ustawic hasla.')
+          throw new Error(payload.error ?? 'Nie udało się ustawić hasła.')
         }
 
         setPassword('')
         setMode('login')
-        setMessage('Haslo zostalo ustawione. Mozesz sie zalogowac.')
+        setMessage('Hasło zostało ustawione. Możesz się zalogować.')
         return
       }
 
@@ -107,11 +107,11 @@ export function AccountAuthForm() {
       const payload = (await response.json()) as { ok?: boolean; error?: string }
 
       if (!response.ok || !payload.ok) {
-        throw new Error(payload.error ?? 'Nie udalo sie wyslac linku.')
+        throw new Error(payload.error ?? 'Nie udało się wysłać linku.')
       }
-      setMessage('Wyslalem link do ustawienia hasla, jesli konto istnieje dla tego adresu.')
+      setMessage('Wysłałem link do ustawienia hasła, jeśli konto istnieje dla tego adresu.')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Nie udalo sie obsluzyc konta.')
+      setError(err instanceof Error ? err.message : 'Nie udało się obsłużyć konta.')
     } finally {
       setLoading(false)
     }
@@ -130,7 +130,7 @@ export function AccountAuthForm() {
         </button>
         <button type="button" className={mode === 'reset' ? 'is-active' : ''} onClick={() => setMode('reset')}>
           <Mail size={16} aria-hidden="true" />
-          Haslo
+          Hasło
         </button>
       </div>
 
@@ -144,7 +144,7 @@ export function AccountAuthForm() {
         ) : null}
         {mode !== 'reset' ? (
           <label>
-            Haslo
+            Hasło
             <input
               type="password"
               value={password}
@@ -157,7 +157,7 @@ export function AccountAuthForm() {
         {error ? <p className="form-error">{error}</p> : null}
         {message ? <p className="form-success">{message}</p> : null}
         <button type="submit" className="button button-primary big-button" disabled={loading}>
-          {loading ? 'Pracuje...' : mode === 'login' ? 'Wejdz do pokoju' : mode === 'register' ? 'Utworz konto' : mode === 'new-password' ? 'Ustaw haslo' : 'Wyslij link'}
+          {loading ? 'Pracuję...' : mode === 'login' ? 'Wejdź do pokoju' : mode === 'register' ? 'Utwórz konto' : mode === 'new-password' ? 'Ustaw hasło' : 'Wyślij link'}
         </button>
       </form>
     </div>

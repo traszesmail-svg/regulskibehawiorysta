@@ -110,7 +110,7 @@ const TOPICAL_CLUSTERS: TopicalCluster[] = [
       },
       {
         href: '/blog',
-        label: 'Blog: jak nagrac psa zostawionego samemu',
+        label: 'Blog: jak nagrać psa zostawionego samemu',
         copy: 'Pokazuje, jak zebrać materiał, który realnie skraca drogę do dobrej diagnozy behawioralnej.',
       },
       {
@@ -166,7 +166,7 @@ const TOPICAL_CLUSTERS: TopicalCluster[] = [
       {
         href: '/blog',
         label: 'Blog: jak zapoznac dwa koty',
-        copy: 'Przechodzi krok po kroku przez spokojny proces zapoznania, zanim koty zaczna mieszkac razem.',
+        copy: 'Przechodzi krok po kroku przez spokojny proces zapoznania, zanim koty zaczną mieszkać razem.',
       },
     ],
   },

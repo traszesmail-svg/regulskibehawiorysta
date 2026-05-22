@@ -7,7 +7,7 @@ import { SITE } from '@/lib/seo.config';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Regulski Pokoj Opiekuna',
+    name: 'Regulski Pokój Opiekuna',
     short_name: 'Regulski',
     description: SITE.author.bio,
     start_url: '/pokoj',

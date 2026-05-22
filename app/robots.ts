@@ -8,7 +8,6 @@ const publicRules: MetadataRoute.Robots['rules'] = [
     disallow: [
       '/admin/',
       '/__internal/',
-      '/qa-share-20260328-v7n3m8',
       '/call/',
       '/room/',
       '/pokoj',

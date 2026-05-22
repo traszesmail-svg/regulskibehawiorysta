@@ -23,7 +23,7 @@ export async function POST(request: Request) {
     await sendAccountPasswordReset(email, `${getBaseUrl(request)}/login`)
     return NextResponse.json({ ok: true })
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Nie udalo sie wyslac linku.'
+    const message = error instanceof Error ? error.message : 'Nie udało się wysłać linku.'
     const status = error instanceof ConfigurationError ? 400 : 500
     return NextResponse.json({ ok: false, error: message }, { status })
   }

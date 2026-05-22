@@ -352,7 +352,7 @@ export function getPaymentModeStatus(): RuntimeModeStatus<PaymentMode, ActivePay
         isValid: false,
         usesFallback: false,
         missing: ['MANUAL_PAYMENT_BLIK_PHONE lub MANUAL_PAYMENT_PAYPAL_ME_URL'],
-        summary: 'APP_PAYMENT_MODE=manual wymaga aktywnej konfiguracji wpłaty recznej przez BLIK albo PayPal.me.',
+        summary: 'APP_PAYMENT_MODE=manual wymaga aktywnej konfiguracji wpłaty ręcznej przez BLIK albo PayPal.me.',
       }
     }
 
@@ -374,7 +374,7 @@ export function getPaymentModeStatus(): RuntimeModeStatus<PaymentMode, ActivePay
       isValid: true,
       usesFallback: true,
       missing: [],
-      summary: 'APP_PAYMENT_MODE=auto -> aktywna jest wpłata reczna (BLIK/PayPal.me skonfigurowane).',
+      summary: 'APP_PAYMENT_MODE=auto -> aktywna jest wpłata ręczna (BLIK/PayPal.me skonfigurowane).',
     }
   }
 
@@ -384,7 +384,7 @@ export function getPaymentModeStatus(): RuntimeModeStatus<PaymentMode, ActivePay
     isValid: true,
     usesFallback: true,
     missing: [],
-    summary: 'APP_PAYMENT_MODE=auto -> aktywny jest testowy bypass płatności, bo brak konfiguracji płatności recznej.',
+    summary: 'APP_PAYMENT_MODE=auto -> aktywny jest testowy bypass płatności, bo brak konfiguracji płatności ręcznej.',
   }
 }
 

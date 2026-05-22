@@ -12,7 +12,7 @@ export async function POST(request: Request) {
     const password = body.password ?? ''
 
     if (!email || !password) {
-      return NextResponse.json({ ok: false, error: 'Podaj email i haslo.' }, { status: 400 })
+      return NextResponse.json({ ok: false, error: 'Podaj email i hasło.' }, { status: 400 })
     }
 
     const session = await signInAccount(email, password)
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     setAccountSessionCookies(response, session)
     return response
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Nie udalo sie zalogowac.'
+    const message = error instanceof Error ? error.message : 'Nie udało się zalogować.'
     const status = error instanceof ConfigurationError ? 401 : 500
     return NextResponse.json({ ok: false, error: message }, { status })
   }

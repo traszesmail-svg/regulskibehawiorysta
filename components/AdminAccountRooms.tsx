@@ -52,12 +52,12 @@ export function AdminAccountRooms({ rooms }: AdminAccountRoomsProps) {
       const payload = (await response.json()) as { ok?: boolean; error?: string }
 
       if (!response.ok || !payload.ok) {
-        throw new Error(payload.error ?? 'Nie udalo sie zapisac odpowiedzi.')
+        throw new Error(payload.error ?? 'Nie udało się zapisać odpowiedzi.')
       }
 
       window.location.reload()
     } catch (submitError) {
-      setError(submitError instanceof Error ? submitError.message : 'Nie udalo sie zapisac odpowiedzi.')
+      setError(submitError instanceof Error ? submitError.message : 'Nie udało się zapisać odpowiedzi.')
     } finally {
       setLoadingId(null)
     }
@@ -67,8 +67,8 @@ export function AdminAccountRooms({ rooms }: AdminAccountRoomsProps) {
     return (
       <section className="admin-account-empty">
         <MessageCircle size={22} aria-hidden="true" />
-        <h2>Brak kont opiekunow</h2>
-        <p>Po pierwszym logowaniu klienta jego pokoj pojawi sie tutaj.</p>
+        <h2>Brak kont opiekunów</h2>
+        <p>Po pierwszym logowaniu klienta jego pokój pojawi się tutaj.</p>
       </section>
     )
   }
@@ -80,7 +80,7 @@ export function AdminAccountRooms({ rooms }: AdminAccountRoomsProps) {
         <span>{rooms.length} kont</span>
         <button type="button" className="button button-ghost small-button" onClick={() => window.location.reload()}>
           <RefreshCw size={15} aria-hidden="true" />
-          Odswiez
+          Odśwież
         </button>
       </div>
 
@@ -89,14 +89,14 @@ export function AdminAccountRooms({ rooms }: AdminAccountRoomsProps) {
           <header className="admin-account-room-head">
             <div>
               <span className="admin-account-kicker">{room.email}</span>
-              <h2>{room.pets[0]?.name ? `Pokoj: ${room.pets[0].name}` : 'Pokoj opiekuna'}</h2>
-              <p>Ostatnia aktywnosc: {formatDateTime(room.updatedAt)}</p>
+              <h2>{room.pets[0]?.name ? `Pokój: ${room.pets[0].name}` : 'Pokój opiekuna'}</h2>
+              <p>Ostatnia aktywność: {formatDateTime(room.updatedAt)}</p>
             </div>
             <div className="admin-account-stats">
               <span>{room.pets.length} pupili</span>
               <span>{room.bookings.length} rezerwacji</span>
-              <span>{room.materials.length} materialow</span>
-              <span>{room.messageCount} wiadomosci</span>
+              <span>{room.materials.length} materiałów</span>
+              <span>{room.messageCount} wiadomości</span>
             </div>
           </header>
 
@@ -133,7 +133,7 @@ export function AdminAccountRooms({ rooms }: AdminAccountRoomsProps) {
 
             {room.materials.length > 0 ? (
               <section>
-                <h3>Materialy</h3>
+                <h3>Materiały</h3>
                 {room.materials.slice(0, 4).map((material) => (
                   <p key={material.orderNumber}>
                     <strong>{material.productName}</strong><br />
@@ -146,7 +146,7 @@ export function AdminAccountRooms({ rooms }: AdminAccountRoomsProps) {
 
           <div className="admin-account-conversations">
             {room.conversations.length === 0 ? (
-              <div className="admin-account-empty-inline">Brak rozmow w pokoju.</div>
+              <div className="admin-account-empty-inline">Brak rozmów w pokoju.</div>
             ) : null}
 
             {room.conversations.map((conversation) => {
@@ -156,7 +156,7 @@ export function AdminAccountRooms({ rooms }: AdminAccountRoomsProps) {
                   <div className="admin-account-conversation-head">
                     <div>
                       <h3>{conversation.subject}</h3>
-                      <p>Status: {conversation.status === 'closed' ? 'zamknieta' : 'otwarta'} · {formatDateTime(conversation.updatedAt)}</p>
+                      <p>Status: {conversation.status === 'closed' ? 'zamknięta' : 'otwarta'} · {formatDateTime(conversation.updatedAt)}</p>
                     </div>
                   </div>
 
@@ -188,11 +188,11 @@ export function AdminAccountRooms({ rooms }: AdminAccountRoomsProps) {
                         checked={closing[key] === true}
                         onChange={(event) => setClosing((current) => ({ ...current, [key]: event.target.checked }))}
                       />
-                      Zamknij rozmowe po odpowiedzi
+                      Zamknij rozmowę po odpowiedzi
                     </label>
                     <button type="button" className="button button-primary small-button" onClick={() => submit(room.userId, conversation.id)} disabled={loadingId !== null}>
                       <Send size={15} aria-hidden="true" />
-                      {loadingId === key ? 'Wysylam...' : 'Zapisz i powiadom'}
+                      {loadingId === key ? 'Wysyłam...' : 'Zapisz i powiadom'}
                     </button>
                   </div>
                 </section>

@@ -22,9 +22,9 @@ export default function AccountPage() {
       tag="Konto"
       navItems={PUBLIC_BOOKING_FLOW_NAV_ITEMS}
       ctaHref="/pokoj"
-      ctaLabel="Pokoj"
+      ctaLabel="Pokój"
       footerPrimaryHref="/pokoj"
-      footerPrimaryLabel="Pokoj opiekuna"
+      footerPrimaryLabel="Pokój opiekuna"
       pageClassName="account-page"
     >
       <div className="container">

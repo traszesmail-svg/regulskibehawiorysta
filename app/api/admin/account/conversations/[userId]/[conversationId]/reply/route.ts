@@ -19,7 +19,7 @@ export async function POST(
 
     return NextResponse.json({ ok: true, ...result })
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Nie udalo sie zapisac odpowiedzi.'
+    const message = error instanceof Error ? error.message : 'Nie udało się zapisać odpowiedzi.'
     return NextResponse.json({ ok: false, error: message }, { status: 400 })
   }
 }

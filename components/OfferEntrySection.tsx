@@ -110,12 +110,12 @@ export function OfferEntrySection({
           <div className="section-eyebrow">{COPY_SERVICE_NAMES.bridge}</div>
           <h3>{COPY_SERVICE_NAMES.bridge}</h3>
           <p>Format dla tematów szerszych, gdy 15 minut to za mało, ale pełna konsultacja byłaby jeszcze zbyt szerokim startem.</p>
-          <div className="editorial-hero-meta" aria-label="Parametry usługi posredniej">
+          <div className="editorial-hero-meta" aria-label="Parametry usługi pośredniej">
             <span>30 min online</span>
             <span>{formatPricePln(PUBLIC_OFFER_PRICES.bridge)}</span>
             <span>szerszy zakres</span>
           </div>
-          <p className="muted">Dla {speciesLabel}, gdy chcesz uporządkować 2-3 wątki i po rozmowie dostac krótka notatkę.</p>
+          <p className="muted">Dla {speciesLabel}, gdy chcesz uporządkować 2-3 wątki i po rozmowie dostać krótką notatkę.</p>
           <div className="hero-actions top-gap-small">
             <Link href={bridgeHref} prefetch={false} className="button button-ghost">
               {COPY_CTA.bridge}

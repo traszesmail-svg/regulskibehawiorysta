@@ -108,12 +108,12 @@ export function ReviewsCarousel({
             type="button"
             onClick={goNext}
             className="reviews-carousel-button reviews-carousel-button-next"
-            aria-label="Nastepna opinia"
+            aria-label="Następna opinia"
           >
             <ChevronRight size={20} />
           </button>
 
-          <div className="reviews-carousel-dots" aria-label="Wybierz opinie">
+          <div className="reviews-carousel-dots" aria-label="Wybierz opinię">
             {visibleReviews.map((review, dotIndex) => (
               <button
                 key={review.id}

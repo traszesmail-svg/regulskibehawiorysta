@@ -16,7 +16,7 @@ export default async function AdminAccountRoomsPage() {
   try {
     rooms = await listAccountRoomsForAdmin()
   } catch (loadError) {
-    error = loadError instanceof Error ? loadError.message : 'Nie udalo sie pobrac pokoi opiekuna.'
+    error = loadError instanceof Error ? loadError.message : 'Nie udało się pobrać pokoi opiekuna.'
   }
 
   return (
@@ -28,13 +28,13 @@ export default async function AdminAccountRoomsPage() {
           <div className="section-head">
             <div>
               <div className="section-eyebrow">Panel specjalisty</div>
-              <h1>Pokoj opiekuna: rozmowy i pliki</h1>
+              <h1>Pokój opiekuna: rozmowy i pliki</h1>
               <p className="hero-text">
-                Tu widzisz konta klientow, pupile, przeslane pliki i rozmowy z aplikacji.
+                Tu widzisz konta klientów, pupile, przesłane pliki i rozmowy z aplikacji.
               </p>
             </div>
             <Link href="/admin" className="button button-ghost">
-              Panel glowny
+              Panel główny
             </Link>
           </div>
 

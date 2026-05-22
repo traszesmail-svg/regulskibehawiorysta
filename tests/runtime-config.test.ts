@@ -739,6 +739,18 @@ test.skip('payment, confirmation and call sources keep visible fallbacks instead
   assert.match(callPageSource, /Nie udało się wczytać pokoju rozmowy|Nie udało się wczytać pokoju rozmowy/)
 })
 
+test('owner booking notification is sent only after payment report or paid confirmation', () => {
+  const supabaseStoreSource = readSource('lib', 'server', 'supabase-store.ts')
+  const localStoreSource = readSource('lib', 'server', 'local-store.ts')
+  const manualPaymentSource = readSource('lib', 'server', 'manual-payments.ts')
+
+  assert.doesNotMatch(supabaseStoreSource, /sendBookingOwnerNotificationEmail/)
+  assert.doesNotMatch(localStoreSource, /sendBookingOwnerNotificationEmail/)
+  assert.match(supabaseStoreSource, /sendBookingPaymentConfirmedOwnerEmail\(booking\)/)
+  assert.match(localStoreSource, /sendBookingPaymentConfirmedOwnerEmail\(booking\)/)
+  assert.match(manualPaymentSource, /sendManualPaymentReportedAdminEmailWithTimeout\(updatedBooking/)
+})
+
 test('commerce checkout uses Naffy runtime and refuses silent admin notification failures', () => {
   const checkoutSource = readSource('app', 'checkout', 'page.tsx')
   const checkoutActionsSource = readSource('components', 'CommerceCheckoutActions.tsx')

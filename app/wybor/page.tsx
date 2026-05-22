@@ -3,7 +3,6 @@ import Image from 'next/image'
 import Link from 'next/link'
 import {
   ArrowLeft,
-  ArrowRight,
   Baby,
   Cat,
   ChevronRight,
@@ -206,8 +205,6 @@ export default function ChoicePage({
   const animal = getAnimal(searchParams)
   const copy = animalCopy[animal]
   const choices = animal === 'cat' ? catChoices : dogChoices
-  const fallbackHref = buildChoiceHref(choices[choices.length - 1], animal)
-
   return (
     <main className={`notatnik-page homepage-shell ${styles.page} ${animal === 'cat' ? styles.catPage : styles.dogPage}`}>
       <Schema
@@ -292,11 +289,6 @@ export default function ChoicePage({
                 )
               })}
             </div>
-
-            <Link className={styles.nextButton} href={fallbackHref} prefetch={false}>
-              <span>Dalej</span>
-              <ArrowRight size={22} strokeWidth={2} aria-hidden="true" />
-            </Link>
           </section>
         </div>
 

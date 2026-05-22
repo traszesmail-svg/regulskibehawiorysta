@@ -11205,6 +11205,8 @@ html[data-theme='dark'] .notatnik-page .materialy-form .consent-line {
 }
 
 .router-choice-icon {
+  position: relative;
+  z-index: 0;
   display: inline-grid;
   width: 168px;
   height: 128px;
@@ -11214,6 +11216,7 @@ html[data-theme='dark'] .notatnik-page .materialy-form .consent-line {
   background: transparent;
   color: var(--accent);
   box-shadow: none;
+  pointer-events: none;
 }
 
 .router-choice-silhouette {
@@ -11236,8 +11239,8 @@ html[data-theme='dark'] .notatnik-page .materialy-form .consent-line {
 }
 
 .router-choice-silhouette-cat {
-  width: 138px;
-  height: 142px;
+  width: 124px;
+  height: 118px;
 }
 
 .router-choice-card:nth-child(3) .router-choice-icon {
@@ -11260,12 +11263,16 @@ html[data-theme='dark'] .notatnik-page .materialy-form .consent-line {
 }
 
 .router-choice-card strong {
+  position: relative;
+  z-index: 2;
   font-size: clamp(21px, 1.55vw, 25px);
   font-weight: 780;
   line-height: 1.15;
 }
 
 .router-choice-card > span:not(.router-choice-icon) {
+  position: relative;
+  z-index: 2;
   color: var(--ink-soft);
   font-size: 14px;
   line-height: 1.58;

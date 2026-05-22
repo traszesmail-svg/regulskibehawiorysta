@@ -20,7 +20,6 @@ import { isAvailabilitySlotBookableForService } from '@/lib/scheduling/rules'
 import {
   sendBookingConfirmationEmail,
   sendBookingPaymentConfirmedOwnerEmail,
-  sendBookingOwnerNotificationEmail,
   sendBookingReservationCreatedEmail,
   sendBookingManualPaymentPendingEmail,
   sendBookingStatusOutcomeEmail,
@@ -1232,14 +1231,6 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
 
   const booking = mapBookingRow(inserted.data as unknown as BookingRow)
   await sendBookingReservationCreatedEmail(booking, accessToken.rawToken)
-  const ownerNotification = await sendBookingOwnerNotificationEmail(booking)
-  if (ownerNotification.status !== 'sent') {
-    console.error('[regulski-behawiorysta][booking-owner-notification] failed', {
-      bookingId: booking.id,
-      reason: ownerNotification.reason,
-      status: ownerNotification.status,
-    })
-  }
 
   return {
     booking,

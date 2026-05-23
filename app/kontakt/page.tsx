@@ -155,8 +155,8 @@ export default function ContactPage() {
           <div className="contact-reference-form-card">
             <noscript>
               <div className="info-box">
-                Formularz wymaga włączonego JavaScriptu. Możesz od razu napisać bezpośrednio:{' '}
-                <a href={fallbackMailHref} className="contact-fallback-email">{email}</a>.
+                Formularz działa także bez JavaScriptu. Po wysłaniu wrócisz do tej sekcji z potwierdzeniem albo komunikatem,
+                co trzeba poprawić.
               </div>
             </noscript>
             <Suspense

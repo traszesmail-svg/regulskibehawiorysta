@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowRight, LockKeyhole } from 'lucide-react'
@@ -9,7 +10,7 @@ import {
   DEFAULT_BOOKING_SERVICE,
   type BookingServiceType,
 } from '@/lib/booking-services'
-import { buildPaymentHref } from '@/lib/booking-routing'
+import { buildPaymentHref, buildSlotHref } from '@/lib/booking-routing'
 import { isCatProblemType } from '@/lib/data'
 import { AnimalType, ProblemType } from '@/lib/types'
 
@@ -74,6 +75,7 @@ export function BookingForm({
   const [earlyStartAccepted, setEarlyStartAccepted] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [errorActionHref, setErrorActionHref] = useState<string | null>(null)
   const animalType = formCopy.animalType
 
   useEffect(() => {
@@ -98,27 +100,37 @@ export function BookingForm({
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
   }
 
+  function getSlotPickerHref() {
+    return buildSlotHref(problemType, serviceType === DEFAULT_BOOKING_SERVICE ? null : serviceType, qaBooking)
+  }
+
+  function showError(message: string, actionHref: string | null = null) {
+    setError(message)
+    setErrorActionHref(actionHref)
+  }
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setError('')
+    setErrorActionHref(null)
 
     if (!ownerName.trim() || !email.trim()) {
-      setError('Podaj imię i adres e-mail, żeby potwierdzić termin.')
+      showError('Podaj imię i adres e-mail, żeby potwierdzić termin.')
       return
     }
 
     if (!isEmailValid(email.trim())) {
-      setError('Podaj poprawny adres e-mail. Na ten adres wyślę potwierdzenie rozmowy.')
+      showError('Podaj poprawny adres e-mail. Na ten adres wyślę potwierdzenie rozmowy.')
       return
     }
 
     if (description.trim().length < 10) {
-      setError('Napisz jednym zdaniem, z czym chcesz wejść na rozmowę.')
+      showError('Napisz jednym zdaniem, z czym chcesz wejść na rozmowę.')
       return
     }
 
     if (!termsAccepted || !earlyStartAccepted) {
-      setError('Zaakceptuj regulamin, politykę prywatności i zgodę na rozpoczęcie usługi przed upływem 14 dni, żeby przejść dalej.')
+      showError('Zaakceptuj regulamin, politykę prywatności i zgodę na rozpoczęcie usługi przed upływem 14 dni, żeby przejść dalej.')
       return
     }
 
@@ -156,9 +168,9 @@ export function BookingForm({
 
       if (!response.ok || !payload.bookingId || !payload.accessToken) {
         if (payload.errorCode === 'slot_unavailable' || (typeof payload.error === 'string' && isSlotUnavailableBookingMessage(payload.error))) {
-          setError('Ten termin został właśnie zajęty. Wróć do listy terminów i wybierz inną godzinę rozmowy.')
+          showError('Ten termin został właśnie zajęty. Wróć do listy terminów i wybierz inną godzinę rozmowy.', getSlotPickerHref())
         } else {
-          setError(payload.error ?? 'Rezerwacja chwilowo jest niedostępna. Odśwież stronę za moment i spróbuj ponownie.')
+          showError(payload.error ?? 'Rezerwacja chwilowo jest niedostępna. Odśwież stronę za moment i spróbuj ponownie.')
         }
         setIsSubmitting(false)
         return
@@ -188,9 +200,9 @@ export function BookingForm({
       console.error('[regulski-behawiorysta][booking-form] submit failed', submissionError)
       const message = submissionError instanceof Error ? submissionError.message : 'Wystąpił błąd formularza.'
       if (isSlotUnavailableBookingMessage(message)) {
-        setError('Ten termin został właśnie zajęty. Wróć do listy terminów i wybierz inną godzinę rozmowy.')
+        showError('Ten termin został właśnie zajęty. Wróć do listy terminów i wybierz inną godzinę rozmowy.', getSlotPickerHref())
       } else {
-        setError(message)
+        showError(message)
       }
       setIsSubmitting(false)
     }
@@ -274,7 +286,16 @@ export function BookingForm({
         </span>
       </label>
 
-      {error ? <div className="notatnik-callout notatnik-callout-error">{error}</div> : null}
+      {error ? (
+        <div className="notatnik-callout notatnik-callout-error" role="alert" aria-live="assertive">
+          <p>{error}</p>
+          {errorActionHref ? (
+            <Link href={errorActionHref} prefetch={false} className="booking-details-error-link">
+              Wybierz inny termin
+            </Link>
+          ) : null}
+        </div>
+      ) : null}
 
       <button type="submit" className="booking-details-submit" disabled={isSubmitting} data-booking-submit="payment">
         <span>

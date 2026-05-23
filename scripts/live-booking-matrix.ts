@@ -135,6 +135,10 @@ function getBookingFormField(page: Page, field: string) {
   return page.locator(`[data-booking-field="${escapeAttributeValue(field)}"]`).first()
 }
 
+function getFirstSlotLink(page: Page) {
+  return page.locator('[data-selected-slot-link="true"], [data-nearest-slot-link="true"], a.slot-link').first()
+}
+
 async function submitBookingForm(page: Page) {
   await page.evaluate(() => {
     const form = document.querySelector('[data-booking-form="details"]') as HTMLFormElement | null
@@ -148,10 +152,13 @@ async function submitBookingForm(page: Page) {
   })
 }
 
-function getTopicSelector(attempt: MatrixAttempt) {
-  return attempt.routePath === '/koty'
-    ? `a[data-cat-problem="${escapeAttributeValue(attempt.problem)}"]`
-    : `a.topic-card[data-problem="${escapeAttributeValue(attempt.problem)}"]`
+function buildAttemptStartPath(attempt: MatrixAttempt) {
+  const params = new URLSearchParams({
+    problem: attempt.problem,
+    species: attempt.animalType === 'Kot' ? 'kot' : 'pies',
+  })
+
+  return `/book?${params.toString()}`
 }
 
 function buildAttemptOwnerName(attempt: MatrixAttempt, index: number) {
@@ -188,15 +195,14 @@ async function runAttempt(
   }
 
   try {
-    await page.goto(`${baseUrl}${attempt.routePath}`, { waitUntil: 'domcontentloaded' })
+    const startPath = buildAttemptStartPath(attempt)
+    result.startUrl = `${baseUrl}${startPath}`
+
+    await page.goto(result.startUrl, { waitUntil: 'domcontentloaded' })
     await waitForAnyVisible([page.locator('main h1').first()], 20000)
 
-    await clickAndWaitForUrl(page, page.locator(getTopicSelector(attempt)).first(), (url) => {
-      return url.pathname === '/slot' && url.searchParams.get('problem') === attempt.problem
-    })
-
-    await waitForAnyVisible([page.locator('a.slot-link').first()], 20000)
-    const firstSlot = page.locator('a.slot-link').first()
+    await waitForAnyVisible([getFirstSlotLink(page)], 20000)
+    const firstSlot = getFirstSlotLink(page)
     result.slotLabel = cleanText(await firstSlot.innerText())
 
     await clickAndWaitForUrl(page, firstSlot, (url) => url.pathname === '/form' && url.searchParams.get('problem') === attempt.problem)
@@ -236,7 +242,7 @@ async function runAttempt(
 
     result.status = 'passed'
     result.endUrl = page.url()
-    result.notes.push('Route: /book or /koty -> /slot -> /form -> /payment')
+    result.notes.push('Route: /book?problem=... -> /form -> /payment')
     result.notes.push(`Slot: ${result.slotLabel ?? 'brak'}`)
     result.notes.push(`manualVisible=${manualVisible}`)
     result.notes.push(`payuVisible=${payuVisible}`)

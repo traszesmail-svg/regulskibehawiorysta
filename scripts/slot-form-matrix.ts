@@ -4,7 +4,7 @@ import path from 'node:path'
 import { createRequire } from 'node:module'
 import { execFileSync, spawn } from 'node:child_process'
 import { loadEnvConfig } from '@next/env'
-import { chromium } from 'playwright-core'
+import { chromium, type Page } from 'playwright-core'
 import { problemOptions } from '../lib/data'
 import { createLocalDataSandbox } from './lib/local-data-sandbox'
 import { resolveBrowserExecutablePath } from './lib/browser-path'
@@ -107,6 +107,18 @@ async function resolveBrowserExecutablePathLegacy() {
   }
 
   throw new Error('Nie znaleziono lokalnej przegladarki Chromium (Chrome lub Edge) do slot-form-matrix.')
+}
+
+function escapeAttributeValue(value: string) {
+  return value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
+}
+
+function getFirstSlotLink(page: Page) {
+  return page.locator('[data-selected-slot-link="true"], [data-nearest-slot-link="true"], a.slot-link').first()
+}
+
+function getSlotLinkById(page: Page, slotId: string) {
+  return page.locator(`[data-slot-id="${escapeAttributeValue(slotId)}"], a.slot-link[data-slot-id="${escapeAttributeValue(slotId)}"]`).first()
 }
 
 async function resolveServerCommand() {
@@ -255,12 +267,12 @@ async function main() {
       })
 
       await page.goto(`${appUrl}/slot?problem=${encodeURIComponent(topic.id)}`, { waitUntil: 'domcontentloaded' })
-      await page.locator('a.slot-link').first().waitFor()
+      await getFirstSlotLink(page).waitFor()
 
       const slotResults: Array<{ slotId: string; slotLabel: string; url: string }> = []
 
       for (const slot of seededSlots) {
-        const slotLink = page.locator(`a.slot-link[data-slot-id="${slot.id}"]`)
+        const slotLink = getSlotLinkById(page, slot.id)
 
         await slotLink.waitFor()
         await slotLink.click()
@@ -279,7 +291,7 @@ async function main() {
         })
 
         await page.goto(`${appUrl}/slot?problem=${encodeURIComponent(topic.id)}`, { waitUntil: 'domcontentloaded' })
-        await page.locator('a.slot-link').first().waitFor()
+        await getFirstSlotLink(page).waitFor()
       }
 
       results.push({

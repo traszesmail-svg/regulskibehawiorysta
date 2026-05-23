@@ -61,6 +61,7 @@ function getSpeciesIcon(species: TerminCalendarSummary['species']) {
 
 export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, choicePanel }: TerminCalendarPickerProps) {
   const flatSlots = useMemo(() => days.flatMap((day) => day.slots.filter((slot) => slot.isBookable)), [days])
+  const nearestSlots = flatSlots.slice(0, 5)
   const firstAvailableDay = days.find((day) => day.availableSlotCount > 0) ?? days.find((day) => day.isInPrimaryMonth) ?? days[0] ?? null
   const [selectedDayDate, setSelectedDayDate] = useState(firstAvailableDay?.date ?? '')
   const [selectedSlotId, setSelectedSlotId] = useState(flatSlots[0]?.id ?? '')
@@ -105,6 +106,33 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, cho
             {slotCount > 0 ? `${slotCount} dostępnych terminów` : 'Brak dostępnych terminów'} / {summary.serviceBadge}
           </p>
         </div>
+
+        {nearestSlots.length > 0 ? (
+          <section className="termin-nearest-slots" aria-label="Najbliższe dostępne terminy">
+            <div className="termin-nearest-slots-head">
+              <span>Najbliższe terminy</span>
+              <strong>Wybierz od razu, jeśli chcesz szybciej przejść dalej.</strong>
+            </div>
+            <div className="termin-nearest-slot-list">
+              {nearestSlots.map((slot) =>
+                slot.href ? (
+                  <Link
+                    key={slot.id}
+                    href={slot.href}
+                    prefetch={false}
+                    className="termin-nearest-slot-link"
+                    data-nearest-slot-link="true"
+                    data-slot-id={slot.id}
+                  >
+                    <span>{slot.dateLabel}</span>
+                    <strong>{slot.time}</strong>
+                    <small>{slot.serviceTitle}</small>
+                  </Link>
+                ) : null,
+              )}
+            </div>
+          </section>
+        ) : null}
 
         <div className="termin-calendar-weekdays" aria-hidden="true">
           {weekdayLabels.map((label) => (
@@ -223,7 +251,13 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, cho
         </div>
 
         {selectedSlot?.href ? (
-          <Link href={selectedSlot.href} prefetch={false} className="notatnik-btn termin-summary-cta">
+          <Link
+            href={selectedSlot.href}
+            prefetch={false}
+            className="notatnik-btn termin-summary-cta"
+            data-selected-slot-link="true"
+            data-slot-id={selectedSlot.id}
+          >
             <CalendarDays size={17} strokeWidth={1.9} aria-hidden="true" />
             <span>Zarezerwuj wybrany termin</span>
           </Link>

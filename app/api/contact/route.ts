@@ -17,6 +17,7 @@ const GENERIC_ERROR_MESSAGE = 'Nie udało się wysłać wiadomości. Spróbuj po
 const RATE_LIMIT_MESSAGE = 'Za dużo prób w krótkim czasie. Spróbuj ponownie za godzinę.'
 const CONTACT_RATE_LIMIT_MAX = 3
 const CONTACT_RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000
+const FORM_CONTENT_TYPES = ['application/x-www-form-urlencoded', 'multipart/form-data'] as const
 
 type RateLimitEntry = {
   count: number
@@ -53,6 +54,64 @@ type ValidatedContactLeadPayload = {
 }
 
 type ContactLeadSpecies = FunnelSpecies | 'nie-wiem'
+
+function isFormSubmission(request: Request): boolean {
+  const contentType = request.headers.get('content-type') ?? ''
+
+  return FORM_CONTENT_TYPES.some((candidate) => contentType.includes(candidate))
+}
+
+function formDataToBody(formData: FormData): Record<string, unknown> {
+  const body: Record<string, unknown> = {}
+
+  for (const [key, value] of formData.entries()) {
+    if (typeof value === 'string') {
+      body[key] = value
+    }
+  }
+
+  return body
+}
+
+function isTruthyFormValue(value: unknown): boolean {
+  return value === true || value === 'true' || value === '1' || value === 'on' || value === 'yes'
+}
+
+function contactRedirect(request: Request, params: { sent?: true; error?: string }) {
+  const url = new URL('/kontakt', request.url)
+
+  if (params.sent) {
+    url.searchParams.set('sent', '1')
+  } else if (params.error) {
+    url.searchParams.set('error', params.error)
+  }
+
+  url.hash = 'formularz'
+
+  return NextResponse.redirect(url, { status: 303 })
+}
+
+function contactSuccessResponse(request: Request, shouldRedirect: boolean, message: string) {
+  if (shouldRedirect) {
+    return contactRedirect(request, { sent: true })
+  }
+
+  return NextResponse.json({ ok: true, message })
+}
+
+function contactErrorResponse(
+  request: Request,
+  shouldRedirect: boolean,
+  message: string,
+  status: number,
+  init?: ResponseInit,
+) {
+  if (shouldRedirect) {
+    return contactRedirect(request, { error: message })
+  }
+
+  return NextResponse.json({ error: message }, { ...init, status })
+}
 
 function getUnavailableMessage(): string {
   const contact = getContactDetails()
@@ -174,8 +233,8 @@ function validatePayload(body: Record<string, unknown>): { payload?: ValidatedCo
   const intent = normalizeSingleLine(body.intent, 80) ?? normalizeSingleLine(body.service, 80) ?? null
   const requestedDate = normalizeDate(body.requestedDate)
   const requestedTime = normalizeTime(body.requestedTime)
-  const consentProcessing = body.consentProcessing === true
-  const consentPolicy = body.consentPolicy === true
+  const consentProcessing = isTruthyFormValue(body.consentProcessing)
+  const consentPolicy = isTruthyFormValue(body.consentPolicy)
   const contextLabel =
     species && topic ? `${getSpeciesLabel(species)} • ${topic}` : topic ? `Kontakt • ${topic}` : null
 
@@ -225,32 +284,36 @@ function validatePayload(body: Record<string, unknown>): { payload?: ValidatedCo
 }
 
 export async function POST(request: Request) {
+  const shouldRedirect = isFormSubmission(request)
+
   try {
     let body: Record<string, unknown>
 
     try {
-      body = (await request.json()) as Record<string, unknown>
+      body = shouldRedirect ? formDataToBody(await request.formData()) : ((await request.json()) as Record<string, unknown>)
     } catch {
-      return NextResponse.json({ error: 'Nie udało się odczytać formularza kontaktu.' }, { status: 400 })
+      return contactErrorResponse(request, shouldRedirect, 'Nie udało się odczytać formularza kontaktu.', 400)
     }
 
     const { payload, error } = validatePayload(body)
 
     if (error || !payload) {
-      return NextResponse.json({ error: error ?? GENERIC_ERROR_MESSAGE }, { status: 400 })
+      return contactErrorResponse(request, shouldRedirect, error ?? GENERIC_ERROR_MESSAGE, 400)
     }
 
     if (payload.website) {
-      return NextResponse.json({ ok: true, message: isUrgentNowIntent(payload.intent) ? URGENT_SUCCESS_MESSAGE : SUCCESS_MESSAGE })
+      return contactSuccessResponse(request, shouldRedirect, isUrgentNowIntent(payload.intent) ? URGENT_SUCCESS_MESSAGE : SUCCESS_MESSAGE)
     }
 
     const rateLimit = consumeContactRateLimit(request)
 
     if (!rateLimit.allowed) {
-      return NextResponse.json(
-        { error: RATE_LIMIT_MESSAGE },
+      return contactErrorResponse(
+        request,
+        shouldRedirect,
+        RATE_LIMIT_MESSAGE,
+        429,
         {
-          status: 429,
           headers: {
             'Retry-After': String(rateLimit.retryAfterSeconds),
           },
@@ -282,23 +345,23 @@ export async function POST(request: Request) {
         console.warn('[regulski-behawiorysta][contact] customer auto-reply skipped', customerDelivery.reason)
       }
 
-      return NextResponse.json({ ok: true, message: isUrgentNowIntent(payload.intent) ? URGENT_SUCCESS_MESSAGE : SUCCESS_MESSAGE })
+      return contactSuccessResponse(request, shouldRedirect, isUrgentNowIntent(payload.intent) ? URGENT_SUCCESS_MESSAGE : SUCCESS_MESSAGE)
     }
 
     if (delivery.status === 'skipped') {
       console.warn('[regulski-behawiorysta][contact] submission skipped', delivery.reason)
-      return NextResponse.json({ error: getUnavailableMessage() }, { status: 503 })
+      return contactErrorResponse(request, shouldRedirect, getUnavailableMessage(), 503)
     }
 
     console.error('[regulski-behawiorysta][contact] submission failed', delivery.reason)
-    return NextResponse.json({ error: GENERIC_ERROR_MESSAGE }, { status: 500 })
+    return contactErrorResponse(request, shouldRedirect, GENERIC_ERROR_MESSAGE, 500)
   } catch (error) {
     console.error('[regulski-behawiorysta][contact] unexpected error', error)
 
     if (error instanceof ConfigurationError) {
-      return NextResponse.json({ error: getUnavailableMessage() }, { status: 503 })
+      return contactErrorResponse(request, shouldRedirect, getUnavailableMessage(), 503)
     }
 
-    return NextResponse.json({ error: GENERIC_ERROR_MESSAGE }, { status: 500 })
+    return contactErrorResponse(request, shouldRedirect, GENERIC_ERROR_MESSAGE, 500)
   }
 }

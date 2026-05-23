@@ -356,6 +356,67 @@ test('contact route sends leads to the public inbox and replies to the sender', 
   }
 })
 
+test('contact route accepts browser form posts and redirects back to contact form', async () => {
+  const sentEmails: ResendEmailPayload[] = []
+  const originalFetch = globalThis.fetch
+
+  try {
+    const mockFetch = async (_input: RequestInfo | URL, init?: RequestInit) => {
+      const body = typeof init?.body === 'string' ? JSON.parse(init.body) : {}
+      sentEmails.push(body)
+      return new Response('{}', {
+        status: 200,
+        headers: {
+          'content-type': 'application/json',
+        },
+      })
+    }
+
+    ;(globalThis as typeof globalThis & { fetch: typeof fetch }).fetch = mockFetch as typeof fetch
+
+    await withEnv(
+      {
+        MAIL_PROVIDER: 'resend',
+        RESEND_API_KEY: 're_test_key',
+        RESEND_FROM_EMAIL: EXPECTED_RESEND_FROM,
+        REGULSKI_CONTACT_EMAIL: 'kontakt@regulskibehawiorysta.pl',
+      },
+      async () => {
+        const body = new URLSearchParams({
+          name: 'Anna Nowak',
+          contact: 'klient@example.com',
+          species: 'pies',
+          topicId: 'inne',
+          topic: 'Wiadomość z formularza kontaktowego',
+          message:
+            'Potrzebuje pomocy z psem i chce ustalic prosty start. Temat wraca od kilku tygodni i nie wiem, od czego zaczac.',
+          consentProcessing: 'on',
+          consentPolicy: 'on',
+        })
+
+        const response = await postContactLead(
+          new Request('https://example.test/api/contact', {
+            method: 'POST',
+            headers: {
+              'content-type': 'application/x-www-form-urlencoded',
+              'x-forwarded-for': '203.0.113.13',
+            },
+            body,
+          }),
+        )
+
+        assert.equal(response.status, 303)
+        assert.match(response.headers.get('location') ?? '', /\/kontakt\?sent=1#formularz$/)
+        assert.equal(sentEmails.length, 2)
+        assert.equal(sentEmails[0].to?.[0], 'kontakt@regulskibehawiorysta.pl')
+        assert.equal(sentEmails[1].to?.[0], 'klient@example.com')
+      },
+    )
+  } finally {
+    ;(globalThis as typeof globalThis & { fetch: typeof fetch }).fetch = originalFetch
+  }
+})
+
 test('contact route silently accepts honeypot submissions without sending emails', async () => {
   const sentEmails: ResendEmailPayload[] = []
   const originalFetch = globalThis.fetch

@@ -330,6 +330,10 @@ function getBookingSubmitButton(page: Page) {
   return page.locator('[data-booking-submit="payment"]').first()
 }
 
+function getFirstSlotLink(page: Page) {
+  return page.locator('[data-selected-slot-link="true"], [data-nearest-slot-link="true"], a.slot-link').first()
+}
+
 async function submitBookingForm(page: Page) {
   await page.evaluate(() => {
     const form = document.querySelector('[data-booking-form="details"]') as HTMLFormElement | null
@@ -506,7 +510,7 @@ async function runOfferJourney(results: StepResult[], page: Page, baseUrl: strin
     )
     step.notes.push(`/book -> /slot z problem=${config.problemType}`)
 
-    const firstSlot = page.locator('a.slot-link').first()
+    const firstSlot = getFirstSlotLink(page)
     const emptyState = page.locator('.empty-box').first()
     await waitForAnyVisible([firstSlot, emptyState], 20000)
 
@@ -1011,13 +1015,13 @@ async function main() {
         [publicPage.getByRole('heading', { level: 1, name: new RegExp(`Wybierz termin: ${escapeRegExp(getProblemLabel('kot-stres'))}`, 'i') })],
         20000,
       )
-      const firstSlot = publicPage.locator('a.slot-link').first()
+      const firstSlot = getFirstSlotLink(publicPage)
       await waitForAnyVisible([firstSlot], 20000)
       step.notes.push(`Pierwszy slot: ${cleanText(await firstSlot.innerText())}`)
     })
 
     await runStep(results, '/form', publicPage, async (step) => {
-      const firstSlot = publicPage.locator('a.slot-link').first()
+      const firstSlot = getFirstSlotLink(publicPage)
       await firstSlot.click()
       await publicPage.waitForURL(/\/form\?problem=kot-stres&slotId=/, { timeout: 30000, waitUntil: 'domcontentloaded' })
       await waitForAnyVisible([publicPage.getByRole('heading', { level: 1, name: /Uzupełnij dane do rezerwacji/i })], 20000)

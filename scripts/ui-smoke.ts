@@ -573,6 +573,8 @@ async function runUiSmokeOnce() {
 
     await publicPage.goto(`${appUrl}/slot?problem=szczeniak`, { waitUntil: 'domcontentloaded' })
     await publicPage.getByRole('heading', { name: /Wybierz termin konsultacji/i }).waitFor()
+    await publicPage.locator('[data-selected-slot-link="true"]').first().waitFor()
+    await publicPage.locator('[data-nearest-slot-link="true"]').first().waitFor()
 
     const slotLink = publicPage.locator(`a[href^="/form?problem=szczeniak&slotId=${encodeURIComponent(slot.id)}"]`).first()
     await slotLink.waitFor()

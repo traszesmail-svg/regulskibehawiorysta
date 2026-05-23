@@ -1305,6 +1305,32 @@ test('live booking matrix keeps a ten-attempt production report', () => {
   assert.match(source, /Proby zaliczone/)
 })
 
+test('booking and contact flows keep resilient fallback selectors', () => {
+  const contactFormSource = readSource('components', 'ContactLeadForm.tsx')
+  const contactRouteSource = readSource('app', 'api', 'contact', 'route.ts')
+  const calendarSource = readSource('components', 'TerminCalendarPicker.tsx')
+  const bookingFormSource = readSource('components', 'BookingForm.tsx')
+  const cssSource = readSource('app', 'notatnik-a.css')
+  const liveClickthroughSource = readSource('scripts', 'live-clickthrough-report.ts')
+  const liveBookingMatrixSource = readSource('scripts', 'live-booking-matrix.ts')
+
+  assert.match(contactFormSource, /action="\/api\/contact"/)
+  assert.match(contactFormSource, /method="post"/)
+  assert.match(contactFormSource, /type="radio"/)
+  assert.match(contactRouteSource, /request\.formData\(\)/)
+  assert.match(contactRouteSource, /NextResponse\.redirect/)
+
+  assert.match(calendarSource, /data-nearest-slot-link="true"/)
+  assert.match(calendarSource, /data-selected-slot-link="true"/)
+  assert.match(cssSource, /termin-nearest-slots/)
+  assert.match(cssSource, /termin-calendar-weekdays,\s*[\r\n]+\s*\.termin-calendar-grid/)
+
+  assert.match(bookingFormSource, /buildSlotHref/)
+  assert.match(bookingFormSource, /booking-details-error-link/)
+  assert.match(liveClickthroughSource, /data-selected-slot-link/)
+  assert.match(liveBookingMatrixSource, /buildAttemptStartPath/)
+})
+
 test('payu smoke script supports a production checkout target without sandbox defaults', () => {
   const source = readSource('scripts', 'payu-smoke.ts')
 

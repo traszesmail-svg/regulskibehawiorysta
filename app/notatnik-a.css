@@ -14223,7 +14223,7 @@ button.selector-step {
 
 .contact-species-toggle {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -14250,6 +14250,7 @@ button.selector-step {
 }
 
 .contact-species-card:hover,
+.contact-species-card:focus-within,
 .contact-species-card:focus-visible,
 .contact-species-card.is-selected {
   transform: translateY(-1px);
@@ -26965,6 +26966,35 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
   border-radius: 10px !important;
 }
 
+.termin-nearest-slots {
+  display: none !important;
+}
+
+.termin-nearest-slot-link,
+.notatnik-page a.termin-nearest-slot-link,
+.notatnik-page a.termin-nearest-slot-link:visited {
+  color: inherit !important;
+  text-decoration: none !important;
+}
+
+.booking-details-error-link,
+.notatnik-page a.booking-details-error-link,
+.notatnik-page a.booking-details-error-link:visited {
+  display: inline-flex !important;
+  width: fit-content !important;
+  min-height: 38px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-top: 12px !important;
+  padding: 0 14px !important;
+  border-radius: 10px !important;
+  background: #fffdf8 !important;
+  color: #7a2b1d !important;
+  font-size: 13px !important;
+  font-weight: 850 !important;
+  text-decoration: none !important;
+}
+
 @media (max-width: 680px) {
   .termin-shell {
     width: min(100%, 400px) !important;
@@ -26999,8 +27029,82 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
     grid-template-columns: 1fr !important;
   }
 
+  .termin-nearest-slots {
+    display: grid !important;
+    gap: 12px !important;
+    margin: 0 18px 18px !important;
+    padding: 16px !important;
+    border: 1px solid rgba(80, 65, 47, 0.12) !important;
+    border-radius: 14px !important;
+    background:
+      radial-gradient(circle at 12% 8%, rgba(224, 231, 206, 0.78), transparent 42%),
+      #f8f3e9 !important;
+  }
+
+  .termin-nearest-slots-head {
+    display: grid !important;
+    gap: 3px !important;
+  }
+
+  .termin-nearest-slots-head span {
+    color: #172119 !important;
+    font-size: 15px !important;
+    font-weight: 900 !important;
+  }
+
+  .termin-nearest-slots-head strong {
+    color: rgba(23, 33, 25, 0.68) !important;
+    font-size: 12px !important;
+    font-weight: 760 !important;
+    line-height: 1.35 !important;
+  }
+
+  .termin-nearest-slot-list {
+    display: grid !important;
+    gap: 8px !important;
+  }
+
+  .termin-nearest-slot-link {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    gap: 2px 12px !important;
+    align-items: center !important;
+    min-height: 58px !important;
+    padding: 12px 14px !important;
+    border: 1px solid rgba(16, 75, 43, 0.14) !important;
+    border-radius: 12px !important;
+    background: #fffdf8 !important;
+    box-shadow: 0 10px 20px rgba(67, 49, 28, 0.07) !important;
+  }
+
+  .termin-nearest-slot-link span,
+  .termin-nearest-slot-link small {
+    min-width: 0 !important;
+    color: rgba(23, 33, 25, 0.68) !important;
+    font-size: 12px !important;
+    line-height: 1.25 !important;
+  }
+
+  .termin-nearest-slot-link span {
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .termin-nearest-slot-link strong {
+    grid-row: span 2 !important;
+    color: #104b2b !important;
+    font-size: 20px !important;
+    font-weight: 900 !important;
+  }
+
+  .termin-nearest-slot-link small {
+    font-weight: 760 !important;
+  }
+
+  .termin-calendar-weekdays,
   .termin-calendar-grid {
-    max-height: none !important;
+    display: none !important;
   }
 
   .termin-calendar-times {

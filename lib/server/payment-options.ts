@@ -75,11 +75,11 @@ function formatPaypalMe(value: string | null): { display: string | null; url: st
 
 function getManualPaymentMethodLabel(phone: string | null, paypalMeUrl: string | null) {
   if (phone && paypalMeUrl) {
-    return 'BLIK i PayPal.me'
+    return 'BLIK po instrukcji e-mail i PayPal.me'
   }
 
   if (phone) {
-    return 'BLIK'
+    return 'BLIK po instrukcji e-mail'
   }
 
   if (paypalMeUrl) {
@@ -91,11 +91,11 @@ function getManualPaymentMethodLabel(phone: string | null, paypalMeUrl: string |
 
 function getManualPaymentAvailabilityLabel(phone: string | null, paypalMeUrl: string | null) {
   if (phone && paypalMeUrl) {
-    return 'BLIK i PayPal.me są dostępne'
+    return 'BLIK po instrukcji e-mail i PayPal.me są dostępne'
   }
 
   if (phone) {
-    return 'BLIK jest dostępny'
+    return 'BLIK po instrukcji e-mail jest dostępny'
   }
 
   if (paypalMeUrl) {
@@ -304,7 +304,7 @@ export function getManualPaymentConfig(): ManualPaymentConfig {
       accountName,
       instructions,
       holdMinutes,
-      summary: 'Wpłata ręczna wymaga aktywnej konfiguracji BLIK lub PayPal.me.',
+      summary: 'Wpłata ręczna wymaga aktywnej konfiguracji BLIK po instrukcji e-mail lub PayPal.me.',
     }
   }
 

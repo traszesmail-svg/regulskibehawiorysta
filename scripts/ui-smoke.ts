@@ -388,7 +388,6 @@ async function runUiSmokeOnce() {
   process.env.NEXT_PUBLIC_APP_URL = appUrl
   process.env.ADMIN_ACCESS_SECRET = adminSecret
   process.env.RESEND_API_KEY = ''
-  process.env.REGULSKI_CONTACT_PHONE = '500600700'
   process.env.MANUAL_PAYMENT_BLIK_PHONE = '512992026'
   process.env.MANUAL_PAYMENT_PAYPAL_ME_URL = 'paypal.me/regulskibehawiorysta'
   process.env.MANUAL_PAYMENT_ACCOUNT_NAME = 'Krzysztof Regulski'
@@ -546,11 +545,6 @@ async function runUiSmokeOnce() {
         path: '/oferta/konsultacja-behawioralna-online',
         destinationPath: '/cennik',
         heading: pricingHeading,
-      },
-      {
-        path: '/behawiorysta-olsztyn',
-        destinationPath: '/',
-        heading: homeHeading,
       },
       {
         path: '/behawiorysta-psow',

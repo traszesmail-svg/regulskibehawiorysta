@@ -254,7 +254,7 @@ export default async function FormPage({
                 </a>
                 <span>
                   <Headphones size={18} strokeWidth={1.8} aria-hidden="true" />
-                  Rozmowa telefoniczna lub głosowa online po rezerwacji
+                  Rozmowa głosowa online po rezerwacji
                 </span>
               </div>
             </section>

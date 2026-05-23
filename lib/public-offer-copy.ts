@@ -52,10 +52,10 @@ export const PUBLIC_OFFER_BOOKING_PROCESS = [
   '3. Po potwierdzeniu dostajesz dalszy krok płatności i finalne potwierdzenie rozmowy.',
 ] as const
 
-export const PUBLIC_OFFER_PAYMENT_METHODS = 'PayPal albo BLIK na telefon'
+export const PUBLIC_OFFER_PAYMENT_METHODS = 'PayPal albo BLIK po instrukcji e-mail'
 
 export const PUBLIC_OFFER_PAYMENT_EMAIL_STEP =
-  'W mailu dostajesz przycisk do PayPal albo instrukcję BLIK na telefon.'
+  'W mailu dostajesz przycisk do PayPal albo instrukcję BLIK bez publicznego numeru.'
 
 export const PUBLIC_OFFER_BOOKING_PAYMENT =
   `Najpierw uzgadniamy termin, dopiero potem wysyłam dane do płatności. Rezerwacje możesz opłacić przez ${PUBLIC_OFFER_PAYMENT_METHODS}. Po wpłacie wraca potwierdzenie i link do rozmowy.`

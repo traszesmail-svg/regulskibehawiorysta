@@ -19,6 +19,7 @@ import {
   PUBLIC_CONTACT_EMAIL_FALLBACK,
   SITE_NAME,
   SITE_TAGLINE,
+  SPECIALIST_NAME,
   getPublicContactDetails,
 } from '@/lib/site'
 
@@ -447,10 +448,15 @@ export default function OpinionsPage() {
   const structuredData = [
     {
       '@context': 'https://schema.org',
-      '@type': 'ProfessionalService',
+      '@type': 'Service',
       name: SITE_NAME,
       description: `${SITE_TAGLINE}. Opinie po konsultacjach behawioralnych online.`,
       url: new URL('/opinie', baseUrl).toString(),
+      serviceType: 'Konsultacja behawioralna online',
+      provider: {
+        '@type': 'Person',
+        name: SPECIALIST_NAME,
+      },
       areaServed: [{ '@type': 'Country', name: 'Polska' }],
       aggregateRating: {
         '@type': 'AggregateRating',

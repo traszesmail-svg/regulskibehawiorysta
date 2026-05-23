@@ -106,7 +106,7 @@ export function PdfOrderForm({ itemType, itemSlug, itemTitle, itemPrice }: PdfOr
       data-analytics-item-slug={itemSlug}
     >
       <div className="info-box full-width">
-        Zamówienie dotyczy: <strong>{itemTitle}</strong> ({itemPrice}). Po wysłaniu formularza dostajesz mail z dalszym krokiem płatności: {PUBLIC_OFFER_PAYMENT_METHODS}. BLIK na telefon zostaje dostępny bez publikowania numeru na stronie.
+        Zamówienie dotyczy: <strong>{itemTitle}</strong> ({itemPrice}). Po wysłaniu formularza dostajesz mail z dalszym krokiem płatności: {PUBLIC_OFFER_PAYMENT_METHODS}. Numer do BLIK nie jest publikowany na stronie.
       </div>
 
       <div className="form-field">
@@ -133,7 +133,7 @@ export function PdfOrderForm({ itemType, itemSlug, itemTitle, itemPrice }: PdfOr
           rows={4}
           value={notes}
           onChange={(event) => setNotes(event.target.value)}
-          placeholder="Jeśli chcesz, dopisz krótko, czego dotyczy sytuacja albo czy wolisz PayPal albo BLIK na telefon."
+          placeholder="Jeśli chcesz, dopisz krótko, czego dotyczy sytuacja albo czy wolisz PayPal albo BLIK po instrukcji e-mail."
         />
       </div>
 

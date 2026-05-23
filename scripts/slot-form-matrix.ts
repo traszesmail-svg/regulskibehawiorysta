@@ -173,7 +173,6 @@ async function main() {
   process.env.APP_PAYMENT_MODE = 'auto'
   process.env.NEXT_PUBLIC_APP_URL = appUrl
   process.env.RESEND_API_KEY = ''
-  process.env.REGULSKI_CONTACT_PHONE = '500600700'
   process.env.MANUAL_PAYMENT_BANK_ACCOUNT = '11112222333344445555666677'
   process.env.MANUAL_PAYMENT_ACCOUNT_NAME = 'Krzysztof Regulski'
   process.env.SMS_PROVIDER = 'disabled'

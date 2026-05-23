@@ -4,22 +4,16 @@
 
 import { SITE } from './seo.config';
 
-// ============ LOCAL BUSINESS (globalnie w layout) ============
+// ============ PERSON (globalnie w layout) ============
 export function localBusinessSchema() {
   return {
     '@context': 'https://schema.org',
-    '@type': 'LocalBusiness',
+    '@type': 'Person',
     '@id': SITE.url,
-    name: SITE.fullName,
+    name: SITE.author.name,
     description: SITE.author.bio,
     url: SITE.url,
     image: `${SITE.url}${SITE.defaultOgImage}`,
-    priceRange: SITE.business.priceRange,
-    address: {
-      '@type': 'PostalAddress',
-      addressCountry: SITE.business.address.addressCountry,
-      addressLocality: SITE.business.address.addressLocality,
-    },
     areaServed: {
       '@type': 'Country',
       name: 'Polska',
@@ -176,11 +170,6 @@ export function personSchema() {
     description: SITE.author.bio,
     url: `${SITE.url}/o-mnie`,
     image: `${SITE.url}/about-photo.jpg`,
-    worksFor: {
-      '@type': 'Organization',
-      name: SITE.name,
-      url: SITE.url,
-    },
     knowsAbout: [
       'Behawiorystyka zwierząt',
       'Psy',

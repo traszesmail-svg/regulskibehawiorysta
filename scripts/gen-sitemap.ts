@@ -71,7 +71,6 @@ const EXCLUDED_ROUTE_EXACT = new Set([
   '/oferta/poradniki-pdf',
   '/behawiorysta-psow',
   '/behawiorysta-kotow',
-  '/behawiorysta-olsztyn',
   '/behawiorysta-online-polska',
   '/konsultacja-behawioralna-online',
   '/psy',
@@ -689,7 +688,7 @@ async function main() {
 
   assert.equal(
     uniqueCandidatePaths.some((routePath) =>
-      ['_v2', 'olsztyn', '/oferta', '/behawiorysta-psow', '/behawiorysta-kotow'].some((needle) =>
+      ['_v2', '/oferta', '/behawiorysta-psow', '/behawiorysta-kotow'].some((needle) =>
         routePath.includes(needle),
       ),
     ),

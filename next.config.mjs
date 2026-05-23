@@ -206,11 +206,6 @@ const nextConfig = {
         statusCode: 301,
       },
       {
-        source: '/behawiorysta-olsztyn',
-        destination: '/',
-        statusCode: 301,
-      },
-      {
         source: '/behawiorysta-psow',
         destination: '/',
         statusCode: 301,

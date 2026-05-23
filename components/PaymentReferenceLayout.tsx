@@ -191,7 +191,7 @@ function PaymentReferenceSummary({
       <div className="payment-ref-safety">
         <ShieldCheck aria-hidden="true" />
         <span>
-          <strong>Bezpiecznie i bez publicznego telefonu</strong>
+          <strong>Bezpiecznie i przez e-mail</strong>
           <em>Termin jest pewny po potwierdzeniu płatności. Po potwierdzeniu dostajesz dalszy krok i link do rozmowy.</em>
         </span>
       </div>
@@ -219,7 +219,7 @@ function PaymentReferenceTrustStrip() {
     {
       icon: MessageCircle,
       title: 'Wsparcie',
-      copy: 'Kontakt prowadzimy przez e-mail i formularz, bez darmowej linii telefonicznej.',
+      copy: 'Kontakt prowadzimy przez e-mail i formularz.',
     },
     {
       icon: PawPrint,

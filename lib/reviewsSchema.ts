@@ -13,26 +13,12 @@ interface BusinessConfig {
   name: string;
   url: string;
   image: string;
-  telephone?: string;
-  address?: {
-    streetAddress?: string;
-    addressLocality: string;
-    addressRegion?: string;
-    postalCode?: string;
-    addressCountry: string;
-  };
-  priceRange?: string;
 }
 
 const DEFAULT_BUSINESS: BusinessConfig = {
   name: 'Krzysztof Regulski — Behawiorysta zwierzęcy',
   url: 'https://regulskibehawiorysta.pl',
   image: 'https://regulskibehawiorysta.pl/og-image.png',
-  address: {
-    addressLocality: 'Polska',
-    addressCountry: 'PL',
-  },
-  priceRange: '69-470 PLN',
 };
 
 export function generateReviewsSchema(
@@ -42,19 +28,11 @@ export function generateReviewsSchema(
 ) {
   return {
     '@context': 'https://schema.org',
-    '@type': 'LocalBusiness',
+    '@type': 'Person',
     '@id': business.url,
     name: business.name,
     url: business.url,
     image: business.image,
-    ...(business.telephone && { telephone: business.telephone }),
-    ...(business.priceRange && { priceRange: business.priceRange }),
-    ...(business.address && {
-      address: {
-        '@type': 'PostalAddress',
-        ...business.address,
-      },
-    }),
     aggregateRating: {
       '@type': 'AggregateRating',
       ratingValue: aggregateRating.ratingValue.toFixed(1),
@@ -91,7 +69,7 @@ export function generateSingleReviewSchema(review: Review, businessName: string)
     '@context': 'https://schema.org',
     '@type': 'Review',
     itemReviewed: {
-      '@type': 'LocalBusiness',
+      '@type': 'Person',
       name: businessName,
     },
     reviewRating: {

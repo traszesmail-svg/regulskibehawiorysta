@@ -388,11 +388,6 @@ export const MEDIA_MENTIONS: MediaMention[] = [
   },
 ]
 
-type PublicPhone = {
-  display: string | null
-  href: string | null
-}
-
 function isValidPublicEmail(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
 }
@@ -408,47 +403,13 @@ function extractConfiguredEmail(value: string | null): string | null {
   return isValidPublicEmail(candidate) ? candidate : null
 }
 
-function normalizePublicPhone(value: string | null): PublicPhone {
-  if (!value) {
-    return { display: null, href: null }
-  }
-
-  const trimmed = value.trim()
-  const digits = trimmed.replace(/\D/g, '')
-
-  if (!digits) {
-    return { display: null, href: null }
-  }
-
-  if (digits.length === 9) {
-    return {
-      display: `${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6)}`,
-      href: digits,
-    }
-  }
-
-  if (digits.length === 11 && digits.startsWith('48')) {
-    return {
-      display: `+48 ${digits.slice(2, 5)} ${digits.slice(5, 8)} ${digits.slice(8)}`,
-      href: `+${digits}`,
-    }
-  }
-
-  return {
-    display: trimmed,
-    href: trimmed.replace(/\s+/g, ''),
-  }
-}
-
 export function getContactDetails() {
   const emailCandidate = extractConfiguredEmail(process.env.REGULSKI_CONTACT_EMAIL?.trim() || null) ?? PUBLIC_CONTACT_EMAIL_FALLBACK
-  const phoneCandidate = process.env.REGULSKI_CONTACT_PHONE?.trim() || null
-  const phone = normalizePublicPhone(phoneCandidate)
 
   return {
     email: emailCandidate,
-    phoneDisplay: phone.display,
-    phoneHref: phone.href,
+    phoneDisplay: null,
+    phoneHref: null,
   }
 }
 

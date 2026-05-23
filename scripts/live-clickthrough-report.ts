@@ -1332,7 +1332,7 @@ async function main() {
       await assertNoPublicPhoneLinks(publicPage, '/regulamin')
       await assertPublicSiteNavVisible(publicPage, '/regulamin')
       await assertLegacyHeaderLinksHidden(publicPage, '/regulamin')
-      step.notes.push('Regulamin używa nowego shellu prawnego bez publicznego telefonu i starego menu.')
+      step.notes.push('Regulamin używa nowego shellu prawnego bez starego menu.')
     })
 
     await runStep(results, '/polityka-prywatnosci', publicPage, async (step) => {
@@ -1345,7 +1345,7 @@ async function main() {
       await assertNoPublicPhoneLinks(publicPage, '/polityka-prywatnosci')
       await assertPublicSiteNavVisible(publicPage, '/polityka-prywatnosci')
       await assertLegacyHeaderLinksHidden(publicPage, '/polityka-prywatnosci')
-      step.notes.push('Polityka prywatności używa nowego shellu prawnego bez publicznego telefonu i starego menu.')
+      step.notes.push('Polityka prywatności używa nowego shellu prawnego bez starego menu.')
     })
 
     await runStep(results, '/materialy guide nav', publicPage, async (step) => {

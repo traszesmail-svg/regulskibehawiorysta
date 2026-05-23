@@ -68,7 +68,7 @@ export function CommerceCheckoutActions({
     <div className="payment-ref-action" data-payment-method-selected={selectedMethod}>
       <div className="payment-ref-method-lead">
         <LockKeyhole aria-hidden="true" />
-        <span>Najtaniej: BLIK na telefon, bez prowizji pośrednika. Zamówienie pozostaje przypisane do numeru {orderNumber}.</span>
+        <span>Najtaniej: BLIK po instrukcji e-mail, bez prowizji pośrednika. Zamówienie pozostaje przypisane do numeru {orderNumber}.</span>
       </div>
 
       <div className="payment-ref-method-tabs" role="radiogroup" aria-label="Metoda płatności">
@@ -83,7 +83,7 @@ export function CommerceCheckoutActions({
         >
           <span className="payment-ref-blik-mark" aria-hidden="true">BLIK</span>
           <span>
-            <strong>BLIK na telefon</strong>
+            <strong>BLIK po instrukcji e-mail</strong>
             <em>Najtaniej, bez prowizji operatora płatności</em>
             <small>polecane</small>
           </span>
@@ -107,18 +107,18 @@ export function CommerceCheckoutActions({
       </div>
 
       <div className="payment-ref-method-panel">
-        <h3>{selectedMethod === 'online' ? 'Płatność online' : 'BLIK na telefon'}</h3>
+        <h3>{selectedMethod === 'online' ? 'Płatność online' : 'BLIK po instrukcji e-mail'}</h3>
         <p>
           {selectedMethod === 'online'
             ? 'Po kliknięciu otworzy się checkout online z kartą oraz, gdy urządzenie je udostępnia, Apple Pay i Google Pay. Dostęp aktywuje się po zaksięgowaniu płatności.'
-            : 'Przejdziesz do instrukcji BLIK na telefon i zgłosisz wpłatę. To najtańsza ścieżka, bo nie dolicza prowizji pośrednika. Numer nie jest publicznym kanałem kontaktu.'}
+            : 'Przejdziesz do instrukcji BLIK bez publicznego numeru i zgłosisz wpłatę. To najtańsza ścieżka, bo nie dolicza prowizji pośrednika.'}
         </p>
         <div className="payment-ref-field">
           <span>Kwota online</span>
           <strong>{formatCommercePrice(onlineAmount)}</strong>
         </div>
         <div className="payment-ref-field">
-          <span>BLIK na telefon</span>
+          <span>BLIK po instrukcji</span>
           <strong>{formatCommercePrice(manualAmount)}</strong>
         </div>
       </div>
@@ -137,7 +137,7 @@ export function CommerceCheckoutActions({
                 ? 'Otwieram BLIK...'
                 : selectedMethod === 'online'
                   ? onlinePayment.buttonLabel
-                  : `Zapłać BLIK na telefon - ${formatCommercePrice(manualAmount)}`}
+                  : `Zapłać BLIK po instrukcji - ${formatCommercePrice(manualAmount)}`}
         </button>
       </div>
 

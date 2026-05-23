@@ -4,22 +4,19 @@ import { useState } from 'react'
 
 type Props = {
   orderNumber: string
-  phone: string
-  maskedPhone: string
 }
 
-export function CommerceBlikActions({ orderNumber, phone, maskedPhone }: Props) {
-  const [shown, setShown] = useState(false)
+export function CommerceBlikActions({ orderNumber }: Props) {
   const [copied, setCopied] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  async function copyPhone() {
+  async function copyOrderNumber() {
     try {
-      await navigator.clipboard.writeText(phone)
+      await navigator.clipboard.writeText(orderNumber)
       setCopied(true)
     } catch {
-      setError('Nie udało się skopiować numeru. Pokaż numer i skopiuj go ręcznie.')
+      setError('Nie udało się skopiować numeru zamówienia. Skopiuj go ręcznie.')
     }
   }
 
@@ -61,8 +58,8 @@ export function CommerceBlikActions({ orderNumber, phone, maskedPhone }: Props) 
     <div className="stack-gap">
       <div className="summary-grid">
         <div className="summary-card tree-backed-card">
-          <div className="stat-label">Numer telefonu</div>
-          <div className="summary-value">{shown ? phone : maskedPhone}</div>
+          <div className="stat-label">Instrukcja BLIK</div>
+          <div className="summary-value">Bez publicznego numeru</div>
         </div>
         <div className="summary-card tree-backed-card">
           <div className="stat-label">Tytuł przelewu</div>
@@ -71,11 +68,8 @@ export function CommerceBlikActions({ orderNumber, phone, maskedPhone }: Props) 
       </div>
 
       <div className="hero-actions centered-actions">
-        <button type="button" className="button button-ghost big-button" onClick={() => setShown(true)}>
-          Pokaż numer
-        </button>
-        <button type="button" className="button button-ghost big-button" onClick={copyPhone}>
-          {copied ? 'Skopiowano' : 'Kopiuj numer'}
+        <button type="button" className="button button-ghost big-button" onClick={copyOrderNumber}>
+          {copied ? 'Skopiowano' : 'Kopiuj numer zamówienia'}
         </button>
         <button type="button" className="button button-primary big-button" onClick={reportPayment} disabled={loading}>
           {loading ? 'Wysyłam zgłoszenie...' : 'Zapłaciłem/am'}

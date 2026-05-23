@@ -74,11 +74,11 @@ export const faq = [
   },
   {
     q: 'Czy zakup jest bezpieczny?',
-    a: 'Tak. Możesz wybrać prostą wpłatę BLIK na telefon, a link do rozmowy odblokowuje się dopiero po potwierdzeniu wpłaty.',
+    a: 'Tak. Możesz wybrać prostą wpłatę BLIK po instrukcji e-mail albo płatność online, a link do rozmowy odblokowuje się dopiero po potwierdzeniu wpłaty.',
   },
   {
     q: 'Czy mogę anulować zakup?',
-    a: 'Po potwierdzeniu wpłaty masz krótkie okno na zgłoszenie rezygnacji lub zmiany terminu. Przy obecnym modelu BLIK na telefon ewentualny zwrot wymaga kontaktu i indywidualnej decyzji.',
+    a: 'Po potwierdzeniu wpłaty masz krótkie okno na zgłoszenie rezygnacji lub zmiany terminu. Przy obecnym modelu płatności ręcznej ewentualny zwrot wymaga kontaktu i indywidualnej decyzji.',
   },
   {
     q: 'Co dostaję po rozmowie?',

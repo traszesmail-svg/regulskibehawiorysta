@@ -21,7 +21,6 @@ export function MaterialyOrderForm({ productKind, productSlug, productTitle, pri
   const isFree = priceAmount === 0
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
-  const [phone, setPhone] = useState('')
   const [notes, setNotes] = useState('')
   const [website, setWebsite] = useState('')
   const [consentProcessing, setConsentProcessing] = useState(false)
@@ -53,7 +52,7 @@ export function MaterialyOrderForm({ productKind, productSlug, productTitle, pri
           productSlug,
           name: isFree ? name || email.split('@')[0] || 'Czytelnik' : name,
           email,
-          phone,
+          phone: null,
           notes,
           website,
           consentProcessing: isFree ? true : consentProcessing,
@@ -114,7 +113,7 @@ export function MaterialyOrderForm({ productKind, productSlug, productTitle, pri
     <form className="materialy-form" onSubmit={handleSubmit} noValidate data-free-download={isFree ? 'true' : 'false'}>
       <p className="form-summary">
         Zamawiasz: <strong>{productTitle}</strong> - <strong>{priceLabel}</strong>
-        {!isFree && ' (płatność online albo BLIK na telefon w kolejnym kroku)'}
+        {!isFree && ' (płatność online albo BLIK po instrukcji e-mail w kolejnym kroku)'}
       </p>
 
       {!isFree ? (
@@ -145,20 +144,6 @@ export function MaterialyOrderForm({ productKind, productSlug, productTitle, pri
           placeholder="twoj@email.pl"
         />
       </label>
-
-      {!isFree ? (
-        <label>
-          Telefon (opcjonalnie, jeśli płatność BLIK idzie z innego numeru)
-          <input
-            type="tel"
-            name="phone"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            maxLength={40}
-            autoComplete="tel"
-          />
-        </label>
-      ) : null}
 
       {!isFree ? (
         <label>

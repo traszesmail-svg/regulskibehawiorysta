@@ -152,8 +152,6 @@ test.skip('home and opinions pages surface real social proof and local SEO', asy
   assert.doesNotMatch(homeSource, /showSubmissionForm=\{false\}/)
   assert.match(opinionsSource, /SocialProofSection/)
   assert.match(opinionsSource, /buildMarketingMetadata/)
-  assert.match(String(homeMetadata.description ?? ''), /Olsztyn/)
-  assert.match(String(homeMetadata.openGraph?.description ?? ''), /Olsztyn/)
   assert.match(String(homeMetadata.openGraph?.siteName ?? ''), /Regulski \| Terapia behawioralna/)
   assert.match(opinionsMarkup, /real-case-grid/)
   assert.match(opinionsMarkup, /Historie opiekunów i efekty konsultacji/)
@@ -898,7 +896,6 @@ test.skip('release smoke rules track the current home and booking copy', () => {
   assert.equal(homeRequired.some((phrase) => phrase.includes('PDF będzie obok jako materiał pomocniczy.')), true)
   assert.equal(homeRequired.some((phrase) => phrase.includes('Potrzebujesz pomocy przy problemach psa lub kota?')), true)
   assert.equal(homeRule?.forbidden?.includes('Udost\u0119pnij znajomemu'), true)
-  assert.equal(homeRule?.forbidden?.includes('Olsztyn / online'), true)
   assert.deepEqual(homeRule?.ordered, [
     'Regulski | Terapia behawioralna',
     'Konsultacje dla psów i kotów',

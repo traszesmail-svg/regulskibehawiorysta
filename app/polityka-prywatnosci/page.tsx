@@ -22,7 +22,7 @@ const summaryItems: LegalSummaryItem[] = [
   },
   {
     label: 'Publiczny kontakt',
-    value: 'Publiczny kontakt odbywa się przez formularz i e-mail. Telefon nie jest publikowany na stronie.',
+    value: 'Publiczny kontakt odbywa się przez formularz i e-mail. Serwis nie publikuje dodatkowego numeru kontaktowego.',
   },
 ]
 
@@ -33,7 +33,7 @@ const sections: LegalSection[] = [
       <>
         <p>
           Administratorem danych osobowych przetwarzanych w związku z działaniem serwisu, kontaktem, rezerwacją i
-          realizacją usług jest Krzysztof Regulski prowadzący działalność pod marką Regulski Behawiorysta.
+          realizacją usług jest Krzysztof Regulski, autor serwisu Regulski Behawiorysta.
         </p>
       </>
     ),
@@ -43,7 +43,7 @@ const sections: LegalSection[] = [
     body: (
       <>
         <ul className="premium-bullet-list">
-          <li>W formularzu kontaktowym: imię, e-mail lub numer telefonu, gatunek, temat i treść wiadomości.</li>
+          <li>W formularzu kontaktowym: imię, e-mail, gatunek, temat i treść wiadomości.</li>
           <li>Przy rezerwacji: dane identyfikacyjne i kontaktowe, temat, termin, status rezerwacji oraz status płatności.</li>
           <li>Przy realizacji usługi: dane potrzebne do potwierdzenia rezerwacji, wysyłki wiadomości oraz dostępu do pokoju rozmowy.</li>
           <li>W materiałach przygotowawczych: notatki, linki i pliki dodane dobrowolnie przez klienta.</li>
@@ -116,16 +116,11 @@ const sections: LegalSection[] = [
     ),
   },
   {
-    title: '6. Numer telefonu i kontakt publiczny',
+    title: '6. Kontakt publiczny',
     body: (
       <>
         <p>
-          Telefon nie jest publikowany jako publiczny kanał kontaktu serwisu. Publiczny kontakt odbywa się przez formularz
-          i e-mail.
-        </p>
-        <p>
-          Numer telefonu może być jednak przetwarzany przy rezerwacji usługi, jeżeli jest wymagany przez formularz lub
-          potrzebny do obsługi rezerwacji, potwierdzenia płatności albo wysłania wiadomości SMS.
+          Serwis nie publikuje dodatkowego numeru kontaktowego. Publiczny kontakt odbywa się przez formularz i e-mail.
         </p>
       </>
     ),

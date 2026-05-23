@@ -188,7 +188,7 @@ export const referenceFaqItems: ReferenceFaqItem[] = [
     category: 'płatności',
     question: 'Jak mogę zapłacić za konsultację?',
     answer:
-      'Aktualny przepływ opiera się na płatności ręcznej: BLIK na telefon albo PayPal. Po rezerwacji dostajesz dalszy krok i potwierdzenie.',
+      'Aktualny przepływ opiera się na płatności ręcznej: BLIK po instrukcji e-mail albo PayPal. Po rezerwacji dostajesz dalszy krok i potwierdzenie.',
   },
   {
     id: 'platnosc-kiedy-potwierdzenie',

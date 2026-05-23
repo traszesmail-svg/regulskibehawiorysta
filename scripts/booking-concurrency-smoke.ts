@@ -36,7 +36,6 @@ function buildBooking(index: number, slotId: string, label: string) {
     petAge: '8 miesiecy',
     durationNotes: 'Od tygodnia',
     description: 'Test paralelnego zajmowania tego samego terminu w bezpiecznym sandboxie lokalnym.',
-    phone: `500700${String(800 + index).slice(-3)}`,
     email: `${label.toLowerCase().replace(/\s+/g, '-')}-${String(index + 1).padStart(2, '0')}@example.com`,
     slotId,
   }
@@ -46,7 +45,6 @@ async function main() {
   process.env.APP_DATA_MODE = 'local'
   process.env.APP_PAYMENT_MODE = 'mock'
   process.env.RESEND_API_KEY = ''
-  process.env.REGULSKI_CONTACT_PHONE = '500600700'
   process.env.MANUAL_PAYMENT_BANK_ACCOUNT = '11112222333344445555666677'
   process.env.MANUAL_PAYMENT_ACCOUNT_NAME = 'Krzysztof Regulski'
   process.env.SMS_PROVIDER = 'disabled'

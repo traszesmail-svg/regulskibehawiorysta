@@ -54,6 +54,8 @@ const desktopDir = path.join(screenshotsDir, 'desktop')
 const mobileDir = path.join(screenshotsDir, 'mobile')
 const htmlDir = path.join(reportRoot, 'html')
 const manifestsDir = path.join(reportRoot, 'manifests')
+const shouldFollowDiscoveredLinks = !process.argv.includes('--no-follow') && process.env.FULL_CRAWL_FOLLOW_LINKS?.trim() !== '0'
+const shouldSaveScreenshots = !process.argv.includes('--no-screenshots') && process.env.FULL_CRAWL_SCREENSHOTS?.trim() !== '0'
 const contentDir = path.join(rootDir, 'content')
 const blogDir = path.join(contentDir, 'blog-mvp')
 const blogRoutePaths = readdirSync(blogDir, { withFileTypes: true })
@@ -88,7 +90,6 @@ const BASE_SEEDS = Array.from(new Set([
   '/cennik/pelny',
   '/konsultacja-behawioralna-online',
   '/behawiorysta-online-polska',
-  '/niezbednik',
   '/opinie',
   '/koty',
   '/psy',
@@ -322,8 +323,11 @@ function detectEncodingIssues(text: string) {
 }
 
 function detectPhone(text: string) {
-  const phoneMatches = text.match(/(?:\+48\s*)?(?:\d[ -]?){9,11}/g) ?? []
-  return phoneMatches.map(cleanText).filter((value) => value.length >= 9)
+  const phoneMatches = text.match(/(?:\+48[\s-]?)?(?:\d{3}[\s-]?){2}\d{3}\b/g) ?? []
+  return phoneMatches.map(cleanText).filter((value) => {
+    const digits = value.replace(/\D/g, '')
+    return digits.length === 9 || (digits.length === 11 && digits.startsWith('48'))
+  })
 }
 
 function detectOldNames(text: string) {
@@ -357,7 +361,7 @@ function extractPrimaryCtas(page: Page, mode: CrawlMode) {
           }
         })
         .filter((item) => item.display !== 'none' && item.visibility !== 'hidden' && item.opacity !== '0' && item.width > 0 && item.height > 0)
-        .filter((item) => /button|cta|action|funnel|header|footer/i.test(String(item.className)) || /15 min|konsult|Niezbędnik|kontakt|zgłosz|zamów|sprawdź|pobierz/i.test(item.text))
+        .filter((item) => /button|cta|action|funnel|header|footer/i.test(String(item.className)) || /15 min|konsult|Materialy|kontakt|zgłosz|zamów|sprawdź|pobierz/i.test(item.text))
         .slice(0, 8)
         .map((item) => `[${modeLabel}] ${item.text}`),
     mode,
@@ -445,7 +449,8 @@ async function crawlPage(
     const encodingIssues = detectEncodingIssues(`${title}\n${text}`)
     const ctas = await extractPrimaryCtas(page, mode)
     const overflowOffenders = await detectOverflow(page)
-    const overflow = overflowOffenders.length > 0 || (await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 2))
+    const horizontalOverflowPx = await page.evaluate(() => Math.max(0, document.documentElement.scrollWidth - window.innerWidth))
+    const overflow = horizontalOverflowPx > 2
     const linkData = await page.$$eval('a[href]', (anchors) =>
       anchors.map((anchor) => {
         const rawHref = anchor.getAttribute('href') ?? ''
@@ -495,7 +500,8 @@ async function crawlPage(
     }
 
     if (overflow) {
-      notes.push('overflow-suspect')
+      const firstOffender = overflowOffenders[0] ? `:${overflowOffenders[0]}` : ''
+      notes.push(`overflow-suspect:${horizontalOverflowPx}px${firstOffender}`)
     }
 
     const phoneHits = detectPhone(`${title}\n${text}`)
@@ -515,7 +521,9 @@ async function crawlPage(
     if (mode === 'desktop') {
       await saveString(snapshotPaths.html, html)
     }
-    await takeScreenshot(page, mode === 'desktop' ? snapshotPaths.desktop : snapshotPaths.mobile, true)
+    if (shouldSaveScreenshots) {
+      await takeScreenshot(page, mode === 'desktop' ? snapshotPaths.desktop : snapshotPaths.mobile, true)
+    }
 
     return {
       requestedUrl,
@@ -569,6 +577,21 @@ async function run() {
     const anchor = resolved.hash.replace(/^#/, '').trim()
     const normalized = normalizeUrl(resolved.toString(), baseUrl)
     if (!isCrawlableUrl(normalized, baseUrl)) {
+      return
+    }
+
+    if (source === 'crawl' && resolved.search && !sourceMap.has(normalized)) {
+      const canonicalUrl = normalizeUrl(`${resolved.origin}${resolved.pathname}`, baseUrl)
+      if (isCrawlableUrl(canonicalUrl, baseUrl)) {
+        if (!sourceMap.has(canonicalUrl)) {
+          sourceMap.set(canonicalUrl, new Set())
+        }
+        sourceMap.get(canonicalUrl)?.add(source)
+        if (!queued.has(canonicalUrl)) {
+          queued.add(canonicalUrl)
+          queue.push(canonicalUrl)
+        }
+      }
       return
     }
 
@@ -703,8 +726,10 @@ async function run() {
           }
         }
 
-        for (const link of desktopResult.internalLinks) {
-          addUrl(link, 'crawl')
+        if (shouldFollowDiscoveredLinks) {
+          for (const link of desktopResult.internalLinks) {
+            addUrl(link, 'crawl')
+          }
         }
       }
 
@@ -725,11 +750,13 @@ async function run() {
         manifestRows.set(currentUrl, row)
       }
 
-      const discoveredFromCrawl = row.internalLinks
-        .filter((href) => isCrawlableUrl(href, baseUrl))
-        .map((href) => ({ url: href, source: 'crawl' as DiscoverySource }))
-      for (const discovered of discoveredFromCrawl) {
-        addUrl(discovered.url, discovered.source)
+      if (shouldFollowDiscoveredLinks) {
+        const discoveredFromCrawl = row.internalLinks
+          .filter((href) => isCrawlableUrl(href, baseUrl))
+          .map((href) => ({ url: href, source: 'crawl' as DiscoverySource }))
+        for (const discovered of discoveredFromCrawl) {
+          addUrl(discovered.url, discovered.source)
+        }
       }
     }
 
@@ -807,6 +834,8 @@ async function run() {
         .map(([status, count]) => `${status}=${count}`)
         .join(', ') || 'none'}`,
       `- Crawl coverage: ${crawlFailures.length === 0 ? 'full' : 'partial with failures'}`,
+      `- Follow discovered links: ${shouldFollowDiscoveredLinks ? 'yes' : 'no'}`,
+      `- Screenshots: ${shouldSaveScreenshots ? 'yes' : 'no'}`,
       '',
       '## Artifacts',
       `- Manifest JSON: [manifests/manifest.json](./manifests/manifest.json)`,
@@ -849,7 +878,7 @@ async function run() {
         '',
       ]),
       '## CTA Hierarchy Summary',
-      '- Primary CTA order was checked heuristically from the rendered DOM, with `15 min audio` treated as the main action and `Niezbędnik` as the supporting action.',
+      '- Primary CTA order was checked heuristically from the rendered DOM, with `15 min audio` treated as the main action and `Materialy` as the supporting action.',
       '- Any deviations, hidden duplicates, or mobile menu changes are recorded in the per-page findings above.',
       '',
       '## Limitations',

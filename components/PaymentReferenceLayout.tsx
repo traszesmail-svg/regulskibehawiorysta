@@ -20,6 +20,7 @@ import {
   Video,
   Zap,
 } from 'lucide-react'
+import { NotatnikFooter, NotatnikTopbar, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { CAPBT_PROFILE_URL, getPublicContactDetails } from '@/lib/site'
 import { REGULSKI_WEB_LOGO } from '@/lib/regulski-web-assets'
@@ -55,10 +56,11 @@ type PaymentReferenceLayoutProps = {
 const navItems = [
   { href: '/o-mnie', label: 'O mnie' },
   { href: '/cennik', label: 'Cennik' },
-  { href: '/niezbednik', label: 'Niezbędnik' },
   { href: '/blog', label: 'Blog' },
   { href: '/kontakt', label: 'Kontakt' },
 ] as const
+
+const bookingFlowSteps = ['Termin', 'Godzina', 'Dane', 'Płatność'] as const
 
 const summaryIconMap: Record<PaymentReferenceSummaryIcon, ComponentType<{ className?: string; 'aria-hidden'?: boolean }>> = {
   calendar: CalendarDays,
@@ -89,7 +91,7 @@ function PaymentReferenceHeader() {
         ))}
       </nav>
       <div className="payment-ref-actions">
-        <Link href="/wybor" prefetch={false} className="payment-ref-primary-link">
+        <Link href="/quiz" prefetch={false} className="payment-ref-primary-link">
           <Zap aria-hidden="true" />
           Quiz
         </Link>
@@ -189,8 +191,8 @@ function PaymentReferenceSummary({
       <div className="payment-ref-safety">
         <ShieldCheck aria-hidden="true" />
         <span>
-          <strong>Bezpiecznie i bez publicznego telefonu</strong>
-          <em>Płatność potwierdza termin. Po potwierdzeniu dostajesz dalszy krok i link do rozmowy.</em>
+          <strong>Bezpiecznie i przez e-mail</strong>
+          <em>Termin jest pewny po potwierdzeniu płatności. Po potwierdzeniu dostajesz dalszy krok i link do rozmowy.</em>
         </span>
       </div>
     </aside>
@@ -217,7 +219,7 @@ function PaymentReferenceTrustStrip() {
     {
       icon: MessageCircle,
       title: 'Wsparcie',
-      copy: 'Kontakt prowadzimy przez e-mail i formularz, bez darmowej linii telefonicznej.',
+      copy: 'Kontakt prowadzimy przez e-mail i formularz.',
     },
     {
       icon: PawPrint,
@@ -354,9 +356,23 @@ export function PaymentReferenceLayout({
   return (
     <main className={isCompact ? 'payment-ref-page payment-ref-page--compact' : 'payment-ref-page'}>
       <div className="payment-ref-shell">
-        <PaymentReferenceHeader />
+        <NotatnikTopbar tag="Regulski" navItems={PUBLIC_SITE_NAV_ITEMS} showUtilityLinks={false} />
         {isCompact ? (
           <section className="payment-ref-compact-intro">
+            <div className="payment-ref-booking-stage" aria-label="Etap rezerwacji">
+              <div className="termin-breadcrumb">
+                <CalendarDays size={15} strokeWidth={1.85} aria-hidden="true" />
+                <span>Wybór terminu</span>
+              </div>
+              <div className="termin-step-track booking-flow-step-track" aria-label="Etapy rezerwacji">
+                {bookingFlowSteps.map((step, index) => (
+                  <span key={step} className={index === 3 ? 'is-active' : ''}>
+                    <strong>{index + 1}</strong>
+                    {step}
+                  </span>
+                ))}
+              </div>
+            </div>
             {eyebrow ? (
               <div className="payment-ref-pill">
                 <LockKeyhole aria-hidden="true" />
@@ -386,7 +402,7 @@ export function PaymentReferenceLayout({
             <PaymentReferenceContact />
           </>
         )}
-        <PaymentReferenceFooter />
+        <NotatnikFooter showReviews={false} />
       </div>
     </main>
   )

@@ -110,4 +110,4 @@ Bywają użyteczne jako dodatek do pracy nad środowiskiem. Nie są magicznym ro
 
 **Kwadrans z behawiorystą** pozwala szybko zebrać informacje i ustalić, co sprawdzić w następnej kolejności: czy problem wygląda bardziej na kuwetę, na teren, na napięcie, czy na połączenie tych rzeczy. Wychodzisz z listą konkretów, a nie z ogólnikami.
 
-[Umów Kwadrans z behawiorystą](/book) · [Zobacz kategorię: koty](/koty) · [Poradnik „Kot i kuweta — pierwszy plan działania”](/niezbednik)
+[Umów Kwadrans z behawiorystą](/book) · [Zobacz kategorię: koty](/koty) · [Poradnik „Kot i kuweta — pierwszy plan działania”](/materialy)

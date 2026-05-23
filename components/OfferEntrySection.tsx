@@ -44,14 +44,14 @@ function getAudioDescription(species?: BookingSpecies | null) {
 
 function getFullConsultationDescription(species?: BookingSpecies | null) {
   if (species === 'pies') {
-    return 'Dla psa przy temacie bardziej złożonym, dłużej trwającym albo obejmującym kilka wątków.'
+    return 'Około 2h online dla psa przy temacie bardziej złożonym, dłużej trwającym albo obejmującym kilka wątków.'
   }
 
   if (species === 'kot') {
-    return 'Dla kota przy temacie szerszym, dłużej trwającym albo obejmującym kilka obszarów naraz.'
+    return 'Około 2h online dla kota przy temacie szerszym, dłużej trwającym albo obejmującym kilka obszarów naraz.'
   }
 
-  return 'Dla sytuacji bardziej złożonych, dłużej trwających albo wielowątkowych, gdy potrzebna jest pełniejsza konsultacja.'
+  return 'Około 2h online dla sytuacji bardziej złożonych, dłużej trwających albo wielowątkowych.'
 }
 
 export function OfferEntrySection({
@@ -110,12 +110,12 @@ export function OfferEntrySection({
           <div className="section-eyebrow">{COPY_SERVICE_NAMES.bridge}</div>
           <h3>{COPY_SERVICE_NAMES.bridge}</h3>
           <p>Format dla tematów szerszych, gdy 15 minut to za mało, ale pełna konsultacja byłaby jeszcze zbyt szerokim startem.</p>
-          <div className="editorial-hero-meta" aria-label="Parametry usługi posredniej">
+          <div className="editorial-hero-meta" aria-label="Parametry usługi pośredniej">
             <span>30 min online</span>
             <span>{formatPricePln(PUBLIC_OFFER_PRICES.bridge)}</span>
             <span>szerszy zakres</span>
           </div>
-          <p className="muted">Dla {speciesLabel}, gdy chcesz uporządkować 2-3 wątki i po rozmowie dostac krótka notatkę.</p>
+          <p className="muted">Dla {speciesLabel}, gdy chcesz uporządkować 2-3 wątki i po rozmowie dostać krótką notatkę.</p>
           <div className="hero-actions top-gap-small">
             <Link href={bridgeHref} prefetch={false} className="button button-ghost">
               {COPY_CTA.bridge}
@@ -126,11 +126,11 @@ export function OfferEntrySection({
         <article className="summary-card tree-backed-card">
           <div className="section-eyebrow">Pełna konsultacja</div>
           <h3>Pełna konsultacja behawioralna</h3>
-          <p>{getFullConsultationDescription(species)} Po rozmowie dostajesz diagnozę behawioralną opartą na danych, plan działania i 7 dni konsultacji tekstowych przez WhatsApp.</p>
+          <p>{getFullConsultationDescription(species)} Dostajesz analizę zachowania, prawdopodobną przyczynę problemu, plan działania i 7 dni wsparcia przez WhatsApp przy wdrażaniu zaleceń.</p>
           <div className="editorial-hero-meta" aria-label="Parametry usługi">
-            <span>pełny zakres online</span>
+            <span>ok. 2h online</span>
             <span>{formatPricePln(PUBLIC_OFFER_PRICES.premium)}</span>
-            <span>diagnoza behawioralna + 7 dni WhatsApp</span>
+            <span>plan + 7 dni WhatsApp</span>
           </div>
           <p className="muted">Dla {speciesLabel}, gdy sytuacja trwa dłużej, wraca albo obejmuje kilka obszarów naraz.</p>
           <p className="muted">{PUBLIC_OFFER_FULL_CONSULTATION_VALUE}</p>
@@ -147,7 +147,7 @@ export function OfferEntrySection({
         <Link href={messageHref} prefetch={false} className="prep-inline-link">
           {COPY_CTA.contact.toLowerCase()}
         </Link>{' '}
-        pomaga wtedy, gdy chcesz tylko krótko doprecyzować temat. Jeśli wolisz najpierw materiały, nadal możesz wejść do Niezbędnika.
+        pomaga wtedy, gdy chcesz tylko krótko doprecyzować temat. Jeśli wolisz najpierw materiały, możesz przejść do materiałów PDF.
       </p>
       <p className="muted top-gap-small">{PUBLIC_OFFER_BOOKING_REASSURANCE}</p>
     </section>

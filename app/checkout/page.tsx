@@ -31,9 +31,9 @@ export function generateMetadata(): Metadata {
   return buildTechnicalMetadata({
     title: 'Wybierz metodę płatności',
     path: '/checkout',
-    description: 'Wybierz płatność online albo BLIK na telefon.',
-    noIndex: false,
-    follow: true,
+    description: 'Wybierz płatność online albo BLIK po instrukcji e-mail.',
+    noIndex: true,
+    follow: false,
   })
 }
 
@@ -143,15 +143,15 @@ export default async function CheckoutPage({
       title={isConsultation ? 'Ostatni krok do potwierdzenia konsultacji.' : 'Ostatni krok do dostępu do materiału.'}
       lead={
         isConsultation
-          ? 'Wybierz BLIK na telefon albo płatność online kartą, Apple Pay lub Google Pay. Po potwierdzeniu dostaniesz termin i link do pokoju rozmowy.'
-          : 'Wybierz BLIK na telefon albo płatność online kartą, Apple Pay lub Google Pay. Po potwierdzeniu dostaniesz kod dostępu do materiału.'
+          ? 'Wybierz BLIK po instrukcji e-mail albo płatność online kartą, Apple Pay lub Google Pay. Termin jest pewny po opłaceniu i potwierdzeniu płatności.'
+          : 'Wybierz BLIK po instrukcji e-mail albo płatność online kartą, Apple Pay lub Google Pay. Po potwierdzeniu dostaniesz kod dostępu do materiału.'
       }
       heroImage={order?.meta.animalType === 'Kot' ? 'cat' : 'dog'}
       variant="compact"
       summaryRows={summaryRows}
       lineItemLabel={order?.productName ?? 'Zamówienie'}
       lineItemAmount={order ? formatCommercePrice(order.manualAmount) : 'Do ustalenia'}
-      totalLabel={order ? 'BLIK na telefon' : undefined}
+      totalLabel={order ? 'BLIK po instrukcji' : undefined}
     >
       <div className="payment-ref-checkout-content">
         {!order ? (
@@ -169,7 +169,7 @@ export default async function CheckoutPage({
         ) : (
           <>
             <PaymentReferenceCardTitle title={`Płatność za ${isConsultation ? 'konsultację' : 'zamówienie'}`}>
-              Zamówienie {order.orderNumber}. Wybierz metodę płatności i dokończ rezerwację bez publicznego numeru telefonu.
+              Zamówienie {order.orderNumber}. Wybierz metodę płatności i dokończ rezerwację bez publicznego numeru.
             </PaymentReferenceCardTitle>
             <CommerceCheckoutActions
               orderNumber={order.orderNumber}

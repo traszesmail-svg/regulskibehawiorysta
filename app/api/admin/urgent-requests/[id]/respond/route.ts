@@ -2,9 +2,11 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 import { NextResponse } from 'next/server'
-import { buildFormHref } from '@/lib/booking-routing'
-import { createAvailabilitySlot, listUrgentNowRequests, respondUrgentNowRequest } from '@/lib/server/db'
+import { buildPaymentHref } from '@/lib/booking-routing'
+import { createAvailabilitySlot, createPendingBooking, getAvailabilitySlot, listUrgentNowRequests, respondUrgentNowRequest } from '@/lib/server/db'
+import { getBaseUrl } from '@/lib/server/env'
 import { sendUrgentNowResponseEmail } from '@/lib/server/notifications'
+import { stripUrgentRequestedSlotsFromMessage } from '@/lib/urgent-now'
 
 function normalizeSingleLine(value: unknown, maxLength: number) {
   if (typeof value !== 'string') {
@@ -41,8 +43,27 @@ export async function POST(
       return NextResponse.json({ error: 'Nie znaleziono prośby o Kwadrans na już.' }, { status: 404 })
     }
 
-    const slot = await createAvailabilitySlot(proposedDate, proposedTime)
-    const bookingHref = buildFormHref(urgentRequest.topicId, slot.id, 'szybka-konsultacja-15-min')
+    const slotId = `${proposedDate}-${proposedTime}`
+    const existingSlot = await getAvailabilitySlot(slotId)
+    const slot = existingSlot ?? (await createAvailabilitySlot(proposedDate, proposedTime))
+
+    if (slot.isBooked || slot.lockedByBookingId) {
+      return NextResponse.json({ error: 'Ten termin jest już zajęty. Wybierz inną godzinę.' }, { status: 409 })
+    }
+
+    const bookingResult = await createPendingBooking({
+      ownerName: urgentRequest.name,
+      serviceType: 'kwadrans-na-juz',
+      problemType: urgentRequest.topicId,
+      animalType: urgentRequest.species === 'kot' ? 'Kot' : 'Pies',
+      petAge: 'Nie podano w prośbie o Kwadrans na już.',
+      durationNotes: 'Pilny termin wybrany przez opiekuna i potwierdzony przez admina.',
+      description: stripUrgentRequestedSlotsFromMessage(urgentRequest.message),
+      email: urgentRequest.email,
+      slotId: slot.id,
+    })
+    const bookingHref = buildPaymentHref(bookingResult.booking.id, bookingResult.accessToken, 'kwadrans-na-juz')
+    const absoluteBookingHref = new URL(bookingHref, getBaseUrl()).toString()
 
     const updatedRequest = await respondUrgentNowRequest({
       id: urgentRequest.id,
@@ -50,7 +71,7 @@ export async function POST(
       proposedTime,
       responseNote,
       availabilitySlotId: slot.id,
-      bookingHref,
+      bookingHref: absoluteBookingHref,
     })
 
     if (!updatedRequest) {
@@ -63,7 +84,7 @@ export async function POST(
       topic: urgentRequest.topicLabel,
       proposedDate,
       proposedTime,
-      bookingHref,
+      bookingHref: absoluteBookingHref,
       responseNote,
     })
 
@@ -78,7 +99,7 @@ export async function POST(
       ok: true,
       request: updatedRequest,
       slot,
-      bookingHref,
+      bookingHref: absoluteBookingHref,
     })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Nie udało się odpowiedzieć na prośbę.'

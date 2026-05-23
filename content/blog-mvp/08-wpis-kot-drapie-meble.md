@@ -99,4 +99,4 @@ Prawdopodobnie to ważny punkt terytorialny dla niego (przy wejściu, przy miejs
 
 Zdarza się — zwłaszcza gdy drapanie jest objawem napięcia środowiskowego, a nie tylko braku odpowiedniego drapaka. **Kwadrans z behawiorystą** pozwala szybko sprawdzić, czy szukasz rozwiązania we właściwym miejscu.
 
-[Umów Kwadrans z behawiorystą](/book) · [Kategoria: koty](/koty) · [Niezbędnik opiekuna](/niezbednik)
+[Umów Kwadrans z behawiorystą](/book) · [Kategoria: koty](/koty) · [Materiały PDF](/materialy)

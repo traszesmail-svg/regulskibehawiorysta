@@ -16,8 +16,8 @@ test('stage 2c keeps dog and cat entry pages on the three main public formats', 
 
   assert.match(dogsSource, /Dla psa obowiazuje ta sama logika 3 formatow\./)
   assert.match(catsSource, /Dla kota obowiazuje ta sama logika 3 formatow\./)
-  assert.match(dogsSource, /Kwadrans na juz \(99 zl\) - ten sam format, termin potwierdzany do 15 minut od wplaty\./)
-  assert.match(catsSource, /Kwadrans na juz \(99 zl\) - ten sam format, termin potwierdzany do 15 minut od wplaty\./)
+  assert.match(dogsSource, /Kwadrans na juz \(99 zl\) - ten sam format, priorytet i najblizszy realny termin\./)
+  assert.match(catsSource, /Kwadrans na juz \(99 zl\) - ten sam format, priorytet i najblizszy realny termin\./)
   assert.match(dogsSource, /pelnego opisu konsultacji online/)
   assert.match(catsSource, /pelnego opisu konsultacji online/)
 

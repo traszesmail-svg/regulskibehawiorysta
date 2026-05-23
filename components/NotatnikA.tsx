@@ -2,10 +2,10 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Zap } from 'lucide-react'
 import { Footer } from '@/components/Footer'
-import { NotatnikMobileMenuAutoClose } from '@/components/NotatnikMobileMenu'
+import { NotatnikMobileMenu } from '@/components/NotatnikMobileMenu'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { INSTAGRAM_PROFILE_URL } from '@/lib/site'
-import { REGULSKI_WEB_LOGO } from '@/lib/regulski-web-assets'
+import { REGULSKI_WEB_BADGE_LOGO } from '@/lib/regulski-web-assets'
 
 export type NotatnikNavItem = {
   href: string
@@ -15,14 +15,13 @@ export type NotatnikNavItem = {
 export const PUBLIC_SITE_NAV_ITEMS: readonly NotatnikNavItem[] = [
   { href: '/o-mnie', label: 'O mnie' },
   { href: '/cennik', label: 'Cennik' },
-  { href: '/niezbednik', label: 'Niezbędnik' },
+  { href: '/faq', label: 'FAQ' },
   { href: '/blog', label: 'Blog' },
   { href: '/kontakt', label: 'Kontakt' },
 ]
 
 export const PUBLIC_BOOKING_FLOW_NAV_ITEMS: readonly NotatnikNavItem[] = [
   { href: '/cennik', label: 'Cennik' },
-  { href: '/niezbednik', label: 'Niezbędnik' },
   { href: '/kontakt#formularz', label: 'Kontakt' },
 ]
 
@@ -53,6 +52,7 @@ type NotatnikFinalCtaProps = {
 type NotatnikFooterProps = {
   primaryHref?: string
   primaryLabel?: string
+  variant?: 'landing' | 'lean' | 'full' | 'home' | 'legal'
   showReviews?: boolean
   reviewSpecies?: 'dog' | 'cat' | 'all'
 }
@@ -96,13 +96,13 @@ function NotatnikBrandLockup() {
   return (
     <Link href="/" prefetch={false} className="notatnik-brand" aria-label="Wróć na stronę główną Regulski Behawiorysta">
       <span className="notatnik-brand-credential" aria-hidden="true">
-        <Image src={REGULSKI_WEB_LOGO} alt="" width={512} height={512} priority />
+        <Image src={REGULSKI_WEB_BADGE_LOGO} alt="" width={180} height={180} priority />
       </span>
       <span className="notatnik-brand-copy">
         <span className="notatnik-brand-mark">Regulski Behawiorysta</span>
         <span className="notatnik-brand-tag">
-          <span>Terapia behawioralna dla przewodników</span>
-          <span>zwierząt towarzyszących</span>
+          <span>Terapia behawioralna dla</span>
+          <span>psów i kotów</span>
         </span>
       </span>
     </Link>
@@ -110,11 +110,11 @@ function NotatnikBrandLockup() {
 }
 
 export function NotatnikTopbar({
-  navItems,
-  ctaHref = '/wybor',
-  ctaLabel = 'Quiz',
   showUtilityLinks = false,
 }: NotatnikTopbarProps) {
+  const navItems = PUBLIC_SITE_NAV_ITEMS
+  const ctaHref = '/quiz'
+  const ctaLabel = 'Quiz'
   const hasNavItems = navItems.length > 0
 
   return (
@@ -150,31 +150,7 @@ export function NotatnikTopbar({
         ) : null}
       </div>
 
-      {hasNavItems ? <NotatnikMobileMenuAutoClose /> : null}
-
-      {hasNavItems ? (
-        <details className="notatnik-mobile-menu">
-          <summary aria-label="Otwórz menu">
-            <span className="notatnik-mobile-menu-bars" aria-hidden="true">
-              <span />
-              <span />
-              <span />
-            </span>
-          </summary>
-          <div className="notatnik-mobile-menu-panel">
-            <nav aria-label="Menu mobilne">
-              <Link href={ctaHref} prefetch={false} className="notatnik-mobile-menu-cta">
-                {ctaLabel}
-              </Link>
-              {navItems.map((item) => (
-                <Link key={item.href} href={item.href} prefetch={false}>
-                  {item.label}
-                </Link>
-              ))}
-            </nav>
-          </div>
-        </details>
-      ) : null}
+      {hasNavItems ? <NotatnikMobileMenu navItems={navItems} ctaHref={ctaHref} ctaLabel={ctaLabel} /> : null}
     </header>
   )
 }
@@ -280,26 +256,31 @@ export function NotatnikFinalCta({
   secondaryLabel,
 }: NotatnikFinalCtaProps) {
   return (
-    <section className="notatnik-final">
-      <h2 dangerouslySetInnerHTML={{ __html: title }} />
-      {copy ? <p>{copy}</p> : null}
-      <div className="notatnik-final-actions">
-        <Link href={primaryHref} prefetch={false} className="notatnik-btn">
-          <span>{primaryLabel}</span>
-          <NotatnikButtonArrow />
-        </Link>
-        {secondaryHref && secondaryLabel ? (
-          <Link href={secondaryHref} prefetch={false} className="notatnik-btn notatnik-btn-ghost">
-            <span>{secondaryLabel}</span>
+    <section className="notatnik-final site-help-cta">
+      <div className="site-help-cta-copy">
+        <h2 dangerouslySetInnerHTML={{ __html: title }} />
+        {copy ? <p>{copy}</p> : null}
+        <div className="notatnik-final-actions site-help-cta-actions">
+          <Link href={primaryHref} prefetch={false} className="notatnik-btn">
+            <span>{primaryLabel}</span>
+            <NotatnikButtonArrow />
           </Link>
-        ) : null}
+          {secondaryHref && secondaryLabel ? (
+            <Link href={secondaryHref} prefetch={false} className="notatnik-btn notatnik-btn-ghost">
+              <span>{secondaryLabel}</span>
+            </Link>
+          ) : null}
+        </div>
+      </div>
+      <div className="site-help-cta-image" aria-hidden="true">
+        <Image src="/faq/faq-help-illustration-clean.png" alt="" width={355} height={208} sizes="(max-width: 760px) 58vw, 210px" />
       </div>
     </section>
   )
 }
 
-export function NotatnikFooter({ showReviews = true, reviewSpecies = 'all' }: NotatnikFooterProps) {
-  return <Footer variant="full" showReviews={showReviews} reviewSpecies={reviewSpecies} />
+export function NotatnikFooter({ variant = 'home', showReviews = true, reviewSpecies = 'all' }: NotatnikFooterProps) {
+  return <Footer variant={variant} showReviews={showReviews} reviewSpecies={reviewSpecies} />
 }
 
 export function NotatnikPageShell({

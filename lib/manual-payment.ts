@@ -67,7 +67,7 @@ export function getManualPaymentDetailCards({
   if (phoneDisplay) {
     cards.push({
       key: 'phone',
-      label: 'BLIK',
+      label: 'BLIK po instrukcji e-mail',
       value: phoneDisplay,
     })
   }

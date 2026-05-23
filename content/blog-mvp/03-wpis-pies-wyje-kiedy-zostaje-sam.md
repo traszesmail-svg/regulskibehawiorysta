@@ -99,4 +99,4 @@ Nie zawsze. Czasem są bardzo pomocne i uwalniają przestrzeń do pracy behawior
 
 To jest dokładnie ten typ problemu, przy którym **Kwadrans z behawiorystą** bywa najlepszym pierwszym krokiem. Opowiadasz, co dzieje się po wyjściu z domu, co już próbowałaś/próbowałeś i jak wygląda rytuał wychodzenia. Wychodzisz z jednym kierunkiem na najbliższy tydzień i jasnością, czy to, co robisz, naprawdę pomaga.
 
-[Umów Kwadrans z behawiorystą](/book) · [Zobacz pełny poradnik „pies zostaje sam”](/niezbednik) · [Kategoria: psy](/psy)
+[Umów Kwadrans z behawiorystą](/book) · [Zobacz pełny poradnik „pies zostaje sam”](/materialy) · [Kategoria: psy](/psy)

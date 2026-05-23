@@ -66,6 +66,8 @@ export function ContactLeadForm() {
   const intent = searchParams?.get('intent') ?? searchParams?.get('service') ?? null
   const presetDate = searchParams?.get('requestedDate') ?? null
   const presetTime = searchParams?.get('requestedTime') ?? null
+  const wasSentByFallback = searchParams?.get('sent') === '1'
+  const fallbackError = searchParams?.get('error') ?? null
   const isUrgentNow = isUrgentNowIntent(intent)
   const [form, setForm] = useState<SubmissionPayload>({
     ...createInitialForm(presetSpecies ?? ''),
@@ -76,7 +78,7 @@ export function ContactLeadForm() {
   const [feedback, setFeedback] = useState('')
   const startedRef = useRef(false)
   const messageLength = form.message.length
-  const isSubmitDisabled = status === 'loading' || !form.consentProcessing || !form.consentPolicy
+  const isSubmitDisabled = status === 'loading'
 
   useEffect(() => {
     if (!presetSpecies) {
@@ -94,6 +96,23 @@ export function ContactLeadForm() {
       }
     })
   }, [presetSpecies])
+
+  useEffect(() => {
+    if (wasSentByFallback) {
+      setStatus('success')
+      setFeedback(
+        isUrgentNow
+          ? 'Dziękuję. Prośba o Kwadrans na już została przyjęta. Odpowiem priorytetowo na podany adres e-mail z realną propozycją terminu.'
+          : 'Dziękuję za wiadomość. Wiadomość trafiła do mnie. Odpowiem na podany adres e-mail.',
+      )
+      return
+    }
+
+    if (fallbackError) {
+      setStatus('error')
+      setFeedback(fallbackError)
+    }
+  }, [fallbackError, isUrgentNow, wasSentByFallback])
 
   function markStarted() {
     if (startedRef.current) {
@@ -235,7 +254,7 @@ export function ContactLeadForm() {
       setFeedback(
         payload.message ??
           (isUrgentNow
-            ? 'Dziękuję. Prośba o Kwadrans na już została przyjęta. Odpowiem na podany adres e-mail w ciągu 15 minut z propozycją terminu.'
+            ? 'Dziękuję. Prośba o Kwadrans na już została przyjęta. Odpowiem priorytetowo na podany adres e-mail z realną propozycją terminu.'
             : 'Dziękuję za wiadomość. Wiadomość trafiła do mnie. Odpowiem na podany adres e-mail.'),
       )
       setForm(createInitialForm(presetSpecies ?? ''))
@@ -256,34 +275,54 @@ export function ContactLeadForm() {
           ? 'Wyślij kolejną prośbę'
           : 'Wyślij kolejną'
         : isUrgentNow
-          ? 'Wyślij opis sytuacji'
-          : 'Wyślij opis sytuacji'
+          ? 'Wyślij'
+          : 'Wyślij'
 
   return (
-    <form className="form-grid top-gap" onSubmit={handleSubmit} noValidate>
+    <form className="form-grid top-gap" action="/api/contact" method="post" onSubmit={handleSubmit} noValidate>
+      <input type="hidden" name="topicId" value="inne" />
+      <input type="hidden" name="topic" value="Wiadomość z formularza kontaktowego" />
+      {isUrgentNow ? (
+        <>
+          <input type="hidden" name="intent" value={URGENT_NOW_INTENT} />
+          <input type="hidden" name="service" value={URGENT_NOW_INTENT} />
+        </>
+      ) : null}
       <fieldset className="full-width form-field contact-species-field">
         <legend>Gatunek</legend>
         <div className="contact-species-toggle" aria-label="Wybierz gatunek">
-          <button
-            type="button"
+          <label
             className={`contact-species-card${form.species === 'pies' ? ' is-selected' : ''}`}
-            aria-pressed={form.species === 'pies'}
-            onClick={() => chooseSpecies('pies')}
-            onFocus={markStarted}
           >
+            <input
+              className="sr-only contact-species-radio"
+              type="radio"
+              name="species"
+              value="pies"
+              checked={form.species === 'pies'}
+              onChange={() => chooseSpecies('pies')}
+              onFocus={markStarted}
+              required
+            />
             <Image src="/branding/homepage/choice-dog-clean.png" alt="" width={44} height={38} aria-hidden="true" />
             <span>Pies</span>
-          </button>
-          <button
-            type="button"
+          </label>
+          <label
             className={`contact-species-card${form.species === 'kot' ? ' is-selected' : ''}`}
-            aria-pressed={form.species === 'kot'}
-            onClick={() => chooseSpecies('kot')}
-            onFocus={markStarted}
           >
+            <input
+              className="sr-only contact-species-radio"
+              type="radio"
+              name="species"
+              value="kot"
+              checked={form.species === 'kot'}
+              onChange={() => chooseSpecies('kot')}
+              onFocus={markStarted}
+              required
+            />
             <Image src="/branding/homepage/choice-cat-clean.png" alt="" width={40} height={46} aria-hidden="true" />
             <span>Kot</span>
-          </button>
+          </label>
         </div>
       </fieldset>
 
@@ -431,13 +470,10 @@ export function ContactLeadForm() {
           <p>{feedback}</p>
           {status === 'success' ? (
             <div className="contact-success-next">
-              <p>W międzyczasie możesz zajrzeć do materiałów i Niezbędnika. Są tam bezpłatne PDF-y, przewodniki i gotowe ścieżki tematyczne.</p>
+              <p>W międzyczasie możesz zajrzeć do materiałów. Są tam bezpłatne PDF-y, przewodniki i gotowe ścieżki tematyczne.</p>
               <div>
                 <Link href="/materialy" prefetch={false} className="prep-inline-link">
                   Zobacz materiały
-                </Link>
-                <Link href="/niezbednik" prefetch={false} className="prep-inline-link">
-                  Przejdź do Niezbędnika
                 </Link>
               </div>
             </div>

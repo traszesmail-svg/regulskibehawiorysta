@@ -1,8 +1,9 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { useMemo, useState, type ReactNode } from 'react'
-import { CalendarDays, Cat, Check, Clock3, Dog, Headphones, PawPrint, Tag, Video } from 'lucide-react'
+import { CalendarDays, Cat, Check, Clock3, Dog, Headphones, Lightbulb, PawPrint, Tag, Video } from 'lucide-react'
 import { trackAnalyticsEvent } from '@/lib/analytics'
 
 export type TerminCalendarSlot = {
@@ -10,9 +11,13 @@ export type TerminCalendarSlot = {
   date: string
   dateLabel: string
   time: string
-  href: string
+  href: string | null
   serviceType: string
   serviceTitle: string
+  state: 'available' | 'booked' | 'locked' | 'outside_window' | 'unavailable' | 'reserved_for_urgent'
+  statusLabel: 'Dostępny' | 'Zajęte' | 'Niedostępne'
+  reasonLabel: string
+  isBookable: boolean
 }
 
 export type TerminCalendarDay = {
@@ -21,6 +26,8 @@ export type TerminCalendarDay = {
   monthLabel: string
   isInPrimaryMonth: boolean
   label: string
+  availableSlotCount: number
+  statusLabel: string
   slots: TerminCalendarSlot[]
 }
 
@@ -53,30 +60,42 @@ function getSpeciesIcon(species: TerminCalendarSummary['species']) {
 }
 
 export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, choicePanel }: TerminCalendarPickerProps) {
-  const flatSlots = useMemo(() => days.flatMap((day) => day.slots), [days])
-  const firstAvailableDay = days.find((day) => day.slots.length > 0) ?? days.find((day) => day.isInPrimaryMonth) ?? days[0] ?? null
+  const flatSlots = useMemo(() => days.flatMap((day) => day.slots.filter((slot) => slot.isBookable)), [days])
+  const nearestSlots = flatSlots.slice(0, 5)
+  const firstAvailableDay = days.find((day) => day.availableSlotCount > 0) ?? days.find((day) => day.isInPrimaryMonth) ?? days[0] ?? null
   const [selectedDayDate, setSelectedDayDate] = useState(firstAvailableDay?.date ?? '')
   const [selectedSlotId, setSelectedSlotId] = useState(flatSlots[0]?.id ?? '')
   const selectedDay = days.find((day) => day.date === selectedDayDate) ?? firstAvailableDay
-  const selectedSlot = selectedDay?.slots.find((slot) => slot.id === selectedSlotId) ?? selectedDay?.slots[0] ?? flatSlots[0] ?? null
+  const selectedDayAvailableSlots = selectedDay?.slots.filter((slot) => slot.isBookable) ?? []
+  const selectedSlot = selectedDayAvailableSlots.find((slot) => slot.id === selectedSlotId) ?? selectedDayAvailableSlots[0] ?? null
   const SpeciesIcon = getSpeciesIcon(summary.species)
   const ModeIcon = summary.modeLabel.toLowerCase().includes('video') ? Video : Headphones
   const speciesLabel = summary.species === 'kot' ? 'Kot' : summary.species === 'pies' ? 'Pies' : 'Do wyboru'
+  const petVisualSrc = summary.species === 'kot' ? '/wybor/cat-choice-avatar.png' : '/wybor/dog-choice-avatar.png'
+  const petVisualAlt = summary.species === 'kot' ? 'Spokojny kot' : 'Spokojny pies'
 
   function chooseDay(day: TerminCalendarDay) {
     setSelectedDayDate(day.date)
-    setSelectedSlotId(day.slots[0]?.id ?? '')
+    setSelectedSlotId(day.slots.find((slot) => slot.isBookable)?.id ?? '')
   }
 
-  function chooseSlot(slot: TerminCalendarSlot) {
-    setSelectedSlotId(slot.id)
+  function trackSlotSelect(slot: TerminCalendarSlot, location: string) {
     trackAnalyticsEvent('booking_slot_selected', {
-      location: 'termin-calendar',
+      location,
       slot_id: slot.id,
       slot_date: slot.date,
       slot_time: slot.time,
       service: slot.serviceType,
     })
+  }
+
+  function chooseSlot(slot: TerminCalendarSlot) {
+    if (!slot.isBookable) {
+      return
+    }
+
+    setSelectedSlotId(slot.id)
+    trackSlotSelect(slot, 'termin-calendar')
   }
 
   return (
@@ -88,9 +107,37 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, cho
             <strong>{monthLabel}</strong>
           </div>
           <p>
-            {slotCount > 0 ? `${slotCount} dostępnych terminów` : 'Brak terminów'} / {summary.serviceBadge}
+            {slotCount > 0 ? `${slotCount} dostępnych terminów` : 'Brak dostępnych terminów'} / {summary.serviceBadge}
           </p>
         </div>
+
+        {nearestSlots.length > 0 ? (
+          <section className="termin-nearest-slots" aria-label="Najbliższe dostępne terminy">
+            <div className="termin-nearest-slots-head">
+              <span>Najbliższe terminy</span>
+              <strong>Wybierz od razu, jeśli chcesz szybciej przejść dalej.</strong>
+            </div>
+            <div className="termin-nearest-slot-list">
+              {nearestSlots.map((slot) =>
+                slot.href ? (
+                  <Link
+                    key={slot.id}
+                    href={slot.href}
+                    prefetch={false}
+                    className="termin-nearest-slot-link"
+                    data-nearest-slot-link="true"
+                    data-slot-id={slot.id}
+                    onClick={() => trackSlotSelect(slot, 'termin-nearest-slots')}
+                  >
+                    <span>{slot.dateLabel}</span>
+                    <strong>{slot.time}</strong>
+                    <small>{slot.serviceTitle}</small>
+                  </Link>
+                ) : null,
+              )}
+            </div>
+          </section>
+        ) : null}
 
         <div className="termin-calendar-weekdays" aria-hidden="true">
           {weekdayLabels.map((label) => (
@@ -102,7 +149,7 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, cho
           {days.map((day) => (
             <article
               key={day.date}
-              className={`termin-calendar-day${day.slots.length > 0 ? ' has-slots' : ''}${day.isInPrimaryMonth ? '' : ' is-muted'}`}
+              className={`termin-calendar-day${day.availableSlotCount > 0 ? ' has-slots' : ''}${day.slots.length > 0 ? ' has-visible-slots' : ''}${day.isInPrimaryMonth ? '' : ' is-muted'}`}
             >
               <button
                 type="button"
@@ -114,7 +161,7 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, cho
                   <strong>{day.dayNumber}</strong>
                   <small>{day.monthLabel}</small>
                 </span>
-                {day.slots.length > 0 ? <em>{day.slots.length} terminów</em> : <em>Brak terminów</em>}
+                <em>{day.availableSlotCount > 0 ? `${day.availableSlotCount} terminów` : day.statusLabel}</em>
               </button>
             </article>
           ))}
@@ -131,17 +178,32 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, cho
                 <button
                   key={slot.id}
                   type="button"
-                  className={`termin-slot-button${selectedSlot?.id === slot.id ? ' is-selected' : ''}`}
+                  className={`termin-slot-button${selectedSlot?.id === slot.id ? ' is-selected' : ''}${slot.isBookable ? '' : ' is-disabled'} is-${slot.state}`}
                   aria-pressed={selectedSlot?.id === slot.id}
+                  aria-label={`${slot.time}. ${slot.reasonLabel}`}
+                  disabled={!slot.isBookable}
                   onClick={() => chooseSlot(slot)}
                 >
-                  {slot.time}
+                  <span>{slot.time}</span>
+                  {!slot.isBookable ? <small>{slot.statusLabel}</small> : null}
                 </button>
               ))}
             </div>
           ) : (
             <div className="termin-time-empty">Brak terminów w tym dniu.</div>
           )}
+        </div>
+        <div className="termin-calendar-hint-card">
+          <span aria-hidden="true">
+            <Lightbulb size={23} strokeWidth={1.85} />
+          </span>
+          <div>
+            <strong>Nie wiesz, którą godzinę wybrać?</strong>
+            <p>Wybierz moment, w którym możesz spokojnie skupić się na rozmowie. Szczegóły doprecyzujemy w formularzu.</p>
+          </div>
+        </div>
+        <div className="termin-calendar-pet-visual" aria-hidden="true">
+          <Image src={petVisualSrc} alt={petVisualAlt} fill sizes="(max-width: 680px) 320px, 360px" />
         </div>
         {choicePanel ? <div className="termin-calendar-choice-slot">{choicePanel}</div> : null}
       </div>
@@ -193,10 +255,17 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, cho
           </div>
         </div>
 
-        {selectedSlot ? (
-          <Link href={selectedSlot.href} prefetch={false} className="notatnik-btn termin-summary-cta">
+        {selectedSlot?.href ? (
+          <Link
+            href={selectedSlot.href}
+            prefetch={false}
+            className="notatnik-btn termin-summary-cta"
+            data-selected-slot-link="true"
+            data-slot-id={selectedSlot.id}
+            onClick={() => trackSlotSelect(selectedSlot, 'termin-summary')}
+          >
             <CalendarDays size={17} strokeWidth={1.9} aria-hidden="true" />
-            <span>Umów spokojny pierwszy krok</span>
+            <span>Zarezerwuj wybrany termin</span>
           </Link>
         ) : (
           <Link href={summary.contactHref} prefetch={false} className="notatnik-btn termin-summary-cta">

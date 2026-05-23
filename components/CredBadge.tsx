@@ -35,7 +35,7 @@ export function TrustBar() {
       <CredBadge icon="award" emphasis>COAPE / CAPBT</CredBadge>
       <CredBadge icon="stethoscope">Technik weterynarii</CredBadge>
       <CredBadge icon="hand-heart">Bez kar i przymusu</CredBadge>
-      <CredBadge icon="phone-off">Bez publicznego telefonu</CredBadge>
+      <CredBadge icon="mail">Kontakt e-mail</CredBadge>
       <CredBadge icon="credit-card">Płatność po potwierdzeniu</CredBadge>
     </div>
   );

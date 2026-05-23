@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { POST as postContactLead } from '@/app/api/contact/route'
+import { POST as postLegacyLeadMagnetSubscribe } from '@/app/api/lead-magnet-subscribe/route'
 import {
   createAvailabilitySlot,
   createPendingBooking,
@@ -9,7 +10,13 @@ import {
   markBookingPaid,
   markBookingPaymentFailed,
 } from '@/lib/server/local-store'
-import { getCustomerEmailDeliveryStatus } from '@/lib/server/notifications'
+import { reportManualPayment } from '@/lib/server/manual-payments'
+import {
+  getCustomerEmailDeliveryStatus,
+  sendMaterialyCodeCustomerEmail,
+  sendMaterialyOrderPendingCustomerEmail,
+  type MaterialyOrderEmailPayload,
+} from '@/lib/server/notifications'
 import { createLocalDataSandbox } from '@/scripts/lib/local-data-sandbox'
 
 type ResendEmailPayload = {
@@ -66,6 +73,44 @@ function includesNormalized(value: string | undefined, expected: string) {
   return typeof value === 'string' && normalize(value).includes(normalize(expected))
 }
 
+const CUSTOMER_EMAIL_FORBIDDEN_PATTERNS = [
+  /\bNIP\b/i,
+  /\bCEIDG\b/i,
+  /\bOlsztyn\b/i,
+  /BLIK na telefon/i,
+  /publiczny telefon/i,
+  /telefon publiczny/i,
+  /przedsi[eę]biorca/i,
+  /\bfirma\b/i,
+] as const
+
+function collectEmailCopy(email: ResendEmailPayload) {
+  return [email.subject, email.html, email.text].filter((value): value is string => typeof value === 'string').join('\n')
+}
+
+function assertNoForbiddenCustomerEmailCopy(email: ResendEmailPayload) {
+  const copy = collectEmailCopy(email)
+
+  for (const pattern of CUSTOMER_EMAIL_FORBIDDEN_PATTERNS) {
+    assert.doesNotMatch(copy, pattern)
+  }
+}
+
+function makeMaterialyOrderEmailPayload(overrides: Partial<MaterialyOrderEmailPayload> = {}): MaterialyOrderEmailPayload {
+  return {
+    orderId: 'MAT-2305-001',
+    productKind: 'guide',
+    productSlug: 'pies-sam-w-domu',
+    productTitle: 'Pies sam w domu: spokojny start',
+    priceLabel: '49 zł',
+    priceAmount: 49,
+    customerName: 'Anna',
+    customerEmail: 'klient@example.com',
+    notes: null,
+    ...overrides,
+  }
+}
+
 function makeBookingForm(slotId: string) {
   return {
     ownerName: 'Testowy Klient',
@@ -75,7 +120,6 @@ function makeBookingForm(slotId: string) {
     petAge: '3 lata',
     durationNotes: 'Szybki test dostarczenia maili',
     description: 'Sprawdzam customer emails na stage 5.',
-    phone: '+48 500 600 700',
     email: 'klient@example.com',
     slotId,
     qaBooking: true,
@@ -123,43 +167,50 @@ test('customer emails cover reservation, review, confirmation and cancel outcome
         RESEND_API_KEY: 're_test_key',
         RESEND_FROM_EMAIL: EXPECTED_RESEND_FROM,
         CUSTOMER_EMAIL_MODE: 'auto',
+        MANUAL_PAYMENT_BLIK_PHONE: '500600700',
+        MANUAL_PAYMENT_REVIEW_SECRET: 'test-review-secret',
         REGULSKI_CONTACT_EMAIL: 'kontakt@regulskibehawiorysta.pl',
       },
       async () => {
         const bookingDate = '2030-01-15'
 
         await createAvailabilitySlot(bookingDate, '10:00')
-        await createAvailabilitySlot(bookingDate, '10:20')
-        await createAvailabilitySlot(bookingDate, '10:40')
+        await createAvailabilitySlot(bookingDate, '10:30')
+        await createAvailabilitySlot(bookingDate, '11:00')
 
         const bookingA = await createPendingBooking(makeBookingForm(`${bookingDate}-10:00`))
-        assert.equal(sentEmails.length, 2)
+        assert.equal(sentEmails.length, 1)
         assert.equal(bookingA.booking.bookingStatus, 'pending')
         assert.equal(bookingA.booking.paymentStatus, 'unpaid')
         assert.equal(sentEmails[0].to?.[0], 'klient@example.com')
         assert.equal(sentEmails[0].from, EXPECTED_RESEND_FROM)
         assert.equal(includesNormalized(sentEmails[0].subject, 'Regulski Behawiorysta'), true)
+        assert.match(sentEmails[0].html ?? '', /data-email-shell="regulski"/)
+        assert.match(sentEmails[0].html ?? '', /data-email-facts="reservation"/)
+        assert.match(sentEmails[0].html ?? '', /data-email-button="primary"/)
         assert.match(sentEmails[0].text ?? '', new RegExp(`Strona rezerwacji: .*\\/payment\\?bookingId=${bookingA.booking.id}`))
         assert.match(sentEmails[0].text ?? '', /access=/)
-        assert.equal(sentEmails[1].to?.[0], 'kontakt@regulskibehawiorysta.pl')
-        assert.equal(sentEmails[1].from, EXPECTED_RESEND_FROM)
-        assert.equal(includesNormalized(sentEmails[1].subject, '15-minutowa konsultacja behawioralna'), true)
-        assert.match(sentEmails[1].html ?? '', /osobny mail z linkami do potwierdzenia albo odrzucenia wpłaty/i)
 
-        const reviewBooking = await markBookingManualPaymentPending(bookingA.booking.id, {
-          paymentReference: 'MANUAL-A',
-          customerAccessToken: bookingA.accessToken,
-        })
+        const manualReport = await reportManualPayment(bookingA.booking.id, bookingA.accessToken)
+        const reviewBooking = manualReport.booking
         assert.equal(reviewBooking?.bookingStatus, 'pending_manual_payment')
         assert.equal(reviewBooking?.paymentStatus, 'pending_manual_review')
+        assert.equal(manualReport.adminNotification.status, 'sent')
         assert.equal(sentEmails.length, 3)
-        assert.equal(includesNormalized(sentEmails[2].subject, 'Regulski Behawiorysta'), true)
-        assert.equal(sentEmails[2].text?.includes('MANUAL-A'), true)
-        assert.match(sentEmails[2].text ?? '', new RegExp(`Strona rezerwacji: .*\\/confirmation\\?bookingId=${bookingA.booking.id}`))
-        assert.match(sentEmails[2].text ?? '', /access=/)
+        assert.equal(includesNormalized(sentEmails[1].subject, 'Regulski Behawiorysta'), true)
+        assert.match(sentEmails[1].text ?? '', new RegExp(`Strona rezerwacji: .*\\/confirmation\\?bookingId=${bookingA.booking.id}`))
+        assert.match(sentEmails[1].text ?? '', /access=/)
+        assert.equal(sentEmails[2].to?.[0], 'kontakt@regulskibehawiorysta.pl')
+        assert.match(sentEmails[2].html ?? '', /data-email-facts="manual-payment-review"/)
+        assert.match(sentEmails[2].html ?? '', /data-email-button="danger"/)
+        assert.match(sentEmails[2].html ?? '', /data-email-button="secondary"/)
+        assert.doesNotMatch(sentEmails[2].html ?? '', /display:flex/)
+        assert.match(sentEmails[2].text ?? '', /Jest wpłata:/)
+        assert.match(sentEmails[2].text ?? '', /Nie ma wpłaty:/)
+        assert.match(sentEmails[2].text ?? '', /Tytuł płatności: B15-/)
 
         const reviewBookingRepeat = await markBookingManualPaymentPending(bookingA.booking.id, {
-          paymentReference: 'MANUAL-A',
+          paymentReference: reviewBooking.paymentReference,
           customerAccessToken: bookingA.accessToken,
         })
         assert.equal(reviewBookingRepeat?.paymentStatus, 'pending_manual_review')
@@ -167,44 +218,49 @@ test('customer emails cover reservation, review, confirmation and cancel outcome
 
         const paidBooking = await markBookingPaid(bookingA.booking.id, {
           paymentMethod: 'manual',
-          paymentReference: 'MANUAL-A',
+          paymentReference: reviewBooking.paymentReference,
         })
         assert.equal(paidBooking?.bookingStatus, 'confirmed')
         assert.equal(paidBooking?.paymentStatus, 'paid')
         assert.equal(sentEmails.length, 5)
         assert.equal(includesNormalized(sentEmails[3].subject, 'Regulski Behawiorysta'), true)
+        assert.match(sentEmails[3].html ?? '', /data-email-facts="confirmation"/)
         assert.match(sentEmails[3].text ?? '', /Twoja konsultacja Regulski Behawiorysta została potwierdzona\./)
         assert.match(sentEmails[3].text ?? '', /Link do rozmowy:/)
         assert.equal(sentEmails[4].to?.[0], 'kontakt@regulskibehawiorysta.pl')
+        assert.match(sentEmails[4].html ?? '', /data-email-facts="owner-confirmed"/)
+        assert.match(sentEmails[4].html ?? '', /data-email-panel="Opis zgłoszenia"/)
         assert.match(sentEmails[4].text ?? '', /Konsultacja opłacona i potwierdzona\./)
         assert.equal(Array.isArray(sentEmails[4].attachments), true)
 
-        const bookingB = await createPendingBooking(makeBookingForm(`${bookingDate}-10:20`))
-        assert.equal(sentEmails.length, 7)
+        const bookingB = await createPendingBooking(makeBookingForm(`${bookingDate}-10:30`))
+        assert.equal(sentEmails.length, 6)
         assert.equal(includesNormalized(sentEmails[5].subject, 'Regulski Behawiorysta'), true)
-        assert.equal(sentEmails[6].to?.[0], 'kontakt@regulskibehawiorysta.pl')
 
         const rejectedBooking = await markBookingManualPaymentRejected(bookingB.booking.id, 'Brak potwierdzenia wplaty')
         assert.equal(rejectedBooking?.bookingStatus, 'cancelled')
         assert.equal(rejectedBooking?.paymentStatus, 'rejected')
-        assert.equal(sentEmails.length, 8)
-        assert.equal(includesNormalized(sentEmails[7].subject, 'Regulski Behawiorysta'), true)
-        assert.equal(includesNormalized(sentEmails[7].text, 'Brak potwierdzenia wplaty'), true)
+        assert.equal(sentEmails.length, 7)
+        assert.equal(includesNormalized(sentEmails[6].subject, 'Regulski Behawiorysta'), true)
+        assert.equal(includesNormalized(sentEmails[6].text, 'Brak potwierdzenia wplaty'), true)
 
         const rejectedRepeat = await markBookingManualPaymentRejected(bookingB.booking.id, 'Brak potwierdzenia wplaty')
         assert.equal(rejectedRepeat?.paymentStatus, 'rejected')
-        assert.equal(sentEmails.length, 8)
+        assert.equal(sentEmails.length, 7)
 
-        const bookingC = await createPendingBooking(makeBookingForm(`${bookingDate}-10:40`))
-        assert.equal(sentEmails.length, 10)
-        assert.equal(includesNormalized(sentEmails[8].subject, 'Regulski Behawiorysta'), true)
-        assert.equal(sentEmails[9].to?.[0], 'kontakt@regulskibehawiorysta.pl')
+        const bookingC = await createPendingBooking(makeBookingForm(`${bookingDate}-11:00`))
+        assert.equal(sentEmails.length, 8)
+        assert.equal(includesNormalized(sentEmails[7].subject, 'Regulski Behawiorysta'), true)
 
         const failedBooking = await markBookingPaymentFailed(bookingC.booking.id)
         assert.equal(failedBooking?.bookingStatus, 'cancelled')
         assert.equal(failedBooking?.paymentStatus, 'failed')
-        assert.equal(sentEmails.length, 11)
-        assert.equal(includesNormalized(sentEmails[10].subject, 'Regulski Behawiorysta'), true)
+        assert.equal(sentEmails.length, 9)
+        assert.equal(includesNormalized(sentEmails[8].subject, 'Regulski Behawiorysta'), true)
+
+        for (const email of [sentEmails[0], sentEmails[1], sentEmails[3], sentEmails[5], sentEmails[6], sentEmails[7], sentEmails[8]]) {
+          assertNoForbiddenCustomerEmailCopy(email)
+        }
       },
     )
   } finally {
@@ -238,6 +294,8 @@ test('customer emails stay on the confirmation page when disabled', async () => 
         RESEND_API_KEY: 're_test_key',
         RESEND_FROM_EMAIL: EXPECTED_RESEND_FROM,
         CUSTOMER_EMAIL_MODE: 'disabled',
+        MANUAL_PAYMENT_BLIK_PHONE: '500600700',
+        MANUAL_PAYMENT_REVIEW_SECRET: 'test-review-secret',
         REGULSKI_CONTACT_EMAIL: 'kontakt@regulskibehawiorysta.pl',
       },
       async () => {
@@ -251,20 +309,22 @@ test('customer emails stay on the confirmation page when disabled', async () => 
         assert.equal(status.state, 'disabled')
         assert.equal(includesNormalized(status.summary, 'maile klienta'), true)
         assert.match(status.nextStep, /CUSTOMER_EMAIL_MODE=auto/i)
-        assert.equal(sentEmails.length, 1)
-        assert.equal(sentEmails[0].to?.[0], 'kontakt@regulskibehawiorysta.pl')
+        assert.equal(sentEmails.length, 0)
 
-        const pendingBooking = await markBookingManualPaymentPending(booking.booking.id, {
-          paymentReference: 'MANUAL-DISABLED',
-        })
+        const manualReport = await reportManualPayment(booking.booking.id, booking.accessToken)
+        const pendingBooking = manualReport.booking
 
         assert.equal(pendingBooking?.bookingStatus, 'pending_manual_payment')
         assert.equal(pendingBooking?.paymentStatus, 'pending_manual_review')
+        assert.equal(manualReport.adminNotification.status, 'sent')
         assert.equal(sentEmails.length, 1)
+        assert.equal(sentEmails[0].to?.[0], 'kontakt@regulskibehawiorysta.pl')
+        assert.match(sentEmails[0].text ?? '', /Jest wpłata:/)
+        assert.match(sentEmails[0].text ?? '', /Nie ma wpłaty:/)
 
         const paidBooking = await markBookingPaid(booking.booking.id, {
           paymentMethod: 'manual',
-          paymentReference: 'MANUAL-DISABLED',
+          paymentReference: pendingBooking.paymentReference,
         })
 
         assert.equal(paidBooking?.bookingStatus, 'confirmed')
@@ -327,12 +387,198 @@ test('contact route sends leads to the public inbox and replies to the sender', 
         assert.equal(sentEmails[0].from, EXPECTED_RESEND_FROM)
         assert.equal(sentEmails[0].reply_to, 'klient@example.com')
         assert.match(sentEmails[0].subject ?? '', /Kontakt - .*Anna Nowak/)
+        assert.match(sentEmails[0].html ?? '', /data-email-facts="contact"/)
+        assert.match(sentEmails[0].html ?? '', /data-email-panel="Wiadomość"/)
         assert.match(sentEmails[0].text ?? '', /Kontekst:/)
         assert.match(sentEmails[0].text ?? '', /Numer rezerwacji: booking-123/)
         assert.equal(sentEmails[1].to?.[0], 'klient@example.com')
         assert.equal(sentEmails[1].from, EXPECTED_RESEND_FROM)
+        assert.match(sentEmails[1].html ?? '', /data-email-facts="contact-reply"/)
+        assert.match(sentEmails[1].html ?? '', /data-email-button="primary"/)
         assert.match(sentEmails[1].subject ?? '', /Dostałem Twoją wiadomość/i)
         assert.match(sentEmails[1].text ?? '', /1-2 dni roboczych/i)
+        assertNoForbiddenCustomerEmailCopy(sentEmails[1])
+      },
+    )
+  } finally {
+    ;(globalThis as typeof globalThis & { fetch: typeof fetch }).fetch = originalFetch
+  }
+})
+
+test('contact route accepts browser form posts and redirects back to contact form', async () => {
+  const sentEmails: ResendEmailPayload[] = []
+  const originalFetch = globalThis.fetch
+
+  try {
+    const mockFetch = async (_input: RequestInfo | URL, init?: RequestInit) => {
+      const body = typeof init?.body === 'string' ? JSON.parse(init.body) : {}
+      sentEmails.push(body)
+      return new Response('{}', {
+        status: 200,
+        headers: {
+          'content-type': 'application/json',
+        },
+      })
+    }
+
+    ;(globalThis as typeof globalThis & { fetch: typeof fetch }).fetch = mockFetch as typeof fetch
+
+    await withEnv(
+      {
+        MAIL_PROVIDER: 'resend',
+        RESEND_API_KEY: 're_test_key',
+        RESEND_FROM_EMAIL: EXPECTED_RESEND_FROM,
+        REGULSKI_CONTACT_EMAIL: 'kontakt@regulskibehawiorysta.pl',
+      },
+      async () => {
+        const body = new URLSearchParams({
+          name: 'Anna Nowak',
+          contact: 'klient@example.com',
+          species: 'pies',
+          topicId: 'inne',
+          topic: 'Wiadomość z formularza kontaktowego',
+          message:
+            'Potrzebuje pomocy z psem i chce ustalic prosty start. Temat wraca od kilku tygodni i nie wiem, od czego zaczac.',
+          consentProcessing: 'on',
+          consentPolicy: 'on',
+        })
+
+        const response = await postContactLead(
+          new Request('https://example.test/api/contact', {
+            method: 'POST',
+            headers: {
+              'content-type': 'application/x-www-form-urlencoded',
+              'x-forwarded-for': '203.0.113.13',
+            },
+            body,
+          }),
+        )
+
+        assert.equal(response.status, 303)
+        assert.match(response.headers.get('location') ?? '', /\/kontakt\?sent=1#formularz$/)
+        assert.equal(sentEmails.length, 2)
+        assert.equal(sentEmails[0].to?.[0], 'kontakt@regulskibehawiorysta.pl')
+        assert.equal(sentEmails[1].to?.[0], 'klient@example.com')
+      },
+    )
+  } finally {
+    ;(globalThis as typeof globalThis & { fetch: typeof fetch }).fetch = originalFetch
+  }
+})
+
+test('materialy customer emails use the shared shell and public-safe wording', async () => {
+  const sentEmails: ResendEmailPayload[] = []
+  const originalFetch = globalThis.fetch
+
+  try {
+    const mockFetch = async (_input: RequestInfo | URL, init?: RequestInit) => {
+      const body = typeof init?.body === 'string' ? JSON.parse(init.body) : {}
+      sentEmails.push(body)
+      return new Response('{}', {
+        status: 200,
+        headers: {
+          'content-type': 'application/json',
+        },
+      })
+    }
+
+    ;(globalThis as typeof globalThis & { fetch: typeof fetch }).fetch = mockFetch as typeof fetch
+
+    await withEnv(
+      {
+        MAIL_PROVIDER: 'resend',
+        RESEND_API_KEY: 're_test_key',
+        RESEND_FROM_EMAIL: EXPECTED_RESEND_FROM,
+        CUSTOMER_EMAIL_MODE: 'auto',
+        REGULSKI_CONTACT_EMAIL: 'kontakt@regulskibehawiorysta.pl',
+      },
+      async () => {
+        const order = makeMaterialyOrderEmailPayload()
+
+        const pendingResult = await sendMaterialyOrderPendingCustomerEmail(order)
+        const codeResult = await sendMaterialyCodeCustomerEmail(order, '123456', '2030-01-20T12:00:00.000Z')
+
+        assert.equal(pendingResult.status, 'sent')
+        assert.equal(codeResult.status, 'sent')
+        assert.equal(sentEmails.length, 2)
+
+        assert.equal(sentEmails[0].to?.[0], 'klient@example.com')
+        assert.match(sentEmails[0].html ?? '', /data-email-shell="regulski"/)
+        assert.match(sentEmails[0].html ?? '', /data-email-facts="materialy-payment"/)
+        assert.match(sentEmails[0].text ?? '', /BLIK: instrukcja mailowa bez publicznego numeru\./)
+
+        assert.equal(sentEmails[1].to?.[0], 'klient@example.com')
+        assert.match(sentEmails[1].html ?? '', /data-email-shell="regulski"/)
+        assert.match(sentEmails[1].html ?? '', /data-email-facts="materialy-code"/)
+        assert.match(sentEmails[1].text ?? '', /Kod do pobrania: 123456/)
+
+        for (const email of sentEmails) {
+          assertNoForbiddenCustomerEmailCopy(email)
+        }
+      },
+    )
+  } finally {
+    ;(globalThis as typeof globalThis & { fetch: typeof fetch }).fetch = originalFetch
+  }
+})
+
+test('legacy lead magnet subscribe sends PDF through shared customer email shell', async () => {
+  const sentEmails: ResendEmailPayload[] = []
+  const originalFetch = globalThis.fetch
+
+  try {
+    const mockFetch = async (_input: RequestInfo | URL, init?: RequestInit) => {
+      const body = typeof init?.body === 'string' ? JSON.parse(init.body) : {}
+      sentEmails.push(body)
+      return new Response('{}', {
+        status: 200,
+        headers: {
+          'content-type': 'application/json',
+        },
+      })
+    }
+
+    ;(globalThis as typeof globalThis & { fetch: typeof fetch }).fetch = mockFetch as typeof fetch
+
+    await withEnv(
+      {
+        MAIL_PROVIDER: 'resend',
+        RESEND_API_KEY: 're_test_key',
+        RESEND_FROM_EMAIL: EXPECTED_RESEND_FROM,
+        CUSTOMER_EMAIL_MODE: 'auto',
+        REGULSKI_CONTACT_EMAIL: 'kontakt@regulskibehawiorysta.pl',
+        NEXT_PUBLIC_SITE_URL: 'https://regulskibehawiorysta.pl',
+        MAILERLITE_API_KEY: null,
+        MAILERLITE_GROUP_PDF: null,
+        MAILERLITE_GROUP_NEWSLETTER: null,
+      },
+      async () => {
+        const response = await postLegacyLeadMagnetSubscribe(
+          new Request('https://example.test/api/lead-magnet-subscribe', {
+            method: 'POST',
+            headers: {
+              'content-type': 'application/json',
+              'x-forwarded-for': '203.0.113.41',
+            },
+            body: JSON.stringify({
+              email: 'klient@example.com',
+              magnetId: 'lista-30-zachowan',
+              source: 'section',
+              consentNewsletter: false,
+            }),
+          }) as Parameters<typeof postLegacyLeadMagnetSubscribe>[0],
+        )
+        const payload = (await response.json()) as { ok?: boolean; error?: string }
+
+        assert.equal(response.status, 200)
+        assert.equal(payload.ok, true)
+        assert.equal(sentEmails.length, 1)
+        assert.equal(sentEmails[0].from, EXPECTED_RESEND_FROM)
+        assert.equal(sentEmails[0].to?.[0], 'klient@example.com')
+        assert.match(sentEmails[0].html ?? '', /data-email-shell="regulski"/)
+        assert.match(sentEmails[0].html ?? '', /data-email-facts="lead-magnet-direct"/)
+        assert.match(sentEmails[0].text ?? '', /Pobierz PDF: https:\/\/regulskibehawiorysta\.pl\/poradniki\/30-zachowan\.pdf/)
+        assertNoForbiddenCustomerEmailCopy(sentEmails[0])
       },
     )
   } finally {

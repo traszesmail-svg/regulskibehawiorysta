@@ -107,4 +107,4 @@ Jeśli sytuacja w domu wygląda jak w opisie i nie wiesz, od czego zacząć — 
 
 Nie trzeba od razu wchodzić w długą konsultację. Dobry pierwszy kierunek jest wart więcej niż tygodnie prób bez planu.
 
-[Umów Kwadrans z behawiorystą](/book) · [Pomoc dla opiekunów kotów](/koty) · [Niezbędnik — poradnik: konflikt między kotami](/niezbednik)
+[Umów Kwadrans z behawiorystą](/book) · [Pomoc dla opiekunów kotów](/koty) · [Materiały PDF — poradnik: konflikt między kotami](/materialy)

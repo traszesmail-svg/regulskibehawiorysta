@@ -46,10 +46,10 @@ const contactNavItems: NavItem[] = [
 ]
 
 const materialNavItems: NavItem[] = [
-  { href: '/niezbednik#polecane-starty', label: 'Polecane starty', sectionId: 'polecane-starty' },
-  { href: '/niezbednik#ksiazki', label: 'Książki', sectionId: 'ksiazki' },
-  { href: '/niezbednik#przybory', label: 'Narzędzia', sectionId: 'przybory' },
-  { href: '/niezbednik#kontakt', label: 'Dalszy krok', sectionId: 'kontakt' },
+  { href: '/materialy#start', label: 'Start', sectionId: 'start' },
+  { href: '/materialy#psy', label: 'Psy', sectionId: 'psy' },
+  { href: '/materialy#koty', label: 'Koty', sectionId: 'koty' },
+  { href: '/materialy#jak-to-dziala', label: 'Jak to działa', sectionId: 'jak-to-dziala' },
 ]
 
 const faqNavItems: NavItem[] = [
@@ -68,7 +68,6 @@ const aboutNavItems: NavItem[] = [
 
 const blogNavItems: NavItem[] = [
   { href: '/blog', label: 'Blog' },
-  { href: '/niezbednik', label: 'Niezbędnik' },
 ]
 
 function getNavItems(pathname: string): NavItem[] {
@@ -78,7 +77,7 @@ function getNavItems(pathname: string): NavItem[] {
   if (pathname === '/opinie') return opinionNavItems
   if (pathname === '/o-mnie') return aboutNavItems
   if (pathname === '/kontakt') return contactNavItems
-  if (pathname === '/materialy' || pathname === '/przybornik' || pathname === '/niezbednik') return materialNavItems
+  if (pathname === '/materialy' || pathname === '/przybornik') return materialNavItems
   if (pathname === '/faq') return faqNavItems
   return homeNavItems
 }
@@ -92,8 +91,7 @@ function buildSectionHref(pathname: string, sectionId: string): string {
     pathname === '/faq' ||
     pathname === '/kontakt' ||
     pathname === '/materialy' ||
-    pathname === '/przybornik' ||
-    pathname === '/niezbednik'
+    pathname === '/przybornik'
   ) {
     return `${pathname}#${sectionId}`
   }

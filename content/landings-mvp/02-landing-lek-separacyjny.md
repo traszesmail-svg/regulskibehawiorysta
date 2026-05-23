@@ -102,4 +102,4 @@ Jeśli opisana sytuacja brzmi znajomo — **Kwadrans z behawiorystą** pozwala u
 
 Przy lęku separacyjnym ważne jest, żeby nie ruszyć zbyt szybko. Dobry plan na pierwszy tydzień jest wart więcej niż intensywne działanie bez kierunku.
 
-[Umów Kwadrans z behawiorystą](/book) · [Pomoc dla opiekunów psów](/psy) · [Niezbędnik — poradnik: pies zostaje sam](/niezbednik)
+[Umów Kwadrans z behawiorystą](/book) · [Pomoc dla opiekunów psów](/psy) · [Materiały PDF — poradnik: pies zostaje sam](/materialy)

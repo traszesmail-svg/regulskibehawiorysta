@@ -1,5 +1,229 @@
 [
   {
+    "id": "889418b9-771a-47bc-8e01-b2f553dd5dcb",
+    "eventType": "topic_selected",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/quiz",
+    "location": "quiz",
+    "properties": {
+      "location": "quiz",
+      "question": "species",
+      "answer": "kot"
+    },
+    "createdAt": "2026-05-16T11:23:13.058Z"
+  },
+  {
+    "id": "fad7d0e2-11fd-4bb4-9a07-9c8c7d9fb566",
+    "eventType": "topic_selected",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/quiz",
+    "location": "quiz",
+    "properties": {
+      "location": "quiz",
+      "question": "species",
+      "answer": "pies"
+    },
+    "createdAt": "2026-05-16T11:23:12.922Z"
+  },
+  {
+    "id": "06885059-91bc-4063-bfd4-644380e01951",
+    "eventType": "cta_click",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/",
+    "location": "home-router-choice",
+    "properties": {
+      "location": "home-router-choice",
+      "choice": "dog"
+    },
+    "createdAt": "2026-05-16T10:23:31.523Z"
+  },
+  {
+    "id": "84dfd29e-ce3f-44b2-8507-de8b3f8ea8e7",
+    "eventType": "topic_selected",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/quiz",
+    "location": "quiz",
+    "properties": {
+      "location": "quiz",
+      "question": "duration",
+      "answer": "long"
+    },
+    "createdAt": "2026-05-16T10:07:01.011Z"
+  },
+  {
+    "id": "2f64bcd7-711a-4583-aba0-cfb439442113",
+    "eventType": "quiz_completed",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/quiz",
+    "location": "quiz",
+    "properties": {
+      "location": "quiz",
+      "result": "pelna-konsultacja",
+      "species": "kot"
+    },
+    "createdAt": "2026-05-16T10:06:44.769Z"
+  },
+  {
+    "id": "3d5dfa7c-c2b5-47ea-a9f0-8e6c8a7cb897",
+    "eventType": "topic_selected",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/quiz",
+    "location": "quiz",
+    "properties": {
+      "location": "quiz",
+      "question": "goal",
+      "answer": "next_step"
+    },
+    "createdAt": "2026-05-16T10:06:44.646Z"
+  },
+  {
+    "id": "ee5a0a73-3352-48d9-a05a-ff449c1a05c4",
+    "eventType": "topic_selected",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/quiz",
+    "location": "quiz",
+    "properties": {
+      "location": "quiz",
+      "question": "previous_attempts",
+      "answer": "many"
+    },
+    "createdAt": "2026-05-16T10:06:41.180Z"
+  },
+  {
+    "id": "b9c8d009-5730-4f9f-affb-fd2247e5f302",
+    "eventType": "topic_selected",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/quiz",
+    "location": "quiz",
+    "properties": {
+      "location": "quiz",
+      "question": "resources",
+      "answer": "several"
+    },
+    "createdAt": "2026-05-16T10:06:38.929Z"
+  },
+  {
+    "id": "e656e508-24f6-453b-a83a-f3763c77f87b",
+    "eventType": "topic_selected",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/quiz",
+    "location": "quiz",
+    "properties": {
+      "location": "quiz",
+      "question": "predictability",
+      "answer": "partial"
+    },
+    "createdAt": "2026-05-16T10:06:36.707Z"
+  },
+  {
+    "id": "d67aed51-e1e7-451d-ae4c-47c3223ea503",
+    "eventType": "topic_selected",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/quiz",
+    "location": "quiz",
+    "properties": {
+      "location": "quiz",
+      "question": "frequency",
+      "answer": "daily"
+    },
+    "createdAt": "2026-05-16T10:06:34.518Z"
+  },
+  {
+    "id": "277807cc-6116-4917-a640-eb238ad03eab",
+    "eventType": "topic_selected",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/quiz",
+    "location": "quiz",
+    "properties": {
+      "location": "quiz",
+      "question": "duration",
+      "answer": "fresh"
+    },
+    "createdAt": "2026-05-16T10:06:32.406Z"
+  },
+  {
+    "id": "17b92b28-3f54-4abe-96e4-34a6f30d1570",
+    "eventType": "topic_selected",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/quiz",
+    "location": "quiz",
+    "properties": {
+      "location": "quiz",
+      "question": "medical_change",
+      "answer": "unclear"
+    },
+    "createdAt": "2026-05-16T10:06:29.402Z"
+  },
+  {
+    "id": "4862d2d8-9abf-469e-b861-ae5067a97ec9",
+    "eventType": "topic_selected",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/quiz",
+    "location": "quiz",
+    "properties": {
+      "location": "quiz",
+      "question": "safety",
+      "answer": "manageable"
+    },
+    "createdAt": "2026-05-16T10:06:19.396Z"
+  },
+  {
+    "id": "fbfea9b4-77bc-47ef-8746-395100eec5c0",
+    "eventType": "topic_selected",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/quiz",
+    "location": "quiz",
+    "properties": {
+      "location": "quiz",
+      "question": "main_topic",
+      "answer": "many_threads"
+    },
+    "createdAt": "2026-05-16T10:06:16.312Z"
+  },
+  {
+    "id": "752e8c44-f2da-4f75-b408-bd7e8288972e",
+    "eventType": "topic_selected",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/quiz",
+    "location": "quiz",
+    "properties": {
+      "location": "quiz",
+      "question": "species",
+      "answer": "kot"
+    },
+    "createdAt": "2026-05-16T10:06:12.166Z"
+  },
+  {
     "id": "e8096bbb-5d80-4491-b5e4-7a1fc7e2faa2",
     "eventType": "cta_click",
     "bookingId": null,

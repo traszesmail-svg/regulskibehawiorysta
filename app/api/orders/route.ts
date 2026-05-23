@@ -61,7 +61,6 @@ export async function POST(request: Request) {
         productSlug: typeof body.productSlug === 'string' ? body.productSlug : '',
         name: typeof body.name === 'string' ? body.name : '',
         email: typeof body.email === 'string' ? body.email : '',
-        phone: typeof body.phone === 'string' ? body.phone : null,
         notes: typeof body.notes === 'string' ? body.notes : null,
       })
 

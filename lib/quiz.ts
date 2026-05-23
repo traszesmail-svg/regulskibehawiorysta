@@ -22,111 +22,109 @@ export type QuizResult = {
   summary: string
   reasons: string[]
   note: string
-  materialTitle: string
-  materialHref: string
-  materialCopy: string
 }
 
 export const QUIZ_QUESTIONS: QuizQuestion[] = [
   {
     id: 'species',
     title: 'Kogo dotyczy sytuacja?',
-    helper: 'Wybierz gatunek, z którym chcesz zacząć.',
+    helper: 'Wybierz zwierzę, od którego zaczynamy.',
     options: [
-      { id: 'pies', label: 'Pies', helper: 'Spacer, zostawanie samemu, pobudzenie, napięcie, szczeniak.' },
+      { id: 'pies', label: 'Pies', helper: 'Spacery, zostawanie samemu, pobudzenie, napięcie, szczeniak.' },
       { id: 'kot', label: 'Kot', helper: 'Kuweta, stres, relacje między kotami, nocna aktywność.' },
     ],
   },
   {
     id: 'main_topic',
-    title: 'Co najbardziej przypomina Waszą sytuację?',
-    helper: 'Wybierz najważniejszy wątek. Jeśli jest ich kilka, zaznacz odpowiedź o kilku rzeczach naraz.',
+    title: 'Jaki problem chcesz rozwiązać?',
+    helper: 'Wybierz obszar, który najlepiej opisuje Twoją sytuację.',
     options: [
-      { id: 'single_behavior', label: 'Jedno zachowanie', helper: 'Np. szczekanie w jednym kontekście, kuweta, ciągnięcie, nocne miauczenie.' },
-      { id: 'routine_stress', label: 'Stres w codziennej rutynie', helper: 'Problem wraca w domu, na spacerze, przy gościach albo zmianach.' },
-      { id: 'relationship', label: 'Relacje i konflikt', helper: 'Dotyczy ludzi, drugiego zwierzęcia, zasobów albo kontaktu.' },
-      { id: 'many_threads', label: 'Kilka wątków naraz', helper: 'Trudno wskazać jedną rzecz, bo tematy się łączą.' },
+      { id: 'home_behavior', label: 'Zachowanie w domu', helper: 'Niszczenie, szczekanie, trudność z odpoczynkiem, kuweta.' },
+      { id: 'walks', label: 'Spacery i pobudzenie', helper: 'Reakcje na psy lub ludzi, ciągnięcie, trudność z wyciszeniem.' },
+      { id: 'fear_stress', label: 'Lęk i stres', helper: 'Zostawanie samemu, dźwięki, goście, nowe sytuacje.' },
+      { id: 'relationships', label: 'Relacje i konflikty', helper: 'Napięcie z ludźmi, zwierzętami albo wokół zasobów.' },
+      { id: 'other', label: 'Inny problem', helper: 'Nie musisz trafnie nazwać tematu. Doprecyzujemy go po drodze.' },
     ],
   },
   {
     id: 'safety',
-    title: 'Czy pojawia się ryzyko bezpieczeństwa?',
-    helper: 'Tu nie chodzi o straszenie, tylko o dobranie formatu bez skracania ważnej analizy.',
+    title: 'Czy ktoś może ucierpieć?',
+    helper: 'To pomaga dobrać bezpieczny zakres rozmowy.',
     options: [
-      { id: 'none', label: 'Nie widzę takiego ryzyka', helper: 'Problem jest trudny, ale bez ataków, pogryzień albo paniki.' },
-      { id: 'manageable', label: 'Są silne reakcje, ale do opanowania', helper: 'Np. szczekanie, ucieczka, warczenie, napięcie przy dystansie.' },
-      { id: 'serious', label: 'Było pogryzienie, atak albo realne zagrożenie', helper: 'Ludzie lub zwierzęta mogą ucierpieć, sytuacja eskaluje.' },
+      { id: 'none', label: 'Nie widzę takiego ryzyka', helper: 'Problem przeszkadza, ale nie wygląda groźnie.' },
+      { id: 'tension', label: 'Jest napięcie, ale do opanowania', helper: 'Pojawia się warczenie, ucieczka, szczekanie albo silne pobudzenie.' },
+      { id: 'danger', label: 'Był atak lub realne zagrożenie', helper: 'Człowiek albo zwierzę mogło ucierpieć.' },
     ],
   },
   {
     id: 'medical_change',
-    title: 'Czy zachowanie zmieniło się nagle albo widzisz objawy zdrowotne?',
-    helper: 'Przy bólu, chorobie lub nagłej zmianie behawior powinien iść równolegle z lekarzem weterynarii.',
+    title: 'Czy coś zmieniło się nagle?',
+    helper: 'Nagła zmiana zachowania bywa związana ze zdrowiem.',
     options: [
-      { id: 'no', label: 'Nie, obraz jest raczej stały', helper: 'Nie widzę nagłej zmiany zdrowia, apetytu, ruchu ani kuwety.' },
-      { id: 'unclear', label: 'Nie jestem pewna/pewien', helper: 'Coś się zmieniło, ale trudno powiedzieć, czy to zdrowie czy zachowanie.' },
-      { id: 'yes', label: 'Tak, są czerwone flagi', helper: 'Nagła zmiana, ból, apatia, pragnienie, kuweta, agresja przy dotyku albo senior.' },
+      { id: 'no', label: 'Nie, to raczej stały obraz', helper: 'Nie widzę nagłej zmiany apetytu, ruchu, snu ani kuwety.' },
+      { id: 'unclear', label: 'Nie mam pewności', helper: 'Coś się zmieniło, ale trudno powiedzieć, z czego to wynika.' },
+      { id: 'yes', label: 'Tak, są czerwone flagi', helper: 'Ból, apatia, nagła agresja, kuweta, senior albo szybkie pogorszenie.' },
     ],
   },
   {
     id: 'duration',
-    title: 'Jak bardzo potrzebujesz teraz uporządkowania?',
-    helper: 'Czas trwania pomaga dobrać zakres rozmowy, nie zastępuje diagnozy behawioralnej.',
+    title: 'Od kiedy to trwa?',
+    helper: 'Im dłużej trwa problem, tym więcej kontekstu warto spokojnie zebrać.',
     options: [
-      { id: 'fresh', label: 'Chcę tylko wiedzieć, od czego zacząć', helper: 'Sytuacja jest świeża albo potrzebujesz pierwszego kierunku.' },
-      { id: 'returning', label: 'To łączy się z kilkoma rzeczami', helper: 'Są lepsze i gorsze okresy, a temat wraca w różnych kontekstach.' },
-      { id: 'long', label: 'To trwa długo albo wpływa na całe życie w domu', helper: 'Warto spokojniej zebrać dane i ułożyć plan działania.' },
+      { id: 'fresh', label: 'Od niedawna', helper: 'Chcę szybko sprawdzić, od czego zacząć.' },
+      { id: 'returning', label: 'Wraca od kilku tygodni', helper: 'Są lepsze i gorsze momenty, temat się powtarza.' },
+      { id: 'long', label: 'Długo albo coraz mocniej', helper: 'Wpływa na codzienność domu, spacery, sen albo relacje.' },
     ],
   },
   {
     id: 'frequency',
-    title: 'Jak często to się pojawia?',
-    helper: 'Częstotliwość pokazuje, czy wystarczy instrukcja, czy potrzebny jest plan.',
+    title: 'Jak często to wraca?',
+    helper: 'Częstotliwość pokazuje, czy wystarczy krótka rozmowa, czy potrzebny jest szerszy plan.',
     options: [
-      { id: 'rare', label: 'Sporadycznie', helper: 'Raz na jakiś czas albo w bardzo konkretnych sytuacjach.' },
+      { id: 'rare', label: 'Sporadycznie', helper: 'Raz na jakiś czas albo w jednej konkretnej sytuacji.' },
       { id: 'weekly', label: 'Kilka razy w tygodniu', helper: 'Wraca regularnie, ale nie dominuje całego dnia.' },
-      { id: 'daily', label: 'Codziennie lub prawie codziennie', helper: 'Wpływa na rytm domu, spacery, sen albo relacje.' },
+      { id: 'daily', label: 'Codziennie lub prawie codziennie', helper: 'Mocno wpływa na rytm domu albo spacery.' },
     ],
   },
   {
     id: 'predictability',
-    title: 'Czy umiesz przewidzieć, kiedy to się wydarzy?',
-    helper: 'Im mniej przewidywalny obraz, tym więcej trzeba dopytać.',
+    title: 'Czy wiesz, co to uruchamia?',
+    helper: 'Nie trzeba mieć pewności. Chodzi o to, czy widać jakiś schemat.',
     options: [
-      { id: 'clear', label: 'Tak, wyzwalacz jest jasny', helper: 'Wiem, kiedy zaczyna się zachowanie i co je uruchamia.' },
-      { id: 'partial', label: 'Częściowo', helper: 'Widzę pewne schematy, ale nie wszystkie sytuacje pasują.' },
-      { id: 'unclear', label: 'Nie, to wygląda chaotycznie', helper: 'Problem pojawia się nagle albo trudno połączyć fakty.' },
+      { id: 'clear', label: 'Tak, wyzwalacz jest jasny', helper: 'Wiem, kiedy zachowanie zwykle się zaczyna.' },
+      { id: 'partial', label: 'Trochę tak, trochę nie', helper: 'Widzę część schematu, ale nie wszystko pasuje.' },
+      { id: 'unclear', label: 'Nie, wygląda to chaotycznie', helper: 'Trudno połączyć fakty i przewidzieć reakcję.' },
     ],
   },
   {
     id: 'resources',
-    title: 'Czy w tle są zasoby, rutyna albo środowisko?',
-    helper: 'Dotyczy przestrzeni, spacerów, kuwety, karmienia, nudy, zmian w domu i relacji.',
+    title: 'Ile rzeczy miesza się w tle?',
+    helper: 'Pomyśl o rutynie, przestrzeni, spacerach, jedzeniu, nudzie i relacjach.',
     options: [
-      { id: 'simple', label: 'Raczej jeden prosty element', helper: 'Np. miejsce kuwety, smycz, jedna pora dnia, jeden bodziec.' },
-      { id: 'several', label: 'Kilka elementów naraz', helper: 'Rutyna, przestrzeń, reakcje ludzi i emocje zwierzęcia się łączą.' },
-      { id: 'multi_pet', label: 'W grę wchodzi kilka zwierząt lub domowników', helper: 'Potrzebna jest analiza relacji i zarządzania sytuacją.' },
+      { id: 'simple', label: 'Raczej jeden element', helper: 'Np. smycz, kuweta, jedna pora dnia, jeden bodziec.' },
+      { id: 'several', label: 'Kilka elementów naraz', helper: 'Rutyna, emocje, reakcje ludzi i środowisko się łączą.' },
+      { id: 'multi_pet', label: 'Kilka zwierząt lub domowników', helper: 'Potrzebna jest analiza relacji i zarządzania sytuacją.' },
     ],
   },
   {
     id: 'previous_attempts',
     title: 'Co już próbowaliście?',
-    helper: 'Jeśli było dużo prób bez efektu, sama checklista zwykle nie wystarczy.',
+    helper: 'To pomaga nie powtarzać porad, które już nie zadziałały.',
     options: [
-      { id: 'none', label: 'Jeszcze nic systematycznie', helper: 'Chcesz zacząć od dobrze ułożonych podstaw.' },
-      { id: 'some', label: 'Kilka prostych zmian', helper: 'Były drobne próby, ale bez jasnego planu.' },
-      { id: 'many', label: 'Dużo prób i nadal brak poprawy', helper: 'Problem wraca mimo treningu, porad z internetu albo zmian w domu.' },
+      { id: 'none', label: 'Jeszcze nic systematycznie', helper: 'Chcę zacząć spokojnie i bez zgadywania.' },
+      { id: 'some', label: 'Kilka prostych zmian', helper: 'Były próby, ale bez jasnego planu.' },
+      { id: 'many', label: 'Dużo prób i nadal brak poprawy', helper: 'Problem wraca mimo porad, treningu albo zmian w domu.' },
     ],
   },
   {
     id: 'goal',
-    title: 'Jaki efekt byłby teraz najbardziej pomocny?',
-    helper: 'Dzięki temu wynik nie pcha od razu w za duży format.',
+    title: 'Czego potrzebujesz po quizie?',
+    helper: 'Wynik ma dobrać pierwszy krok, a nie zamykać całą sprawę.',
     options: [
-      { id: 'material', label: 'Najpierw materiał lub PDF', helper: 'Chcesz spróbować prostego, uporządkowanego kroku samodzielnie.' },
-      { id: 'priority', label: 'Ustalić pierwszy priorytet w rozmowie', helper: 'Chcesz szybko wiedzieć, co robić jako pierwsze.' },
-      { id: 'plan', label: 'Ułożyć plan na kilka kroków', helper: 'Potrzebujesz więcej kontekstu i konkretnego kierunku.' },
-      { id: 'diagnosis', label: 'Pełniej przeanalizować sytuację', helper: 'Sprawa jest złożona, utrwalona albo dotyczy bezpieczeństwa.' },
+      { id: 'priority', label: 'Pierwszy priorytet', helper: 'Chcę wiedzieć, co zrobić jako pierwsze.' },
+      { id: 'check', label: 'Sprawdzenie zakresu', helper: 'Chcę wiedzieć, czy wystarczy krótka konsultacja.' },
+      { id: 'plan', label: 'Plan na kilka kroków', helper: 'Potrzebuję więcej kontekstu i konkretnego kierunku.' },
+      { id: 'diagnosis', label: 'Pełniejsza analiza', helper: 'Sprawa jest złożona, utrwalona albo dotyczy bezpieczeństwa.' },
     ],
   },
 ]
@@ -138,14 +136,14 @@ export const QUIZ_SERVICE_LABELS: Record<QuizServiceKey, { label: string; price:
     duration: '15 min audio',
   },
   'dwa-kwadranse': {
-    label: 'Dwa kwadranse',
+    label: 'Konsultacja 30 min',
     price: '169 zł',
     duration: '30 min online',
   },
   'pelna-konsultacja': {
     label: 'Pełna konsultacja',
     price: '470 zł',
-    duration: 'pełny zakres online',
+    duration: 'ok. 2h online',
   },
 }
 
@@ -159,20 +157,14 @@ export function resolveQuizResult(answers: QuizAnswers): QuizResult {
   const resources = answers.resources
   const previousAttempts = answers.previous_attempts
   const goal = answers.goal
-  const species = answers.species === 'kot' ? 'kot' : 'pies'
-  const materialTitle =
-    species === 'kot'
-      ? 'Najpierw PDF albo materiał o kuwecie, stresie lub relacjach kotów'
-      : 'Najpierw PDF albo materiał o spacerach, emocjach lub rutynie psa'
-  const materialHref = '/niezbednik'
 
   let score = 0
   const reasons: string[] = []
 
-  if (mainTopic === 'relationship') score += 2
-  if (mainTopic === 'many_threads') score += 3
-  if (safety === 'manageable') score += 2
-  if (safety === 'serious') score += 6
+  if (mainTopic === 'relationships') score += 2
+  if (mainTopic === 'other') score += 1
+  if (safety === 'tension') score += 2
+  if (safety === 'danger') score += 6
   if (medicalChange === 'unclear') score += 2
   if (medicalChange === 'yes') score += 5
   if (duration === 'returning') score += 1
@@ -188,69 +180,60 @@ export function resolveQuizResult(answers: QuizAnswers): QuizResult {
   if (goal === 'plan') score += 2
   if (goal === 'diagnosis') score += 4
 
-  if (safety === 'serious') {
+  if (safety === 'danger') {
     reasons.push('pojawia się realne ryzyko bezpieczeństwa')
   }
   if (medicalChange === 'yes' || medicalChange === 'unclear') {
-    reasons.push('warto równolegle sprawdzić warstwę zdrowotną')
+    reasons.push('warto równolegle sprawdzić możliwe tło zdrowotne')
   }
-  if (mainTopic === 'many_threads' || resources === 'several' || resources === 'multi_pet') {
-    reasons.push('sytuacja łączy kilka obszarów, a nie jedną prostą wskazówkę')
+  if (mainTopic === 'relationships' || resources === 'several' || resources === 'multi_pet') {
+    reasons.push('sytuacja łączy kilka obszarów, nie jedną prostą wskazówkę')
   }
   if (duration === 'long' || frequency === 'daily') {
-    reasons.push('wzorzec jest utrwalony albo czesto wraca')
+    reasons.push('problem jest utrwalony albo często wraca')
   }
   if (predictability === 'unclear' || previousAttempts === 'many') {
-    reasons.push('trzeba najpierw uporządkować fakty i dotychczasowe próby')
+    reasons.push('najpierw trzeba uporządkować fakty i dotychczasowe próby')
   }
 
   if (score >= 8) {
     return {
       serviceKey: 'pelna-konsultacja',
-      title: 'Na podstawie odpowiedzi najrozsądniejszy pierwszy krok to: pełna konsultacja',
+      title: 'Najlepszy pierwszy krok: pełna konsultacja',
       summary:
-        'To rozmowa dla sytuacji utrwalonych, wielowątkowych albo dotyczących bezpieczeństwa. Najpierw warto zebrać kontekst, a dopiero potem układać plan działania.',
-      reasons: reasons.length > 0 ? reasons.slice(0, 4) : ['sprawa wymaga szerszego zebrania informacji'],
+        'Ta ścieżka pasuje, gdy temat jest złożony, trwa długo albo dotyczy bezpieczeństwa. Najpierw spokojnie zbieramy kontekst, a dopiero potem układamy plan działania.',
+      reasons: reasons.length > 0 ? reasons.slice(0, 4) : ['sprawa wymaga spokojnego zebrania szerszego kontekstu'],
       note:
         medicalChange === 'yes'
           ? 'Przy nagłej zmianie zachowania, bólu albo objawach zdrowotnych zacznij równolegle od lekarza weterynarii.'
-          : 'Przed rozmową przydadzą się nagrania, opis rutyny i krótka lista tego, co było już próbowane.',
-      materialTitle,
-      materialHref,
-        materialCopy: 'Materiały mogą pomóc przygotować dane do konsultacji, ale nie powinny zastąpić analizy przy czerwonych flagach.',
+          : 'Przed rozmową przydadzą się krótkie nagrania, opis rutyny i lista rzeczy, które były już próbowane.',
     }
   }
 
   if (score >= 4) {
     return {
       serviceKey: 'dwa-kwadranse',
-      title: 'Na podstawie odpowiedzi najrozsądniejszy pierwszy krok to: Dwa kwadranse',
+      title: 'Najlepszy pierwszy krok: konsultacja 30 min',
       summary:
-        'To spokojniejszy start, gdy temat ma kilka elementów albo 15 minut może być za krótkie. Nadal zaczynasz od pierwszego sensownego kroku, bez przeskakiwania za daleko.',
+        'To dobry wybór, gdy jest kilka wątków i 15 minut może być za krótkie. Wystarczy czasu, żeby dopytać o tło sytuacji i ustalić najbliższy kierunek.',
       reasons:
         reasons.length > 0
           ? reasons.slice(0, 4)
-          : ['jest czas na dopytanie o rytm dnia i tło sytuacji', 'można uporządkować 2-3 wątki bez pełnej konsultacji'],
-    note: 'Jeśli w trakcie rozmowy wyjdzie, że sytuacja jest szersza, łatwiej będzie zdecydować o dalszym kroku.',
-      materialTitle,
-      materialHref,
-      materialCopy: 'Zacznij od PDF-u lub checklisty, jeśli chcesz przygotować obserwacje przed rozmową.',
+          : ['jest kilka rzeczy do połączenia', 'warto dopytać o rytm dnia, emocje i środowisko'],
+      note: 'Jeśli w trakcie rozmowy okaże się, że temat jest szerszy, łatwiej będzie zdecydować o dalszym kroku.',
     }
   }
 
   return {
     serviceKey: 'kwadrans',
-    title: goal === 'material' ? 'Na podstawie odpowiedzi najrozsądniejszy pierwszy krok to: materiał lub PDF, potem Kwadrans jeśli trzeba' : 'Na podstawie odpowiedzi najrozsądniejszy pierwszy krok to: Kwadrans',
+    title: 'Najlepszy pierwszy krok: Kwadrans',
     summary:
-      'To dobry pierwszy krok, gdy temat jest wąski, świeży albo da się go uporządkować jedną decyzją. Materiał z Niezbędnika może być pierwszym przygotowaniem, a Kwadrans pomaga sprawdzić, czy idziesz w dobrą stronę.',
+      'To spokojny start, gdy chcesz ustalić pierwszy priorytet bez wchodzenia od razu w dużą konsultację. Kwadrans pomaga sprawdzić, co zrobić najpierw.',
     reasons: [
-      duration === 'fresh' ? 'sytuacja wygląda na świeżą' : 'sytuacja nie wymaga od razu pełnej analizy',
-      predictability === 'clear' ? 'wyzwalacz jest dość czytelny' : 'potrzebujesz przede wszystkim pierwszego priorytetu',
-      'można zacząć od materiału lub krótkiej rozmowy audio bez kamery',
+      duration === 'fresh' ? 'sytuacja wygląda na świeżą' : 'nie trzeba od razu zaczynać od pełnej analizy',
+      predictability === 'clear' ? 'wyzwalacz jest dość czytelny' : 'najważniejsze jest wybranie pierwszego priorytetu',
+      'można zacząć od krótkiej rozmowy audio bez kamery',
     ],
     note: 'Kwadrans nie musi zamykać sprawy. Ma pomóc wybrać najprostszy następny krok.',
-    materialTitle,
-    materialHref,
-    materialCopy: 'Jeśli chcesz zacząć samodzielnie, wybierz PDF lub checklistę. Gdy po materiale temat nadal jest niejasny, umów Kwadrans.',
   }
 }

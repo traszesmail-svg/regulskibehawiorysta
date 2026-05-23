@@ -704,10 +704,10 @@
     "bookingDate": "2026-05-18",
     "bookingTime": "08:00",
     "isBooked": false,
-    "lockedByBookingId": null,
-    "lockedUntil": null,
+    "lockedByBookingId": "0101fcd1-0688-4324-9f29-2d2f56f10857",
+    "lockedUntil": "2026-05-17T15:50:22.795Z",
     "createdAt": "2026-05-05T17:36:38.501Z",
-    "updatedAt": "2026-05-05T17:36:38.501Z"
+    "updatedAt": "2026-05-17T15:35:22.794Z"
   },
   {
     "id": "2026-05-18-08:30",
@@ -1017,7 +1017,7 @@
     "lockedByBookingId": null,
     "lockedUntil": null,
     "createdAt": "2026-05-05T17:36:38.501Z",
-    "updatedAt": "2026-05-05T17:36:38.501Z"
+    "updatedAt": "2026-05-17T13:59:46.044Z"
   },
   {
     "id": "2026-05-22-08:00",

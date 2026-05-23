@@ -131,9 +131,9 @@ export default async function PaymentPage({
   const heroLead = qaBooking
     ? 'Ta rezerwacja jest testowa i przejdzie przez bezpieczną ścieżkę bez realnego obciążenia klienta.'
     : isWaitingManual
-      ? `Wpłata jest już zgłoszona. Potwierdzimy ją ręcznie do 15 minut. Po zmianie statusu zobaczysz ${roomAccessLabel} i dalszą instrukcję.`
+      ? `Wpłata jest już zgłoszona. Potwierdzimy ją ręcznie w godzinach obsługi. Po zmianie statusu zobaczysz ${roomAccessLabel} i dalszą instrukcję.`
       : manualPayment.isAvailable
-        ? `Wybierz BLIK na telefon albo płatność online. BLIK jest najtańszą opcją bez prowizji pośrednika, a szczegóły rezerwacji zostają obok.`
+        ? `Termin jest wstępnie zablokowany na czas płatności. Wybierz BLIK po instrukcji e-mail albo płatność online; po potwierdzeniu wpłaty rezerwacja staje się pewna.`
         : 'Płatność jest chwilowo niedostępna. Opisz krótko, co się dzieje, i wróć do rezerwacji później.'
 
   const paymentSummaryRows: PaymentReferenceSummaryRow[] = booking
@@ -197,7 +197,7 @@ export default async function PaymentPage({
       summaryRows={paymentSummaryRows}
       lineItemLabel={bookingServiceTitle ?? 'Konsultacja behawioralna'}
       lineItemAmount={bookingManualPriceLabel ?? bookingPriceLabel ?? 'Do ustalenia'}
-      totalLabel={bookingManualPriceLabel ? 'BLIK na telefon' : undefined}
+      totalLabel={bookingManualPriceLabel ? 'BLIK po instrukcji' : undefined}
     >
       <div
         data-payment-state={
@@ -240,7 +240,7 @@ export default async function PaymentPage({
         >
           {qaBooking
             ? 'To kontrolowana ścieżka testowa bez realnego obciążenia.'
-            : 'BLIK na telefon jest najtańszy, bo nie przechodzi przez prowizyjnego pośrednika. Karta, Apple Pay i Google Pay są dostępne jako płatność online.'}
+            : 'BLIK po instrukcji e-mail jest najtańszy, bo nie przechodzi przez prowizyjnego pośrednika. Karta, Apple Pay i Google Pay są dostępne jako płatność online. Jeśli płatność nie zostanie potwierdzona w czasie blokady, termin wróci do kalendarza.'}
         </PaymentReferenceCardTitle>
 
         {flowError ? (
@@ -372,7 +372,7 @@ export default async function PaymentPage({
                     <span>{bookingServiceSummary ?? 'Rozmowę behawioralną online prowadzoną przez Krzysztofa Regulskiego.'}</span>
                   </div>
                   <div className="payment-ref-mini-note">
-                    <strong>BLIK na telefon</strong>
+                    <strong>BLIK po instrukcji e-mail</strong>
                     <span>{manualPaymentCopy.description}</span>
                   </div>
                 </div>

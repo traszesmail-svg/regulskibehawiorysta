@@ -98,4 +98,4 @@ Jeśli ciągnięcie to czysty nawyk bez reaktywności — tak. Dobry trener z me
 
 Nie musisz od razu wchodzić w najdłuższą opcję. **Kwadrans z behawiorystą** wystarczy, żeby sprawdzić, czy to, co robisz, jest po drodze, i dostać jeden konkretny kierunek na najbliższy tydzień.
 
-[Umów Kwadrans z behawiorystą](/book) · [Kategoria: psy](/psy) · [Niezbędnik opiekuna](/niezbednik)
+[Umów Kwadrans z behawiorystą](/book) · [Kategoria: psy](/psy) · [Materiały PDF](/materialy)

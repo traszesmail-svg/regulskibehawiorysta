@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { CreditCard, LockKeyhole } from 'lucide-react'
+import { trackAnalyticsEvent } from '@/lib/analytics'
 import type { AnimalType, BookingStatus, ProblemType, QaCheckoutEligibility } from '@/lib/types'
 import type { BookingServiceType } from '@/lib/booking-services'
 import { formatCommercePrice, getManualAmountForProduct } from '@/lib/commerce'
@@ -39,6 +40,10 @@ export function PaymentActions({
   paymentReference,
   manualAvailable,
   amount,
+  serviceType,
+  animalType,
+  problemType,
+  bookingStatus,
   qaBooking = false,
   qaEligibility = null,
 }: PaymentActionsProps) {
@@ -48,6 +53,20 @@ export function PaymentActions({
   const [selectedMethod, setSelectedMethod] = useState<'online' | 'manual'>(manualAvailable ? 'manual' : 'online')
   const qaAvailable = Boolean(qaBooking && qaEligibility?.isAllowed)
 
+  function trackPaymentStart(method: 'qa' | 'online' | 'manual') {
+    trackAnalyticsEvent('payment_started', {
+      booking_id: bookingId,
+      source_page: '/payment',
+      payment_method: method,
+      service_type: serviceType,
+      animal_type: animalType,
+      problem_type: problemType,
+      booking_status: bookingStatus,
+      amount,
+      qa_booking: qaBooking,
+    })
+  }
+
   async function handleQaSubmit() {
     if (!qaAvailable) {
       setError(qaEligibility?.reason ?? qaEligibility?.summary ?? 'Testowa płatność jest chwilowo niedostępna.')
@@ -56,6 +75,7 @@ export function PaymentActions({
 
     setError('')
     setQaLoading(true)
+    trackPaymentStart('qa')
 
     try {
       const response = await fetch('/api/payments/mock', {
@@ -69,12 +89,13 @@ export function PaymentActions({
         }),
       })
       const payload = (await response.json()) as { onlineCheckoutUrl?: string | null; redirectTo?: string; error?: string }
+      const redirectUrl = payload.onlineCheckoutUrl ?? payload.redirectTo
 
-      if (!response.ok || (!payload.onlineCheckoutUrl && !payload.redirectTo)) {
+      if (!response.ok || !redirectUrl) {
         throw new Error(payload.error ?? 'Nie udało się uruchomić testowej płatności.')
       }
 
-      window.location.assign(payload.onlineCheckoutUrl ?? payload.redirectTo)
+      window.location.assign(redirectUrl)
     } catch (paymentError) {
       console.error('[regulski-behawiorysta][payment] qa checkout failed', paymentError)
       setError(paymentError instanceof Error ? paymentError.message : 'Wystąpił błąd testowej płatności.')
@@ -85,12 +106,13 @@ export function PaymentActions({
 
   async function handleCommerceCheckout(method: 'online' | 'manual') {
     if (method === 'manual' && !manualAvailable) {
-      setError('BLIK na telefon jest chwilowo niedostępny. Wybierz płatność online albo napisz wiadomość.')
+      setError('BLIK po instrukcji e-mail jest chwilowo niedostępny. Wybierz płatność online albo napisz wiadomość.')
       return
     }
 
     setError('')
     setCommerceLoading(true)
+    trackPaymentStart(method)
 
     try {
       const response = await fetch('/api/orders', {
@@ -210,7 +232,7 @@ export function PaymentActions({
 
       <div className="payment-ref-method-lead">
         <LockKeyhole aria-hidden="true" />
-        <span>Najtaniej: BLIK na telefon, bez prowizji pośrednika. Po potwierdzeniu dostaniesz link do {roomAccessLabel}.</span>
+        <span>Najtaniej: BLIK po instrukcji e-mail, bez prowizji pośrednika. Po potwierdzeniu dostaniesz link do {roomAccessLabel}.</span>
       </div>
 
       <div className="payment-ref-method-tabs" role="radiogroup" aria-label="Metoda płatności">
@@ -226,7 +248,7 @@ export function PaymentActions({
         >
           <span className="payment-ref-blik-mark" aria-hidden="true">BLIK</span>
           <span>
-            <strong>BLIK na telefon</strong>
+            <strong>BLIK po instrukcji e-mail</strong>
             <em>{manualAvailable ? 'Najtaniej, bez prowizji operatora płatności' : 'Chwilowo niedostępne'}</em>
             <small>polecane</small>
           </span>
@@ -249,11 +271,11 @@ export function PaymentActions({
       </div>
 
       <div className="payment-ref-method-panel">
-        <h3>{selectedMethod === 'online' ? 'Płatność online' : 'BLIK na telefon'}</h3>
+        <h3>{selectedMethod === 'online' ? 'Płatność online' : 'BLIK po instrukcji e-mail'}</h3>
         <p>
           {selectedMethod === 'online'
             ? 'Po kliknięciu otworzy się bezpieczny checkout online z kartą oraz, gdy urządzenie je udostępnia, Apple Pay i Google Pay.'
-            : 'Przejdziesz do instrukcji BLIK na telefon. To najtańsza ścieżka, bo nie dolicza prowizji pośrednika. Numer służy wyłącznie do opłaconej ścieżki płatności.'}
+            : 'Przejdziesz do instrukcji BLIK bez publicznego numeru. To najtańsza ścieżka, bo nie dolicza prowizji pośrednika.'}
         </p>
         <div className="payment-ref-field">
           <span>Kwota</span>
@@ -277,7 +299,7 @@ export function PaymentActions({
             ? 'Przygotowuję płatność...'
             : selectedMethod === 'online'
               ? `Zapłać kartą / Apple Pay / Google Pay - ${onlineAmountLabel}`
-              : `Zapłać BLIK na telefon - ${blikAmountLabel}`}
+              : `Zapłać BLIK po instrukcji - ${blikAmountLabel}`}
         </button>
       </div>
     </div>

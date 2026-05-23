@@ -23,7 +23,7 @@ export function KwadransNaJuzBadge({ variant = 'box', showPrice = true }: Kwadra
     <div className="flex items-center gap-3 bg-accent-light border-l-4 border-accent rounded-r-lg px-4 py-3.5 max-w-xl">
       <Icon name="zap" size={20} className="text-accent shrink-0" strokeWidth={3} />
       <span className="text-sm text-accent-dark">
-        <strong>Kwadrans na już</strong> — termin potwierdzany do 15 minut
+        <strong>Kwadrans na już</strong> — priorytet i najbliższy realny termin
         {showPrice && <span className="opacity-80"> · 99 zł</span>}
       </span>
     </div>

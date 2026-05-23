@@ -1,4 +1,5 @@
 import { PUBLIC_CAT_PROBLEM_OPTIONS, PUBLIC_DOG_PROBLEM_OPTIONS } from './funnel'
+import { buildScheduleAvailabilitySeed } from './scheduling/rules'
 import { AvailabilitySeed, ProblemOption, ProblemType } from './types'
 
 const LEGACY_CAT_PROBLEM_OPTIONS: ProblemOption[] = [
@@ -73,11 +74,11 @@ export const faq = [
   },
   {
     q: 'Czy zakup jest bezpieczny?',
-    a: 'Tak. Możesz wybrać prostą wpłatę BLIK na telefon, a link do rozmowy odblokowuje się dopiero po potwierdzeniu wpłaty.',
+    a: 'Tak. Możesz wybrać prostą wpłatę BLIK po instrukcji e-mail albo płatność online, a link do rozmowy odblokowuje się dopiero po potwierdzeniu wpłaty.',
   },
   {
     q: 'Czy mogę anulować zakup?',
-    a: 'Po potwierdzeniu wpłaty masz krótkie okno na zgłoszenie rezygnacji lub zmiany terminu. Przy obecnym modelu BLIK na telefon ewentualny zwrot wymaga kontaktu i indywidualnej decyzji.',
+    a: 'Po potwierdzeniu wpłaty masz krótkie okno na zgłoszenie rezygnacji lub zmiany terminu. Przy obecnym modelu płatności ręcznej ewentualny zwrot wymaga kontaktu i indywidualnej decyzji.',
   },
   {
     q: 'Co dostaję po rozmowie?',
@@ -230,7 +231,7 @@ export function buildFullConsultAvailabilitySeed(now = new Date()): Availability
 
 // Legacy export used by local-store seed (generic pool, same as standard)
 export function buildRollingAvailabilitySeed(now = new Date()): AvailabilitySeed[] {
-  return buildStandardAvailabilitySeed(now)
+  return buildScheduleAvailabilitySeed(now)
 }
 
 export function getSecondsUntilBookingStart(bookingDate: string, bookingTime: string, now = new Date()): number {
@@ -293,7 +294,7 @@ export function getPaymentStatusLabel(
     case 'unpaid':
       return 'Nieopłacona'
     case 'pending_manual_review':
-      return 'Zgłoszona, potwierdzenie do 15 min'
+      return 'Zgłoszona, czeka na potwierdzenie'
     case 'paid':
       return 'Opłacona'
     case 'failed':

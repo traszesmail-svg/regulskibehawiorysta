@@ -1,7 +1,7 @@
 // POST /api/materiały/order — accepts a customer order for a guide or bundle.
 // Free items: code is generated immediately and emailed to the customer.
 // Paid items: order is queued as 'pending'; owner gets a notification, customer
-// receives BLIK instructions. After manual BLIK confirmation the owner triggers
+// receives payment instructions. After manual payment confirmation the owner triggers
 // /api/materiały/confirm to release the unlock code.
 
 export const dynamic = 'force-dynamic'
@@ -23,8 +23,6 @@ import {
   sendMaterialyOrderPendingCustomerEmail,
   type MaterialyOrderEmailPayload,
 } from '@/lib/server/notifications'
-
-const BLIK_PHONE = process.env.OWNER_BLIK_PHONE?.trim() || '579163241'
 
 function trimString(value: unknown, max: number): string | null {
   if (typeof value !== 'string') return null
@@ -55,7 +53,6 @@ export async function POST(request: Request) {
   const productSlug = trimString(body.productSlug, 120)
   const name = trimString(body.name, 120)
   const email = trimString(body.email, 160)
-  const phone = trimString(body.phone, 40)
   const notes = trimMultiline(body.notes, 1200)
   const consentProcessing = body.consentProcessing === true
   const consentPolicy = body.consentPolicy === true
@@ -87,7 +84,7 @@ export async function POST(request: Request) {
     priceAmount: PRICE_AMOUNT_PLN[item.priceCode],
     customerName: name,
     customerEmail: email,
-    customerPhone: phone,
+    customerPhone: null,
     notes,
     consents: { processing: consentProcessing, policy: consentPolicy },
   })
@@ -118,15 +115,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, orderId: order.id, free: true })
   }
 
-  // Paid order: send BLIK instructions to the customer.
-  void sendMaterialyOrderPendingCustomerEmail(emailPayload, BLIK_PHONE).catch((err) => {
+  // Paid order: send payment instructions to the customer without exposing a public phone number.
+  void sendMaterialyOrderPendingCustomerEmail(emailPayload).catch((err) => {
     console.error('[materiały/order] pending email failed', err)
   })
 
   return NextResponse.json({
     ok: true,
     orderId: order.id,
-    blikPhone: BLIK_PHONE,
     priceLabel: order.priceLabel,
   })
 }

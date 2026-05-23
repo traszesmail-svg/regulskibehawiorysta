@@ -13,7 +13,7 @@ const routeChecks = [
   { route: '/bezplatne-materialy/kot-zyje-w-napieciu', heading: 'Kot żyje w napięciu' },
   { route: '/bezplatne-materialy/30-zachowan', heading: '30 zachowań do obserwacji' },
   { route: '/blog', heading: 'Teksty o zachowaniu psów i kotów - konkretnie, bez ogólników.' },
-  { route: '/niezbednik', heading: 'Niezbędnik - materiały do samodzielnej pracy' },
+  { route: '/materialy', heading: 'Materialy - materiały do samodzielnej pracy' },
   { route: '/psy/reaktywnosc-na-smyczy', heading: 'Reaktywność psa na smyczy' },
   { route: '/koty/zalatwianie-poza-kuweta', heading: 'Kot załatwia się poza kuwetą' },
   { route: '/behawiorysta-psow', heading: 'Behawiorysta psów online' },
@@ -88,7 +88,7 @@ async function main() {
     const blogHtml = await fetch(`${appUrl}/blog`, { cache: 'no-store' }).then((response) => response.text())
     assert.equal(blogHtml.includes('Newsletter dla opiekunów psów i kotów'), true)
 
-    const toolkitHtml = await fetch(`${appUrl}/niezbednik`, { cache: 'no-store' }).then((response) => response.text())
+    const toolkitHtml = await fetch(`${appUrl}/materialy`, { cache: 'no-store' }).then((response) => response.text())
     assert.equal(toolkitHtml.includes('Osobne wejścia do bezpłatnych materiałów'), true)
     assert.equal(toolkitHtml.includes('Newsletter dla opiekunów psów i kotów'), true)
 

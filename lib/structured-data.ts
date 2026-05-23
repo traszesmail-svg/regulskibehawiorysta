@@ -4,22 +4,16 @@
 
 import { SITE } from './seo.config';
 
-// ============ LOCAL BUSINESS (globalnie w layout) ============
+// ============ PERSON (globalnie w layout) ============
 export function localBusinessSchema() {
   return {
     '@context': 'https://schema.org',
-    '@type': 'LocalBusiness',
+    '@type': 'Person',
     '@id': SITE.url,
-    name: SITE.fullName,
+    name: SITE.author.name,
     description: SITE.author.bio,
     url: SITE.url,
     image: `${SITE.url}${SITE.defaultOgImage}`,
-    priceRange: SITE.business.priceRange,
-    address: {
-      '@type': 'PostalAddress',
-      addressCountry: SITE.business.address.addressCountry,
-      addressLocality: SITE.business.address.addressLocality,
-    },
     areaServed: {
       '@type': 'Country',
       name: 'Polska',
@@ -57,21 +51,28 @@ export function serviceSchema() {
         {
           '@type': 'Offer',
           name: 'Kwadrans',
-          description: '15 minut audio bez kamery — pierwszy kierunek',
+          description: '15 min audio bez kamery na jedno główne pytanie',
           price: '69',
           priceCurrency: 'PLN',
         },
         {
           '@type': 'Offer',
+          name: 'Kwadrans na już',
+          description: 'Ten sam zakres co Kwadrans, ale z priorytetem i najbliższym realnym terminem',
+          price: '99',
+          priceCurrency: 'PLN',
+        },
+        {
+          '@type': 'Offer',
           name: 'Dwa kwadranse',
-          description: '30 minut online — 2-3 wątki, krótka notatka',
+          description: '30 min online, gdy temat ma kilka wątków',
           price: '169',
           priceCurrency: 'PLN',
         },
         {
           '@type': 'Offer',
           name: 'Pełna konsultacja',
-          description: 'Rozmowa online, plan poprawy, 7 dni WhatsApp',
+          description: 'Około 2h online, analiza zachowania, plan działania i 7 dni wsparcia przez WhatsApp',
           price: '470',
           priceCurrency: 'PLN',
         },
@@ -169,11 +170,6 @@ export function personSchema() {
     description: SITE.author.bio,
     url: `${SITE.url}/o-mnie`,
     image: `${SITE.url}/about-photo.jpg`,
-    worksFor: {
-      '@type': 'Organization',
-      name: SITE.name,
-      url: SITE.url,
-    },
     knowsAbout: [
       'Behawiorystyka zwierząt',
       'Psy',

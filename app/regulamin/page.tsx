@@ -15,11 +15,11 @@ export const metadata: Metadata = buildLegalMetadata(
 const summaryItems: LegalSummaryItem[] = [
   {
     label: 'Usługi objęte dokumentem',
-    value: '15-minutowa konsultacja behawioralna, Dwa kwadranse oraz podstawowe zasady korzystania z serwisu.',
+    value: 'Kwadrans, Kwadrans na już, Dwa kwadranse oraz podstawowe zasady korzystania z serwisu.',
   },
   {
     label: 'Model płatności',
-    value: `${PUBLIC_OFFER_PAYMENT_METHODS}. Szczegóły płatności dostajesz e-mailem po rezerwacji i potwierdzeniu terminu.`,
+    value: `${PUBLIC_OFFER_PAYMENT_METHODS}. Termin jest pewny dopiero po potwierdzeniu płatności.`,
   },
   {
     label: 'Kontakt w sprawach dokumentu',
@@ -48,13 +48,19 @@ const sections: LegalSection[] = [
     body: (
       <>
         <ul className="premium-bullet-list">
-          <li>15-minutowa konsultacja behawioralna jest krótką konsultacją zdalną prowadzoną w formie audio.</li>
-          <li>Dwa kwadranse są rozszerzonym formatem audio dla tematów szerszych niż sam Kwadrans.</li>
+          <li>Kwadrans to 15 min audio bez kamery na jedno główne pytanie.</li>
+          <li>Kwadrans na już ma ten sam zakres co Kwadrans, ale z priorytetem i najbliższym realnym terminem.</li>
+          <li>Dwa kwadranse to 30 min online dla tematów szerszych niż sam Kwadrans.</li>
           <li>Pełna konsultacja ma osobny regulamin i osobną stronę warunków.</li>
         </ul>
         <p>
           Usługi mają charakter konsultacji behawioralnych świadczonych na odległość. W uzasadnionych przypadkach klient
           może zostać poproszony o wcześniejsze wykluczenie tła zdrowotnego lub konsultację weterynaryjną.
+        </p>
+        <p>
+          Konsultacja behawioralna nie jest poradą weterynaryjną, diagnozą medyczną ani leczeniem zwierzęcia na odległość.
+          Jeżeli opis sytuacji wskazuje na ból, chorobę, nagłą zmianę stanu albo potrzebę diagnostyki lekarskiej, pierwszym
+          krokiem jest kontakt z lekarzem weterynarii.
         </p>
       </>
     ),
@@ -80,8 +86,12 @@ const sections: LegalSection[] = [
     body: (
       <>
         <p>
-          Rezerwacja następuje po wyborze usługi, podaniu podstawowych danych kontaktowych oraz wskazaniu preferowanych
-          terminów przez formularz rezerwacyjny albo inną ścieżkę udostępnioną w serwisie.
+          Rezerwacja następuje po wyborze usługi, dostępnego terminu oraz podaniu podstawowych danych kontaktowych przez
+          formularz rezerwacyjny albo inną ścieżkę udostępnioną w serwisie.
+        </p>
+        <p>
+          Po wysłaniu danych w formularzu wybrany slot jest wstępnie blokowany na czas przejścia do płatności. Standardowe
+          okno blokady wynosi 15 minut. Rezerwacja staje się pewna dopiero po potwierdzeniu płatności.
         </p>
         <p>Wiadomość wysłana przez formularz kontaktowy ma charakter wstępny i nie zastępuje rezerwacji usługi.</p>
       </>
@@ -92,12 +102,13 @@ const sections: LegalSection[] = [
     body: (
       <>
         <p>
-          Publicznie komunikowany model płatności to {PUBLIC_OFFER_PAYMENT_METHODS}. Szczegóły płatności klient otrzymuje e-mailem po rezerwacji i
-          wstępnym potwierdzeniu terminu.
+          Publicznie komunikowany model płatności to {PUBLIC_OFFER_PAYMENT_METHODS}. Jeżeli aktywna jest płatność online,
+          klient przechodzi do niej bezpośrednio po utworzeniu rezerwacji. Jeżeli aktywna jest płatność ręczna, klient
+          otrzymuje dalszą instrukcję dla wybranej metody.
         </p>
         <p>
-          Potwierdzenie rezerwacji następuje do 15 minut od wpłaty w godzinach 9-21, poza dniami ustawowo wolnymi od
-          pracy. Termin zostaje ostatecznie zablokowany dopiero po potwierdzeniu wpłaty.
+          Termin zostaje ostatecznie zablokowany dopiero po potwierdzeniu płatności. Przy płatności ręcznej potwierdzenie
+          może wymagać obsługi przez usługodawcę w godzinach 9-21, poza dniami ustawowo wolnymi od pracy.
         </p>
         <p>Nieopłacona lub niepotwierdzona rezerwacja może wygasnąć, a termin może wrócić do puli dostępnych terminów.</p>
       </>
@@ -162,6 +173,10 @@ const sections: LegalSection[] = [
       <>
         <p>Reklamacje dotyczące działania serwisu, procesu rezerwacji albo realizacji usługi można zgłaszać przez formularz kontaktowy lub e-mail.</p>
         <p>Zgłoszenie powinno zawierać dane pozwalające zidentyfikować sprawę oraz krótki opis zastrzeżeń. Reklamacje są rozpatrywane bez zbędnej zwłoki.</p>
+        <p>
+          Konsument może skorzystać z pozasądowych sposobów rozpatrywania reklamacji i dochodzenia roszczeń, w tym z pomocy
+          miejskiego lub powiatowego rzecznika konsumentów oraz informacji dostępnych na stronie UOKiK.
+        </p>
       </>
     ),
   },

@@ -11,7 +11,7 @@ const routes = [
   '/opinie',
   '/o-mnie',
   '/kontakt',
-  '/niezbednik',
+  '/materialy',
   '/cennik',
   '/konsultacja-behawioralna-online',
   '/behawiorysta-psow',
@@ -72,7 +72,7 @@ async function main() {
         status: response.status,
         h1: extractH1(html),
         primary: html.includes('Zamów 15 min audio - 69 zł'),
-        secondary: html.includes('Przejdź do Niezbędnika'),
+        secondary: html.includes('Przejdź do Materialya'),
         consultation: html.includes('Konsultacja online 60 min - 350 zł'),
         contact: html.includes('Napisz krótką wiadomość'),
       }

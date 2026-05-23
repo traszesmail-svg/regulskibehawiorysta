@@ -114,11 +114,12 @@ export function getDefaultReleaseSmokeRules(): ReleaseSmokeRule[] {
     {
       path: '/',
       required: [
-        'Co się dzieje z Twoim psem albo kotem?',
+        'Behawiorysta psów i kotów online',
         'Mam psa',
         'Mam kota',
         'Jak wygląda współpraca?',
       ],
+      forbiddenRaw: ['href="tel:', "href='tel:"],
       requireBuildMarker: true,
     },
     {
@@ -128,29 +129,19 @@ export function getDefaultReleaseSmokeRules(): ReleaseSmokeRule[] {
         'Kwadrans',
         'Dwa kwadranse',
         'Pełna konsultacja',
-        'Pomóż mi dobrać rozmowę',
+        'Pomóż mi dobrać pierwszy krok',
       ],
-      requireBuildMarker: true,
-    },
-    {
-      path: '/niezbednik',
-      required: [
-        'Nie wszystko trzeba od razu konsultować. Czasem najpierw wystarczy dobrze poobserwować.',
-        'Wybierz sytuację najbliższą Twojej',
-        'Zacznij bez płacenia i bez presji',
-        'Nowe materiały prosto na Twoją skrzynkę',
-      ],
+      forbiddenRaw: ['href="tel:', "href='tel:"],
       requireBuildMarker: true,
     },
     {
       path: '/behawiorysta-online-polska',
       required: [
-        'Behawiorysta online dla opiekunów psów i kotów',
-        '3 wejścia online',
-        'Wybierz wejście, które pasuje do Twojej sytuacji.',
-        'Jedna logika wyboru przed rezerwacją.',
-        'Najczęstsze pytania przed pierwszym ruchem.',
+        'Behawiorysta psów i kotów online',
+        'Mam psa',
+        'Mam kota',
       ],
+      forbiddenRaw: ['href="tel:', "href='tel:"],
       requireBuildMarker: true,
     },
     {
@@ -160,7 +151,8 @@ export function getDefaultReleaseSmokeRules(): ReleaseSmokeRule[] {
     },
     {
       path: '/polityka-prywatnosci',
-      required: ['Polityka prywatności', 'Kontakt w sprawach danych osobowych'],
+      required: ['Polityka prywatności', 'Publiczny kontakt', 'formularz i e-mail'],
+      forbiddenRaw: ['href="tel:', "href='tel:"],
       requireBuildMarker: true,
     },
   ]

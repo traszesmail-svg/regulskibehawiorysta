@@ -1,5 +1,6 @@
 .git
 .next
+.next-codex-verify
 node_modules
 .vercel
 .tmp-local-data

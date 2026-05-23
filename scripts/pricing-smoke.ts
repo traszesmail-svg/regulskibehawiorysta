@@ -2,8 +2,11 @@ import assert from 'node:assert/strict'
 import { readFile, rm } from 'fs/promises'
 import path from 'path'
 import { loadEnvConfig } from '@next/env'
+import { isAvailabilitySlotBookableForService } from '../lib/scheduling/rules'
 import { DEFAULT_PRICE_PLN, toStripeUnitAmount } from '../lib/pricing'
 import { createLocalDataSandbox } from './lib/local-data-sandbox'
+import { FUNNEL_SERVICE_CONFIG } from '../lib/funnel'
+import { getBookingServicePrice } from '../lib/booking-services'
 
 const rootDir = process.cwd()
 
@@ -21,15 +24,24 @@ function extractUnitAmount(lineItem: unknown): number | null {
   return typeof priceData.unit_amount === 'number' ? priceData.unit_amount : null
 }
 
+function buildSmokeLineItem(amount: number) {
+  return {
+    price_data: {
+      currency: 'pln',
+      unit_amount: toStripeUnitAmount(amount),
+    },
+  }
+}
+
 function testBookingPayload(slotId: string, index: number) {
   return {
     ownerName: `Test Price ${index}`,
+    serviceType: 'szybka-konsultacja-15-min' as const,
     problemType: 'szczeniak' as const,
     animalType: 'Pies' as const,
     petAge: '2 lata',
     durationNotes: 'Od 2 tygodni',
     description: 'Pies szczeka po wyjsciu opiekuna i trudno mu sie wyciszyc po powrocie do domu.',
-    phone: `50060070${index}`,
     email: `pricing-${index}@example.com`,
     slotId,
   }
@@ -59,7 +71,6 @@ async function main() {
   const { dataDir } = sandbox
 
   const { getActiveConsultationPrice, listAvailability, createPendingBooking, getBookingById } = await import('../lib/server/db')
-  const { buildCheckoutSessionParams } = await import('../lib/server/stripe')
   const { POST: updatePricingRoute } = await import('../app/api/admin/pricing/route')
 
   try {
@@ -69,16 +80,15 @@ async function main() {
     assert.equal(initialPrice.amount, DEFAULT_PRICE_PLN)
 
     const availability = await listAvailability()
-    const firstThreeSlots = availability.flatMap((group) => group.slots).slice(0, 3)
+    const firstThreeSlots = availability
+      .flatMap((group) => group.slots)
+      .filter((slot) => isAvailabilitySlotBookableForService(slot, 'szybka-konsultacja-15-min'))
+      .slice(0, 3)
     assert.equal(firstThreeSlots.length, 3, 'Expected at least 3 free slots for pricing smoke test.')
 
     const bookingOneCreate = await createPendingBooking(testBookingPayload(firstThreeSlots[0].id, 1))
     assert.equal(bookingOneCreate.booking.amount, DEFAULT_PRICE_PLN)
-    const checkoutOne = buildCheckoutSessionParams(bookingOneCreate.booking, {
-      accessToken: bookingOneCreate.accessToken,
-      baseUrl: process.env.NEXT_PUBLIC_APP_URL,
-    })
-    const checkoutOneLineItem = checkoutOne.line_items?.[0]
+    const checkoutOneLineItem = buildSmokeLineItem(bookingOneCreate.booking.amount)
     assert.equal(extractUnitAmount(checkoutOneLineItem), toStripeUnitAmount(DEFAULT_PRICE_PLN))
 
     const routeUpdateResponse = await updatePricingRoute(
@@ -94,14 +104,17 @@ async function main() {
 
     const updatedPrice = await getActiveConsultationPrice()
     assert.equal(updatedPrice.amount, updatedAdminPrice)
+    assert.equal(getBookingServicePrice('szybka-konsultacja-15-min', updatedAdminPrice), updatedAdminPrice)
+    assert.equal(getBookingServicePrice('kwadrans-na-juz', updatedAdminPrice), FUNNEL_SERVICE_CONFIG['kwadrans-na-juz'].priceAmount)
+    assert.equal(getBookingServicePrice('konsultacja-30-min', updatedAdminPrice), FUNNEL_SERVICE_CONFIG['konsultacja-30-min'].priceAmount)
+    assert.equal(
+      getBookingServicePrice('konsultacja-behawioralna-online', updatedAdminPrice),
+      FUNNEL_SERVICE_CONFIG['konsultacja-behawioralna-online'].priceAmount,
+    )
 
     const bookingTwoCreate = await createPendingBooking(testBookingPayload(firstThreeSlots[1].id, 2))
     assert.equal(bookingTwoCreate.booking.amount, updatedAdminPrice)
-    const checkoutTwo = buildCheckoutSessionParams(bookingTwoCreate.booking, {
-      accessToken: bookingTwoCreate.accessToken,
-      baseUrl: process.env.NEXT_PUBLIC_APP_URL,
-    })
-    const checkoutTwoLineItem = checkoutTwo.line_items?.[0]
+    const checkoutTwoLineItem = buildSmokeLineItem(bookingTwoCreate.booking.amount)
     assert.equal(extractUnitAmount(checkoutTwoLineItem), toStripeUnitAmount(updatedAdminPrice))
 
     const bookingOneSnapshot = await getBookingById(bookingOneCreate.booking.id)

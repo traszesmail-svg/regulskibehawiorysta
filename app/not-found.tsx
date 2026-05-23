@@ -11,7 +11,7 @@ export default function NotFound() {
       highlights={['Co możesz zrobić', 'Wrócić do strony głównej, ścieżki psa lub kota albo przejść od razu do 15 min audio.']}
       actions={[
         { href: '/', label: 'Strona główna', primary: true },
-        { href: '/wybor', label: 'Quiz' },
+        { href: '/quiz', label: 'Quiz' },
         { href: '/cennik', label: 'Cennik' },
         { href: '/book?service=szybka-konsultacja-15-min', label: FUNNEL_CTA_LABELS.primary },
       ]}

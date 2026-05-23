@@ -184,7 +184,7 @@ export function SlotPicker({ onChange, mode = 'standard', className }: SlotPicke
       )}
       {mode === 'urgent' && (
         <div className="field-help" style={{ marginBottom: '10px' }}>
-          Terminy oznaczone ? wymagają potwierdzenia. Odpowiadam w ciągu 15 minut w godzinach dyżuru.
+          Terminy oznaczone ? wymagają potwierdzenia. Odpowiadam priorytetowo w godzinach dyżuru.
         </div>
       )}
 
@@ -248,7 +248,7 @@ export function SlotPicker({ onChange, mode = 'standard', className }: SlotPicke
                 {question.length > 0 && (
                   <>
                     <div className="slot-times-section-label" style={{ gridColumn: '1/-1', marginTop: 8, fontSize: 12, opacity: 0.7 }}>
-                      Terminy oznaczone ? wymagają potwierdzenia — odpowiadam w ciągu 15 minut.
+                      Terminy oznaczone ? wymagają potwierdzenia — odpowiadam priorytetowo w godzinach dyżuru.
                     </div>
                     {question.map((time) => {
                       const id = slotId(activeDay, time)

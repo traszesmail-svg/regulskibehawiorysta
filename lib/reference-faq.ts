@@ -18,7 +18,7 @@ export const referenceFaqCategories: Array<{
   { id: 'pies', label: 'Pies', countLabel: '5 pytań', icon: 'paw' },
   { id: 'kot', label: 'Kot', countLabel: '5 pytań', icon: 'cat' },
   { id: 'płatności', label: 'Płatności', countLabel: '5 pytań', icon: 'payment' },
-  { id: 'techniczne', label: 'Technicznie', countLabel: '5 pytań', icon: 'screen' },
+  { id: 'techniczne', label: 'Techniczne', countLabel: '5 pytań', icon: 'screen' },
 ]
 
 export const referenceFaqItems: ReferenceFaqItem[] = [
@@ -27,19 +27,19 @@ export const referenceFaqItems: ReferenceFaqItem[] = [
     category: 'wspolpraca',
     question: 'Czy muszę już wiedzieć, co jest przyczyną?',
     answer:
-      'Nie. Od tego zaczynamy - od uporządkowania obserwacji. Wystarczy opis codziennej sytuacji. Na tej podstawie tworzę diagnozę behawioralną opartą na dostępnych danych.',
+      'Nie. To kluczowy etap naszej współpracy. Podczas konsultacji wspólnie poszukamy źródła trudności i ustalimy dalszy plan działania.',
   },
   {
     id: 'czy-wiadomość-zastepuje-konsultacje',
     category: 'wspolpraca',
-    question: 'Czy w każdej usłudze dostaję diagnozę behawioralną?',
+    question: 'Czy w każdej usłudze dostaję analizę zachowania?',
     answer:
-      'Tak. W każdej usłudze dostajesz diagnozę behawioralną opartą na informacjach, które przekażesz: opisie sytuacji, formularzu, historii zachowania, kontekście domu lub spacerów i nagraniach, jeśli są. Zakres diagnozy behawioralnej zależy od ilości danych i długości rozmowy.',
+      'Tak. W każdej usłudze dostajesz analizę zachowania opartą na informacjach, które przekażesz: opisie sytuacji, formularzu, historii zachowania, kontekście domu lub spacerów i nagraniach, jeśli są. Zakres analizy zależy od ilości danych i długości rozmowy.',
   },
   {
     id: 'diagnoza-lub-weterynarz',
     category: 'konsultacje',
-    question: 'Czy diagnoza behawioralna zastępuje lekarza weterynarii?',
+    question: 'Czy analiza zachowania zastępuje lekarza weterynarii?',
     answer:
       'Nie. Zachowanie może mieć związek ze zdrowiem, bólem, dietą albo środowiskiem. Jako technik weterynarii i dietetyk patrzę szerzej, ale jeśli coś wymaga konsultacji lekarskiej, powiem to jasno.',
   },
@@ -55,7 +55,7 @@ export const referenceFaqItems: ReferenceFaqItem[] = [
     category: 'konsultacje',
     question: 'Kiedy pełna konsultacja ma więcej sensu niż szybka rozmowa?',
     answer:
-      'Gdy zachowanie trwa długo, dotyczy kilku sytuacji albo mocno wpływa na życie domowników. Wtedy potrzebna jest pełniejsza diagnoza behawioralna, plan i możliwość dopytania po rozmowie.',
+      'Gdy zachowanie trwa długo, dotyczy kilku sytuacji albo mocno wpływa na życie domowników. Wtedy potrzebne jest około 2h online, analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 7 dni wsparcia przez WhatsApp.',
   },
   {
     id: 'problemy-kot',
@@ -97,7 +97,7 @@ export const referenceFaqItems: ReferenceFaqItem[] = [
     category: 'wspolpraca',
     question: 'Czy dostanę plan pracy po konsultacji?',
     answer:
-      'Po pełnej konsultacji otrzymujesz plan poprawy i 7 dni kontaktu tekstowego. Po Kwadransie dostajesz przede wszystkim priorytet i najbliższy sensowny krok.',
+      'Po pełnej konsultacji otrzymujesz plan działania i 7 dni wsparcia przez WhatsApp przy wdrażaniu zaleceń. Po Kwadransie dostajesz przede wszystkim priorytet i najbliższy sensowny krok.',
   },
   {
     id: 'nie-zachowanie',
@@ -130,9 +130,9 @@ export const referenceFaqItems: ReferenceFaqItem[] = [
   {
     id: 'diagnoza-na-podstawie-informacji',
     category: 'konsultacje',
-    question: 'Czy zakres diagnozy behawioralnej zależy od długości rozmowy?',
+    question: 'Czy zakres analizy zależy od długości rozmowy?',
     answer:
-      'Tak. W Kwadransie dostajesz wstępną diagnozę behawioralną opartą na informacjach przekazanych przez opiekuna i pierwszy kierunek działania. Przy sprawach złożonych pełniejsza diagnoza behawioralna wymaga dłuższej rozmowy, formularza, historii zachowania i czasem nagrań.',
+      'Tak. W Kwadransie dostajesz pierwszy kierunek działania na podstawie informacji od opiekuna. Przy sprawach złożonych pełniejsza analiza wymaga około 2h online, formularza, historii zachowania i czasem nagrań.',
   },
   {
     id: 'pies-reaktywny-na-spacerze',
@@ -188,7 +188,7 @@ export const referenceFaqItems: ReferenceFaqItem[] = [
     category: 'płatności',
     question: 'Jak mogę zapłacić za konsultację?',
     answer:
-      'Aktualny przepływ opiera się na płatności ręcznej: BLIK na telefon albo PayPal. Po rezerwacji dostajesz dalszy krok i potwierdzenie.',
+      'Aktualny przepływ opiera się na płatności ręcznej: BLIK po instrukcji e-mail albo PayPal. Po rezerwacji dostajesz dalszy krok i potwierdzenie.',
   },
   {
     id: 'platnosc-kiedy-potwierdzenie',

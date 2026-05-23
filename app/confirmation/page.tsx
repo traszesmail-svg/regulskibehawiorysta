@@ -2,6 +2,7 @@
 import Link from 'next/link'
 import { unstable_noStore as noStore } from 'next/cache'
 import { headers } from 'next/headers'
+import { CalendarDays } from 'lucide-react'
 import { AnalyticsEventOnMount } from '@/components/AnalyticsEventOnMount'
 import { BookingStageEyebrow } from '@/components/BookingStageEyebrow'
 import { getBookingAnalyticsContextParams } from '@/lib/analytics-schema'
@@ -31,6 +32,8 @@ import { SmsConfirmationStatus } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
+
+const bookingFlowSteps = ['Termin', 'Godzina', 'Dane', 'Płatność'] as const
 
 export function generateMetadata(): Metadata {
   return buildTechnicalMetadata({
@@ -102,7 +105,7 @@ function getConfirmedChecklist(serviceType: BookingServiceType) {
     items: [
       'Zachowaj termin i wróć do tego linku kilka minut przed rozmową audio.',
       'Możesz dodać krótkie nagranie zachowania psa lub kota, żeby specjalista lepiej przygotował się do rozmowy. To nie oznacza konsultacji wideo.',
-      'Przed rozmową możesz też spokojnie przejrzeć Niezbędnik, jeśli chcesz uporządkować temat jeszcze lepiej.',
+      'Przed rozmową możesz też spokojnie przejrzeć materiały PDF, jeśli chcesz uporządkować temat jeszcze lepiej.',
     ],
     materialsLead:
       'To nie jest obowiązkowe. Jeśli chcesz, możesz teraz dodać nagranie, link do materiałów albo krótki opis sytuacji, żeby szybciej uporządkować temat przed rozmową.',
@@ -263,6 +266,21 @@ export default async function ConfirmationPage({
       footerPrimaryLabel={FUNNEL_CTA_LABELS.primary}
     >
       <div className="container">
+        <section className="booking-flow-stage-head confirmation-flow-stage-head" aria-label="Etap rezerwacji">
+          <div className="termin-breadcrumb">
+            <CalendarDays size={15} strokeWidth={1.85} aria-hidden="true" />
+            <span>Wybór terminu</span>
+          </div>
+          <div className="termin-step-track booking-flow-step-track" aria-label="Etapy rezerwacji">
+            {bookingFlowSteps.map((step, index) => (
+              <span key={step} className={index === 3 ? 'is-active' : ''}>
+                <strong>{index + 1}</strong>
+                {step}
+              </span>
+            ))}
+          </div>
+        </section>
+
         <section className="panel centered-panel hero-surface booking-stage-panel transaction-panel booking-flow-panel" data-confirmation-state={confirmationState} data-booking-id={booking?.id ?? ''}>
           <BookingStageEyebrow stage="confirmation" className="section-eyebrow" />
           {isConfirmed ? <div className="muted top-gap-small">{COPY_HELPERS.aftercareConfirmation}</div> : null}
@@ -319,7 +337,7 @@ export default async function ConfirmationPage({
                       ? 'Testowa płatność została potwierdzona'
                       : `Wpłata za ${serviceLabel} została potwierdzona`
                     : isWaitingManual
-                      ? 'Wpłata czeka na potwierdzenie do 15 min'
+                      ? 'Wpłata czeka na potwierdzenie'
                       : isRejected
                         ? 'Nie znaleziono wpłaty do tej rezerwacji'
                         : 'Płatność nie została jeszcze potwierdzona'}
@@ -332,7 +350,7 @@ export default async function ConfirmationPage({
                       ? 'To jest rezerwacja testowa. Poniżej masz potwierdzenie i kolejny krok bez realnej płatności.'
                       : `Wpłata jest już potwierdzona. Poniżej masz podsumowanie rezerwacji, status wiadomości, ${roomAccessLabel} i dalszy krok.`
                     : isWaitingManual
-                      ? `Sprawdzamy wpłatę ręczną i potwierdzimy ją do 15 minut. Gdy status zmieni się na opłacony, zobaczysz ${roomAccessLabel} i sekcję materiałów.`
+                      ? `Sprawdzamy wpłatę ręczną i potwierdzimy ją w godzinach obsługi. Gdy status zmieni się na opłacony, zobaczysz ${roomAccessLabel} i sekcję materiałów.`
                       : isRejected
                         ? booking.paymentRejectedReason ?? 'Termin wrócił do puli. Jeśli trzeba, utwórz nową rezerwację i zgłoś wpłatę ponownie.'
                         : 'Jeśli przed chwilą wysłałeś płatność ręczną, odśwież tę stronę za chwilę. Jeśli wpłata nie została jeszcze zgłoszona, wróć do ekranu płatności i dokończ ten krok.'}
@@ -382,7 +400,7 @@ export default async function ConfirmationPage({
                     {
                       title: 'Status płatności',
                       body: isWaitingManual
-                        ? 'Wpłata jest zapisana i czeka na potwierdzenie do 15 minut.'
+                        ? 'Wpłata jest zapisana i czeka na potwierdzenie w godzinach obsługi.'
                         : 'Wpłata nie jest jeszcze potwierdzona. Jeśli właśnie wysłałeś płatność ręczną, poczekaj na ręczną akceptację.',
                     },
                     {
@@ -427,7 +445,7 @@ export default async function ConfirmationPage({
 
               {showAdminNoticeWarning ? (
                 <div className="info-box top-gap">
-                  Zgłoszenie wpłaty zostało zapisane, ale automatyczne powiadomienie obsługi o tej wpłacie nie zostało teraz dostarczone. Zachowaj ten link. Jeśli status nie zmieni się w ciągu 15 minut, skontaktuj się przez formularz kontaktowy.
+                  Zgłoszenie wpłaty zostało zapisane, ale automatyczne powiadomienie obsługi o tej wpłacie nie zostało teraz dostarczone. Zachowaj ten link. Jeśli status nie zmieni się w godzinach obsługi, skontaktuj się przez formularz kontaktowy.
                 </div>
               ) : null}
 

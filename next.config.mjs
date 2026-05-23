@@ -13,6 +13,10 @@ const blockSearchIndexing = process.env.VERCEL_ENV
   ? process.env.VERCEL_ENV !== 'production'
   : process.env.NODE_ENV !== 'production'
 
+const requestedDistDir = process.env.NEXT_DIST_DIR?.trim()
+const customDistDir =
+  requestedDistDir && /^[a-zA-Z0-9._-]+$/.test(requestedDistDir) ? requestedDistDir : undefined
+
 const REMOVED_MATERIALY_SLUGS = [
   'kot-zyje-w-napieciu',
   'pies-ile-ruchu-potrzebuje',
@@ -47,6 +51,7 @@ const REMOVED_LEAD_MAGNET_SLUGS = [
 ]
 
 const nextConfig = {
+  ...(customDistDir ? { distDir: customDistDir } : {}),
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'upload.wikimedia.org' },
@@ -72,6 +77,11 @@ const nextConfig = {
     return [
       {
         source: '/termin',
+        destination: '/book',
+        statusCode: 301,
+      },
+      {
+        source: '/booking',
         destination: '/book',
         statusCode: 301,
       },
@@ -116,13 +126,8 @@ const nextConfig = {
         statusCode: 301,
       },
       {
-        source: '/quiz',
-        destination: '/wybor',
-        statusCode: 301,
-      },
-      {
         source: '/produkt',
-        destination: '/niezbednik',
+        destination: '/materialy',
         statusCode: 301,
       },
       {
@@ -172,12 +177,12 @@ const nextConfig = {
       })),
       ...REMOVED_LEAD_MAGNET_SLUGS.map((slug) => ({
         source: `/bezplatne-materialy/${slug}`,
-        destination: '/niezbednik',
+        destination: '/materialy',
         statusCode: 301,
       })),
       {
         source: '/przybornik',
-        destination: '/niezbednik',
+        destination: '/materialy',
         statusCode: 301,
       },
       {
@@ -202,11 +207,6 @@ const nextConfig = {
       },
       {
         source: '/oferta/konsultacja-behawioralna-online',
-        destination: '/',
-        statusCode: 301,
-      },
-      {
-        source: '/behawiorysta-olsztyn',
         destination: '/',
         statusCode: 301,
       },

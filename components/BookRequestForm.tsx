@@ -87,23 +87,23 @@ function getSelectedServiceIntro(service: BookingServiceType) {
     case 'konsultacja-30-min':
       return {
         title: `Wybrana rozmowa: ${option.label} / ${option.price}.`,
-        copy: '30 minut online daje więcej miejsca na dwa-trzy wątki i spokojniejsze uporządkowanie sytuacji niż sam Kwadrans.',
+        copy: '30 min online, gdy temat ma kilka wątków. Masz więcej czasu na kontekst, spokojniejsze zalecenia i decyzję, czy potrzebna jest pełna konsultacja.',
       }
     case 'konsultacja-behawioralna-online':
       return {
         title: `Wybrana rozmowa: ${option.label} / ${option.price}.`,
-        copy: 'To osobny format z diagnozą behawioralną opartą na danych, planem działania i 7 dniami konsultacji tekstowych przez WhatsApp.',
+        copy: 'Około 2h online dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 7 dni wsparcia przez WhatsApp przy wdrażaniu zaleceń.',
       }
     case 'kwadrans-na-juz':
       return {
         title: `Wybrana rozmowa: ${option.label} / ${option.price}.`,
-        copy: 'To ten sam 15-minutowy format co zwykły Kwadrans, tylko z priorytetem i szybszym potwierdzeniem terminu.',
+        copy: 'To ten sam zakres co Kwadrans, ale z priorytetową odpowiedzią i najbliższym realnym terminem. Dla spraw pilnych, które nie wymagają dłuższej analizy.',
       }
     case 'szybka-konsultacja-15-min':
     default:
       return {
         title: `Wybrana rozmowa: ${option.label} / ${option.price}.`,
-        copy: 'Kwadrans to 15 minut audio bez kamery. Dobry pierwszy krok, gdy chcesz spokojnie nazwać sytuację i ustalić priorytet.',
+        copy: 'Kwadrans to 15 min audio bez kamery na jedno główne pytanie. Szybko porządkujesz sytuację i dostajesz pierwszy kierunek działania.',
       }
   }
 }
@@ -191,7 +191,7 @@ export function BookRequestForm({ initialService, initialSpecies, entryService }
           species: form.species,
           description: normalizeLongText(form.description),
           preferredSlots: isUrgentNow
-            ? 'Chcę termin jak najszybciej - proszę o kontakt w ciągu 15 minut.'
+            ? 'Chcę termin jak najszybciej - proszę o priorytetową odpowiedź z realną propozycją terminu.'
             : normalizeLongText(form.preferredSlots),
           consentRodo: form.consentRodo,
           consentRegulamin: form.consentRegulamin,
@@ -226,7 +226,7 @@ export function BookRequestForm({ initialService, initialSpecies, entryService }
         <h2>{isUrgentNow ? 'Dostałem Twoją prośbę o Kwadrans na już.' : 'Dostałem Twoją rezerwację.'}</h2>
         <p>
           {isUrgentNow
-            ? 'Twoja prośba o Kwadrans na już dotarła. Odpowiem w ciągu 15 minut z terminem i dalszym krokiem płatności. Sprawdź skrzynkę - wysłałem Ci kopię.'
+            ? 'Twoja prośba o Kwadrans na już dotarła. Odpowiem priorytetowo z realną propozycją terminu i dalszym krokiem płatności. Sprawdź skrzynkę - wysłałem Ci kopię.'
             : 'W ciągu kilku godzin, między 9 a 21, odezwę się z potwierdzeniem terminu i dalszym krokiem płatności. Sprawdź skrzynkę - wysłałem Ci kopię.'}
         </p>
         <div className="notatnik-steps top-gap-small">
@@ -309,30 +309,19 @@ export function BookRequestForm({ initialService, initialSpecies, entryService }
             </span>
           </label>
         ))}
-        <label className="checkbox-card" htmlFor="service-kwadrans-na-juz">
-          <input
-            id="service-kwadrans-na-juz"
-            type="radio"
-            name="service"
-            checked={form.service === 'kwadrans-na-juz'}
-            onChange={() => updateField('service', 'kwadrans-na-juz')}
-          />
+        <Link className="checkbox-card" href="/kwadrans-na-juz" prefetch={false}>
           <span>
             ⚡ {URGENT_SERVICE_OPTION.label} / {URGENT_SERVICE_OPTION.price} — termin na dziś, sytuacje kryzysowe
           </span>
-        </label>
+        </Link>
       </fieldset>
 
       {showPriorityPrompt ? (
         <div className="info-box full-width">
           <strong>Chcesz szybciej?</strong> {PUBLIC_OFFER_BOOKING_PRIORITY_PROMPT}{' '}
-          <button
-            type="button"
-            className="notatnik-inline-link"
-            onClick={() => updateField('service', 'kwadrans-na-juz')}
-          >
+          <Link href="/kwadrans-na-juz" prefetch={false} className="notatnik-inline-link">
             Przejdź do Kwadransu na już
-          </button>
+          </Link>
           <div className="field-help top-gap-small">{PUBLIC_OFFER_BOOKING_PRIORITY_NOTE}</div>
         </div>
       ) : null}
@@ -403,7 +392,7 @@ export function BookRequestForm({ initialService, initialSpecies, entryService }
       <div className="full-width form-field">
         <label htmlFor="book-preferred-slots">Preferowane terminy</label>
         {isUrgentNow ? (
-          <div className="info-box">Chcę termin jak najszybciej - proszę o kontakt w ciągu 15 minut.</div>
+          <div className="info-box">Chcę termin jak najszybciej - proszę o priorytetową odpowiedź z realną propozycją terminu.</div>
         ) : (
           <>
             <SlotPicker

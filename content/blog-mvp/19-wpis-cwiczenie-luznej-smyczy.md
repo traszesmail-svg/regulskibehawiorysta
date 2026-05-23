@@ -95,12 +95,12 @@ Gdy mimo kilku tygodni pracy nie widać żadnej zmiany, lub gdy reaktywność je
 
 Ogólna procedura jest jedna, ale wdrożenie zawsze zależy od konkretnego psa, środowiska i tempa. **15 min audio** pozwala dostać pierwszą ocenę i kierunek bez długiego przygotowania.
 
-[Zamów 15 min audio](/call) · [Reaktywność psa na smyczy](/psy/reaktywnosc-na-smyczy) · [Kategoria: psy](/psy) · [Niezbędnik](/niezbednik)
+[Zamów 15 min audio](/call) · [Reaktywność psa na smyczy](/psy/reaktywnosc-na-smyczy) · [Kategoria: psy](/psy) · [Materiały PDF](/materialy)
 
 ## Linkowanie wewnętrzne
 
 - `/psy/reaktywnosc-na-smyczy` — landing silosu (CTA)
 - `/call` — 15 min audio
 - `/psy` — kategoria
-- `/niezbednik` — guide o reaktywnym psie
+- `/materialy` — guide o reaktywnym psie
 - Cross-link: wpis 18 (próg pobudzenia), wpis 02 (szczekanie), wpis 07 (ciągnie na smyczy)

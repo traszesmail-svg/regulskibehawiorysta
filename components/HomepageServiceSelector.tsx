@@ -2,10 +2,9 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight, ChevronDown } from 'lucide-react'
+import { ArrowRight, ChevronDown, Zap } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { trackAnalyticsEvent } from '@/lib/analytics'
-import { HOME_HERO_PHOTO } from '@/lib/site'
 import {
   homepageAnimalQuestion,
   homepageProblemOptionsByAnimal,
@@ -91,7 +90,7 @@ const heroChoices = [
     id: 'unknown',
     title: 'Nie wiem, co wybrać',
     copy: 'Przeprowadź mnie przez kilka pytań i pokaż najrozsądniejszy pierwszy krok.',
-    href: '/wybor',
+    href: '/quiz',
   },
 ] as const
 
@@ -109,8 +108,6 @@ const heroChoiceDisplay: Record<(typeof heroChoices)[number]['id'], { title: str
     copy: 'Przeprowadź mnie przez kilka pytań i pokaż najrozsądniejszy pierwszy krok.',
   },
 }
-
-const homepageHeroPhoto = HOME_HERO_PHOTO
 
 function RouterChoiceIcon({ choiceId }: { choiceId: (typeof heroChoices)[number]['id'] }) {
   if (choiceId === 'dog') {
@@ -151,9 +148,10 @@ function RouterChoiceIcon({ choiceId }: { choiceId: (typeof heroChoices)[number]
 type HomepageServiceSelectorProps = {
   mode?: 'home' | 'quiz'
   initialAnimal?: HomepageSelectorAnimal | null
+  animalHrefBase?: '/wybor' | '/quiz'
 }
 
-export function HomepageServiceSelector({ mode = 'home', initialAnimal = null }: HomepageServiceSelectorProps) {
+export function HomepageServiceSelector({ mode = 'home', initialAnimal = null, animalHrefBase = '/wybor' }: HomepageServiceSelectorProps) {
   const [answers, setAnswers] = useState<HomepageSelectorAnswers>(() => (initialAnimal ? { animal: initialAnimal } : {}))
   const [completedSignature, setCompletedSignature] = useState('')
   const showHero = mode === 'home'
@@ -212,24 +210,26 @@ export function HomepageServiceSelector({ mode = 'home', initialAnimal = null }:
       {showHero ? (
         <div className="router-hero-stage">
           <header className="router-hero-copy">
+            <figure className="router-mobile-hero-visual" aria-label="Spokojny pies i kot w jasnym, domowym świetle">
+              <Image
+                src="/images/mobile-header-pies-kot-reference.png"
+                alt="Spokojny pies i kot leżą obok siebie w jasnym, ciepłym świetle"
+                width={885}
+                height={432}
+                priority
+                sizes="(max-width: 760px) calc(100vw - 44px), 1px"
+              />
+            </figure>
             <div className="router-hero-intro">
               <div className="router-hero-text">
-                <h1 className="router-reference-title">Co się dzieje z Twoim psem albo kotem?</h1>
-                <p className="router-reference-copy">
-                  Nie musisz znać fachowej nazwy problemu. Opisz to tak, jak wygląda w domu, na spacerze albo przy kuwecie. Pomogę Ci zrozumieć, co może stać za zachowaniem i od czego zacząć spokojnie, bez oceniania i bez kar.
+                <h1 className="router-reference-title">Behawiorysta psów i kotów online — spokojny pierwszy krok</h1>
+                <p className="router-reference-copy router-hero-lede">
+                  <span>Nie musisz znać fachowej nazwy problemu.</span>
+                  <span>Opisz, co dzieje się w domu, na spacerze albo przy kuwecie.</span>
+                  <span>Pomogę Ci zrozumieć przyczynę i wybrać najlepszy kolejny krok.</span>
                 </p>
               </div>
 
-              <figure className="router-home-photo">
-                <Image
-                  src={homepageHeroPhoto.src}
-                  alt={homepageHeroPhoto.alt}
-                  fill
-                  priority
-                  sizes="(max-width: 760px) 100vw, (max-width: 1180px) 42vw, 460px"
-                  className="router-home-photo-image"
-                />
-              </figure>
             </div>
             <div className="router-choice-grid" aria-label="Wybierz kierunek">
               {heroChoices.map((choice) => (
@@ -255,6 +255,10 @@ export function HomepageServiceSelector({ mode = 'home', initialAnimal = null }:
                 </Link>
               ))}
             </div>
+            <Link href="/kwadrans-na-juz" prefetch={false} className="notatnik-btn notatnik-btn-urgent router-methodology-cta router-urgent-cta">
+              <Zap size={22} strokeWidth={2.2} aria-hidden="true" />
+              <span>Sprawdź najbliższy realny termin</span>
+            </Link>
             <p className="router-reference-copy router-choice-microcopy">
               Nie musisz diagnozować psa ani kota. Wystarczy, że opiszesz, co widzisz na co dzień.
             </p>
@@ -277,7 +281,7 @@ export function HomepageServiceSelector({ mode = 'home', initialAnimal = null }:
                 {homepageAnimalQuestion.options.map((option) => (
                   <Link
                     key={option.id}
-                    href={`/wybor?animal=${option.id}`}
+                    href={`${animalHrefBase}?animal=${option.id}`}
                     prefetch={false}
                     scroll={false}
                     className={answers.animal === option.id ? 'is-selected' : ''}

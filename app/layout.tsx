@@ -75,6 +75,11 @@ export const metadata: Metadata = {
     description: SITE_DESCRIPTION,
     images: [SITE_OG_IMAGE.url],
   },
+  appleWebApp: {
+    capable: true,
+    title: 'Regulski',
+    statusBarStyle: 'default',
+  },
   other: {
     'release-id': RELEASE_ID,
   },

@@ -27,13 +27,16 @@ import {
 import { formatDateTimeLabel, getProblemLabel, getProblemSpecies, isFutureAvailabilitySlot } from '@/lib/data'
 import { FUNNEL_CTA_LABELS } from '@/lib/funnel'
 import { DEFAULT_PRICE_PLN } from '@/lib/pricing'
-import { getAvailabilitySlot, getActiveConsultationPrice, listAvailability } from '@/lib/server/db'
+import { isAvailabilitySlotBookableForService } from '@/lib/scheduling/rules'
+import { getAvailabilitySlot, getActiveConsultationPrice, listAvailabilityAdmin } from '@/lib/server/db'
 import { getDataModeStatus } from '@/lib/server/env'
 import { buildTechnicalMetadata } from '@/lib/seo'
 import { getPublicContactDetails } from '@/lib/site'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
+
+const bookingFlowSteps = ['Termin', 'Godzina', 'Dane', 'Płatność'] as const
 
 export function generateMetadata(): Metadata {
   return buildTechnicalMetadata({
@@ -68,11 +71,8 @@ export default async function FormPage({
   const slotsHref = buildSlotHref(problem, serviceQuery, qaBooking, species)
   const isCat = species === 'kot'
   const publicContact = getPublicContactDetails()
-  const petImage = isCat ? '/images/homepage/home-bg-cat-1to1.webp' : '/images/homepage/home-bg-dog-1to1.webp'
-  const petNoun = isCat ? 'kotem' : 'psem'
-  const heroImageAlt = isCat
-    ? 'Kot siedzący w spokojnym domowym świetle'
-    : 'Pies siedzący w spokojnym leśnym świetle'
+  const petImage = isCat ? '/wybor/cat-choice-avatar.png' : '/wybor/dog-choice-avatar.png'
+  const heroImageAlt = isCat ? 'Spokojny kot' : 'Spokojny pies'
   const dataMode = getDataModeStatus()
   let slot: Awaited<ReturnType<typeof getAvailabilitySlot>> = null
   let flowError: string | null = null
@@ -82,14 +82,17 @@ export default async function FormPage({
 
   if (dataMode.isValid) {
     try {
-      const [selectedSlot, groupedAvailability, quickConsultationPrice] = await Promise.all([
+      const [selectedSlot, availabilitySlots, quickConsultationPrice] = await Promise.all([
         getAvailabilitySlot(slotId),
-        listAvailability(),
+        listAvailabilityAdmin(),
         getActiveConsultationPrice(),
       ])
       slot = selectedSlot
-      const availableSlots = groupedAvailability.flatMap((group) => group.slots)
-      slotWindowAvailable = Boolean(selectedSlot && getBookableServiceAvailabilityWindow(availableSlots, slotId, serviceType))
+      slotWindowAvailable = Boolean(
+        selectedSlot &&
+          isAvailabilitySlotBookableForService(selectedSlot, serviceType) &&
+          getBookableServiceAvailabilityWindow(availabilitySlots, slotId, serviceType),
+      )
       amount = quickConsultationPrice.amount
       amountLabel = getBookingServicePriceLabel(serviceType, quickConsultationPrice.amount)
     } catch (error) {
@@ -114,10 +117,28 @@ export default async function FormPage({
       <div className="notatnik-shell booking-form-shell">
         <NotatnikTopbar tag="Rezerwacja konsultacji" navItems={PUBLIC_BOOKING_FLOW_NAV_ITEMS} ctaHref={slotsHref} ctaLabel="Wróć do terminów" ctaVariant="ghost" />
 
+        <section className="booking-flow-stage-head" aria-label="Etap rezerwacji">
+          <div className="termin-breadcrumb">
+            <CalendarDays size={15} strokeWidth={1.85} aria-hidden="true" />
+            <span>Wybór terminu</span>
+          </div>
+          <div className="termin-step-track booking-flow-step-track" aria-label="Etapy rezerwacji">
+            {bookingFlowSteps.map((step, index) => (
+              <span key={step} className={index === 2 ? 'is-active' : ''}>
+                <strong>{index + 1}</strong>
+                {step}
+              </span>
+            ))}
+          </div>
+        </section>
+
         <section className="booking-form-hero">
           <div className="booking-form-hero-copy">
-            <h1>Szybka konsultacja behawioralna z Krzysztofem Regulskim.</h1>
-            <p>15 minut rozmowy, żeby uporządkować problem i ustalić pierwszy sensowny krok dla Ciebie i zwierzęcia.</p>
+            <h1>Uzupełnij dane do rozmowy</h1>
+            <p>
+              Podaj krótki opis sytuacji. Po wysłaniu formularza wybrany termin blokuje się na 15 minut, a rezerwacja
+              staje się pewna po opłaceniu i potwierdzeniu płatności.
+            </p>
             {qaBooking ? (
               <div className="notatnik-contact-note">
                 <strong>Tryb testowy</strong>
@@ -233,7 +254,7 @@ export default async function FormPage({
                 </a>
                 <span>
                   <Headphones size={18} strokeWidth={1.8} aria-hidden="true" />
-                  Rozmowa telefoniczna lub głosowa online po rezerwacji
+                  Rozmowa głosowa online po rezerwacji
                 </span>
               </div>
             </section>
@@ -254,7 +275,7 @@ export default async function FormPage({
             { icon: GraduationCap, title: 'Wiedza i doświadczenie', copy: 'Praktyka oparta na nauce.' },
             { icon: Heart, title: 'Empatia i zrozumienie', copy: 'Wsparcie dla Ciebie i zwierzęcia.' },
             { icon: ShieldCheck, title: 'Bez presji i oceniania', copy: 'Pracujemy w tempie, które jest dobre dla Was.' },
-            { icon: Leaf, title: 'Skuteczność i trwała zmiana', copy: 'Pomagam rozwiązywać problemy u źródła.' },
+            { icon: Leaf, title: 'Analiza i realny plan', copy: 'Pomagam nazwać możliwe źródło problemu i wybrać pierwszy krok.' },
           ].map((item) => {
             const Icon = item.icon
 
@@ -280,7 +301,7 @@ export default async function FormPage({
           </div>
           <div className="booking-form-final-actions">
             <a href="#formularz" className="notatnik-btn notatnik-btn-accent">
-              Potwierdzam termin i przechodzę dalej
+              Blokuję termin i przechodzę dalej
             </a>
             <Link href={slotsHref} prefetch={false} className="notatnik-btn notatnik-btn-ghost">
               Wróć do wyboru

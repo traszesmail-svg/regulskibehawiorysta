@@ -12,28 +12,21 @@ export const revalidate = 0
 
 export function generateMetadata(): Metadata {
   return buildTechnicalMetadata({
-    title: 'BLIK na telefon',
+    title: 'BLIK po instrukcji e-mail',
     path: '/platnosc/blik',
-    description: 'Instrukcja ręcznej płatności BLIK na telefon.',
-    noIndex: false,
-    follow: true,
+    description: 'Instrukcja ręcznej płatności BLIK bez publicznego numeru.',
+    noIndex: true,
+    follow: false,
   })
-}
-
-function maskPhone(phone: string) {
-  const digits = phone.replace(/\D/g, '')
-  const tail = digits.slice(-3)
-  return `*** *** ${tail || '---'}`
 }
 
 export default async function BlikPaymentPage({ params }: { params: { orderNumber: string } }) {
   const order = await prepareCommerceManualPayment(params.orderNumber)
   const manual = getManualPaymentConfig()
-  const fullPhone = manual.phone ?? ''
 
   return (
     <NotatnikPageShell
-      tag="BLIK na telefon"
+      tag="BLIK po instrukcji e-mail"
       navItems={PUBLIC_BOOKING_FLOW_NAV_ITEMS}
       ctaHref="/dostep"
       ctaLabel="Wpisz kod"
@@ -51,7 +44,7 @@ export default async function BlikPaymentPage({ params }: { params: { orderNumbe
                 Opisz krótko, co się dzieje
               </Link>
             </div>
-          ) : !manual.isAvailable || !fullPhone ? (
+          ) : !manual.isAvailable ? (
             <div className="stack-gap">
               <h1>BLIK jest chwilowo niedostępny</h1>
               <div className="error-box">{manual.summary}</div>
@@ -62,17 +55,15 @@ export default async function BlikPaymentPage({ params }: { params: { orderNumbe
           ) : (
             <>
               <div className="section-eyebrow">Płatność ręczna</div>
-              <h1>Wyślij BLIK na telefon</h1>
+              <h1>BLIK po instrukcji e-mail</h1>
               <p className="hero-text small-width center-text">
-                Kwota: <strong>{formatCommercePrice(order.manualAmount)}</strong>. W tytule przelewu wpisz dokładnie numer zamówienia.
+                Kwota: <strong>{formatCommercePrice(order.manualAmount)}</strong>. Numer do BLIK nie jest publikowany w serwisie. Jeśli wybierasz BLIK, skorzystaj z instrukcji przesłanej mailowo i w tytule wpisz dokładnie numer zamówienia.
               </p>
               <CommerceBlikActions
                 orderNumber={order.orderNumber}
-                phone={fullPhone}
-                maskedPhone={maskPhone(fullPhone)}
               />
               <div className="disclaimer">
-                Po wykonaniu przelewu kliknij „Zapłaciłem/am”. Dostęp zostanie aktywowany po ręcznym potwierdzeniu płatności.
+                Po wykonaniu wpłaty kliknij „Zapłaciłem/am”. Dostęp zostanie aktywowany po ręcznym potwierdzeniu płatności.
               </div>
             </>
           )}

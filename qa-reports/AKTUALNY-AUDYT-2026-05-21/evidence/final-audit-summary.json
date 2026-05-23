@@ -1,0 +1,2413 @@
+{
+  "generatedAt": "2026-05-22T11:53:43.576Z",
+  "status": "PASS_WITH_MEDIUM_REVIEW",
+  "checks": [
+    {
+      "key": "content:app:desktop-content",
+      "mode": "content",
+      "group": "app",
+      "viewport": "desktop-content",
+      "routes": 4,
+      "articles": 0,
+      "contentChecks": 4,
+      "responsiveChecks": 0,
+      "highIssues": 0,
+      "mediumIssues": 4,
+      "lowIssues": 0,
+      "reviewIssues": 0,
+      "highDetails": [],
+      "mediumSample": [
+        {
+          "route": "/dostep",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Regulamin Regulamin\" -> usuń powtórzone słowo. Fragment: \"Wpisz kod dostępu Wpisz kod dostępu. Regulski Behawiorysta Terapia behawioralna dla psów i kotów KOD DOSTĘPU Wpisz kod d\""
+        },
+        {
+          "route": "/konto",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Regulamin Regulamin\" -> usuń powtórzone słowo. Fragment: \"Moje konto Zaloguj się, żeby zobaczyć swoje rezerwacje i materiały. Regulski Behawiorysta Terapia behawioralna dla psów\""
+        },
+        {
+          "route": "/login",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Regulamin Regulamin\" -> usuń powtórzone słowo. Fragment: \"Logowanie do pokoju opiekuna Zaloguj się albo utwórz konto. Regulski Behawiorysta Terapia behawioralna dla psów i kotów\""
+        },
+        {
+          "route": "/pokoj",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Regulamin Regulamin\" -> usuń powtórzone słowo. Fragment: \"Pokój opiekuna Zaloguj się, żeby zobaczyć swoje rezerwacje i materiały. Regulski Behawiorysta Terapia behawioralna dla p\""
+        }
+      ],
+      "source": {
+        "jsonPath": "qa-reports\\full-content-responsive-audit-content-app-2026-05-22T11-38-56-053Z\\full-audit.json",
+        "mdPath": "qa-reports\\full-content-responsive-audit-content-app-2026-05-22T11-38-56-053Z\\RAPORT-AUDYT-TRESCI-RESPONSYWNOSCI.md"
+      }
+    },
+    {
+      "key": "responsive:app:android-large-412",
+      "mode": "responsive",
+      "group": "app",
+      "viewport": "android-large-412",
+      "routes": 4,
+      "articles": 0,
+      "contentChecks": 0,
+      "responsiveChecks": 4,
+      "highIssues": 0,
+      "mediumIssues": 0,
+      "lowIssues": 0,
+      "reviewIssues": 0,
+      "highDetails": [],
+      "mediumSample": [],
+      "source": {
+        "jsonPath": "qa-reports\\full-content-responsive-audit-responsive-app-2026-05-22T11-40-42-358Z\\full-audit.json",
+        "mdPath": "qa-reports\\full-content-responsive-audit-responsive-app-2026-05-22T11-40-42-358Z\\RAPORT-AUDYT-TRESCI-RESPONSYWNOSCI.md"
+      }
+    },
+    {
+      "key": "responsive:app:android-small-360",
+      "mode": "responsive",
+      "group": "app",
+      "viewport": "android-small-360",
+      "routes": 4,
+      "articles": 0,
+      "contentChecks": 0,
+      "responsiveChecks": 4,
+      "highIssues": 0,
+      "mediumIssues": 0,
+      "lowIssues": 0,
+      "reviewIssues": 0,
+      "highDetails": [],
+      "mediumSample": [],
+      "source": {
+        "jsonPath": "qa-reports\\full-content-responsive-audit-responsive-app-2026-05-22T11-40-29-643Z\\full-audit.json",
+        "mdPath": "qa-reports\\full-content-responsive-audit-responsive-app-2026-05-22T11-40-29-643Z\\RAPORT-AUDYT-TRESCI-RESPONSYWNOSCI.md"
+      }
+    },
+    {
+      "key": "responsive:app:fold-narrow-344",
+      "mode": "responsive",
+      "group": "app",
+      "viewport": "fold-narrow-344",
+      "routes": 4,
+      "articles": 0,
+      "contentChecks": 0,
+      "responsiveChecks": 4,
+      "highIssues": 0,
+      "mediumIssues": 0,
+      "lowIssues": 0,
+      "reviewIssues": 0,
+      "highDetails": [],
+      "mediumSample": [],
+      "source": {
+        "jsonPath": "qa-reports\\full-content-responsive-audit-responsive-app-2026-05-22T11-40-23-415Z\\full-audit.json",
+        "mdPath": "qa-reports\\full-content-responsive-audit-responsive-app-2026-05-22T11-40-23-415Z\\RAPORT-AUDYT-TRESCI-RESPONSYWNOSCI.md"
+      }
+    },
+    {
+      "key": "responsive:app:ipad-air-820",
+      "mode": "responsive",
+      "group": "app",
+      "viewport": "ipad-air-820",
+      "routes": 4,
+      "articles": 0,
+      "contentChecks": 0,
+      "responsiveChecks": 4,
+      "highIssues": 0,
+      "mediumIssues": 0,
+      "lowIssues": 0,
+      "reviewIssues": 0,
+      "highDetails": [],
+      "mediumSample": [],
+      "source": {
+        "jsonPath": "qa-reports\\full-content-responsive-audit-responsive-app-2026-05-22T11-41-01-442Z\\full-audit.json",
+        "mdPath": "qa-reports\\full-content-responsive-audit-responsive-app-2026-05-22T11-41-01-442Z\\RAPORT-AUDYT-TRESCI-RESPONSYWNOSCI.md"
+      }
+    },
+    {
+      "key": "responsive:app:ipad-mini-768",
+      "mode": "responsive",
+      "group": "app",
+      "viewport": "ipad-mini-768",
+      "routes": 4,
+      "articles": 0,
+      "contentChecks": 0,
+      "responsiveChecks": 4,
+      "highIssues": 0,
+      "mediumIssues": 0,
+      "lowIssues": 0,
+      "reviewIssues": 0,
+      "highDetails": [],
+      "mediumSample": [],
+      "source": {
+        "jsonPath": "qa-reports\\full-content-responsive-audit-responsive-app-2026-05-22T11-40-54-975Z\\full-audit.json",
+        "mdPath": "qa-reports\\full-content-responsive-audit-responsive-app-2026-05-22T11-40-54-975Z\\RAPORT-AUDYT-TRESCI-RESPONSYWNOSCI.md"
+      }
+    },
+    {
+      "key": "responsive:app:iphone-12-390",
+      "mode": "responsive",
+      "group": "app",
+      "viewport": "iphone-12-390",
+      "routes": 4,
+      "articles": 0,
+      "contentChecks": 0,
+      "responsiveChecks": 4,
+      "highIssues": 0,
+      "mediumIssues": 0,
+      "lowIssues": 0,
+      "reviewIssues": 0,
+      "highDetails": [],
+      "mediumSample": [],
+      "source": {
+        "jsonPath": "qa-reports\\full-content-responsive-audit-responsive-app-2026-05-22T11-40-36-064Z\\full-audit.json",
+        "mdPath": "qa-reports\\full-content-responsive-audit-responsive-app-2026-05-22T11-40-36-064Z\\RAPORT-AUDYT-TRESCI-RESPONSYWNOSCI.md"
+      }
+    },
+    {
+      "key": "responsive:app:iphone-pro-max-430",
+      "mode": "responsive",
+      "group": "app",
+      "viewport": "iphone-pro-max-430",
+      "routes": 4,
+      "articles": 0,
+      "contentChecks": 0,
+      "responsiveChecks": 4,
+      "highIssues": 0,
+      "mediumIssues": 0,
+      "lowIssues": 0,
+      "reviewIssues": 0,
+      "highDetails": [],
+      "mediumSample": [],
+      "source": {
+        "jsonPath": "qa-reports\\full-content-responsive-audit-responsive-app-2026-05-22T11-40-48-591Z\\full-audit.json",
+        "mdPath": "qa-reports\\full-content-responsive-audit-responsive-app-2026-05-22T11-40-48-591Z\\RAPORT-AUDYT-TRESCI-RESPONSYWNOSCI.md"
+      }
+    },
+    {
+      "key": "responsive:app:iphone-se-320",
+      "mode": "responsive",
+      "group": "app",
+      "viewport": "iphone-se-320",
+      "routes": 4,
+      "articles": 0,
+      "contentChecks": 0,
+      "responsiveChecks": 4,
+      "highIssues": 0,
+      "mediumIssues": 0,
+      "lowIssues": 0,
+      "reviewIssues": 0,
+      "highDetails": [],
+      "mediumSample": [],
+      "source": {
+        "jsonPath": "qa-reports\\full-content-responsive-audit-responsive-app-2026-05-22T11-40-16-618Z\\full-audit.json",
+        "mdPath": "qa-reports\\full-content-responsive-audit-responsive-app-2026-05-22T11-40-16-618Z\\RAPORT-AUDYT-TRESCI-RESPONSYWNOSCI.md"
+      }
+    },
+    {
+      "key": "content:article:desktop-content",
+      "mode": "content",
+      "group": "article",
+      "viewport": "desktop-content",
+      "routes": 24,
+      "articles": 24,
+      "contentChecks": 24,
+      "responsiveChecks": 0,
+      "highIssues": 0,
+      "mediumIssues": 30,
+      "lowIssues": 0,
+      "reviewIssues": 0,
+      "highDetails": [],
+      "mediumSample": [
+        {
+          "route": "/blog/agresja-przekierowana-u-kota",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Kot Kot\" -> usuń powtórzone słowo. Fragment: \"Agresja przekierowana u kota — co to jest i jak reagować | Regulski Behawiorysta Agresja przekierowana u kota — co to je\""
+        },
+        {
+          "route": "/blog/behawiorysta-zoopsycholog-trener-do-kogo-sie-zglosic",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Behawiorysta Behawiorysta\" -> usuń powtórzone słowo. Fragment: \"Behawiorysta, zoopsycholog czy trener — do kogo się zgłosić? | Regulski Behawiorysta Behawiorysta, zoopsycholog czy tren\""
+        },
+        {
+          "route": "/blog/czym-jest-coape-behawiorysta-po-tej-szkole",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"COAPE COAPE\" -> usuń powtórzone słowo. Fragment: \"Czym jest COAPE? Co oznacza behawiorysta po tej szkole | Regulski Behawiorysta Czym jest COAPE i co oznacza behawiorysta\""
+        },
+        {
+          "route": "/blog/dlaczego-moj-pies-szczeka-na-inne-psy",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "missing-polish-letter",
+          "message": "Możliwy brak polskich znaków: \"sytuacje\" -> \"sytuację\". Fragment: \"e znaczy, że masz „trudnego psa”. Oznacza to zwykle, że codziennie wchodzicie w sytuacje, w których on nie ma szans zachować się inaczej. Ten tekst pokaże, co pod spodem się dzieje i od czego zacząć,\""
+        },
+        {
+          "route": "/blog/dlaczego-moj-pies-szczeka-na-inne-psy",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Pies Pies\" -> usuń powtórzone słowo. Fragment: \"Dlaczego mój pies szczeka na inne psy - i czemu to nie zawsze jest agresja? | Regulski Behawiorysta Dlaczego mój pies sz\""
+        },
+        {
+          "route": "/blog/ile-kosztuje-konsultacja-behawioralna",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "missing-polish-letter",
+          "message": "Możliwy brak polskich znaków: \"rozmowa\" -> \"rozmową\". Fragment: \". Długość konsultacji. Im więcej czasu, tym głębiej można wejść w temat. Krótka rozmowa wstępna ma sens jako pierwsze sprawdzenie. Pełna godzinna konsultacja jest potrzebna przy problemach wielowątkow\""
+        },
+        {
+          "route": "/blog/ile-kosztuje-konsultacja-behawioralna",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Regulamin Regulamin\" -> usuń powtórzone słowo. Fragment: \"Ile kosztuje konsultacja behawioralna? Co dostajesz w cenie | Regulski Behawiorysta Ile kosztuje konsultacja behawioraln\""
+        },
+        {
+          "route": "/blog/jak-nagrac-psa-zostawionego-samemu",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Pies Pies\" -> usuń powtórzone słowo. Fragment: \"Jak nagrać psa zostawionego samemu i co z nagrania odczytać | Regulski Behawiorysta Jak nagrać psa zostawionego samemu i\""
+        },
+        {
+          "route": "/blog/jak-nauczyc-psa-zostawania-samemu",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Pies Pies\" -> usuń powtórzone słowo. Fragment: \"Jak nauczyć psa zostawania samemu — pierwsze kroki | Regulski Behawiorysta Jak nauczyć psa zostawania samemu Regulski Be\""
+        },
+        {
+          "route": "/blog/jak-przygotowac-sie-do-konsultacji-behawioralnej-online",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "missing-polish-letter",
+          "message": "Możliwy brak polskich znaków: \"rozmowa\" -> \"rozmową\". Fragment: \"online Kilka prostych rzeczy przed konsultacją behawioralną online sprawia, że rozmowa idzie sprawniej i dostajesz konkretniejszy plan. Sprawdź, co warto przygotować. Krótka odpowiedź: do konsultacji\""
+        },
+        {
+          "route": "/blog/jak-przygotowac-sie-do-konsultacji-behawioralnej-online",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Regulamin Regulamin\" -> usuń powtórzone słowo. Fragment: \"Jak przygotować się do konsultacji behawioralnej online — praktycznie | Regulski Behawiorysta Jak przygotować się do kon\""
+        },
+        {
+          "route": "/blog/jak-ustawic-kuwete-dla-kota",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Kot Kot\" -> usuń powtórzone słowo. Fragment: \"Jak ustawić kuwetę dla kota — lokalizacja, liczba, zasady | Regulski Behawiorysta Jak ustawić kuwetę dla kota Regulski B\""
+        },
+        {
+          "route": "/blog/jak-wprowadzic-nowego-kota-do-domu",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Kot Kot\" -> usuń powtórzone słowo. Fragment: \"Jak wprowadzić nowego kota do domu, w którym jest już jeden | Regulski Behawiorysta Jak wprowadzić nowego kota do domu,\""
+        },
+        {
+          "route": "/blog/jak-wybrac-kuwete-i-zwirek-dla-kota",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Kot Kot\" -> usuń powtórzone słowo. Fragment: \"Jak wybrać kuwetę i żwirek dla kota — co koty naprawdę preferują | Regulski Behawiorysta Jak wybrać kuwetę i żwirek dla\""
+        },
+        {
+          "route": "/blog/jak-wyglada-konsultacja-behawioralna-online",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "missing-polish-letter",
+          "message": "Możliwy brak polskich znaków: \"rozmowa\" -> \"rozmową\". Fragment: \"Kwadransu z behawiorystą. Krótka odpowiedź: konsultacja behawioralna online to rozmowa, w której opowiadasz, co się dzieje, behawiorysta zadaje pytania porządkujące sytuację, a na końcu wychodzisz z\""
+        },
+        {
+          "route": "/blog/jak-wyglada-konsultacja-behawioralna-online",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "missing-polish-letter",
+          "message": "Możliwy brak polskich znaków: \"sytuacje\" -> \"sytuację\". Fragment: \"agraniem. Jeśli chcesz, nagrywasz rozmowę i odsłuchujesz, gdy wdrażasz plan. Są sytuacje, w których wizyta na miejscu jest sensowniejsza (np. głęboki problem terytorialny, potrzeba obejrzenia środowis\""
+        },
+        {
+          "route": "/blog/jak-wyglada-konsultacja-behawioralna-online",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Regulamin Regulamin\" -> usuń powtórzone słowo. Fragment: \"Jak wygląda konsultacja behawioralna online? Krok po kroku | Regulski Behawiorysta Jak wygląda konsultacja behawioralna\""
+        },
+        {
+          "route": "/blog/jak-zapoznac-dwa-koty",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Kot Kot\" -> usuń powtórzone słowo. Fragment: \"Jak zapoznać dwa koty, żeby nie zepsuć relacji w pierwszy tydzień | Regulski Behawiorysta Jak zapoznać dwa koty, żeby ni\""
+        },
+        {
+          "route": "/blog/kiedy-behawiorysta-kiedy-trener-psa",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"behawiorysta Behawiorysta\" -> usuń powtórzone słowo. Fragment: \"Kiedy behawiorysta, a kiedy trener psa? Jak nie trafić pod zły adres | Regulski Behawiorysta Kiedy behawiorysta, a kiedy\""
+        },
+        {
+          "route": "/blog/kot-drapie-meble",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"nie nie\" -> usuń powtórzone słowo. Fragment: \"Kot drapie meble — dlaczego to robi i jak to zmienić bez wojny | Regulski Behawiorysta Kot drapie meble — dlaczego to ro\""
+        }
+      ],
+      "source": {
+        "jsonPath": "qa-reports\\full-content-responsive-audit-content-article-2026-05-22T05-26-21-249Z\\full-audit.json",
+        "mdPath": "qa-reports\\full-content-responsive-audit-content-article-2026-05-22T05-26-21-249Z\\RAPORT-AUDYT-TRESCI-RESPONSYWNOSCI.md"
+      }
+    },
+    {
+      "key": "responsive:article:android-large-412",
+      "mode": "responsive",
+      "group": "article",
+      "viewport": "android-large-412",
+      "routes": 24,
+      "articles": 24,
+      "contentChecks": 0,
+      "responsiveChecks": 24,
+      "highIssues": 0,
+      "mediumIssues": 0,
+      "lowIssues": 0,
+      "reviewIssues": 0,
+      "highDetails": [],
+      "mediumSample": [],
+      "source": {
+        "jsonPath": "qa-reports\\full-content-responsive-audit-responsive-article-2026-05-22T10-37-59-459Z\\full-audit.json",
+        "mdPath": "qa-reports\\full-content-responsive-audit-responsive-article-2026-05-22T10-37-59-459Z\\RAPORT-AUDYT-TRESCI-RESPONSYWNOSCI.md"
+      }
+    },
+    {
+      "key": "responsive:article:android-small-360",
+      "mode": "responsive",
+      "group": "article",
+      "viewport": "android-small-360",
+      "routes": 24,
+      "articles": 24,
+      "contentChecks": 0,
+      "responsiveChecks": 24,
+      "highIssues": 0,
+      "mediumIssues": 0,
+      "lowIssues": 0,
+      "reviewIssues": 0,
+      "highDetails": [],
+      "mediumSample": [],
+      "source": {
+        "jsonPath": "qa-reports\\full-content-responsive-audit-responsive-article-2026-05-22T09-47-40-574Z\\full-audit.json",
+        "mdPath": "qa-reports\\full-content-responsive-audit-responsive-article-2026-05-22T09-47-40-574Z\\RAPORT-AUDYT-TRESCI-RESPONSYWNOSCI.md"
+      }
+    },
+    {
+      "key": "responsive:article:fold-narrow-344",
+      "mode": "responsive",
+      "group": "article",
+      "viewport": "fold-narrow-344",
+      "routes": 24,
+      "articles": 24,
+      "contentChecks": 0,
+      "responsiveChecks": 24,
+      "highIssues": 0,
+      "mediumIssues": 0,
+      "lowIssues": 0,
+      "reviewIssues": 0,
+      "highDetails": [],
+      "mediumSample": [],
+      "source": {
+        "jsonPath": "qa-reports\\full-content-responsive-audit-responsive-article-2026-05-22T09-45-53-213Z\\full-audit.json",
+        "mdPath": "qa-reports\\full-content-responsive-audit-responsive-article-2026-05-22T09-45-53-213Z\\RAPORT-AUDYT-TRESCI-RESPONSYWNOSCI.md"
+      }
+    },
+    {
+      "key": "responsive:article:ipad-air-820",
+      "mode": "responsive",
+      "group": "article",
+      "viewport": "ipad-air-820",
+      "routes": 24,
+      "articles": 24,
+      "contentChecks": 0,
+      "responsiveChecks": 24,
+      "highIssues": 0,
+      "mediumIssues": 10,
+      "lowIssues": 0,
+      "reviewIssues": 0,
+      "highDetails": [],
+      "mediumSample": [
+        {
+          "route": "/blog/agresja-przekierowana-u-kota",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Krótka odpowiedź: agresja przekierowana to sytuacja, w której kot jest mocno pobudzony bodźcem (np. obcym kotem za oknem\" + \"Odrzuć\" (14288px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-article-2026-05-22T10-44-16-557Z\\screenshots\\blog-agresja-przekierowana-u-kota-ipad-air-820.png"
+        },
+        {
+          "route": "/blog/agresja-przekierowana-u-kota",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Krótka odpowiedź: agresja przekierowana to sytuacja, w której kot jest mocno pobudzony bodźcem (np. obcym kotem za oknem\" + \"Akceptuje analityke\" (14288px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-article-2026-05-22T10-44-16-557Z\\screenshots\\blog-agresja-przekierowana-u-kota-ipad-air-820.png"
+        },
+        {
+          "route": "/blog/behawiorysta-zoopsycholog-trener-do-kogo-sie-zglosic",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Szukasz kogoś, kto pomoże z psem albo kotem, i widzisz kilka różnych tytułów w wynikach Google. Część stron używa słowa \" + \"Odrzuć\" (14288px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-article-2026-05-22T10-44-16-557Z\\screenshots\\blog-behawiorysta-zoopsycholog-trener-do-kogo-sie-zglosic-ipad-air-820.png"
+        },
+        {
+          "route": "/blog/behawiorysta-zoopsycholog-trener-do-kogo-sie-zglosic",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Szukasz kogoś, kto pomoże z psem albo kotem, i widzisz kilka różnych tytułów w wynikach Google. Część stron używa słowa \" + \"Akceptuje analityke\" (14288px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-article-2026-05-22T10-44-16-557Z\\screenshots\\blog-behawiorysta-zoopsycholog-trener-do-kogo-sie-zglosic-ipad-air-820.png"
+        },
+        {
+          "route": "/blog/dlaczego-moj-pies-szczeka-na-inne-psy",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Jeśli wracasz ze spaceru zmęczona/zmęczony i sfrustrowany/sfrustrowana, bo pies znowu zrobił scenę przy mijaniu innego p\" + \"Odrzuć\" (7576.3px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-article-2026-05-22T10-44-16-557Z\\screenshots\\blog-dlaczego-moj-pies-szczeka-na-inne-psy-ipad-air-820.png"
+        },
+        {
+          "route": "/blog/dlaczego-moj-pies-szczeka-na-inne-psy",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Jeśli wracasz ze spaceru zmęczona/zmęczony i sfrustrowany/sfrustrowana, bo pies znowu zrobił scenę przy mijaniu innego p\" + \"Akceptuje analityke\" (7576.3px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-article-2026-05-22T10-44-16-557Z\\screenshots\\blog-dlaczego-moj-pies-szczeka-na-inne-psy-ipad-air-820.png"
+        },
+        {
+          "route": "/blog/ile-kosztuje-konsultacja-behawioralna",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Zanim zarezerwujesz konsultację, naturalne jest, że chcesz wiedzieć, ile to kosztuje i co za to dostaniesz. Ten tekst op\" + \"Odrzuć\" (14288px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-article-2026-05-22T10-44-16-557Z\\screenshots\\blog-ile-kosztuje-konsultacja-behawioralna-ipad-air-820.png"
+        },
+        {
+          "route": "/blog/ile-kosztuje-konsultacja-behawioralna",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Zanim zarezerwujesz konsultację, naturalne jest, że chcesz wiedzieć, ile to kosztuje i co za to dostaniesz. Ten tekst op\" + \"Akceptuje analityke\" (14288px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-article-2026-05-22T10-44-16-557Z\\screenshots\\blog-ile-kosztuje-konsultacja-behawioralna-ipad-air-820.png"
+        },
+        {
+          "route": "/blog/szczeniak-pierwsza-noc",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Celem nie jest \"przeczekać za wszelką cenę\". Celem jest ustawić noc tak, żeby szczeniak miał blisko bezpiecznego dorosłe\" + \"Odrzuć\" (6521.8px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-article-2026-05-22T10-44-16-557Z\\screenshots\\blog-szczeniak-pierwsza-noc-ipad-air-820.png"
+        },
+        {
+          "route": "/blog/szczeniak-pierwsza-noc",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Celem nie jest \"przeczekać za wszelką cenę\". Celem jest ustawić noc tak, żeby szczeniak miał blisko bezpiecznego dorosłe\" + \"Akceptuje analityke\" (6521.8px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-article-2026-05-22T10-44-16-557Z\\screenshots\\blog-szczeniak-pierwsza-noc-ipad-air-820.png"
+        }
+      ],
+      "source": {
+        "jsonPath": "qa-reports\\full-content-responsive-audit-responsive-article-2026-05-22T10-44-16-557Z\\full-audit.json",
+        "mdPath": "qa-reports\\full-content-responsive-audit-responsive-article-2026-05-22T10-44-16-557Z\\RAPORT-AUDYT-TRESCI-RESPONSYWNOSCI.md"
+      }
+    },
+    {
+      "key": "responsive:article:ipad-mini-768",
+      "mode": "responsive",
+      "group": "article",
+      "viewport": "ipad-mini-768",
+      "routes": 24,
+      "articles": 24,
+      "contentChecks": 0,
+      "responsiveChecks": 24,
+      "highIssues": 0,
+      "mediumIssues": 12,
+      "lowIssues": 0,
+      "reviewIssues": 0,
+      "highDetails": [],
+      "mediumSample": [
+        {
+          "route": "/blog/behawiorysta-zoopsycholog-trener-do-kogo-sie-zglosic",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Krótka odpowiedź: w Polsce „behawiorysta\", „zoopsycholog\" i „trener psa\" to trzy różne role, ale żadna z tych nazw nie j\" + \"Odrzuć\" (13066px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-article-2026-05-22T10-41-22-937Z\\screenshots\\blog-behawiorysta-zoopsycholog-trener-do-kogo-sie-zglosic-ipad-mini-768.png"
+        },
+        {
+          "route": "/blog/behawiorysta-zoopsycholog-trener-do-kogo-sie-zglosic",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Krótka odpowiedź: w Polsce „behawiorysta\", „zoopsycholog\" i „trener psa\" to trzy różne role, ale żadna z tych nazw nie j\" + \"Akceptuje analityke\" (13066px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-article-2026-05-22T10-41-22-937Z\\screenshots\\blog-behawiorysta-zoopsycholog-trener-do-kogo-sie-zglosic-ipad-mini-768.png"
+        },
+        {
+          "route": "/blog/ile-kosztuje-konsultacja-behawioralna",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Krótka odpowiedź: ceny konsultacji behawioralnych w Polsce wahają się zwykle od kilkudziesięciu do kilkuset złotych za s\" + \"Odrzuć\" (13066px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-article-2026-05-22T10-41-22-937Z\\screenshots\\blog-ile-kosztuje-konsultacja-behawioralna-ipad-mini-768.png"
+        },
+        {
+          "route": "/blog/ile-kosztuje-konsultacja-behawioralna",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Krótka odpowiedź: ceny konsultacji behawioralnych w Polsce wahają się zwykle od kilkudziesięciu do kilkuset złotych za s\" + \"Akceptuje analityke\" (13066px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-article-2026-05-22T10-41-22-937Z\\screenshots\\blog-ile-kosztuje-konsultacja-behawioralna-ipad-mini-768.png"
+        },
+        {
+          "route": "/blog/jak-przygotowac-sie-do-konsultacji-behawioralnej-online",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Krótka odpowiedź: do konsultacji behawioralnej online wystarczy kilka rzeczy: opis problemu, kontekst kiedy i gdzie się \" + \"Odrzuć\" (7162.8px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-article-2026-05-22T10-41-22-937Z\\screenshots\\blog-jak-przygotowac-sie-do-konsultacji-behawioralnej-online-ipad-mini-768.png"
+        },
+        {
+          "route": "/blog/jak-przygotowac-sie-do-konsultacji-behawioralnej-online",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Krótka odpowiedź: do konsultacji behawioralnej online wystarczy kilka rzeczy: opis problemu, kontekst kiedy i gdzie się \" + \"Akceptuje analityke\" (7162.8px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-article-2026-05-22T10-41-22-937Z\\screenshots\\blog-jak-przygotowac-sie-do-konsultacji-behawioralnej-online-ipad-mini-768.png"
+        },
+        {
+          "route": "/blog/jak-ustawic-kuwete-dla-kota",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Krótka odpowiedź: kuweta powinna stać w spokojnym miejscu z drogą ucieczki, z dala od miski, bez drzwiczek i w liczbie: \" + \"Odrzuć\" (12279.8px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-article-2026-05-22T10-41-22-937Z\\screenshots\\blog-jak-ustawic-kuwete-dla-kota-ipad-mini-768.png"
+        },
+        {
+          "route": "/blog/jak-ustawic-kuwete-dla-kota",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Krótka odpowiedź: kuweta powinna stać w spokojnym miejscu z drogą ucieczki, z dala od miski, bez drzwiczek i w liczbie: \" + \"Akceptuje analityke\" (12279.8px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-article-2026-05-22T10-41-22-937Z\\screenshots\\blog-jak-ustawic-kuwete-dla-kota-ipad-mini-768.png"
+        },
+        {
+          "route": "/blog/kot-drapie-meble",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Krótka odpowiedź: kot drapie meble, bo drapak, który ma, nie spełnia jego potrzeby — złe miejsce, zły materiał, zła orie\" + \"Odrzuć\" (13066px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-article-2026-05-22T10-41-22-937Z\\screenshots\\blog-kot-drapie-meble-ipad-mini-768.png"
+        },
+        {
+          "route": "/blog/kot-drapie-meble",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Krótka odpowiedź: kot drapie meble, bo drapak, który ma, nie spełnia jego potrzeby — złe miejsce, zły materiał, zła orie\" + \"Akceptuje analityke\" (13066px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-article-2026-05-22T10-41-22-937Z\\screenshots\\blog-kot-drapie-meble-ipad-mini-768.png"
+        },
+        {
+          "route": "/blog/kot-zalatwia-sie-poza-kuweta",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Krótka odpowiedź: kot, który załatwia się poza kuwetą, prawie nigdy nie robi tego „na złość”. Najczęstsze przyczyny to: \" + \"Odrzuć\" (13066px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-article-2026-05-22T10-41-22-937Z\\screenshots\\blog-kot-zalatwia-sie-poza-kuweta-ipad-mini-768.png"
+        },
+        {
+          "route": "/blog/kot-zalatwia-sie-poza-kuweta",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Krótka odpowiedź: kot, który załatwia się poza kuwetą, prawie nigdy nie robi tego „na złość”. Najczęstsze przyczyny to: \" + \"Akceptuje analityke\" (13066px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-article-2026-05-22T10-41-22-937Z\\screenshots\\blog-kot-zalatwia-sie-poza-kuweta-ipad-mini-768.png"
+        }
+      ],
+      "source": {
+        "jsonPath": "qa-reports\\full-content-responsive-audit-responsive-article-2026-05-22T10-41-22-937Z\\full-audit.json",
+        "mdPath": "qa-reports\\full-content-responsive-audit-responsive-article-2026-05-22T10-41-22-937Z\\RAPORT-AUDYT-TRESCI-RESPONSYWNOSCI.md"
+      }
+    },
+    {
+      "key": "responsive:article:iphone-12-390",
+      "mode": "responsive",
+      "group": "article",
+      "viewport": "iphone-12-390",
+      "routes": 24,
+      "articles": 24,
+      "contentChecks": 0,
+      "responsiveChecks": 24,
+      "highIssues": 0,
+      "mediumIssues": 0,
+      "lowIssues": 0,
+      "reviewIssues": 0,
+      "highDetails": [],
+      "mediumSample": [],
+      "source": {
+        "jsonPath": "qa-reports\\full-content-responsive-audit-responsive-article-2026-05-22T09-49-27-465Z\\full-audit.json",
+        "mdPath": "qa-reports\\full-content-responsive-audit-responsive-article-2026-05-22T09-49-27-465Z\\RAPORT-AUDYT-TRESCI-RESPONSYWNOSCI.md"
+      }
+    },
+    {
+      "key": "responsive:article:iphone-pro-max-430",
+      "mode": "responsive",
+      "group": "article",
+      "viewport": "iphone-pro-max-430",
+      "routes": 24,
+      "articles": 24,
+      "contentChecks": 0,
+      "responsiveChecks": 24,
+      "highIssues": 0,
+      "mediumIssues": 0,
+      "lowIssues": 0,
+      "reviewIssues": 0,
+      "highDetails": [],
+      "mediumSample": [],
+      "source": {
+        "jsonPath": "qa-reports\\full-content-responsive-audit-responsive-article-2026-05-22T10-39-39-973Z\\full-audit.json",
+        "mdPath": "qa-reports\\full-content-responsive-audit-responsive-article-2026-05-22T10-39-39-973Z\\RAPORT-AUDYT-TRESCI-RESPONSYWNOSCI.md"
+      }
+    },
+    {
+      "key": "responsive:article:iphone-se-320",
+      "mode": "responsive",
+      "group": "article",
+      "viewport": "iphone-se-320",
+      "routes": 24,
+      "articles": 24,
+      "contentChecks": 0,
+      "responsiveChecks": 24,
+      "highIssues": 0,
+      "mediumIssues": 0,
+      "lowIssues": 0,
+      "reviewIssues": 0,
+      "highDetails": [],
+      "mediumSample": [],
+      "source": {
+        "jsonPath": "qa-reports\\full-content-responsive-audit-responsive-article-2026-05-22T09-44-06-155Z\\full-audit.json",
+        "mdPath": "qa-reports\\full-content-responsive-audit-responsive-article-2026-05-22T09-44-06-155Z\\RAPORT-AUDYT-TRESCI-RESPONSYWNOSCI.md"
+      }
+    },
+    {
+      "key": "content:booking:desktop-content",
+      "mode": "content",
+      "group": "booking",
+      "viewport": "desktop-content",
+      "routes": 15,
+      "articles": 0,
+      "contentChecks": 15,
+      "responsiveChecks": 0,
+      "highIssues": 0,
+      "mediumIssues": 15,
+      "lowIssues": 0,
+      "reviewIssues": 0,
+      "highDetails": [],
+      "mediumSample": [
+        {
+          "route": "/book",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Regulamin Regulamin\" -> usuń powtórzone słowo. Fragment: \"Wybierz termin konsultacji | Regulski Behawiorysta Wybierz termin konsultacji Regulski Behawiorysta Terapia behawioralna\""
+        },
+        {
+          "route": "/book?service=konsultacja-30-min",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Regulamin Regulamin\" -> usuń powtórzone słowo. Fragment: \"Wybierz termin konsultacji | Regulski Behawiorysta Wybierz termin konsultacji Regulski Behawiorysta Terapia behawioralna\""
+        },
+        {
+          "route": "/book?service=konsultacja-behawioralna-online",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Regulamin Regulamin\" -> usuń powtórzone słowo. Fragment: \"Wybierz termin konsultacji | Regulski Behawiorysta Wybierz termin konsultacji Regulski Behawiorysta Terapia behawioralna\""
+        },
+        {
+          "route": "/book?service=szybka-konsultacja-15-min",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Regulamin Regulamin\" -> usuń powtórzone słowo. Fragment: \"Wybierz termin konsultacji | Regulski Behawiorysta Wybierz termin konsultacji Regulski Behawiorysta Terapia behawioralna\""
+        },
+        {
+          "route": "/checkout",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Regulamin Regulamin\" -> usuń powtórzone słowo. Fragment: \"Wybierz metodę płatności Ostatni krok do dostępu do materiału. Regulski Behawiorysta Terapia behawioralna dla psów i kot\""
+        },
+        {
+          "route": "/confirm",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Regulamin Regulamin\" -> usuń powtórzone słowo. Fragment: \"Wybierz termin konsultacji | Regulski Behawiorysta Wybierz termin konsultacji Regulski Behawiorysta Terapia behawioralna\""
+        },
+        {
+          "route": "/confirmation",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Potwierdzenie Potwierdzenie\" -> usuń powtórzone słowo. Fragment: \"Potwierdzenie rezerwacji Potwierdzenie rezerwacji wygasło Regulski Behawiorysta Terapia behawioralna dla psów i kotów WY\""
+        },
+        {
+          "route": "/form",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Regulamin Regulamin\" -> usuń powtórzone słowo. Fragment: \"Wybierz termin konsultacji | Regulski Behawiorysta Wybierz termin konsultacji Regulski Behawiorysta Terapia behawioralna\""
+        },
+        {
+          "route": "/format-konsultacji",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Regulamin Regulamin\" -> usuń powtórzone słowo. Fragment: \"Wybierz temat konsultacji | Regulski Behawiorysta Skupmy się na Twoim psie Regulski Behawiorysta Terapia behawioralna dl\""
+        },
+        {
+          "route": "/oczekiwanie/test-order",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Regulamin Regulamin\" -> usuń powtórzone słowo. Fragment: \"Oczekiwanie na potwierdzenie płatności Nie znaleziono zamówienia Regulski Behawiorysta Terapia behawioralna dla psów i k\""
+        },
+        {
+          "route": "/payment",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "missing-polish-letter",
+          "message": "Możliwy brak polskich znaków: \"Rozmowa\" -> \"rozmową\". Fragment: \"z krótko, co się dzieje Podsumowanie rezerwacji Termin Link do rezerwacji Forma Rozmowa audio online Problem Do sprawdzenia Czas trwania 15-30 minut Konsultacja behawioralna Do ustalenia Razem do zapł\""
+        },
+        {
+          "route": "/payment",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Regulamin Regulamin\" -> usuń powtórzone słowo. Fragment: \"Płatność i potwierdzenie Płatność i potwierdzenie terminu. Regulski Behawiorysta Terapia behawioralna dla psów i kotów W\""
+        },
+        {
+          "route": "/platnosc/blik/test-order",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Regulamin Regulamin\" -> usuń powtórzone słowo. Fragment: \"BLIK na telefon Nie znaleziono zamówienia Regulski Behawiorysta Terapia behawioralna dla psów i kotów Nie znaleziono zam\""
+        },
+        {
+          "route": "/slot",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Regulamin Regulamin\" -> usuń powtórzone słowo. Fragment: \"Wybierz termin konsultacji | Regulski Behawiorysta Wybierz termin konsultacji Regulski Behawiorysta Terapia behawioralna\""
+        },
+        {
+          "route": "/termin",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Regulamin Regulamin\" -> usuń powtórzone słowo. Fragment: \"Wybierz termin konsultacji | Regulski Behawiorysta Wybierz termin konsultacji Regulski Behawiorysta Terapia behawioralna\""
+        }
+      ],
+      "source": {
+        "jsonPath": "qa-reports\\full-content-responsive-audit-content-booking-2026-05-22T11-00-00-279Z\\full-audit.json",
+        "mdPath": "qa-reports\\full-content-responsive-audit-content-booking-2026-05-22T11-00-00-279Z\\RAPORT-AUDYT-TRESCI-RESPONSYWNOSCI.md"
+      }
+    },
+    {
+      "key": "responsive:booking:android-large-412",
+      "mode": "responsive",
+      "group": "booking",
+      "viewport": "android-large-412",
+      "routes": 15,
+      "articles": 0,
+      "contentChecks": 0,
+      "responsiveChecks": 15,
+      "highIssues": 0,
+      "mediumIssues": 0,
+      "lowIssues": 0,
+      "reviewIssues": 0,
+      "highDetails": [],
+      "mediumSample": [],
+      "source": {
+        "jsonPath": "qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-24-58-939Z\\full-audit.json",
+        "mdPath": "qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-24-58-939Z\\RAPORT-AUDYT-TRESCI-RESPONSYWNOSCI.md"
+      }
+    },
+    {
+      "key": "responsive:booking:android-small-360",
+      "mode": "responsive",
+      "group": "booking",
+      "viewport": "android-small-360",
+      "routes": 15,
+      "articles": 0,
+      "contentChecks": 0,
+      "responsiveChecks": 15,
+      "highIssues": 0,
+      "mediumIssues": 0,
+      "lowIssues": 0,
+      "reviewIssues": 0,
+      "highDetails": [],
+      "mediumSample": [],
+      "source": {
+        "jsonPath": "qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-22-37-467Z\\full-audit.json",
+        "mdPath": "qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-22-37-467Z\\RAPORT-AUDYT-TRESCI-RESPONSYWNOSCI.md"
+      }
+    },
+    {
+      "key": "responsive:booking:fold-narrow-344",
+      "mode": "responsive",
+      "group": "booking",
+      "viewport": "fold-narrow-344",
+      "routes": 15,
+      "articles": 0,
+      "contentChecks": 0,
+      "responsiveChecks": 15,
+      "highIssues": 0,
+      "mediumIssues": 0,
+      "lowIssues": 0,
+      "reviewIssues": 0,
+      "highDetails": [],
+      "mediumSample": [],
+      "source": {
+        "jsonPath": "qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-22-03-426Z\\full-audit.json",
+        "mdPath": "qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-22-03-426Z\\RAPORT-AUDYT-TRESCI-RESPONSYWNOSCI.md"
+      }
+    },
+    {
+      "key": "responsive:booking:ipad-air-820",
+      "mode": "responsive",
+      "group": "booking",
+      "viewport": "ipad-air-820",
+      "routes": 15,
+      "articles": 0,
+      "contentChecks": 0,
+      "responsiveChecks": 15,
+      "highIssues": 0,
+      "mediumIssues": 18,
+      "lowIssues": 0,
+      "reviewIssues": 0,
+      "highDetails": [],
+      "mediumSample": [
+        {
+          "route": "/book",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"06:00 Zajęte\" + \"Odrzuć\" (3218.1px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-27-18-925Z\\screenshots\\book-ipad-air-820.png"
+        },
+        {
+          "route": "/book",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"06:30 Zajęte\" + \"Odrzuć\" (3218.1px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-27-18-925Z\\screenshots\\book-ipad-air-820.png"
+        },
+        {
+          "route": "/book",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"07:00 Zajęte\" + \"Odrzuć\" (3218.1px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-27-18-925Z\\screenshots\\book-ipad-air-820.png"
+        },
+        {
+          "route": "/book?service=konsultacja-30-min",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"29\" + \"Odrzuć\" (1005.4px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-27-18-925Z\\screenshots\\book-service-konsultacja-30-min-ipad-air-820.png"
+        },
+        {
+          "route": "/book?service=konsultacja-30-min",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"30\" + \"Odrzuć\" (1005.4px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-27-18-925Z\\screenshots\\book-service-konsultacja-30-min-ipad-air-820.png"
+        },
+        {
+          "route": "/book?service=konsultacja-30-min",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"1\" + \"Odrzuć\" (1005.7px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-27-18-925Z\\screenshots\\book-service-konsultacja-30-min-ipad-air-820.png"
+        },
+        {
+          "route": "/book?service=szybka-konsultacja-15-min",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"29\" + \"Odrzuć\" (1005.4px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-27-18-925Z\\screenshots\\book-service-szybka-konsultacja-15-min-ipad-air-820.png"
+        },
+        {
+          "route": "/book?service=szybka-konsultacja-15-min",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"30\" + \"Odrzuć\" (1005.4px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-27-18-925Z\\screenshots\\book-service-szybka-konsultacja-15-min-ipad-air-820.png"
+        },
+        {
+          "route": "/book?service=szybka-konsultacja-15-min",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"1\" + \"Odrzuć\" (1005.7px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-27-18-925Z\\screenshots\\book-service-szybka-konsultacja-15-min-ipad-air-820.png"
+        },
+        {
+          "route": "/confirm",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"29\" + \"Odrzuć\" (1005.4px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-27-18-925Z\\screenshots\\confirm-ipad-air-820.png"
+        },
+        {
+          "route": "/confirm",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"30\" + \"Odrzuć\" (1005.4px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-27-18-925Z\\screenshots\\confirm-ipad-air-820.png"
+        },
+        {
+          "route": "/confirm",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"1\" + \"Odrzuć\" (1005.7px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-27-18-925Z\\screenshots\\confirm-ipad-air-820.png"
+        },
+        {
+          "route": "/slot",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"29\" + \"Odrzuć\" (1005.4px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-27-18-925Z\\screenshots\\slot-ipad-air-820.png"
+        },
+        {
+          "route": "/slot",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"30\" + \"Odrzuć\" (1005.4px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-27-18-925Z\\screenshots\\slot-ipad-air-820.png"
+        },
+        {
+          "route": "/slot",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"1\" + \"Odrzuć\" (1005.7px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-27-18-925Z\\screenshots\\slot-ipad-air-820.png"
+        },
+        {
+          "route": "/termin",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"29\" + \"Odrzuć\" (1005.4px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-27-18-925Z\\screenshots\\termin-ipad-air-820.png"
+        },
+        {
+          "route": "/termin",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"30\" + \"Odrzuć\" (1005.4px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-27-18-925Z\\screenshots\\termin-ipad-air-820.png"
+        },
+        {
+          "route": "/termin",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"1\" + \"Odrzuć\" (1005.7px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-27-18-925Z\\screenshots\\termin-ipad-air-820.png"
+        }
+      ],
+      "source": {
+        "jsonPath": "qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-27-18-925Z\\full-audit.json",
+        "mdPath": "qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-27-18-925Z\\RAPORT-AUDYT-TRESCI-RESPONSYWNOSCI.md"
+      }
+    },
+    {
+      "key": "responsive:booking:ipad-mini-768",
+      "mode": "responsive",
+      "group": "booking",
+      "viewport": "ipad-mini-768",
+      "routes": 15,
+      "articles": 0,
+      "contentChecks": 0,
+      "responsiveChecks": 15,
+      "highIssues": 0,
+      "mediumIssues": 27,
+      "lowIssues": 0,
+      "reviewIssues": 0,
+      "highDetails": [],
+      "mediumSample": [
+        {
+          "route": "/book",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"8\" + \"Odrzuć\" (1434.6px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-26-06-398Z\\screenshots\\book-ipad-mini-768.png"
+        },
+        {
+          "route": "/book",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"9\" + \"Odrzuć\" (1434.6px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-26-06-398Z\\screenshots\\book-ipad-mini-768.png"
+        },
+        {
+          "route": "/book",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"10\" + \"Odrzuć\" (1434.6px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-26-06-398Z\\screenshots\\book-ipad-mini-768.png"
+        },
+        {
+          "route": "/book?service=konsultacja-30-min",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"25\" + \"Odrzuć\" (1680px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-26-06-398Z\\screenshots\\book-service-konsultacja-30-min-ipad-mini-768.png"
+        },
+        {
+          "route": "/book?service=konsultacja-30-min",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"26\" + \"Odrzuć\" (1680px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-26-06-398Z\\screenshots\\book-service-konsultacja-30-min-ipad-mini-768.png"
+        },
+        {
+          "route": "/book?service=konsultacja-30-min",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"27\" + \"Odrzuć\" (1680px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-26-06-398Z\\screenshots\\book-service-konsultacja-30-min-ipad-mini-768.png"
+        },
+        {
+          "route": "/book?service=konsultacja-behawioralna-online",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"8\" + \"Odrzuć\" (1434.6px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-26-06-398Z\\screenshots\\book-service-konsultacja-behawioralna-online-ipad-mini-768.png"
+        },
+        {
+          "route": "/book?service=konsultacja-behawioralna-online",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"9\" + \"Odrzuć\" (1434.6px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-26-06-398Z\\screenshots\\book-service-konsultacja-behawioralna-online-ipad-mini-768.png"
+        },
+        {
+          "route": "/book?service=konsultacja-behawioralna-online",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"10\" + \"Odrzuć\" (1434.6px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-26-06-398Z\\screenshots\\book-service-konsultacja-behawioralna-online-ipad-mini-768.png"
+        },
+        {
+          "route": "/book?service=kwadrans-na-juz",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"25\" + \"Odrzuć\" (1680px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-26-06-398Z\\screenshots\\book-service-kwadrans-na-juz-ipad-mini-768.png"
+        },
+        {
+          "route": "/book?service=kwadrans-na-juz",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"26\" + \"Odrzuć\" (1680px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-26-06-398Z\\screenshots\\book-service-kwadrans-na-juz-ipad-mini-768.png"
+        },
+        {
+          "route": "/book?service=kwadrans-na-juz",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"27\" + \"Odrzuć\" (1680px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-26-06-398Z\\screenshots\\book-service-kwadrans-na-juz-ipad-mini-768.png"
+        },
+        {
+          "route": "/book?service=szybka-konsultacja-15-min",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"25\" + \"Odrzuć\" (1680px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-26-06-398Z\\screenshots\\book-service-szybka-konsultacja-15-min-ipad-mini-768.png"
+        },
+        {
+          "route": "/book?service=szybka-konsultacja-15-min",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"26\" + \"Odrzuć\" (1680px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-26-06-398Z\\screenshots\\book-service-szybka-konsultacja-15-min-ipad-mini-768.png"
+        },
+        {
+          "route": "/book?service=szybka-konsultacja-15-min",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"27\" + \"Odrzuć\" (1680px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-26-06-398Z\\screenshots\\book-service-szybka-konsultacja-15-min-ipad-mini-768.png"
+        },
+        {
+          "route": "/confirm",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"25\" + \"Odrzuć\" (1680px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-26-06-398Z\\screenshots\\confirm-ipad-mini-768.png"
+        },
+        {
+          "route": "/confirm",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"26\" + \"Odrzuć\" (1680px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-26-06-398Z\\screenshots\\confirm-ipad-mini-768.png"
+        },
+        {
+          "route": "/confirm",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"27\" + \"Odrzuć\" (1680px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-26-06-398Z\\screenshots\\confirm-ipad-mini-768.png"
+        },
+        {
+          "route": "/form",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"8\" + \"Odrzuć\" (1434.6px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-26-06-398Z\\screenshots\\form-ipad-mini-768.png"
+        },
+        {
+          "route": "/form",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"9\" + \"Odrzuć\" (1434.6px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-26-06-398Z\\screenshots\\form-ipad-mini-768.png"
+        }
+      ],
+      "source": {
+        "jsonPath": "qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-26-06-398Z\\full-audit.json",
+        "mdPath": "qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-26-06-398Z\\RAPORT-AUDYT-TRESCI-RESPONSYWNOSCI.md"
+      }
+    },
+    {
+      "key": "responsive:booking:iphone-12-390",
+      "mode": "responsive",
+      "group": "booking",
+      "viewport": "iphone-12-390",
+      "routes": 15,
+      "articles": 0,
+      "contentChecks": 0,
+      "responsiveChecks": 15,
+      "highIssues": 0,
+      "mediumIssues": 0,
+      "lowIssues": 0,
+      "reviewIssues": 0,
+      "highDetails": [],
+      "mediumSample": [],
+      "source": {
+        "jsonPath": "qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-23-10-702Z\\full-audit.json",
+        "mdPath": "qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-23-10-702Z\\RAPORT-AUDYT-TRESCI-RESPONSYWNOSCI.md"
+      }
+    },
+    {
+      "key": "responsive:booking:iphone-pro-max-430",
+      "mode": "responsive",
+      "group": "booking",
+      "viewport": "iphone-pro-max-430",
+      "routes": 15,
+      "articles": 0,
+      "contentChecks": 0,
+      "responsiveChecks": 15,
+      "highIssues": 0,
+      "mediumIssues": 0,
+      "lowIssues": 0,
+      "reviewIssues": 0,
+      "highDetails": [],
+      "mediumSample": [],
+      "source": {
+        "jsonPath": "qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-25-33-315Z\\full-audit.json",
+        "mdPath": "qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-25-33-315Z\\RAPORT-AUDYT-TRESCI-RESPONSYWNOSCI.md"
+      }
+    },
+    {
+      "key": "responsive:booking:iphone-se-320",
+      "mode": "responsive",
+      "group": "booking",
+      "viewport": "iphone-se-320",
+      "routes": 15,
+      "articles": 0,
+      "contentChecks": 0,
+      "responsiveChecks": 15,
+      "highIssues": 0,
+      "mediumIssues": 0,
+      "lowIssues": 0,
+      "reviewIssues": 0,
+      "highDetails": [],
+      "mediumSample": [],
+      "source": {
+        "jsonPath": "qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-21-26-708Z\\full-audit.json",
+        "mdPath": "qa-reports\\full-content-responsive-audit-responsive-booking-2026-05-22T11-21-26-708Z\\RAPORT-AUDYT-TRESCI-RESPONSYWNOSCI.md"
+      }
+    },
+    {
+      "key": "content:protected:desktop-content",
+      "mode": "content",
+      "group": "protected",
+      "viewport": "desktop-content",
+      "routes": 7,
+      "articles": 0,
+      "contentChecks": 7,
+      "responsiveChecks": 0,
+      "highIssues": 0,
+      "mediumIssues": 0,
+      "lowIssues": 0,
+      "reviewIssues": 0,
+      "highDetails": [],
+      "mediumSample": [],
+      "source": {
+        "jsonPath": "qa-reports\\full-content-responsive-audit-content-protected-2026-05-22T11-42-07-264Z\\full-audit.json",
+        "mdPath": "qa-reports\\full-content-responsive-audit-content-protected-2026-05-22T11-42-07-264Z\\RAPORT-AUDYT-TRESCI-RESPONSYWNOSCI.md"
+      }
+    },
+    {
+      "key": "responsive:protected:iphone-se-320",
+      "mode": "responsive",
+      "group": "protected",
+      "viewport": "iphone-se-320",
+      "routes": 7,
+      "articles": 0,
+      "contentChecks": 0,
+      "responsiveChecks": 7,
+      "highIssues": 0,
+      "mediumIssues": 0,
+      "lowIssues": 0,
+      "reviewIssues": 0,
+      "highDetails": [],
+      "mediumSample": [],
+      "source": {
+        "jsonPath": "qa-reports\\full-content-responsive-audit-responsive-protected-2026-05-22T11-42-13-714Z\\full-audit.json",
+        "mdPath": "qa-reports\\full-content-responsive-audit-responsive-protected-2026-05-22T11-42-13-714Z\\RAPORT-AUDYT-TRESCI-RESPONSYWNOSCI.md"
+      }
+    },
+    {
+      "key": "content:public:desktop-content",
+      "mode": "content",
+      "group": "public",
+      "viewport": "desktop-content",
+      "routes": 28,
+      "articles": 0,
+      "contentChecks": 28,
+      "responsiveChecks": 0,
+      "highIssues": 0,
+      "mediumIssues": 38,
+      "lowIssues": 0,
+      "reviewIssues": 0,
+      "highDetails": [],
+      "mediumSample": [
+        {
+          "route": "/",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Regulamin Regulamin\" -> usuń powtórzone słowo. Fragment: \"Regulski Behawiorysta | Konsultacje behawioralne psów i kotów Behawiorysta psów i kotów online — spokojny pierwszy krok\""
+        },
+        {
+          "route": "/bezplatne-materialy/dziekuje",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"zapis Zapis\" -> usuń powtórzone słowo. Fragment: \"Dziękuję za zapis Zapis jest przyjęty Regulski Behawiorysta Terapia behawioralna dla psów i kotów DZIĘKUJĘ Zapis jest pr\""
+        },
+        {
+          "route": "/blog",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"KOT Kot\" -> usuń powtórzone słowo. Fragment: \"Blog o zachowaniu psów i kotów | Regulski Behawiorysta Zanim zaczniesz poprawiać zachowanie, warto zrozumieć, po co ono\""
+        },
+        {
+          "route": "/cennik",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "missing-polish-letter",
+          "message": "Możliwy brak polskich znaków: \"sytuacje\" -> \"sytuację\". Fragment: \"wspólnie wybierzemy najlepszą opcję. Pomóż mi dobrać usługę Zobacz przykładowe sytuacje Najczęstsze pytania Czy w Kwadransie też dostanę diagnozę behawioralną? Tak, ale zakres diagnozy behawioralnej\""
+        },
+        {
+          "route": "/cennik",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Regulamin Regulamin\" -> usuń powtórzone słowo. Fragment: \"Cennik konsultacji behawioralnych | Regulski Behawiorysta Wybierz rozmowę dopasowaną do sytuacji Regulski Behawiorysta T\""
+        },
+        {
+          "route": "/cennik/pelny",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Regulamin Regulamin\" -> usuń powtórzone słowo. Fragment: \"Pełny cennik rozmów behawioralnych | Regulski Behawiorysta Wybierz rozmowę na miarę sytuacji Regulski Behawiorysta Terap\""
+        },
+        {
+          "route": "/dostep",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Regulamin Regulamin\" -> usuń powtórzone słowo. Fragment: \"Wpisz kod dostępu Wpisz kod dostępu. Regulski Behawiorysta Terapia behawioralna dla psów i kotów KOD DOSTĘPU Wpisz kod d\""
+        },
+        {
+          "route": "/faq",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "missing-polish-letter",
+          "message": "Możliwy brak polskich znaków: \"rozmowa\" -> \"rozmową\". Fragment: \"czynamy od faktów i spokojnego pierwszego kroku. Online w całej Polsce Spokojna rozmowa bez stresu dla zwierzęcia. Nie znalazłeś odpowiedzi? Opisz krótko sytuację, a pomogę dobrać najlepszy pierwszy k\""
+        },
+        {
+          "route": "/faq",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Regulamin Regulamin\" -> usuń powtórzone słowo. Fragment: \"Najczęstsze pytania i odpowiedzi | Regulski Behawiorysta Najczęstsze pytania i odpowiedzi Regulski Behawiorysta Terapia\""
+        },
+        {
+          "route": "/kontakt",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Regulamin Regulamin\" -> usuń powtórzone słowo. Fragment: \"Kontakt i pierwszy krok | Regulski Behawiorysta Napisz krótko, co się dzieje. Pomogę Ci wybrać najrozsądniejszy pierwszy\""
+        },
+        {
+          "route": "/konto",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Regulamin Regulamin\" -> usuń powtórzone słowo. Fragment: \"Moje konto Zaloguj się, żeby zobaczyć swoje rezerwacje i materiały. Regulski Behawiorysta Terapia behawioralna dla psów\""
+        },
+        {
+          "route": "/login",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Regulamin Regulamin\" -> usuń powtórzone słowo. Fragment: \"Logowanie do pokoju opiekuna Zaloguj się albo utwórz konto. Regulski Behawiorysta Terapia behawioralna dla psów i kotów\""
+        },
+        {
+          "route": "/materialy",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "missing-polish-letter",
+          "message": "Możliwy brak polskich znaków: \"dostep\" -> \"dostęp\". Fragment: \"wysyła kod dostępu na e-mail i pokazuje numer zamówienia. 03 Wpisujesz kod na /dostep, przechodzisz do pokoju i pobierasz PDF. Jeśli materiał nie wystarczy, Kwadrans porządkuje temat w 15 minut. PDF\""
+        },
+        {
+          "route": "/materialy",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "missing-polish-letter",
+          "message": "Możliwy brak polskich znaków: \"rozmowa\" -> \"rozmową\". Fragment: \"est dobry jako spokojny start. Gdy objaw wraca albo łączy się z innymi wątkami, rozmowa szybciej ustawia priorytet. Umów spokojny pierwszy krok / 69 zł → CO MÓWIĄ OPIEKUNOWIE PO ROZMOWIE? “Przed rozmo\""
+        },
+        {
+          "route": "/materialy",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Regulamin Regulamin\" -> usuń powtórzone słowo. Fragment: \"Materiały PDF do pobrania | Regulski Behawiorysta | Regulski Behawiorysta Materiały PDF dla opiekunów psów i kotów. Prak\""
+        },
+        {
+          "route": "/materialy/pobranie",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Regulamin Regulamin\" -> usuń powtórzone słowo. Fragment: \"Wpisz kod dostępu Wpisz kod dostępu. Regulski Behawiorysta Terapia behawioralna dla psów i kotów KOD DOSTĘPU Wpisz kod d\""
+        },
+        {
+          "route": "/metodyka",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"Regulamin Regulamin\" -> usuń powtórzone słowo. Fragment: \"Krzysztof Regulski - behawiorysta COAPE | Regulski Behawiorysta Krzysztof Regulski. Behawiorysta psów i kotów. Regulski\""
+        },
+        {
+          "route": "/newsletter",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "duplicate-word",
+          "message": "Podejrzenie literówki: \"NEWSLETTER Newsletter\" -> usuń powtórzone słowo. Fragment: \"Newsletter dla opiekunów psów i kotów | Regulski Behawiorysta Raz w miesiącu spokojna porcja wiedzy o psach i kotach. Re\""
+        },
+        {
+          "route": "/niezbednik",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "missing-polish-letter",
+          "message": "Możliwy brak polskich znaków: \"dostep\" -> \"dostęp\". Fragment: \"wysyła kod dostępu na e-mail i pokazuje numer zamówienia. 03 Wpisujesz kod na /dostep, przechodzisz do pokoju i pobierasz PDF. Jeśli materiał nie wystarczy, Kwadrans porządkuje temat w 15 minut. PDF\""
+        },
+        {
+          "route": "/niezbednik",
+          "viewport": "desktop-1365",
+          "severity": "MEDIUM",
+          "code": "missing-polish-letter",
+          "message": "Możliwy brak polskich znaków: \"rozmowa\" -> \"rozmową\". Fragment: \"est dobry jako spokojny start. Gdy objaw wraca albo łączy się z innymi wątkami, rozmowa szybciej ustawia priorytet. Umów spokojny pierwszy krok / 69 zł → CO MÓWIĄ OPIEKUNOWIE PO ROZMOWIE? “Przed rozmo\""
+        }
+      ],
+      "source": {
+        "jsonPath": "qa-reports\\full-content-responsive-audit-content-public-2026-05-21T16-05-29-775Z\\full-audit.json",
+        "mdPath": "qa-reports\\full-content-responsive-audit-content-public-2026-05-21T16-05-29-775Z\\RAPORT-AUDYT-TRESCI-RESPONSYWNOSCI.md"
+      }
+    },
+    {
+      "key": "responsive:public:android-large-412",
+      "mode": "responsive",
+      "group": "public",
+      "viewport": "android-large-412",
+      "routes": 28,
+      "articles": 0,
+      "contentChecks": 0,
+      "responsiveChecks": 28,
+      "highIssues": 0,
+      "mediumIssues": 5,
+      "lowIssues": 0,
+      "reviewIssues": 0,
+      "highDetails": [],
+      "mediumSample": [
+        {
+          "route": "/metodyka",
+          "viewport": "android-large-412",
+          "severity": "MEDIUM",
+          "code": "clipped-text",
+          "message": "Możliwe obcięcie tekstu: section, box=402x709.2, text=\"O mnie Krzysztof Regulski. Behawiorysta psów i kotów. Pomagam uporządkować sytuację psa lub kota tak, żeby po rozmowie z\"",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T04-54-44-783Z\\screenshots\\metodyka-android-large-412.png"
+        },
+        {
+          "route": "/metodyka",
+          "viewport": "android-large-412",
+          "severity": "MEDIUM",
+          "code": "clipped-text",
+          "message": "Możliwe obcięcie tekstu: section, box=378x433.6, text=\"PUBLIKACJA · MAGAZYN WETERYNARYJNY Strach, lęk i fobia u psów i kotów - różnicowanie i leczenie farmakologiczne Współaut\"",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T04-54-44-783Z\\screenshots\\metodyka-android-large-412.png"
+        },
+        {
+          "route": "/o-mnie",
+          "viewport": "android-large-412",
+          "severity": "MEDIUM",
+          "code": "clipped-text",
+          "message": "Możliwe obcięcie tekstu: section, box=402x709.2, text=\"O mnie Krzysztof Regulski. Behawiorysta psów i kotów. Pomagam uporządkować sytuację psa lub kota tak, żeby po rozmowie z\"",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T04-54-44-783Z\\screenshots\\o-mnie-android-large-412.png"
+        },
+        {
+          "route": "/o-mnie",
+          "viewport": "android-large-412",
+          "severity": "MEDIUM",
+          "code": "clipped-text",
+          "message": "Możliwe obcięcie tekstu: section, box=378x433.6, text=\"PUBLIKACJA · MAGAZYN WETERYNARYJNY Strach, lęk i fobia u psów i kotów - różnicowanie i leczenie farmakologiczne Współaut\"",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T04-54-44-783Z\\screenshots\\o-mnie-android-large-412.png"
+        },
+        {
+          "route": "/quiz",
+          "viewport": "android-large-412",
+          "severity": "MEDIUM",
+          "code": "clipped-text",
+          "message": "Możliwe obcięcie tekstu: section, box=374x1795.8, text=\"Quiz Dobierzmy najlepszy pierwszy krok Odpowiedz na kilka prostych pytań. Na końcu podpowiem, czy wystarczy krótka rozmo\"",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T04-54-44-783Z\\screenshots\\quiz-android-large-412.png"
+        }
+      ],
+      "source": {
+        "jsonPath": "qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T04-54-44-783Z\\full-audit.json",
+        "mdPath": "qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T04-54-44-783Z\\RAPORT-AUDYT-TRESCI-RESPONSYWNOSCI.md"
+      }
+    },
+    {
+      "key": "responsive:public:android-small-360",
+      "mode": "responsive",
+      "group": "public",
+      "viewport": "android-small-360",
+      "routes": 28,
+      "articles": 0,
+      "contentChecks": 0,
+      "responsiveChecks": 28,
+      "highIssues": 0,
+      "mediumIssues": 5,
+      "lowIssues": 0,
+      "reviewIssues": 0,
+      "highDetails": [],
+      "mediumSample": [
+        {
+          "route": "/metodyka",
+          "viewport": "android-small-360",
+          "severity": "MEDIUM",
+          "code": "clipped-text",
+          "message": "Możliwe obcięcie tekstu: section, box=352x709.2, text=\"O mnie Krzysztof Regulski. Behawiorysta psów i kotów. Pomagam uporządkować sytuację psa lub kota tak, żeby po rozmowie z\"",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T04-52-03-003Z\\screenshots\\metodyka-android-small-360.png"
+        },
+        {
+          "route": "/metodyka",
+          "viewport": "android-small-360",
+          "severity": "MEDIUM",
+          "code": "clipped-text",
+          "message": "Możliwe obcięcie tekstu: section, box=328x463.8, text=\"PUBLIKACJA · MAGAZYN WETERYNARYJNY Strach, lęk i fobia u psów i kotów - różnicowanie i leczenie farmakologiczne Współaut\"",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T04-52-03-003Z\\screenshots\\metodyka-android-small-360.png"
+        },
+        {
+          "route": "/o-mnie",
+          "viewport": "android-small-360",
+          "severity": "MEDIUM",
+          "code": "clipped-text",
+          "message": "Możliwe obcięcie tekstu: section, box=352x709.2, text=\"O mnie Krzysztof Regulski. Behawiorysta psów i kotów. Pomagam uporządkować sytuację psa lub kota tak, żeby po rozmowie z\"",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T04-52-03-003Z\\screenshots\\o-mnie-android-small-360.png"
+        },
+        {
+          "route": "/o-mnie",
+          "viewport": "android-small-360",
+          "severity": "MEDIUM",
+          "code": "clipped-text",
+          "message": "Możliwe obcięcie tekstu: section, box=328x463.8, text=\"PUBLIKACJA · MAGAZYN WETERYNARYJNY Strach, lęk i fobia u psów i kotów - różnicowanie i leczenie farmakologiczne Współaut\"",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T04-52-03-003Z\\screenshots\\o-mnie-android-small-360.png"
+        },
+        {
+          "route": "/quiz",
+          "viewport": "android-small-360",
+          "severity": "MEDIUM",
+          "code": "clipped-text",
+          "message": "Możliwe obcięcie tekstu: section, box=324x1854.4, text=\"Quiz Dobierzmy najlepszy pierwszy krok Odpowiedz na kilka prostych pytań. Na końcu podpowiem, czy wystarczy krótka rozmo\"",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T04-52-03-003Z\\screenshots\\quiz-android-small-360.png"
+        }
+      ],
+      "source": {
+        "jsonPath": "qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T04-52-03-003Z\\full-audit.json",
+        "mdPath": "qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T04-52-03-003Z\\RAPORT-AUDYT-TRESCI-RESPONSYWNOSCI.md"
+      }
+    },
+    {
+      "key": "responsive:public:fold-narrow-344",
+      "mode": "responsive",
+      "group": "public",
+      "viewport": "fold-narrow-344",
+      "routes": 28,
+      "articles": 0,
+      "contentChecks": 0,
+      "responsiveChecks": 28,
+      "highIssues": 0,
+      "mediumIssues": 5,
+      "lowIssues": 0,
+      "reviewIssues": 0,
+      "highDetails": [],
+      "mediumSample": [
+        {
+          "route": "/metodyka",
+          "viewport": "fold-narrow-344",
+          "severity": "MEDIUM",
+          "code": "clipped-text",
+          "message": "Możliwe obcięcie tekstu: section, box=336x709.2, text=\"O mnie Krzysztof Regulski. Behawiorysta psów i kotów. Pomagam uporządkować sytuację psa lub kota tak, żeby po rozmowie z\"",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T04-51-06-594Z\\screenshots\\metodyka-fold-narrow-344.png"
+        },
+        {
+          "route": "/metodyka",
+          "viewport": "fold-narrow-344",
+          "severity": "MEDIUM",
+          "code": "clipped-text",
+          "message": "Możliwe obcięcie tekstu: section, box=312x478.8, text=\"PUBLIKACJA · MAGAZYN WETERYNARYJNY Strach, lęk i fobia u psów i kotów - różnicowanie i leczenie farmakologiczne Współaut\"",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T04-51-06-594Z\\screenshots\\metodyka-fold-narrow-344.png"
+        },
+        {
+          "route": "/o-mnie",
+          "viewport": "fold-narrow-344",
+          "severity": "MEDIUM",
+          "code": "clipped-text",
+          "message": "Możliwe obcięcie tekstu: section, box=336x709.2, text=\"O mnie Krzysztof Regulski. Behawiorysta psów i kotów. Pomagam uporządkować sytuację psa lub kota tak, żeby po rozmowie z\"",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T04-51-06-594Z\\screenshots\\o-mnie-fold-narrow-344.png"
+        },
+        {
+          "route": "/o-mnie",
+          "viewport": "fold-narrow-344",
+          "severity": "MEDIUM",
+          "code": "clipped-text",
+          "message": "Możliwe obcięcie tekstu: section, box=312x478.8, text=\"PUBLIKACJA · MAGAZYN WETERYNARYJNY Strach, lęk i fobia u psów i kotów - różnicowanie i leczenie farmakologiczne Współaut\"",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T04-51-06-594Z\\screenshots\\o-mnie-fold-narrow-344.png"
+        },
+        {
+          "route": "/quiz",
+          "viewport": "fold-narrow-344",
+          "severity": "MEDIUM",
+          "code": "clipped-text",
+          "message": "Możliwe obcięcie tekstu: section, box=308x1967.1, text=\"Quiz Dobierzmy najlepszy pierwszy krok Odpowiedz na kilka prostych pytań. Na końcu podpowiem, czy wystarczy krótka rozmo\"",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T04-51-06-594Z\\screenshots\\quiz-fold-narrow-344.png"
+        }
+      ],
+      "source": {
+        "jsonPath": "qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T04-51-06-594Z\\full-audit.json",
+        "mdPath": "qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T04-51-06-594Z\\RAPORT-AUDYT-TRESCI-RESPONSYWNOSCI.md"
+      }
+    },
+    {
+      "key": "responsive:public:ipad-air-820",
+      "mode": "responsive",
+      "group": "public",
+      "viewport": "ipad-air-820",
+      "routes": 28,
+      "articles": 0,
+      "contentChecks": 0,
+      "responsiveChecks": 28,
+      "highIssues": 0,
+      "mediumIssues": 28,
+      "lowIssues": 0,
+      "reviewIssues": 0,
+      "highDetails": [],
+      "mediumSample": [
+        {
+          "route": "/",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Mówisz, co naprawdę się dzieje Wystarczy, że powiesz, co robi pies albo kot, kiedy to się dzieje, jak długo trwa i co ju\" + \"Odrzuć\" (15651px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-12-05-479Z\\screenshots\\home-ipad-air-820.png"
+        },
+        {
+          "route": "/",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Mówisz, co naprawdę się dzieje Wystarczy, że powiesz, co robi pies albo kot, kiedy to się dzieje, jak długo trwa i co ju\" + \"Akceptuje analityke\" (15651px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-12-05-479Z\\screenshots\\home-ipad-air-820.png"
+        },
+        {
+          "route": "/cennik",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Dwa kwadranse\" + \"Odrzuć\" (6149.7px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-12-05-479Z\\screenshots\\cennik-ipad-air-820.png"
+        },
+        {
+          "route": "/cennik",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Dwa kwadranse\" + \"Akceptuje analityke\" (5689.1px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-12-05-479Z\\screenshots\\cennik-ipad-air-820.png"
+        },
+        {
+          "route": "/kontakt",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Rozumiem przyczynę\" + \"Odrzuć\" (5963.6px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-12-05-479Z\\screenshots\\kontakt-ipad-air-820.png"
+        },
+        {
+          "route": "/kontakt",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Rozumiem przyczynę\" + \"Akceptuje analityke\" (8370px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-12-05-479Z\\screenshots\\kontakt-ipad-air-820.png"
+        },
+        {
+          "route": "/metodyka",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "clipped-text",
+          "message": "Możliwe obcięcie tekstu: section, box=772x482.8, text=\"O mnie Krzysztof Regulski. Behawiorysta psów i kotów. Pomagam uporządkować sytuację psa lub kota tak, żeby po rozmowie z\"",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-12-05-479Z\\screenshots\\metodyka-ipad-air-820.png"
+        },
+        {
+          "route": "/metodyka",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "clipped-text",
+          "message": "Możliwe obcięcie tekstu: section, box=688x323, text=\"PUBLIKACJA · MAGAZYN WETERYNARYJNY Strach, lęk i fobia u psów i kotów - różnicowanie i leczenie farmakologiczne Współaut\"",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-12-05-479Z\\screenshots\\metodyka-ipad-air-820.png"
+        },
+        {
+          "route": "/metodyka",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Metodologia pracy W pracy behawioralnej opieram się na metodologii COAPE: holistycznym, opartym na aktualnej wiedzy nauk\" + \"Odrzuć\" (15933px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-12-05-479Z\\screenshots\\metodyka-ipad-air-820.png"
+        },
+        {
+          "route": "/metodyka",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Metodologia pracy W pracy behawioralnej opieram się na metodologii COAPE: holistycznym, opartym na aktualnej wiedzy nauk\" + \"Akceptuje analityke\" (15933px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-12-05-479Z\\screenshots\\metodyka-ipad-air-820.png"
+        },
+        {
+          "route": "/metodyka",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Metodologia pracy W pracy behawioralnej opieram się na metodologii COAPE: holistycznym, opartym na aktualnej wiedzy nauk\" + \"Odrzuć\" (10434px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-12-05-479Z\\screenshots\\metodyka-ipad-air-820.png"
+        },
+        {
+          "route": "/o-mnie",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "clipped-text",
+          "message": "Możliwe obcięcie tekstu: section, box=772x482.8, text=\"O mnie Krzysztof Regulski. Behawiorysta psów i kotów. Pomagam uporządkować sytuację psa lub kota tak, żeby po rozmowie z\"",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-12-05-479Z\\screenshots\\o-mnie-ipad-air-820.png"
+        },
+        {
+          "route": "/o-mnie",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "clipped-text",
+          "message": "Możliwe obcięcie tekstu: section, box=688x323, text=\"PUBLIKACJA · MAGAZYN WETERYNARYJNY Strach, lęk i fobia u psów i kotów - różnicowanie i leczenie farmakologiczne Współaut\"",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-12-05-479Z\\screenshots\\o-mnie-ipad-air-820.png"
+        },
+        {
+          "route": "/o-mnie",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Metodologia pracy W pracy behawioralnej opieram się na metodologii COAPE: holistycznym, opartym na aktualnej wiedzy nauk\" + \"Odrzuć\" (15933px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-12-05-479Z\\screenshots\\o-mnie-ipad-air-820.png"
+        },
+        {
+          "route": "/o-mnie",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Metodologia pracy W pracy behawioralnej opieram się na metodologii COAPE: holistycznym, opartym na aktualnej wiedzy nauk\" + \"Akceptuje analityke\" (15933px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-12-05-479Z\\screenshots\\o-mnie-ipad-air-820.png"
+        },
+        {
+          "route": "/o-mnie",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Metodologia pracy W pracy behawioralnej opieram się na metodologii COAPE: holistycznym, opartym na aktualnej wiedzy nauk\" + \"Odrzuć\" (10434px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-12-05-479Z\\screenshots\\o-mnie-ipad-air-820.png"
+        },
+        {
+          "route": "/polityka-prywatnosci",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"01 1. Administrator danych Administratorem danych osobowych przetwarzanych w związku z działaniem serwisu, kontaktem, re\" + \"Odrzuć\" (15651px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-12-05-479Z\\screenshots\\polityka-prywatnosci-ipad-air-820.png"
+        },
+        {
+          "route": "/polityka-prywatnosci",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"01 1. Administrator danych Administratorem danych osobowych przetwarzanych w związku z działaniem serwisu, kontaktem, re\" + \"Akceptuje analityke\" (15651px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-12-05-479Z\\screenshots\\polityka-prywatnosci-ipad-air-820.png"
+        },
+        {
+          "route": "/polityka-prywatnosci",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Administratorem danych osobowych przetwarzanych w związku z działaniem serwisu, kontaktem, rezerwacją i realizacją usług\" + \"Akceptuje analityke\" (6389.7px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-12-05-479Z\\screenshots\\polityka-prywatnosci-ipad-air-820.png"
+        },
+        {
+          "route": "/problem",
+          "viewport": "ipad-air-820",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"29\" + \"Odrzuć\" (1005.4px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-12-05-479Z\\screenshots\\problem-ipad-air-820.png"
+        }
+      ],
+      "source": {
+        "jsonPath": "qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-12-05-479Z\\full-audit.json",
+        "mdPath": "qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-12-05-479Z\\RAPORT-AUDYT-TRESCI-RESPONSYWNOSCI.md"
+      }
+    },
+    {
+      "key": "responsive:public:ipad-mini-768",
+      "mode": "responsive",
+      "group": "public",
+      "viewport": "ipad-mini-768",
+      "routes": 28,
+      "articles": 0,
+      "contentChecks": 0,
+      "responsiveChecks": 28,
+      "highIssues": 0,
+      "mediumIssues": 44,
+      "lowIssues": 0,
+      "reviewIssues": 0,
+      "highDetails": [],
+      "mediumSample": [
+        {
+          "route": "/",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Behawiorysta psów i kotów online — spokojny pierwszy krok Nie musisz znać fachowej nazwy problemu. Opisz, co dzieje się \" + \"Odrzuć\" (14867.2px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-09-47-599Z\\screenshots\\home-ipad-mini-768.png"
+        },
+        {
+          "route": "/",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Behawiorysta psów i kotów online — spokojny pierwszy krok Nie musisz znać fachowej nazwy problemu. Opisz, co dzieje się \" + \"Akceptuje analityke\" (14867.2px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-09-47-599Z\\screenshots\\home-ipad-mini-768.png"
+        },
+        {
+          "route": "/blog",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"KOT Kot załatwia się poza kuwetą: co sprawdzić, zanim uznasz, że robi na złość 5 min czytania · 7 stycznia 2026\" + \"Odrzuć\" (14382px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-09-47-599Z\\screenshots\\blog-ipad-mini-768.png"
+        },
+        {
+          "route": "/blog",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"KOT Kot załatwia się poza kuwetą: co sprawdzić, zanim uznasz, że robi na złość 5 min czytania · 7 stycznia 2026\" + \"Akceptuje analityke\" (14382px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-09-47-599Z\\screenshots\\blog-ipad-mini-768.png"
+        },
+        {
+          "route": "/blog",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"img\" + \"Odrzuć\" (6392px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-09-47-599Z\\screenshots\\blog-ipad-mini-768.png"
+        },
+        {
+          "route": "/cennik",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Kwadrans priorytetowy\" + \"Odrzuć\" (5675.3px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-09-47-599Z\\screenshots\\cennik-ipad-mini-768.png"
+        },
+        {
+          "route": "/cennik",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Kwadrans priorytetowy\" + \"Akceptuje analityke\" (5614.4px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-09-47-599Z\\screenshots\\cennik-ipad-mini-768.png"
+        },
+        {
+          "route": "/cennik/pelny",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Wybierz konkretną rozmowę NAJPROSTSZY START Kwadrans - gdy potrzebujesz pierwszego kierunku 69 zł 15 min audio bez kamer\" + \"Odrzuć\" (16262px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-09-47-599Z\\screenshots\\cennik-pelny-ipad-mini-768.png"
+        },
+        {
+          "route": "/cennik/pelny",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Wybierz konkretną rozmowę NAJPROSTSZY START Kwadrans - gdy potrzebujesz pierwszego kierunku 69 zł 15 min audio bez kamer\" + \"Akceptuje analityke\" (16262px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-09-47-599Z\\screenshots\\cennik-pelny-ipad-mini-768.png"
+        },
+        {
+          "route": "/cennik/pelny",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"NAJPROSTSZY START Kwadrans - gdy potrzebujesz pierwszego kierunku 69 zł 15 min audio bez kamery na jedno główne pytanie.\" + \"Odrzuć\" (14382px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-09-47-599Z\\screenshots\\cennik-pelny-ipad-mini-768.png"
+        },
+        {
+          "route": "/kontakt",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Napisz krótko, co się dzieje. Pomogę Ci wybrać najrozsądniejszy pierwszy krok. Krótka wiadomość wystarczy, bym zrozumiał\" + \"Odrzuć\" (16262px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-09-47-599Z\\screenshots\\kontakt-ipad-mini-768.png"
+        },
+        {
+          "route": "/kontakt",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Napisz krótko, co się dzieje. Pomogę Ci wybrać najrozsądniejszy pierwszy krok. Krótka wiadomość wystarczy, bym zrozumiał\" + \"Akceptuje analityke\" (16262px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-09-47-599Z\\screenshots\\kontakt-ipad-mini-768.png"
+        },
+        {
+          "route": "/kontakt",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Napisz krótko, co się dzieje. Pomogę Ci wybrać najrozsądniejszy pierwszy krok. Krótka wiadomość wystarczy, bym zrozumiał\" + \"Odrzuć\" (15369px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-09-47-599Z\\screenshots\\kontakt-ipad-mini-768.png"
+        },
+        {
+          "route": "/kwadrans-na-juz",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"25\" + \"Odrzuć\" (1680px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-09-47-599Z\\screenshots\\kwadrans-na-juz-ipad-mini-768.png"
+        },
+        {
+          "route": "/kwadrans-na-juz",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"26\" + \"Odrzuć\" (1680px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-09-47-599Z\\screenshots\\kwadrans-na-juz-ipad-mini-768.png"
+        },
+        {
+          "route": "/kwadrans-na-juz",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"27\" + \"Odrzuć\" (1680px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-09-47-599Z\\screenshots\\kwadrans-na-juz-ipad-mini-768.png"
+        },
+        {
+          "route": "/materialy",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"MATERIAŁY PDF Materiały PDF dla opiekunów psów i kotów. Praktyczne wsparcie przed rozmową i na co dzień. Wybierz krótki \" + \"Odrzuć\" (16262px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-09-47-599Z\\screenshots\\materialy-ipad-mini-768.png"
+        },
+        {
+          "route": "/materialy",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"MATERIAŁY PDF Materiały PDF dla opiekunów psów i kotów. Praktyczne wsparcie przed rozmową i na co dzień. Wybierz krótki \" + \"Akceptuje analityke\" (16262px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-09-47-599Z\\screenshots\\materialy-ipad-mini-768.png"
+        },
+        {
+          "route": "/metodyka",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "clipped-text",
+          "message": "Możliwe obcięcie tekstu: section, box=720x508.1, text=\"O mnie Krzysztof Regulski. Behawiorysta psów i kotów. Pomagam uporządkować sytuację psa lub kota tak, żeby po rozmowie z\"",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-09-47-599Z\\screenshots\\metodyka-ipad-mini-768.png"
+        },
+        {
+          "route": "/metodyka",
+          "viewport": "ipad-mini-768",
+          "severity": "MEDIUM",
+          "code": "clipped-text",
+          "message": "Możliwe obcięcie tekstu: section, box=636x376, text=\"PUBLIKACJA · MAGAZYN WETERYNARYJNY Strach, lęk i fobia u psów i kotów - różnicowanie i leczenie farmakologiczne Współaut\"",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-09-47-599Z\\screenshots\\metodyka-ipad-mini-768.png"
+        }
+      ],
+      "source": {
+        "jsonPath": "qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-09-47-599Z\\full-audit.json",
+        "mdPath": "qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T05-09-47-599Z\\RAPORT-AUDYT-TRESCI-RESPONSYWNOSCI.md"
+      }
+    },
+    {
+      "key": "responsive:public:iphone-12-390",
+      "mode": "responsive",
+      "group": "public",
+      "viewport": "iphone-12-390",
+      "routes": 28,
+      "articles": 0,
+      "contentChecks": 0,
+      "responsiveChecks": 28,
+      "highIssues": 0,
+      "mediumIssues": 5,
+      "lowIssues": 0,
+      "reviewIssues": 0,
+      "highDetails": [],
+      "mediumSample": [
+        {
+          "route": "/metodyka",
+          "viewport": "iphone-12-390",
+          "severity": "MEDIUM",
+          "code": "clipped-text",
+          "message": "Możliwe obcięcie tekstu: section, box=380x709.2, text=\"O mnie Krzysztof Regulski. Behawiorysta psów i kotów. Pomagam uporządkować sytuację psa lub kota tak, żeby po rozmowie z\"",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T04-52-58-655Z\\screenshots\\metodyka-iphone-12-390.png"
+        },
+        {
+          "route": "/metodyka",
+          "viewport": "iphone-12-390",
+          "severity": "MEDIUM",
+          "code": "clipped-text",
+          "message": "Możliwe obcięcie tekstu: section, box=356x433.6, text=\"PUBLIKACJA · MAGAZYN WETERYNARYJNY Strach, lęk i fobia u psów i kotów - różnicowanie i leczenie farmakologiczne Współaut\"",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T04-52-58-655Z\\screenshots\\metodyka-iphone-12-390.png"
+        },
+        {
+          "route": "/o-mnie",
+          "viewport": "iphone-12-390",
+          "severity": "MEDIUM",
+          "code": "clipped-text",
+          "message": "Możliwe obcięcie tekstu: section, box=380x709.2, text=\"O mnie Krzysztof Regulski. Behawiorysta psów i kotów. Pomagam uporządkować sytuację psa lub kota tak, żeby po rozmowie z\"",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T04-52-58-655Z\\screenshots\\o-mnie-iphone-12-390.png"
+        },
+        {
+          "route": "/o-mnie",
+          "viewport": "iphone-12-390",
+          "severity": "MEDIUM",
+          "code": "clipped-text",
+          "message": "Możliwe obcięcie tekstu: section, box=356x433.6, text=\"PUBLIKACJA · MAGAZYN WETERYNARYJNY Strach, lęk i fobia u psów i kotów - różnicowanie i leczenie farmakologiczne Współaut\"",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T04-52-58-655Z\\screenshots\\o-mnie-iphone-12-390.png"
+        },
+        {
+          "route": "/quiz",
+          "viewport": "iphone-12-390",
+          "severity": "MEDIUM",
+          "code": "clipped-text",
+          "message": "Możliwe obcięcie tekstu: section, box=352x1834.7, text=\"Quiz Dobierzmy najlepszy pierwszy krok Odpowiedz na kilka prostych pytań. Na końcu podpowiem, czy wystarczy krótka rozmo\"",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T04-52-58-655Z\\screenshots\\quiz-iphone-12-390.png"
+        }
+      ],
+      "source": {
+        "jsonPath": "qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T04-52-58-655Z\\full-audit.json",
+        "mdPath": "qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T04-52-58-655Z\\RAPORT-AUDYT-TRESCI-RESPONSYWNOSCI.md"
+      }
+    },
+    {
+      "key": "responsive:public:iphone-pro-max-430",
+      "mode": "responsive",
+      "group": "public",
+      "viewport": "iphone-pro-max-430",
+      "routes": 28,
+      "articles": 0,
+      "contentChecks": 0,
+      "responsiveChecks": 28,
+      "highIssues": 0,
+      "mediumIssues": 5,
+      "lowIssues": 0,
+      "reviewIssues": 0,
+      "highDetails": [],
+      "mediumSample": [
+        {
+          "route": "/metodyka",
+          "viewport": "iphone-pro-max-430",
+          "severity": "MEDIUM",
+          "code": "clipped-text",
+          "message": "Możliwe obcięcie tekstu: section, box=420x709.2, text=\"O mnie Krzysztof Regulski. Behawiorysta psów i kotów. Pomagam uporządkować sytuację psa lub kota tak, żeby po rozmowie z\"",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T04-55-41-342Z\\screenshots\\metodyka-iphone-pro-max-430.png"
+        },
+        {
+          "route": "/metodyka",
+          "viewport": "iphone-pro-max-430",
+          "severity": "MEDIUM",
+          "code": "clipped-text",
+          "message": "Możliwe obcięcie tekstu: section, box=396x403.5, text=\"PUBLIKACJA · MAGAZYN WETERYNARYJNY Strach, lęk i fobia u psów i kotów - różnicowanie i leczenie farmakologiczne Współaut\"",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T04-55-41-342Z\\screenshots\\metodyka-iphone-pro-max-430.png"
+        },
+        {
+          "route": "/o-mnie",
+          "viewport": "iphone-pro-max-430",
+          "severity": "MEDIUM",
+          "code": "clipped-text",
+          "message": "Możliwe obcięcie tekstu: section, box=420x709.2, text=\"O mnie Krzysztof Regulski. Behawiorysta psów i kotów. Pomagam uporządkować sytuację psa lub kota tak, żeby po rozmowie z\"",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T04-55-41-342Z\\screenshots\\o-mnie-iphone-pro-max-430.png"
+        },
+        {
+          "route": "/o-mnie",
+          "viewport": "iphone-pro-max-430",
+          "severity": "MEDIUM",
+          "code": "clipped-text",
+          "message": "Możliwe obcięcie tekstu: section, box=396x403.5, text=\"PUBLIKACJA · MAGAZYN WETERYNARYJNY Strach, lęk i fobia u psów i kotów - różnicowanie i leczenie farmakologiczne Współaut\"",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T04-55-41-342Z\\screenshots\\o-mnie-iphone-pro-max-430.png"
+        },
+        {
+          "route": "/quiz",
+          "viewport": "iphone-pro-max-430",
+          "severity": "MEDIUM",
+          "code": "clipped-text",
+          "message": "Możliwe obcięcie tekstu: section, box=392x1772.8, text=\"Quiz Dobierzmy najlepszy pierwszy krok Odpowiedz na kilka prostych pytań. Na końcu podpowiem, czy wystarczy krótka rozmo\"",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T04-55-41-342Z\\screenshots\\quiz-iphone-pro-max-430.png"
+        }
+      ],
+      "source": {
+        "jsonPath": "qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T04-55-41-342Z\\full-audit.json",
+        "mdPath": "qa-reports\\full-content-responsive-audit-responsive-public-2026-05-22T04-55-41-342Z\\RAPORT-AUDYT-TRESCI-RESPONSYWNOSCI.md"
+      }
+    },
+    {
+      "key": "responsive:public:iphone-se-320",
+      "mode": "responsive",
+      "group": "public",
+      "viewport": "iphone-se-320",
+      "routes": 28,
+      "articles": 0,
+      "contentChecks": 0,
+      "responsiveChecks": 28,
+      "highIssues": 0,
+      "mediumIssues": 20,
+      "lowIssues": 0,
+      "reviewIssues": 0,
+      "highDetails": [],
+      "mediumSample": [
+        {
+          "route": "/materialy",
+          "viewport": "iphone-se-320",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"MATERIAŁY PDF Materiały PDF dla opiekunów psów i kotów. Praktyczne wsparcie przed rozmową i na co dzień. Wybierz krótki \" + \"Odrzuć\" (11938px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-21T16-42-24-050Z\\screenshots\\materialy-iphone-se-320.png"
+        },
+        {
+          "route": "/materialy",
+          "viewport": "iphone-se-320",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"MATERIAŁY PDF Materiały PDF dla opiekunów psów i kotów. Praktyczne wsparcie przed rozmową i na co dzień. Wybierz krótki \" + \"Akceptuje analityke\" (11938px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-21T16-42-24-050Z\\screenshots\\materialy-iphone-se-320.png"
+        },
+        {
+          "route": "/materialy",
+          "viewport": "iphone-se-320",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Materiały dla psa → Materiały dla kota\" + \"Odrzuć\" (9132.1px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-21T16-42-24-050Z\\screenshots\\materialy-iphone-se-320.png"
+        },
+        {
+          "route": "/metodyka",
+          "viewport": "iphone-se-320",
+          "severity": "MEDIUM",
+          "code": "clipped-text",
+          "message": "Możliwe obcięcie tekstu: section, box=312x709.2, text=\"O mnie Krzysztof Regulski. Behawiorysta psów i kotów. Pomagam uporządkować sytuację psa lub kota tak, żeby po rozmowie z\"",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-21T16-42-24-050Z\\screenshots\\metodyka-iphone-se-320.png"
+        },
+        {
+          "route": "/metodyka",
+          "viewport": "iphone-se-320",
+          "severity": "MEDIUM",
+          "code": "clipped-text",
+          "message": "Możliwe obcięcie tekstu: section, box=288x502.8, text=\"PUBLIKACJA · MAGAZYN WETERYNARYJNY Strach, lęk i fobia u psów i kotów - różnicowanie i leczenie farmakologiczne Współaut\"",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-21T16-42-24-050Z\\screenshots\\metodyka-iphone-se-320.png"
+        },
+        {
+          "route": "/niezbednik",
+          "viewport": "iphone-se-320",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"MATERIAŁY PDF Materiały PDF dla opiekunów psów i kotów. Praktyczne wsparcie przed rozmową i na co dzień. Wybierz krótki \" + \"Odrzuć\" (11938px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-21T16-42-24-050Z\\screenshots\\niezbednik-iphone-se-320.png"
+        },
+        {
+          "route": "/niezbednik",
+          "viewport": "iphone-se-320",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"MATERIAŁY PDF Materiały PDF dla opiekunów psów i kotów. Praktyczne wsparcie przed rozmową i na co dzień. Wybierz krótki \" + \"Akceptuje analityke\" (11938px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-21T16-42-24-050Z\\screenshots\\niezbednik-iphone-se-320.png"
+        },
+        {
+          "route": "/niezbednik",
+          "viewport": "iphone-se-320",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Materiały dla psa → Materiały dla kota\" + \"Odrzuć\" (11938px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-21T16-42-24-050Z\\screenshots\\niezbednik-iphone-se-320.png"
+        },
+        {
+          "route": "/o-mnie",
+          "viewport": "iphone-se-320",
+          "severity": "MEDIUM",
+          "code": "clipped-text",
+          "message": "Możliwe obcięcie tekstu: section, box=312x709.2, text=\"O mnie Krzysztof Regulski. Behawiorysta psów i kotów. Pomagam uporządkować sytuację psa lub kota tak, żeby po rozmowie z\"",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-21T16-42-24-050Z\\screenshots\\o-mnie-iphone-se-320.png"
+        },
+        {
+          "route": "/o-mnie",
+          "viewport": "iphone-se-320",
+          "severity": "MEDIUM",
+          "code": "clipped-text",
+          "message": "Możliwe obcięcie tekstu: section, box=288x502.8, text=\"PUBLIKACJA · MAGAZYN WETERYNARYJNY Strach, lęk i fobia u psów i kotów - różnicowanie i leczenie farmakologiczne Współaut\"",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-21T16-42-24-050Z\\screenshots\\o-mnie-iphone-se-320.png"
+        },
+        {
+          "route": "/przybornik",
+          "viewport": "iphone-se-320",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"MATERIAŁY PDF Materiały PDF dla opiekunów psów i kotów. Praktyczne wsparcie przed rozmową i na co dzień. Wybierz krótki \" + \"Odrzuć\" (11938px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-21T16-42-24-050Z\\screenshots\\przybornik-iphone-se-320.png"
+        },
+        {
+          "route": "/przybornik",
+          "viewport": "iphone-se-320",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"MATERIAŁY PDF Materiały PDF dla opiekunów psów i kotów. Praktyczne wsparcie przed rozmową i na co dzień. Wybierz krótki \" + \"Akceptuje analityke\" (11938px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-21T16-42-24-050Z\\screenshots\\przybornik-iphone-se-320.png"
+        },
+        {
+          "route": "/przybornik",
+          "viewport": "iphone-se-320",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Materiały dla psa → Materiały dla kota\" + \"Odrzuć\" (11938px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-21T16-42-24-050Z\\screenshots\\przybornik-iphone-se-320.png"
+        },
+        {
+          "route": "/quiz",
+          "viewport": "iphone-se-320",
+          "severity": "MEDIUM",
+          "code": "clipped-text",
+          "message": "Możliwe obcięcie tekstu: section, box=284x2045.6, text=\"Quiz Dobierzmy najlepszy pierwszy krok Odpowiedz na kilka prostych pytań. Na końcu podpowiem, czy wystarczy krótka rozmo\"",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-21T16-42-24-050Z\\screenshots\\quiz-iphone-se-320.png"
+        },
+        {
+          "route": "/regulamin-pelna-konsultacja",
+          "viewport": "iphone-se-320",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Regulamin / pełna konsultacja Regulamin Pełnej konsultacji behawioralnej online Dokument opisuje zasady rezerwacji, płat\" + \"Odrzuć\" (11938px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-21T16-42-24-050Z\\screenshots\\regulamin-pelna-konsultacja-iphone-se-320.png"
+        },
+        {
+          "route": "/regulamin-pelna-konsultacja",
+          "viewport": "iphone-se-320",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Regulamin / pełna konsultacja Regulamin Pełnej konsultacji behawioralnej online Dokument opisuje zasady rezerwacji, płat\" + \"Akceptuje analityke\" (11938px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-21T16-42-24-050Z\\screenshots\\regulamin-pelna-konsultacja-iphone-se-320.png"
+        },
+        {
+          "route": "/regulamin-pelna-konsultacja",
+          "viewport": "iphone-se-320",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Regulamin / pełna konsultacja Regulamin Pełnej konsultacji behawioralnej online Dokument opisuje zasady rezerwacji, płat\" + \"Odrzuć\" (11938px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-21T16-42-24-050Z\\screenshots\\regulamin-pelna-konsultacja-iphone-se-320.png"
+        },
+        {
+          "route": "/zamow-pdf",
+          "viewport": "iphone-se-320",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"MATERIAŁY PDF Materiały PDF dla opiekunów psów i kotów. Praktyczne wsparcie przed rozmową i na co dzień. Wybierz krótki \" + \"Odrzuć\" (11938px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-21T16-42-24-050Z\\screenshots\\zamow-pdf-iphone-se-320.png"
+        },
+        {
+          "route": "/zamow-pdf",
+          "viewport": "iphone-se-320",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"MATERIAŁY PDF Materiały PDF dla opiekunów psów i kotów. Praktyczne wsparcie przed rozmową i na co dzień. Wybierz krótki \" + \"Akceptuje analityke\" (11938px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-21T16-42-24-050Z\\screenshots\\zamow-pdf-iphone-se-320.png"
+        },
+        {
+          "route": "/zamow-pdf",
+          "viewport": "iphone-se-320",
+          "severity": "MEDIUM",
+          "code": "possible-overlap",
+          "message": "Możliwe zachodzenie elementów: \"Materiały dla psa → Materiały dla kota\" + \"Odrzuć\" (11938px2).",
+          "screenshot": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\full-content-responsive-audit-responsive-public-2026-05-21T16-42-24-050Z\\screenshots\\zamow-pdf-iphone-se-320.png"
+        }
+      ],
+      "source": {
+        "jsonPath": "qa-reports\\full-content-responsive-audit-responsive-public-2026-05-21T16-42-24-050Z\\full-audit.json",
+        "mdPath": "qa-reports\\full-content-responsive-audit-responsive-public-2026-05-21T16-42-24-050Z\\RAPORT-AUDYT-TRESCI-RESPONSYWNOSCI.md"
+      }
+    }
+  ],
+  "mass30Bookings": {
+    "status": "PASS",
+    "createdCount": 30,
+    "persistedCount": 30,
+    "priceMismatchCount": 0,
+    "dataDir": "C:\\projekt\\regulskibehawiorysta\\.tmp-local-data\\mass-30-bookings-23872-1779378685201-iray3m",
+    "outDir": "C:\\projekt\\regulskibehawiorysta\\qa-reports\\mass-30-bookings-2026-05-21T15-51-25-195Z",
+    "emailMode": "disabled",
+    "paymentMode": "mock",
+    "dataMode": "local",
+    "services": {
+      "konsultacja-30-min": 7,
+      "konsultacja-behawioralna-online": 7,
+      "kwadrans-na-juz": 8,
+      "szybka-konsultacja-15-min": 8
+    }
+  },
+  "stage4Mobile": {
+    "status": "PASS",
+    "checked": 8,
+    "source": "qa-reports\\AKTUALNY-AUDYT-2026-05-21\\evidence\\stage4-mobile\\stage4-mobile-verification.json"
+  },
+  "typography": [
+    {
+      "viewport": "desktop-1365",
+      "routes": 68,
+      "samples": 68,
+      "issueCounts": {
+        "MEDIUM": 55
+      },
+      "path": "qa-reports\\AKTUALNY-AUDYT-2026-05-21\\typography-spacing-audit-all-desktop-1365.json"
+    },
+    {
+      "viewport": "mobile-390",
+      "routes": 68,
+      "samples": 68,
+      "issueCounts": {},
+      "path": "qa-reports\\AKTUALNY-AUDYT-2026-05-21\\typography-spacing-audit-all-mobile-390.json"
+    },
+    {
+      "viewport": "narrow-320",
+      "routes": 68,
+      "samples": 68,
+      "issueCounts": {
+        "MEDIUM": 54,
+        "REVIEW": 3
+      },
+      "path": "qa-reports\\AKTUALNY-AUDYT-2026-05-21\\typography-spacing-audit-all-narrow-320.json"
+    }
+  ],
+  "commands": [
+    "npm.cmd run lint",
+    "npm.cmd run build",
+    "npm.cmd run pricing-smoke",
+    "node --import tsx tmp\\naffy-assets\\mass-30-bookings-local-sandbox.ts",
+    "node tmp\\naffy-assets\\full-regulski-content-responsive-audit.cjs --mode=content/responsive --group=public/article/booking/app/protected",
+    "node tmp\\naffy-assets\\audit-typography-spacing.cjs --group=all --viewport=desktop-1365/mobile-390/narrow-320"
+  ]
+}

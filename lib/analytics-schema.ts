@@ -60,11 +60,7 @@ export function getBookingAnalyticsContextParams({
 }
 
 export function getFunnelEntryEventForHref(href: string) {
-  if (href.startsWith('/niezbednik')) {
-    return 'funnel_entry_niezbędnik'
-  }
-
-  if (href.startsWith('/kontakt')) {
+  if (href.startsWith('/kontakt') || href.startsWith('/materialy')) {
     return null
   }
 
@@ -80,7 +76,7 @@ export function getFunnelEntryEventForHref(href: string) {
 }
 
 export function getFunnelEntryLabelForHref(href: string) {
-  if (href.startsWith('/niezbednik')) {
+  if (href.startsWith('/materialy')) {
     return FUNNEL_CTA_LABELS.secondary
   }
 

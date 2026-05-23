@@ -75,11 +75,11 @@ function formatPaypalMe(value: string | null): { display: string | null; url: st
 
 function getManualPaymentMethodLabel(phone: string | null, paypalMeUrl: string | null) {
   if (phone && paypalMeUrl) {
-    return 'BLIK i PayPal.me'
+    return 'BLIK po instrukcji e-mail i PayPal.me'
   }
 
   if (phone) {
-    return 'BLIK'
+    return 'BLIK po instrukcji e-mail'
   }
 
   if (paypalMeUrl) {
@@ -91,11 +91,11 @@ function getManualPaymentMethodLabel(phone: string | null, paypalMeUrl: string |
 
 function getManualPaymentAvailabilityLabel(phone: string | null, paypalMeUrl: string | null) {
   if (phone && paypalMeUrl) {
-    return 'BLIK i PayPal.me są dostępne'
+    return 'BLIK po instrukcji e-mail i PayPal.me są dostępne'
   }
 
   if (phone) {
-    return 'BLIK jest dostępny'
+    return 'BLIK po instrukcji e-mail jest dostępny'
   }
 
   if (paypalMeUrl) {
@@ -227,7 +227,7 @@ function getQaCheckoutContactGateStatus(email: string, phone: string): { isAllow
 }
 
 export function getQaCheckoutEligibility(
-  booking: Pick<BookingRecord, 'id' | 'qaBooking' | 'email' | 'phone'>,
+  booking: Pick<BookingRecord, 'id' | 'qaBooking' | 'email'> & { phone?: string | null },
 ): QaCheckoutEligibility {
   const payment = getPaymentModeStatus()
   const paymentReference = getQaCheckoutPaymentReference(booking.id)
@@ -250,7 +250,7 @@ export function getQaCheckoutEligibility(
     }
   }
 
-  const contactGate = getQaCheckoutContactGateStatus(booking.email, booking.phone)
+  const contactGate = getQaCheckoutContactGateStatus(booking.email, booking.phone ?? '')
 
   if (!contactGate.isAllowed) {
     return {
@@ -304,7 +304,7 @@ export function getManualPaymentConfig(): ManualPaymentConfig {
       accountName,
       instructions,
       holdMinutes,
-      summary: 'Wpłata ręczna wymaga aktywnej konfiguracji BLIK lub PayPal.me.',
+      summary: 'Wpłata ręczna wymaga aktywnej konfiguracji BLIK po instrukcji e-mail lub PayPal.me.',
     }
   }
 

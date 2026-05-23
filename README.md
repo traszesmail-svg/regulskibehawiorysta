@@ -12,7 +12,7 @@ Lekka aplikacja Next.js dla marki Regulski Behawiorysta i jednego specjalisty pr
 - manual review jako aktywny flow płatności live, z PayU jako opcjonalna ścieżka do ponownego włączenia oraz legacy Stripe/mock zachowanym do zgodnosci i QA
 - kontrolowany test checkout QA z jawną flagą bookingu, env gate i allowlistą kontaktów
 - first-party funnel ledger oraz wewnętrzny KPI dashboard w `/admin`; GA4 jest opcjonalne i działa tylko po zgodzie
-- serwerowe potwierdzenia płatności SMS z idempotencja po webhooku / finalnym sukcesie po stronie backendu
+- legacy/internal SMS fallback w backendzie; nowe formularze klienta nie zbierają numeru telefonu
 - lokalny fallback JSON do developmentu, który tworzy katalog `data/` runtime tylko wtedy, gdy pracujesz w trybie local; statyczne treści produktowe nie powinny być tam trzymane
 
 ## Operacyjnie
@@ -49,12 +49,12 @@ Najważniejsze zmienne:
 - `PAYU_SECOND_KEY`
 - `TEST_CHECKOUT_ENABLED`
 - `QA_CHECKOUT_EMAIL_ALLOWLIST`
-- `QA_CHECKOUT_PHONE_ALLOWLIST`
+- `QA_CHECKOUT_PHONE_ALLOWLIST` (legacy/internal; główny gate QA powinien używać e-maila)
 - `RESEND_API_KEY`
 - `MAIL_PROVIDER`
 - `ADMIN_NOTIFICATION_EMAIL`
 - `CRON_SECRET`
-- `SMS_PROVIDER`
+- `SMS_PROVIDER` (domyślnie `disabled`, legacy/internal)
 - `SMS_API_KEY`
 - `SMS_SENDER`
 
@@ -62,6 +62,7 @@ Uwaga:
 
 - `SUPABASE_SERVICE_ROLE_KEY` musi byc prawdziwym kluczem service role (`sb_secret_...` albo legacy JWT z rola `service_role`).
 - Klucz `sb_publishable_...` nie wystarczy do zapisu ceny, bookingow ani adminowych operacji.
+- `Pokoj opiekuna` loguje przez serwerowe endpointy i prywatne cookie, wiec nie wymaga publicznego klucza Supabase w przegladarce.
 - `ADMIN_NOTIFICATION_EMAIL` odbiera maile o kliknieciu `Zaplacilem, czekam na potwierdzenie` dla manualnych wplat.
 - `MAIL_PROVIDER=gmail` pozwala wysyłac maile klienta i admina przez Gmail SMTP zamiast Resend.
 - dla Gmail SMTP potrzebujesz `GMAIL_SMTP_USER`, `GMAIL_SMTP_APP_PASSWORD` i opcjonalnie `GMAIL_FROM_EMAIL` (domyslnie bierze `GMAIL_SMTP_USER`).

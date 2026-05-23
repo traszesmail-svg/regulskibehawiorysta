@@ -26,7 +26,7 @@ const quickHref = buildBookHref(null, 'szybka-konsultacja-15-min', false)
 function MaterialyGuideCard({ guide }: { guide: MaterialyGuide }) {
   const coverSrc = getMaterialyGuideCoverSrc(guide)
   const previews = getMaterialyGuidePreviewSrcs(guide, 2)
-  const ctaLabel = guide.priceCode === 'free' ? 'Zobacz w Niezbędniku' : 'Zapytaj o PDF'
+  const ctaLabel = guide.priceCode === 'free' ? 'Jak pobrać PDF' : 'Zapytaj o PDF'
 
   return (
     <article className="notatnik-material-card notatnik-material-card-with-cover">
@@ -70,7 +70,7 @@ function MaterialyGuideCard({ guide }: { guide: MaterialyGuide }) {
         ))}
       </ul>
 
-      <Link href={guide.priceCode === 'free' ? '/niezbednik' : '/kontakt#formularz'} prefetch={false}>
+      <Link href={guide.priceCode === 'free' ? '/materialy#jak-to-dziala' : '/kontakt#formularz'} prefetch={false}>
         {ctaLabel} &rarr;
       </Link>
     </article>
@@ -185,8 +185,6 @@ export default function MaterialyLandingPage() {
         copy="PDF jest dobry jako spokojny start. Gdy objaw wraca albo łączy się z innymi wątkami, rozmowa szybciej ustawia priorytet."
         primaryHref={quickHref}
         primaryLabel="Umów spokojny pierwszy krok / 69 zł"
-        secondaryHref="/niezbednik"
-        secondaryLabel="Zobacz Niezbędnik"
       />
     </NotatnikPageShell>
   )

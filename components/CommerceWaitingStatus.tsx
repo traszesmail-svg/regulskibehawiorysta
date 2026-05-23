@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
+import { trackAnalyticsEvent } from '@/lib/analytics'
 
 type StatusPayload = {
   status: string
@@ -74,6 +75,34 @@ export function CommerceWaitingStatus({
   const [readyText, setReadyText] = useState(initialReadyText)
   const [testAdminConfirmUrl, setTestAdminConfirmUrl] = useState(initialTestAdminConfirmUrl)
   const [error, setError] = useState('')
+  const previousStatusRef = useRef(initialStatus)
+  const confirmedTrackedRef = useRef(false)
+
+  useEffect(() => {
+    if (previousStatusRef.current !== status && status === 'payment_reported') {
+      trackAnalyticsEvent('payment_reported', {
+        order_number: orderNumber,
+        source_page: '/oczekiwanie',
+        payment_method: 'manual_blik',
+      })
+    }
+
+    previousStatusRef.current = status
+  }, [orderNumber, status])
+
+  useEffect(() => {
+    const isReadyStatus = ready || status === 'paid' || status === 'access_sent'
+    if (!isReadyStatus || confirmedTrackedRef.current) {
+      return
+    }
+
+    confirmedTrackedRef.current = true
+    trackAnalyticsEvent('payment_confirmed', {
+      order_number: orderNumber,
+      source_page: '/oczekiwanie',
+      status,
+    })
+  }, [orderNumber, ready, status])
 
   useEffect(() => {
     if (ready && readyUrl) return

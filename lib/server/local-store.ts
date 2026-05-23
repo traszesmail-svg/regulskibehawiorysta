@@ -11,12 +11,13 @@ import { getBookingAnalyticsContextParams } from '@/lib/analytics-schema'
 import { compareDateAndTime, formatDateLabel, isFutureAvailabilitySlot } from '@/lib/data'
 import { normalizePolishPhone } from '@/lib/phone'
 import { createActiveConsultationPrice, DEFAULT_PRICE_PLN, parseConsultationPriceInput } from '@/lib/pricing'
-import { buildSeedAvailabilitySlots, hasFutureAvailabilitySlots } from '@/lib/server/availability-seed'
+import { buildSeedAvailabilitySlots } from '@/lib/server/availability-seed'
 import { createCustomerAccessToken, hasValidCustomerAccessToken } from '@/lib/server/customer-access'
 import { getReservationWindowMinutes } from '@/lib/server/env'
 import { createMeetingUrl, normalizeMeetingUrl } from '@/lib/server/jitsi'
 import { getLocalStoreDataDir } from '@/lib/server/local-store-path'
 import { getManualPaymentConfig } from '@/lib/server/payment-options'
+import { isAvailabilitySlotBookableForService } from '@/lib/scheduling/rules'
 import {
   createUrgentNowRequest as createUrgentNowRequestRecord,
   listUrgentNowRequests as listUrgentNowRequestRecords,
@@ -26,7 +27,6 @@ import { createFunnelEventRecord, normalizeFunnelEventProperties } from '@/lib/s
 import {
   sendBookingConfirmationEmail,
   sendBookingPaymentConfirmedOwnerEmail,
-  sendBookingOwnerNotificationEmail,
   sendBookingReservationCreatedEmail,
   sendBookingManualPaymentPendingEmail,
   sendBookingStatusOutcomeEmail,
@@ -248,10 +248,6 @@ function normalizeExpiredReservations(store: LocalStoreData): LocalStoreData {
 }
 
 function ensureFutureLocalAvailability(store: LocalStoreData): LocalStoreData {
-  if (hasFutureAvailabilitySlots(store.availability)) {
-    return store
-  }
-
   const nowIso = new Date().toISOString()
   const seeded = buildSeedAvailabilitySlots(new Date(nowIso), nowIso)
   const existingIds = new Set(store.availability.map((slot) => slot.id))
@@ -512,11 +508,16 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
       throw new Error('Wybrany termin jest już przeszły. Wybierz nową godzinę rozmowy.')
     }
 
+    if (!isAvailabilitySlotBookableForService(slot, serviceType)) {
+      throw new Error('Wybrany termin nie jest dostępny dla tej usługi.')
+    }
+
     const nowIso = new Date().toISOString()
     const user = findOrCreateUser(store, form.email, nowIso)
     const bookingId = crypto.randomUUID()
     const accessToken = createCustomerAccessToken()
     const reservationExpiresAt = new Date(Date.now() + getReservationWindowMinutes() * 60 * 1000).toISOString()
+    const customerPhone = form.phone?.trim() ?? ''
     console.info('[regulski-behawiorysta][pricing] booking-created', {
       bookingId,
       amount: getBookingServicePrice(serviceType, pricing.amount),
@@ -534,9 +535,9 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
       petAge: form.petAge,
       durationNotes: form.durationNotes,
       description: form.description,
-      phone: form.phone,
+      phone: customerPhone,
       qaBooking: form.qaBooking ?? false,
-      customerPhoneNormalized: normalizePolishPhone(form.phone)?.e164 ?? null,
+      customerPhoneNormalized: normalizePolishPhone(customerPhone)?.e164 ?? null,
       email: form.email,
       bookingDate: slot.bookingDate,
       bookingTime: slot.bookingTime,
@@ -580,14 +581,6 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
     store.bookings.unshift(booking)
     await persistStore(store)
     await sendBookingReservationCreatedEmail(booking, accessToken.rawToken)
-    const ownerNotification = await sendBookingOwnerNotificationEmail(booking)
-    if (ownerNotification.status !== 'sent') {
-      console.error('[regulski-behawiorysta][booking-owner-notification] failed', {
-        bookingId: booking.id,
-        reason: ownerNotification.reason,
-        status: ownerNotification.status,
-      })
-    }
 
     return { booking, slot: { ...slot }, accessToken: accessToken.rawToken }
   })

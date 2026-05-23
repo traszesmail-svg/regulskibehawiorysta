@@ -22,7 +22,7 @@ const routeChecks = [
     route: '/kontakt',
     heading: 'Napisz, jeśli masz pytanie przed rezerwacją albo chcesz sprawdzić dostępność terminów.',
   },
-  { route: '/niezbednik', heading: 'Niezbędnik - materiały do samodzielnej pracy' },
+  { route: '/materialy', heading: 'Materialy - materiały do samodzielnej pracy' },
   { route: '/cennik', heading: 'Cennik i zakres konsultacji' },
   { route: '/konsultacja-behawioralna-online', heading: 'Konsultacja behawioralna online - jak to wygląda' },
   { route: '/behawiorysta-psow', heading: 'Behawiorysta psów online' },
@@ -113,8 +113,8 @@ async function main() {
     const contactHtml = await fetch(`${appUrl}/kontakt`, { cache: 'no-store' }).then((res) => res.text())
     assert.equal(contactHtml.includes('Kontakt ma być spokojnym filtrem wejścia, nie osobnym lejkiem'), true)
 
-    const essentialsHtml = await fetch(`${appUrl}/niezbednik`, { cache: 'no-store' }).then((res) => res.text())
-    assert.equal(essentialsHtml.includes('Niezbędnik ma wspierać decyzję, nie udawać nowej usługi'), true)
+    const essentialsHtml = await fetch(`${appUrl}/materialy`, { cache: 'no-store' }).then((res) => res.text())
+    assert.equal(essentialsHtml.includes('Materialy ma wspierać decyzję, nie udawać nowej usługi'), true)
 
     const landingHtml = await fetch(`${appUrl}/psy/reaktywnosc-na-smyczy`, { cache: 'no-store' }).then((res) => res.text())
     assert.equal(landingHtml.includes('Jak wygląda punkt startu przy podobnym problemie'), true)

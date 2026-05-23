@@ -102,4 +102,4 @@ Jeśli spacery wyglądają jak w opisie powyżej i chcesz wiedzieć, od czego ko
 
 Opowiadasz, jak wygląda typowy spacer, co próbowałaś/próbowałeś, jak pies zachowuje się poza spacerem. Wychodzisz z jednym kierunkiem na pierwszą zmianę.
 
-[Umów Kwadrans z behawiorystą](/book) · [Pomoc dla opiekunów psów](/psy) · [Niezbędnik — poradnik o reaktywnym psie na spacerze](/niezbednik)
+[Umów Kwadrans z behawiorystą](/book) · [Pomoc dla opiekunów psów](/psy) · [Materiały PDF — poradnik o reaktywnym psie na spacerze](/materialy)

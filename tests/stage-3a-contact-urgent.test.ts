@@ -24,6 +24,6 @@ test('stage 3a keeps contact and urgent species selection neutral and in sync wi
   assert.match(urgentSource, /<option value="">Wybierz gatunek<\/option>/)
   assert.match(urgentSource, /<option value="">\{species \? 'Wybierz temat' : 'Najpierw wybierz gatunek'\}<\/option>/)
   assert.match(urgentSource, /disabled=\{!species\}/)
-  assert.match(urgentSource, /Dostalem Twoja prosbe\. Odpowiem w ciagu 15 minut\./)
+  assert.match(urgentSource, /Odpowiem priorytetowo/)
   assert.doesNotMatch(urgentSource, /OdpiszÄ™|wyslÄ™|â€”/)
 })

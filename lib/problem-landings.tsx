@@ -5,11 +5,10 @@ import path from 'node:path'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import React, { type ReactNode } from 'react'
-import { Footer } from '@/components/Footer'
 import { HeroIllustration } from '@/components/HeroIllustration'
 import { FunnelPrimaryActions } from '@/components/FunnelPrimaryActions'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
-import { NotatnikSideVisuals, NotatnikTopbar, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
+import { NotatnikFooter, NotatnikSideVisuals, NotatnikTopbar, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
 import { LeadMagnetSignup } from '@/components/LeadMagnetSignup'
 import { NewsletterSignup } from '@/components/NewsletterSignup'
 import { TrustSignalSection } from '@/components/TrustSignalSection'
@@ -167,9 +166,9 @@ const PROBLEM_LANDING_CONFIGS: ProblemLandingConfig[] = [
         copy: 'Jeśli obok trudności z samotnością pojawia się też wysokie napięcie na spacerach, zobacz również tę stronę problemową.',
       },
       {
-        href: '/niezbednik',
-        label: 'Niezbędnik',
-        copy: 'Jeśli chcesz zobaczyć więcej materiałów i spokojnie porównać ścieżki, wróć do huba problemów i treści.',
+        href: '/materialy#psy',
+        label: 'Materiały PDF',
+        copy: 'Jeśli chcesz zobaczyć więcej materiałów i spokojnie porównać ścieżki, przejdź do materiałów dla opiekunów psów.',
       },
     ],
   },
@@ -824,11 +823,11 @@ export function ProblemLandingPage({ routePath }: { routePath: string }) {
 
         <TrustSignalSection
           eyebrow="Zaufanie"
-          title="Spokojna diagnoza behawioralna oparta na danych przed kolejnymi próbami"
+          title="Spokojna analiza zachowania oparta na danych przed kolejnymi próbami"
           description="Przy takich sytuacjach najważniejsze jest dobre rozpoznanie kontekstu i uczciwy pierwszy plan."
           items={[
             {
-              title: 'Najpierw diagnoza behawioralna oparta na informacjach, potem technika',
+              title: 'Najpierw analiza zachowania oparta na informacjach, potem technika',
               copy: 'Najważniejsze jest zrozumienie wyzwalaczy, tła i priorytetu, zanim wejdziesz w kolejne ćwiczenia.',
             },
             {
@@ -931,14 +930,7 @@ export function ProblemLandingPage({ routePath }: { routePath: string }) {
           </div>
         </section>
 
-        <Footer
-          variant="home"
-          sectionBasePath={landing.categoryHref}
-          ctaHref={landing.audioHref}
-          ctaLabel={FUNNEL_CTA_LABELS.primary}
-          secondaryHref="/niezbednik"
-          secondaryLabel={FUNNEL_CTA_LABELS.secondary}
-        />
+        <NotatnikFooter />
       </div>
     </main>
   )

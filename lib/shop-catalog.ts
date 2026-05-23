@@ -497,7 +497,7 @@ function getPdfFunnelEnough(role: string | undefined): string {
     case 'lead_magnet':
       return 'Wystarcza, gdy chcesz najpierw sprawdzić, czy problem zaczyna się od pobudzenia i przeciążenia, a nie od samego braku ruchu.'
     case 'starter':
-      return 'Wystarcza, gdy chcesz pierwszy spokojny plan wdrożenia i nie potrzebujesz jeszcze głębszej diagnozy behawioralnej.'
+      return 'Wystarcza, gdy chcesz pierwszy spokojny plan wdrożenia i nie potrzebujesz jeszcze głębszej analizy zachowania.'
     case 'starter-core':
       return 'Wystarcza, gdy chcesz wejść krok dalej niż starter, ale nadal potrzebujesz prostego pierwszego planu.'
     case 'specialist':
@@ -614,7 +614,7 @@ const SHOP_ENTRANCES: ShopEntranceCard[] = [
     eyebrow: 'PDF dla kotów',
     title: 'Koty',
     summary: 'Materiały PDF jako drugi krok, gdy chcesz wrócić do zaleceń we własnym tempie.',
-    href: '/niezbednik#polecane-starty',
+    href: '/materialy#koty',
     cta: 'Zobacz materiały PDF',
   },
   {
@@ -622,7 +622,7 @@ const SHOP_ENTRANCES: ShopEntranceCard[] = [
     eyebrow: 'PDF dla psów',
     title: 'Psy',
     summary: 'Materiały PDF do spokojnego uporządkowania tematu między krokami.',
-    href: '/niezbednik#polecane-starty',
+    href: '/materialy#psy',
     cta: 'Zobacz materiały PDF',
   },
   {
@@ -630,7 +630,7 @@ const SHOP_ENTRANCES: ShopEntranceCard[] = [
     eyebrow: 'Pakiety PDF',
     title: 'Pakiety PDF',
     summary: 'Gdy jeden materiał to za mało i chcesz szerzej uporządkować temat bez chaosu.',
-    href: '/niezbednik#polecane-starty',
+    href: '/materialy',
     cta: 'Zobacz pakiety',
   },
   {

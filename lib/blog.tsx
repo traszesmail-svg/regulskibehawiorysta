@@ -313,13 +313,13 @@ const SERVICE_LANDING_LINK: BlogSupportLink = {
 const CONSULTATION_PAGE_LINK: BlogSupportLink = {
   label: 'Konsultacja behawioralna online',
   href: '/konsultacja-behawioralna-online',
-  description: 'Opis pełnej konsultacji, przebiegu rozmowy i tego, kiedy warto wejść w szersza konsultacje.',
+    description: 'Opis pełnej konsultacji, przebiegu rozmowy i tego, kiedy warto wejść w szerszą konsultację.',
 }
 
 const PREP_GUIDE_LINK: BlogSupportLink = {
-  label: 'Bezpłatny materiał startowy',
-  href: '/niezbednik',
-  description: 'Szeroki przewodnik, jeśli chcesz najpierw uporządkować obserwacje przed rozmowa.',
+  label: 'Umów pierwszy krok',
+  href: '/',
+  description: 'Przejdź do strony głównej i wybierz pierwszy krok pomocy.',
 }
 
 const REACTIVITY_LANDING_LINK: BlogSupportLink = {
@@ -329,21 +329,21 @@ const REACTIVITY_LANDING_LINK: BlogSupportLink = {
 }
 
 const REACTIVITY_GUIDE_LINK: BlogSupportLink = {
-  label: 'Bezpłatny PDF: pies i poziom ruchu',
-  href: '/materialy#psy',
-  description: 'Materiał o tym, kiedy ruch pomaga, a kiedy doklada pobudzenia i przeciazenia.',
+  label: 'Umów pierwszy krok',
+  href: '/',
+  description: 'Przejdź do strony głównej i wybierz pierwszy krok pomocy.',
 }
 
 const SEPARATION_LANDING_LINK: BlogSupportLink = {
   label: 'Lęk separacyjny u psa',
   href: '/psy/lek-separacyjny',
-  description: 'Główny landing problemowy o zostawaniu samemu, diagnozie i pierwszym bezpiecznym planie.',
+  description: 'Główny landing problemowy o zostawaniu samemu, analizie zachowania i pierwszym bezpiecznym planie.',
 }
 
 const SEPARATION_GUIDE_LINK: BlogSupportLink = {
-  label: 'PDF: pies zostaje sam',
-  href: '/materialy#psy',
-  description: 'Materiał startowy o samotności psa, jeśli chcesz najpierw spokojnie przeczytać plan pierwszych kroków.',
+  label: 'Umów pierwszy krok',
+  href: '/',
+  description: 'Przejdź do strony głównej i wybierz pierwszy krok pomocy.',
 }
 
 const LITTER_LANDING_LINK: BlogSupportLink = {
@@ -353,9 +353,9 @@ const LITTER_LANDING_LINK: BlogSupportLink = {
 }
 
 const LITTER_GUIDE_LINK: BlogSupportLink = {
-  label: 'Bezpłatny PDF: kot w napięciu',
-  href: '/materialy#koty',
-  description: 'Materiał o cichych sygnałach stresu, które często stoją za szerszym problemem.',
+  label: 'Umów pierwszy krok',
+  href: '/',
+  description: 'Przejdź do strony głównej i wybierz pierwszy krok pomocy.',
 }
 
 const CAT_CONFLICT_LANDING_LINK: BlogSupportLink = {
@@ -365,9 +365,9 @@ const CAT_CONFLICT_LANDING_LINK: BlogSupportLink = {
 }
 
 const CAT_CONFLICT_GUIDE_LINK: BlogSupportLink = {
-  label: 'PDF: kot żyje w napięciu',
-  href: '/materialy#koty',
-  description: 'Dalszy materiał, jeśli chcesz przejść od pojedynczego artykułu do spokojniejszej obserwacji domu.',
+  label: 'Umów pierwszy krok',
+  href: '/',
+  description: 'Przejdź do strony głównej i wybierz pierwszy krok pomocy.',
 }
 
 const BLOG_POST_CONFIGS: BlogPostConfig[] = [
@@ -386,9 +386,9 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
         description: 'Hub tematów psich, jeśli pierwsza noc łączy się z gryzieniem, pobudzeniem albo separacją.',
       },
       {
-        label: 'PDF: Szczeniak pierwsze 30 dni',
-        href: '/materialy',
-        description: 'Szerszy materiał o pierwszym miesiacu, rytmie dnia, snie i bezpiecznych nawykach.',
+        label: 'Umów pierwszy krok',
+        href: '/',
+        description: 'Przejdź do strony głównej i wybierz pierwszy krok pomocy.',
       },
       {
         label: FUNNEL_CTA_LABELS.primary,
@@ -397,7 +397,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
       },
       {
         label: 'Quiz',
-        href: '/wybor',
+        href: '/quiz',
         description: 'Quiz, jeśli wahasz się między Kwadransem a szerszą rozmową.',
       },
     ],
@@ -427,9 +427,9 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
         description: 'Dobry start, jeśli chcesz odnieść ten temat do swojego psa.',
       },
       {
-        label: 'Niezbędnik',
-        href: '/niezbednik',
-        description: 'Materiały, do których możesz wrócić po lekturze.',
+        label: 'Umów pierwszy krok',
+        href: '/',
+        description: 'Przejdź do strony głównej i wybierz pierwszy krok pomocy.',
       },
     ],
   },
@@ -458,9 +458,9 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
         description: 'Jeśli chcesz ustalić pierwszy plan dla swojego psa.',
       },
       {
-        label: 'Niezbędnik',
-        href: '/niezbednik',
-        description: 'Materiały pomocnicze do spokojnej pracy między kolejnymi krokami.',
+        label: 'Umów pierwszy krok',
+        href: '/',
+        description: 'Przejdź do strony głównej i wybierz pierwszy krok pomocy.',
       },
     ],
   },
@@ -489,9 +489,9 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
         description: 'Jeśli chcesz ustalić, od czego zacząć w swojej sytuacji.',
       },
       {
-        label: 'Niezbędnik',
-        href: '/niezbednik',
-        description: 'Materiały, które pomagają wrócić do tematu spokojnie i po kolei.',
+        label: 'Umów pierwszy krok',
+        href: '/',
+        description: 'Przejdź do strony głównej i wybierz pierwszy krok pomocy.',
       },
     ],
   },
@@ -582,9 +582,9 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
         description: 'Jeśli chcesz uporządkować, co stoi za zachowaniem kota.',
       },
       {
-        label: 'Niezbędnik',
-        href: '/niezbednik',
-        description: 'Materiały pomocnicze do samodzielnej pracy i spokojnego powrotu do zaleceń.',
+        label: 'Umów pierwszy krok',
+        href: '/',
+        description: 'Przejdź do strony głównej i wybierz pierwszy krok pomocy.',
       },
     ],
   },
@@ -604,7 +604,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
       },
       {
         label: 'Pierwsze dni po adopcji',
-        href: '/niezbednik',
+        href: '/',
         description: 'Konkretny materiał, jeśli jesteś na starcie po adopcji.',
       },
       {
@@ -613,9 +613,9 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
         description: 'Dobry start, jeśli chcesz ustalić plan na pierwsze dni z psem.',
       },
       {
-        label: 'Niezbędnik',
-        href: '/niezbednik',
-        description: 'Materiały do spokojnego uporządkowania tematu po lekturze.',
+        label: 'Umów pierwszy krok',
+        href: '/',
+        description: 'Przejdź do strony głównej i wybierz pierwszy krok pomocy.',
       },
     ],
   },
@@ -811,7 +811,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     supportLinks: [
       SEPARATION_LANDING_LINK,
       {
-        label: 'Jak nagrac psa zostawionego samemu',
+        label: 'Jak nagrać psa zostawionego samemu',
         href: '/blog',
         description: 'Daje materiał do oceny, jeśli po pracy nad rutyną potrzebujesz lepiej zobaczyć, co napędza problem.',
       },
@@ -1226,7 +1226,9 @@ function parseMarkdownBlocks(source: string): BlogMarkdownBlock[] {
 }
 
 function isSkipSectionHeading(text: string): boolean {
-  return /linkowanie wewnętrzne/i.test(text)
+  const normalized = normalizeForComparison(text)
+
+  return normalized === 'linkowanie' || normalized === 'linkowanie wewnętrzne'
 }
 
 function classifySectionHeading(text: string): 'intro' | 'faq' | 'cta' | 'default' {
@@ -1315,6 +1317,29 @@ function renderMarkdownBlock(
   }
 }
 
+function isLegacyCtaLinkBlock(block: BlogMarkdownBlock): boolean {
+  if (block.type !== 'paragraph') {
+    return false
+  }
+
+  const text = repairCopy(block.text)
+  const lowerText = text.toLowerCase()
+  const legacyMaterialPath = `/${'materialy'}`
+  const legacyToolkitPath = `/${'niez' + 'bednik'}`
+
+  return (
+    /\]\(/.test(text) &&
+    (lowerText.includes('kategoria:') ||
+      lowerText.includes('zamów') ||
+      lowerText.includes('umów kwadrans') ||
+      lowerText.includes('/book') ||
+      lowerText.includes('/call') ||
+      lowerText.includes(legacyMaterialPath) ||
+      lowerText.includes(legacyToolkitPath) ||
+      lowerText.includes('pdf'))
+  )
+}
+
 function renderBlogSection(
   section: {
     heading: BlogMarkdownHeadingBlock | null
@@ -1324,8 +1349,12 @@ function renderBlogSection(
   audioHref: string,
 ): ReactNode {
   const headingText = section.heading?.text ?? ''
-  const sectionType = section.heading ? classifySectionHeading(section.heading.text) : 'default'
+  const classifiedSectionType = section.heading ? classifySectionHeading(section.heading.text) : 'default'
+  const sectionType =
+    classifiedSectionType === 'default' && section.blocks.some(isLegacyCtaLinkBlock) ? 'cta' : classifiedSectionType
   const sectionClasses = ['blog-content-section']
+  const visibleBlocks =
+    sectionType === 'cta' ? section.blocks.filter((block) => !isLegacyCtaLinkBlock(block)) : section.blocks
 
   if (sectionType !== 'default') {
     sectionClasses.push(`blog-content-section--${sectionType}`)
@@ -1344,16 +1373,21 @@ function renderBlogSection(
             __html: renderInlineMarkdown(section.heading.text, audioHref),
           },
         })
-      : section.heading && sectionType === 'intro'
-        ? React.createElement(
-            'div',
-            {
-              key: `${section.key}-heading`,
-              className: 'blog-content-kicker',
-            },
-            section.heading.text,
-          )
-        : null
+      : null
+
+  const sectionBody = visibleBlocks.map((block, blockIndex) =>
+    renderMarkdownBlock(block, `${section.key}-${blockIndex}`, audioHref),
+  )
+
+  if (sectionType === 'cta') {
+    sectionBody.push(
+      React.createElement(
+        'div',
+        { key: `${section.key}-primary-cta`, className: 'blog-content-cta-actions' },
+        React.createElement('a', { className: 'blog-content-primary-cta', href: '/' }, 'Umów pierwszy krok'),
+      ),
+    )
+  }
 
   return React.createElement(
     'section',
@@ -1365,9 +1399,7 @@ function renderBlogSection(
     React.createElement(
       'div',
       { className: 'blog-content-section-body' },
-      section.blocks.map((block, blockIndex) =>
-        renderMarkdownBlock(block, `${section.key}-${blockIndex}`, audioHref),
-      ),
+      sectionBody,
     ),
   )
 }

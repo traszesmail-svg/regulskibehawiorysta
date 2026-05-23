@@ -101,12 +101,12 @@ Gdy po kilku tygodniach systematycznej pracy nie ma wyraźnej zmiany. Gdy objawy
 
 Każdy pies jest inny i tempo pracy zależy od głębokości problemu. **15 min audio** pozwala ocenić sytuację twojego psa i dostać plan na pierwsze dwa tygodnie.
 
-[Zamów 15 min audio](/call) · [Lęk separacyjny u psa](/psy/lek-separacyjny) · [Kategoria: psy](/psy) · [Niezbędnik](/niezbednik)
+[Zamów 15 min audio](/call) · [Lęk separacyjny u psa](/psy/lek-separacyjny) · [Kategoria: psy](/psy) · [Materiały PDF](/materialy)
 
 ## Linkowanie wewnętrzne
 
 - `/psy/lek-separacyjny` — landing silosu (CTA)
 - `/call` — 15 min audio
 - `/psy` — kategoria
-- `/niezbednik` → guide „pies zostaje sam — plan pierwszych kroków"
+- `/materialy` → guide „pies zostaje sam — plan pierwszych kroków"
 - Cross-link: wpis 03 (pies wyje), wpis 20 (jak nagrać psa)

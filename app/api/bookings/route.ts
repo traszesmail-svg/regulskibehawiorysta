@@ -23,7 +23,6 @@ export async function POST(request: Request) {
     const rawProblemType = typeof body.problemType === 'string' ? body.problemType : null
     const rawAnimalType = body.animalType
     const rawServiceType = typeof body.serviceType === 'string' ? body.serviceType : null
-    const rawPhone = typeof body.phone === 'string' ? body.phone : ''
     const qaBooking = body.qaBooking === true
 
     if (
@@ -51,16 +50,16 @@ export async function POST(request: Request) {
       ? body.durationNotes.trim()
       : 'Nie podano w formularzu rezerwacji.'
     const description = body.description
-    const phone = rawPhone
     const email = body.email
     const slotId = body.slotId
+    const consentTerms = body.consentTerms === true
+    const consentEarlyStart = body.consentEarlyStart === true
 
     if (qaBooking) {
       const qaEligibility = getQaCheckoutEligibility({
         id: 'pending',
         qaBooking: true,
         email,
-        phone,
       })
 
       if (!qaEligibility.isAllowed) {
@@ -78,13 +77,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Podaj poprawny adres e-mail do potwierdzenia konsultacji.' }, { status: 400 })
     }
 
-    if (phone.trim().length > 0 && !/^\+?\d[\d\s-]{6,}$/.test(phone.trim())) {
-      return NextResponse.json({ error: 'Podaj poprawny numer telefonu albo zostaw to pole puste.' }, { status: 400 })
-    }
-
     if (description.trim().length < 10) {
       return NextResponse.json(
         { error: 'Napisz jednym zdaniem, z czym chcesz wejść na rozmowę.' },
+        { status: 400 },
+      )
+    }
+
+    if (!consentTerms || !consentEarlyStart) {
+      return NextResponse.json(
+        { error: 'Przed rezerwacją zaakceptuj regulamin, politykę prywatności i zgodę na rozpoczęcie usługi przed upływem 14 dni.' },
         { status: 400 },
       )
     }
@@ -103,7 +105,6 @@ export async function POST(request: Request) {
       petAge,
       durationNotes,
       description,
-      phone,
       email,
       slotId,
       qaBooking,

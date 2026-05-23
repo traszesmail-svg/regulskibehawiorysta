@@ -28,7 +28,6 @@ export type FunnelEventType =
   | 'view_page'
   | 'funnel_entry_15_min'
   | 'funnel_entry_60_min'
-  | 'funnel_entry_niezbędnik'
   | 'newsletter_signup'
   | 'lead_magnet_signup'
   | 'booking_start'
@@ -40,10 +39,19 @@ export type FunnelEventType =
   | 'payment_marked_pending'
   | 'payment_completed'
   | 'booking_confirmed'
+  | 'booking_drop'
   | 'confirmation_viewed'
   | 'call_room_viewed'
   | 'contact_form_started'
   | 'contact_form_submitted'
+  | 'hero_cta_click'
+  | 'service_select'
+  | 'slot_select'
+  | 'form_start'
+  | 'form_submit'
+  | 'payment_start'
+  | 'payment_reported'
+  | 'payment_confirmed'
   | 'home_view'
   | 'dogs_page_view'
   | 'cta_click'
@@ -135,7 +143,7 @@ export interface BookingFormData {
   petAge: string
   durationNotes: string
   description: string
-  phone: string
+  phone?: string | null
   email: string
   slotId: string
   qaBooking?: boolean

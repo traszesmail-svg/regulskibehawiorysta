@@ -11,8 +11,8 @@ export function generateMetadata(): Metadata {
     title: 'Wpisz kod dostępu',
     path: '/dostep',
     description: 'Wpisz kod dostępu do konsultacji lub materiału cyfrowego.',
-    noIndex: false,
-    follow: true,
+    noIndex: true,
+    follow: false,
   })
 }
 
@@ -34,6 +34,9 @@ export default function AccessPage() {
             Kod znajdziesz w e-mailu po potwierdzeniu płatności. Wpisz go razem z adresem e-mail użytym przy zamówieniu.
           </p>
           <CommerceAccessForm />
+          <p className="account-login-fallback">
+            Chcesz mieć materiały i rezerwacje w aplikacji? <a href="/login">Zaloguj się do pokoju opiekuna</a>.
+          </p>
         </section>
       </div>
     </NotatnikPageShell>

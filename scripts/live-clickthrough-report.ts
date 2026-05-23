@@ -330,6 +330,10 @@ function getBookingSubmitButton(page: Page) {
   return page.locator('[data-booking-submit="payment"]').first()
 }
 
+function getFirstSlotLink(page: Page) {
+  return page.locator('[data-selected-slot-link="true"], [data-nearest-slot-link="true"], a.slot-link').first()
+}
+
 async function submitBookingForm(page: Page) {
   await page.evaluate(() => {
     const form = document.querySelector('[data-booking-form="details"]') as HTMLFormElement | null
@@ -440,7 +444,7 @@ async function assertPublicSiteNavVisible(page: Page, routePath: string) {
   const nav = page.locator('header.notatnik-topbar nav[aria-label="Glowne sekcje"]').first()
   await waitForAnyVisible([nav], 20000)
 
-  for (const label of ['Pies', 'Kot', 'Niezbednik', 'Blog', 'O mnie', 'Cennik', 'Kontakt']) {
+  for (const label of ['O mnie', 'Cennik', 'FAQ', 'Blog', 'Kontakt']) {
     const link = nav.getByRole('link', { name: new RegExp(`^${escapeRegExp(label)}$`, 'i') }).first()
 
     if (!(await isVisible(link))) {
@@ -464,13 +468,9 @@ type OfferJourneyConfig = {
   serviceType: BookingServiceType
   offerHeading: RegExp
   problemType: ProblemType
-  animalType: 'Pies' | 'Kot'
   ownerName: string
   email: string
-  petAge: string
-  durationNotes: string
   description: string
-  phone: string
 }
 
 async function runOfferJourney(results: StepResult[], page: Page, baseUrl: string, config: OfferJourneyConfig) {
@@ -510,7 +510,7 @@ async function runOfferJourney(results: StepResult[], page: Page, baseUrl: strin
     )
     step.notes.push(`/book -> /slot z problem=${config.problemType}`)
 
-    const firstSlot = page.locator('a.slot-link').first()
+    const firstSlot = getFirstSlotLink(page)
     const emptyState = page.locator('.empty-box').first()
     await waitForAnyVisible([firstSlot, emptyState], 20000)
 
@@ -533,12 +533,10 @@ async function runOfferJourney(results: StepResult[], page: Page, baseUrl: strin
     step.notes.push(`/slot -> /form z service=${config.serviceType}`)
 
     await getBookingFormField(page, 'owner-name').fill(config.ownerName)
-    await getBookingFormField(page, 'animal-type').selectOption(config.animalType)
-    await getBookingFormField(page, 'pet-age').fill(config.petAge)
-    await getBookingFormField(page, 'duration-notes').fill(config.durationNotes)
-    await getBookingFormField(page, 'description').fill(config.description)
-    await getBookingFormField(page, 'phone').fill(config.phone)
     await getBookingFormField(page, 'email').fill(config.email)
+    await getBookingFormField(page, 'description').fill(config.description)
+    await page.locator('#booking-privacy').check()
+    await page.locator('#booking-early-start').check()
 
     const bookingResponse = page.waitForResponse(
       (response) => response.url().includes('/api/bookings') && response.request().method() === 'POST',
@@ -1017,26 +1015,24 @@ async function main() {
         [publicPage.getByRole('heading', { level: 1, name: new RegExp(`Wybierz termin: ${escapeRegExp(getProblemLabel('kot-stres'))}`, 'i') })],
         20000,
       )
-      const firstSlot = publicPage.locator('a.slot-link').first()
+      const firstSlot = getFirstSlotLink(publicPage)
       await waitForAnyVisible([firstSlot], 20000)
       step.notes.push(`Pierwszy slot: ${cleanText(await firstSlot.innerText())}`)
     })
 
     await runStep(results, '/form', publicPage, async (step) => {
-      const firstSlot = publicPage.locator('a.slot-link').first()
+      const firstSlot = getFirstSlotLink(publicPage)
       await firstSlot.click()
       await publicPage.waitForURL(/\/form\?problem=kot-stres&slotId=/, { timeout: 30000, waitUntil: 'domcontentloaded' })
       await waitForAnyVisible([publicPage.getByRole('heading', { level: 1, name: /Uzupełnij dane do rezerwacji/i })], 20000)
 
       await getBookingFormField(publicPage, 'owner-name').fill(qaIdentity.ownerName)
-      await getBookingFormField(publicPage, 'animal-type').selectOption('Kot')
-      await getBookingFormField(publicPage, 'pet-age').fill('4 lata')
-      await getBookingFormField(publicPage, 'duration-notes').fill('od okolo dwoch tygodni')
+      await getBookingFormField(publicPage, 'email').fill(qaIdentity.email)
       await getBookingFormField(publicPage, 'description').fill(
         'Test QA live. Kot napina się przy gościach, długo nie wraca do równowagi i chcę sprawdzić pierwszy kierunek pracy.',
       )
-      await getBookingFormField(publicPage, 'phone').fill('500600700')
-      await getBookingFormField(publicPage, 'email').fill(qaIdentity.email)
+      await publicPage.locator('#booking-privacy').check()
+      await publicPage.locator('#booking-early-start').check()
 
       const bookingResponse = publicPage.waitForResponse(
         (response) => response.url().includes('/api/bookings') && response.request().method() === 'POST',
@@ -1220,14 +1216,10 @@ async function main() {
       serviceType: 'konsultacja-30-min',
       offerHeading: /Konsultacja 30 min/i,
       problemType: 'separacja',
-      animalType: 'Pies',
       ownerName: `${qaIdentity.ownerName} 30 min`,
       email: `qa-live-30min-${timestamp.compact}@example.com`,
-      petAge: '5 lat',
-      durationNotes: 'Od dwoch tygodni.',
       description:
         'Test UI clickthrough dla 30 min. Pies ma napięcie przy zostawaniu samemu i chcemy sprawdzić pełny flow od oferty do płatności.',
-      phone: '500600701',
     })
 
     await runStep(results, 'oferta -> slot / online CTA', publicPage, async (step) => {
@@ -1332,7 +1324,7 @@ async function main() {
       await assertNoPublicPhoneLinks(publicPage, '/regulamin')
       await assertPublicSiteNavVisible(publicPage, '/regulamin')
       await assertLegacyHeaderLinksHidden(publicPage, '/regulamin')
-      step.notes.push('Regulamin używa nowego shellu prawnego bez publicznego telefonu i starego menu.')
+      step.notes.push('Regulamin używa nowego shellu prawnego bez starego menu.')
     })
 
     await runStep(results, '/polityka-prywatnosci', publicPage, async (step) => {
@@ -1345,7 +1337,7 @@ async function main() {
       await assertNoPublicPhoneLinks(publicPage, '/polityka-prywatnosci')
       await assertPublicSiteNavVisible(publicPage, '/polityka-prywatnosci')
       await assertLegacyHeaderLinksHidden(publicPage, '/polityka-prywatnosci')
-      step.notes.push('Polityka prywatności używa nowego shellu prawnego bez publicznego telefonu i starego menu.')
+      step.notes.push('Polityka prywatności używa nowego shellu prawnego bez starego menu.')
     })
 
     await runStep(results, '/materialy guide nav', publicPage, async (step) => {

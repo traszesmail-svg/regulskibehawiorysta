@@ -10,6 +10,7 @@ type ReferencePageShellProps = {
   className?: string
   ctaHref: string
   ctaLabel?: string
+  showFooterReviews?: boolean
   children: ReactNode
 }
 
@@ -26,6 +27,7 @@ export function ReferencePageShell({
   className,
   ctaHref,
   ctaLabel = 'Quiz',
+  showFooterReviews = true,
   children,
 }: ReferencePageShellProps) {
   return (
@@ -39,7 +41,7 @@ export function ReferencePageShell({
           showUtilityLinks={false}
         />
         {children}
-        <NotatnikFooter />
+        <NotatnikFooter showReviews={showFooterReviews} />
       </div>
     </main>
   )
@@ -132,7 +134,7 @@ export function ReferenceFooter() {
       </Link>
 
       <nav className="reference-footer-nav" aria-label="Nawigacja w stopce">
-        <Link href="/wybor" prefetch={false}>Quiz</Link>
+        <Link href="/quiz" prefetch={false}>Quiz</Link>
         <Link href="/cennik" prefetch={false}>Cennik</Link>
         <Link href="/o-mnie" prefetch={false}>O mnie</Link>
         <Link href="/blog" prefetch={false}>Blog</Link>

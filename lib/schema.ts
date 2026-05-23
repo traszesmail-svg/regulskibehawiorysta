@@ -45,7 +45,7 @@ type FaqSchemaItem = {
 const ORGANIZATION_ID = `${SITE_PRODUCTION_URL}/#organization`
 const WEBSITE_ID = `${SITE_PRODUCTION_URL}/#website`
 const PERSON_ID = `${SITE_PRODUCTION_URL}/#krzysztof`
-const BUSINESS_ID = `${SITE_PRODUCTION_URL}/#business`
+const SERVICE_ID = `${SITE_PRODUCTION_URL}/#consultation-service`
 
 function withoutContext<T extends Record<string, unknown>>(data: T) {
   const { ['@context']: _context, ...rest } = data
@@ -108,18 +108,14 @@ export function getPersonJsonLd() {
     url: `${SITE_PRODUCTION_URL}/o-mnie`,
     image: new URL(SPECIALIST_PHOTO.src, SITE_PRODUCTION_URL).toString(),
     sameAs: [...SPECIALIST_PUBLIC_PROFILE_URLS],
-    homeLocation: {
-      '@type': 'Place',
+    areaServed: {
+      '@type': 'Country',
       name: SPECIALIST_LOCATION,
-    },
-    worksFor: {
-      '@id': BUSINESS_ID,
     },
   }
 }
 
-export function getProfessionalServiceJsonLd() {
-  const publicContact = getPublicContactDetails()
+export function getConsultationServiceJsonLd() {
   const sameAs = [
     CAPBT_PROFILE_URL,
     INSTAGRAM_PROFILE_URL,
@@ -128,23 +124,25 @@ export function getProfessionalServiceJsonLd() {
 
   return {
     '@context': 'https://schema.org',
-    '@type': 'ProfessionalService',
-    '@id': BUSINESS_ID,
+    '@type': 'Service',
+    '@id': SERVICE_ID,
     name: 'Regulski - Behawiorysta psów i kotów online',
     url: SITE_PRODUCTION_URL,
-    email: publicContact.email,
+    serviceType: 'Konsultacja behawioralna online',
+    provider: {
+      '@id': PERSON_ID,
+    },
     areaServed: {
       '@type': 'Country',
       name: 'Polska',
     },
     availableLanguage: ['pl-PL'],
-    founder: {
-      '@id': PERSON_ID,
+    offers: {
+      '@type': 'AggregateOffer',
+      lowPrice: '69',
+      highPrice: '470',
+      priceCurrency: 'PLN',
     },
-    employee: {
-      '@id': PERSON_ID,
-    },
-    priceRange: '69-470 PLN',
     sameAs,
   }
 }
@@ -156,7 +154,7 @@ export function getRootSchemaGraphJsonLd() {
       withoutContext(getOrganizationJsonLd()),
       withoutContext(getWebsiteJsonLd()),
       withoutContext(getPersonJsonLd()),
-      withoutContext(getProfessionalServiceJsonLd()),
+      withoutContext(getConsultationServiceJsonLd()),
     ],
   }
 }

@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "id": "8c399bcb-13d1-4829-98f7-5daaeff1e145",
+    "email": "KRZYRE@GMAIL.COM",
+    "createdAt": "2026-05-17T15:35:22.794Z",
+    "updatedAt": "2026-05-17T15:35:22.794Z"
+  },
+  {
+    "id": "269d144e-64e4-4fb4-92dc-b2c8a315f8db",
+    "email": "FKK@WP.PL",
+    "createdAt": "2026-05-17T13:41:04.351Z",
+    "updatedAt": "2026-05-17T13:41:04.351Z"
+  }
+]

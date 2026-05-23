@@ -22,10 +22,10 @@ export const HOME_HELP_CHOICE_PHOTO = {
 }
 
 export const HOME_HERO_PHOTO = {
-  src: '/images/krzysztof-vet-action.jpg',
-  width: 2720,
-  height: 4030,
-  alt: 'Krzysztof Regulski w niebieskim kitlu podczas pracy z kotem',
+  src: '/branding/omnie.png',
+  width: 1024,
+  height: 1536,
+  alt: 'Krzysztof Regulski w granatowym kitlu z kotem na rękach i przysmakiem w kształcie małej kości',
 }
 
 export const SITE_NAME = 'Regulski Behawiorysta'
@@ -119,9 +119,9 @@ export const LANDING_SPECIALIST_PHOTO = {
 
 export const SPECIALIST_PHOTO = LANDING_SPECIALIST_PHOTO
 export const ABOUT_SPECIALIST_PHOTO = {
-  src: '/branding/omnie2.png',
-  width: 1024,
-  height: 1536,
+  src: HOME_HERO_PHOTO.src,
+  width: HOME_HERO_PHOTO.width,
+  height: HOME_HERO_PHOTO.height,
   alt: 'Krzysztof Regulski w granatowym stroju medycznym z informacją o pomocy behawioralnej dla psów i kotów',
 }
 
@@ -388,11 +388,6 @@ export const MEDIA_MENTIONS: MediaMention[] = [
   },
 ]
 
-type PublicPhone = {
-  display: string | null
-  href: string | null
-}
-
 function isValidPublicEmail(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
 }
@@ -408,47 +403,13 @@ function extractConfiguredEmail(value: string | null): string | null {
   return isValidPublicEmail(candidate) ? candidate : null
 }
 
-function normalizePublicPhone(value: string | null): PublicPhone {
-  if (!value) {
-    return { display: null, href: null }
-  }
-
-  const trimmed = value.trim()
-  const digits = trimmed.replace(/\D/g, '')
-
-  if (!digits) {
-    return { display: null, href: null }
-  }
-
-  if (digits.length === 9) {
-    return {
-      display: `${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6)}`,
-      href: digits,
-    }
-  }
-
-  if (digits.length === 11 && digits.startsWith('48')) {
-    return {
-      display: `+48 ${digits.slice(2, 5)} ${digits.slice(5, 8)} ${digits.slice(8)}`,
-      href: `+${digits}`,
-    }
-  }
-
-  return {
-    display: trimmed,
-    href: trimmed.replace(/\s+/g, ''),
-  }
-}
-
 export function getContactDetails() {
   const emailCandidate = extractConfiguredEmail(process.env.REGULSKI_CONTACT_EMAIL?.trim() || null) ?? PUBLIC_CONTACT_EMAIL_FALLBACK
-  const phoneCandidate = process.env.REGULSKI_CONTACT_PHONE?.trim() || null
-  const phone = normalizePublicPhone(phoneCandidate)
 
   return {
     email: emailCandidate,
-    phoneDisplay: phone.display,
-    phoneHref: phone.href,
+    phoneDisplay: null,
+    phoneHref: null,
   }
 }
 

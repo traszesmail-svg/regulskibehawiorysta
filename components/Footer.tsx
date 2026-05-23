@@ -1,7 +1,7 @@
 import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { BookOpen, CircleHelp, Mail, ReceiptText, ShieldCheck } from 'lucide-react'
+import { CircleHelp, Mail, PenLine, Tag, UserRound } from 'lucide-react'
 import { FinalReviewsQuoteCarousel } from '@/components/FinalReviewsQuoteCarousel'
 import { getBuildMarkerSnapshot } from '@/lib/build-marker'
 import { REGULSKI_WEB_LOGO } from '@/lib/regulski-web-assets'
@@ -11,8 +11,6 @@ import {
   COAPE_ORG_URL,
   SITE_HEADER_BRAND,
   SPECIALIST_NAME,
-  buildMailtoHref,
-  getPublicContactDetails,
 } from '@/lib/site'
 
 type FooterProps = {
@@ -23,27 +21,72 @@ type FooterProps = {
   secondaryLabel?: string
   showReviews?: boolean
   reviewSpecies?: 'dog' | 'cat' | 'all'
-  sectionBasePath?: '/' | '/blog' | '/psy' | '/koty' | '/opinie' | '/o-mnie' | '/faq' | '/kontakt' | '/materialy' | '/niezbednik'
+  sectionBasePath?: '/' | '/blog' | '/psy' | '/koty' | '/opinie' | '/o-mnie' | '/faq' | '/kontakt' | '/materialy'
 }
 
 const FOOTER_NAV_ITEMS = [
-  { href: '/cennik', label: 'Cennik', icon: ReceiptText },
-  { href: '/niezbednik', label: 'Niezbędnik', icon: BookOpen },
-  { href: '/o-mnie', label: 'O mnie', icon: ShieldCheck },
+  { href: '/cennik', label: 'Cennik', icon: Tag },
+  { href: '/o-mnie', label: 'O mnie', icon: UserRound },
   { href: '/faq', label: 'FAQ', icon: CircleHelp },
-  { href: '/blog', label: 'Blog', icon: BookOpen },
+  { href: '/blog', label: 'Blog', icon: PenLine },
   { href: '/kontakt', label: 'Kontakt', icon: Mail },
 ] as const
+
+const FOOTER_LEGAL_LINKS = [
+  { href: '/polityka-prywatnosci', label: 'Polityka prywatności' },
+  { href: '/regulamin', label: 'Regulamin' },
+  { href: '/regulamin-pelna-konsultacja', label: 'Regulamin Pełnej konsultacji' },
+] as const
+
+function FooterLegalLinks({ className }: { className: string }) {
+  return (
+    <nav className={className} aria-label="Linki prawne">
+      {FOOTER_LEGAL_LINKS.map((item) => (
+        <Link key={item.href} href={item.href} prefetch={false}>
+          <span>{item.label}</span>
+        </Link>
+      ))}
+    </nav>
+  )
+}
 
 export function Footer(props: FooterProps) {
   const buildMarker = getBuildMarkerSnapshot()
   const footerReviews = props.reviewSpecies === 'dog' ? dogReviews : props.reviewSpecies === 'cat' ? catReviews : reviews
-  const contact = getPublicContactDetails()
-  const contactHref = contact.email ? buildMailtoHref(contact.email, 'Pytanie ze stopki - Regulski Behawiorysta') : null
+  const compactFooterVariants: Array<FooterProps['variant'] | undefined> = ['landing', 'lean', 'full', 'home', 'legal', undefined]
+  const useCompactFooter = compactFooterVariants.includes(props.variant)
+  const showReviews = props.showReviews !== false
+
+  if (useCompactFooter) {
+    return (
+      <>
+        {showReviews ? <FinalReviewsQuoteCarousel reviews={footerReviews} intervalMs={10000} /> : null}
+        <footer className="site-footer site-footer-home-compact" aria-label="Stopka" data-build-marker={buildMarker.value}>
+          <nav className="home-footer-link-grid" aria-label="Nawigacja w stopce">
+            {FOOTER_NAV_ITEMS.map((item) => {
+              const Icon = item.icon
+
+              return (
+                <Link key={item.href} href={item.href} prefetch={false} className="home-footer-link">
+                  <Icon size={23} strokeWidth={1.65} aria-hidden="true" />
+                  <span>{item.label}</span>
+                </Link>
+              )
+            })}
+          </nav>
+
+          <div className="home-footer-credits">
+            <span>&copy; 2026 {SPECIALIST_NAME}</span>
+            <FooterLegalLinks className="home-footer-legal" />
+          </div>
+        </footer>
+      </>
+    )
+  }
 
   return (
     <>
-      {props.showReviews === false ? null : <FinalReviewsQuoteCarousel reviews={footerReviews} intervalMs={10000} />}
+      {showReviews ? <FinalReviewsQuoteCarousel reviews={footerReviews} intervalMs={10000} /> : null}
       <footer className="site-footer" aria-label="Stopka" data-build-marker={buildMarker.value}>
         <div className="site-footer-grid">
           <div className="site-footer-brand">
@@ -58,14 +101,6 @@ export function Footer(props: FooterProps) {
                 </small>
               </span>
             </Link>
-            {contact.email && contactHref ? (
-              <p>
-                E-mail:{' '}
-                <a href={contactHref}>
-                  {contact.email}
-                </a>
-              </p>
-            ) : null}
           </div>
 
           <div className="site-footer-meta">
@@ -104,19 +139,7 @@ export function Footer(props: FooterProps) {
             </div>
           </div>
 
-          <div className="site-footer-legal">
-            <Link href="/polityka-prywatnosci" prefetch={false}>
-              Polityka prywatności
-            </Link>
-            <span>&bull;</span>
-            <Link href="/regulamin" prefetch={false}>
-              Regulamin
-            </Link>
-            <span>&bull;</span>
-            <Link href="/regulamin-pelna-konsultacja" prefetch={false}>
-              Regulamin Pełnej konsultacji
-            </Link>
-          </div>
+          <FooterLegalLinks className="site-footer-legal" />
         </div>
       </footer>
     </>

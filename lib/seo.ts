@@ -124,7 +124,7 @@ export async function buildBookMetadata(serviceType: BookingServiceType = DEFAUL
     title: isQuick ? 'Rezerwacja 15-minutowej konsultacji behawioralnej' : `Rezerwacja konsultacji: ${serviceTitle}`,
     path: '/book',
     description: isQuick
-      ? 'Umów spokojny pierwszy krok: 15 minut rozmowy audio bez kamery, diagnoza behawioralna oparta na informacjach i spokojne uporządkowanie tematu.'
+      ? 'Umów spokojny pierwszy krok: 15 minut rozmowy audio bez kamery, analiza zachowania na podstawie informacji i spokojne uporządkowanie tematu.'
       : `${serviceSummary} Wybierz gatunek i temat konsultacji, a potem przejdź do terminów i kolejnego kroku rezerwacji że specjalistą ${SPECIALIST_NAME}.`,
   })
 }

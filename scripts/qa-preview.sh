@@ -13,7 +13,7 @@ paths=(
   /
   /psy
   /koty
-  /niezbednik
+  /materialy
   /o-mnie
   /opinie
   /kontakt

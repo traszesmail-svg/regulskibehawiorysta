@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { AccountRoomApp } from '@/components/AccountRoomApp'
 import { NotatnikPageShell, PUBLIC_BOOKING_FLOW_NAV_ITEMS } from '@/components/NotatnikA'
 import {
   getMaterialyBundleBySlug,
@@ -17,11 +18,11 @@ export const revalidate = 0
 
 export function generateMetadata(): Metadata {
   return buildTechnicalMetadata({
-    title: 'Dostęp do materiałów',
+    title: 'Pokój opiekuna',
     path: '/pokoj',
-    description: 'Dostęp do opłaconych materiałów cyfrowych.',
-    noIndex: false,
-    follow: true,
+    description: 'Prywatny panel opiekuna: rezerwacje, materiały, rozmowa i historia pupila.',
+    noIndex: true,
+    follow: false,
   })
 }
 
@@ -36,6 +37,7 @@ export default async function RoomAccessPage({
 }) {
   const code = readParam(searchParams?.code)?.trim().toUpperCase() ?? ''
   const email = readParam(searchParams?.email)?.trim().toLowerCase() ?? ''
+  const shouldUseLegacyAccess = Boolean(code || email)
   const order = code && email ? await getCommerceOrderByAccessCode(code, email) : null
   const hasAccess = Boolean(order?.productType === 'ebook' && canUseCommerceAccess(order))
 
@@ -58,7 +60,14 @@ export default async function RoomAccessPage({
       footerPrimaryHref="/dostep"
       footerPrimaryLabel="Wpisz kod dostępu"
     >
-      <div className="container">
+      {!shouldUseLegacyAccess ? (
+        <div className="container">
+          <AccountRoomApp />
+        </div>
+      ) : null}
+
+      {shouldUseLegacyAccess ? (
+        <div className="container">
         <section className="panel centered-panel hero-surface booking-stage-panel transaction-panel booking-flow-panel">
           {!hasAccess || !order ? (
             <div className="stack-gap">
@@ -127,7 +136,8 @@ export default async function RoomAccessPage({
             </>
           )}
         </section>
-      </div>
+        </div>
+      ) : null}
     </NotatnikPageShell>
   )
 }

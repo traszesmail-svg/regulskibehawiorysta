@@ -92,12 +92,12 @@ Minimum dwie — przy jednym nowym i jednym starym kocie. W trakcie introdukcji 
 
 Dobry moment na konsultację to przed przyjazdem nowego kota, nie w środku kryzysu. **15 min audio** pozwala omówić plan introdukcji pod kątem temperamentów i środowiska, które masz.
 
-[Zamów 15 min audio](/call) · [Konflikt między kotami w domu](/koty/konflikt-miedzy-kotami) · [Kategoria: koty](/koty) · [Niezbędnik](/niezbednik)
+[Zamów 15 min audio](/call) · [Konflikt między kotami w domu](/koty/konflikt-miedzy-kotami) · [Kategoria: koty](/koty) · [Materiały PDF](/materialy)
 
 ## Linkowanie wewnętrzne
 
 - `/koty/konflikt-miedzy-kotami` — landing silosu (CTA)
 - `/call` — 15 min audio
 - `/koty` — kategoria
-- `/niezbednik` → guide o konflikcie między kotami
+- `/materialy` → guide o konflikcie między kotami
 - Cross-link: wpis 25 (agresja przekierowana), landing `/koty/zalatwianie-poza-kuweta` (opcja)

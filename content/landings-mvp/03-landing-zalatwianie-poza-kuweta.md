@@ -116,4 +116,4 @@ Izolacja każdego kota osobno na kilka godzin albo kamera przy kuwecie zwykle sz
 
 Jeśli przeszłaś/przeszedłeś przez tę listę i nadal nie wiesz, na który filtr postawić — **Kwadrans z behawiorystą** pozwala to ustalić szybko. Opowiadasz, jak wygląda sytuacja, ile masz kotów i co już próbowałaś/próbowałeś. Wychodzisz z konkretnym planem na pierwsze kroki.
 
-[Umów Kwadrans z behawiorystą](/book) · [Pomoc dla opiekunów kotów](/koty) · [Niezbędnik — poradnik: kot i kuweta](/niezbednik)
+[Umów Kwadrans z behawiorystą](/book) · [Pomoc dla opiekunów kotów](/koty) · [Materiały PDF — poradnik: kot i kuweta](/materialy)

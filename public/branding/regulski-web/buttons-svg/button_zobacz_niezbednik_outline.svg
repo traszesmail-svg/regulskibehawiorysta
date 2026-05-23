@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="640" height="128" viewBox="0 0 640 128">
   <rect x="8" y="8" width="624" height="112" rx="56" fill="none" stroke="#697448" stroke-width="3"/>
-  <text x="48" y="74" font-family="DejaVu Sans, Arial, sans-serif" font-size="28" font-weight="700" fill="#525c37">Zobacz Niezbędnik</text>
+  <text x="48" y="74" font-family="DejaVu Sans, Arial, sans-serif" font-size="28" font-weight="700" fill="#525c37">Zobacz materia&#322;y</text>
   <circle cx="575" cy="64" r="23" fill="#697448"/>
   <text x="575" y="74" text-anchor="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="28" font-weight="700" fill="#ffffff">→</text>
 </svg>

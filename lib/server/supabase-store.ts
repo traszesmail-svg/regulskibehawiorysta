@@ -11,15 +11,15 @@ import { compareDateAndTime, formatDateLabel, isFutureAvailabilitySlot } from '@
 import { createActiveConsultationPrice, DEFAULT_PRICE_PLN, parseConsultationPriceInput } from '@/lib/pricing'
 import { normalizePolishPhone } from '@/lib/phone'
 import { createFunnelEventRecord, normalizeFunnelEventProperties } from '@/lib/server/funnel-events'
-import { buildSeedAvailabilitySlots, hasFutureAvailabilitySlots } from '@/lib/server/availability-seed'
+import { buildSeedAvailabilitySlots } from '@/lib/server/availability-seed'
 import { createCustomerAccessToken, hashCustomerAccessToken } from '@/lib/server/customer-access'
 import { getReservationWindowMinutes, getSupabaseServerConfig } from '@/lib/server/env'
 import { createMeetingUrl, normalizeMeetingUrl } from '@/lib/server/jitsi'
 import { getManualPaymentConfig } from '@/lib/server/payment-options'
+import { isAvailabilitySlotBookableForService } from '@/lib/scheduling/rules'
 import {
   sendBookingConfirmationEmail,
   sendBookingPaymentConfirmedOwnerEmail,
-  sendBookingOwnerNotificationEmail,
   sendBookingReservationCreatedEmail,
   sendBookingManualPaymentPendingEmail,
   sendBookingStatusOutcomeEmail,
@@ -526,7 +526,7 @@ function mapBookingRow(row: BookingRow): BookingRecord {
     petAge: row.pet_age,
     durationNotes: row.duration_notes,
     description: row.description,
-    phone: row.phone,
+    phone: row.phone ?? '',
     email: row.email,
     bookingDate: row.booking_date,
     bookingTime: row.booking_time,
@@ -850,13 +850,12 @@ async function ensureFutureAvailabilityRows(): Promise<AvailabilitySlot[]> {
   const currentRows = await listAvailabilityRows()
   const currentSlots = currentRows.map(mapAvailabilityRow)
 
-  if (hasFutureAvailabilitySlots(currentSlots)) {
-    return currentSlots
-  }
-
   const supabase = getSupabaseAdmin()
   const nowIso = new Date().toISOString()
-  const seedRows = buildSeedAvailabilitySlots(new Date(nowIso), nowIso).map(mapAvailabilitySlotToRow)
+  const existingIds = new Set(currentSlots.map((slot) => slot.id))
+  const seedRows = buildSeedAvailabilitySlots(new Date(nowIso), nowIso)
+    .filter((slot) => !existingIds.has(slot.id))
+    .map(mapAvailabilitySlotToRow)
 
   if (seedRows.length > 0) {
     const { error } = await supabase.from('availability').upsert(seedRows, { onConflict: 'id' })
@@ -1060,6 +1059,10 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
     throw new Error('Wybrany termin jest już przeszły. Wybierz nową godzinę rozmowy.')
   }
 
+  if (!isAvailabilitySlotBookableForService(slot, serviceType)) {
+    throw new Error('Wybrany termin nie jest dostępny dla tej usługi.')
+  }
+
   const dayAvailability = (await listAvailabilityRowsForDate(slot.bookingDate)).map(mapAvailabilityRow)
   const slotWindow = getBookableServiceAvailabilityWindow(dayAvailability, form.slotId, serviceType)
 
@@ -1071,6 +1074,7 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
   const bookingId = crypto.randomUUID()
   const accessToken = createCustomerAccessToken()
   const reservationExpiresAt = new Date(Date.now() + getReservationWindowMinutes() * 60 * 1000).toISOString()
+  const customerPhone = form.phone?.trim() ?? ''
   console.info('[regulski-behawiorysta][pricing] booking-created', {
     bookingId,
     amount: getBookingServicePrice(serviceType, pricing.amount),
@@ -1086,7 +1090,7 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
     pet_age: form.petAge,
     duration_notes: form.durationNotes,
     description: form.description,
-    phone: form.phone,
+    phone: customerPhone,
     email: form.email,
     booking_date: slot.bookingDate,
     booking_time: slot.bookingTime,
@@ -1113,7 +1117,7 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
   }
   const smsInsertPayload = {
     ...bookingInsertPayload,
-    customer_phone_normalized: normalizePolishPhone(form.phone)?.e164 ?? null,
+    customer_phone_normalized: normalizePolishPhone(customerPhone)?.e164 ?? null,
     sms_confirmation_status: null,
     sms_confirmation_sent_at: null,
     sms_provider_message_id: null,
@@ -1132,7 +1136,7 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
   }
   const paymentModernInsertPayload = {
     ...paymentOnlyInsertPayload,
-    customer_phone_normalized: normalizePolishPhone(form.phone)?.e164 ?? null,
+    customer_phone_normalized: normalizePolishPhone(customerPhone)?.e164 ?? null,
     sms_confirmation_status: null,
     sms_confirmation_sent_at: null,
     sms_provider_message_id: null,
@@ -1228,14 +1232,6 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
 
   const booking = mapBookingRow(inserted.data as unknown as BookingRow)
   await sendBookingReservationCreatedEmail(booking, accessToken.rawToken)
-  const ownerNotification = await sendBookingOwnerNotificationEmail(booking)
-  if (ownerNotification.status !== 'sent') {
-    console.error('[regulski-behawiorysta][booking-owner-notification] failed', {
-      bookingId: booking.id,
-      reason: ownerNotification.reason,
-      status: ownerNotification.status,
-    })
-  }
 
   return {
     booking,

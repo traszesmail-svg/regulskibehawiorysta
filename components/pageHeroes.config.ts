@@ -67,10 +67,6 @@ export const pageHeroes: Record<string, PageHero> = {
     illustration: '/illustrations/blog.svg',
     alt: 'Czytanie artykułów behawioralnych',
   },
-  niezbędnik: {
-    illustration: '/illustrations/niezbednik.svg',
-    alt: 'Pobieranie darmowych materiałów',
-  },
   kontakt: {
     illustration: '/illustrations/kontakt.svg',
     alt: 'Kontakt mailowy',

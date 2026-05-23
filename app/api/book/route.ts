@@ -71,7 +71,11 @@ function validatePayload(body: Record<string, unknown>): { payload?: ValidatedBo
   const serviceConfig = service ? SERVICES[service] : null
   const species = speciesValue === 'pies' || speciesValue === 'kot' ? speciesValue : null
 
-  if (!serviceConfig || !name || !email || !species || !description || (!preferredSlots && service !== 'kwadrans-na-juz')) {
+  if (service === 'kwadrans-na-juz') {
+    return { error: 'Kwadrans na już ma osobny formularz z wyborem godzin na dziś.' }
+  }
+
+  if (!serviceConfig || !name || !email || !species || !description || !preferredSlots) {
     return { error: 'Uzupełnij usługę, imię, e-mail, gatunek, opis sytuacji i preferowane terminy.' }
   }
 
@@ -96,7 +100,7 @@ function validatePayload(body: Record<string, unknown>): { payload?: ValidatedBo
       email,
       species,
       description,
-      preferredSlots: preferredSlots ?? 'Chcę termin jak najszybciej - proszę o kontakt w ciągu 15 minut.',
+      preferredSlots: preferredSlots ?? 'Chcę termin jak najszybciej - proszę o priorytetową odpowiedź z realną propozycją terminu.',
       consentRodo,
       consentRegulamin,
       consentEarlyStart,
@@ -185,7 +189,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       ok: true,
       message: payload.service === 'kwadrans-na-juz' ? URGENT_SUCCESS_MESSAGE : SUCCESS_MESSAGE,
-      bookingId: leadBooking?.id,
+      bookingId: null,
     })
   } catch (error) {
     console.error('[regulski-behawiorysta][book] unexpected error', error)

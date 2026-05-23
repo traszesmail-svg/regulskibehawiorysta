@@ -14,6 +14,7 @@ import { getRuntimeModeSnapshot } from '@/lib/server/env'
 import { getGoLiveChecks } from '@/lib/server/go-live'
 import { getPaymentOptionsSummary } from '@/lib/server/payment-options'
 import { readLatestQaReport } from '@/lib/server/qa-report'
+import { parseUrgentRequestedSlotsFromMessage, stripUrgentRequestedSlotsFromMessage } from '@/lib/urgent-now'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -128,9 +129,14 @@ export default async function AdminPage() {
               <div className="section-eyebrow">Panel specjalisty</div>
               <h1>Rezerwacje, płatności i terminy</h1>
             </div>
-            <Link href="/book" className="button button-primary">
+            <div className="hero-actions">
+              <Link href="/admin/pokoj" className="button button-ghost">
+                Pokoje opiekunów
+              </Link>
+              <Link href="/book" className="button button-primary">
               Przejdź do ścieżki klienta
-            </Link>
+              </Link>
+            </div>
           </div>
 
           <div className="summary-grid top-gap">
@@ -228,20 +234,26 @@ export default async function AdminPage() {
               <div className="list-card tree-backed-card">Brak aktywnych prosb o Kwadrans na już.</div>
             ) : (
               <div className="booking-list">
-                {urgentRequests.map((request) => (
-                  <div key={request.id} className="booking-row" data-urgent-request-id={request.id}>
+                {urgentRequests.map((request) => {
+                  const requestedSlots = parseUrgentRequestedSlotsFromMessage(request.message, {
+                    date: request.requestedDate,
+                    time: request.requestedTime,
+                  })
+
+                  return (
+                    <div key={request.id} className="booking-row" data-urgent-request-id={request.id}>
                     <div>
                       <div className="booking-title">{request.topicLabel}</div>
                       <div className="booking-meta">
                         {request.name} - {request.email} - {request.species}
                       </div>
-                      <div className="booking-meta">
-                        Preferowany termin: {request.requestedDate} {request.requestedTime}
-                      </div>
+                        <div className="booking-meta">
+                          Wybrane godziny: {requestedSlots.map((slot) => `${slot.date} ${slot.time}`).join(', ')}
+                        </div>
                       <div className="booking-meta">Status: {request.status === 'responded' ? 'odpowiedziano' : 'nowa prośba'}</div>
                     </div>
                     <div className="booking-description">
-                      <div>{request.message}</div>
+                        <div>{stripUrgentRequestedSlotsFromMessage(request.message)}</div>
                       {request.proposedDate && request.proposedTime ? (
                         <div className="booking-meta top-gap-small">
                           Odeslany termin: {request.proposedDate} {request.proposedTime}
@@ -249,9 +261,16 @@ export default async function AdminPage() {
                       ) : null}
                       {request.bookingHref ? <div className="booking-meta">Link: {request.bookingHref}</div> : null}
                     </div>
-                    <AdminUrgentRequestActions requestId={request.id} disabled={request.status === 'responded'} />
-                  </div>
-                ))}
+                    <AdminUrgentRequestActions
+                      requestId={request.id}
+                      disabled={request.status === 'responded'}
+                      requestedDate={request.requestedDate}
+                      requestedTime={request.requestedTime}
+                      requestedSlots={requestedSlots}
+                    />
+                    </div>
+                  )
+                })}
               </div>
             )}
           </div>
@@ -294,7 +313,7 @@ export default async function AdminPage() {
                         View {window.stageCounts.view_page} · Entry 15 min {window.stageCounts.funnel_entry_15_min} · Booking start {window.stageCounts.booking_start} · Service {window.stageCounts.booking_service_selected} · Slot {window.stageCounts.booking_slot_selected}
                       </span>
                       <span>
-                        Form {window.stageCounts.booking_form_started} · Payment viewed {window.stageCounts.payment_viewed} · Payment started {window.stageCounts.payment_started} · Pending {window.stageCounts.payment_marked_pending} · Completed {window.stageCounts.payment_completed} · Confirmed {window.stageCounts.booking_confirmed}
+                        Form {window.stageCounts.booking_form_started} · Payment viewed {window.stageCounts.payment_viewed} · Payment started {window.stageCounts.payment_started} · Pending {window.stageCounts.payment_marked_pending} · Completed {window.stageCounts.payment_completed} · Confirmed {window.stageCounts.booking_confirmed} · Drop {window.stageCounts.booking_drop}
                       </span>
                       <span>
                         {window.conversions.viewToEntry15} view→entry 15 min · {window.conversions.entry15ToBookingStart} entry→booking start · {window.conversions.completedToConfirmed} completed→confirmed
@@ -318,7 +337,7 @@ export default async function AdminPage() {
               </div>
               <div className="list-card tree-backed-card">
                 <strong>Rytuał przed deployem</strong>
-                <span>npm run funnel-metrics · npm run live-readiness -- --report-only · npm run live-clickthrough-report</span>
+                <span>npm run funnel-metrics · npm run release-checklist · npm run stage9-performance-audit · npm run full-public-crawl</span>
                 <span>Wejścia wewnętrzne: /admin oraz /_internal/qa-report.</span>
               </div>
               <div className="list-card tree-backed-card">

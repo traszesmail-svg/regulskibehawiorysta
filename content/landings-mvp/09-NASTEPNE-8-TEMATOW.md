@@ -49,7 +49,7 @@ Kolejność = priorytet.
 ## 6. Jak ustawić środowisko dla kota w małym mieszkaniu
 
 **Silos:** środowisko kotów (rozszerzenie silosu kuweta + konflikty)
-**Uzasadnienie:** rosnąca liczba kotów w małych mieszkaniach miejskich. Konkretny, użyteczny, wysoka intencja. Linkuje do obu landingów kocich i `/niezbednik`.
+**Uzasadnienie:** rosnąca liczba kotów w małych mieszkaniach miejskich. Konkretny, użyteczny, wysoka intencja. Linkuje do obu landingów kocich i `/materialy`.
 **Format:** wpis blogowy
 
 ---
@@ -79,6 +79,6 @@ Kolejność = priorytet.
 | 3 | Szczekanie w domu | Rozszerza silos reaktywności, niski koszt pisania |
 | 4 | Nagła zmiana kota | Decyzyjny, krótki, duże wejście do `/koty` |
 | 5 | Skakanie na ludzi | Prosty, konkretny, dobra widoczność SEO |
-| 6 | Środowisko dla kota | Rozszerza silosy kota, linkuje do `/niezbednik` |
+| 6 | Środowisko dla kota | Rozszerza silosy kota, linkuje do `/materialy` |
 | 7 | Reaktywność w domu | Uzupełnienie landingu reaktywność |
 | 8 | Stary pies | Ważny temat, ale klinicznie wrażliwy — na końcu |

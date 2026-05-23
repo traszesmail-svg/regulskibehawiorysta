@@ -144,7 +144,7 @@ export function getOnlinePaymentRuntime(order?: CommerceOrder | null): OnlinePay
     buttonLabel: 'Zapłać online',
     description: 'Płatność online będzie dostępna po dodaniu linku checkoutu.',
     unavailableMessage:
-      'Płatność kartą, Apple Pay i Google Pay jest chwilowo niedostępna. Użyj BLIK na telefon.',
+      'Płatność kartą, Apple Pay i Google Pay jest chwilowo niedostępna. Użyj BLIK po instrukcji e-mail.',
     naffyUrl: null,
   }
 }

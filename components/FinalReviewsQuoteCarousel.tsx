@@ -30,7 +30,8 @@ export function FinalReviewsQuoteCarousel({ reviews, intervalMs = 4000 }: FinalR
     return null
   }
 
-  const reviewSignature = review.problem ? `${review.author} - ${review.problem}` : review.author
+  const reviewAuthor = review.petName ? `${review.author} i ${review.petName}` : review.author
+  const reviewSignature = review.problem ? `${reviewAuthor} - ${review.problem}` : reviewAuthor
 
   return (
     <section className="notatnik-final notatnik-final-reviews" aria-label="Opinie opiekunów po rozmowie">

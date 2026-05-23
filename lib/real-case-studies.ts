@@ -286,8 +286,8 @@ export const REAL_CASE_STUDIES = [
         alt: 'Kot obserwujący otoczenie z bezpiecznej kryjówki.',
       },
       {
-        src: '/branding/niezbednik/product-cat-scratcher.jpg',
-        alt: 'Kot przy drapaku w spokojnym domowym otoczeniu.',
+        src: '/branding/case-cat-sofa.jpg',
+        alt: 'Kot odpoczywający w spokojnym domowym otoczeniu.',
       },
     ],
   },

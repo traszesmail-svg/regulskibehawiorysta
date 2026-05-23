@@ -65,13 +65,13 @@ function parseJson<T>(input: string): T {
   return JSON.parse(input) as T
 }
 
-function buildPayuBuyer(ownerName: string, email: string, phone: string) {
+function buildPayuBuyer(ownerName: string, email: string, phone?: string | null) {
   const normalizedName = ownerName.trim()
   const [firstName, ...rest] = normalizedName.split(/\s+/)
 
   return {
     email,
-    phone,
+    ...(phone?.trim() ? { phone: phone.trim() } : {}),
     firstName: firstName || 'Opiekun',
     lastName: rest.join(' ') || 'Zwierzaka',
     language: 'pl',
@@ -312,7 +312,7 @@ export async function handlePayuNotification(payload: PayuNotificationPayload) {
   }
 
   return syncPayuStateForBooking(booking, orderId, orderStatus, {
-    triggerPaymentConfirmationSms: true,
+    triggerPaymentConfirmationSms: false,
   })
 }
 

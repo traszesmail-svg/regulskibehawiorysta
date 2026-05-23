@@ -126,6 +126,10 @@ export function getBookingServiceRoomAccessLabel(serviceType: BookingServiceType
 }
 
 export function getBookingServicePrice(serviceType: BookingServiceType, quickConsultationPrice: number) {
+  if (serviceType === 'kwadrans-na-juz') {
+    return FUNNEL_SERVICE_CONFIG['kwadrans-na-juz'].priceAmount
+  }
+
   if (serviceType === 'konsultacja-30-min') {
     return BOOKING_SERVICE_30_PRICE
   }
@@ -227,6 +231,10 @@ function getAvailabilitySlotStepMinutes(slots: AvailabilitySlot[]) {
 }
 
 function getServiceAvailabilitySlotSpan(slots: AvailabilitySlot[], serviceType: BookingServiceType) {
+  if (serviceType === 'konsultacja-30-min' || serviceType === 'konsultacja-behawioralna-online') {
+    return 1
+  }
+
   const slotStepMinutes = getAvailabilitySlotStepMinutes(slots)
   const configuredSlotSpan = getBookingServiceSlotSpan(serviceType)
 

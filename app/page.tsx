@@ -1,14 +1,16 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
+import Link from 'next/link'
 import { CalendarCheck, Headphones, MessageSquareText, Video } from 'lucide-react'
 import { EditorialIndexTopbar } from '@/components/EditorialIndexTopbar'
 import { FaqAccordion } from '@/components/FaqAccordion'
 import { HomepageServiceSelector } from '@/components/HomepageServiceSelector'
-import { Reveal } from '@/components/Reveal'
 import { NotatnikFooter } from '@/components/NotatnikA'
 import { Schema } from '@/components/schema'
 import { homepageProcessSteps } from '@/lib/homepage-data'
 import { getBreadcrumbJsonLd, getFaqPageJsonLd, getServiceJsonLd } from '@/lib/schema'
 import { buildHomeMetadata } from '@/lib/seo'
+import { COAPE_POLSKA_LOGO, HOME_HERO_PHOTO } from '@/lib/site'
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildHomeMetadata()
@@ -43,15 +45,15 @@ export default function HomePage() {
     getServiceJsonLd({
       name: 'Behawiorysta psów i kotów online',
       description:
-        'Konsultacje behawioralne online dla opiekunów psów i kotów. W każdej usłudze punktem wyjścia jest diagnoza behawioralna oparta na informacjach przekazanych przez opiekuna.',
+        'Konsultacje behawioralne online dla opiekunów psów i kotów. W każdej usłudze punktem wyjścia jest analiza zachowania oparta na informacjach przekazanych przez opiekuna.',
       serviceUrl: serviceLandingHref,
       offerCatalog: [
-        { name: 'Kwadrans', description: '15 min audio bez kamery, gdy potrzebujesz pierwszego kierunku.', url: '/book?service=szybka-konsultacja-15-min', price: 69 },
-        { name: 'Kwadrans na już', description: 'Ten sam zakres co Kwadrans, ale z priorytetem terminu.', url: '/book?service=kwadrans-na-juz', price: 99 },
-        { name: 'Dwa kwadranse', description: '30 min online na spokojniejsze uporządkowanie kilku wątków.', url: '/book?service=konsultacja-30-min', price: 169 },
+        { name: 'Kwadrans', description: '15 min audio bez kamery na jedno główne pytanie. Szybko porządkujesz sytuację i dostajesz pierwszy kierunek działania.', url: '/book?service=szybka-konsultacja-15-min', price: 69 },
+        { name: 'Kwadrans na już', description: 'Ten sam zakres co Kwadrans, ale z priorytetową odpowiedzią i najbliższym realnym terminem.', url: '/kwadrans-na-juz', price: 99 },
+        { name: 'Dwa kwadranse', description: '30 min online, gdy temat ma kilka wątków. Więcej czasu na kontekst, spokojniejsze zalecenia i decyzję, czy potrzebna jest pełna konsultacja.', url: '/book?service=konsultacja-30-min', price: 169 },
         {
           name: 'Pełna konsultacja',
-          description: 'Rozmowa online, diagnoza behawioralna oparta na danych od opiekuna, plan działania i 7 dni konsultacji tekstowych przez WhatsApp.',
+          description: 'Około 2h online dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 7 dni wsparcia przez WhatsApp.',
           url: '/book?service=konsultacja-behawioralna-online',
           price: 470,
         },
@@ -70,7 +72,7 @@ export default function HomePage() {
           <HomepageServiceSelector />
         </section>
 
-        <Reveal as="section" className="compact-home-section" id="jak-to-działa">
+        <section className="compact-home-section home-process-section" id="jak-to-działa">
           <div className="home-section-title">
             <h2>Jak wygląda współpraca?</h2>
           </div>
@@ -96,38 +98,72 @@ export default function HomePage() {
               )
             })}
           </div>
-          <p className="notatnik-service-description top-gap-small">
-            Nie patrzę tylko na to, co zwierzę robi. Patrzę też na to, dlaczego może to robić. Jako behawiorysta, doświadczony technik weterynarii i dietetyk biorę pod uwagę zachowanie, zdrowie, ból, dietę, środowisko i codzienną rutynę.
-          </p>
-        </Reveal>
+        </section>
 
-        <Reveal as="section" className="compact-home-section">
-          <div className="home-section-title">
-            <h2>W każdej usłudze dostajesz diagnozę behawioralną opartą na danych</h2>
+        <section className="compact-home-section home-diagnosis-section">
+          <div className="home-diagnosis-layout">
+            <p className="home-diagnosis-kicker">POMOC BEHAWIORALNA DLA PSÓW I KOTÓW</p>
+            <div className="home-section-title home-diagnosis-title">
+              <h2>Jestem tu, żeby pomóc Tobie i Twojemu zwierzęciu</h2>
+            </div>
+            <div className="home-diagnosis-separator" aria-hidden="true" />
+            <div className="home-diagnosis-photo-stack">
+              <figure className="router-home-photo home-diagnosis-photo">
+                <Image
+                  src={HOME_HERO_PHOTO.src}
+                  alt={HOME_HERO_PHOTO.alt}
+                  fill
+                  quality={86}
+                  loading="lazy"
+                  sizes="(max-width: 760px) 100vw, (max-width: 1180px) 42vw, 420px"
+                  className="router-home-photo-image"
+                />
+              </figure>
+              <div className="home-diagnosis-caption-row">
+                <Image
+                  src={COAPE_POLSKA_LOGO.src}
+                  alt={COAPE_POLSKA_LOGO.alt}
+                  width={COAPE_POLSKA_LOGO.width}
+                  height={COAPE_POLSKA_LOGO.height}
+                  loading="lazy"
+                  className="home-diagnosis-coape-logo"
+                />
+                <p className="home-diagnosis-caption">
+                  <span className="home-diagnosis-caption-name">Krzysztof Regulski</span>
+                  <span>tech. wet. behawiorysta i trener</span>
+                  <span>zwierząt towarzyszących COAPE</span>
+                </p>
+              </div>
+            </div>
+            <div className="home-diagnosis-copy">
+              <p className="notatnik-service-description">
+                Nie musisz diagnozować psa ani kota. Wystarczy, że opiszesz, co widzisz w domu, na spacerze albo przy kuwecie.
+              </p>
+              <p className="notatnik-service-description">
+                Ja układam fakty i sprawdzam, co może stać za zachowaniem: emocje, zdrowie, ból, dietę, środowisko, historię uczenia się i codzienną rutynę. Dopiero potem wybieramy pierwszy krok.
+              </p>
+              <p className="notatnik-service-description">
+                To konsultacja behawioralna dla opiekuna, nie porada weterynaryjna ani diagnoza medyczna. Jeśli opis wskazuje na ból, chorobę albo nagłą zmianę stanu, pierwszym krokiem jest lekarz weterynarii.
+              </p>
+            </div>
+            <div className="home-diagnosis-separator home-diagnosis-separator-bottom" aria-hidden="true" />
           </div>
-          <p className="notatnik-service-description top-gap-small">
-            To nie jest przypadkowa porada z internetu. Analizuję opis sytuacji, odpowiedzi z formularza, historię zachowania, kontekst domu lub spacerów i - jeśli je masz - nagrania. Dzięki temu łatwiej ustalić, co naprawdę może napędzać zachowanie i od czego zacząć.
-          </p>
-          <p className="notatnik-service-description top-gap-small">
-            Jako doświadczony technik weterynarii i dietetyk patrzę też szerzej: na zdrowie, ból, dietę, środowisko i rytm dnia. Jeśli coś może mieć tło zdrowotne, powiem jasno, kiedy warto równolegle skonsultować się z lekarzem weterynarii.
-          </p>
-          <div className="hero-actions top-gap-small">
-            <a href="/wybor" className="notatnik-btn">
-              Pomóż mi dobrać pierwszy krok
-            </a>
-          </div>
-        </Reveal>
+        </section>
 
-        <Reveal as="section" className="compact-home-section">
+        <section className="compact-home-section home-faq-section">
           <div className="home-section-title">
-            <h2>Najczęściej zadawane pytania</h2>
+            <h2>
+              <Link href="/faq" prefetch={false} className="home-faq-title-link">
+                Najczęściej zadawane pytania
+              </Link>
+            </h2>
           </div>
           <div className="notatnik-faq-compact top-gap-small">
             <FaqAccordion items={routerFaqItems.map((item) => ({ q: item.question, a: item.answer }))} />
           </div>
-        </Reveal>
+        </section>
 
-        <NotatnikFooter primaryHref="/wybor" primaryLabel="Quiz" />
+        <NotatnikFooter variant="home" primaryHref="/quiz" primaryLabel="Quiz" />
       </div>
     </main>
   )

@@ -63,9 +63,9 @@ export function ServiceDecisionSection({
           <h3>{PUBLIC_OFFER_DECISION_COPY.premium}</h3>
           <p>{PUBLIC_OFFER_FULL_CONSULTATION_VALUE}</p>
           <div className="notatnik-service-meta" aria-label="Parametry pełnej konsultacji">
-            <span>pełny zakres online</span>
+            <span>ok. 2h online</span>
             <span>{getPublicServicePriceLabel('konsultacja-behawioralna-online')}</span>
-            <span>diagnoza behawioralna + 7 dni</span>
+            <span>plan + 7 dni WhatsApp</span>
           </div>
           <ul className="notatnik-service-list">
             {consultationBullets.map((bullet) => (
@@ -73,7 +73,7 @@ export function ServiceDecisionSection({
             ))}
           </ul>
           <p className="notatnik-service-note">
-            Po rozmowie możesz przez 7 dni pisać przez WhatsApp, zadawać pytania, wysyłać filmy i konsultować każdy krok planu. Jeśli ten etap nie daje realnego kierunku, kolejnym krokiem bywa wizyta domowa i terapia ustalana indywidualnie.
+            Po rozmowie masz 7 dni wsparcia przez WhatsApp przy wdrażaniu zaleceń. Możesz dopytywać, wysyłać filmy i konsultować kolejne kroki planu.
           </p>
           <div className="notatnik-service-actions">
             <Link href={consultationHref} prefetch={false} className="notatnik-btn notatnik-btn-ghost">

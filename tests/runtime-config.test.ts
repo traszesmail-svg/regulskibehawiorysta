@@ -20,6 +20,7 @@ import { buildBookMetadata, buildHomeMetadata } from '@/lib/seo'
 import { getDeployReadinessChecks, getGoLiveChecks, getVerifiedDeployReadinessChecks } from '@/lib/server/go-live'
 import { getPaymentModeStatus } from '@/lib/server/env'
 import { getQaCheckoutEligibility, getQaCheckoutPaymentReference, getPublicManualPaymentConfig } from '@/lib/server/payment-options'
+import { buildTodayUrgentSlotCandidates, isTodayUrgentSlotCandidate } from '@/lib/urgent-now'
 import { auditSupabaseSchemaText, getSupabaseSchemaAudit } from '@/scripts/lib/schema-audit'
 import { getDefaultProductionEnvSnapshotPath } from '@/scripts/lib/env-file'
 
@@ -30,6 +31,31 @@ function readSource(...parts: string[]) {
 function countMatches(source: string, pattern: RegExp) {
   return Array.from(source.matchAll(pattern)).length
 }
+
+test('kwadrans na juz candidates stay on today between the next half-hour and 18:00', () => {
+  const slots = buildTodayUrgentSlotCandidates(new Date('2026-05-15T13:17:00+02:00'))
+
+  assert.deepEqual(
+    slots.map((slot) => slot.id),
+    [
+      '2026-05-15-13:30',
+      '2026-05-15-14:00',
+      '2026-05-15-14:30',
+      '2026-05-15-15:00',
+      '2026-05-15-15:30',
+    ],
+  )
+  assert.equal(isTodayUrgentSlotCandidate('2026-05-15', '14:00', new Date('2026-05-15T13:17:00+02:00')), true)
+  assert.equal(isTodayUrgentSlotCandidate('2026-05-16', '14:00', new Date('2026-05-15T13:17:00+02:00')), false)
+})
+
+test('kwadrans na juz candidates never roll into tomorrow after 18:00', () => {
+  assert.deepEqual(
+    buildTodayUrgentSlotCandidates(new Date('2026-05-15T17:40:00+02:00')).map((slot) => slot.id),
+    ['2026-05-15-18:00'],
+  )
+  assert.deepEqual(buildTodayUrgentSlotCandidates(new Date('2026-05-15T18:01:00+02:00')), [])
+})
 
 function withEnv(
   overrides: Record<string, string | null | undefined>,
@@ -126,8 +152,6 @@ test.skip('home and opinions pages surface real social proof and local SEO', asy
   assert.doesNotMatch(homeSource, /showSubmissionForm=\{false\}/)
   assert.match(opinionsSource, /SocialProofSection/)
   assert.match(opinionsSource, /buildMarketingMetadata/)
-  assert.match(String(homeMetadata.description ?? ''), /Olsztyn/)
-  assert.match(String(homeMetadata.openGraph?.description ?? ''), /Olsztyn/)
   assert.match(String(homeMetadata.openGraph?.siteName ?? ''), /Regulski \| Terapia behawioralna/)
   assert.match(opinionsMarkup, /real-case-grid/)
   assert.match(opinionsMarkup, /Historie opiekunów i efekty konsultacji/)
@@ -143,6 +167,30 @@ test.skip('home and opinions pages surface real social proof and local SEO', asy
   assert.match(socialFullMarkup, /Publiczne źródła/)
 })
 
+test('pakiet 7 opinions page keeps dog cat depth and upload form hooks', () => {
+  const opinionsSource = readSource('app', 'opinie', 'page.tsx')
+  const gridSource = readSource('components', 'OpinionsReviewGrid.tsx')
+  const addOpinionSource = readSource('app', 'opinie', 'dodaj', 'page.tsx')
+  const cssSource = readSource('app', 'globals.css')
+  const dogReviewCount = countMatches(opinionsSource, /categories:\s*\[[^\]]*'Pies'/g)
+  const catReviewCount = countMatches(opinionsSource, /categories:\s*\[[^\]]*'Kot'/g)
+
+  assert.equal(dogReviewCount >= 10, true)
+  assert.equal(catReviewCount >= 10, true)
+  assert.match(opinionsSource, /REAL_CASE_STUDIES/)
+  assert.match(opinionsSource, /opinions-case-snippets/)
+  assert.match(gridSource, /data-opinion-filter/)
+  assert.match(gridSource, /data-opinion-review/)
+  assert.match(gridSource, /data-review-species/)
+  assert.match(cssSource, /opinions-case-snippet-card/)
+  assert.match(cssSource, /add-opinion-brand-card/)
+  assert.match(addOpinionSource, /REGULSKI_WEB_BADGE_LOGO/)
+  assert.match(addOpinionSource, /data-opinion-form="submit"/)
+  assert.match(addOpinionSource, /data-opinion-photo-input="true"/)
+  assert.match(addOpinionSource, /formData\.append\('photo', photoFile\)/)
+  assert.doesNotMatch(addOpinionSource, /photoUrl/)
+})
+
 test('root layout metadata base is derived from the canonical runtime base url helper', () => {
   const layoutSource = readSource('app', 'layout.tsx')
 
@@ -152,7 +200,8 @@ test('root layout metadata base is derived from the canonical runtime base url h
 
 test('home metadata stays service-first while keeping the canonical homepage path', async () => {
   const metadata = await buildHomeMetadata()
-  const title = typeof metadata.title === 'string' ? metadata.title : metadata.title?.absolute
+  const titleValue = metadata.title
+  const title = typeof titleValue === 'string' ? titleValue : titleValue && 'absolute' in titleValue ? titleValue.absolute : null
 
   assert.equal(title, 'Regulski Behawiorysta | Konsultacje behawioralne psów i kotów')
   assert.equal(metadata.alternates?.canonical, '/')
@@ -275,8 +324,8 @@ test('booking form intro follows the selected service instead of a generic booki
 
   assert.match(bookingFormSource, /function getSelectedServiceIntro/)
   assert.match(bookingFormSource, /Wybrana rozmowa: \$\{option\.label\} \/ \$\{option\.price\}\./)
-  assert.match(bookingFormSource, /30 minut online daje więcej miejsca na dwa-trzy wątki/)
-  assert.match(bookingFormSource, /To osobny format z diagnoz[^\s]+ behawioraln[^\s]+ opart[^\s]+ na danych, planem działania i 7 dniami konsultacji tekstowych przez WhatsApp\./)
+  assert.match(bookingFormSource, /30 min online, gdy temat ma kilka wątków/)
+  assert.match(bookingFormSource, /Około 2h online dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 7 dni wsparcia przez WhatsApp/)
   assert.doesNotMatch(bookingFormSource, /PUBLIC_OFFER_BOOKING_LEAD/)
   assert.doesNotMatch(bookingFormSource, /PUBLIC_OFFER_BOOKING_REASSURANCE/)
 })
@@ -441,9 +490,9 @@ test.skip('contact, header, footer and legal pages stay aligned with the public 
   assert.match(contactMarkup, /Krótka wiadomość/)
   assert.match(contactSource, /Krótka wiadomość ma sens wtedy/)
   assert.match(contactSource, /Profile publiczne/)
-  assert.match(privacySource, /BLIK-u na telefon i ręcznego potwierdzenia wpłaty/)
-  assert.match(termsSource, /PayU jest chwilowo niedostępna/)
-  assert.match(termsSource, /BLIKiem na telefon/)
+  assert.match(privacySource, /WhatsApp\/Meta, PayPal\.me, obsługa BLIK/)
+  assert.match(privacySource, /operatora płatności online, PayPal\.me albo w ramach ręcznej\s+obsługi BLIK/)
+  assert.match(termsSource, /Termin jest pewny dopiero po potwierdzeniu płatności/)
   assert.match(privacySource, /LegalPageLayout/)
   assert.match(termsSource, /LegalPageLayout/)
   assert.match(legalLayoutSource, /legal-stage-layout/)
@@ -451,6 +500,7 @@ test.skip('contact, header, footer and legal pages stay aligned with the public 
   assert.match(legalLayoutSource, /legal-section-grid/)
   assert.match(legalLayoutSource, /legal-support-panel/)
   assert.match(legalLayoutSource, /primaryHref = '\/kontakt'/)
+  assert.match(legalLayoutSource, /showFooterReviews=\{false\}/)
   assert.doesNotMatch(privacySource, /legal-panel/)
   assert.doesNotMatch(termsSource, /legal-panel/)
 
@@ -605,6 +655,14 @@ test('booking form shows normalized slot conflict copy instead of raw api errors
   assert.match(bookingApiErrorsSource, /SLOT_UNAVAILABLE_MESSAGE/)
   assert.match(bookingApiErrorsSource, /getPublicFeatureUnavailableMessage\('booking'\)/)
   assert.match(bookingRouteSource, /errorCode: failure\.code/)
+  assert.match(bookingFormSource, /booking-early-start/)
+  assert.match(bookingFormSource, /consentEarlyStart/)
+  assert.match(bookingRouteSource, /consentEarlyStart/)
+  assert.match(bookingRouteSource, /zgodę na rozpoczęcie usługi przed upływem 14 dni/)
+  assert.doesNotMatch(bookingFormSource, /data-booking-field="phone"/)
+  assert.doesNotMatch(bookingFormSource, /phone:\s*['"]/)
+  assert.doesNotMatch(bookingRouteSource, /body\.phone/)
+  assert.doesNotMatch(bookingRouteSource, /numer telefonu/)
 })
 
 test('cat topic images exist in the dedicated catalog', () => {
@@ -711,6 +769,18 @@ test.skip('payment, confirmation and call sources keep visible fallbacks instead
   assert.match(callPageSource, /flowError/)
   assert.match(callPageSource, /\[regulski-behawiorysta\]\[call\] failed to load booking/)
   assert.match(callPageSource, /Nie udało się wczytać pokoju rozmowy|Nie udało się wczytać pokoju rozmowy/)
+})
+
+test('owner booking notification is sent only after payment report or paid confirmation', () => {
+  const supabaseStoreSource = readSource('lib', 'server', 'supabase-store.ts')
+  const localStoreSource = readSource('lib', 'server', 'local-store.ts')
+  const manualPaymentSource = readSource('lib', 'server', 'manual-payments.ts')
+
+  assert.doesNotMatch(supabaseStoreSource, /sendBookingOwnerNotificationEmail/)
+  assert.doesNotMatch(localStoreSource, /sendBookingOwnerNotificationEmail/)
+  assert.match(supabaseStoreSource, /sendBookingPaymentConfirmedOwnerEmail\(booking\)/)
+  assert.match(localStoreSource, /sendBookingPaymentConfirmedOwnerEmail\(booking\)/)
+  assert.match(manualPaymentSource, /sendManualPaymentReportedAdminEmailWithTimeout\(updatedBooking/)
 })
 
 test('commerce checkout uses Naffy runtime and refuses silent admin notification failures', () => {
@@ -855,7 +925,6 @@ test.skip('release smoke rules track the current home and booking copy', () => {
   assert.equal(homeRequired.some((phrase) => phrase.includes('PDF będzie obok jako materiał pomocniczy.')), true)
   assert.equal(homeRequired.some((phrase) => phrase.includes('Potrzebujesz pomocy przy problemach psa lub kota?')), true)
   assert.equal(homeRule?.forbidden?.includes('Udost\u0119pnij znajomemu'), true)
-  assert.equal(homeRule?.forbidden?.includes('Olsztyn / online'), true)
   assert.deepEqual(homeRule?.ordered, [
     'Regulski | Terapia behawioralna',
     'Konsultacje dla psów i kotów',
@@ -1181,10 +1250,12 @@ test('footer keeps a hidden build marker without exposing technical copy to the 
 
   try {
     const markup = renderToStaticMarkup(createElement(Footer))
+    const legalMarkup = renderToStaticMarkup(createElement(Footer, { showReviews: false }))
 
     assert.doesNotMatch(markup, /Wersja serwisu/)
     assert.doesNotMatch(markup, /main \/ fa5563d/)
     assert.match(markup, new RegExp(`data-build-marker="${BUILD_MARKER_KEY}:main:fa5563d"`))
+    assert.doesNotMatch(legalMarkup, /CO MÓWIĄ OPIEKUNOWIE/)
   } finally {
     if (typeof originalBranch === 'string') {
       process.env.VERCEL_GIT_COMMIT_REF = originalBranch
@@ -1249,6 +1320,92 @@ test('build script keeps explicit no-cache lint before next build', () => {
   assert.equal(packageJson.scripts?.['live-readiness'], 'node --import tsx scripts/live-readiness.ts')
   assert.equal(packageJson.scripts?.['payu-smoke:production'], 'node --import tsx scripts/payu-smoke.ts --production')
   assert.equal(packageJson.scripts?.['schema-audit'], 'node scripts/schema-audit.js')
+  assert.equal(packageJson.scripts?.['stage9-performance-audit'], 'node --import tsx scripts/stage9-performance-audit.ts')
+  assert.equal(packageJson.scripts?.['full-public-crawl'], 'node --import tsx scripts/full-public-crawl.ts')
+  assert.equal(packageJson.scripts?.['release-checklist'], 'node --import tsx scripts/release-checklist.ts')
+})
+
+test('stage 9 performance guardrails keep priority images, lazy media, layout checks, and screenshots wired', () => {
+  const homeSource = readSource('app', 'page.tsx')
+  const opinionsSource = readSource('app', 'opinie', 'page.tsx')
+  const reviewGridSource = readSource('components', 'OpinionsReviewGrid.tsx')
+  const pricingSource = readSource('app', 'cennik', 'page.tsx')
+  const cssSource = readSource('app', 'notatnik-a.css')
+  const stage9Source = readSource('scripts', 'stage9-performance-audit.ts')
+
+  assert.doesNotMatch(homeSource, /quality=\{100\}/)
+  assert.match(homeSource, /quality=\{86\}/)
+  assert.match(homeSource, /loading="lazy"/)
+  assert.match(opinionsSource, /home-bg-cat-1to1\.webp" alt="" fill loading="lazy"/)
+  assert.match(reviewGridSource, /fill loading="lazy" sizes="58px"/)
+  assert.match(pricingSource, /faq-help-illustration-clean\.png" alt="" width=\{355\} height=\{208\} loading="lazy"/)
+  assert.match(cssSource, /Stage 9 layout guardrails/)
+  assert.match(cssSource, /overflow-wrap: anywhere/)
+  assert.match(cssSource, /contain: layout paint/)
+  assert.match(stage9Source, /stage9-performance-audit/)
+  assert.match(stage9Source, /horizontalOverflow/)
+  assert.match(stage9Source, /controlOverflows/)
+  assert.match(stage9Source, /page\.screenshot/)
+})
+
+test('stage 10 funnel aliases, drop tracking, and release checklist are wired', () => {
+  const typesSource = readSource('lib', 'types.ts')
+  const funnelEventsSource = readSource('lib', 'server', 'funnel-events.ts')
+  const funnelMetricsSource = readSource('lib', 'server', 'funnel-metrics.ts')
+  const analyticsSource = readSource('lib', 'analytics.ts')
+  const terminSource = readSource('app', 'termin', 'page.tsx')
+  const calendarSource = readSource('components', 'TerminCalendarPicker.tsx')
+  const paymentActionsSource = readSource('components', 'PaymentActions.tsx')
+  const blikActionsSource = readSource('components', 'CommerceBlikActions.tsx')
+  const waitingStatusSource = readSource('components', 'CommerceWaitingStatus.tsx')
+  const adminSource = readSource('app', 'admin', 'page.tsx')
+  const releaseChecklistSource = readSource('scripts', 'release-checklist.ts')
+  const fullPublicCrawlSource = readSource('scripts', 'full-public-crawl.ts')
+  const nextConfigSource = readSource('next.config.mjs')
+
+  for (const eventName of [
+    'hero_cta_click',
+    'service_select',
+    'slot_select',
+    'form_start',
+    'form_submit',
+    'payment_start',
+    'payment_reported',
+    'payment_confirmed',
+    'booking_drop',
+  ]) {
+    assert.match(typesSource, new RegExp(`'${eventName}'`))
+    assert.match(funnelEventsSource, new RegExp(`'${eventName}'`))
+    assert.match(analyticsSource, new RegExp(eventName))
+  }
+
+  assert.match(funnelEventsSource, /case 'service_select':\s+return 'booking_service_selected'/)
+  assert.match(funnelEventsSource, /case 'payment_start':\s+return 'payment_started'/)
+  assert.match(funnelEventsSource, /case 'payment_reported':\s+case 'manual_pending':\s+return 'payment_marked_pending'/)
+  assert.match(funnelEventsSource, /case 'payment_confirmed':\s+case 'paid':/)
+  assert.match(funnelMetricsSource, /booking_drop/)
+  assert.match(analyticsSource, /BOOKING_PROGRESS_STORAGE_KEY/)
+  assert.match(analyticsSource, /flushStoredBookingDrop/)
+  assert.match(analyticsSource, /getPublicAnalyticsEventName/)
+  assert.match(terminSource, /eventName="booking_start"/)
+  assert.match(terminSource, /eventName="booking_service_selected"/)
+  assert.match(calendarSource, /trackSlotSelect\(slot, 'termin-nearest-slots'\)/)
+  assert.match(calendarSource, /trackSlotSelect\(selectedSlot, 'termin-summary'\)/)
+  assert.match(paymentActionsSource, /trackPaymentStart/)
+  assert.match(paymentActionsSource, /trackAnalyticsEvent\('payment_started'/)
+  assert.match(blikActionsSource, /trackAnalyticsEvent\('payment_reported'/)
+  assert.match(waitingStatusSource, /trackAnalyticsEvent\('payment_confirmed'/)
+  assert.match(adminSource, /window\.stageCounts\.booking_drop/)
+  assert.match(releaseChecklistSource, /latest-release-checklist\.md/)
+  assert.match(releaseChecklistSource, /stage9-performance-audit/)
+  assert.match(releaseChecklistSource, /full-public-crawl/)
+  assert.match(fullPublicCrawlSource, /source === 'crawl' && resolved\.search/)
+  assert.match(fullPublicCrawlSource, /canonicalUrl/)
+  assert.match(fullPublicCrawlSource, /--no-follow/)
+  assert.match(fullPublicCrawlSource, /--no-screenshots/)
+  assert.match(fullPublicCrawlSource, /digits\.length === 9/)
+  assert.match(fullPublicCrawlSource, /horizontalOverflowPx > 2/)
+  assert.match(nextConfigSource, /source: '\/booking',\s+destination: '\/book'/)
 })
 
 test('live booking matrix keeps a ten-attempt production report', () => {
@@ -1257,6 +1414,32 @@ test('live booking matrix keeps a ten-attempt production report', () => {
   assert.match(source, /MATRIX_ATTEMPTS/)
   assert.match(source, /latest-live-booking-matrix\.md/)
   assert.match(source, /Proby zaliczone/)
+})
+
+test('booking and contact flows keep resilient fallback selectors', () => {
+  const contactFormSource = readSource('components', 'ContactLeadForm.tsx')
+  const contactRouteSource = readSource('app', 'api', 'contact', 'route.ts')
+  const calendarSource = readSource('components', 'TerminCalendarPicker.tsx')
+  const bookingFormSource = readSource('components', 'BookingForm.tsx')
+  const cssSource = readSource('app', 'notatnik-a.css')
+  const liveClickthroughSource = readSource('scripts', 'live-clickthrough-report.ts')
+  const liveBookingMatrixSource = readSource('scripts', 'live-booking-matrix.ts')
+
+  assert.match(contactFormSource, /action="\/api\/contact"/)
+  assert.match(contactFormSource, /method="post"/)
+  assert.match(contactFormSource, /type="radio"/)
+  assert.match(contactRouteSource, /request\.formData\(\)/)
+  assert.match(contactRouteSource, /NextResponse\.redirect/)
+
+  assert.match(calendarSource, /data-nearest-slot-link="true"/)
+  assert.match(calendarSource, /data-selected-slot-link="true"/)
+  assert.match(cssSource, /termin-nearest-slots/)
+  assert.match(cssSource, /termin-calendar-weekdays,\s*[\r\n]+\s*\.termin-calendar-grid/)
+
+  assert.match(bookingFormSource, /buildSlotHref/)
+  assert.match(bookingFormSource, /booking-details-error-link/)
+  assert.match(liveClickthroughSource, /data-selected-slot-link/)
+  assert.match(liveBookingMatrixSource, /buildAttemptStartPath/)
 })
 
 test('payu smoke script supports a production checkout target without sandbox defaults', () => {

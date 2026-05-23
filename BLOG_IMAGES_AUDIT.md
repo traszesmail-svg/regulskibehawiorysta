@@ -1,55 +1,35 @@
 # BLOG_IMAGES_AUDIT
 
-Data pracy: 2026-05-06
+Data pracy: 2026-05-17
 
-Źródło bloga:
-- dane wpisów i mapowanie coverów: `lib/blog.tsx`
-- treści wpisów: `content/blog-mvp/*.md`
-- nowe obrazy: `public/blog-covers/blog-[slug]-photo.webp`
+Zakres: domknięcie obrazów bloga po zatwierdzeniu folderu `public/blog/`, bez rozszerzania prac poza listing i mapowanie blogowe.
 
-Zakres: sprawdzono tylko obrazy główne, miniatury listy bloga i alt texty. Nie zmieniano treści artykułów, tytułów, slugów, layoutu, routingu ani cen.
+## Decyzja końcowa
 
-## Wynik ogólny
+Hero listy zostaje w `public/blog/`. Wadliwe pliki artykułowe z `public/blog/` zostały wyłączone z finalnego mapowania, bo zawierały ucięte kadry, białe pasy i fragmenty tekstu. Wszystkie artykuły korzystają z czystych coverów `public/blog-covers/*-photo.webp`.
 
-Sprawdzono 24 artykuły. Wymieniono 24 obrazy, bo poprzedni zestaw miał powtórki między różnymi artykułami, część grafik była niedopasowana tematycznie, a część pokazywała kontekst zbyt ogólny lub bez zwierzęcia właściwego dla tematu.
+Nie odświeżano całej biblioteki obrazów i nie ruszano routingu poza regresyjnym sprawdzeniem starych literówek.
 
-Nowe obrazy są realistycznymi, estetycznymi zdjęciami lub fotorealistycznymi kadrami ze źródeł publicznych. Nie są ikonami, flat illustration, wektorami, cartoonami ani screenshotami PDF.
+## Wymienione obrazy
 
-## Tabela audytu
+| Wpis / widok | Poprzedni obraz w mapowaniu | Finalny obraz | Uzasadnienie |
+|---|---|---|---|
+| Hero `/blog` | `/blog-covers/blog-index-hero-photo.webp` | `/blog/hero-opiekun-pies-kot.jpg` | zatwierdzony finalny hero listy bloga |
+| `dlaczego-moj-pies-szczeka-na-inne-psy` | `/blog-covers/blog-dlaczego-moj-pies-szczeka-na-inne-psy-photo.webp` | bez zmiany | odrzucono wadliwy `/blog/pies-szczeka-na-psy.jpg` |
+| `kot-zalatwia-sie-poza-kuweta` | `/blog-covers/blog-kot-zalatwia-sie-poza-kuweta-photo.webp` | bez zmiany | odrzucono wadliwy `/blog/kot-kuweta.jpg` |
+| `szczeniak-pierwsza-noc` | `/blog-covers/blog-szczeniak-pierwsza-noc-photo.webp` | bez zmiany | odrzucono wadliwy `/blog/szczeniak-dom.jpg` |
+| `jak-wyglada-konsultacja-behawioralna-online` | `/blog-covers/blog-jak-wyglada-konsultacja-behawioralna-online-photo.webp` | bez zmiany | odrzucono wadliwy `/blog/pies-z-opiekunem.jpg` |
+| `jak-nauczyc-psa-zostawania-samemu` | `/blog-covers/blog-jak-nauczyc-psa-zostawania-samemu-photo.webp` | bez zmiany | odrzucono wadliwy `/blog/pies-odpoczywa.jpg` |
 
-| Tytuł | Slug | Obraz przed zmianą | Alt przed zmianą | Temat | Gatunek | Ocena poprzedniego obrazu | Dlaczego | Rekomendowany typ obrazu | Nowy obraz | Wymieniono |
-|---|---|---|---|---|---|---|---|---|---|---|
-| Pierwsza noc ze szczeniakiem - jak ustawic spokojny start | `szczeniak-pierwsza-noc` | `/branding/niezbednik/pdf-puppy.jpg` | Młody pies w domowym otoczeniu podczas pierwszych dni po adopcji. | pierwsza noc, rytm, wyciszenie szczeniaka | pies | niepewne | Pies pasował gatunkowo, ale obraz nie pokazywał nocy, legowiska ani spokojnego startu. | szczeniak w domowym, nocnym kontekście przy legowisku | `/blog-covers/blog-szczeniak-pierwsza-noc-photo.webp` | tak |
-| Dlaczego mój pies szczeka na inne psy? | `dlaczego-moj-pies-szczeka-na-inne-psy` | `/images/cutover/dog-spacer-reactivity.png` | Pies na smyczy obserwujący otoczenie podczas spaceru. | szczekanie i napięcie przy mijaniu psów | pies | niepewne | Gatunek był poprawny, ale obraz nie pokazywał drugiego psa ani dystansu między psami. Był też używany przy innych spacerowych wpisach. | dwa psy na smyczach z widocznym dystansem | `/blog-covers/blog-dlaczego-moj-pies-szczeka-na-inne-psy-photo.webp` | tak |
-| Pies wyje, kiedy zostaje sam | `pies-wyje-kiedy-zostaje-sam` | `/images/cutover/dog-separation.png` | Pies sam w domu obserwujący świat zza okna. | lęk separacyjny, samotność, wycie | pies | niepewne | Kierunek był bliski, ale ten sam obraz wracał przy kilku wpisach o samotności i nie różnicował intencji tekstu. | pies w domu przy drzwiach, oknie lub legowisku | `/blog-covers/blog-pies-wyje-kiedy-zostaje-sam-photo.webp` | tak |
-| Kot załatwia się poza kuwetą | `kot-zalatwia-sie-poza-kuweta` | `/images/cutover/cat-kuweta.png` | Kot przy kuwecie w domowej przestrzeni. | problem toaletowy kota, kuweta, zdrowie i napięcie | kot | pasuje | Obraz był gatunkowo i tematycznie właściwy, ale ten sam motyw kuwety był używany w kilku wpisach. | kot w spokojnym domu, kuweta subtelnie obecna | `/blog-covers/blog-kot-zalatwia-sie-poza-kuweta-photo.webp` | tak |
-| Jak wygląda konsultacja behawioralna online? | `jak-wyglada-konsultacja-behawioralna-online` | `/blog-covers/consultation.jpg` | Biurko przygotowane do konsultacji behawioralnej online. | przebieg konsultacji online | ogólny | niepewne | Laptop pasował do konsultacji, ale brakowało zwierzęcia i kontekstu opiekuna. | opiekun, laptop i pies/kot w kontekście rozmowy | `/blog-covers/blog-jak-wyglada-konsultacja-behawioralna-online-photo.webp` | tak |
-| Pies ciągnie na smyczy - kiedy to nawyk, a kiedy problem | `pies-ciagnie-na-smyczy` | `/images/cutover/dog-spacer-reactivity.png` | Pies na smyczy podczas pracy nad spokojnym spacerem. | ciągnięcie na smyczy | pies | niepewne | Obraz był spacerowy, ale nie pokazywał ciągnięcia ani opiekuna i powtarzał się przy innych wpisach. | pies na smyczy z wyraźnym napięciem smyczy | `/blog-covers/blog-pies-ciagnie-na-smyczy-photo.webp` | tak |
-| Kot drapie meble - dlaczego to robi i jak to zmienić | `kot-drapie-meble` | `/branding/niezbednik/product-cat-scratcher.jpg` | Domowy drapak jako bezpieczne miejsce do drapania dla kota. | drapanie, drapak, kanapa | kot | nie pasuje | Obraz pokazywał produkt, a nie kota i sytuację drapania w domu. | kot przy drapaku i meblu, bez agresywnej sceny | `/blog-covers/blog-kot-drapie-meble-photo.webp` | tak |
-| Nowy pies w domu - co zrobić przez pierwsze 72 godziny | `nowy-pies-pierwsze-72-godziny` | `/branding/topic-cards/dog-resting-home.jpg` | Pies odpoczywający w domu po zmianie otoczenia. | pierwsze dni nowego psa w domu | pies | pasuje | Obraz był spokojny i domowy, ale nie pokazywał wejścia, legowiska ani planu pierwszych godzin. | pies w domu przy drzwiach i legowisku | `/blog-covers/blog-nowy-pies-pierwsze-72-godziny-photo.webp` | tak |
-| Kiedy behawiorysta, a kiedy trener psa? | `kiedy-behawiorysta-kiedy-trener-psa` | `/blog-covers/specialist.jpg` | Notatki specjalisty podczas omawiania problemu psa. | wybór specjalisty dla psa | pies | niepewne | Obraz był specjalistyczny, ale bez psa i bez jasnego rozróżnienia roli behawiorysty/trenera. | specjalista, notatki i pies | `/blog-covers/blog-kiedy-behawiorysta-kiedy-trener-psa-photo.webp` | tak |
-| Behawiorysta, zoopsycholog czy trener - do kogo się zgłosić? | `behawiorysta-zoopsycholog-trener-do-kogo-sie-zglosic` | `/blog-covers/specialist.jpg` | Materiały konsultacyjne na biurku specjalisty. | wybór rodzaju pomocy | oba | niepewne | Obraz był zbyt ogólny i powtarzał się przy kilku tekstach specjalistycznych. | specjalista z psem i kotem, spokojny kontekst decyzji | `/blog-covers/blog-behawiorysta-zoopsycholog-trener-do-kogo-sie-zglosic-photo.webp` | tak |
-| Ile kosztuje konsultacja behawioralna i co dostajesz w cenie | `ile-kosztuje-konsultacja-behawioralna` | `/blog-covers/money.jpg` | Notatnik i dokumenty używane przy porównaniu kosztu konsultacji. | koszt konsultacji, wartość usługi | ogólny | niepewne | Dokumenty pasowały do kosztów, ale brakowało kontekstu behawioralnego i zwierzęcia. | kalkulator/notatki plus pies i kot | `/blog-covers/blog-ile-kosztuje-konsultacja-behawioralna-photo.webp` | tak |
-| Czym jest COAPE i co oznacza behawiorysta po tej szkole | `czym-jest-coape-behawiorysta-po-tej-szkole` | `/blog-covers/specialist.jpg` | Biurko specjalisty z materiałami edukacyjnymi. | kwalifikacje i szkoła COAPE | ogólny | niepewne | Obraz był zbyt ogólny i nie pokazywał edukacji, certyfikatu ani zwierząt. | certyfikat, materiały edukacyjne, pies i kot | `/blog-covers/blog-czym-jest-coape-behawiorysta-po-tej-szkole-photo.webp` | tak |
-| Jak przygotować się do konsultacji behawioralnej online | `jak-przygotowac-sie-do-konsultacji-behawioralnej-online` | `/blog-covers/consultation.jpg` | Laptop i notatki przygotowane do konsultacji online. | przygotowanie do konsultacji online | ogólny | niepewne | Laptop i notatki pasowały, ale brakowało telefonu, opiekuna i zwierzęcia. | laptop, telefon, notatki i zwierzę | `/blog-covers/blog-jak-przygotowac-sie-do-konsultacji-behawioralnej-online-photo.webp` | tak |
-| Luźna smycz z reaktywnym psem - jak to ćwiczyć | `reaktywnosc-na-smyczy-cwiczenie-luznej-smyczy` | `/images/cutover/dog-spacer-reactivity.png` | Pies na smyczy podczas ćwiczenia spokojniejszego spaceru. | ćwiczenie luźnej smyczy przy reaktywności | pies | niepewne | Obraz był poprawny gatunkowo, ale nie pokazywał ćwiczenia ani dystansu do drugiego psa. Był też duplikatem. | pies ćwiczący mijanie drugiego psa z dystansem | `/blog-covers/blog-reaktywnosc-na-smyczy-cwiczenie-luznej-smyczy-photo.webp` | tak |
-| Jak nagrać psa zostawionego samemu i co z nagrania odczytać | `jak-nagrac-psa-zostawionego-samemu` | `/images/cutover/dog-separation.png` | Pies zostawiony sam w domu, obserwowany przy oknie. | nagrywanie psa podczas samotności | pies | niepewne | Obraz pokazywał samotność, ale nie pokazywał nagrywania ani telefonu/kamery. | pies w domu i telefon ustawiony do nagrania | `/blog-covers/blog-jak-nagrac-psa-zostawionego-samemu-photo.webp` | tak |
-| Rutyna wyjścia - jak oswajać psa z samotnością krok po kroku | `rutyna-wyjscia-oswajanie-psa-z-samotnoscia` | `/branding/topic-cards/dog-window-alone.jpg` | Pies czekający w domu przy oknie podczas pracy nad samotnością. | rytuał wyjścia i praca nad samotnością | pies | niepewne | Obraz był bliski tematu, ale nie pokazywał drzwi, kluczy ani rutyny wyjścia. | pies przy drzwiach, legowisku i sygnałach wyjścia | `/blog-covers/blog-rutyna-wyjscia-oswajanie-psa-z-samotnoscia-photo.webp` | tak |
-| Jak wybrać kuwetę i żwirek dla kota | `jak-wybrac-kuwete-i-zwirek-dla-kota` | `/images/cutover/cat-kuweta.png` | Kot przy kuwecie i spokojnie zorganizowanej przestrzeni. | wybór kuwety i żwirku | kot | pasuje | Gatunek i temat były właściwe, ale obraz nie rozróżniał wyboru kuwety/żwirku i powtarzał się. | kot, dwie kuwety i akcesoria do wyboru żwirku | `/blog-covers/blog-jak-wybrac-kuwete-i-zwirek-dla-kota-photo.webp` | tak |
-| Stres kota a zachowania toaletowe - co środowisko ma z tym wspólnego | `stres-kota-a-zachowania-toaletowe` | `/images/cutover/cat-stress.png` | Kot obserwujący otoczenie w napięciu. | stres środowiskowy i kuweta | kot | nie pasuje | Plik nie dawał czytelnego, spokojnego kontekstu kota i zachowań toaletowych. | kot schowany lub zdystansowany w domu, bez straszenia | `/blog-covers/blog-stres-kota-a-zachowania-toaletowe-photo.webp` | tak |
-| Jak wprowadzić nowego kota do domu, w którym jest już jeden | `jak-wprowadzic-nowego-kota-do-domu` | `/images/cutover/cat-conflict.png` | Dwa koty w domu podczas spokojnego zapoznawania. | wprowadzanie nowego kota | kot | niepewne | Dwa koty pasowały gatunkowo, ale obraz był używany też przy konflikcie i zapoznawaniu. | dwa koty oddzielone bramką lub drzwiami | `/blog-covers/blog-jak-wprowadzic-nowego-kota-do-domu-photo.webp` | tak |
-| Agresja przekierowana u kota - co to jest i jak reagować | `agresja-przekierowana-u-kota` | `/branding/topic-cards/cats/cat-touch-defensive.jpg` | Kot reagujący napięciem podczas bliskiego kontaktu z opiekunem. | napięcie i agresja przekierowana u kota | kot | niepewne | Obraz sugerował napięcie dotykowe, ale nie oddawał przekierowania bodźca i mógł wyglądać jak pielęgnacja. | kot napięty przy oknie, drugi kot w dystansie, bez przemocy | `/blog-covers/blog-agresja-przekierowana-u-kota-photo.webp` | tak |
-| Pies ciągnie na smyczy - od czego zacząć | `pies-ciagnie-na-smyczy-od-czego-zaczac` | `/images/cutover/dog-spacer-reactivity.png` | Pies na smyczy podczas pierwszych ćwiczeń spacerowych. | pierwszy krok przy ciągnięciu na smyczy | pies | niepewne | Obraz był spacerowy, ale był duplikatem i nie pokazywał prostego pierwszego kroku. | pies na smyczy i jasny pierwszy krok spacerowy | `/blog-covers/blog-pies-ciagnie-na-smyczy-od-czego-zaczac-photo.webp` | tak |
-| Jak nauczyć psa zostawania samemu | `jak-nauczyc-psa-zostawania-samemu` | `/images/cutover/dog-separation.png` | Pies sam w domu podczas treningu zostawania samemu. | nauka zostawania samemu | pies | niepewne | Obraz był bliski tematu, ale powtarzał się i nie pokazywał treningu małych kroków. | pies w domu za bramką lub przy legowisku | `/blog-covers/blog-jak-nauczyc-psa-zostawania-samemu-photo.webp` | tak |
-| Jak ustawić kuwetę dla kota | `jak-ustawic-kuwete-dla-kota` | `/images/cutover/cat-kuweta.png` | Kot przy kuwecie ustawionej w spokojnym miejscu. | lokalizacja kuwety | kot | pasuje | Obraz był zgodny z gatunkiem i tematem, ale powtarzał się przy kilku tekstach kuwetowych. | kot i kuweta ustawiona w spokojnym miejscu z drogą odejścia | `/blog-covers/blog-jak-ustawic-kuwete-dla-kota-photo.webp` | tak |
-| Jak zapoznać dwa koty | `jak-zapoznac-dwa-koty` | `/images/cutover/cat-conflict.png` | Dwa koty w jednym domu podczas stopniowego zapoznawania. | zapoznawanie dwóch kotów | kot | pasuje | Motyw dwóch kotów był poprawny, ale był używany też przy innym wpisie i nie pokazywał procesu przez drzwi/zapach. | dwa koty po dwóch stronach uchylonych drzwi | `/blog-covers/blog-jak-zapoznac-dwa-koty-photo.webp` | tak |
+## Obrazy pozostawione bez zmian
 
-## Wnioski
+Wszystkie 24 covery artykułów pozostają na plikach `public/blog-covers/*-photo.webp`. Dotyczy to także tematów: szczekanie psa, kuweta, pierwsza noc szczeniaka, konsultacja online i zostawanie psa samemu.
 
-- Poprzednie obrazy były często poprawne tylko gatunkowo, ale nie rozróżniały intencji artykułu.
-- Największy problem dotyczył powtórek: jeden obraz spacerowy obsługiwał kilka różnych wpisów o smyczy, a jeden obraz kuwety kilka różnych wpisów kocich.
-- Nowe obrazy są unikalne per artykuł, spójne wizualnie i nie używają prywatnych zdjęć z dysku.
+## Kontrole
 
-## Korekta po odrzuceniu ilustracji
-
-Poprzednie wygenerowane pliki ilustracyjne `public/blog-covers/blog-[slug].webp` zostały wycofane z mapowania i usunięte. Aktualnie używane pliki mają sufiks `-photo.webp`, żeby przeglądarka nie mieszała ich z poprzednią wersją.
+- Mapowanie coverów: `lib/blog.tsx`.
+- Hero listingu: `app/blog/page.tsx`.
+- Brak publicznego blogowego CTA `/niezbednik` w renderowanych źródłach bloga: PASS.
+- Brak wzorców mojibake w `app/blog`, `lib/blog.tsx` i renderowanych wpisach `content/blog-mvp/*wpis*.md`: PASS.
+- Hash duplikatów finalnego zestawu: PASS, szczegóły w `BLOG_IMAGES_HASH_REPORT.md`.
+- Browser-check desktop/mobile: PASS, szczegóły w `BLOG_IMAGES_FINAL_REPORT.md`.

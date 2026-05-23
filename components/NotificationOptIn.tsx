@@ -1,7 +1,6 @@
 'use client'
 
-import { useState, type FormEvent } from 'react'
-import { trackAnalyticsEvent } from '@/lib/analytics'
+import Link from 'next/link'
 
 type NotificationOptInProps = {
   sourcePage: string
@@ -10,131 +9,38 @@ type NotificationOptInProps = {
   recommendedService?: string
 }
 
-function isPhoneValid(value: string) {
-  const digitCount = value.replace(/\D/g, '').length
-  return digitCount >= 7 && digitCount <= 15
+function buildContactHref({ sourcePage, location, context, recommendedService }: NotificationOptInProps) {
+  const params = new URLSearchParams()
+  params.set('sourcePage', sourcePage)
+  params.set('location', location)
+
+  if (context) {
+    params.set('context', context)
+  }
+
+  if (recommendedService) {
+    params.set('service', recommendedService)
+  }
+
+  return `/kontakt?${params.toString()}#formularz`
 }
 
-export function NotificationOptIn({
-  sourcePage,
-  location,
-  context,
-  recommendedService,
-}: NotificationOptInProps) {
-  const [phone, setPhone] = useState('')
-  const [channel, setChannel] = useState<'whatsapp' | 'sms'>('whatsapp')
-  const [consent, setConsent] = useState(false)
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
-  const [feedback, setFeedback] = useState('')
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-
-    if (!isPhoneValid(phone)) {
-      setStatus('error')
-      setFeedback('Podaj poprawny numer telefonu.')
-      return
-    }
-
-    if (!consent) {
-      setStatus('error')
-      setFeedback('Zaznacz zgodę na kontakt.')
-      return
-    }
-
-    setStatus('loading')
-    setFeedback('')
-
-    try {
-      const response = await fetch('/api/notifications/subscribe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          phone,
-          channel,
-          consent,
-          sourcePage,
-          location,
-          context,
-          recommendedService,
-        }),
-      })
-
-      const payload = (await response.json()) as { ok?: boolean; error?: string; message?: string }
-
-      if (!response.ok || !payload.ok) {
-        throw new Error(payload.error ?? 'Nie udało się zapisać powiadomienia.')
-      }
-
-      trackAnalyticsEvent('notification_optin_submitted', {
-        location,
-        channel,
-        context: context ?? null,
-      })
-
-      setStatus('success')
-      setFeedback(payload.message ?? 'Zapis przyjęty.')
-      setPhone('')
-      setConsent(false)
-    } catch (error) {
-      setStatus('error')
-      setFeedback(error instanceof Error ? error.message : 'Nie udało się zapisać powiadomienia.')
-    }
-  }
+export function NotificationOptIn(props: NotificationOptInProps) {
+  const contactHref = buildContactHref(props)
 
   return (
     <article className="summary-card tree-backed-card notification-optin-card">
-      <div className="section-eyebrow">Opcjonalne przypomnienie</div>
-      <h3>Dostan krótkie przypomnienie o wyniku.</h3>
+      <div className="section-eyebrow">Kontakt mailowy</div>
+      <h3>Chcesz wrócić do wyniku później?</h3>
       <p className="muted">
-        Zapis jest dobrowolny. Bez konfiguracji zewnętrznego kanału numer zostaje tylko zapisany jako opt-in.
+        Napisz przez formularz kontaktowy. Odpowiedź wróci na podany adres e-mail, bez zapisu numeru telefonu.
       </p>
 
-      <form className="form-grid top-gap-small compact-form-grid" onSubmit={handleSubmit} noValidate>
-        <div className="form-field">
-          <label htmlFor="notification-phone">Telefon</label>
-          <input
-            id="notification-phone"
-            name="phone"
-            type="tel"
-            value={phone}
-            onChange={(event) => setPhone(event.target.value)}
-            autoComplete="tel"
-            placeholder="+48..."
-          />
-        </div>
-
-        <div className="form-field">
-          <label htmlFor="notification-channel">Kanal</label>
-          <select
-            id="notification-channel"
-            name="channel"
-            value={channel}
-            onChange={(event) => setChannel(event.target.value === 'sms' ? 'sms' : 'whatsapp')}
-          >
-            <option value="whatsapp">WhatsApp</option>
-            <option value="sms">SMS</option>
-          </select>
-        </div>
-
-        <label className="full-width checkbox-field">
-          <input type="checkbox" checked={consent} onChange={(event) => setConsent(event.target.checked)} />
-          <span>Wyrażam zgodę na jednorazowy kontakt w sprawie wyniku quizu i wiem, że mogę się wypisać.</span>
-        </label>
-
-        <div className="full-width hero-actions">
-          <button type="submit" className="button button-ghost" disabled={status === 'loading'}>
-            {status === 'loading' ? 'Zapisuje...' : 'Zapisz przypomnienie'}
-          </button>
-        </div>
-
-        {feedback ? (
-          <div className={`full-width info-box ${status === 'error' ? 'error-box' : ''}`}>
-            <strong>{status === 'success' ? 'Gotowe' : 'Uwaga'}</strong>
-            <span>{feedback}</span>
-          </div>
-        ) : null}
-      </form>
+      <div className="hero-actions top-gap-small">
+        <Link href={contactHref} className="button button-ghost" prefetch={false}>
+          Przejdź do formularza
+        </Link>
+      </div>
     </article>
   )
 }

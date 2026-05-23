@@ -1,5 +1,5 @@
 import { FUNNEL_CTA_LABELS } from '@/lib/funnel'
-import { NotatnikSideVisuals } from '@/components/NotatnikA'
+import { NotatnikFooter, NotatnikSideVisuals, NotatnikTopbar, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
 
 type RouteFallbackAction = {
   href: string
@@ -33,9 +33,11 @@ export function RouteFallbackPage({
   footerDescription = 'Najprościej wrócić do strony głównej, wejść na stronę psa lub kota albo wybrać 15-minutową konsultację behawioralną.',
 }: RouteFallbackPageProps) {
   return (
-    <main className="page-wrap marketing-page">
+    <main className="notatnik-page marketing-page">
       <NotatnikSideVisuals />
-      <div className="container">
+      <div className="notatnik-shell">
+        <NotatnikTopbar tag="Regulski" navItems={PUBLIC_SITE_NAV_ITEMS} showUtilityLinks={false} />
+
         <section className="panel section-panel hero-surface">
           <div className="header-trust-strip" aria-label="Regulski">
             <span className="header-trust-item">Regulski</span>
@@ -81,6 +83,8 @@ export function RouteFallbackPage({
             </span>
           </div>
         </section>
+
+        <NotatnikFooter showReviews={false} />
       </div>
     </main>
   )

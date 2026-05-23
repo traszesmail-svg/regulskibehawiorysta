@@ -6,6 +6,7 @@ import { loadEnvConfig } from '@next/env'
 import { chromium, type Locator, type Page } from 'playwright-core'
 import { createLocalDataSandbox } from './lib/local-data-sandbox'
 import { resolveBrowserExecutablePath } from './lib/browser-path'
+import { getNormalBookingMinDateKey } from '../lib/scheduling/rules'
 
 const rootDir = process.cwd()
 let port = 0
@@ -17,30 +18,15 @@ const roomActiveTimeoutMs = 30000
 const retryActionTimeoutMs = 20000
 const uiSmokeOwnerName = 'UI Smoke'
 const uiSmokeEmail = 'ui-smoke@example.com'
-const primaryBookingLabel = /Umów spokojny pierwszy krok/i
+const homeHeading = /Behawiorysta psów i kotów online|Behawiorysta psow i kotow online/i
+const materialyHeading = /Materia.*PDF.*opiekun/i
+const pricingHeading = /Cennik konsultacji behawioralnych\.|Wybierz rozmowę dopasowaną do sytuacji|Wybierz rozmowe dopasowana do sytuacji/i
+type RouteButtonLabels = { buttonLabels?: readonly (string | RegExp)[] }
 
-function getWarsawSlotInMinutes(offsetMinutes: number) {
-  const target = new Date(Date.now() + offsetMinutes * 60 * 1000)
-  const formatter = new Intl.DateTimeFormat('sv-SE', {
-    timeZone: 'Europe/Warsaw',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  })
-  const values: Record<string, string> = {}
-
-  for (const part of formatter.formatToParts(target)) {
-    if (part.type !== 'literal') {
-      values[part.type] = part.value
-    }
-  }
-
+function getBookableSmokeSlot() {
   return {
-    date: `${values.year}-${values.month}-${values.day}`,
-    time: `${values.hour}:${values.minute}`,
+    date: getNormalBookingMinDateKey(new Date()),
+    time: '08:00',
   }
 }
 
@@ -137,6 +123,58 @@ async function verifyPublicRoute(
 
   const h1 = cleanText(await page.locator('h1').first().innerText())
   console.log(`[manual-route] ${route} :: ${h1}`)
+}
+
+async function verifyOpinionsInteractions(page: Page) {
+  await page.goto(`${appUrl}/opinie`, { waitUntil: 'domcontentloaded' })
+  await applyOpinionFilter(page, 'Pies', 'pies', 'kot')
+
+  await applyOpinionFilter(page, 'Kot', 'kot', 'pies')
+
+  await Promise.all([
+    page.waitForURL(/\/opinie\/dodaj/, { timeout: routeNavigationTimeoutMs, waitUntil: 'domcontentloaded' }),
+    page.locator('a[href="/opinie/dodaj"]').first().click(),
+  ])
+  await page.locator('[data-opinion-form="submit"]').waitFor({ timeout: routeNavigationTimeoutMs })
+  await page.locator('[data-opinion-photo-input="true"]').waitFor({ timeout: routeNavigationTimeoutMs })
+  await page.locator('#displayName').fill('Smoke')
+  await page.locator('#opinion').fill('Krótka opinia do sprawdzenia formularza bez wysyłania danych.')
+  console.log('[opinions-route] filters and add-opinion form visible')
+}
+
+async function applyOpinionFilter(page: Page, filter: 'Pies' | 'Kot', visibleSpecies: 'pies' | 'kot', hiddenSpecies: 'pies' | 'kot') {
+  const filterButton = page.locator(`[data-opinion-filter="${filter}"]`)
+  await filterButton.waitFor({ timeout: routeNavigationTimeoutMs })
+
+  let filterApplied = false
+  let lastError: unknown = null
+
+  for (let attempt = 0; attempt < 3 && !filterApplied; attempt += 1) {
+    await filterButton.click()
+
+    try {
+      await page.waitForFunction(
+        ({ activeFilter, hidden }) => {
+          const activeButton = document.querySelector(`[data-opinion-filter="${activeFilter}"]`)
+          const hiddenReviews = document.querySelectorAll(`[data-opinion-review][data-review-species="${hidden}"]`)
+
+          return activeButton?.getAttribute('aria-pressed') === 'true' && hiddenReviews.length === 0
+        },
+        { activeFilter: filter, hidden: hiddenSpecies },
+        { timeout: Math.min(routeNavigationTimeoutMs, 5000) },
+      )
+      filterApplied = true
+    } catch (error) {
+      lastError = error
+    }
+  }
+
+  if (!filterApplied) {
+    throw lastError instanceof Error ? lastError : new Error(`Opinion filter ${filter} did not apply.`)
+  }
+
+  await page.locator(`[data-opinion-review][data-review-species="${visibleSpecies}"]`).first().waitFor({ timeout: routeNavigationTimeoutMs })
+  assert.equal(await page.locator(`[data-opinion-review][data-review-species="${hiddenSpecies}"]`).count(), 0)
 }
 
 async function verifyRedirectRoute(
@@ -361,6 +399,22 @@ async function approveManualPaymentWithRetry(page: Page, bookingId: string, book
   throw new Error(`Admin approval did not complete in time.${lastError ? ` Last issue: ${lastError}` : ''}`)
 }
 
+async function verifyCallRoomLoaded(page: Page, bookingId: string, ownerName: string) {
+  await page.waitForURL(new RegExp(`/call/${bookingId}`), { timeout: routeNavigationTimeoutMs })
+  await page.locator('.room-panel').waitFor({ timeout: routeNavigationTimeoutMs })
+  assert.equal(await page.getByText(new RegExp(ownerName, 'i')).isVisible(), true)
+
+  const activeStartButton = page.getByRole('button', { name: /Uruchom licznik \d+ minut/i }).first()
+  if (await isVisible(activeStartButton)) {
+    assert.equal(await page.getByText(/Pok[óo]j aktywny/i).isVisible(), true)
+    return true
+  }
+
+  await page.getByRole('button', { name: /Pokój odblokuje się za|Pokoj odblokuje sie za/i }).first().waitFor({ timeout: 10000 })
+  assert.equal(await page.getByText(/Oczekiwanie na wejście|Oczekiwanie na wejscie/i).isVisible(), true)
+  return false
+}
+
 function isRetryableUiSmokeError(error: unknown) {
   const message = error instanceof Error ? `${error.name}: ${error.message}` : String(error)
   return (
@@ -386,7 +440,6 @@ async function runUiSmokeOnce() {
   process.env.NEXT_PUBLIC_APP_URL = appUrl
   process.env.ADMIN_ACCESS_SECRET = adminSecret
   process.env.RESEND_API_KEY = ''
-  process.env.REGULSKI_CONTACT_PHONE = '500600700'
   process.env.MANUAL_PAYMENT_BLIK_PHONE = '512992026'
   process.env.MANUAL_PAYMENT_PAYPAL_ME_URL = 'paypal.me/regulskibehawiorysta'
   process.env.MANUAL_PAYMENT_ACCOUNT_NAME = 'Krzysztof Regulski'
@@ -405,8 +458,10 @@ async function runUiSmokeOnce() {
 
   try {
     await cleanLocalData(dataDir)
-    const nearRoomSlot = getWarsawSlotInMinutes(12)
-    const slot = await localStore.createAvailabilitySlot(nearRoomSlot.date, nearRoomSlot.time)
+    const smokeSlot = getBookableSmokeSlot()
+    const smokeSlotId = `${smokeSlot.date}-${smokeSlot.time}`
+    const slot = (await localStore.getAvailabilitySlot(smokeSlotId)) ??
+      (await localStore.createAvailabilitySlot(smokeSlot.date, smokeSlot.time))
     assert.ok(slot, 'Expected a custom near-room slot for UI smoke test.')
 
     server = spawn('cmd.exe', ['/c', 'npm', 'run', 'dev', '--', '--hostname', '127.0.0.1', '--port', String(port)], {
@@ -423,7 +478,7 @@ async function runUiSmokeOnce() {
       '/psy',
       '/book',
       '/oferta',
-      '/niezbednik',
+      '/materialy',
     ].map((route) => fetch(`${appUrl}${route}`, { cache: 'no-store' }).catch(() => null)))
 
     browser = await chromium.launch({
@@ -446,9 +501,9 @@ async function runUiSmokeOnce() {
     await publicPage
       .getByRole('heading', {
         level: 1,
-        name: /Jak mogę Ci pomóc\?/i,
+        name: homeHeading,
       })
-      .waitFor()
+      .waitFor({ timeout: slowRouteTimeoutMs })
 
     const desktopPage = await adminContext.newPage()
 
@@ -457,35 +512,10 @@ async function runUiSmokeOnce() {
         ['mobile', publicPage],
         ['desktop', desktopPage],
       ] as const) {
-        await page.goto(`${appUrl}/koty`, { waitUntil: 'domcontentloaded' })
-        await page
-          .getByRole('heading', {
-            name: /Twoj kot zachowuje sie w sposob, ktory Cie niepokoi|Twój kot zachowuje się w sposób, który Cię niepokoi/i,
-          })
-          .waitFor({ timeout: slowRouteTimeoutMs })
-        await waitForButtonLink(page, /Kwadrans/i)
-        await page.getByRole('link', { name: /Zobacz materialy/i }).first().waitFor({ timeout: slowRouteTimeoutMs })
-        assert.ok((await page.locator('.summary-card').count()) >= 2, `${label}: expected cat page summary cards`)
-
-        await page.goto(`${appUrl}/psy`, { waitUntil: 'domcontentloaded' })
-        await page
-          .getByRole('heading', {
-            name: /Twoj pies zachowuje sie w sposob, ktory Cie niepokoi|Twój pies zachowuje się w sposób, który Cię niepokoi/i,
-          })
-          .waitFor({ timeout: slowRouteTimeoutMs })
-        await waitForButtonLink(page, /Kwadrans/i)
-        await page.getByRole('link', { name: /Zobacz materialy/i }).first().waitFor({ timeout: slowRouteTimeoutMs })
-        assert.ok((await page.locator('.summary-card').count()) >= 2, `${label}: expected dog page summary cards`)
-
-        await page.goto(`${appUrl}/oferta`, { waitUntil: 'domcontentloaded' })
-        await page.getByRole('heading', { level: 1, name: /Wybierz start dla swojej sytuacji\./i }).waitFor({ timeout: slowRouteTimeoutMs })
-        await page.getByRole('heading', { name: /Jedna zasada wyboru przed rezerwacja\./i }).waitFor({ timeout: slowRouteTimeoutMs })
-        assert.ok((await page.locator('.offer-card').count()) >= 3, `${label}: expected simplified public offer cards`)
-
-        await page.goto(`${appUrl}/oferta/poradniki-pdf`, { waitUntil: 'domcontentloaded' })
-        assert(page.url().includes('/materialy'), `${label}: expected poradniki-pdf route to redirect to /materialy`)
-        await page.getByRole('heading', { level: 1, name: /Materiały PDF gotowe do pobrania|Materialy PDF gotowe do pobrania/i }).waitFor({ timeout: slowRouteTimeoutMs })
-        assert.ok((await page.locator('.notatnik-material-card').count()) >= 5, `${label}: expected materialy cards`)
+        await verifyRedirectRoute(page, '/koty', '/', homeHeading)
+        await verifyRedirectRoute(page, '/psy', '/', homeHeading)
+        await verifyRedirectRoute(page, '/oferta', '/cennik', pricingHeading)
+        await verifyRedirectRoute(page, '/oferta/poradniki-pdf', '/cennik', pricingHeading)
       }
     }
 
@@ -497,37 +527,27 @@ async function runUiSmokeOnce() {
     for (const route of [
       {
         path: '/opinie',
-        heading: /Co opiekunowie mowia o konsultacjach|Co opiekunowie mówią o konsultacjach/i,
-        buttonLabels: [/Kwadrans/i],
+        heading: /Co opiekunowie mowia o konsultacjach|Co opiekunowie mówią o konsultacjach|Co mówią opiekunowie po rozmowie|Co mowia opiekunowie po rozmowie/i,
       },
       {
         path: '/o-mnie',
-        heading: /Krzysztof Regulski - behawiorysta psow i kotow|Krzysztof Regulski - behawiorysta psów i kotów/i,
-        buttonLabels: [/Kwadrans/i],
+        heading: /Krzysztof Regulski - behawiorysta psow i kotow|Krzysztof Regulski - behawiorysta psów i kotów|Krzysztof Regulski\. Behawiorysta psów i kotów|Krzysztof Regulski\. Behawiorysta psow i kotow/i,
       },
       {
         path: '/kontakt',
         heading: /Napisz krótko, co się dzieje\. Pomogę Ci wybrać najrozsądniejszy pierwszy krok\./i,
-        buttonLabels: [/Kwadrans/i],
       },
       {
-        path: '/niezbednik',
-        heading: /Nie wszystko trzeba od razu konsultować\. Czasem najpierw wystarczy dobrze poobserwować\./i,
-        buttonLabels: [/Umów pierwszy krok/i],
+        path: '/materialy',
+        heading: materialyHeading,
       },
       {
         path: '/cennik',
-        heading: /Cennik konsultacji behawioralnych\./i,
-        buttonLabels: [/Kwadrans/i],
-      },
-      {
-        path: '/konsultacja-behawioralna-online',
-        heading: /Pelna konsultacja behawioralna online|Konsultacja behawioralna online 60 min|Konsultacja behawioralna online - jak to wygląda/i,
-        buttonLabels: [/pelna konsultac|pełna konsultac|60 min/i],
+        heading: pricingHeading,
       },
       {
         path: '/blog',
-        heading: /Wiedza, która pomaga zrozumieć i działać|Teksty o zachowaniu psów i kotów - konkretnie, bez ogólników/i,
+        heading: /Wiedza, która pomaga zrozumieć i działać|Teksty o zachowaniu psów i kotów - konkretnie, bez ogólników|Zanim zaczniesz poprawiać zachowanie, warto zrozumieć, po co ono się pojawia/i,
       },
       {
         path: '/blog/dlaczego-moj-pies-szczeka-na-inne-psy',
@@ -545,73 +565,73 @@ async function runUiSmokeOnce() {
         path: '/blog/jak-wyglada-konsultacja-behawioralna-online',
         heading: /Jak wygląda konsultacja behawioralna online/i,
       },
-      {
-        path: '/psy/lek-separacyjny',
-        heading: /Lęk separacyjny u psa/i,
-        buttonLabels: [primaryBookingLabel],
-      },
-      {
-        path: '/psy/reaktywnosc-na-smyczy',
-        heading: /Reaktywność psa na smyczy/i,
-        buttonLabels: [primaryBookingLabel],
-      },
-      {
-        path: '/koty/konflikt-miedzy-kotami',
-        heading: /Konflikt między kotami w domu/i,
-        buttonLabels: [primaryBookingLabel],
-      },
-      {
-        path: '/koty/zalatwianie-poza-kuweta',
-        heading: /Kot załatwia się poza kuwetą/i,
-        buttonLabels: [primaryBookingLabel],
-      },
     ] as const) {
-      await verifyPublicRoute(publicPage, route.path, route.heading, { buttonLabels: route.buttonLabels })
+      const buttonLabels = (route as RouteButtonLabels).buttonLabels
+      await verifyPublicRoute(publicPage, route.path, route.heading, { buttonLabels })
     }
+
+    await verifyOpinionsInteractions(publicPage)
 
     for (const route of [
       {
-        path: '/oferta/konsultacja-behawioralna-online',
-        destinationPath: '/konsultacja-behawioralna-online',
-        heading: /Pelna konsultacja behawioralna online|Konsultacja behawioralna online 60 min|Konsultacja behawioralna online - jak to wygląda/i,
-        buttonLabels: [/pelna konsultac|pełna konsultac|60 min/i],
+        path: '/konsultacja-behawioralna-online',
+        destinationPath: '/',
+        heading: homeHeading,
       },
       {
-        path: '/behawiorysta-olsztyn',
-        destinationPath: '/behawiorysta-online-polska',
-        heading: /Behawiorysta online dla opiekunow psow i kotow|Behawiorysta online dla opiekunów psów i kotów|Behawiorysta psów i kotów online/i,
-        buttonLabels: [/Kwadrans/i],
+        path: '/psy/lek-separacyjny',
+        destinationPath: '/',
+        heading: homeHeading,
+      },
+      {
+        path: '/psy/reaktywnosc-na-smyczy',
+        destinationPath: '/',
+        heading: homeHeading,
+      },
+      {
+        path: '/koty/konflikt-miedzy-kotami',
+        destinationPath: '/',
+        heading: homeHeading,
+      },
+      {
+        path: '/koty/zalatwianie-poza-kuweta',
+        destinationPath: '/',
+        heading: homeHeading,
+      },
+      {
+        path: '/oferta/konsultacja-behawioralna-online',
+        destinationPath: '/cennik',
+        heading: pricingHeading,
       },
       {
         path: '/behawiorysta-psow',
-        destinationPath: '/psy',
-        heading: /Twoj pies zachowuje sie w sposob, ktory Cie niepokoi|Twój pies zachowuje się w sposób, który Cię niepokoi/i,
-        buttonLabels: [/Kwadrans/i],
+        destinationPath: '/',
+        heading: homeHeading,
       },
       {
         path: '/behawiorysta-kotow',
-        destinationPath: '/koty',
-        heading: /Twoj kot zachowuje sie w sposob, ktory Cie niepokoi|Twój kot zachowuje się w sposób, który Cię niepokoi/i,
-        buttonLabels: [/Kwadrans/i],
+        destinationPath: '/',
+        heading: homeHeading,
       },
       {
         path: '/oferta/poradniki-pdf',
-        destinationPath: '/materialy',
-        heading: /Materiały PDF gotowe do pobrania|Materialy PDF gotowe do pobrania/i,
-        buttonLabels: [/Materiały dla psa|Materialy dla psa/i],
+        destinationPath: '/cennik',
+        heading: pricingHeading,
       },
     ] as const) {
+      const buttonLabels = (route as RouteButtonLabels).buttonLabels
       await verifyRedirectRoute(publicPage, route.path, route.destinationPath, route.heading, {
-        buttonLabels: route.buttonLabels,
+        buttonLabels,
       })
     }
 
     await publicPage.goto(`${appUrl}/book`, { waitUntil: 'domcontentloaded' })
-    await publicPage.waitForURL(/\/termin/, { timeout: routeNavigationTimeoutMs, waitUntil: 'domcontentloaded' })
     await publicPage.getByRole('heading', { name: /Wybierz termin konsultacji/i }).waitFor()
 
     await publicPage.goto(`${appUrl}/slot?problem=szczeniak`, { waitUntil: 'domcontentloaded' })
     await publicPage.getByRole('heading', { name: /Wybierz termin konsultacji/i }).waitFor()
+    await publicPage.locator('[data-selected-slot-link="true"]').first().waitFor()
+    await publicPage.locator('[data-nearest-slot-link="true"]').first().waitFor()
 
     const slotLink = publicPage.locator(`a[href^="/form?problem=szczeniak&slotId=${encodeURIComponent(slot.id)}"]`).first()
     await slotLink.waitFor()
@@ -623,32 +643,31 @@ async function runUiSmokeOnce() {
       }),
       slotLink.click(),
     ])
-    await publicPage
-      .getByRole('heading', {
-        level: 1,
-        name: /Uzupelnij potrzebne dane|Uzupełnij potrzebne dane/i,
-      })
-      .waitFor()
+    const bookingForm = publicPage.locator('[data-booking-form="details"]').first()
+    try {
+      await bookingForm.waitFor({ timeout: routeNavigationTimeoutMs })
+    } catch (error) {
+      const bodyText = await publicPage.locator('body').innerText().catch(() => '')
+      throw new Error(`Form page did not show booking form. URL: ${publicPage.url()}. Body: ${cleanText(bodyText).slice(0, 500)}`)
+    }
     assert.equal(new URL(publicPage.url()).searchParams.get('slotId'), slot.id)
 
     await publicPage.waitForTimeout(1000)
     await typeValue(getBookingFormField(publicPage, 'owner-name'), uiSmokeOwnerName)
-    const animalTypeField = getBookingFormField(publicPage, 'animal-type')
-    await animalTypeField.waitFor()
-    assert.equal(await animalTypeField.inputValue(), 'Pies')
-    await typeValue(getBookingFormField(publicPage, 'pet-age'), '2 lata')
-    await typeValue(getBookingFormField(publicPage, 'duration-notes'), 'Od dwóch tygodni')
     await typeValue(
       getBookingFormField(publicPage, 'description'),
       'Pies pobudza się przy wychodzeniu opiekuna i długo nie potrafi się wyciszyć po powrocie do domu.',
     )
     await typeValue(getBookingFormField(publicPage, 'email'), uiSmokeEmail)
+    await publicPage.locator('#booking-privacy').check()
+    await publicPage.locator('#booking-early-start').check()
     assert.equal(await getBookingFormField(publicPage, 'owner-name').inputValue(), uiSmokeOwnerName)
-    assert.equal(await getBookingFormField(publicPage, 'animal-type').inputValue(), 'Pies')
-    assert.equal(await getBookingFormField(publicPage, 'pet-age').inputValue(), '2 lata')
-    assert.equal(await getBookingFormField(publicPage, 'duration-notes').inputValue(), 'Od dwóch tygodni')
     assert.match(await getBookingFormField(publicPage, 'description').inputValue(), /Pies pobudza się/i)
     assert.equal(await getBookingFormField(publicPage, 'email').inputValue(), uiSmokeEmail)
+    assert.equal(await publicPage.locator('[data-booking-field="phone"]').count(), 0)
+    assert.equal(await publicPage.locator('[data-booking-field="animal-type"]').count(), 0)
+    assert.equal(await publicPage.locator('#booking-privacy').isChecked(), true)
+    assert.equal(await publicPage.locator('#booking-early-start').isChecked(), true)
     await publicPage.waitForTimeout(250)
     const bookingSubmitButton = getBookingSubmitButton(publicPage)
     await bookingSubmitButton.scrollIntoViewIfNeeded()
@@ -669,6 +688,8 @@ async function runUiSmokeOnce() {
         email: uiSmokeEmail,
         slotId: slot.id,
         qaBooking: false,
+        consentTerms: true,
+        consentEarlyStart: true,
       }),
     })
 
@@ -806,22 +827,16 @@ async function runUiSmokeOnce() {
     const roomJoinHref = await publicPage.getByRole('link', { name: /Zobacz pokój rozmowy audio|Zobacz pokój rozmowy/i }).getAttribute('href')
     assert.ok(roomJoinHref, 'Expected room join href on the confirmation page.')
     await publicPage.goto(new URL(roomJoinHref, appUrl).toString(), { waitUntil: 'domcontentloaded' })
-    await publicPage.waitForURL(new RegExp(`/call/${bookingId}`), { timeout: routeNavigationTimeoutMs })
-    await publicPage.getByRole('button', { name: /Uruchom licznik 15 minut/i }).waitFor({ timeout: 10000 })
-    assert.equal(await publicPage.getByText(/Pok[óo]j aktywny/i).isVisible(), true)
-    assert.equal(await publicPage.getByText(new RegExp(uiSmokeOwnerName, 'i')).isVisible(), true)
+    const roomUnlocked = await verifyCallRoomLoaded(publicPage, bookingId, uiSmokeOwnerName)
 
     await publicPage.reload({ waitUntil: 'domcontentloaded' })
-    await publicPage.getByRole('button', { name: /Uruchom licznik 15 minut/i }).waitFor({ timeout: 10000 })
-    assert.equal(await publicPage.getByText(/Pok[óo]j aktywny/i).isVisible(), true)
-    assert.equal(await publicPage.getByText(new RegExp(uiSmokeOwnerName, 'i')).isVisible(), true)
+    assert.equal(await verifyCallRoomLoaded(publicPage, bookingId, uiSmokeOwnerName), roomUnlocked)
 
     const rejoinPage = await publicContext.newPage()
     await rejoinPage.goto(`${appUrl}/call/${bookingId}?access=${encodeURIComponent(accessToken)}`, {
       waitUntil: 'domcontentloaded',
     })
-    await rejoinPage.getByRole('button', { name: /Uruchom licznik 15 minut/i }).waitFor({ timeout: 10000 })
-    assert.equal(await rejoinPage.getByText(/Pok[óo]j aktywny/i).isVisible(), true)
+    assert.equal(await verifyCallRoomLoaded(rejoinPage, bookingId, uiSmokeOwnerName), roomUnlocked)
     await rejoinPage.close()
 
     const paymentRoomIframeSrc = await publicPage.locator('iframe.video-frame').getAttribute('src')
@@ -830,7 +845,9 @@ async function runUiSmokeOnce() {
       Boolean(paymentRoomIframeSrc?.includes('config.startWithVideoMuted=true'))
 
     assert.equal(roomIframeHasMeetingConfig, true)
-    assert.equal((await publicPage.getByRole('link', { name: /nowej karcie/i }).getAttribute('href'))?.includes('meet.jit.si'), true)
+    if (roomUnlocked) {
+      assert.equal((await publicPage.getByRole('link', { name: /nowej karcie/i }).getAttribute('href'))?.includes('meet.jit.si'), true)
+    }
 
     return
     await startRoomTimerWithRetry(publicPage)

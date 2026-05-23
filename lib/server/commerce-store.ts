@@ -417,6 +417,32 @@ export async function getCommerceOrder(orderNumber: string): Promise<CommerceOrd
   return store.orders.find((order) => order.orderNumber === normalized) ?? null
 }
 
+export async function listCommerceOrdersByEmail(email: string): Promise<CommerceOrder[]> {
+  const normalized = normalizeCommerceEmail(email)
+  const supabase = getSupabaseClient()
+
+  if (supabase) {
+    const { data, error } = await supabase
+      .from('lead_bookings')
+      .select('*')
+      .eq('email', normalized)
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.warn('[commerce] Supabase lead_bookings list by email failed, using local fallback', error.message)
+    } else {
+      return (data as LeadBookingRow[])
+        .map(leadRowToOrder)
+        .filter((order): order is CommerceOrder => Boolean(order))
+    }
+  }
+
+  const store = await readLocalStore()
+  return store.orders
+    .filter((order) => order.customerEmail === normalized)
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+}
+
 export async function getCommerceOrderByConfirmationToken(token: string): Promise<CommerceOrder | null> {
   const supabaseOrder = await findSupabaseOrderBy('payment_link', `${CONFIRM_TOKEN_PREFIX}${token}`)
   if (supabaseOrder) return supabaseOrder

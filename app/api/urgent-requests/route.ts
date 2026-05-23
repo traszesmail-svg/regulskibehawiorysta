@@ -5,7 +5,6 @@ import { NextResponse } from 'next/server'
 import { getPublicProblemOptionById, type FunnelSpecies } from '@/lib/funnel'
 import { createUrgentNowRequest } from '@/lib/server/db'
 import { sendUrgentNowAdminAlertEmail, sendUrgentNowCustomerAckEmail } from '@/lib/server/notifications'
-import { sendUrgentCustomerAckSms } from '@/lib/server/sms'
 import {
   appendUrgentRequestedSlotsToMessage,
   formatUrgentRequestedSlots,
@@ -32,7 +31,6 @@ if (!globalStore.__urgentRateLimitStore) {
 type ValidatedUrgentPayload = {
   name: string
   email: string
-  phone: string | null
   species: FunnelSpecies
   topicId: ProblemType
   topicLabel: string
@@ -152,7 +150,6 @@ function consumeRateLimit(req: Request): { allowed: true } | { allowed: false; r
 function validate(body: Record<string, unknown>): { payload?: ValidatedUrgentPayload; error?: string } {
   const name = normalizeSingleLine(body.name, 120)
   const email = normalizeSingleLine(body.email, 160)
-  const phone = normalizeSingleLine(body.phone, 32) ?? null
   const species = normalizeSpecies(body.species)
   const topicId = normalizeSingleLine(body.topicId, 80)
   const topicOption = species ? getPublicProblemOptionById(species, topicId) : null
@@ -191,7 +188,6 @@ function validate(body: Record<string, unknown>): { payload?: ValidatedUrgentPay
     payload: {
       name,
       email,
-      phone,
       species,
       topicId: topicOption.id,
       topicLabel: topicOption.title,
@@ -236,7 +232,7 @@ export async function POST(request: Request) {
     const record = await createUrgentNowRequest({
       name: payload.name,
       email: payload.email,
-      phone: payload.phone,
+      phone: null,
       species: payload.species,
       topicId: payload.topicId,
       topicLabel: payload.topicLabel,
@@ -252,7 +248,7 @@ export async function POST(request: Request) {
         requestId: record.id,
         name: payload.name,
         email: payload.email,
-        phone: payload.phone,
+        phone: null,
         topic: payload.topicLabel,
         species: speciesLabel,
         message: payload.message,
@@ -264,7 +260,7 @@ export async function POST(request: Request) {
         requestId: record.id,
         name: payload.name,
         email: payload.email,
-        phone: payload.phone,
+        phone: null,
         topic: payload.topicLabel,
         species: speciesLabel,
         message: payload.message,
@@ -272,7 +268,6 @@ export async function POST(request: Request) {
         requestedTime: payload.requestedTime,
         requestedSlotsSummary: selectedSlotsSummary,
       }),
-      sendUrgentCustomerAckSms(record.id, payload.name, payload.phone),
     ])
 
     return NextResponse.json({ ok: true, message: SUCCESS_MESSAGE, requestId: record.id })

@@ -6,7 +6,6 @@ import { buildPaymentHref } from '@/lib/booking-routing'
 import { createAvailabilitySlot, createPendingBooking, getAvailabilitySlot, listUrgentNowRequests, respondUrgentNowRequest } from '@/lib/server/db'
 import { getBaseUrl } from '@/lib/server/env'
 import { sendUrgentNowResponseEmail } from '@/lib/server/notifications'
-import { sendUrgentPaymentLinkSms } from '@/lib/server/sms'
 import { stripUrgentRequestedSlotsFromMessage } from '@/lib/urgent-now'
 
 function normalizeSingleLine(value: unknown, maxLength: number) {
@@ -60,7 +59,6 @@ export async function POST(
       petAge: 'Nie podano w prośbie o Kwadrans na już.',
       durationNotes: 'Pilny termin wybrany przez opiekuna i potwierdzony przez admina.',
       description: stripUrgentRequestedSlotsFromMessage(urgentRequest.message),
-      phone: urgentRequest.phone ?? '',
       email: urgentRequest.email,
       slotId: slot.id,
     })
@@ -96,15 +94,6 @@ export async function POST(
         { status: 500 },
       )
     }
-
-    await sendUrgentPaymentLinkSms(
-      urgentRequest.id,
-      urgentRequest.name,
-      urgentRequest.phone,
-      proposedDate,
-      proposedTime,
-      absoluteBookingHref,
-    )
 
     return NextResponse.json({
       ok: true,

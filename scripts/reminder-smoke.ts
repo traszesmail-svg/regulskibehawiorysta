@@ -14,7 +14,7 @@ function createBooking(id: string, overrides: Partial<BookingRecord> = {}): Book
     petAge: '2 lata',
     durationNotes: 'Od miesiaca',
     description: 'Test przypomnienia',
-    phone: '500600700',
+    phone: '',
     email: `${id}@example.com`,
     bookingDate: '2026-03-21',
     bookingTime: '10:30',

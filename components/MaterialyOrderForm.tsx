@@ -52,7 +52,6 @@ export function MaterialyOrderForm({ productKind, productSlug, productTitle, pri
           productSlug,
           name: isFree ? name || email.split('@')[0] || 'Czytelnik' : name,
           email,
-          phone: null,
           notes,
           website,
           consentProcessing: isFree ? true : consentProcessing,

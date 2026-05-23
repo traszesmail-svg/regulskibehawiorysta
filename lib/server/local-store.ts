@@ -517,6 +517,7 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
     const bookingId = crypto.randomUUID()
     const accessToken = createCustomerAccessToken()
     const reservationExpiresAt = new Date(Date.now() + getReservationWindowMinutes() * 60 * 1000).toISOString()
+    const customerPhone = form.phone?.trim() ?? ''
     console.info('[regulski-behawiorysta][pricing] booking-created', {
       bookingId,
       amount: getBookingServicePrice(serviceType, pricing.amount),
@@ -534,9 +535,9 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
       petAge: form.petAge,
       durationNotes: form.durationNotes,
       description: form.description,
-      phone: form.phone,
+      phone: customerPhone,
       qaBooking: form.qaBooking ?? false,
-      customerPhoneNormalized: normalizePolishPhone(form.phone)?.e164 ?? null,
+      customerPhoneNormalized: normalizePolishPhone(customerPhone)?.e164 ?? null,
       email: form.email,
       bookingDate: slot.bookingDate,
       bookingTime: slot.bookingTime,

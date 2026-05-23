@@ -36,7 +36,6 @@ function buildBooking(index: number, slotId: string, label: string) {
     petAge: '8 miesiecy',
     durationNotes: 'Od tygodnia',
     description: 'Test paralelnego zajmowania tego samego terminu w bezpiecznym sandboxie lokalnym.',
-    phone: `500700${String(800 + index).slice(-3)}`,
     email: `${label.toLowerCase().replace(/\s+/g, '-')}-${String(index + 1).padStart(2, '0')}@example.com`,
     slotId,
   }

@@ -53,7 +53,6 @@ export async function POST(request: Request) {
   const productSlug = trimString(body.productSlug, 120)
   const name = trimString(body.name, 120)
   const email = trimString(body.email, 160)
-  const phone = trimString(body.phone, 40)
   const notes = trimMultiline(body.notes, 1200)
   const consentProcessing = body.consentProcessing === true
   const consentPolicy = body.consentPolicy === true
@@ -85,7 +84,7 @@ export async function POST(request: Request) {
     priceAmount: PRICE_AMOUNT_PLN[item.priceCode],
     customerName: name,
     customerEmail: email,
-    customerPhone: phone,
+    customerPhone: null,
     notes,
     consents: { processing: consentProcessing, policy: consentPolicy },
   })

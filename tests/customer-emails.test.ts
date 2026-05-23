@@ -76,7 +76,6 @@ function makeBookingForm(slotId: string) {
     petAge: '3 lata',
     durationNotes: 'Szybki test dostarczenia maili',
     description: 'Sprawdzam customer emails na stage 5.',
-    phone: '+48 500 600 700',
     email: 'klient@example.com',
     slotId,
     qaBooking: true,

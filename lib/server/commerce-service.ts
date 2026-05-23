@@ -27,7 +27,6 @@ type EbookOrderInput = {
   productSlug: string
   name: string
   email: string
-  phone?: string | null
   notes?: string | null
 }
 
@@ -75,7 +74,7 @@ export async function createOrReuseConsultationCommerceOrder(
   return createCommerceOrder({
     customerEmail: booking.email,
     customerName: booking.ownerName,
-    customerPhone: booking.phone,
+    customerPhone: null,
     productType: 'consultation',
     productId,
     productName: serviceName,
@@ -93,7 +92,6 @@ export async function createOrReuseConsultationCommerceOrder(
 export async function createEbookCommerceOrder(input: EbookOrderInput) {
   const name = trim(input.name, 120)
   const email = trim(input.email, 160).toLowerCase()
-  const phone = trim(input.phone, 40) || null
   const productSlug = trim(input.productSlug, 120)
   const notes = trim(input.notes, 1200)
 
@@ -115,7 +113,7 @@ export async function createEbookCommerceOrder(input: EbookOrderInput) {
   return createCommerceOrder({
     customerEmail: email,
     customerName: name,
-    customerPhone: phone,
+    customerPhone: null,
     productType: 'ebook',
     productId,
     productName: item.title,
@@ -159,7 +157,7 @@ export async function fulfillCommerceOrderAndNotify(
       paymentMethod: paymentMethodForBooking(method),
       paymentReference: order.orderNumber,
       paymentIntentId: options?.providerPaymentId ?? undefined,
-      triggerPaymentConfirmationSms: true,
+      triggerPaymentConfirmationSms: false,
     })
   }
 

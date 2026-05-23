@@ -227,7 +227,7 @@ function getQaCheckoutContactGateStatus(email: string, phone: string): { isAllow
 }
 
 export function getQaCheckoutEligibility(
-  booking: Pick<BookingRecord, 'id' | 'qaBooking' | 'email' | 'phone'>,
+  booking: Pick<BookingRecord, 'id' | 'qaBooking' | 'email'> & { phone?: string | null },
 ): QaCheckoutEligibility {
   const payment = getPaymentModeStatus()
   const paymentReference = getQaCheckoutPaymentReference(booking.id)
@@ -250,7 +250,7 @@ export function getQaCheckoutEligibility(
     }
   }
 
-  const contactGate = getQaCheckoutContactGateStatus(booking.email, booking.phone)
+  const contactGate = getQaCheckoutContactGateStatus(booking.email, booking.phone ?? '')
 
   if (!contactGate.isAllowed) {
     return {

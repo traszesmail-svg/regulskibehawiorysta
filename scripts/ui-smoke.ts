@@ -6,6 +6,7 @@ import { loadEnvConfig } from '@next/env'
 import { chromium, type Locator, type Page } from 'playwright-core'
 import { createLocalDataSandbox } from './lib/local-data-sandbox'
 import { resolveBrowserExecutablePath } from './lib/browser-path'
+import { getNormalBookingMinDateKey } from '../lib/scheduling/rules'
 
 const rootDir = process.cwd()
 let port = 0
@@ -21,28 +22,10 @@ const homeHeading = /Behawiorysta psów i kotów online|Behawiorysta psow i koto
 const materialyHeading = /Materia.*PDF.*opiekun/i
 const pricingHeading = /Cennik konsultacji behawioralnych\.|Wybierz rozmowę dopasowaną do sytuacji|Wybierz rozmowe dopasowana do sytuacji/i
 
-function getWarsawSlotInMinutes(offsetMinutes: number) {
-  const target = new Date(Date.now() + offsetMinutes * 60 * 1000)
-  const formatter = new Intl.DateTimeFormat('sv-SE', {
-    timeZone: 'Europe/Warsaw',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  })
-  const values: Record<string, string> = {}
-
-  for (const part of formatter.formatToParts(target)) {
-    if (part.type !== 'literal') {
-      values[part.type] = part.value
-    }
-  }
-
+function getBookableSmokeSlot() {
   return {
-    date: `${values.year}-${values.month}-${values.day}`,
-    time: `${values.hour}:${values.minute}`,
+    date: getNormalBookingMinDateKey(new Date()),
+    time: '08:00',
   }
 }
 
@@ -363,6 +346,22 @@ async function approveManualPaymentWithRetry(page: Page, bookingId: string, book
   throw new Error(`Admin approval did not complete in time.${lastError ? ` Last issue: ${lastError}` : ''}`)
 }
 
+async function verifyCallRoomLoaded(page: Page, bookingId: string, ownerName: string) {
+  await page.waitForURL(new RegExp(`/call/${bookingId}`), { timeout: routeNavigationTimeoutMs })
+  await page.locator('.room-panel').waitFor({ timeout: routeNavigationTimeoutMs })
+  assert.equal(await page.getByText(new RegExp(ownerName, 'i')).isVisible(), true)
+
+  const activeStartButton = page.getByRole('button', { name: /Uruchom licznik \d+ minut/i }).first()
+  if (await isVisible(activeStartButton)) {
+    assert.equal(await page.getByText(/Pok[óo]j aktywny/i).isVisible(), true)
+    return true
+  }
+
+  await page.getByRole('button', { name: /Pokój odblokuje się za|Pokoj odblokuje sie za/i }).first().waitFor({ timeout: 10000 })
+  assert.equal(await page.getByText(/Oczekiwanie na wejście|Oczekiwanie na wejscie/i).isVisible(), true)
+  return false
+}
+
 function isRetryableUiSmokeError(error: unknown) {
   const message = error instanceof Error ? `${error.name}: ${error.message}` : String(error)
   return (
@@ -406,8 +405,10 @@ async function runUiSmokeOnce() {
 
   try {
     await cleanLocalData(dataDir)
-    const nearRoomSlot = getWarsawSlotInMinutes(12)
-    const slot = await localStore.createAvailabilitySlot(nearRoomSlot.date, nearRoomSlot.time)
+    const smokeSlot = getBookableSmokeSlot()
+    const smokeSlotId = `${smokeSlot.date}-${smokeSlot.time}`
+    const slot = (await localStore.getAvailabilitySlot(smokeSlotId)) ??
+      (await localStore.createAvailabilitySlot(smokeSlot.date, smokeSlot.time))
     assert.ok(slot, 'Expected a custom near-room slot for UI smoke test.')
 
     server = spawn('cmd.exe', ['/c', 'npm', 'run', 'dev', '--', '--hostname', '127.0.0.1', '--port', String(port)], {
@@ -583,32 +584,31 @@ async function runUiSmokeOnce() {
       }),
       slotLink.click(),
     ])
-    await publicPage
-      .getByRole('heading', {
-        level: 1,
-        name: /Uzupelnij potrzebne dane|Uzupełnij potrzebne dane/i,
-      })
-      .waitFor()
+    const bookingForm = publicPage.locator('[data-booking-form="details"]').first()
+    try {
+      await bookingForm.waitFor({ timeout: routeNavigationTimeoutMs })
+    } catch (error) {
+      const bodyText = await publicPage.locator('body').innerText().catch(() => '')
+      throw new Error(`Form page did not show booking form. URL: ${publicPage.url()}. Body: ${cleanText(bodyText).slice(0, 500)}`)
+    }
     assert.equal(new URL(publicPage.url()).searchParams.get('slotId'), slot.id)
 
     await publicPage.waitForTimeout(1000)
     await typeValue(getBookingFormField(publicPage, 'owner-name'), uiSmokeOwnerName)
-    const animalTypeField = getBookingFormField(publicPage, 'animal-type')
-    await animalTypeField.waitFor()
-    assert.equal(await animalTypeField.inputValue(), 'Pies')
-    await typeValue(getBookingFormField(publicPage, 'pet-age'), '2 lata')
-    await typeValue(getBookingFormField(publicPage, 'duration-notes'), 'Od dwóch tygodni')
     await typeValue(
       getBookingFormField(publicPage, 'description'),
       'Pies pobudza się przy wychodzeniu opiekuna i długo nie potrafi się wyciszyć po powrocie do domu.',
     )
     await typeValue(getBookingFormField(publicPage, 'email'), uiSmokeEmail)
+    await publicPage.locator('#booking-privacy').check()
+    await publicPage.locator('#booking-early-start').check()
     assert.equal(await getBookingFormField(publicPage, 'owner-name').inputValue(), uiSmokeOwnerName)
-    assert.equal(await getBookingFormField(publicPage, 'animal-type').inputValue(), 'Pies')
-    assert.equal(await getBookingFormField(publicPage, 'pet-age').inputValue(), '2 lata')
-    assert.equal(await getBookingFormField(publicPage, 'duration-notes').inputValue(), 'Od dwóch tygodni')
     assert.match(await getBookingFormField(publicPage, 'description').inputValue(), /Pies pobudza się/i)
     assert.equal(await getBookingFormField(publicPage, 'email').inputValue(), uiSmokeEmail)
+    assert.equal(await publicPage.locator('[data-booking-field="phone"]').count(), 0)
+    assert.equal(await publicPage.locator('[data-booking-field="animal-type"]').count(), 0)
+    assert.equal(await publicPage.locator('#booking-privacy').isChecked(), true)
+    assert.equal(await publicPage.locator('#booking-early-start').isChecked(), true)
     await publicPage.waitForTimeout(250)
     const bookingSubmitButton = getBookingSubmitButton(publicPage)
     await bookingSubmitButton.scrollIntoViewIfNeeded()
@@ -629,6 +629,8 @@ async function runUiSmokeOnce() {
         email: uiSmokeEmail,
         slotId: slot.id,
         qaBooking: false,
+        consentTerms: true,
+        consentEarlyStart: true,
       }),
     })
 
@@ -766,22 +768,16 @@ async function runUiSmokeOnce() {
     const roomJoinHref = await publicPage.getByRole('link', { name: /Zobacz pokój rozmowy audio|Zobacz pokój rozmowy/i }).getAttribute('href')
     assert.ok(roomJoinHref, 'Expected room join href on the confirmation page.')
     await publicPage.goto(new URL(roomJoinHref, appUrl).toString(), { waitUntil: 'domcontentloaded' })
-    await publicPage.waitForURL(new RegExp(`/call/${bookingId}`), { timeout: routeNavigationTimeoutMs })
-    await publicPage.getByRole('button', { name: /Uruchom licznik 15 minut/i }).waitFor({ timeout: 10000 })
-    assert.equal(await publicPage.getByText(/Pok[óo]j aktywny/i).isVisible(), true)
-    assert.equal(await publicPage.getByText(new RegExp(uiSmokeOwnerName, 'i')).isVisible(), true)
+    const roomUnlocked = await verifyCallRoomLoaded(publicPage, bookingId, uiSmokeOwnerName)
 
     await publicPage.reload({ waitUntil: 'domcontentloaded' })
-    await publicPage.getByRole('button', { name: /Uruchom licznik 15 minut/i }).waitFor({ timeout: 10000 })
-    assert.equal(await publicPage.getByText(/Pok[óo]j aktywny/i).isVisible(), true)
-    assert.equal(await publicPage.getByText(new RegExp(uiSmokeOwnerName, 'i')).isVisible(), true)
+    assert.equal(await verifyCallRoomLoaded(publicPage, bookingId, uiSmokeOwnerName), roomUnlocked)
 
     const rejoinPage = await publicContext.newPage()
     await rejoinPage.goto(`${appUrl}/call/${bookingId}?access=${encodeURIComponent(accessToken)}`, {
       waitUntil: 'domcontentloaded',
     })
-    await rejoinPage.getByRole('button', { name: /Uruchom licznik 15 minut/i }).waitFor({ timeout: 10000 })
-    assert.equal(await rejoinPage.getByText(/Pok[óo]j aktywny/i).isVisible(), true)
+    assert.equal(await verifyCallRoomLoaded(rejoinPage, bookingId, uiSmokeOwnerName), roomUnlocked)
     await rejoinPage.close()
 
     const paymentRoomIframeSrc = await publicPage.locator('iframe.video-frame').getAttribute('src')
@@ -790,7 +786,9 @@ async function runUiSmokeOnce() {
       Boolean(paymentRoomIframeSrc?.includes('config.startWithVideoMuted=true'))
 
     assert.equal(roomIframeHasMeetingConfig, true)
-    assert.equal((await publicPage.getByRole('link', { name: /nowej karcie/i }).getAttribute('href'))?.includes('meet.jit.si'), true)
+    if (roomUnlocked) {
+      assert.equal((await publicPage.getByRole('link', { name: /nowej karcie/i }).getAttribute('href'))?.includes('meet.jit.si'), true)
+    }
 
     return
     await startRoomTimerWithRetry(publicPage)

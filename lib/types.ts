@@ -134,7 +134,7 @@ export interface BookingFormData {
   petAge: string
   durationNotes: string
   description: string
-  phone: string
+  phone?: string | null
   email: string
   slotId: string
   qaBooking?: boolean

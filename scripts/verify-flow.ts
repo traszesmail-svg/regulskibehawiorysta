@@ -65,7 +65,6 @@ async function main() {
       petAge: '8 miesiecy',
       durationNotes: '2 tygodnie',
       description: 'Testowe zachowanie do weryfikacji recznej platnosci.',
-      phone: '500000000',
       email: 'manual-success@example.com',
       slotId: manualSuccessSlot.id,
     })
@@ -100,15 +99,14 @@ async function main() {
     const manualPaid = await markBookingPaid(manualBooking.booking.id, {
       paymentMethod: 'manual',
       paymentReference: getManualPaymentReference(manualBooking.booking.id),
-      triggerPaymentConfirmationSms: true,
     })
 
     assert(manualPaid?.bookingStatus === 'confirmed', 'Booking po recznej akceptacji nie przeszedl do statusu confirmed.')
     assert(manualPaid?.paymentStatus === 'paid', 'Booking po recznej akceptacji nie ma statusu paid.')
     assert(manualPaid?.meetingUrl.startsWith('https://meet.jit.si/regulski-behawiorysta-'), 'Nie wygenerowano linku Jitsi.')
     assert(
-      manualPaid?.smsConfirmationStatus === 'skipped_not_configured',
-      'Manual payment success powinien zapisac kontrolowany status SMS przy braku providera.',
+      manualPaid?.smsConfirmationStatus === null,
+      'Manual payment success nie powinien uruchamiac SMS w flow bez telefonu.',
     )
 
     const futureBookingDate = createFutureWarsawDate(5)
@@ -124,7 +122,6 @@ async function main() {
       petAge: '5 lat',
       durationNotes: 'Od dwóch tygodni',
       description: 'Test osobnego flow dla konsultacji 30 min.',
-      phone: '503000000',
       email: 'thirty-minute@example.com',
       slotId: thirtyMinuteFirstSlot.id,
       serviceType: 'konsultacja-30-min',
@@ -155,7 +152,6 @@ async function main() {
     const thirtyMinutePaid = await markBookingPaid(thirtyMinuteBooking.booking.id, {
       paymentMethod: 'manual',
       paymentReference: getManualPaymentReference(thirtyMinuteBooking.booking.id),
-      triggerPaymentConfirmationSms: true,
     })
 
     assert(thirtyMinutePaid?.bookingStatus === 'confirmed', 'Booking 30 min po akceptacji nie przeszedl do confirmed.')
@@ -178,7 +174,6 @@ async function main() {
       petAge: '6 lat',
       durationNotes: 'Od kilku miesiecy',
       description: 'Test osobnego flow dla konsultacji behawioralnej online.',
-      phone: '504000000',
       email: 'online-success@example.com',
       slotId: onlineFirstSlot.id,
       serviceType: 'konsultacja-behawioralna-online',
@@ -209,14 +204,13 @@ async function main() {
     const onlinePaid = await markBookingPaid(onlineBooking.booking.id, {
       paymentMethod: 'manual',
       paymentReference: getManualPaymentReference(onlineBooking.booking.id),
-      triggerPaymentConfirmationSms: true,
     })
 
     assert(onlinePaid?.bookingStatus === 'confirmed', 'Booking online po akceptacji nie przeszedl do confirmed.')
     assert(onlinePaid?.paymentStatus === 'paid', 'Booking online po akceptacji nie ma statusu paid.')
     assert(
-      onlinePaid?.smsConfirmationStatus === 'skipped_not_configured',
-      'Booking online powinien zapisac kontrolowany status SMS przy braku providera.',
+      onlinePaid?.smsConfirmationStatus === null,
+      'Booking online nie powinien uruchamiac SMS w flow bez telefonu.',
     )
     assert(
       onlinePaid?.meetingUrl.startsWith('https://meet.jit.si/regulski-behawiorysta-'),
@@ -230,7 +224,6 @@ async function main() {
       petAge: '2 lata',
       durationNotes: '3 dni',
       description: 'Test odrzucenia manualnej platnosci po zgloszeniu.',
-      phone: '501000000',
       email: 'manual-reject@example.com',
       slotId: manualRejectedSlot.id,
     })
@@ -257,7 +250,6 @@ async function main() {
       petAge: '3 lata',
       durationNotes: 'Od miesiaca',
       description: 'Test automatycznego przejscia do paid po sukcesie PayU.',
-      phone: '502000000',
       email: 'payu-success@example.com',
       slotId: payuSlot.id,
     })
@@ -270,14 +262,13 @@ async function main() {
       paymentMethod: 'payu',
       payuOrderId: 'payu-order-test-001',
       payuOrderStatus: 'COMPLETED',
-      triggerPaymentConfirmationSms: true,
     })
 
     assert(payuPaid?.bookingStatus === 'confirmed', 'Booking po sukcesie PayU nie przeszedl do confirmed.')
     assert(payuPaid?.paymentStatus === 'paid', 'Booking po sukcesie PayU nie ma statusu paid.')
     assert(
-      payuPaid?.smsConfirmationStatus === 'skipped_not_configured',
-      'PayU success powinien zapisac kontrolowany status SMS przy braku providera.',
+      payuPaid?.smsConfirmationStatus === null,
+      'PayU success nie powinien uruchamiac SMS w flow bez telefonu.',
     )
 
     const doneBooking = await markBookingDone(manualBooking.booking.id, 'Pelna konsultacja')

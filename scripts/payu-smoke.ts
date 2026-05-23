@@ -221,7 +221,6 @@ async function createBooking(baseUrl: string, slotId: string) {
       petAge: '3 lata',
       durationNotes: 'Od wczoraj',
       description: 'Test server-side checkoutu PayU dla predeploy smoke.',
-      phone: '500700800',
       email: 'payu-smoke@example.com',
       slotId,
     }),

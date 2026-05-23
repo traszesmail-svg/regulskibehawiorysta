@@ -162,10 +162,6 @@ function buildAttemptEmail(index: number) {
   return `live-booking-matrix-${String(index + 1).padStart(2, '0')}@example.com`
 }
 
-function buildAttemptPhone(index: number) {
-  return `500700${String(800 + index).slice(-3)}`
-}
-
 function buildAttemptDescription(attempt: MatrixAttempt) {
   return `Live matrix attempt for ${attempt.label}. Verify form -> payment on production.`
 }
@@ -208,15 +204,12 @@ async function runAttempt(
 
     const ownerName = buildAttemptOwnerName(attempt, index)
     const email = buildAttemptEmail(index)
-    const phone = buildAttemptPhone(index)
 
     await getBookingFormField(page, 'owner-name').fill(ownerName)
-    await getBookingFormField(page, 'animal-type').selectOption(attempt.animalType)
-    await getBookingFormField(page, 'pet-age').fill('4 lata')
-    await getBookingFormField(page, 'duration-notes').fill('Od okolo dwoch tygodni.')
-    await getBookingFormField(page, 'description').fill(buildAttemptDescription(attempt))
-    await getBookingFormField(page, 'phone').fill(phone)
     await getBookingFormField(page, 'email').fill(email)
+    await getBookingFormField(page, 'description').fill(buildAttemptDescription(attempt))
+    await page.locator('#booking-privacy').check()
+    await page.locator('#booking-early-start').check()
 
     const bookingResponse = page.waitForResponse(
       (response) => response.url().includes('/api/bookings') && response.request().method() === 'POST',

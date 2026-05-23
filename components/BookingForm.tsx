@@ -139,7 +139,6 @@ export function BookingForm({
           petAge: 'Nie podano w formularzu rezerwacji.',
           durationNotes: 'Nie podano w formularzu rezerwacji.',
           description: normalizedDescription,
-          phone: '',
           email,
           slotId,
           qaBooking,

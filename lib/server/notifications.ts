@@ -2612,7 +2612,7 @@ export async function sendMaterialyOrderOwnerEmail(payload: MaterialyOrderEmailP
     `,
     isFree
       ? 'Materiał wysłany automatycznie. Możesz dodać kontakt do listy nurturingowej.'
-      : 'Po BLIK na podany w polu nadawcy numer wykonaj POST /api/materialy/confirm z nagłówkiem x-admin-secret i body { orderId }, lub potwierdź w panelu admina.',
+      : 'Po potwierdzeniu wpłaty wykonaj POST /api/materialy/confirm z nagłówkiem x-admin-secret i body { orderId }, lub potwierdź w panelu admina.',
   )
 
   const lines = [

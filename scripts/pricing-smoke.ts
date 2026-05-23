@@ -42,7 +42,6 @@ function testBookingPayload(slotId: string, index: number) {
     petAge: '2 lata',
     durationNotes: 'Od 2 tygodni',
     description: 'Pies szczeka po wyjsciu opiekuna i trudno mu sie wyciszyc po powrocie do domu.',
-    phone: `50060070${index}`,
     email: `pricing-${index}@example.com`,
     slotId,
   }

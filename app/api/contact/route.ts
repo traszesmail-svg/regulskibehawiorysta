@@ -93,7 +93,7 @@ function normalizeTime(value: unknown): string | null {
 }
 
 function pickContactCandidate(body: Record<string, unknown>): string | null {
-  return normalizeSingleLine(body.email, 160) ?? normalizeSingleLine(body.contact, 160) ?? normalizeSingleLine(body.phone, 160)
+  return normalizeSingleLine(body.email, 160) ?? normalizeSingleLine(body.contact, 160)
 }
 
 function normalizeSpecies(value: unknown): ContactLeadSpecies | null {

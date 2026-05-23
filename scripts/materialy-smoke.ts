@@ -103,7 +103,7 @@ async function smokePaidGuide() {
     priceAmount: PRICE_AMOUNT_PLN[guide.priceCode],
     customerName: 'Smoke Buyer',
     customerEmail: 'smoke-paid@example.com',
-    customerPhone: '600000000',
+    customerPhone: null,
     notes: 'BLIK incoming',
     consents: { processing: true, policy: true },
   })

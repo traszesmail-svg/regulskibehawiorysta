@@ -14,7 +14,6 @@ const routeNavigationTimeoutMs = 30_000
 const slowRouteTimeoutMs = 120_000
 const qaSmokeOwnerName = 'QA Smoke'
 const qaSmokeEmail = 'qa-smoke@example.com'
-const qaSmokePhone = '500700800'
 
 function getWarsawSlotInMinutes(offsetMinutes: number) {
   const target = new Date(Date.now() + offsetMinutes * 60 * 1000)
@@ -247,7 +246,6 @@ async function createQaBookingViaApi(slotId: string, ownerName: string, problemT
           problemType === 'kot-stres'
             ? 'Testowa rezerwacja QA dla sciezki bez realnej platnosci.'
             : 'Testowa rezerwacja QA dla sciezki adminowego potwierdzenia.',
-        phone: qaSmokePhone,
         email: qaSmokeEmail,
         slotId,
         qaBooking: false,
@@ -307,7 +305,7 @@ async function runQaSmokeOnce() {
   process.env.ADMIN_ACCESS_SECRET = adminSecret
   process.env.TEST_CHECKOUT_ENABLED = 'true'
   process.env.QA_CHECKOUT_EMAIL_ALLOWLIST = qaSmokeEmail
-  process.env.QA_CHECKOUT_PHONE_ALLOWLIST = qaSmokePhone
+  process.env.QA_CHECKOUT_PHONE_ALLOWLIST = ''
   process.env.VERCEL_ENV = 'production'
   process.env.RESEND_API_KEY = ''
   process.env.MANUAL_PAYMENT_BLIK_PHONE = '512992026'
@@ -335,7 +333,7 @@ async function runQaSmokeOnce() {
       `set "ADMIN_ACCESS_SECRET=${adminSecret}"`,
       'set "TEST_CHECKOUT_ENABLED=true"',
       `set "QA_CHECKOUT_EMAIL_ALLOWLIST=${qaSmokeEmail}"`,
-      `set "QA_CHECKOUT_PHONE_ALLOWLIST=${qaSmokePhone}"`,
+      'set "QA_CHECKOUT_PHONE_ALLOWLIST="',
       'set "VERCEL_ENV=production"',
       'set "RESEND_API_KEY="',
       'set "MANUAL_PAYMENT_BLIK_PHONE=512992026"',

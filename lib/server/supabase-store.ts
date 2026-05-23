@@ -526,7 +526,7 @@ function mapBookingRow(row: BookingRow): BookingRecord {
     petAge: row.pet_age,
     durationNotes: row.duration_notes,
     description: row.description,
-    phone: row.phone,
+    phone: row.phone ?? '',
     email: row.email,
     bookingDate: row.booking_date,
     bookingTime: row.booking_time,
@@ -1074,6 +1074,7 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
   const bookingId = crypto.randomUUID()
   const accessToken = createCustomerAccessToken()
   const reservationExpiresAt = new Date(Date.now() + getReservationWindowMinutes() * 60 * 1000).toISOString()
+  const customerPhone = form.phone?.trim() ?? ''
   console.info('[regulski-behawiorysta][pricing] booking-created', {
     bookingId,
     amount: getBookingServicePrice(serviceType, pricing.amount),
@@ -1089,7 +1090,7 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
     pet_age: form.petAge,
     duration_notes: form.durationNotes,
     description: form.description,
-    phone: form.phone,
+    phone: customerPhone,
     email: form.email,
     booking_date: slot.bookingDate,
     booking_time: slot.bookingTime,
@@ -1116,7 +1117,7 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
   }
   const smsInsertPayload = {
     ...bookingInsertPayload,
-    customer_phone_normalized: normalizePolishPhone(form.phone)?.e164 ?? null,
+    customer_phone_normalized: normalizePolishPhone(customerPhone)?.e164 ?? null,
     sms_confirmation_status: null,
     sms_confirmation_sent_at: null,
     sms_provider_message_id: null,
@@ -1135,7 +1136,7 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
   }
   const paymentModernInsertPayload = {
     ...paymentOnlyInsertPayload,
-    customer_phone_normalized: normalizePolishPhone(form.phone)?.e164 ?? null,
+    customer_phone_normalized: normalizePolishPhone(customerPhone)?.e164 ?? null,
     sms_confirmation_status: null,
     sms_confirmation_sent_at: null,
     sms_provider_message_id: null,

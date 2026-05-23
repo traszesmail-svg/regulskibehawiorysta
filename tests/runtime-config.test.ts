@@ -634,6 +634,10 @@ test('booking form shows normalized slot conflict copy instead of raw api errors
   assert.match(bookingFormSource, /consentEarlyStart/)
   assert.match(bookingRouteSource, /consentEarlyStart/)
   assert.match(bookingRouteSource, /zgodę na rozpoczęcie usługi przed upływem 14 dni/)
+  assert.doesNotMatch(bookingFormSource, /data-booking-field="phone"/)
+  assert.doesNotMatch(bookingFormSource, /phone:\s*['"]/)
+  assert.doesNotMatch(bookingRouteSource, /body\.phone/)
+  assert.doesNotMatch(bookingRouteSource, /numer telefonu/)
 })
 
 test('cat topic images exist in the dedicated catalog', () => {

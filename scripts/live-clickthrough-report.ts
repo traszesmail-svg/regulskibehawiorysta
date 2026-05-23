@@ -464,13 +464,9 @@ type OfferJourneyConfig = {
   serviceType: BookingServiceType
   offerHeading: RegExp
   problemType: ProblemType
-  animalType: 'Pies' | 'Kot'
   ownerName: string
   email: string
-  petAge: string
-  durationNotes: string
   description: string
-  phone: string
 }
 
 async function runOfferJourney(results: StepResult[], page: Page, baseUrl: string, config: OfferJourneyConfig) {
@@ -533,12 +529,10 @@ async function runOfferJourney(results: StepResult[], page: Page, baseUrl: strin
     step.notes.push(`/slot -> /form z service=${config.serviceType}`)
 
     await getBookingFormField(page, 'owner-name').fill(config.ownerName)
-    await getBookingFormField(page, 'animal-type').selectOption(config.animalType)
-    await getBookingFormField(page, 'pet-age').fill(config.petAge)
-    await getBookingFormField(page, 'duration-notes').fill(config.durationNotes)
-    await getBookingFormField(page, 'description').fill(config.description)
-    await getBookingFormField(page, 'phone').fill(config.phone)
     await getBookingFormField(page, 'email').fill(config.email)
+    await getBookingFormField(page, 'description').fill(config.description)
+    await page.locator('#booking-privacy').check()
+    await page.locator('#booking-early-start').check()
 
     const bookingResponse = page.waitForResponse(
       (response) => response.url().includes('/api/bookings') && response.request().method() === 'POST',
@@ -1029,14 +1023,12 @@ async function main() {
       await waitForAnyVisible([publicPage.getByRole('heading', { level: 1, name: /Uzupełnij dane do rezerwacji/i })], 20000)
 
       await getBookingFormField(publicPage, 'owner-name').fill(qaIdentity.ownerName)
-      await getBookingFormField(publicPage, 'animal-type').selectOption('Kot')
-      await getBookingFormField(publicPage, 'pet-age').fill('4 lata')
-      await getBookingFormField(publicPage, 'duration-notes').fill('od okolo dwoch tygodni')
+      await getBookingFormField(publicPage, 'email').fill(qaIdentity.email)
       await getBookingFormField(publicPage, 'description').fill(
         'Test QA live. Kot napina się przy gościach, długo nie wraca do równowagi i chcę sprawdzić pierwszy kierunek pracy.',
       )
-      await getBookingFormField(publicPage, 'phone').fill('500600700')
-      await getBookingFormField(publicPage, 'email').fill(qaIdentity.email)
+      await publicPage.locator('#booking-privacy').check()
+      await publicPage.locator('#booking-early-start').check()
 
       const bookingResponse = publicPage.waitForResponse(
         (response) => response.url().includes('/api/bookings') && response.request().method() === 'POST',
@@ -1220,14 +1212,10 @@ async function main() {
       serviceType: 'konsultacja-30-min',
       offerHeading: /Konsultacja 30 min/i,
       problemType: 'separacja',
-      animalType: 'Pies',
       ownerName: `${qaIdentity.ownerName} 30 min`,
       email: `qa-live-30min-${timestamp.compact}@example.com`,
-      petAge: '5 lat',
-      durationNotes: 'Od dwoch tygodni.',
       description:
         'Test UI clickthrough dla 30 min. Pies ma napięcie przy zostawaniu samemu i chcemy sprawdzić pełny flow od oferty do płatności.',
-      phone: '500600701',
     })
 
     await runStep(results, 'oferta -> slot / online CTA', publicPage, async (step) => {

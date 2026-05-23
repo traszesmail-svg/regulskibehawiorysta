@@ -106,14 +106,12 @@ async function run() {
     await waitForBookingFlow(desktopPage, '[data-booking-form="details"]')
 
     await desktopPage.locator('[data-booking-field="owner-name"]').fill('Anna Nowak')
-    await desktopPage.locator('[data-booking-field="animal-type"]').selectOption('Pies')
-    await desktopPage.locator('[data-booking-field="pet-age"]').fill('4 lata')
-    await desktopPage.locator('[data-booking-field="duration-notes"]').fill('Od kilku tygodni')
+    await desktopPage.locator('[data-booking-field="email"]').fill('stage8@example.com')
     await desktopPage
       .locator('[data-booking-field="description"]')
       .fill('Pies napina sie przy mijaniu innych psow i trudno mu sie wyciszyc po powrocie do domu.')
-    await desktopPage.locator('[data-booking-field="phone"]').fill('500700800')
-    await desktopPage.locator('[data-booking-field="email"]').fill('stage8@example.com')
+    await desktopPage.locator('#booking-privacy').check()
+    await desktopPage.locator('#booking-early-start').check()
     await desktopPage.locator('[data-booking-submit="payment"]').click()
 
     await desktopPage.waitForURL(/\/payment\?bookingId=/, { timeout: 30000 })

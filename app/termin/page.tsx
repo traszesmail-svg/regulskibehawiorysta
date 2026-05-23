@@ -378,9 +378,10 @@ export async function BookingSlotCalendar({
               </div>
             </section>
 
-            <NotatnikFooter primaryHref="/wybor" primaryLabel="Wróć do wyboru" />
           </>
         ) : null}
+
+        <NotatnikFooter primaryHref="/wybor" primaryLabel="Wróć do wyboru" />
       </div>
     </main>
   )

@@ -1,8 +1,7 @@
 'use client'
 
-import Image from 'next/image'
-import { useState, type ChangeEvent, type CSSProperties, type FormEvent } from 'react'
-import { REGULSKI_WEB_LOGO } from '@/lib/regulski-web-assets'
+import { useState, type ChangeEvent, type CSSProperties, type FormEvent, type ReactNode } from 'react'
+import { NotatnikFooter, NotatnikSideVisuals, NotatnikTopbar, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
 import { TESTIMONIAL_ISSUE_OPTIONS } from '@/lib/testimonials'
 
 const MAX_PHOTO_SIZE_BYTES = 25 * 1024 * 1024
@@ -92,24 +91,25 @@ export default function AddOpinionPage() {
 
   if (status === 'sent') {
     return (
-      <main style={pageStyle}>
-        <BrandHeader />
-        <h1 style={headingStyle}>Dzięki za opinię</h1>
-        <p>Opinia trafiła do weryfikacji. Odezwę się po sprawdzeniu, najczęściej w ciągu 1-2 dni roboczych.</p>
-      </main>
+      <OpinionPageShell>
+        <section style={pageStyle}>
+          <h1 style={headingStyle}>Dzięki za opinię</h1>
+          <p>Opinia trafiła do weryfikacji. Odezwę się po sprawdzeniu, najczęściej w ciągu 1-2 dni roboczych.</p>
+        </section>
+      </OpinionPageShell>
     )
   }
 
   return (
-    <main style={pageStyle}>
-      <BrandHeader />
-      <h1 style={headingStyle}>Dodaj opinię</h1>
-      <p style={{ color: '#6b625b', marginBottom: 32 }}>
-        Ta strona jest dostępna tylko dla osób, które przeszły konsultacje. Opinia trafia do weryfikacji przed
-        publikacją.
-      </p>
+    <OpinionPageShell>
+      <section style={pageStyle}>
+        <h1 style={headingStyle}>Dodaj opinię</h1>
+        <p style={{ color: '#6b625b', marginBottom: 32 }}>
+          Ta strona jest dostępna tylko dla osób, które przeszły konsultacje. Opinia trafia do weryfikacji przed
+          publikacją.
+        </p>
 
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
         <input
           type="text"
           name="website"
@@ -240,29 +240,35 @@ export default function AddOpinionPage() {
           Pola oznaczone * są wymagane. Opinia trafia do weryfikacji przed publikacją i nie pojawia się automatycznie na
           stronie.
         </p>
-      </form>
-    </main>
+        </form>
+      </section>
+    </OpinionPageShell>
   )
 }
 
-function BrandHeader() {
+function OpinionPageShell({ children }: { children: ReactNode }) {
   return (
-    <a href="/" style={brandStyle} aria-label="Regulski Behawiorysta">
-      <Image src={REGULSKI_WEB_LOGO} alt="" width={58} height={58} priority />
-      <span>
-        <strong style={{ display: 'block', fontSize: 18 }}>Regulski Behawiorysta</strong>
-        <small style={{ color: '#6b625b' }}>opinie po konsultacji</small>
-      </span>
-    </a>
+    <main className="notatnik-page add-opinion-page">
+      <NotatnikSideVisuals variant="mixed" />
+      <div className="notatnik-shell add-opinion-shell">
+        <NotatnikTopbar tag="Opinie" navItems={PUBLIC_SITE_NAV_ITEMS} showUtilityLinks={false} />
+        {children}
+        <NotatnikFooter showReviews={false} />
+      </div>
+    </main>
   )
 }
 
 const pageStyle: CSSProperties = {
   maxWidth: 560,
-  margin: '60px auto',
-  padding: '0 20px',
+  margin: '40px auto 56px',
+  padding: '32px 28px',
   fontFamily: 'var(--font-body), system-ui, sans-serif',
   color: '#1f1a17',
+  border: '1px solid rgba(24, 56, 40, 0.1)',
+  borderRadius: 18,
+  background: 'rgba(255, 252, 247, 0.78)',
+  boxShadow: '0 18px 42px rgba(53, 39, 24, 0.06)',
 }
 
 const headingStyle: CSSProperties = {
@@ -272,15 +278,6 @@ const headingStyle: CSSProperties = {
   fontWeight: 560,
   lineHeight: 1.05,
   letterSpacing: 0,
-}
-
-const brandStyle: CSSProperties = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: 12,
-  color: '#1f1a17',
-  textDecoration: 'none',
-  marginBottom: 28,
 }
 
 const fieldStyle: CSSProperties = {

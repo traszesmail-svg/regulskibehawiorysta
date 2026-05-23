@@ -233,17 +233,49 @@ const proofItems = [
   },
 ] as const
 
+function HeroStats() {
+  return (
+    <div className="opinions-showcase-stats" aria-label="Podsumowanie opinii">
+      {stats.map((stat) => {
+        const Icon = stat.icon
+
+        return (
+          <div key={stat.value} className="opinions-showcase-stat">
+            <Icon size={26} strokeWidth={1.65} />
+            <strong>{stat.value}</strong>
+            <small>{stat.label}</small>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 function HeroVisual() {
   return (
     <div className="opinions-showcase-hero-visual" aria-hidden="true">
+      <div className="opinions-showcase-hero-photo-frame">
+        <Image
+          src="/faq/faq-hero-pets.png"
+          alt=""
+          fill
+          priority
+          sizes="(max-width: 860px) 92vw, 560px"
+          className="opinions-showcase-hero-image"
+        />
+      </div>
       <Image
-        src="/images/opinions/dog-cat-header.png"
+        src="/decor/leaf-transparent/leaf-top-right.png"
         alt=""
-        fill
-        priority
-        sizes="(max-width: 860px) 92vw, 520px"
-        className="opinions-showcase-hero-image"
+        width={160}
+        height={220}
+        sizes="(max-width: 680px) 86px, 128px"
+        className="opinions-showcase-hero-leaf"
       />
+      <span className="opinions-showcase-hero-badge">
+        <Leaf size={16} strokeWidth={1.8} />
+        po pierwszej rozmowie
+      </span>
     </div>
   )
 }
@@ -300,23 +332,12 @@ export default function OpinionsPage() {
             <p>
               Najczęściej wraca jedno: mniej chaosu, mniej oceniania i jaśniejszy pierwszy krok.
             </p>
-
-            <div className="opinions-showcase-stats" aria-label="Podsumowanie opinii">
-              {stats.map((stat) => {
-                const Icon = stat.icon
-
-                return (
-                  <div key={stat.value} className="opinions-showcase-stat">
-                    <Icon size={26} strokeWidth={1.65} />
-                    <strong>{stat.value}</strong>
-                    <small>{stat.label}</small>
-                  </div>
-                )
-              })}
-            </div>
           </div>
 
-          <HeroVisual />
+          <div className="opinions-showcase-hero-aside">
+            <HeroStats />
+            <HeroVisual />
+          </div>
         </section>
 
         <OpinionsReviewGrid filters={[...filters]} reviews={visibleReviews} />

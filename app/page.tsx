@@ -113,7 +113,8 @@ export default function HomePage() {
                   src={HOME_HERO_PHOTO.src}
                   alt={HOME_HERO_PHOTO.alt}
                   fill
-                  quality={100}
+                  quality={86}
+                  loading="lazy"
                   sizes="(max-width: 760px) 100vw, (max-width: 1180px) 42vw, 420px"
                   className="router-home-photo-image"
                 />
@@ -124,6 +125,7 @@ export default function HomePage() {
                   alt={COAPE_POLSKA_LOGO.alt}
                   width={COAPE_POLSKA_LOGO.width}
                   height={COAPE_POLSKA_LOGO.height}
+                  loading="lazy"
                   className="home-diagnosis-coape-logo"
                 />
                 <p className="home-diagnosis-caption">

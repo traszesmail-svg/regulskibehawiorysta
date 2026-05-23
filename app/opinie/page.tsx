@@ -559,7 +559,7 @@ export default function OpinionsPage() {
             </div>
           </div>
           <div className="opinions-story-photo" aria-hidden="true">
-            <Image src="/images/homepage/home-bg-cat-1to1.webp" alt="" fill sizes="(max-width: 860px) 90vw, 390px" />
+            <Image src="/images/homepage/home-bg-cat-1to1.webp" alt="" fill loading="lazy" sizes="(max-width: 860px) 90vw, 390px" />
           </div>
         </section>
 

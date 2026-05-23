@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { CreditCard, LockKeyhole } from 'lucide-react'
+import { trackAnalyticsEvent } from '@/lib/analytics'
 import type { AnimalType, BookingStatus, ProblemType, QaCheckoutEligibility } from '@/lib/types'
 import type { BookingServiceType } from '@/lib/booking-services'
 import { formatCommercePrice, getManualAmountForProduct } from '@/lib/commerce'
@@ -39,6 +40,10 @@ export function PaymentActions({
   paymentReference,
   manualAvailable,
   amount,
+  serviceType,
+  animalType,
+  problemType,
+  bookingStatus,
   qaBooking = false,
   qaEligibility = null,
 }: PaymentActionsProps) {
@@ -48,6 +53,20 @@ export function PaymentActions({
   const [selectedMethod, setSelectedMethod] = useState<'online' | 'manual'>(manualAvailable ? 'manual' : 'online')
   const qaAvailable = Boolean(qaBooking && qaEligibility?.isAllowed)
 
+  function trackPaymentStart(method: 'qa' | 'online' | 'manual') {
+    trackAnalyticsEvent('payment_started', {
+      booking_id: bookingId,
+      source_page: '/payment',
+      payment_method: method,
+      service_type: serviceType,
+      animal_type: animalType,
+      problem_type: problemType,
+      booking_status: bookingStatus,
+      amount,
+      qa_booking: qaBooking,
+    })
+  }
+
   async function handleQaSubmit() {
     if (!qaAvailable) {
       setError(qaEligibility?.reason ?? qaEligibility?.summary ?? 'Testowa płatność jest chwilowo niedostępna.')
@@ -56,6 +75,7 @@ export function PaymentActions({
 
     setError('')
     setQaLoading(true)
+    trackPaymentStart('qa')
 
     try {
       const response = await fetch('/api/payments/mock', {
@@ -69,12 +89,13 @@ export function PaymentActions({
         }),
       })
       const payload = (await response.json()) as { onlineCheckoutUrl?: string | null; redirectTo?: string; error?: string }
+      const redirectUrl = payload.onlineCheckoutUrl ?? payload.redirectTo
 
-      if (!response.ok || (!payload.onlineCheckoutUrl && !payload.redirectTo)) {
+      if (!response.ok || !redirectUrl) {
         throw new Error(payload.error ?? 'Nie udało się uruchomić testowej płatności.')
       }
 
-      window.location.assign(payload.onlineCheckoutUrl ?? payload.redirectTo)
+      window.location.assign(redirectUrl)
     } catch (paymentError) {
       console.error('[regulski-behawiorysta][payment] qa checkout failed', paymentError)
       setError(paymentError instanceof Error ? paymentError.message : 'Wystąpił błąd testowej płatności.')
@@ -91,6 +112,7 @@ export function PaymentActions({
 
     setError('')
     setCommerceLoading(true)
+    trackPaymentStart(method)
 
     try {
       const response = await fetch('/api/orders', {

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { trackAnalyticsEvent } from '@/lib/analytics'
 
 type Props = {
   orderNumber: string
@@ -23,6 +24,11 @@ export function CommerceBlikActions({ orderNumber }: Props) {
   async function reportPayment() {
     setLoading(true)
     setError('')
+    trackAnalyticsEvent('payment_reported', {
+      order_number: orderNumber,
+      source_page: '/platnosc/blik',
+      payment_method: 'manual_blik',
+    })
 
     try {
       const response = await fetch(`/api/orders/${encodeURIComponent(orderNumber)}/report-payment`, {

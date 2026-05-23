@@ -1320,6 +1320,83 @@ test('build script keeps explicit no-cache lint before next build', () => {
   assert.equal(packageJson.scripts?.['live-readiness'], 'node --import tsx scripts/live-readiness.ts')
   assert.equal(packageJson.scripts?.['payu-smoke:production'], 'node --import tsx scripts/payu-smoke.ts --production')
   assert.equal(packageJson.scripts?.['schema-audit'], 'node scripts/schema-audit.js')
+  assert.equal(packageJson.scripts?.['stage9-performance-audit'], 'node --import tsx scripts/stage9-performance-audit.ts')
+  assert.equal(packageJson.scripts?.['full-public-crawl'], 'node --import tsx scripts/full-public-crawl.ts')
+  assert.equal(packageJson.scripts?.['release-checklist'], 'node --import tsx scripts/release-checklist.ts')
+})
+
+test('stage 9 performance guardrails keep priority images, lazy media, layout checks, and screenshots wired', () => {
+  const homeSource = readSource('app', 'page.tsx')
+  const opinionsSource = readSource('app', 'opinie', 'page.tsx')
+  const reviewGridSource = readSource('components', 'OpinionsReviewGrid.tsx')
+  const pricingSource = readSource('app', 'cennik', 'page.tsx')
+  const cssSource = readSource('app', 'notatnik-a.css')
+  const stage9Source = readSource('scripts', 'stage9-performance-audit.ts')
+
+  assert.doesNotMatch(homeSource, /quality=\{100\}/)
+  assert.match(homeSource, /quality=\{86\}/)
+  assert.match(homeSource, /loading="lazy"/)
+  assert.match(opinionsSource, /home-bg-cat-1to1\.webp" alt="" fill loading="lazy"/)
+  assert.match(reviewGridSource, /fill loading="lazy" sizes="58px"/)
+  assert.match(pricingSource, /faq-help-illustration-clean\.png" alt="" width=\{355\} height=\{208\} loading="lazy"/)
+  assert.match(cssSource, /Stage 9 layout guardrails/)
+  assert.match(cssSource, /overflow-wrap: anywhere/)
+  assert.match(cssSource, /contain: layout paint/)
+  assert.match(stage9Source, /stage9-performance-audit/)
+  assert.match(stage9Source, /horizontalOverflow/)
+  assert.match(stage9Source, /controlOverflows/)
+  assert.match(stage9Source, /page\.screenshot/)
+})
+
+test('stage 10 funnel aliases, drop tracking, and release checklist are wired', () => {
+  const typesSource = readSource('lib', 'types.ts')
+  const funnelEventsSource = readSource('lib', 'server', 'funnel-events.ts')
+  const funnelMetricsSource = readSource('lib', 'server', 'funnel-metrics.ts')
+  const analyticsSource = readSource('lib', 'analytics.ts')
+  const terminSource = readSource('app', 'termin', 'page.tsx')
+  const calendarSource = readSource('components', 'TerminCalendarPicker.tsx')
+  const paymentActionsSource = readSource('components', 'PaymentActions.tsx')
+  const blikActionsSource = readSource('components', 'CommerceBlikActions.tsx')
+  const waitingStatusSource = readSource('components', 'CommerceWaitingStatus.tsx')
+  const adminSource = readSource('app', 'admin', 'page.tsx')
+  const releaseChecklistSource = readSource('scripts', 'release-checklist.ts')
+
+  for (const eventName of [
+    'hero_cta_click',
+    'service_select',
+    'slot_select',
+    'form_start',
+    'form_submit',
+    'payment_start',
+    'payment_reported',
+    'payment_confirmed',
+    'booking_drop',
+  ]) {
+    assert.match(typesSource, new RegExp(`'${eventName}'`))
+    assert.match(funnelEventsSource, new RegExp(`'${eventName}'`))
+    assert.match(analyticsSource, new RegExp(eventName))
+  }
+
+  assert.match(funnelEventsSource, /case 'service_select':\s+return 'booking_service_selected'/)
+  assert.match(funnelEventsSource, /case 'payment_start':\s+return 'payment_started'/)
+  assert.match(funnelEventsSource, /case 'payment_reported':\s+case 'manual_pending':\s+return 'payment_marked_pending'/)
+  assert.match(funnelEventsSource, /case 'payment_confirmed':\s+case 'paid':/)
+  assert.match(funnelMetricsSource, /booking_drop/)
+  assert.match(analyticsSource, /BOOKING_PROGRESS_STORAGE_KEY/)
+  assert.match(analyticsSource, /flushStoredBookingDrop/)
+  assert.match(analyticsSource, /getPublicAnalyticsEventName/)
+  assert.match(terminSource, /eventName="booking_start"/)
+  assert.match(terminSource, /eventName="booking_service_selected"/)
+  assert.match(calendarSource, /trackSlotSelect\(slot, 'termin-nearest-slots'\)/)
+  assert.match(calendarSource, /trackSlotSelect\(selectedSlot, 'termin-summary'\)/)
+  assert.match(paymentActionsSource, /trackPaymentStart/)
+  assert.match(paymentActionsSource, /trackAnalyticsEvent\('payment_started'/)
+  assert.match(blikActionsSource, /trackAnalyticsEvent\('payment_reported'/)
+  assert.match(waitingStatusSource, /trackAnalyticsEvent\('payment_confirmed'/)
+  assert.match(adminSource, /window\.stageCounts\.booking_drop/)
+  assert.match(releaseChecklistSource, /latest-release-checklist\.md/)
+  assert.match(releaseChecklistSource, /stage9-performance-audit/)
+  assert.match(releaseChecklistSource, /full-public-crawl/)
 })
 
 test('live booking matrix keeps a ten-attempt production report', () => {

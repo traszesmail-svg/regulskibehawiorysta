@@ -313,7 +313,7 @@ export default async function AdminPage() {
                         View {window.stageCounts.view_page} · Entry 15 min {window.stageCounts.funnel_entry_15_min} · Booking start {window.stageCounts.booking_start} · Service {window.stageCounts.booking_service_selected} · Slot {window.stageCounts.booking_slot_selected}
                       </span>
                       <span>
-                        Form {window.stageCounts.booking_form_started} · Payment viewed {window.stageCounts.payment_viewed} · Payment started {window.stageCounts.payment_started} · Pending {window.stageCounts.payment_marked_pending} · Completed {window.stageCounts.payment_completed} · Confirmed {window.stageCounts.booking_confirmed}
+                        Form {window.stageCounts.booking_form_started} · Payment viewed {window.stageCounts.payment_viewed} · Payment started {window.stageCounts.payment_started} · Pending {window.stageCounts.payment_marked_pending} · Completed {window.stageCounts.payment_completed} · Confirmed {window.stageCounts.booking_confirmed} · Drop {window.stageCounts.booking_drop}
                       </span>
                       <span>
                         {window.conversions.viewToEntry15} view→entry 15 min · {window.conversions.entry15ToBookingStart} entry→booking start · {window.conversions.completedToConfirmed} completed→confirmed
@@ -337,7 +337,7 @@ export default async function AdminPage() {
               </div>
               <div className="list-card tree-backed-card">
                 <strong>Rytuał przed deployem</strong>
-                <span>npm run funnel-metrics · npm run live-readiness -- --report-only · npm run live-clickthrough-report</span>
+                <span>npm run funnel-metrics · npm run release-checklist · npm run stage9-performance-audit · npm run full-public-crawl</span>
                 <span>Wejścia wewnętrzne: /admin oraz /_internal/qa-report.</span>
               </div>
               <div className="list-card tree-backed-card">

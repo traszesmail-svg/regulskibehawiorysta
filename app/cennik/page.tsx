@@ -227,7 +227,7 @@ export default function PricingPage() {
             </div>
           </div>
           <div className="site-help-cta-image pricing-2026-help-illustration" aria-hidden="true">
-            <Image src="/faq/faq-help-illustration-clean.png" alt="" width={355} height={208} sizes="(max-width: 760px) 58vw, 210px" />
+            <Image src="/faq/faq-help-illustration-clean.png" alt="" width={355} height={208} loading="lazy" sizes="(max-width: 760px) 58vw, 210px" />
           </div>
         </section>
 

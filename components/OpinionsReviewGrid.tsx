@@ -90,7 +90,7 @@ export function OpinionsReviewGrid({ filters, reviews }: OpinionsReviewGridProps
               <p>{review.text}</p>
               <footer>
                 <span className="opinions-review-avatar">
-                  <Image src={review.avatar} alt="" fill sizes="58px" />
+                  <Image src={review.avatar} alt="" fill loading="lazy" sizes="58px" />
                 </span>
                 <span>
                   <strong>{review.name}</strong>

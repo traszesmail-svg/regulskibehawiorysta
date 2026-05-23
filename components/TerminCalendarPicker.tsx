@@ -79,19 +79,23 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, cho
     setSelectedSlotId(day.slots.find((slot) => slot.isBookable)?.id ?? '')
   }
 
+  function trackSlotSelect(slot: TerminCalendarSlot, location: string) {
+    trackAnalyticsEvent('booking_slot_selected', {
+      location,
+      slot_id: slot.id,
+      slot_date: slot.date,
+      slot_time: slot.time,
+      service: slot.serviceType,
+    })
+  }
+
   function chooseSlot(slot: TerminCalendarSlot) {
     if (!slot.isBookable) {
       return
     }
 
     setSelectedSlotId(slot.id)
-    trackAnalyticsEvent('booking_slot_selected', {
-      location: 'termin-calendar',
-      slot_id: slot.id,
-      slot_date: slot.date,
-      slot_time: slot.time,
-      service: slot.serviceType,
-    })
+    trackSlotSelect(slot, 'termin-calendar')
   }
 
   return (
@@ -123,6 +127,7 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, cho
                     className="termin-nearest-slot-link"
                     data-nearest-slot-link="true"
                     data-slot-id={slot.id}
+                    onClick={() => trackSlotSelect(slot, 'termin-nearest-slots')}
                   >
                     <span>{slot.dateLabel}</span>
                     <strong>{slot.time}</strong>
@@ -257,6 +262,7 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, cho
             className="notatnik-btn termin-summary-cta"
             data-selected-slot-link="true"
             data-slot-id={selectedSlot.id}
+            onClick={() => trackSlotSelect(selectedSlot, 'termin-summary')}
           >
             <CalendarDays size={17} strokeWidth={1.9} aria-hidden="true" />
             <span>Zarezerwuj wybrany termin</span>

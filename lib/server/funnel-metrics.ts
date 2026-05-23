@@ -18,6 +18,7 @@ export const FUNNEL_STAGE_EVENT_TYPES = [
   'payment_marked_pending',
   'payment_completed',
   'booking_confirmed',
+  'booking_drop',
   'confirmation_viewed',
   'call_room_viewed',
   'contact_form_started',
@@ -83,6 +84,7 @@ function createZeroStageCounts(): FunnelStageCounts {
     payment_marked_pending: 0,
     payment_completed: 0,
     booking_confirmed: 0,
+    booking_drop: 0,
     confirmation_viewed: 0,
     call_room_viewed: 0,
     contact_form_started: 0,
@@ -276,6 +278,7 @@ export function renderFunnelMetricsMarkdown(snapshot: FunnelMetricsSnapshot): st
     lines.push(formatLine('Payment -> pending', window.conversions.paymentToPending))
     lines.push(formatLine('Payment -> completed', window.conversions.paymentToCompleted))
     lines.push(formatLine('Completed -> confirmed', window.conversions.completedToConfirmed))
+    lines.push(formatLine('Booking drop', window.stageCounts.booking_drop))
     lines.push(formatLine('Ostatnie zdarzenie', window.lastEventAt ?? 'brak'))
     lines.push('')
   }

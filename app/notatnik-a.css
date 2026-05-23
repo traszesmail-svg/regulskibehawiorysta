@@ -1550,6 +1550,7 @@ html[data-theme='dark'] .notatnik-page {
   gap: 22px;
 }
 
+
 .blog-redesign-hero,
 .blog-redesign-latest-list,
 .blog-redesign-category-table,
@@ -28160,4 +28161,27 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
   .pricing-2026-question-card {
     padding: 20px !important;
   }
+}
+
+/* Stage 9 layout guardrails for dense funnel controls. */
+.notatnik-page :where(.notatnik-btn, .button, .big-button, .router-choice-card, .termin-nearest-slot-link, .termin-summary-cta, .booking-details-submit, .pricing-2026-btn),
+.payment-ref-page :where(.payment-ref-submit, .payment-ref-method-tab, .payment-ref-secondary-button, .button, .big-button),
+.opinions-showcase-page :where(.opinions-filter-bar button, .opinions-story-button) {
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.notatnik-page :where(.router-choice-grid, .termin-calendar-shell, .pricing-2026-offers, .pricing-2026-help-actions),
+.payment-ref-page :where(.payment-ref-method-tabs, .payment-ref-submit-row, .payment-ref-button-row),
+.opinions-showcase-page :where(.opinions-filter-bar, .opinions-review-grid) {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.notatnik-page :where(.router-choice-card, .termin-summary-card, .pricing-2026-offer),
+.payment-ref-page :where(.payment-ref-method-tab, .payment-ref-method-panel),
+.opinions-showcase-page :where(.opinions-review-card, .opinions-proof-item) {
+  contain: layout paint;
 }

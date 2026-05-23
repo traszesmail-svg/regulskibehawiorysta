@@ -223,7 +223,7 @@ export async function BookingSlotCalendar({
         : 'Online'
   const processOutcomeCopy =
     serviceType === 'konsultacja-behawioralna-online'
-      ? 'W pełnej konsultacji dostajesz diagnozę, prawdopodobną przyczynę problemu, plan działania i 7 dni wsparcia przez WhatsApp.'
+      ? 'W pełnej konsultacji dostajesz analizę zachowania, prawdopodobną przyczynę problemu, plan działania i 7 dni wsparcia przez WhatsApp.'
       : serviceType === 'konsultacja-30-min'
         ? 'W Dwóch kwadransach masz więcej czasu na kontekst, spokojniejsze zalecenia i decyzję, czy potrzebna jest pełna konsultacja.'
         : 'W Kwadransie porządkujesz jedno główne pytanie i dostajesz pierwszy kierunek działania.'
@@ -283,8 +283,8 @@ export async function BookingSlotCalendar({
             )}
             <p>
               {isUrgentBooking
-                ? 'Wybierz najbliższy dostępny termin krótkiej konsultacji. Zajmie Ci to tylko chwilę.'
-                : 'Wybierz dogodny dla Ciebie dzień i godzinę. Konsultacja odbywa się online.'}
+                ? 'Wybierz najbliższy dostępny termin krótkiej konsultacji. Po wysłaniu danych termin blokuje się na 15 minut.'
+                : 'Wybierz dogodny dzień i godzinę. Po wysłaniu danych termin blokuje się na 15 minut, a pewny staje się po opłaceniu i potwierdzeniu płatności.'}
             </p>
           </div>
 
@@ -302,6 +302,11 @@ export async function BookingSlotCalendar({
           </div>
 
           <div className="termin-calendar-shell">
+            <div className="notatnik-callout termin-calendar-callout">
+              Status slotu jest prosty: tutaj wybierasz godzinę, w kroku Dane blokujesz ją na 15 minut, a rezerwacja jest
+              pewna po opłaceniu i potwierdzeniu płatności.
+            </div>
+
             {publicFlowMessage ? (
               <div className="notatnik-callout termin-calendar-callout">
                 {publicFlowMessage}{' '}
@@ -359,7 +364,7 @@ export async function BookingSlotCalendar({
                 </article>
                 <article>
                   <Check size={30} strokeWidth={1.7} aria-hidden="true" />
-                  <strong>3. Otrzymaj diagnozę behawioralną</strong>
+                  <strong>3. Otrzymaj analizę zachowania</strong>
                   <span>{processOutcomeCopy}</span>
                 </article>
               </div>

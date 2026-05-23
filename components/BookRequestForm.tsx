@@ -92,12 +92,12 @@ function getSelectedServiceIntro(service: BookingServiceType) {
     case 'konsultacja-behawioralna-online':
       return {
         title: `Wybrana rozmowa: ${option.label} / ${option.price}.`,
-        copy: 'Około 2h online dla spraw złożonych: diagnoza, prawdopodobna przyczyna problemu, plan działania i 7 dni wsparcia przez WhatsApp przy wdrażaniu zaleceń.',
+        copy: 'Około 2h online dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 7 dni wsparcia przez WhatsApp przy wdrażaniu zaleceń.',
       }
     case 'kwadrans-na-juz':
       return {
         title: `Wybrana rozmowa: ${option.label} / ${option.price}.`,
-        copy: 'To ten sam zakres co Kwadrans, ale z najbliższym możliwym terminem. Dla spraw pilnych, które nie wymagają dłuższej analizy.',
+        copy: 'To ten sam zakres co Kwadrans, ale z priorytetową odpowiedzią i najbliższym realnym terminem. Dla spraw pilnych, które nie wymagają dłuższej analizy.',
       }
     case 'szybka-konsultacja-15-min':
     default:
@@ -191,7 +191,7 @@ export function BookRequestForm({ initialService, initialSpecies, entryService }
           species: form.species,
           description: normalizeLongText(form.description),
           preferredSlots: isUrgentNow
-            ? 'Chcę termin jak najszybciej - proszę o kontakt w ciągu 15 minut.'
+            ? 'Chcę termin jak najszybciej - proszę o priorytetową odpowiedź z realną propozycją terminu.'
             : normalizeLongText(form.preferredSlots),
           consentRodo: form.consentRodo,
           consentRegulamin: form.consentRegulamin,
@@ -226,7 +226,7 @@ export function BookRequestForm({ initialService, initialSpecies, entryService }
         <h2>{isUrgentNow ? 'Dostałem Twoją prośbę o Kwadrans na już.' : 'Dostałem Twoją rezerwację.'}</h2>
         <p>
           {isUrgentNow
-            ? 'Twoja prośba o Kwadrans na już dotarła. Odpowiem w ciągu 15 minut z terminem i dalszym krokiem płatności. Sprawdź skrzynkę - wysłałem Ci kopię.'
+            ? 'Twoja prośba o Kwadrans na już dotarła. Odpowiem priorytetowo z realną propozycją terminu i dalszym krokiem płatności. Sprawdź skrzynkę - wysłałem Ci kopię.'
             : 'W ciągu kilku godzin, między 9 a 21, odezwę się z potwierdzeniem terminu i dalszym krokiem płatności. Sprawdź skrzynkę - wysłałem Ci kopię.'}
         </p>
         <div className="notatnik-steps top-gap-small">
@@ -392,7 +392,7 @@ export function BookRequestForm({ initialService, initialSpecies, entryService }
       <div className="full-width form-field">
         <label htmlFor="book-preferred-slots">Preferowane terminy</label>
         {isUrgentNow ? (
-          <div className="info-box">Chcę termin jak najszybciej - proszę o kontakt w ciągu 15 minut.</div>
+          <div className="info-box">Chcę termin jak najszybciej - proszę o priorytetową odpowiedź z realną propozycją terminu.</div>
         ) : (
           <>
             <SlotPicker

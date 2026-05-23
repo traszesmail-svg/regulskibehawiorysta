@@ -192,7 +192,7 @@ function PaymentReferenceSummary({
         <ShieldCheck aria-hidden="true" />
         <span>
           <strong>Bezpiecznie i bez publicznego telefonu</strong>
-          <em>Płatność potwierdza termin. Po potwierdzeniu dostajesz dalszy krok i link do rozmowy.</em>
+          <em>Termin jest pewny po potwierdzeniu płatności. Po potwierdzeniu dostajesz dalszy krok i link do rozmowy.</em>
         </span>
       </div>
     </aside>

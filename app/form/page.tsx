@@ -135,7 +135,10 @@ export default async function FormPage({
         <section className="booking-form-hero">
           <div className="booking-form-hero-copy">
             <h1>Uzupełnij dane do rozmowy</h1>
-            <p>Podaj krótki opis sytuacji. To wystarczy, żeby przygotować rozmowę i nie tracić czasu na zbędne pytania.</p>
+            <p>
+              Podaj krótki opis sytuacji. Po wysłaniu formularza wybrany termin blokuje się na 15 minut, a rezerwacja
+              staje się pewna po opłaceniu i potwierdzeniu płatności.
+            </p>
             {qaBooking ? (
               <div className="notatnik-contact-note">
                 <strong>Tryb testowy</strong>
@@ -272,7 +275,7 @@ export default async function FormPage({
             { icon: GraduationCap, title: 'Wiedza i doświadczenie', copy: 'Praktyka oparta na nauce.' },
             { icon: Heart, title: 'Empatia i zrozumienie', copy: 'Wsparcie dla Ciebie i zwierzęcia.' },
             { icon: ShieldCheck, title: 'Bez presji i oceniania', copy: 'Pracujemy w tempie, które jest dobre dla Was.' },
-            { icon: Leaf, title: 'Skuteczność i trwała zmiana', copy: 'Pomagam rozwiązywać problemy u źródła.' },
+            { icon: Leaf, title: 'Analiza i realny plan', copy: 'Pomagam nazwać możliwe źródło problemu i wybrać pierwszy krok.' },
           ].map((item) => {
             const Icon = item.icon
 
@@ -298,7 +301,7 @@ export default async function FormPage({
           </div>
           <div className="booking-form-final-actions">
             <a href="#formularz" className="notatnik-btn notatnik-btn-accent">
-              Potwierdzam termin i przechodzę dalej
+              Blokuję termin i przechodzę dalej
             </a>
             <Link href={slotsHref} prefetch={false} className="notatnik-btn notatnik-btn-ghost">
               Wróć do wyboru

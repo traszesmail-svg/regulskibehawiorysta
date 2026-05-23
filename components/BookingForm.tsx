@@ -71,6 +71,7 @@ export function BookingForm({
   const [description, setDescription] = useState('')
   const [email, setEmail] = useState('')
   const [termsAccepted, setTermsAccepted] = useState(false)
+  const [earlyStartAccepted, setEarlyStartAccepted] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
   const animalType = formCopy.animalType
@@ -116,8 +117,8 @@ export function BookingForm({
       return
     }
 
-    if (!termsAccepted) {
-      setError('Zaakceptuj regulamin usługi i politykę prywatności, żeby przejść dalej.')
+    if (!termsAccepted || !earlyStartAccepted) {
+      setError('Zaakceptuj regulamin, politykę prywatności i zgodę na rozpoczęcie usługi przed upływem 14 dni, żeby przejść dalej.')
       return
     }
 
@@ -142,6 +143,8 @@ export function BookingForm({
           email,
           slotId,
           qaBooking,
+          consentTerms: termsAccepted,
+          consentEarlyStart: earlyStartAccepted,
         }),
       })
 
@@ -259,22 +262,38 @@ export function BookingForm({
         </span>
       </label>
 
+      <label className="booking-details-consent" htmlFor="booking-early-start">
+        <input
+          id="booking-early-start"
+          type="checkbox"
+          checked={earlyStartAccepted}
+          onChange={(event) => setEarlyStartAccepted(event.target.checked)}
+        />
+        <span>
+          Żądam rozpoczęcia świadczenia usługi przed upływem 14 dni i przyjmuję do wiadomości, że po wykonaniu konsultacji
+          utracę prawo odstąpienia od umowy w zakresie wykonanej usługi.
+        </span>
+      </label>
+
       {error ? <div className="notatnik-callout notatnik-callout-error">{error}</div> : null}
 
       <button type="submit" className="booking-details-submit" disabled={isSubmitting} data-booking-submit="payment">
         <span>
           {isSubmitting
-            ? 'Zapisuję dane...'
+            ? 'Blokuję termin...'
             : qaBooking
-              ? 'Potwierdzam termin i przechodzę do testowej płatności'
-              : 'Potwierdzam termin i przechodzę dalej'}
+              ? 'Blokuję termin i przechodzę do testowej płatności'
+              : 'Blokuję termin i przechodzę dalej'}
         </span>
         <ArrowRight size={18} strokeWidth={1.9} aria-hidden="true" />
       </button>
 
       <div className="booking-details-safe-note">
         <LockKeyhole size={13} strokeWidth={1.9} aria-hidden="true" />
-        <span>Twoje dane są u nas bezpieczne. Do zapłaty w kolejnym kroku: {amountLabel}.</span>
+        <span>
+          Po wysłaniu danych blokujemy wybrany termin na 15 minut. Rezerwacja jest pewna po opłaceniu i potwierdzeniu
+          płatności. Do zapłaty w kolejnym kroku: {amountLabel}.
+        </span>
       </div>
     </form>
   )

@@ -33,7 +33,7 @@ export const metadata: Metadata = buildMarketingMetadata({
   title: 'Cennik konsultacji behawioralnych',
   path: '/cennik',
   description:
-    'Kwadrans 69 zł, Kwadrans na już 99 zł, Dwa kwadranse 169 zł i Pełna konsultacja 470 zł. W każdej usłudze diagnoza behawioralna oparta na danych od opiekuna.',
+    'Kwadrans 69 zł, Kwadrans na już 99 zł, Dwa kwadranse 169 zł i Pełna konsultacja 470 zł. W każdej usłudze analiza zachowania oparta na danych od opiekuna.',
 })
 
 type PricingVisual = {
@@ -51,7 +51,7 @@ const offerVisuals: Partial<Record<PublicBookingServiceType, PricingVisual>> = {
   },
   'kwadrans-na-juz': {
     title: 'Kwadrans priorytetowy',
-    copy: 'Ten sam zakres co Kwadrans, ale z najbliższym możliwym terminem. Dla spraw pilnych, które nie wymagają dłuższej analizy.',
+    copy: 'Ten sam zakres co Kwadrans, ale z priorytetową odpowiedzią i najbliższym realnym terminem. Dla spraw pilnych, które nie wymagają dłuższej analizy.',
     icon: Clock,
     featured: true,
   },
@@ -62,7 +62,7 @@ const offerVisuals: Partial<Record<PublicBookingServiceType, PricingVisual>> = {
   },
   'konsultacja-behawioralna-online': {
     title: 'Pełna konsultacja',
-    copy: 'Około 2h online dla spraw złożonych: diagnoza, prawdopodobna przyczyna problemu, plan działania i 7 dni wsparcia przez WhatsApp.',
+    copy: 'Około 2h online dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 7 dni wsparcia przez WhatsApp.',
     icon: Leaf,
   },
 }
@@ -74,8 +74,8 @@ const benefits = [
     icon: Sprout,
   },
   {
-    title: 'Diagnoza oparta na danych',
-    copy: 'Analizuję fakty, nie domysły. Plan dostosowany do Ciebie i Twojego psa lub kota.',
+    title: 'Analiza oparta na danych',
+    copy: 'Układam fakty, nie domysły. Plan dostosowany do Ciebie i Twojego psa lub kota.',
     icon: BarChart3,
   },
   {
@@ -201,7 +201,7 @@ export default function PricingPage() {
 
         <section className="pricing-2026-diagnosis">
           <div>
-            <h2>W każdej usłudze dostajesz diagnozę behawioralną opartą na danych</h2>
+            <h2>W każdej usłudze dostajesz analizę zachowania opartą na danych</h2>
             <p>
               To nie jest przypadkowa porada z internetu. Analizuję opis sytuacji, odpowiedzi z
               formularza, historię zachowania i kontekst domu lub spacerów. Jeśli masz nagrania,

@@ -126,7 +126,7 @@ export function OfferEntrySection({
         <article className="summary-card tree-backed-card">
           <div className="section-eyebrow">Pełna konsultacja</div>
           <h3>Pełna konsultacja behawioralna</h3>
-          <p>{getFullConsultationDescription(species)} Dostajesz diagnozę, prawdopodobną przyczynę problemu, plan działania i 7 dni wsparcia przez WhatsApp przy wdrażaniu zaleceń.</p>
+          <p>{getFullConsultationDescription(species)} Dostajesz analizę zachowania, prawdopodobną przyczynę problemu, plan działania i 7 dni wsparcia przez WhatsApp przy wdrażaniu zaleceń.</p>
           <div className="editorial-hero-meta" aria-label="Parametry usługi">
             <span>ok. 2h online</span>
             <span>{formatPricePln(PUBLIC_OFFER_PRICES.premium)}</span>

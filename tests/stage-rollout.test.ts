@@ -59,7 +59,7 @@ test('stage 10 dogs and consultation pages use clearer conversion copy and prepa
   assert.match(consultationSource, /const consultationDecisionCards = \[/)
   assert.match(consultationSource, /Pelna konsultacja w skrocie/)
   assert.match(consultationSource, /Jedna zasada wyboru przed rezerwacja\./)
-  assert.match(consultationSource, /okolo 2h online, diagnoza i 7 dni wsparcia/)
+  assert.match(consultationSource, /okolo 2h online, analiza zachowania i 7 dni wsparcia/)
   assert.match(consultationSource, /material przygotowujacy/)
 })
 

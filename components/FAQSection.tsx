@@ -24,7 +24,7 @@ const defaultFAQs: FAQ[] = [
   {
     icon: 'clipboard-list',
     question: 'Co obejmuje Pełna konsultacja 470 zł?',
-    answer: 'Około 2h online, diagnozę, prawdopodobną przyczynę problemu, plan działania i 7 dni wsparcia przez WhatsApp.',
+    answer: 'Około 2h online, analizę zachowania, prawdopodobną przyczynę problemu, plan działania i 7 dni wsparcia przez WhatsApp.',
   },
   {
     icon: 'lightbulb',

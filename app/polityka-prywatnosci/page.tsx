@@ -18,7 +18,7 @@ const summaryItems: LegalSummaryItem[] = [
   },
   {
     label: 'Podstawowe narzędzia',
-    value: 'Supabase, Resend, Jitsi oraz narzędzia analityczne uruchamiane wyłącznie po wyrażeniu zgody.',
+    value: 'Supabase, Resend, Jitsi, WhatsApp/Meta, PayPal.me, obsługa BLIK oraz narzędzia analityczne uruchamiane wyłącznie po wyrażeniu zgody.',
   },
   {
     label: 'Publiczny kontakt',
@@ -97,6 +97,20 @@ const sections: LegalSection[] = [
           W aktualnym modelu technicznym serwis korzysta z usług Supabase, Resend i Jitsi. Jeżeli dla danej rezerwacji
           aktywna jest obsługa SMS lub inna funkcja powiadomień, dane mogą zostać przekazane także operatorowi tej
           wiadomości.
+        </p>
+        <p>
+          Przy 7-dniowym wsparciu po Pełnej konsultacji dane kontaktowe i treść wiadomości mogą być przetwarzane w
+          WhatsApp, czyli usłudze należącej do Meta. Jeżeli klient nie chce korzystać z WhatsAppa, może ustalić kontakt
+          e-mailowy jako alternatywny kanał pisemny.
+        </p>
+        <p>
+          Przy płatnościach dane mogą być przetwarzane przez operatora płatności online, PayPal.me albo w ramach ręcznej
+          obsługi BLIK, zależnie od metody aktywnej dla danej rezerwacji lub zamówienia materiału.
+        </p>
+        <p>
+          Część dostawców, w szczególności Meta, PayPal lub narzędzia analityczne, może przetwarzać dane poza Europejskim
+          Obszarem Gospodarczym. W takim przypadku podstawą przekazania są mechanizmy stosowane przez danego dostawcę,
+          w szczególności standardowe klauzule umowne albo inne zabezpieczenia przewidziane w RODO.
         </p>
       </>
     ),

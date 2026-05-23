@@ -337,7 +337,7 @@ const REACTIVITY_GUIDE_LINK: BlogSupportLink = {
 const SEPARATION_LANDING_LINK: BlogSupportLink = {
   label: 'Lęk separacyjny u psa',
   href: '/psy/lek-separacyjny',
-  description: 'Główny landing problemowy o zostawaniu samemu, diagnozie i pierwszym bezpiecznym planie.',
+  description: 'Główny landing problemowy o zostawaniu samemu, analizie zachowania i pierwszym bezpiecznym planie.',
 }
 
 const SEPARATION_GUIDE_LINK: BlogSupportLink = {

@@ -27,7 +27,7 @@ export const pricingCards: Array<{
     price: '69 zł',
     copy: '15 min audio bez kamery na jedno główne pytanie. Szybko porządkujesz sytuację i dostajesz pierwszy kierunek działania.',
     supportCopy:
-      'Dostajesz wstępną diagnozę behawioralną na podstawie przekazanych informacji: co może być głównym mechanizmem zachowania, co warto sprawdzić i czego nie robić na ślepo.',
+      'Dostajesz wstępną analizę zachowania na podstawie przekazanych informacji: co może być głównym mechanizmem zachowania, co warto sprawdzić i czego nie robić na ślepo.',
     features: ['jedno główne pytanie', 'audio bez kamery', 'pierwszy kierunek działania', 'decyzja, czy potrzebny jest szerszy format'],
     cta: 'Chcę zacząć od Kwadransa',
     featured: true,
@@ -38,10 +38,10 @@ export const pricingCards: Array<{
     title: 'Kwadrans priorytetowy - gdy nie chcesz czekać',
     summaryTitle: 'Kwadrans priorytetowy  gdy nie chcesz czekać',
     price: '99 zł',
-    copy: 'Ten sam zakres co Kwadrans, ale z najbliższym możliwym terminem. Dla spraw pilnych, które nie wymagają dłuższej analizy.',
+    copy: 'Ten sam zakres co Kwadrans, ale z priorytetową odpowiedzią i najbliższym realnym terminem. Dla spraw pilnych, które nie wymagają dłuższej analizy.',
     supportCopy:
       'Nie kupujesz dłuższej analizy, tylko priorytet terminu. Zakres rozmowy zostaje taki sam jak w zwykłym Kwadransie.',
-    features: ['ten sam zakres co Kwadrans', 'najbliższy możliwy termin', 'pierwszy kierunek działania', 'dla tematów pilnych, ale krótkich'],
+    features: ['ten sam zakres co Kwadrans', 'priorytetowa odpowiedź', 'pierwszy kierunek działania', 'dla tematów pilnych, ale krótkich'],
     cta: 'Chcę szybszy termin',
   },
   {
@@ -52,7 +52,7 @@ export const pricingCards: Array<{
     price: '169 zł',
     copy: '30 min online, gdy temat ma kilka wątków. Więcej czasu na kontekst, spokojniejsze zalecenia i decyzję, czy potrzebna jest pełna konsultacja.',
     supportCopy:
-      'Wspólnie układamy fakty, szukamy najbardziej prawdopodobnej przyczyny zachowania i tworzę diagnozę behawioralną opartą na Twoim opisie, formularzu i kontekście domu, spacerów albo relacji między zwierzętami.',
+      'Wspólnie układamy fakty, szukamy najbardziej prawdopodobnej przyczyny zachowania i tworzę analizę behawioralną opartą na Twoim opisie, formularzu i kontekście domu, spacerów albo relacji między zwierzętami.',
     features: ['więcej czasu na kontekst', 'spokojniejsze zalecenia', 'dwa-trzy wątki naraz', 'bez 7-dniowego wsparcia WhatsApp'],
     cta: 'Chcę spokojniej omówić temat',
   },
@@ -62,9 +62,9 @@ export const pricingCards: Array<{
     title: 'Pełna konsultacja - gdy potrzebny jest plan i wsparcie wdrożenia',
     summaryTitle: 'Pełna konsultacja  gdy potrzebny jest plan, nie tylko podpowiedź',
     price: '470 zł',
-    copy: 'Około 2h online dla spraw złożonych: diagnoza, prawdopodobna przyczyna problemu, plan działania i 7 dni wsparcia przez WhatsApp przy wdrażaniu zaleceń.',
+    copy: 'Około 2h online dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 7 dni wsparcia przez WhatsApp przy wdrażaniu zaleceń.',
     supportCopy:
-      'To najlepszy wybór, gdy zachowanie trwa długo, ma kilka warstw albo wpływa na życie całego domu. Diagnoza powstaje na podstawie formularza, rozmowy, historii zachowania, kontekstu zdrowia, diety, środowiska, nagrań i danych, które przekażesz przed konsultacją.',
+      'To najlepszy wybór, gdy zachowanie trwa długo, ma kilka warstw albo wpływa na życie całego domu. Analiza powstaje na podstawie formularza, rozmowy, historii zachowania, kontekstu zdrowia, diety, środowiska, nagrań i danych, które przekażesz przed konsultacją.',
     features: ['sprawy złożone albo trwające długo', 'prawdopodobna przyczyna problemu', 'plan działania', '7 dni wsparcia przez WhatsApp'],
     cta: 'Chcę pełną konsultację',
   },
@@ -76,24 +76,24 @@ export function getDirectBookingHref(service: PublicBookingServiceType) {
 
 export const pricingFaqItems = [
   {
-    question: 'Czy w Kwadransie też dostanę diagnozę behawioralną?',
+    question: 'Czy w Kwadransie też dostanę analizę behawioralną?',
     answer:
-      'Tak, ale zakres diagnozy behawioralnej zależy od ilości informacji. W Kwadransie dostajesz wstępną diagnozę behawioralną i pierwszy kierunek działania. Przy sprawach złożonych pełniejsza diagnoza behawioralna wymaga dłuższej rozmowy, formularza, historii zachowania i czasem nagrań.',
+      'Tak, ale zakres analizy zależy od ilości informacji. W Kwadransie dostajesz wstępną analizę zachowania i pierwszy kierunek działania. Przy sprawach złożonych pełniejsza analiza wymaga dłuższej rozmowy, formularza, historii zachowania i czasem nagrań.',
   },
   {
     question: 'Kiedy wybrać Dwa kwadranse?',
     answer:
-      'Gdy jedno pytanie zaczyna łączyć się z kilkoma rzeczami: spacerem, emocjami, domem, relacją, dietą albo zdrowiem. 30 minut daje więcej miejsca na uporządkowanie faktów i spokojniejszą diagnozę behawioralną opartą na danych.',
+      'Gdy jedno pytanie zaczyna łączyć się z kilkoma rzeczami: spacerem, emocjami, domem, relacją, dietą albo zdrowiem. 30 minut daje więcej miejsca na uporządkowanie faktów i spokojniejszą analizę zachowania opartą na danych.',
   },
   {
     question: 'Kiedy od razu pełna konsultacja?',
     answer:
-      'Gdy zachowanie trwa długo, wraca mimo prób, wpływa na życie domowników albo dotyczy kilku obszarów naraz. Pełna konsultacja trwa około 2h online i ma sens wtedy, gdy potrzebujesz diagnozy, planu oraz 7 dni wsparcia przez WhatsApp przy wdrażaniu zaleceń.',
+      'Gdy zachowanie trwa długo, wraca mimo prób, wpływa na życie domowników albo dotyczy kilku obszarów naraz. Pełna konsultacja trwa około 2h online i ma sens wtedy, gdy potrzebujesz analizy, planu oraz 7 dni wsparcia przez WhatsApp przy wdrażaniu zaleceń.',
   },
   {
-    question: 'Czy diagnoza behawioralna zastępuje wizytę u lekarza weterynarii?',
+    question: 'Czy analiza zachowania zastępuje wizytę u lekarza weterynarii?',
     answer:
-      'Nie. Diagnoza behawioralna opiera się na informacjach o zachowaniu, środowisku, rutynie, diecie i historii zwierzęcia. Jeśli coś może mieć tło zdrowotne, warto równolegle skonsultować się z lekarzem weterynarii.',
+      'Nie. Analiza zachowania opiera się na informacjach o zachowaniu, środowisku, rutynie, diecie i historii zwierzęcia. Jeśli coś może mieć tło zdrowotne, warto równolegle skonsultować się z lekarzem weterynarii.',
   },
 ]
 

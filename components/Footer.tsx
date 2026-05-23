@@ -55,11 +55,12 @@ export function Footer(props: FooterProps) {
   const footerReviews = props.reviewSpecies === 'dog' ? dogReviews : props.reviewSpecies === 'cat' ? catReviews : reviews
   const compactFooterVariants: Array<FooterProps['variant'] | undefined> = ['landing', 'lean', 'full', 'home', 'legal', undefined]
   const useCompactFooter = compactFooterVariants.includes(props.variant)
+  const showReviews = props.showReviews !== false
 
   if (useCompactFooter) {
     return (
       <>
-        <FinalReviewsQuoteCarousel reviews={footerReviews} intervalMs={10000} />
+        {showReviews ? <FinalReviewsQuoteCarousel reviews={footerReviews} intervalMs={10000} /> : null}
         <footer className="site-footer site-footer-home-compact" aria-label="Stopka" data-build-marker={buildMarker.value}>
           <nav className="home-footer-link-grid" aria-label="Nawigacja w stopce">
             {FOOTER_NAV_ITEMS.map((item) => {
@@ -85,7 +86,7 @@ export function Footer(props: FooterProps) {
 
   return (
     <>
-      <FinalReviewsQuoteCarousel reviews={footerReviews} intervalMs={10000} />
+      {showReviews ? <FinalReviewsQuoteCarousel reviews={footerReviews} intervalMs={10000} /> : null}
       <footer className="site-footer" aria-label="Stopka" data-build-marker={buildMarker.value}>
         <div className="site-footer-grid">
           <div className="site-footer-brand">

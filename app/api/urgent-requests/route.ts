@@ -14,7 +14,7 @@ import {
 import type { ProblemType } from '@/lib/types'
 
 const SUCCESS_MESSAGE =
-  'Prośba trafiła do mnie. Odpiszę na podany adres e-mail w ciągu 15 minut z proponowaną godziną i linkiem do płatności.'
+  'Prośba trafiła do mnie. Odpiszę priorytetowo na podany adres e-mail z realną propozycją godziny i linkiem do płatności.'
 
 const RATE_LIMIT_MAX = 3
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000

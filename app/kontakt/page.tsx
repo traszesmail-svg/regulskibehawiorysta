@@ -153,7 +153,20 @@ export default function ContactPage() {
             </div>
           </div>
           <div className="contact-reference-form-card">
-            <Suspense fallback={<div className="info-box">Ładuję formularz...</div>}>
+            <noscript>
+              <div className="info-box">
+                Formularz wymaga włączonego JavaScriptu. Możesz od razu napisać bezpośrednio:{' '}
+                <a href={fallbackMailHref} className="contact-fallback-email">{email}</a>.
+              </div>
+            </noscript>
+            <Suspense
+              fallback={
+                <div className="info-box">
+                  Formularz się ładuje. Jeśli nie pojawi się po chwili, napisz bezpośrednio:{' '}
+                  <a href={fallbackMailHref} className="contact-fallback-email">{email}</a>.
+                </div>
+              }
+            >
               <ContactLeadForm />
             </Suspense>
             <div className="contact-form-fallback">

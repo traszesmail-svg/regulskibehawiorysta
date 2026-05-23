@@ -13,11 +13,11 @@ export const metadata: Metadata = buildLegalMetadata(
 const summaryItems: LegalSummaryItem[] = [
   {
     label: 'Produkt objęty dokumentem',
-    value: 'Pełna konsultacja behawioralna online: 470 zł, około 2h online, diagnoza, plan działania i 7 dni wsparcia przez WhatsApp.',
+    value: 'Pełna konsultacja behawioralna online: 470 zł, około 2h online, analiza zachowania, plan działania i 7 dni wsparcia przez WhatsApp.',
   },
   {
     label: 'Płatność',
-    value: `${PUBLIC_OFFER_PAYMENT_METHODS} po potwierdzeniu terminu. Potwierdzenie rezerwacji do 15 minut w godzinach 9-21.`,
+    value: `${PUBLIC_OFFER_PAYMENT_METHODS}. Termin jest pewny dopiero po potwierdzeniu płatności.`,
   },
 ]
 
@@ -43,8 +43,8 @@ const sections: LegalSection[] = [
       <>
         <ul className="premium-bullet-list">
           <li>Konsultacja trwa około 2h i odbywa się online w formie rozmowy audio lub audio/video.</li>
-          <li>W ramach konsultacji usługodawca analizuje opisaną sytuację psa lub kota, porządkuje priorytety i przekazuje diagnozę behawioralną opartą na danych od klienta.</li>
-          <li>Po konsultacji klient otrzymuje diagnozę behawioralną opartą na danych od klienta i indywidualny plan działania.</li>
+          <li>W ramach konsultacji usługodawca analizuje opisaną sytuację psa lub kota, porządkuje priorytety i przekazuje analizę zachowania opartą na danych od klienta.</li>
+          <li>Po konsultacji klient otrzymuje analizę zachowania opartą na danych od klienta i indywidualny plan działania.</li>
           <li>Przez 7 dni od konsultacji klient może przez WhatsApp zadawać pytania, wysyłać wiadomości tekstowe i filmy oraz konsultować wdrażanie planu.</li>
           <li>Jeśli po 7 dniach brak postępu albo nie ma poczucia, że to skuteczna droga do rozwiązania, usługodawca może wskazać zasadność wizyty domowej i terapii ustalanej indywidualnie.</li>
           <li>Konsultacja nie obejmuje diagnostyki weterynaryjnej, zaleceń farmakologicznych ani interwencji w stanach nagłych.</li>
@@ -61,10 +61,10 @@ const sections: LegalSection[] = [
     body: (
       <>
         <p>Cena konsultacji: 470 zł brutto.</p>
-        <p>Metody płatności: {PUBLIC_OFFER_PAYMENT_METHODS}. Dane do wpłaty klient otrzymuje emailem po zaakceptowaniu wstępnego terminu.</p>
-        <p>Płatność przyjmowana jest w godzinach 9:00-21:00, poza dniami ustawowo wolnymi od pracy.</p>
-        <p>Potwierdzenie wpłynięcia płatności i ostateczne potwierdzenie rezerwacji następuje do 15 minut od zaksięgowania wpłaty w oknie obsługi.</p>
-        <p>Rezerwacja bez dokonanej płatności nie jest wiążąca. Termin wraca do puli po 24 godzinach od wysłania danych do płatności.</p>
+        <p>Metody płatności: {PUBLIC_OFFER_PAYMENT_METHODS}. Jeżeli aktywna jest płatność online, klient przechodzi do niej bezpośrednio po utworzeniu rezerwacji. Jeżeli aktywna jest płatność ręczna, klient otrzymuje dalszą instrukcję dla wybranej metody.</p>
+        <p>Termin jest wstępnie blokowany na czas płatności. Standardowe okno blokady wynosi 15 minut.</p>
+        <p>Termin zostaje ostatecznie zablokowany dopiero po potwierdzeniu płatności. Przy płatności ręcznej potwierdzenie może wymagać obsługi przez usługodawcę w godzinach 9:00-21:00, poza dniami ustawowo wolnymi od pracy.</p>
+        <p>Rezerwacja bez dokonanej lub potwierdzonej płatności nie jest wiążąca, a termin może wrócić do puli dostępnych terminów.</p>
       </>
     ),
   },
@@ -86,9 +86,9 @@ const sections: LegalSection[] = [
     title: '5. Rezerwacja terminu',
     body: (
       <>
-          <p>Klient inicjuje rezerwację przez formularz na stronie /book, wskazując preferowane terminy oraz opis sytuacji.</p>
-          <p>Usługodawca odpowiada w ciągu kilku godzin, potwierdza jeden z zaproponowanych terminów albo proponuje inny, wraz z dalszym krokiem płatności.</p>
-          <p>Konsultacja jest zarezerwowana dopiero po potwierdzeniu wpłaty przez usługodawcę.</p>
+          <p>Klient inicjuje rezerwację przez formularz na stronie /book, wybierając dostępny termin i opisując sytuację.</p>
+          <p>Po wysłaniu danych w formularzu wybrany slot jest wstępnie blokowany na czas płatności. Standardowe okno blokady wynosi 15 minut.</p>
+          <p>Konsultacja jest zarezerwowana dopiero po potwierdzeniu płatności.</p>
           <p>Na 24 godziny przed konsultacją klient otrzymuje e-mail z linkiem do rozmowy i listą materiałów do przygotowania, jeżeli są potrzebne.</p>
           <p>Po zakończeniu konsultacji dalszy 7-dniowy kontakt tekstowy odbywa się przez WhatsApp, chyba że strony ustalą inny kanał pisemny.</p>
         </>
@@ -119,7 +119,7 @@ const sections: LegalSection[] = [
     body: (
       <>
         <p>Konsument ma prawo odstąpić od umowy zawartej na odległość w terminie 14 dni bez podania przyczyny, z zastrzeżeniem przepisów szczególnych o usługach wykonanych za zgodą klienta.</p>
-        <p>Akceptując regulamin przy rezerwacji, klient wyraża zgodę na rozpoczęcie świadczenia usługi przed upływem 14-dniowego terminu i przyjmuje do wiadomości, że po zakończonej konsultacji traci prawo odstąpienia od umowy.</p>
+        <p>Przy rezerwacji klient składa osobną zgodę na rozpoczęcie świadczenia usługi przed upływem 14-dniowego terminu i przyjmuje do wiadomości, że po zakończonej konsultacji traci prawo odstąpienia od umowy w zakresie wykonanej usługi.</p>
         <p>Do momentu rozpoczęcia konsultacji klient zachowuje prawo odstąpienia na zasadach ogólnych. Zgłoszenie e-mailem jest wystarczające.</p>
       </>
     ),
@@ -131,6 +131,10 @@ const sections: LegalSection[] = [
         <p>Klient może złożyć reklamację e-mailem na kontakt@regulskibehawiorysta.pl w ciągu 14 dni od konsultacji.</p>
         <p>Reklamacja powinna zawierać imię i nazwisko, datę konsultacji oraz opis nieprawidłowości.</p>
         <p>Usługodawca rozpatruje reklamację w ciągu 14 dni roboczych. Jeżeli reklamacja jest zasadna, klient otrzymuje zwrot części lub całości wpłaty albo darmową konsultację uzupełniającą.</p>
+        <p>
+          Konsument może skorzystać z pozasądowych sposobów rozpatrywania reklamacji i dochodzenia roszczeń, w tym z pomocy
+          miejskiego lub powiatowego rzecznika konsumentów oraz informacji dostępnych na stronie UOKiK.
+        </p>
       </>
     ),
   },

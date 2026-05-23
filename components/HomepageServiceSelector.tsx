@@ -257,7 +257,7 @@ export function HomepageServiceSelector({ mode = 'home', initialAnimal = null, a
             </div>
             <Link href="/kwadrans-na-juz" prefetch={false} className="notatnik-btn notatnik-btn-urgent router-methodology-cta router-urgent-cta">
               <Zap size={22} strokeWidth={2.2} aria-hidden="true" />
-              <span>Potrzebuję pomocy natychmiast!</span>
+              <span>Sprawdź najbliższy realny termin</span>
             </Link>
             <p className="router-reference-copy router-choice-microcopy">
               Nie musisz diagnozować psa ani kota. Wystarczy, że opiszesz, co widzisz na co dzień.

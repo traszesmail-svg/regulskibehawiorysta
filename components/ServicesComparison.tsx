@@ -44,7 +44,7 @@ const SERVICES = [
     duration: 'ok. 2h online',
     mode: 'audio lub video',
     who: 'gdy sytuacja jest złożona, trwa długo albo obejmuje kilka obszarów naraz',
-    plan: 'diagnoza, prawdopodobna przyczyna problemu i plan działania',
+    plan: 'analiza zachowania, prawdopodobna przyczyna problemu i plan działania',
     materials: '7 dni wsparcia przez WhatsApp przy wdrażaniu zaleceń',
     refund: 'Osobny regulamin dla pełnej konsultacji.',
     cta: 'Chcę pełną konsultację',

@@ -100,7 +100,7 @@ function validatePayload(body: Record<string, unknown>): { payload?: ValidatedBo
       email,
       species,
       description,
-      preferredSlots: preferredSlots ?? 'Chcę termin jak najszybciej - proszę o kontakt w ciągu 15 minut.',
+      preferredSlots: preferredSlots ?? 'Chcę termin jak najszybciej - proszę o priorytetową odpowiedź z realną propozycją terminu.',
       consentRodo,
       consentRegulamin,
       consentEarlyStart,

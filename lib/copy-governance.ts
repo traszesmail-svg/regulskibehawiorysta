@@ -8,7 +8,7 @@ export const COPY_SERVICE_NAMES = {
   bridge: 'Dwa kwadranse z behawiorysta',
   bridgeOperational: 'Dwa kwadranse z behawiorysta: 30 min online',
   consultation: 'pełna konsultacja behawioralna',
-  consultationOperational: 'pełna konsultacja behawioralna online: około 2h, diagnoza, plan działania + 7 dni wsparcia przez WhatsApp',
+  consultationOperational: 'pełna konsultacja behawioralna online: około 2h, analiza zachowania, plan działania + 7 dni wsparcia przez WhatsApp',
   toolkit: 'Materiały PDF',
   toolkitOperational: 'Materiały PDF do samodzielnej pracy',
   contact: 'wiadomość',

@@ -32,14 +32,14 @@ export const referenceFaqItems: ReferenceFaqItem[] = [
   {
     id: 'czy-wiadomość-zastepuje-konsultacje',
     category: 'wspolpraca',
-    question: 'Czy w każdej usłudze dostaję diagnozę behawioralną?',
+    question: 'Czy w każdej usłudze dostaję analizę zachowania?',
     answer:
-      'Tak. W każdej usłudze dostajesz diagnozę behawioralną opartą na informacjach, które przekażesz: opisie sytuacji, formularzu, historii zachowania, kontekście domu lub spacerów i nagraniach, jeśli są. Zakres diagnozy behawioralnej zależy od ilości danych i długości rozmowy.',
+      'Tak. W każdej usłudze dostajesz analizę zachowania opartą na informacjach, które przekażesz: opisie sytuacji, formularzu, historii zachowania, kontekście domu lub spacerów i nagraniach, jeśli są. Zakres analizy zależy od ilości danych i długości rozmowy.',
   },
   {
     id: 'diagnoza-lub-weterynarz',
     category: 'konsultacje',
-    question: 'Czy diagnoza behawioralna zastępuje lekarza weterynarii?',
+    question: 'Czy analiza zachowania zastępuje lekarza weterynarii?',
     answer:
       'Nie. Zachowanie może mieć związek ze zdrowiem, bólem, dietą albo środowiskiem. Jako technik weterynarii i dietetyk patrzę szerzej, ale jeśli coś wymaga konsultacji lekarskiej, powiem to jasno.',
   },
@@ -55,7 +55,7 @@ export const referenceFaqItems: ReferenceFaqItem[] = [
     category: 'konsultacje',
     question: 'Kiedy pełna konsultacja ma więcej sensu niż szybka rozmowa?',
     answer:
-      'Gdy zachowanie trwa długo, dotyczy kilku sytuacji albo mocno wpływa na życie domowników. Wtedy potrzebne jest około 2h online, diagnoza, prawdopodobna przyczyna problemu, plan działania i 7 dni wsparcia przez WhatsApp.',
+      'Gdy zachowanie trwa długo, dotyczy kilku sytuacji albo mocno wpływa na życie domowników. Wtedy potrzebne jest około 2h online, analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 7 dni wsparcia przez WhatsApp.',
   },
   {
     id: 'problemy-kot',
@@ -130,9 +130,9 @@ export const referenceFaqItems: ReferenceFaqItem[] = [
   {
     id: 'diagnoza-na-podstawie-informacji',
     category: 'konsultacje',
-    question: 'Czy zakres diagnozy behawioralnej zależy od długości rozmowy?',
+    question: 'Czy zakres analizy zależy od długości rozmowy?',
     answer:
-      'Tak. W Kwadransie dostajesz pierwszy kierunek działania na podstawie informacji od opiekuna. Przy sprawach złożonych pełniejsza diagnoza wymaga około 2h online, formularza, historii zachowania i czasem nagrań.',
+      'Tak. W Kwadransie dostajesz pierwszy kierunek działania na podstawie informacji od opiekuna. Przy sprawach złożonych pełniejsza analiza wymaga około 2h online, formularza, historii zachowania i czasem nagrań.',
   },
   {
     id: 'pies-reaktywny-na-spacerze',

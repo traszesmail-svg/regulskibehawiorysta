@@ -32,8 +32,8 @@ export function generateMetadata(): Metadata {
     title: 'Wybierz metodę płatności',
     path: '/checkout',
     description: 'Wybierz płatność online albo BLIK na telefon.',
-    noIndex: false,
-    follow: true,
+    noIndex: true,
+    follow: false,
   })
 }
 
@@ -143,7 +143,7 @@ export default async function CheckoutPage({
       title={isConsultation ? 'Ostatni krok do potwierdzenia konsultacji.' : 'Ostatni krok do dostępu do materiału.'}
       lead={
         isConsultation
-          ? 'Wybierz BLIK na telefon albo płatność online kartą, Apple Pay lub Google Pay. Po potwierdzeniu dostaniesz termin i link do pokoju rozmowy.'
+          ? 'Wybierz BLIK na telefon albo płatność online kartą, Apple Pay lub Google Pay. Termin jest pewny po opłaceniu i potwierdzeniu płatności.'
           : 'Wybierz BLIK na telefon albo płatność online kartą, Apple Pay lub Google Pay. Po potwierdzeniu dostaniesz kod dostępu do materiału.'
       }
       heroImage={order?.meta.animalType === 'Kot' ? 'cat' : 'dog'}

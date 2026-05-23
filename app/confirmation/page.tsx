@@ -337,7 +337,7 @@ export default async function ConfirmationPage({
                       ? 'Testowa płatność została potwierdzona'
                       : `Wpłata za ${serviceLabel} została potwierdzona`
                     : isWaitingManual
-                      ? 'Wpłata czeka na potwierdzenie do 15 min'
+                      ? 'Wpłata czeka na potwierdzenie'
                       : isRejected
                         ? 'Nie znaleziono wpłaty do tej rezerwacji'
                         : 'Płatność nie została jeszcze potwierdzona'}
@@ -350,7 +350,7 @@ export default async function ConfirmationPage({
                       ? 'To jest rezerwacja testowa. Poniżej masz potwierdzenie i kolejny krok bez realnej płatności.'
                       : `Wpłata jest już potwierdzona. Poniżej masz podsumowanie rezerwacji, status wiadomości, ${roomAccessLabel} i dalszy krok.`
                     : isWaitingManual
-                      ? `Sprawdzamy wpłatę ręczną i potwierdzimy ją do 15 minut. Gdy status zmieni się na opłacony, zobaczysz ${roomAccessLabel} i sekcję materiałów.`
+                      ? `Sprawdzamy wpłatę ręczną i potwierdzimy ją w godzinach obsługi. Gdy status zmieni się na opłacony, zobaczysz ${roomAccessLabel} i sekcję materiałów.`
                       : isRejected
                         ? booking.paymentRejectedReason ?? 'Termin wrócił do puli. Jeśli trzeba, utwórz nową rezerwację i zgłoś wpłatę ponownie.'
                         : 'Jeśli przed chwilą wysłałeś płatność ręczną, odśwież tę stronę za chwilę. Jeśli wpłata nie została jeszcze zgłoszona, wróć do ekranu płatności i dokończ ten krok.'}
@@ -400,7 +400,7 @@ export default async function ConfirmationPage({
                     {
                       title: 'Status płatności',
                       body: isWaitingManual
-                        ? 'Wpłata jest zapisana i czeka na potwierdzenie do 15 minut.'
+                        ? 'Wpłata jest zapisana i czeka na potwierdzenie w godzinach obsługi.'
                         : 'Wpłata nie jest jeszcze potwierdzona. Jeśli właśnie wysłałeś płatność ręczną, poczekaj na ręczną akceptację.',
                     },
                     {
@@ -445,7 +445,7 @@ export default async function ConfirmationPage({
 
               {showAdminNoticeWarning ? (
                 <div className="info-box top-gap">
-                  Zgłoszenie wpłaty zostało zapisane, ale automatyczne powiadomienie obsługi o tej wpłacie nie zostało teraz dostarczone. Zachowaj ten link. Jeśli status nie zmieni się w ciągu 15 minut, skontaktuj się przez formularz kontaktowy.
+                  Zgłoszenie wpłaty zostało zapisane, ale automatyczne powiadomienie obsługi o tej wpłacie nie zostało teraz dostarczone. Zachowaj ten link. Jeśli status nie zmieni się w godzinach obsługi, skontaktuj się przez formularz kontaktowy.
                 </div>
               ) : null}
 

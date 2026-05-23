@@ -497,7 +497,7 @@ function getPdfFunnelEnough(role: string | undefined): string {
     case 'lead_magnet':
       return 'Wystarcza, gdy chcesz najpierw sprawdzić, czy problem zaczyna się od pobudzenia i przeciążenia, a nie od samego braku ruchu.'
     case 'starter':
-      return 'Wystarcza, gdy chcesz pierwszy spokojny plan wdrożenia i nie potrzebujesz jeszcze głębszej diagnozy behawioralnej.'
+      return 'Wystarcza, gdy chcesz pierwszy spokojny plan wdrożenia i nie potrzebujesz jeszcze głębszej analizy zachowania.'
     case 'starter-core':
       return 'Wystarcza, gdy chcesz wejść krok dalej niż starter, ale nadal potrzebujesz prostego pierwszego planu.'
     case 'specialist':

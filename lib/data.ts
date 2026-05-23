@@ -294,7 +294,7 @@ export function getPaymentStatusLabel(
     case 'unpaid':
       return 'Nieopłacona'
     case 'pending_manual_review':
-      return 'Zgłoszona, potwierdzenie do 15 min'
+      return 'Zgłoszona, czeka na potwierdzenie'
     case 'paid':
       return 'Opłacona'
     case 'failed':

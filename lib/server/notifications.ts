@@ -1370,7 +1370,7 @@ export async function sendBookRequestEmail(submission: BookRequestSubmission): P
             label: 'Następny krok',
             htmlValue:
               submission.service === 'kwadrans-na-juz'
-                ? 'Odpisz w ciągu 15 minut z pierwszym wolnym terminem i dalszym krokiem płatności.'
+                ? 'Odpisz priorytetowo z pierwszym wolnym terminem i dalszym krokiem płatności.'
                 : 'Gdy klient wpłaci, kliknij przycisk niżej, wpisz termin i system wyśle klientowi link do pokoju.',
           },
         ],
@@ -1397,7 +1397,7 @@ export async function sendBookRequestEmail(submission: BookRequestSubmission): P
     submission.description,
     '',
     submission.service === 'kwadrans-na-juz'
-      ? 'Następny krok: odpisz w ciągu 15 minut z pierwszym wolnym terminem i dalszym krokiem płatności.'
+      ? 'Następny krok: odpisz priorytetowo z pierwszym wolnym terminem i dalszym krokiem płatności.'
       : 'Następny krok: potwierdź termin i wyślij klientowi PayPal albo instrukcję BLIK na telefon.',
   ].join('\n')
 
@@ -1443,7 +1443,7 @@ export async function sendBookRequestAutoReplyEmail(submission: BookRequestSubmi
             label: 'Co dalej',
             htmlValue:
               submission.service === 'kwadrans-na-juz'
-                ? 'Odezwę się w ciągu 15 minut z pierwszym wolnym terminem i dalszym krokiem płatności.'
+                ? 'Odezwę się priorytetowo z pierwszym wolnym terminem i dalszym krokiem płatności.'
                 : 'Odezwę się w ciągu kilku godzin, między 9 a 21, z potwierdzeniem terminu i dalszym krokiem płatności.',
           },
           {
@@ -1454,7 +1454,7 @@ export async function sendBookRequestAutoReplyEmail(submission: BookRequestSubmi
         'book-request-reply',
       )}
       ${renderEmailTextPanel('Twoje preferowane terminy', formatMultilineHtml(submission.preferredSlots))}
-      <p>Po płatności potwierdzam rezerwację do 15 minut i odsyłam link do rozmowy oraz wpis do kalendarza.</p>
+      <p>Po potwierdzeniu płatności odsyłam link do rozmowy oraz wpis do kalendarza.</p>
       ${renderEmailActionButton({ href: faqHref, label: 'Najczęściej zadawane pytania' })}
       ${renderContactBlockHtml()}
     `,
@@ -1468,10 +1468,10 @@ export async function sendBookRequestAutoReplyEmail(submission: BookRequestSubmi
     '',
     'Co dalej:',
     submission.service === 'kwadrans-na-juz'
-      ? '1. Odezwę się w ciągu 15 minut z pierwszym wolnym terminem i dalszym krokiem płatności.'
+      ? '1. Odezwę się priorytetowo z pierwszym wolnym terminem i dalszym krokiem płatności.'
       : '1. Odezwę się w ciągu kilku godzin, między 9 a 21, z potwierdzeniem terminu i dalszym krokiem płatności.',
     '2. Dostaniesz PayPal albo instrukcje BLIK na telefon.',
-    '3. Po płatności potwierdzam rezerwację do 15 minut i odsyłam link do rozmowy oraz wpis do kalendarza.',
+    '3. Po potwierdzeniu płatności odsyłam link do rozmowy oraz wpis do kalendarza.',
     '',
     'Twoje preferowane terminy:',
     submission.preferredSlots,
@@ -1942,7 +1942,7 @@ export async function sendBookingManualPaymentPendingEmail(
   const paymentReference = booking.paymentReference ?? booking.id
   const confirmationUrl = buildBookingViewerUrl('/confirmation', booking.id, accessToken)
   const subject = `Wpłata zgłoszona - czekamy na potwierdzenie - ${EMAIL_BRAND_NAME} - ${summary}`
-  const intro = 'Dostałem zgłoszenie wpłaty ręcznej. Sprawdzę je do 15 minut.'
+  const intro = 'Dostałem zgłoszenie wpłaty ręcznej. Sprawdzę je w godzinach obsługi.'
   const facts = [
     {
       label: 'Termin',
@@ -2075,7 +2075,7 @@ export async function sendManualPaymentReportedAdminEmail(
   }
 
   const calendarUrl = buildGoogleCalendarUrl(booking)
-  const subject = `Płatność do potwierdzenia do 15 min - ${EMAIL_BRAND_NAME} - ${buildBookingSummary(booking)}`
+  const subject = `Płatność do potwierdzenia - ${EMAIL_BRAND_NAME} - ${buildBookingSummary(booking)}`
   const html = renderEmailShell(
     'Wpłata czeka na decyzję',
     'Klient kliknął "Zrobiłem płatność". Sprawdź wpływ i kliknij właściwą decyzję.',
@@ -2119,7 +2119,7 @@ export async function sendManualPaymentReportedAdminEmail(
       : 'Po potwierdzeniu klient automatycznie dostanie mail z linkiem do pokoju rozmowy, a przy braku wpłaty wróci do płatności.',
   )
   const text = [
-    'Płatność czeka na potwierdzenie do 15 min.',
+    'Płatność czeka na potwierdzenie w godzinach obsługi.',
     `Booking ID: ${booking.id}`,
     `Tytuł płatności: ${booking.paymentReference ?? booking.id}`,
     `Termin: ${formatDateTimeLabel(booking.bookingDate, booking.bookingTime)}`,
@@ -2324,10 +2324,10 @@ export async function sendUrgentNowCustomerAckEmail(submission: UrgentNowSubmiss
     return { status: 'skipped', reason: 'customer email missing or invalid' }
   }
 
-  const subject = 'Kwadrans na już - dostałem Twoją prośbę, odpiszę w 15 minut'
+  const subject = 'Kwadrans na już - dostałem Twoją prośbę'
   const html = renderEmailShell(
     `Cześć ${escapeHtml(submission.name.split(' ')[0])}, dostałem Twoją prośbę o Kwadrans na już.`,
-    'Odpiszę na ten adres e-mail w ciągu 15 minut z konkretną godziną albo najbliższym realnym terminem i linkiem do płatności.',
+    'Odpiszę priorytetowo na ten adres e-mail z konkretną godziną albo najbliższym realnym terminem i linkiem do płatności.',
     `
       ${renderEmailDataTable(
         compactEmailRows([
@@ -2352,7 +2352,7 @@ export async function sendUrgentNowCustomerAckEmail(submission: UrgentNowSubmiss
   const text = [
     `Cześć ${submission.name.split(' ')[0]},`,
     '',
-    'Dostałem Twoją prośbę o Kwadrans na już. Odpiszę w ciągu 15 minut z konkretną godziną albo najbliższym realnym terminem i linkiem do płatności.',
+    'Dostałem Twoją prośbę o Kwadrans na już. Odpiszę priorytetowo z konkretną godziną albo najbliższym realnym terminem i linkiem do płatności.',
     '',
     `Temat: ${submission.topic}`,
     submission.requestedSlotsSummary ? `Wybrane godziny: ${submission.requestedSlotsSummary}` : null,
@@ -2381,7 +2381,7 @@ export async function sendUrgentNowAdminAlertEmail(submission: UrgentNowSubmissi
   const subject = `KWADRANS NA JUZ: ${submission.name} - ${submission.topic} [ID: ${submission.requestId.slice(0, 8)}]`
   const html = renderEmailShell(
     'Nowe zgłoszenie Kwadrans na już',
-    'Klient czeka na odpowiedź w ciągu 15 minut. Wybierz godzinę na dziś albo podaj najbliższy realny termin.',
+    'Klient wybrał ścieżkę priorytetową. Wybierz godzinę na dziś albo podaj najbliższy realny termin.',
     `
       ${renderEmailDataTable(
         compactEmailRows([

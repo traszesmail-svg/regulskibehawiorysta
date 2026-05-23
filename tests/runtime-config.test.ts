@@ -302,7 +302,7 @@ test('booking form intro follows the selected service instead of a generic booki
   assert.match(bookingFormSource, /function getSelectedServiceIntro/)
   assert.match(bookingFormSource, /Wybrana rozmowa: \$\{option\.label\} \/ \$\{option\.price\}\./)
   assert.match(bookingFormSource, /30 min online, gdy temat ma kilka wątków/)
-  assert.match(bookingFormSource, /Około 2h online dla spraw złożonych: diagnoza, prawdopodobna przyczyna problemu, plan działania i 7 dni wsparcia przez WhatsApp/)
+  assert.match(bookingFormSource, /Około 2h online dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 7 dni wsparcia przez WhatsApp/)
   assert.doesNotMatch(bookingFormSource, /PUBLIC_OFFER_BOOKING_LEAD/)
   assert.doesNotMatch(bookingFormSource, /PUBLIC_OFFER_BOOKING_REASSURANCE/)
 })
@@ -467,9 +467,9 @@ test.skip('contact, header, footer and legal pages stay aligned with the public 
   assert.match(contactMarkup, /Krótka wiadomość/)
   assert.match(contactSource, /Krótka wiadomość ma sens wtedy/)
   assert.match(contactSource, /Profile publiczne/)
-  assert.match(privacySource, /BLIK-u na telefon i ręcznego potwierdzenia wpłaty/)
-  assert.match(termsSource, /PayU jest chwilowo niedostępna/)
-  assert.match(termsSource, /BLIKiem na telefon/)
+  assert.match(privacySource, /WhatsApp\/Meta, PayPal\.me, obsługa BLIK/)
+  assert.match(privacySource, /operatora płatności online, PayPal\.me albo w ramach ręcznej\s+obsługi BLIK/)
+  assert.match(termsSource, /Termin jest pewny dopiero po potwierdzeniu płatności/)
   assert.match(privacySource, /LegalPageLayout/)
   assert.match(termsSource, /LegalPageLayout/)
   assert.match(legalLayoutSource, /legal-stage-layout/)
@@ -477,6 +477,7 @@ test.skip('contact, header, footer and legal pages stay aligned with the public 
   assert.match(legalLayoutSource, /legal-section-grid/)
   assert.match(legalLayoutSource, /legal-support-panel/)
   assert.match(legalLayoutSource, /primaryHref = '\/kontakt'/)
+  assert.match(legalLayoutSource, /showFooterReviews=\{false\}/)
   assert.doesNotMatch(privacySource, /legal-panel/)
   assert.doesNotMatch(termsSource, /legal-panel/)
 
@@ -631,6 +632,10 @@ test('booking form shows normalized slot conflict copy instead of raw api errors
   assert.match(bookingApiErrorsSource, /SLOT_UNAVAILABLE_MESSAGE/)
   assert.match(bookingApiErrorsSource, /getPublicFeatureUnavailableMessage\('booking'\)/)
   assert.match(bookingRouteSource, /errorCode: failure\.code/)
+  assert.match(bookingFormSource, /booking-early-start/)
+  assert.match(bookingFormSource, /consentEarlyStart/)
+  assert.match(bookingRouteSource, /consentEarlyStart/)
+  assert.match(bookingRouteSource, /zgodę na rozpoczęcie usługi przed upływem 14 dni/)
 })
 
 test('cat topic images exist in the dedicated catalog', () => {
@@ -1219,10 +1224,12 @@ test('footer keeps a hidden build marker without exposing technical copy to the 
 
   try {
     const markup = renderToStaticMarkup(createElement(Footer))
+    const legalMarkup = renderToStaticMarkup(createElement(Footer, { showReviews: false }))
 
     assert.doesNotMatch(markup, /Wersja serwisu/)
     assert.doesNotMatch(markup, /main \/ fa5563d/)
     assert.match(markup, new RegExp(`data-build-marker="${BUILD_MARKER_KEY}:main:fa5563d"`))
+    assert.doesNotMatch(legalMarkup, /CO MÓWIĄ OPIEKUNOWIE/)
   } finally {
     if (typeof originalBranch === 'string') {
       process.env.VERCEL_GIT_COMMIT_REF = originalBranch

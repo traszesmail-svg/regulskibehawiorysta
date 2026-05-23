@@ -64,7 +64,7 @@ export function serviceSchema() {
         {
           '@type': 'Offer',
           name: 'Kwadrans na już',
-          description: 'Ten sam zakres co Kwadrans, ale z najbliższym możliwym terminem',
+          description: 'Ten sam zakres co Kwadrans, ale z priorytetem i najbliższym realnym terminem',
           price: '99',
           priceCurrency: 'PLN',
         },
@@ -78,7 +78,7 @@ export function serviceSchema() {
         {
           '@type': 'Offer',
           name: 'Pełna konsultacja',
-          description: 'Około 2h online, diagnoza, plan działania i 7 dni wsparcia przez WhatsApp',
+          description: 'Około 2h online, analiza zachowania, plan działania i 7 dni wsparcia przez WhatsApp',
           price: '470',
           priceCurrency: 'PLN',
         },

@@ -45,15 +45,15 @@ export default function HomePage() {
     getServiceJsonLd({
       name: 'Behawiorysta psów i kotów online',
       description:
-        'Konsultacje behawioralne online dla opiekunów psów i kotów. W każdej usłudze punktem wyjścia jest diagnoza behawioralna oparta na informacjach przekazanych przez opiekuna.',
+        'Konsultacje behawioralne online dla opiekunów psów i kotów. W każdej usłudze punktem wyjścia jest analiza zachowania oparta na informacjach przekazanych przez opiekuna.',
       serviceUrl: serviceLandingHref,
       offerCatalog: [
         { name: 'Kwadrans', description: '15 min audio bez kamery na jedno główne pytanie. Szybko porządkujesz sytuację i dostajesz pierwszy kierunek działania.', url: '/book?service=szybka-konsultacja-15-min', price: 69 },
-        { name: 'Kwadrans na już', description: 'Ten sam zakres co Kwadrans, ale z najbliższym możliwym terminem. Dla spraw pilnych, które nie wymagają dłuższej analizy.', url: '/kwadrans-na-juz', price: 99 },
+        { name: 'Kwadrans na już', description: 'Ten sam zakres co Kwadrans, ale z priorytetową odpowiedzią i najbliższym realnym terminem.', url: '/kwadrans-na-juz', price: 99 },
         { name: 'Dwa kwadranse', description: '30 min online, gdy temat ma kilka wątków. Więcej czasu na kontekst, spokojniejsze zalecenia i decyzję, czy potrzebna jest pełna konsultacja.', url: '/book?service=konsultacja-30-min', price: 169 },
         {
           name: 'Pełna konsultacja',
-          description: 'Około 2h online dla spraw złożonych: diagnoza, prawdopodobna przyczyna problemu, plan działania i 7 dni wsparcia przez WhatsApp.',
+          description: 'Około 2h online dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 7 dni wsparcia przez WhatsApp.',
           url: '/book?service=konsultacja-behawioralna-online',
           price: 470,
         },
@@ -139,6 +139,9 @@ export default function HomePage() {
               </p>
               <p className="notatnik-service-description">
                 Ja układam fakty i sprawdzam, co może stać za zachowaniem: emocje, zdrowie, ból, dietę, środowisko, historię uczenia się i codzienną rutynę. Dopiero potem wybieramy pierwszy krok.
+              </p>
+              <p className="notatnik-service-description">
+                To konsultacja behawioralna dla opiekuna, nie porada weterynaryjna ani diagnoza medyczna. Jeśli opis wskazuje na ból, chorobę albo nagłą zmianę stanu, pierwszym krokiem jest lekarz weterynarii.
               </p>
             </div>
             <div className="home-diagnosis-separator home-diagnosis-separator-bottom" aria-hidden="true" />

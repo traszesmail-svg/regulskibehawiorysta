@@ -54,6 +54,8 @@ export async function POST(request: Request) {
     const phone = rawPhone
     const email = body.email
     const slotId = body.slotId
+    const consentTerms = body.consentTerms === true
+    const consentEarlyStart = body.consentEarlyStart === true
 
     if (qaBooking) {
       const qaEligibility = getQaCheckoutEligibility({
@@ -85,6 +87,13 @@ export async function POST(request: Request) {
     if (description.trim().length < 10) {
       return NextResponse.json(
         { error: 'Napisz jednym zdaniem, z czym chcesz wejść na rozmowę.' },
+        { status: 400 },
+      )
+    }
+
+    if (!consentTerms || !consentEarlyStart) {
+      return NextResponse.json(
+        { error: 'Przed rezerwacją zaakceptuj regulamin, politykę prywatności i zgodę na rozpoczęcie usługi przed upływem 14 dni.' },
         { status: 400 },
       )
     }

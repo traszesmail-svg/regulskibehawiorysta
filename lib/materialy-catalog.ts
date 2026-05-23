@@ -93,7 +93,7 @@ const RAW_GUIDES: MaterialyGuide[] = [
     shortPromise: 'Najważniejsze informacje przed Kwadransem, bez rozpisywania całej historii od zera.',
     forWhom: 'Dla opiekuna psa, który chce szybko zebrać kontekst do krótkiej konsultacji.',
     pdfFile: 'kwadrans-podstawy-psa.pdf',
-    highlights: ['jedno główne pytanie', 'krótka historia sytuacji', 'co pomaga w diagnozie behawioralnej'],
+    highlights: ['jedno główne pytanie', 'krótka historia sytuacji', 'co pomaga w analizie zachowania'],
     previewPageCount: 11,
   },
   {

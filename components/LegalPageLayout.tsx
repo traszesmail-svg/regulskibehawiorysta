@@ -32,7 +32,7 @@ export function LegalPageLayout({
   structuredData = [],
 }: LegalPageLayoutProps) {
   return (
-    <ReferencePageShell className="reference-legal-page" ctaHref="/quiz">
+    <ReferencePageShell className="reference-legal-page" ctaHref="/quiz" showFooterReviews={false}>
       {structuredData.length > 0 ? <Schema data={structuredData} /> : null}
 
       <section className="reference-hero reference-legal-hero">

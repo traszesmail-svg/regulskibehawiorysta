@@ -378,7 +378,7 @@ export async function sendUrgentCustomerAckSms(
   customerName: string,
   phone: string | null | undefined,
 ): Promise<PaymentConfirmationSmsResult> {
-  const message = `Cześć ${customerName.split(' ')[0]}, dostałem Twoją prośbę o Kwadrans na już. Odpowiem w ciągu 15 minut z terminem. Krzysztof Regulski`
+  const message = `Cześć ${customerName.split(' ')[0]}, dostałem Twoją prośbę o Kwadrans na już. Odpowiem priorytetowo z realnym terminem. Krzysztof Regulski`
   return sendRawSms(`urgent-ack-${requestId}`, phone, message, 'urgent-customer-ack')
 }
 

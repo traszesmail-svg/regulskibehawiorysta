@@ -81,7 +81,7 @@ export const homepageSelectorRecommendations: Record<
 > = {
   quarter: {
     title: 'Kwadrans',
-    summary: 'Szybki pierwszy krok: na podstawie przekazanych informacji dostajesz wstępną diagnozę behawioralną i kierunek działania.',
+    summary: 'Szybki pierwszy krok: na podstawie przekazanych informacji dostajesz wstępną analizę zachowania i kierunek działania.',
     ctaLabel: 'Chcę zacząć od Kwadransa',
     service: 'szybka-konsultacja-15-min',
     price: '69 zł',
@@ -89,7 +89,7 @@ export const homepageSelectorRecommendations: Record<
   },
   double: {
     title: 'Dwa kwadranse',
-    summary: 'Dobry wybór, gdy temat ma kilka wątków i potrzebuje diagnozy behawioralnej opartej na większej ilości danych.',
+    summary: 'Dobry wybór, gdy temat ma kilka wątków i potrzebuje szerszej analizy opartej na większej ilości danych.',
     ctaLabel: 'Chcę spokojniej omówić temat',
     service: 'konsultacja-30-min',
     price: '169 zł',
@@ -97,7 +97,7 @@ export const homepageSelectorRecommendations: Record<
   },
   full: {
     title: 'Pełna konsultacja',
-    summary: 'Około 2h online dla spraw złożonych: diagnoza, prawdopodobna przyczyna problemu, plan działania i 7 dni wsparcia przez WhatsApp.',
+    summary: 'Około 2h online dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 7 dni wsparcia przez WhatsApp.',
     ctaLabel: 'Chcę pełną konsultację',
     service: 'konsultacja-behawioralna-online',
     price: '470 zł',
@@ -114,7 +114,7 @@ export const homepageProcessSteps = [
   {
     step: '2',
     title: 'Porządkujemy informacje i szukamy przyczyny',
-    copy: 'Na podstawie opisu, formularza, historii zachowania i nagrań, jeśli są, tworzę diagnozę behawioralną opartą na dostępnych danych.',
+    copy: 'Na podstawie opisu, formularza, historii zachowania i nagrań, jeśli są, tworzę analizę zachowania opartą na dostępnych danych.',
   },
   {
     step: '3',

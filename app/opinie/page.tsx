@@ -92,7 +92,7 @@ const reviews: OpinionReview[] = [
     name: 'Anna i Mia',
     service: 'Konsultacja online',
     text:
-      'Po rozmowie przestaliśmy zgadywać. Dostaliśmy diagnozę behawioralną opartą na informacjach, pierwsze kroki i spokojny plan obserwacji kota bez nerwowych zmian w domu.',
+      'Po rozmowie przestaliśmy zgadywać. Dostaliśmy analizę zachowania opartą na informacjach, pierwsze kroki i spokojny plan obserwacji kota bez nerwowych zmian w domu.',
     avatar: '/branding/case-cat-sofa.jpg',
     categories: ['Kot', 'Konsultacje online', 'Problemy behawioralne'],
   },
@@ -116,7 +116,7 @@ const reviews: OpinionReview[] = [
     name: 'Natalia i Tosia',
     service: 'Problemy behawioralne',
     text:
-      'Nie było oceniania ani straszenia. Były pytania, diagnoza behawioralna oparta na informacjach i konkret: co zmienić dziś, a co sprawdzać później.',
+      'Nie było oceniania ani straszenia. Były pytania, analiza zachowania oparta na informacjach i konkret: co zmienić dziś, a co sprawdzać później.',
     avatar: '/branding/topic-cards/cats/cat-anxious-hiding.jpg',
     categories: ['Kot', 'Problemy behawioralne', 'Praca z lękiem'],
   },
@@ -156,7 +156,7 @@ const reviews: OpinionReview[] = [
     name: 'Magda i Leon',
     service: 'Pełna konsultacja',
     text:
-      'Przy dłuższej sytuacji potrzebowaliśmy więcej niż listy porad. Dostaliśmy diagnozę behawioralną opartą na danych, możliwą etiologię i kierunek pracy krok po kroku.',
+      'Przy dłuższej sytuacji potrzebowaliśmy więcej niż listy porad. Dostaliśmy analizę zachowania opartą na danych, możliwe tło problemu i kierunek pracy krok po kroku.',
     avatar: '/branding/specialist-cat-support.jpg',
     categories: ['Kot', 'Konsultacje online', 'Problemy behawioralne'],
   },

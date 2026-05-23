@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { POST as postContactLead } from '@/app/api/contact/route'
+import { POST as postLegacyLeadMagnetSubscribe } from '@/app/api/lead-magnet-subscribe/route'
 import {
   createAvailabilitySlot,
   createPendingBooking,
@@ -10,7 +11,12 @@ import {
   markBookingPaymentFailed,
 } from '@/lib/server/local-store'
 import { reportManualPayment } from '@/lib/server/manual-payments'
-import { getCustomerEmailDeliveryStatus } from '@/lib/server/notifications'
+import {
+  getCustomerEmailDeliveryStatus,
+  sendMaterialyCodeCustomerEmail,
+  sendMaterialyOrderPendingCustomerEmail,
+  type MaterialyOrderEmailPayload,
+} from '@/lib/server/notifications'
 import { createLocalDataSandbox } from '@/scripts/lib/local-data-sandbox'
 
 type ResendEmailPayload = {
@@ -65,6 +71,44 @@ function normalize(value: string) {
 
 function includesNormalized(value: string | undefined, expected: string) {
   return typeof value === 'string' && normalize(value).includes(normalize(expected))
+}
+
+const CUSTOMER_EMAIL_FORBIDDEN_PATTERNS = [
+  /\bNIP\b/i,
+  /\bCEIDG\b/i,
+  /\bOlsztyn\b/i,
+  /BLIK na telefon/i,
+  /publiczny telefon/i,
+  /telefon publiczny/i,
+  /przedsi[eę]biorca/i,
+  /\bfirma\b/i,
+] as const
+
+function collectEmailCopy(email: ResendEmailPayload) {
+  return [email.subject, email.html, email.text].filter((value): value is string => typeof value === 'string').join('\n')
+}
+
+function assertNoForbiddenCustomerEmailCopy(email: ResendEmailPayload) {
+  const copy = collectEmailCopy(email)
+
+  for (const pattern of CUSTOMER_EMAIL_FORBIDDEN_PATTERNS) {
+    assert.doesNotMatch(copy, pattern)
+  }
+}
+
+function makeMaterialyOrderEmailPayload(overrides: Partial<MaterialyOrderEmailPayload> = {}): MaterialyOrderEmailPayload {
+  return {
+    orderId: 'MAT-2305-001',
+    productKind: 'guide',
+    productSlug: 'pies-sam-w-domu',
+    productTitle: 'Pies sam w domu: spokojny start',
+    priceLabel: '49 zł',
+    priceAmount: 49,
+    customerName: 'Anna',
+    customerEmail: 'klient@example.com',
+    notes: null,
+    ...overrides,
+  }
 }
 
 function makeBookingForm(slotId: string) {
@@ -213,6 +257,10 @@ test('customer emails cover reservation, review, confirmation and cancel outcome
         assert.equal(failedBooking?.paymentStatus, 'failed')
         assert.equal(sentEmails.length, 9)
         assert.equal(includesNormalized(sentEmails[8].subject, 'Regulski Behawiorysta'), true)
+
+        for (const email of [sentEmails[0], sentEmails[1], sentEmails[3], sentEmails[5], sentEmails[6], sentEmails[7], sentEmails[8]]) {
+          assertNoForbiddenCustomerEmailCopy(email)
+        }
       },
     )
   } finally {
@@ -349,6 +397,7 @@ test('contact route sends leads to the public inbox and replies to the sender', 
         assert.match(sentEmails[1].html ?? '', /data-email-button="primary"/)
         assert.match(sentEmails[1].subject ?? '', /Dostałem Twoją wiadomość/i)
         assert.match(sentEmails[1].text ?? '', /1-2 dni roboczych/i)
+        assertNoForbiddenCustomerEmailCopy(sentEmails[1])
       },
     )
   } finally {
@@ -410,6 +459,126 @@ test('contact route accepts browser form posts and redirects back to contact for
         assert.equal(sentEmails.length, 2)
         assert.equal(sentEmails[0].to?.[0], 'kontakt@regulskibehawiorysta.pl')
         assert.equal(sentEmails[1].to?.[0], 'klient@example.com')
+      },
+    )
+  } finally {
+    ;(globalThis as typeof globalThis & { fetch: typeof fetch }).fetch = originalFetch
+  }
+})
+
+test('materialy customer emails use the shared shell and public-safe wording', async () => {
+  const sentEmails: ResendEmailPayload[] = []
+  const originalFetch = globalThis.fetch
+
+  try {
+    const mockFetch = async (_input: RequestInfo | URL, init?: RequestInit) => {
+      const body = typeof init?.body === 'string' ? JSON.parse(init.body) : {}
+      sentEmails.push(body)
+      return new Response('{}', {
+        status: 200,
+        headers: {
+          'content-type': 'application/json',
+        },
+      })
+    }
+
+    ;(globalThis as typeof globalThis & { fetch: typeof fetch }).fetch = mockFetch as typeof fetch
+
+    await withEnv(
+      {
+        MAIL_PROVIDER: 'resend',
+        RESEND_API_KEY: 're_test_key',
+        RESEND_FROM_EMAIL: EXPECTED_RESEND_FROM,
+        CUSTOMER_EMAIL_MODE: 'auto',
+        REGULSKI_CONTACT_EMAIL: 'kontakt@regulskibehawiorysta.pl',
+      },
+      async () => {
+        const order = makeMaterialyOrderEmailPayload()
+
+        const pendingResult = await sendMaterialyOrderPendingCustomerEmail(order)
+        const codeResult = await sendMaterialyCodeCustomerEmail(order, '123456', '2030-01-20T12:00:00.000Z')
+
+        assert.equal(pendingResult.status, 'sent')
+        assert.equal(codeResult.status, 'sent')
+        assert.equal(sentEmails.length, 2)
+
+        assert.equal(sentEmails[0].to?.[0], 'klient@example.com')
+        assert.match(sentEmails[0].html ?? '', /data-email-shell="regulski"/)
+        assert.match(sentEmails[0].html ?? '', /data-email-facts="materialy-payment"/)
+        assert.match(sentEmails[0].text ?? '', /BLIK: instrukcja mailowa bez publicznego numeru\./)
+
+        assert.equal(sentEmails[1].to?.[0], 'klient@example.com')
+        assert.match(sentEmails[1].html ?? '', /data-email-shell="regulski"/)
+        assert.match(sentEmails[1].html ?? '', /data-email-facts="materialy-code"/)
+        assert.match(sentEmails[1].text ?? '', /Kod do pobrania: 123456/)
+
+        for (const email of sentEmails) {
+          assertNoForbiddenCustomerEmailCopy(email)
+        }
+      },
+    )
+  } finally {
+    ;(globalThis as typeof globalThis & { fetch: typeof fetch }).fetch = originalFetch
+  }
+})
+
+test('legacy lead magnet subscribe sends PDF through shared customer email shell', async () => {
+  const sentEmails: ResendEmailPayload[] = []
+  const originalFetch = globalThis.fetch
+
+  try {
+    const mockFetch = async (_input: RequestInfo | URL, init?: RequestInit) => {
+      const body = typeof init?.body === 'string' ? JSON.parse(init.body) : {}
+      sentEmails.push(body)
+      return new Response('{}', {
+        status: 200,
+        headers: {
+          'content-type': 'application/json',
+        },
+      })
+    }
+
+    ;(globalThis as typeof globalThis & { fetch: typeof fetch }).fetch = mockFetch as typeof fetch
+
+    await withEnv(
+      {
+        MAIL_PROVIDER: 'resend',
+        RESEND_API_KEY: 're_test_key',
+        RESEND_FROM_EMAIL: EXPECTED_RESEND_FROM,
+        CUSTOMER_EMAIL_MODE: 'auto',
+        REGULSKI_CONTACT_EMAIL: 'kontakt@regulskibehawiorysta.pl',
+        NEXT_PUBLIC_SITE_URL: 'https://regulskibehawiorysta.pl',
+        MAILERLITE_API_KEY: null,
+        MAILERLITE_GROUP_PDF: null,
+        MAILERLITE_GROUP_NEWSLETTER: null,
+      },
+      async () => {
+        const response = await postLegacyLeadMagnetSubscribe(
+          new Request('https://example.test/api/lead-magnet-subscribe', {
+            method: 'POST',
+            headers: {
+              'content-type': 'application/json',
+              'x-forwarded-for': '203.0.113.41',
+            },
+            body: JSON.stringify({
+              email: 'klient@example.com',
+              magnetId: 'lista-30-zachowan',
+              source: 'section',
+              consentNewsletter: false,
+            }),
+          }) as Parameters<typeof postLegacyLeadMagnetSubscribe>[0],
+        )
+        const payload = (await response.json()) as { ok?: boolean; error?: string }
+
+        assert.equal(response.status, 200)
+        assert.equal(payload.ok, true)
+        assert.equal(sentEmails.length, 1)
+        assert.equal(sentEmails[0].from, EXPECTED_RESEND_FROM)
+        assert.equal(sentEmails[0].to?.[0], 'klient@example.com')
+        assert.match(sentEmails[0].html ?? '', /data-email-shell="regulski"/)
+        assert.match(sentEmails[0].html ?? '', /data-email-facts="lead-magnet-direct"/)
+        assert.match(sentEmails[0].text ?? '', /Pobierz PDF: https:\/\/regulskibehawiorysta\.pl\/poradniki\/30-zachowan\.pdf/)
+        assertNoForbiddenCustomerEmailCopy(sentEmails[0])
       },
     )
   } finally {

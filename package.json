@@ -26,6 +26,7 @@
     "live-booking-matrix": "node --import tsx scripts/live-booking-matrix.ts",
     "funnel-metrics": "node --import tsx scripts/funnel-metrics.ts",
     "reminder-smoke": "node --import tsx scripts/reminder-smoke.ts",
+    "stage8-email-previews": "node --import tsx scripts/stage8-email-previews.ts",
     "materialy-smoke": "node --import tsx scripts/materialy-smoke.ts",
     "commerce-smoke": "node --import tsx scripts/commerce-smoke.ts",
     "materialy-build-pdfs": "node scripts/pdf/build.mjs"

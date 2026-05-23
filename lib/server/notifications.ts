@@ -1551,6 +1551,69 @@ export async function sendLeadMagnetDownloadEmail(email: string, magnet: LeadMag
   )
 }
 
+export type LeadMagnetDirectDownloadEmailPayload = {
+  email: string
+  title: string
+  downloadUrl: string
+}
+
+export async function sendLeadMagnetDirectDownloadEmail(
+  payload: LeadMagnetDirectDownloadEmailPayload,
+): Promise<DeliveryResult> {
+  const recipient = payload.email.trim()
+
+  if (!isValidPublicEmail(recipient)) {
+    return {
+      status: 'skipped',
+      reason: 'customer contact email missing or invalid',
+    }
+  }
+
+  const subject = `Twój PDF: ${payload.title}`
+  const html = renderEmailShell(
+    'Twój PDF jest gotowy',
+    'Poniżej masz bezpośredni link do pobrania materiału. Zostawiam go w mailu, żeby dało się do niego wrócić później.',
+    `
+      ${renderEmailDataTable(
+        [
+          {
+            label: 'Materiał',
+            htmlValue: escapeHtml(payload.title),
+          },
+          {
+            label: 'Link do pobrania',
+            htmlValue: `<a href="${escapeHtml(payload.downloadUrl)}">${escapeHtml(payload.downloadUrl)}</a>`,
+          },
+        ],
+        'lead-magnet-direct',
+      )}
+      ${renderEmailActionButton({ href: payload.downloadUrl, label: 'Pobierz PDF' })}
+      ${renderContactBlockHtml()}
+    `,
+    'Jeśli materiał nie wystarczy, odpowiedz na tego maila albo przejdź do Kwadransu.',
+  )
+  const text = [
+    'Twój PDF jest gotowy.',
+    '',
+    `Materiał: ${payload.title}`,
+    `Pobierz PDF: ${payload.downloadUrl}`,
+    '',
+    'Jeśli materiał nie wystarczy, odpowiedz na tego maila albo przejdź do Kwadransu.',
+    renderContactBlockText(),
+  ].join('\n')
+
+  return deliverEmail(
+    {
+      to: recipient,
+      subject,
+      html,
+      text,
+      replyTo: getPublicContactDetails().email ?? undefined,
+    },
+    'customer',
+  )
+}
+
 export async function sendLeadMagnetFollowUpThreeEmail(email: string, magnet: LeadMagnet): Promise<DeliveryResult> {
   if (!isValidPublicEmail(email)) {
     return {

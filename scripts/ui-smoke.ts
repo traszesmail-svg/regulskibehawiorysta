@@ -127,13 +127,9 @@ async function verifyPublicRoute(
 
 async function verifyOpinionsInteractions(page: Page) {
   await page.goto(`${appUrl}/opinie`, { waitUntil: 'domcontentloaded' })
-  await page.locator('[data-opinion-filter="Pies"]').click()
-  await page.locator('[data-opinion-review][data-review-species="pies"]').first().waitFor({ timeout: routeNavigationTimeoutMs })
-  assert.equal(await page.locator('[data-opinion-review][data-review-species="kot"]').count(), 0)
+  await applyOpinionFilter(page, 'Pies', 'pies', 'kot')
 
-  await page.locator('[data-opinion-filter="Kot"]').click()
-  await page.locator('[data-opinion-review][data-review-species="kot"]').first().waitFor({ timeout: routeNavigationTimeoutMs })
-  assert.equal(await page.locator('[data-opinion-review][data-review-species="pies"]').count(), 0)
+  await applyOpinionFilter(page, 'Kot', 'kot', 'pies')
 
   await Promise.all([
     page.waitForURL(/\/opinie\/dodaj/, { timeout: routeNavigationTimeoutMs, waitUntil: 'domcontentloaded' }),
@@ -144,6 +140,41 @@ async function verifyOpinionsInteractions(page: Page) {
   await page.locator('#displayName').fill('Smoke')
   await page.locator('#opinion').fill('Krótka opinia do sprawdzenia formularza bez wysyłania danych.')
   console.log('[opinions-route] filters and add-opinion form visible')
+}
+
+async function applyOpinionFilter(page: Page, filter: 'Pies' | 'Kot', visibleSpecies: 'pies' | 'kot', hiddenSpecies: 'pies' | 'kot') {
+  const filterButton = page.locator(`[data-opinion-filter="${filter}"]`)
+  await filterButton.waitFor({ timeout: routeNavigationTimeoutMs })
+
+  let filterApplied = false
+  let lastError: unknown = null
+
+  for (let attempt = 0; attempt < 3 && !filterApplied; attempt += 1) {
+    await filterButton.click()
+
+    try {
+      await page.waitForFunction(
+        ({ activeFilter, hidden }) => {
+          const activeButton = document.querySelector(`[data-opinion-filter="${activeFilter}"]`)
+          const hiddenReviews = document.querySelectorAll(`[data-opinion-review][data-review-species="${hidden}"]`)
+
+          return activeButton?.getAttribute('aria-pressed') === 'true' && hiddenReviews.length === 0
+        },
+        { activeFilter: filter, hidden: hiddenSpecies },
+        { timeout: Math.min(routeNavigationTimeoutMs, 5000) },
+      )
+      filterApplied = true
+    } catch (error) {
+      lastError = error
+    }
+  }
+
+  if (!filterApplied) {
+    throw lastError instanceof Error ? lastError : new Error(`Opinion filter ${filter} did not apply.`)
+  }
+
+  await page.locator(`[data-opinion-review][data-review-species="${visibleSpecies}"]`).first().waitFor({ timeout: routeNavigationTimeoutMs })
+  assert.equal(await page.locator(`[data-opinion-review][data-review-species="${hiddenSpecies}"]`).count(), 0)
 }
 
 async function verifyRedirectRoute(

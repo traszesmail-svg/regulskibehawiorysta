@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { LEAD_MAGNETS } from '@/lib/lead-magnet.config';
+import { sendLeadMagnetDirectDownloadEmail } from '@/lib/server/notifications';
 
 interface SubmitBody {
   email: string;
@@ -38,7 +39,11 @@ export async function POST(req: NextRequest) {
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://regulskibehawiorysta.pl';
     const pdfUrl = `${baseUrl}${magnet.pdfPath}`;
     try {
-      await sendPdfEmail({ to: body.email, magnetTitle: magnet.title, pdfUrl });
+      await sendLeadMagnetDirectDownloadEmail({
+        email: body.email,
+        title: magnet.title,
+        downloadUrl: pdfUrl,
+      });
     } catch (emailErr) {
       console.error('[lead-magnet-subscribe] email send failed (non-fatal):', emailErr);
     }
@@ -85,39 +90,6 @@ async function saveSubscriber(data: {
 
   // Fallback: log
   console.log('[subscriber]', data);
-}
-
-async function sendPdfEmail(args: { to: string; magnetTitle: string; pdfUrl: string }) {
-  if (process.env.RESEND_API_KEY) {
-    const r = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: 'Regulski Behawiorysta <kontakt@regulskibehawiorysta.pl>',
-        to: [args.to],
-        subject: `Twój PDF: ${args.magnetTitle}`,
-        html: `
-          <p>Cześć,</p>
-          <p>Dziękuję za zapisanie się. Jak obiecałem — Twój PDF:</p>
-          <p><a href="${args.pdfUrl}" style="font-weight:bold">📥 Pobierz: ${args.magnetTitle}</a></p>
-          <p>Jeśli potrzebujesz konsultacji — zarezerwuj na <a href="https://regulskibehawiorysta.pl/book">regulskibehawiorysta.pl</a></p>
-          <p>Pozdrawiam,<br>Krzysztof Regulski</p>
-        `,
-      }),
-    });
-    if (!r.ok) {
-      const err = await r.text();
-      console.error('[resend]', err);
-      throw new Error('Błąd wysyłki email');
-    }
-    return;
-  }
-
-  // Fallback: log
-  console.log('[email]', args);
 }
 
 const rateLimits = new Map<string, number[]>();

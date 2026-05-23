@@ -1404,6 +1404,7 @@ test('stage 10 funnel aliases, drop tracking, and release checklist are wired', 
   assert.match(fullPublicCrawlSource, /--no-follow/)
   assert.match(fullPublicCrawlSource, /--no-screenshots/)
   assert.match(fullPublicCrawlSource, /digits\.length === 9/)
+  assert.match(fullPublicCrawlSource, /horizontalOverflowPx > 2/)
   assert.match(nextConfigSource, /source: '\/booking',\s+destination: '\/book'/)
 })
 

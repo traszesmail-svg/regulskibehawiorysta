@@ -449,7 +449,8 @@ async function crawlPage(
     const encodingIssues = detectEncodingIssues(`${title}\n${text}`)
     const ctas = await extractPrimaryCtas(page, mode)
     const overflowOffenders = await detectOverflow(page)
-    const overflow = overflowOffenders.length > 0 || (await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 2))
+    const horizontalOverflowPx = await page.evaluate(() => Math.max(0, document.documentElement.scrollWidth - window.innerWidth))
+    const overflow = horizontalOverflowPx > 2
     const linkData = await page.$$eval('a[href]', (anchors) =>
       anchors.map((anchor) => {
         const rawHref = anchor.getAttribute('href') ?? ''
@@ -499,7 +500,8 @@ async function crawlPage(
     }
 
     if (overflow) {
-      notes.push('overflow-suspect')
+      const firstOffender = overflowOffenders[0] ? `:${overflowOffenders[0]}` : ''
+      notes.push(`overflow-suspect:${horizontalOverflowPx}px${firstOffender}`)
     }
 
     const phoneHits = detectPhone(`${title}\n${text}`)

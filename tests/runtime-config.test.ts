@@ -167,6 +167,30 @@ test.skip('home and opinions pages surface real social proof and local SEO', asy
   assert.match(socialFullMarkup, /Publiczne źródła/)
 })
 
+test('pakiet 7 opinions page keeps dog cat depth and upload form hooks', () => {
+  const opinionsSource = readSource('app', 'opinie', 'page.tsx')
+  const gridSource = readSource('components', 'OpinionsReviewGrid.tsx')
+  const addOpinionSource = readSource('app', 'opinie', 'dodaj', 'page.tsx')
+  const cssSource = readSource('app', 'globals.css')
+  const dogReviewCount = countMatches(opinionsSource, /categories:\s*\[[^\]]*'Pies'/g)
+  const catReviewCount = countMatches(opinionsSource, /categories:\s*\[[^\]]*'Kot'/g)
+
+  assert.equal(dogReviewCount >= 10, true)
+  assert.equal(catReviewCount >= 10, true)
+  assert.match(opinionsSource, /REAL_CASE_STUDIES/)
+  assert.match(opinionsSource, /opinions-case-snippets/)
+  assert.match(gridSource, /data-opinion-filter/)
+  assert.match(gridSource, /data-opinion-review/)
+  assert.match(gridSource, /data-review-species/)
+  assert.match(cssSource, /opinions-case-snippet-card/)
+  assert.match(cssSource, /add-opinion-brand-card/)
+  assert.match(addOpinionSource, /REGULSKI_WEB_BADGE_LOGO/)
+  assert.match(addOpinionSource, /data-opinion-form="submit"/)
+  assert.match(addOpinionSource, /data-opinion-photo-input="true"/)
+  assert.match(addOpinionSource, /formData\.append\('photo', photoFile\)/)
+  assert.doesNotMatch(addOpinionSource, /photoUrl/)
+})
+
 test('root layout metadata base is derived from the canonical runtime base url helper', () => {
   const layoutSource = readSource('app', 'layout.tsx')
 
@@ -176,7 +200,8 @@ test('root layout metadata base is derived from the canonical runtime base url h
 
 test('home metadata stays service-first while keeping the canonical homepage path', async () => {
   const metadata = await buildHomeMetadata()
-  const title = typeof metadata.title === 'string' ? metadata.title : metadata.title?.absolute
+  const titleValue = metadata.title
+  const title = typeof titleValue === 'string' ? titleValue : titleValue && 'absolute' in titleValue ? titleValue.absolute : null
 
   assert.equal(title, 'Regulski Behawiorysta | Konsultacje behawioralne psów i kotów')
   assert.equal(metadata.alternates?.canonical, '/')

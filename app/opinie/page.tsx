@@ -12,6 +12,7 @@ import {
 import { NotatnikFooter, NotatnikSideVisuals, NotatnikTopbar, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
 import { OpinionsReviewGrid, type OpinionReview } from '@/components/OpinionsReviewGrid'
 import { buildBookHref } from '@/lib/booking-routing'
+import { REAL_CASE_STUDIES, getRealCaseSpeciesLabel } from '@/lib/real-case-studies'
 import { getBreadcrumbJsonLd } from '@/lib/schema'
 import { buildMarketingMetadata } from '@/lib/seo'
 import { getCanonicalBaseUrl } from '@/lib/server/env'
@@ -363,13 +364,16 @@ const reviews: OpinionReview[] = [
   },
 ]
 
-const stats = [
-  { value: '5.0/5', label: 'średnia opinii', icon: PawPrint },
-  { value: 'Psy i koty', label: 'dwa gatunki', icon: ShieldCheck },
-  { value: 'Bez kar', label: 'spokojna praca', icon: Heart },
-] as const
-
 const visibleReviews = reviews
+const dogReviewCount = reviews.filter((review) => review.categories.includes('Pies')).length
+const catReviewCount = reviews.filter((review) => review.categories.includes('Kot')).length
+
+const opinionCaseSnippets = [
+  REAL_CASE_STUDIES[0],
+  REAL_CASE_STUDIES[1],
+  REAL_CASE_STUDIES[4],
+  REAL_CASE_STUDIES[5],
+].filter(Boolean)
 
 const proofItems = [
   {
@@ -395,6 +399,12 @@ const proofItems = [
 ] as const
 
 function HeroStats() {
+  const stats = [
+    { value: '5.0/5', label: 'średnia opinii', icon: PawPrint },
+    { value: `${dogReviewCount} psich`, label: 'opinii w siatce', icon: ShieldCheck },
+    { value: `${catReviewCount} kocich`, label: 'opinii w siatce', icon: Heart },
+  ] as const
+
   return (
     <div className="opinions-showcase-stats" aria-label="Podsumowanie opinii">
       {stats.map((stat) => {
@@ -507,6 +517,35 @@ export default function OpinionsPage() {
         </section>
 
         <OpinionsReviewGrid filters={[...filters]} reviews={visibleReviews} />
+
+        <section className="opinions-case-snippets" id="przypadki" aria-labelledby="opinions-case-snippets-heading">
+          <div className="opinions-case-snippets-head">
+            <span>Anonimowe sytuacje startowe</span>
+            <h2 id="opinions-case-snippets-heading">Krótkie case snippets bez ściany tekstu</h2>
+            <p>
+              To nie są pełne historie klientów. To lekkie, anonimowe punkty pokazujące, z jakim typem chaosu opiekunowie
+              przychodzą i co po rozmowie zostaje uporządkowane.
+            </p>
+          </div>
+
+          <div className="opinions-case-snippets-grid">
+            {opinionCaseSnippets.map((caseStudy) => (
+              <article
+                key={caseStudy.id}
+                className="opinions-case-snippet-card"
+                data-opinion-case-snippet="true"
+                data-review-species={caseStudy.species}
+              >
+                <span className="opinions-case-snippet-tag">
+                  {getRealCaseSpeciesLabel(caseStudy.species)} / {caseStudy.eyebrow}
+                </span>
+                <h3>{caseStudy.headline}</h3>
+                <p>{caseStudy.proof.outcomeSnapshot}</p>
+                <small>{caseStudy.proof.serviceFormat}</small>
+              </article>
+            ))}
+          </div>
+        </section>
 
         <section className="opinions-story-band">
           <div className="opinions-story-copy">

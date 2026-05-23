@@ -21,6 +21,7 @@ const uiSmokeEmail = 'ui-smoke@example.com'
 const homeHeading = /Behawiorysta psów i kotów online|Behawiorysta psow i kotow online/i
 const materialyHeading = /Materia.*PDF.*opiekun/i
 const pricingHeading = /Cennik konsultacji behawioralnych\.|Wybierz rozmowę dopasowaną do sytuacji|Wybierz rozmowe dopasowana do sytuacji/i
+type RouteButtonLabels = { buttonLabels?: readonly (string | RegExp)[] }
 
 function getBookableSmokeSlot() {
   return {
@@ -122,6 +123,27 @@ async function verifyPublicRoute(
 
   const h1 = cleanText(await page.locator('h1').first().innerText())
   console.log(`[manual-route] ${route} :: ${h1}`)
+}
+
+async function verifyOpinionsInteractions(page: Page) {
+  await page.goto(`${appUrl}/opinie`, { waitUntil: 'domcontentloaded' })
+  await page.locator('[data-opinion-filter="Pies"]').click()
+  await page.locator('[data-opinion-review][data-review-species="pies"]').first().waitFor({ timeout: routeNavigationTimeoutMs })
+  assert.equal(await page.locator('[data-opinion-review][data-review-species="kot"]').count(), 0)
+
+  await page.locator('[data-opinion-filter="Kot"]').click()
+  await page.locator('[data-opinion-review][data-review-species="kot"]').first().waitFor({ timeout: routeNavigationTimeoutMs })
+  assert.equal(await page.locator('[data-opinion-review][data-review-species="pies"]').count(), 0)
+
+  await Promise.all([
+    page.waitForURL(/\/opinie\/dodaj/, { timeout: routeNavigationTimeoutMs, waitUntil: 'domcontentloaded' }),
+    page.locator('a[href="/opinie/dodaj"]').first().click(),
+  ])
+  await page.locator('[data-opinion-form="submit"]').waitFor({ timeout: routeNavigationTimeoutMs })
+  await page.locator('[data-opinion-photo-input="true"]').waitFor({ timeout: routeNavigationTimeoutMs })
+  await page.locator('#displayName').fill('Smoke')
+  await page.locator('#opinion').fill('Krótka opinia do sprawdzenia formularza bez wysyłania danych.')
+  console.log('[opinions-route] filters and add-opinion form visible')
 }
 
 async function verifyRedirectRoute(
@@ -513,8 +535,11 @@ async function runUiSmokeOnce() {
         heading: /Jak wygląda konsultacja behawioralna online/i,
       },
     ] as const) {
-      await verifyPublicRoute(publicPage, route.path, route.heading, { buttonLabels: route.buttonLabels })
+      const buttonLabels = (route as RouteButtonLabels).buttonLabels
+      await verifyPublicRoute(publicPage, route.path, route.heading, { buttonLabels })
     }
+
+    await verifyOpinionsInteractions(publicPage)
 
     for (const route of [
       {
@@ -563,8 +588,9 @@ async function runUiSmokeOnce() {
         heading: pricingHeading,
       },
     ] as const) {
+      const buttonLabels = (route as RouteButtonLabels).buttonLabels
       await verifyRedirectRoute(publicPage, route.path, route.destinationPath, route.heading, {
-        buttonLabels: route.buttonLabels,
+        buttonLabels,
       })
     }
 

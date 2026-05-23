@@ -1,7 +1,11 @@
 'use client'
 
-import { useState, type ChangeEvent, type CSSProperties, type FormEvent, type ReactNode } from 'react'
+import Image from 'next/image'
+import Link from 'next/link'
+import { useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react'
+import { ArrowLeft, CheckCircle2, ImagePlus, Send, ShieldCheck } from 'lucide-react'
 import { NotatnikFooter, NotatnikSideVisuals, NotatnikTopbar, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
+import { REGULSKI_WEB_BADGE_LOGO } from '@/lib/regulski-web-assets'
 import { TESTIMONIAL_ISSUE_OPTIONS } from '@/lib/testimonials'
 
 const MAX_PHOTO_SIZE_BYTES = 25 * 1024 * 1024
@@ -92,9 +96,15 @@ export default function AddOpinionPage() {
   if (status === 'sent') {
     return (
       <OpinionPageShell>
-        <section style={pageStyle}>
-          <h1 style={headingStyle}>Dzięki za opinię</h1>
+        <section className="add-opinion-confirmation" data-opinion-form="sent">
+          <span className="add-opinion-confirmation-icon" aria-hidden="true">
+            <CheckCircle2 size={34} strokeWidth={1.7} />
+          </span>
+          <h1>Dzięki za opinię</h1>
           <p>Opinia trafiła do weryfikacji. Odezwę się po sprawdzeniu, najczęściej w ciągu 1-2 dni roboczych.</p>
+          <Link href="/opinie" prefetch={false} className="add-opinion-secondary-link">
+            Wróć do opinii
+          </Link>
         </section>
       </OpinionPageShell>
     )
@@ -102,144 +112,151 @@ export default function AddOpinionPage() {
 
   return (
     <OpinionPageShell>
-      <section style={pageStyle}>
-        <h1 style={headingStyle}>Dodaj opinię</h1>
-        <p style={{ color: '#6b625b', marginBottom: 32 }}>
-          Ta strona jest dostępna tylko dla osób, które przeszły konsultacje. Opinia trafia do weryfikacji przed
-          publikacją.
-        </p>
+      <section className="add-opinion-layout" data-opinion-form="page">
+        <aside className="add-opinion-intro" aria-labelledby="add-opinion-heading">
+          <Link href="/opinie" prefetch={false} className="add-opinion-back-link">
+            <ArrowLeft size={17} strokeWidth={1.8} />
+            Wróć do opinii
+          </Link>
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-        <input
-          type="text"
-          name="website"
-          value={fields.website}
-          onChange={handleChange}
-          style={{ display: 'none' }}
-          tabIndex={-1}
-          aria-hidden="true"
-          autoComplete="off"
-        />
+          <div className="add-opinion-brand-card">
+            <span className="add-opinion-brand-logo">
+              <Image src={REGULSKI_WEB_BADGE_LOGO} alt="" width={58} height={58} priority />
+            </span>
+            <span>
+              <strong>Regulski Behawiorysta</strong>
+              <small>opinie po konsultacjach psów i kotów</small>
+            </span>
+          </div>
 
-        <div style={fieldStyle}>
-          <label htmlFor="displayName" style={labelStyle}>Imię lub inicjały do publikacji *</label>
+          <div className="add-opinion-intro-copy">
+            <span className="add-opinion-eyebrow">Po konsultacji</span>
+            <h1 id="add-opinion-heading">Dodaj opinię</h1>
+            <p>
+              Formularz jest dla osób po konsultacji. Treść i zdjęcie trafiają do ręcznej weryfikacji, więc nic nie
+              pojawia się na stronie automatycznie.
+            </p>
+          </div>
+
+          <ul className="add-opinion-trust-list" aria-label="Zasady publikacji opinii">
+            <li>
+              <ShieldCheck size={18} strokeWidth={1.7} />
+              Publikuję tylko imię, inicjały albo opis anonimowy.
+            </li>
+            <li>
+              <ImagePlus size={18} strokeWidth={1.7} />
+              Zdjęcie możesz dodać jako plik, nie jako link.
+            </li>
+            <li>
+              <CheckCircle2 size={18} strokeWidth={1.7} />
+              Pełne dane kontaktowe zostają tylko do weryfikacji.
+            </li>
+          </ul>
+        </aside>
+
+        <form className="add-opinion-form" onSubmit={handleSubmit} data-opinion-form="submit" noValidate>
           <input
-            id="displayName"
-            name="displayName"
             type="text"
-            value={fields.displayName}
+            name="website"
+            value={fields.website}
             onChange={handleChange}
-            required
-            maxLength={60}
-            placeholder="np. Anna K."
-            style={inputStyle}
+            className="add-opinion-honeypot"
+            tabIndex={-1}
+            aria-hidden="true"
+            autoComplete="off"
           />
-        </div>
 
-        <div style={fieldStyle}>
-          <label htmlFor="email" style={labelStyle}>Adres e-mail (do kontaktu, nie publikowany) *</label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            value={fields.email}
-            onChange={handleChange}
-            required
-            maxLength={120}
-            placeholder="twoj@email.pl"
-            style={inputStyle}
-          />
-        </div>
+          <label className="add-opinion-field" htmlFor="displayName">
+            <span>Imię lub inicjały do publikacji *</span>
+            <input
+              id="displayName"
+              name="displayName"
+              type="text"
+              value={fields.displayName}
+              onChange={handleChange}
+              required
+              maxLength={60}
+              placeholder="np. Anna K. albo Opiekunka psa"
+            />
+          </label>
 
-        <div style={fieldStyle}>
-          <label htmlFor="issueCategory" style={labelStyle}>Czego dotyczyła konsultacja? *</label>
-          <select
-            id="issueCategory"
-            name="issueCategory"
-            value={fields.issueCategory}
-            onChange={handleChange}
-            required
-            style={inputStyle}
-          >
-            <option value="">Wybierz temat</option>
-            {TESTIMONIAL_ISSUE_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>{option.label}</option>
-            ))}
-          </select>
-        </div>
+          <label className="add-opinion-field" htmlFor="email">
+            <span>Adres e-mail do kontaktu *</span>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              value={fields.email}
+              onChange={handleChange}
+              required
+              maxLength={120}
+              placeholder="twoj@email.pl"
+            />
+            <small>Nie publikuję adresu e-mail. Służy tylko do potwierdzenia opinii.</small>
+          </label>
 
-        <div style={fieldStyle}>
-          <label htmlFor="opinion" style={labelStyle}>Treść opinii *</label>
-          <textarea
-            id="opinion"
-            name="opinion"
-            value={fields.opinion}
-            onChange={handleChange}
-            required
-            maxLength={600}
-            rows={5}
-            placeholder="Co konkretnie pomogło? Co się zmieniło po konsultacji?"
-            style={{ ...inputStyle, resize: 'vertical' }}
-          />
-          <span style={hintStyle}>{fields.opinion.length}/600 znaków</span>
-        </div>
+          <label className="add-opinion-field" htmlFor="issueCategory">
+            <span>Czego dotyczyła konsultacja? *</span>
+            <select id="issueCategory" name="issueCategory" value={fields.issueCategory} onChange={handleChange} required>
+              <option value="">Wybierz temat</option>
+              {TESTIMONIAL_ISSUE_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
 
-        <div style={fieldStyle}>
-          <label htmlFor="photo" style={labelStyle}>Zdjęcie psa / kota (opcjonalnie)</label>
-          <input
-            id="photo"
-            name="photo"
-            type="file"
-            accept="image/*"
-            onChange={handlePhotoChange}
-            style={inputStyle}
-          />
-          <span style={hintStyle}>
-            Możesz dodać zdjęcie jako załącznik. Limit to 25 MB, zgodnie z limitem pojedynczej wiadomości Gmail.
-          </span>
-        </div>
+          <label className="add-opinion-field add-opinion-field-wide" htmlFor="opinion">
+            <span>Treść opinii *</span>
+            <textarea
+              id="opinion"
+              name="opinion"
+              value={fields.opinion}
+              onChange={handleChange}
+              required
+              maxLength={600}
+              rows={6}
+              placeholder="Co konkretnie pomogło? Co stało się jaśniejsze po konsultacji?"
+            />
+            <small>{fields.opinion.length}/600 znaków</small>
+          </label>
 
-        <label style={{ display: 'flex', gap: 10, alignItems: 'flex-start', cursor: 'pointer' }}>
-          <input
-            type="checkbox"
-            name="consentPublish"
-            checked={fields.consentPublish}
-            onChange={handleChange}
-            required
-            style={{ marginTop: 3, flexShrink: 0 }}
-          />
-          <span style={{ fontSize: 14 }}>
-            Wyrażam zgodę na publikację tej opinii na stronie regulskibehawiorysta.pl pod podanym imieniem lub inicjałami. *
-          </span>
-        </label>
+          <label className="add-opinion-field add-opinion-field-wide" htmlFor="photo">
+            <span>Zdjęcie psa / kota (opcjonalnie)</span>
+            <input id="photo" name="photo" type="file" accept="image/*" onChange={handlePhotoChange} data-opinion-photo-input="true" />
+            <small>{photoFile ? `Wybrany plik: ${photoFile.name}` : 'JPG, PNG albo WEBP. Limit załącznika: 25 MB.'}</small>
+          </label>
 
-        {status === 'error' && errorMessage && (
-          <p style={{ color: '#b91c1c', background: '#fef2f2', padding: '12px 16px', borderRadius: 8, margin: 0 }}>
-            {errorMessage}
+          <label className="add-opinion-checkbox" htmlFor="consentPublish">
+            <input
+              id="consentPublish"
+              type="checkbox"
+              name="consentPublish"
+              checked={fields.consentPublish}
+              onChange={handleChange}
+              required
+            />
+            <span>
+              Wyrażam zgodę na publikację tej opinii na stronie regulskibehawiorysta.pl pod podanym imieniem,
+              inicjałami albo opisem anonimowym. *
+            </span>
+          </label>
+
+          {status === 'error' && errorMessage ? (
+            <p className="add-opinion-error" role="alert">
+              {errorMessage}
+            </p>
+          ) : null}
+
+          <button type="submit" disabled={status === 'sending'} className="add-opinion-submit">
+            <span>{status === 'sending' ? 'Wysyłam...' : 'Wyślij opinię'}</span>
+            <Send size={17} strokeWidth={1.8} />
+          </button>
+
+          <p className="add-opinion-footnote">
+            Pola oznaczone * są wymagane. Opinia trafia do weryfikacji przed publikacją.
           </p>
-        )}
-
-        <button
-          type="submit"
-          disabled={status === 'sending'}
-          style={{
-            padding: '14px 28px',
-            borderRadius: 999,
-            background: status === 'sending' ? '#9c8c80' : '#1f1a17',
-            color: '#fff',
-            fontWeight: 700,
-            fontSize: 15,
-            border: 'none',
-            cursor: status === 'sending' ? 'not-allowed' : 'pointer',
-          }}
-        >
-          {status === 'sending' ? 'Wysyłam...' : 'Wyślij opinię'}
-        </button>
-
-        <p style={hintStyle}>
-          Pola oznaczone * są wymagane. Opinia trafia do weryfikacji przed publikacją i nie pojawia się automatycznie na
-          stronie.
-        </p>
         </form>
       </section>
     </OpinionPageShell>
@@ -248,60 +265,13 @@ export default function AddOpinionPage() {
 
 function OpinionPageShell({ children }: { children: ReactNode }) {
   return (
-    <main className="notatnik-page add-opinion-page">
+    <main className="notatnik-page opinions-showcase-page add-opinion-page">
       <NotatnikSideVisuals variant="mixed" />
-      <div className="notatnik-shell add-opinion-shell">
+      <div className="notatnik-shell opinions-showcase-shell add-opinion-shell">
         <NotatnikTopbar tag="Opinie" navItems={PUBLIC_SITE_NAV_ITEMS} showUtilityLinks={false} />
         {children}
         <NotatnikFooter showReviews={false} />
       </div>
     </main>
   )
-}
-
-const pageStyle: CSSProperties = {
-  maxWidth: 560,
-  margin: '40px auto 56px',
-  padding: '32px 28px',
-  fontFamily: 'var(--font-body), system-ui, sans-serif',
-  color: '#1f1a17',
-  border: '1px solid rgba(24, 56, 40, 0.1)',
-  borderRadius: 18,
-  background: 'rgba(255, 252, 247, 0.78)',
-  boxShadow: '0 18px 42px rgba(53, 39, 24, 0.06)',
-}
-
-const headingStyle: CSSProperties = {
-  margin: '0 0 8px',
-  fontFamily: 'var(--font-display), Georgia, serif',
-  fontSize: 'clamp(2.25rem, 7vw, 3rem)',
-  fontWeight: 560,
-  lineHeight: 1.05,
-  letterSpacing: 0,
-}
-
-const fieldStyle: CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 6,
-}
-
-const labelStyle: CSSProperties = {
-  fontWeight: 600,
-}
-
-const hintStyle: CSSProperties = {
-  fontSize: 12,
-  color: '#6b625b',
-}
-
-const inputStyle: CSSProperties = {
-  padding: '10px 14px',
-  borderRadius: 8,
-  border: '1px solid #d9cfc3',
-  fontSize: 15,
-  color: '#1f1a17',
-  background: '#fafaf8',
-  width: '100%',
-  boxSizing: 'border-box',
 }

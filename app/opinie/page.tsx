@@ -200,6 +200,166 @@ const reviews: OpinionReview[] = [
     avatar: '/branding/case-studies/German_Shepherd.jpg',
     categories: ['Pies', 'Konsultacje online', 'Problemy behawioralne'],
   },
+  {
+    name: 'Marta i Pixel',
+    service: 'Szczekanie w domu',
+    text:
+      'Po rozmowie przestaliśmy reagować chaotycznie na każde szczeknięcie. Dostaliśmy prostą kolejność: obserwacja, bodźce, odpoczynek i dopiero potem ćwiczenia.',
+    avatar: '/branding/topic-cards/dog-resting-home.jpg',
+    categories: ['Pies', 'Problemy behawioralne'],
+  },
+  {
+    name: 'Joanna i Tobi',
+    service: 'Samotność psa',
+    text:
+      'Najbardziej pomogło rozpisanie małych kroków. Wreszcie wiedzieliśmy, jak nagrywać psa i kiedy wydłużać wyjścia bez dokładania mu stresu.',
+    avatar: '/branding/topic-cards/dog-window-alone.jpg',
+    categories: ['Pies', 'Praca z lękiem'],
+  },
+  {
+    name: 'Kamil i Luna',
+    service: 'Reaktywność na spacerze',
+    text:
+      'Zamiast walczyć ze spacerem, zaczęliśmy rozpoznawać moment, w którym pies jeszcze może się uczyć. To dało nam więcej spokoju i mniej szarpania.',
+    avatar: '/branding/topic-cards/french-bulldog-leash.jpg',
+    categories: ['Pies', 'Problemy behawioralne', 'Sytuacja na spacerze'],
+  },
+  {
+    name: 'Ala i Bruno',
+    service: 'Pobudzenie',
+    text:
+      'Dostaliśmy bardzo konkretną odpowiedź, co robić po powrocie do domu i jak nie nakręcać psa dodatkowymi komendami. Po kilku dniach było spokojniej.',
+    avatar: '/images/cutover/dog-pobudzenie.png',
+    categories: ['Pies', 'Problemy behawioralne'],
+  },
+  {
+    name: 'Dorota i Fado',
+    service: 'Szczeniak',
+    text:
+      'Kwadrans uporządkował nam pierwsze dni ze szczeniakiem. Nie dostaliśmy listy zakazów, tylko kilka zasad, które dało się wdrożyć od razu.',
+    avatar: '/branding/topic-cards/puppy-hands.jpg',
+    categories: ['Pies', 'Szczenięta / Kocięta'],
+  },
+  {
+    name: 'Marcin i Ares',
+    service: 'Obrona zasobów',
+    text:
+      'W trudnym temacie najważniejsze było bezpieczeństwo. Po rozmowie wiedzieliśmy, czego nie prowokować i jak zacząć pracę bez presji.',
+    avatar: '/images/cutover/dog-resource-guarding.png',
+    categories: ['Pies', 'Agresja', 'Problemy behawioralne'],
+  },
+  {
+    name: 'Paulina i Nero',
+    service: 'Goście w domu',
+    text:
+      'Pierwszy raz ktoś wyjaśnił nam, że problem nie zaczyna się w chwili dzwonka do drzwi. Plan przygotowania domu bardzo nam pomógł.',
+    avatar: '/branding/topic-cards/dog-checkup.jpg',
+    categories: ['Pies', 'Problemy behawioralne'],
+  },
+  {
+    name: 'Basia i Odi',
+    service: 'Konsultacja online',
+    text:
+      'Bałam się, że online będzie za mało konkretnie. A wyszłam z rozmowy z jasnym planem i poczuciem, że wiem, co obserwować.',
+    avatar: '/branding/case-dog-rest.jpg',
+    categories: ['Pies', 'Konsultacje online'],
+  },
+  {
+    name: 'Wojtek i Hera',
+    service: 'Spacer',
+    text:
+      'Po konsultacji zmieniliśmy trasę, tempo i sposób mijania psów. To nie była magia, tylko spokojne ustawienie warunków, które pies unosi.',
+    avatar: '/branding/topic-cards/dog-forest-side.jpg',
+    categories: ['Pies', 'Sytuacja na spacerze'],
+  },
+  {
+    name: 'Sylwia i Maks',
+    service: 'Dwa kwadranse',
+    text:
+      'Dłuższa rozmowa dała nam miejsce na szczegóły. Dostaliśmy plan bez straszenia i bez obietnic cudów, za to bardzo możliwy do sprawdzenia.',
+    avatar: '/branding/case-dog-home.jpg',
+    categories: ['Pies', 'Konsultacje online'],
+  },
+  {
+    name: 'Marta i Mila',
+    service: 'Kuweta',
+    text:
+      'Wreszcie ktoś ułożył nam temat kuwety po kolei: zdrowie, ustawienie, zasoby i stres. Przestaliśmy zmieniać wszystko naraz.',
+    avatar: '/branding/topic-cards/cats/cat-litter-box.jpg',
+    categories: ['Kot', 'Problemy behawioralne'],
+  },
+  {
+    name: 'Aneta i Rysiek',
+    service: 'Nocna aktywność',
+    text:
+      'Po rozmowie zobaczyliśmy, że nocne pobudki mają związek z całym rytmem dnia. Kilka zmian w zabawie i karmieniu zrobiło dużą różnicę.',
+    avatar: '/branding/topic-cards/cats/cat-night-meowing.jpg',
+    categories: ['Kot', 'Problemy behawioralne'],
+  },
+  {
+    name: 'Kuba i Nori',
+    service: 'Konflikt między kotami',
+    text:
+      'Nie musieliśmy od razu rozdzielać kotów na ślepo. Dostaliśmy plan zasobów, dystansu i obserwacji napięcia, który dał się spokojnie wdrożyć.',
+    avatar: '/branding/topic-cards/cats/cat-intercat-conflict.jpg',
+    categories: ['Kot', 'Problemy behawioralne'],
+  },
+  {
+    name: 'Ela i Fibi',
+    service: 'Lęk i chowanie się',
+    text:
+      'Najważniejsze było dla nas, że nikt nie kazał wyciągać kota na siłę. Plan opierał się na tempie Fibi i jasnych sygnałach stresu.',
+    avatar: '/branding/topic-cards/cats/cat-anxious-hiding.jpg',
+    categories: ['Kot', 'Praca z lękiem'],
+  },
+  {
+    name: 'Olek i Kira',
+    service: 'Drapanie mebli',
+    text:
+      'Zrozumieliśmy, że samo mówienie "nie" nic nie zmienia. Po ustawieniu drapaków i rytuałów napięcie w domu wyraźnie spadło.',
+    avatar: '/blog-covers/blog-kot-drapie-meble-photo.webp',
+    categories: ['Kot', 'Problemy behawioralne'],
+  },
+  {
+    name: 'Justyna i Puszek',
+    service: 'Konsultacja online',
+    text:
+      'Rozmowa była spokojna i bardzo konkretna. Dostaliśmy wskazówki do obserwacji kota, a nie gotową etykietę bez kontekstu.',
+    avatar: '/images/homepage/home-bg-cat-1to1.webp',
+    categories: ['Kot', 'Konsultacje online'],
+  },
+  {
+    name: 'Bartek i Sombra',
+    service: 'Dotyk i pielęgnacja',
+    text:
+      'W końcu zrozumieliśmy, kiedy kot mówi "dość". To bardzo zmieniło nasze podejście do głaskania i zabiegów pielęgnacyjnych.',
+    avatar: '/branding/topic-cards/cats/cat-touch-defensive.jpg',
+    categories: ['Kot', 'Praca z lękiem'],
+  },
+  {
+    name: 'Natalia i Coco',
+    service: 'Nowy kot w domu',
+    text:
+      'Plan zapoznawania kotów był prosty i bez pośpiechu. Dzięki temu nie spaliliśmy pierwszych dni i uniknęliśmy eskalacji.',
+    avatar: '/blog-covers/blog-jak-wprowadzic-nowego-kota-do-domu-photo.webp',
+    categories: ['Kot', 'Szczenięta / Kocięta'],
+  },
+  {
+    name: 'Renata i Tofik',
+    service: 'Stres kota',
+    text:
+      'Po konsultacji inaczej patrzymy na zmiany w mieszkaniu. Małe rzeczy, które ignorowaliśmy, okazały się ważne dla poczucia bezpieczeństwa kota.',
+    avatar: '/blog-covers/blog-stres-kota-a-zachowania-toaletowe-photo.webp',
+    categories: ['Kot', 'Problemy behawioralne'],
+  },
+  {
+    name: 'Piotr i Lili',
+    service: 'Pełna konsultacja',
+    text:
+      'Przy dłuższym problemie potrzebowaliśmy szerszej analizy. Dostaliśmy spokojne wyjaśnienie możliwych przyczyn i plan pracy bez gwałtownych zmian.',
+    avatar: '/branding/specialist-cat-support.jpg',
+    categories: ['Kot', 'Konsultacje online', 'Problemy behawioralne'],
+  },
 ]
 
 const stats = [
@@ -208,7 +368,7 @@ const stats = [
   { value: 'Bez kar', label: 'spokojna praca', icon: Heart },
 ] as const
 
-const visibleReviews = reviews.slice(0, 3)
+const visibleReviews = reviews
 
 const proofItems = [
   {

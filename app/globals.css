@@ -21148,19 +21148,41 @@ html[data-theme='dark'] .opinions-showcase-wave {
   }
 
   .opinions-showcase-stats {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px 0;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    min-height: 102px;
+    gap: 0;
+    padding: 14px 10px;
   }
 
-  .opinions-showcase-stat:nth-child(odd) {
+  .opinions-showcase-stat {
+    gap: 5px;
+    padding: 0 6px;
+    border-left: 1px solid rgba(24, 56, 40, 0.12);
+  }
+
+  .opinions-showcase-stat:first-child {
     border-left: 0;
+  }
+
+  .opinions-showcase-stat svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .opinions-showcase-stat strong {
+    font-size: clamp(15px, 4.7vw, 21px);
+    line-height: 1.02;
+  }
+
+  .opinions-showcase-stat small {
+    font-size: 9px;
+    line-height: 1.2;
   }
 
   .opinions-showcase-stat:last-child {
-    grid-column: 1 / -1;
-    justify-self: center;
-    width: min(170px, 100%);
-    border-left: 0;
+    grid-column: auto;
+    justify-self: stretch;
+    width: auto;
   }
 
   .opinions-showcase-hero-visual {

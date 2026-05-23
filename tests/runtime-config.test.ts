@@ -1360,6 +1360,8 @@ test('stage 10 funnel aliases, drop tracking, and release checklist are wired', 
   const waitingStatusSource = readSource('components', 'CommerceWaitingStatus.tsx')
   const adminSource = readSource('app', 'admin', 'page.tsx')
   const releaseChecklistSource = readSource('scripts', 'release-checklist.ts')
+  const fullPublicCrawlSource = readSource('scripts', 'full-public-crawl.ts')
+  const nextConfigSource = readSource('next.config.mjs')
 
   for (const eventName of [
     'hero_cta_click',
@@ -1397,6 +1399,12 @@ test('stage 10 funnel aliases, drop tracking, and release checklist are wired', 
   assert.match(releaseChecklistSource, /latest-release-checklist\.md/)
   assert.match(releaseChecklistSource, /stage9-performance-audit/)
   assert.match(releaseChecklistSource, /full-public-crawl/)
+  assert.match(fullPublicCrawlSource, /source === 'crawl' && resolved\.search/)
+  assert.match(fullPublicCrawlSource, /canonicalUrl/)
+  assert.match(fullPublicCrawlSource, /--no-follow/)
+  assert.match(fullPublicCrawlSource, /--no-screenshots/)
+  assert.match(fullPublicCrawlSource, /digits\.length === 9/)
+  assert.match(nextConfigSource, /source: '\/booking',\s+destination: '\/book'/)
 })
 
 test('live booking matrix keeps a ten-attempt production report', () => {

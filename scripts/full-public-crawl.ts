@@ -54,6 +54,8 @@ const desktopDir = path.join(screenshotsDir, 'desktop')
 const mobileDir = path.join(screenshotsDir, 'mobile')
 const htmlDir = path.join(reportRoot, 'html')
 const manifestsDir = path.join(reportRoot, 'manifests')
+const shouldFollowDiscoveredLinks = !process.argv.includes('--no-follow') && process.env.FULL_CRAWL_FOLLOW_LINKS?.trim() !== '0'
+const shouldSaveScreenshots = !process.argv.includes('--no-screenshots') && process.env.FULL_CRAWL_SCREENSHOTS?.trim() !== '0'
 const contentDir = path.join(rootDir, 'content')
 const blogDir = path.join(contentDir, 'blog-mvp')
 const blogRoutePaths = readdirSync(blogDir, { withFileTypes: true })
@@ -321,8 +323,11 @@ function detectEncodingIssues(text: string) {
 }
 
 function detectPhone(text: string) {
-  const phoneMatches = text.match(/(?:\+48\s*)?(?:\d[ -]?){9,11}/g) ?? []
-  return phoneMatches.map(cleanText).filter((value) => value.length >= 9)
+  const phoneMatches = text.match(/(?:\+48[\s-]?)?(?:\d{3}[\s-]?){2}\d{3}\b/g) ?? []
+  return phoneMatches.map(cleanText).filter((value) => {
+    const digits = value.replace(/\D/g, '')
+    return digits.length === 9 || (digits.length === 11 && digits.startsWith('48'))
+  })
 }
 
 function detectOldNames(text: string) {
@@ -514,7 +519,9 @@ async function crawlPage(
     if (mode === 'desktop') {
       await saveString(snapshotPaths.html, html)
     }
-    await takeScreenshot(page, mode === 'desktop' ? snapshotPaths.desktop : snapshotPaths.mobile, true)
+    if (shouldSaveScreenshots) {
+      await takeScreenshot(page, mode === 'desktop' ? snapshotPaths.desktop : snapshotPaths.mobile, true)
+    }
 
     return {
       requestedUrl,
@@ -568,6 +575,21 @@ async function run() {
     const anchor = resolved.hash.replace(/^#/, '').trim()
     const normalized = normalizeUrl(resolved.toString(), baseUrl)
     if (!isCrawlableUrl(normalized, baseUrl)) {
+      return
+    }
+
+    if (source === 'crawl' && resolved.search && !sourceMap.has(normalized)) {
+      const canonicalUrl = normalizeUrl(`${resolved.origin}${resolved.pathname}`, baseUrl)
+      if (isCrawlableUrl(canonicalUrl, baseUrl)) {
+        if (!sourceMap.has(canonicalUrl)) {
+          sourceMap.set(canonicalUrl, new Set())
+        }
+        sourceMap.get(canonicalUrl)?.add(source)
+        if (!queued.has(canonicalUrl)) {
+          queued.add(canonicalUrl)
+          queue.push(canonicalUrl)
+        }
+      }
       return
     }
 
@@ -702,8 +724,10 @@ async function run() {
           }
         }
 
-        for (const link of desktopResult.internalLinks) {
-          addUrl(link, 'crawl')
+        if (shouldFollowDiscoveredLinks) {
+          for (const link of desktopResult.internalLinks) {
+            addUrl(link, 'crawl')
+          }
         }
       }
 
@@ -724,11 +748,13 @@ async function run() {
         manifestRows.set(currentUrl, row)
       }
 
-      const discoveredFromCrawl = row.internalLinks
-        .filter((href) => isCrawlableUrl(href, baseUrl))
-        .map((href) => ({ url: href, source: 'crawl' as DiscoverySource }))
-      for (const discovered of discoveredFromCrawl) {
-        addUrl(discovered.url, discovered.source)
+      if (shouldFollowDiscoveredLinks) {
+        const discoveredFromCrawl = row.internalLinks
+          .filter((href) => isCrawlableUrl(href, baseUrl))
+          .map((href) => ({ url: href, source: 'crawl' as DiscoverySource }))
+        for (const discovered of discoveredFromCrawl) {
+          addUrl(discovered.url, discovered.source)
+        }
       }
     }
 
@@ -806,6 +832,8 @@ async function run() {
         .map(([status, count]) => `${status}=${count}`)
         .join(', ') || 'none'}`,
       `- Crawl coverage: ${crawlFailures.length === 0 ? 'full' : 'partial with failures'}`,
+      `- Follow discovered links: ${shouldFollowDiscoveredLinks ? 'yes' : 'no'}`,
+      `- Screenshots: ${shouldSaveScreenshots ? 'yes' : 'no'}`,
       '',
       '## Artifacts',
       `- Manifest JSON: [manifests/manifest.json](./manifests/manifest.json)`,

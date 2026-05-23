@@ -81,6 +81,11 @@ const nextConfig = {
         statusCode: 301,
       },
       {
+        source: '/booking',
+        destination: '/book',
+        statusCode: 301,
+      },
+      {
         source: '/behawiorysta-online-polska',
         destination: '/',
         statusCode: 301,

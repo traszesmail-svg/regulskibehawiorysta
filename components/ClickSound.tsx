@@ -2,6 +2,11 @@
 
 import { useEffect, useRef } from 'react'
 
+type WebAudioWindow = Window &
+  typeof globalThis & {
+    webkitAudioContext?: typeof AudioContext
+  }
+
 const CLICK_TARGET_SELECTOR =
   'a, button, summary, [role="button"], [role="link"], [role="menuitem"], input[type="checkbox"], input[type="radio"], input[type="submit"], input[type="button"]'
 
@@ -86,7 +91,7 @@ export function ClickSound() {
         return
       }
 
-      const AudioContextConstructor = window.AudioContext || window.webkitAudioContext
+      const AudioContextConstructor = window.AudioContext || (window as WebAudioWindow).webkitAudioContext
 
       if (!AudioContextConstructor) {
         return

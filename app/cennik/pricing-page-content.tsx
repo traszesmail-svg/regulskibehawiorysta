@@ -3,7 +3,7 @@ import { CheckCircle2, WalletCards } from 'lucide-react'
 import { buildBookHref } from '@/lib/booking-routing'
 import { FUNNEL_SERVICE_CONFIG, type PublicBookingServiceType } from '@/lib/funnel'
 
-export const bookHref = '/wybor'
+export const bookHref = '/'
 export const contactHref = '/kontakt#formularz'
 export const fullPricingHref = '/cennik/pelny'
 
@@ -35,8 +35,8 @@ export const pricingCards: Array<{
   {
     service: 'kwadrans-na-juz',
     badge: 'priorytet',
-    title: 'Kwadrans priorytetowy - gdy nie chcesz czekać',
-    summaryTitle: 'Kwadrans priorytetowy  gdy nie chcesz czekać',
+    title: 'Kwadrans na już - gdy nie chcesz czekać',
+    summaryTitle: 'Kwadrans na już  gdy nie chcesz czekać',
     price: '99 zł',
     copy: 'Ten sam zakres co Kwadrans, ale z priorytetową odpowiedzią i najbliższym realnym terminem. Dla spraw pilnych, które nie wymagają dłuższej analizy.',
     supportCopy:

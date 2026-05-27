@@ -64,7 +64,7 @@ function makeBooking(overrides: Partial<BookingRecord> = {}): BookingRecord {
     id: 'stage8-booking-001',
     ownerName: 'Anna',
     serviceType: 'szybka-konsultacja-15-min',
-    problemType: 'pies-reaktywnosc',
+    problemType: 'spacer',
     animalType: 'Pies',
     petAge: '4 lata',
     durationNotes: 'Problem wraca od kilku tygodni.',

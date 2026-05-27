@@ -51,9 +51,26 @@ export const metadata: Metadata = buildMarketingMetadata({
 const terminSteps = ['Termin', 'Godzina', 'Dane', 'Płatność'] as const
 
 const bookingFaqItems = [
-  'Jak wygląda konsultacja online?',
-  'Czy muszę instalować jakąś aplikację?',
-  'Czy mogę zmienić lub odwołać termin?',
+  {
+    question: 'Jak wygląda konsultacja online?',
+    answer:
+      'Kwadrans odbywa się jako rozmowa audio bez kamery. Dwa kwadranse i Pełna konsultacja są online; przy pełnej konsultacji forma audio albo video zależy od potrzeb sprawy.',
+  },
+  {
+    question: 'Czy muszę instalować jakąś aplikację?',
+    answer:
+      'Nie zakładam instalacji aplikacji ani konta. Po potwierdzeniu płatności dostaniesz e-mail z linkiem do rozmowy, najczęściej w Jitsi albo pokoju rozmowy w serwisie.',
+  },
+  {
+    question: 'Kiedy termin jest pewny?',
+    answer:
+      'Wybrany termin trzymamy przez 15 minut na dokończenie rezerwacji. Termin jest pewny po opłaceniu i potwierdzeniu płatności; przy płatności ręcznej potwierdzenie może wymagać obsługi w godzinach 9-21.',
+  },
+  {
+    question: 'Czy mogę zmienić lub odwołać termin?',
+    answer:
+      'Po potwierdzeniu wpłaty możesz w ciągu 24 godzin napisać przez formularz albo odpowiedzieć na e-mail i zgłosić zmianę terminu lub rezygnację.',
+  },
 ] as const
 
 type CalendarDay = {
@@ -284,8 +301,8 @@ export async function BookingSlotCalendar({
             )}
             <p>
               {isUrgentBooking
-                ? 'Wybierz najbliższy dostępny termin krótkiej konsultacji. Po wysłaniu danych termin blokuje się na 15 minut.'
-                : 'Wybierz dogodny dzień i godzinę. Po wysłaniu danych termin blokuje się na 15 minut, a pewny staje się po opłaceniu i potwierdzeniu płatności.'}
+                ? 'Wybierz najbliższy dostępny termin krótkiej konsultacji. W kolejnym kroku wpiszesz dane, opłacisz rezerwację i dostaniesz e-mail z potwierdzeniem.'
+                : 'Wybierz dogodny dzień i godzinę. W kolejnym kroku wpiszesz dane, opłacisz rezerwację i dostaniesz e-mail z potwierdzeniem.'}
             </p>
           </div>
 
@@ -304,8 +321,8 @@ export async function BookingSlotCalendar({
 
           <div className="termin-calendar-shell">
             <div className="notatnik-callout termin-calendar-callout">
-              Status slotu jest prosty: tutaj wybierasz godzinę, w kroku Dane blokujesz ją na 15 minut, a rezerwacja jest
-              pewna po opłaceniu i potwierdzeniu płatności.
+              Prosty proces: wybierasz termin, wpisujesz dane, przechodzisz do płatności i dostajesz potwierdzenie e-mailem.
+              Wybrany termin trzymamy przez 15 minut na czas spokojnego dokończenia rezerwacji.
             </div>
 
             {publicFlowMessage ? (
@@ -391,21 +408,21 @@ export async function BookingSlotCalendar({
               </div>
             </section>
 
-            <section className="termin-bottom-section compact-home-section">
-              <div className="termin-faq-card">
-                <h2>Najczęściej zadawane pytania</h2>
-                {bookingFaqItems.map((item) => (
-                  <details key={item}>
-                    <summary>{item}</summary>
-                    <p>Po rezerwacji dostaniesz krótkie potwierdzenie i dalsze kroki mailowo.</p>
-                  </details>
-                ))}
-                <Link href="/faq" prefetch={false}>Zobacz wszystkie pytania</Link>
-              </div>
-            </section>
-
           </>
         ) : null}
+
+        <section className="termin-bottom-section compact-home-section">
+          <div className="termin-faq-card">
+            <h2>Najczęściej zadawane pytania</h2>
+            {bookingFaqItems.map((item) => (
+              <details key={item.question}>
+                <summary>{item.question}</summary>
+                <p>{item.answer}</p>
+              </details>
+            ))}
+            <Link href="/faq" prefetch={false}>Zobacz wszystkie pytania</Link>
+          </div>
+        </section>
 
         <NotatnikFooter primaryHref="/wybor" primaryLabel="Wróć do wyboru" />
       </div>

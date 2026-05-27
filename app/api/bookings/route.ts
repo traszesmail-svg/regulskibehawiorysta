@@ -3,6 +3,7 @@ export const revalidate = 0
 
 import { NextResponse } from 'next/server'
 import { isBookingServiceType } from '@/lib/booking-services'
+import { buildPaymentHref } from '@/lib/booking-routing'
 import { getProblemSpecies, isProblemType } from '@/lib/data'
 import { createPendingBooking } from '@/lib/server/db'
 import { getBookingApiErrorSnapshot } from '@/lib/server/booking-api-errors'
@@ -17,13 +18,78 @@ function isEmailValid(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
 }
 
+const FORM_CONTENT_TYPES = ['application/x-www-form-urlencoded', 'multipart/form-data'] as const
+
+function isFormSubmission(request: Request): boolean {
+  const contentType = request.headers.get('content-type') ?? ''
+
+  return FORM_CONTENT_TYPES.some((candidate) => contentType.includes(candidate))
+}
+
+function formDataToBody(formData: FormData): Record<string, unknown> {
+  const body: Record<string, unknown> = {}
+
+  for (const [key, value] of formData.entries()) {
+    if (typeof value === 'string') {
+      body[key] = value
+    }
+  }
+
+  return body
+}
+
+function isTruthyFormValue(value: unknown): boolean {
+  return value === true || value === 'true' || value === '1' || value === 'on' || value === 'yes'
+}
+
+function buildFormErrorRedirect(request: Request, body: Record<string, unknown>, message: string) {
+  const url = new URL('/form', request.url)
+
+  if (typeof body.problemType === 'string') {
+    url.searchParams.set('problem', body.problemType)
+  }
+
+  if (typeof body.slotId === 'string') {
+    url.searchParams.set('slotId', body.slotId)
+  }
+
+  if (typeof body.serviceType === 'string') {
+    url.searchParams.set('service', body.serviceType)
+  }
+
+  if (isTruthyFormValue(body.qaBooking)) {
+    url.searchParams.set('qa', '1')
+  }
+
+  url.searchParams.set('error', message)
+  url.hash = 'formularz'
+
+  return NextResponse.redirect(url, { status: 303 })
+}
+
+function bookingErrorResponse(request: Request, body: Record<string, unknown>, shouldRedirect: boolean, message: string, status: number) {
+  if (shouldRedirect) {
+    return buildFormErrorRedirect(request, body, message)
+  }
+
+  return NextResponse.json({ error: message }, { status })
+}
+
 export async function POST(request: Request) {
+  const shouldRedirect = isFormSubmission(request)
+  let body: Record<string, unknown> = {}
+
   try {
-    const body = (await request.json()) as Record<string, unknown>
+    try {
+      body = shouldRedirect ? formDataToBody(await request.formData()) : ((await request.json()) as Record<string, unknown>)
+    } catch {
+      return bookingErrorResponse(request, body, shouldRedirect, 'Nie udało się odczytać formularza rezerwacji.', 400)
+    }
+
     const rawProblemType = typeof body.problemType === 'string' ? body.problemType : null
     const rawAnimalType = body.animalType
     const rawServiceType = typeof body.serviceType === 'string' ? body.serviceType : null
-    const qaBooking = body.qaBooking === true
+    const qaBooking = isTruthyFormValue(body.qaBooking)
 
     if (
       typeof body.ownerName !== 'string' ||
@@ -36,7 +102,7 @@ export async function POST(request: Request) {
       typeof body.email !== 'string' ||
       typeof body.slotId !== 'string'
     ) {
-      return NextResponse.json({ error: 'Niepoprawne dane formularza.' }, { status: 400 })
+      return bookingErrorResponse(request, body, shouldRedirect, 'Niepoprawne dane formularza.', 400)
     }
 
     const ownerName = body.ownerName
@@ -52,8 +118,8 @@ export async function POST(request: Request) {
     const description = body.description
     const email = body.email
     const slotId = body.slotId
-    const consentTerms = body.consentTerms === true
-    const consentEarlyStart = body.consentEarlyStart === true
+    const consentTerms = isTruthyFormValue(body.consentTerms)
+    const consentEarlyStart = isTruthyFormValue(body.consentEarlyStart)
 
     if (qaBooking) {
       const qaEligibility = getQaCheckoutEligibility({
@@ -63,38 +129,38 @@ export async function POST(request: Request) {
       })
 
       if (!qaEligibility.isAllowed) {
-        return NextResponse.json({ error: qaEligibility.reason ?? qaEligibility.summary }, { status: 403 })
+        return bookingErrorResponse(request, body, shouldRedirect, qaEligibility.reason ?? qaEligibility.summary, 403)
       }
     }
 
     const fields = [ownerName, description, email, slotId]
 
     if (fields.some((value) => value.trim().length === 0)) {
-      return NextResponse.json({ error: 'Uzupełnij imię, e-mail, termin i krótki opis problemu.' }, { status: 400 })
+      return bookingErrorResponse(request, body, shouldRedirect, 'Uzupełnij imię, e-mail, termin i krótki opis problemu.', 400)
     }
 
     if (!isEmailValid(email.trim())) {
-      return NextResponse.json({ error: 'Podaj poprawny adres e-mail do potwierdzenia konsultacji.' }, { status: 400 })
+      return bookingErrorResponse(request, body, shouldRedirect, 'Podaj poprawny adres e-mail do potwierdzenia konsultacji.', 400)
     }
 
     if (description.trim().length < 10) {
-      return NextResponse.json(
-        { error: 'Napisz jednym zdaniem, z czym chcesz wejść na rozmowę.' },
-        { status: 400 },
-      )
+      return bookingErrorResponse(request, body, shouldRedirect, 'Napisz jednym zdaniem, z czym chcesz wejść na rozmowę.', 400)
     }
 
     if (!consentTerms || !consentEarlyStart) {
-      return NextResponse.json(
-        { error: 'Przed rezerwacją zaakceptuj regulamin, politykę prywatności i zgodę na rozpoczęcie usługi przed upływem 14 dni.' },
-        { status: 400 },
+      return bookingErrorResponse(
+        request,
+        body,
+        shouldRedirect,
+        'Przed rezerwacją zaakceptuj regulamin, politykę prywatności i zgodę na rozpoczęcie usługi przed upływem 14 dni.',
+        400,
       )
     }
 
     const problemSpecies = getProblemSpecies(problemType)
 
     if ((problemSpecies === 'kot' && animalType !== 'Kot') || (problemSpecies === 'pies' && animalType !== 'Pies')) {
-      return NextResponse.json({ error: 'Gatunek i temat muszą wskazywać ten sam typ sprawy.' }, { status: 400 })
+      return bookingErrorResponse(request, body, shouldRedirect, 'Gatunek i temat muszą wskazywać ten sam typ sprawy.', 400)
     }
 
     const result = await createPendingBooking({
@@ -110,6 +176,13 @@ export async function POST(request: Request) {
       qaBooking,
     })
 
+    if (shouldRedirect) {
+      return NextResponse.redirect(
+        new URL(buildPaymentHref(result.booking.id, result.accessToken, serviceType, qaBooking), request.url),
+        { status: 303 },
+      )
+    }
+
     return NextResponse.json({
       bookingId: result.booking.id,
       accessToken: result.accessToken,
@@ -117,6 +190,11 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('[regulski-behawiorysta][booking-api] create failed', error)
     const failure = getBookingApiErrorSnapshot(error)
+
+    if (shouldRedirect) {
+      return buildFormErrorRedirect(request, body, failure.message)
+    }
+
     return NextResponse.json({ error: failure.message, errorCode: failure.code }, { status: failure.status })
   }
 }

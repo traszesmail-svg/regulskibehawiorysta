@@ -397,7 +397,7 @@ export default function BlogPage({ searchParams }: { searchParams?: BlogSearchPa
               <h2>Potrzebujesz pomocy w rozwiązaniu problemu?</h2>
               <p>Skonsultuj się ze mną. Wspólnie znajdziemy najlepsze rozwiązanie dla Ciebie i Twojego zwierzęcia.</p>
               <div className="site-help-cta-actions">
-                <Link href="/wybor" prefetch={false} className="blog-redesign-help-link">
+                <Link href="/" prefetch={false} className="blog-redesign-help-link">
                   Umów konsultację
                   <ArrowRight size={17} strokeWidth={1.9} aria-hidden="true" />
                 </Link>

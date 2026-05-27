@@ -20,14 +20,16 @@ import { Schema } from '@/components/schema'
 import type { BookingServiceType } from '@/lib/booking-services'
 import { buildBookHref, readProblemTypeSearchParam, type BookingSpecies } from '@/lib/booking-routing'
 import { getBreadcrumbJsonLd } from '@/lib/schema'
-import { buildMarketingMetadata } from '@/lib/seo'
+import { buildTechnicalMetadata } from '@/lib/seo'
 import type { ProblemType } from '@/lib/types'
 import styles from '../wybor/wybor.module.css'
 
-export const metadata: Metadata = buildMarketingMetadata({
+export const metadata: Metadata = buildTechnicalMetadata({
   title: 'Wybierz format konsultacji',
   path: '/format-konsultacji',
   description: 'Wybierz format konsultacji behawioralnej po wskazaniu tematu psa albo kota.',
+  noIndex: true,
+  follow: true,
 })
 
 type Animal = 'dog' | 'cat'

@@ -19,6 +19,7 @@ import { CAPBT_ORG_URL, INSTAGRAM_PROFILE_URL, SITE_PRODUCTION_URL } from '@/lib
 import { buildBookMetadata, buildHomeMetadata } from '@/lib/seo'
 import { getDeployReadinessChecks, getGoLiveChecks, getVerifiedDeployReadinessChecks } from '@/lib/server/go-live'
 import { getPaymentModeStatus } from '@/lib/server/env'
+import { isCommerceTestModeAllowed } from '@/lib/server/commerce-service'
 import { getQaCheckoutEligibility, getQaCheckoutPaymentReference, getPublicManualPaymentConfig } from '@/lib/server/payment-options'
 import { buildTodayUrgentSlotCandidates, isTodayUrgentSlotCandidate } from '@/lib/urgent-now'
 import { auditSupabaseSchemaText, getSupabaseSchemaAudit } from '@/scripts/lib/schema-audit'
@@ -218,6 +219,73 @@ test('book metadata is indexable and keeps the canonical booking path', async ()
   assert.match(String(metadata.title ?? ''), /Rezerwacja 15-minutowej konsultacji/)
 })
 
+test('home and animal category choices keep prices visible without restoring the 69 zl hero CTA', () => {
+  const selectorSource = readSource('components', 'HomepageServiceSelector.tsx')
+  const bookPageSource = readSource('app', 'book', 'page.tsx')
+  const choicePageSource = readSource('app', 'wybor', 'page.tsx')
+  const choiceCssSource = readSource('app', 'wybor', 'wybor.module.css')
+  const pricingPageSource = readSource('app', 'cennik', 'page.tsx')
+  const pricingCssSource = readSource('app', 'notatnik-a.css')
+
+  assert.match(selectorSource, /title: 'Mam psa'/)
+  assert.match(selectorSource, /title: 'Mam kota'/)
+  assert.match(selectorSource, /title: 'Nie wiem, co wybrać'/)
+  assert.doesNotMatch(selectorSource, /Umów pierwszy krok 69 zł/)
+  assert.match(selectorSource, /href="\/kwadrans-na-juz"/)
+  assert.match(selectorSource, /Znajdź termin dla spraw pilnych!/)
+  assert.match(selectorSource, /router-choice-price/)
+  assert.match(choicePageSource, /entryPriceLabel/)
+  assert.match(choicePageSource, /pricingStrip/)
+  assert.match(choiceCssSource, /\.choicePrice/)
+  assert.match(pricingPageSource, /pricing-2026-offer-action/)
+  assert.match(pricingCssSource, /grid-template-columns: 72px minmax\(0, 1fr\) minmax\(156px, 172px\)/)
+  assert.match(pricingCssSource, /\.router-urgent-cta\s*{[\s\S]*text-align: center/)
+  assert.match(pricingCssSource, /\.router-urgent-cta span\s*{[\s\S]*width: 100%/)
+  assert.match(bookPageSource, /generateMetadata/)
+  assert.match(bookPageSource, /index: false/)
+  assert.match(bookPageSource, /follow: true/)
+})
+
+test('audit priority fixes keep booking copy, no-js contact and technical SEO aligned', () => {
+  const pricingPageSource = readSource('app', 'cennik', 'page.tsx')
+  const pricingContentSource = readSource('app', 'cennik', 'pricing-page-content.tsx')
+  const blogCostSource = readSource('content', 'blog-mvp', '12-wpis-ile-kosztuje-konsultacja-behawioralna.md')
+  const terminSource = readSource('app', 'termin', 'page.tsx')
+  const formatSource = readSource('app', 'format-konsultacji', 'page.tsx')
+  const contactFormSource = readSource('components', 'ContactLeadForm.tsx')
+  const nextConfigSource = readSource('next.config.mjs')
+
+  assert.doesNotMatch(`${pricingPageSource}\n${pricingContentSource}`, /Kwadrans priorytetowy/)
+  assert.match(`${pricingPageSource}\n${pricingContentSource}`, /Kwadrans na już/)
+  assert.match(pricingPageSource, /Faktura lub potwierdzenie płatności na życzenie/)
+  assert.match(pricingPageSource, /Link do rozmowy po potwierdzeniu płatności/)
+
+  assert.doesNotMatch(blogCostSource, /Pełna godzinna konsultacja|od razu godzinna konsultacja/)
+  assert.match(blogCostSource, /około 2h/)
+  assert.match(blogCostSource, /około 2-godzinna konsultacja/)
+
+  assert.match(terminSource, /Kiedy termin jest pewny\?/)
+  assert.match(terminSource, /Jitsi albo pokoju rozmowy/)
+  assert.match(terminSource, /obsługi w godzinach 9-21/)
+  assert.match(terminSource, /\) : null}\s*<section className="termin-bottom-section compact-home-section">/)
+  assert.doesNotMatch(terminSource, /Po rezerwacji dostaniesz krótkie potwierdzenie i dalsze kroki mailowo/)
+
+  assert.match(formatSource, /buildTechnicalMetadata/)
+  assert.match(formatSource, /noIndex: true/)
+  assert.match(formatSource, /follow: true/)
+
+  assert.match(contactFormSource, /CONTACT_SUCCESS_MESSAGE/)
+  assert.match(contactFormSource, /URGENT_CONTACT_SUCCESS_MESSAGE/)
+  assert.match(contactFormSource, /initialStatus/)
+  assert.match(contactFormSource, /action="\/api\/contact"/)
+
+  assert.match(nextConfigSource, /X-Content-Type-Options/)
+  assert.match(nextConfigSource, /Referrer-Policy/)
+  assert.match(nextConfigSource, /Permissions-Policy/)
+  assert.match(nextConfigSource, /X-Frame-Options/)
+  assert.match(nextConfigSource, /Content-Security-Policy/)
+})
+
 test('organization schema uses the configured public contact email', () => {
   withEnv(
     {
@@ -290,6 +358,7 @@ test('copy governance keeps Kwadrans as the primary service name and format as s
   const bookingServiceInfoCardSource = readSource('components', 'BookingServiceInfoCard.tsx')
   const contactSource = readSource('app', 'kontakt', 'page.tsx')
   const bookSource = readSource('app', 'book', 'page.tsx')
+  const seoSource = readSource('lib', 'seo.ts')
 
   assert.match(copyGovernanceSource, /primary: '15-minutowa konsultacja behawioralna'/)
   assert.match(copyGovernanceSource, /primaryDescriptor: '15 min audio bez kamery'/)
@@ -306,17 +375,21 @@ test('copy governance keeps Kwadrans as the primary service name and format as s
   assert.doesNotMatch(contactSource, /<h3>Kwadrans z behawiorysta<\/h3>/)
   assert.doesNotMatch(contactSource, /contact-booking-panel/)
   assert.match(bookSource, /BookingSlotCalendar/)
-  assert.match(bookSource, /15-minutowej konsultacji behawioralnej/)
+  assert.match(seoSource, /15-minutowej konsultacji behawioralnej/)
 })
 
 test('book page keeps a distinct jump-to-form CTA for explicit services', () => {
   const bookSource = readSource('app', 'book', 'page.tsx')
+  const seoSource = readSource('lib', 'seo.ts')
+  const terminSource = readSource('app', 'termin', 'page.tsx')
+  const funnelSource = readSource('lib', 'funnel.ts')
 
   assert.match(bookSource, /import \{ BookingSlotCalendar \} from '@\/app\/termin\/page'/)
   assert.match(bookSource, /return <BookingSlotCalendar searchParams=\{searchParams\} \/>/)
-  assert.match(bookSource, /path: '\/book'/)
-  assert.match(bookSource, /Dwóch kwadransów/)
-  assert.match(bookSource, /Pełnej konsultacji online/)
+  assert.match(bookSource, /buildBookMetadata/)
+  assert.match(seoSource, /path: '\/book'/)
+  assert.match(terminSource, /Dwóch kwadrans/)
+  assert.match(funnelSource, /Pełna konsultacja/)
 })
 
 test('booking form intro follows the selected service instead of a generic booking lead', () => {
@@ -789,6 +862,8 @@ test('commerce checkout uses Naffy runtime and refuses silent admin notification
   const onlineRouteSource = readSource('app', 'api', 'payments', 'online', 'create-checkout', 'route.ts')
   const onlineRuntimeSource = readSource('lib', 'server', 'online-payments.ts')
   const reportRouteSource = readSource('app', 'api', 'orders', '[orderNumber]', 'report-payment', 'route.ts')
+  const adminConfirmRouteSource = readSource('app', 'api', 'admin', 'confirm-payment', '[token]', 'route.ts')
+  const manualReviewRouteSource = readSource('app', 'manual-payment', 'review', 'route.ts')
   const blikActionsSource = readSource('components', 'CommerceBlikActions.tsx')
 
   assert.match(checkoutSource, /getOnlinePaymentRuntime/)
@@ -808,6 +883,33 @@ test('commerce checkout uses Naffy runtime and refuses silent admin notification
   assert.match(reportRouteSource, /emailResult\.status !== 'sent'/)
   assert.match(reportRouteSource, /adminNotificationReason/)
   assert.match(blikActionsSource, /adminNotification[\s\S]+!== 'sent'/)
+  assert.match(adminConfirmRouteSource, /export async function GET/)
+  assert.match(adminConfirmRouteSource, /export async function POST/)
+  assert.match(adminConfirmRouteSource, /Samo otwarcie linku z e-maila niczego nie zmienia/)
+  assert.match(adminConfirmRouteSource, /Otwórz pokój rozmowy/)
+  assert.match(manualReviewRouteSource, /export async function GET/)
+  assert.match(manualReviewRouteSource, /export async function POST/)
+  assert.match(manualReviewRouteSource, /Samo otwarcie linku z e-maila niczego nie zmienia/)
+  assert.match(manualReviewRouteSource, /method="post"/)
+  assert.match(manualReviewRouteSource, /UUID_PATTERN/)
+  assert.doesNotMatch(
+    manualReviewRouteSource.slice(
+      manualReviewRouteSource.indexOf('export async function GET'),
+      manualReviewRouteSource.indexOf('export async function POST'),
+    ),
+    /approveManualPayment|rejectManualPayment/,
+  )
+
+  withEnv(
+    {
+      COMMERCE_TEST_MODE: '1',
+      VERCEL_ENV: 'production',
+      NODE_ENV: 'production',
+    },
+    () => {
+      assert.equal(isCommerceTestModeAllowed(), false)
+    },
+  )
 })
 
 test('commerce payment pages use the responsive payment reference and flow layouts', () => {
@@ -1321,6 +1423,8 @@ test('build script keeps explicit no-cache lint before next build', () => {
   assert.equal(packageJson.scripts?.['payu-smoke:production'], 'node --import tsx scripts/payu-smoke.ts --production')
   assert.equal(packageJson.scripts?.['schema-audit'], 'node scripts/schema-audit.js')
   assert.equal(packageJson.scripts?.['stage9-performance-audit'], 'node --import tsx scripts/stage9-performance-audit.ts')
+  assert.equal(packageJson.scripts?.['js-off-smoke'], 'node --import tsx scripts/js-off-smoke.ts')
+  assert.equal(packageJson.scripts?.['lighthouse:report'], 'node --import tsx scripts/lighthouse-report.ts')
   assert.equal(packageJson.scripts?.['full-public-crawl'], 'node --import tsx scripts/full-public-crawl.ts')
   assert.equal(packageJson.scripts?.['release-checklist'], 'node --import tsx scripts/release-checklist.ts')
 })
@@ -1419,8 +1523,10 @@ test('live booking matrix keeps a ten-attempt production report', () => {
 test('booking and contact flows keep resilient fallback selectors', () => {
   const contactFormSource = readSource('components', 'ContactLeadForm.tsx')
   const contactRouteSource = readSource('app', 'api', 'contact', 'route.ts')
+  const bookingRouteSource = readSource('app', 'api', 'bookings', 'route.ts')
   const calendarSource = readSource('components', 'TerminCalendarPicker.tsx')
   const bookingFormSource = readSource('components', 'BookingForm.tsx')
+  const jsOffSmokeSource = readSource('scripts', 'js-off-smoke.ts')
   const cssSource = readSource('app', 'notatnik-a.css')
   const liveClickthroughSource = readSource('scripts', 'live-clickthrough-report.ts')
   const liveBookingMatrixSource = readSource('scripts', 'live-booking-matrix.ts')
@@ -1430,6 +1536,16 @@ test('booking and contact flows keep resilient fallback selectors', () => {
   assert.match(contactFormSource, /type="radio"/)
   assert.match(contactRouteSource, /request\.formData\(\)/)
   assert.match(contactRouteSource, /NextResponse\.redirect/)
+
+  assert.match(bookingFormSource, /action="\/api\/bookings"/)
+  assert.match(bookingFormSource, /method="post"/)
+  assert.match(bookingFormSource, /name="ownerName"/)
+  assert.match(bookingFormSource, /name="slotId"/)
+  assert.match(bookingRouteSource, /request\.formData\(\)/)
+  assert.match(bookingRouteSource, /buildPaymentHref/)
+  assert.match(bookingRouteSource, /NextResponse\.redirect/)
+  assert.match(jsOffSmokeSource, /javaScriptEnabled: false/)
+  assert.match(jsOffSmokeSource, /form\[action="\/api\/bookings"\]\[method="post"\]/)
 
   assert.match(calendarSource, /data-nearest-slot-link="true"/)
   assert.match(calendarSource, /data-selected-slot-link="true"/)

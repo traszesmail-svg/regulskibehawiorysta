@@ -101,7 +101,7 @@ export function DecisionQuiz({ bookingHrefs }: DecisionQuizProps) {
   const [stepIndex, setStepIndex] = useState(0)
   const [answers, setAnswers] = useState<QuizAnswers>({})
   const [showResult, setShowResult] = useState(false)
-  const autoAdvanceTimer = useRef<ReturnType<typeof window.setTimeout> | null>(null)
+  const autoAdvanceTimer = useRef<number | null>(null)
   const quizRootRef = useRef<HTMLDivElement | null>(null)
   const hasMountedRef = useRef(false)
 

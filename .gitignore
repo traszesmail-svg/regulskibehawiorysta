@@ -68,6 +68,9 @@ qa-reports/**/*.err
 qa-reports/**/*.out
 qa-reports/**/*.html
 qa-reports/**/*.xml
+qa-reports/*.md
+qa-reports/js-off-smoke/
+qa-reports/lighthouse/
 qa-reports/remaining-pages-*/
 
 .DS_Store

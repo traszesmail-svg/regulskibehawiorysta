@@ -15,8 +15,8 @@ export function generateMetadata(): Metadata {
     title: 'Oczekiwanie na potwierdzenie płatności',
     path: '/oczekiwanie',
     description: 'Status zamówienia po potwierdzeniu płatności.',
-    noIndex: false,
-    follow: true,
+    noIndex: true,
+    follow: false,
   })
 }
 

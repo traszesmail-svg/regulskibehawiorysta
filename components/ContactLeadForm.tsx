@@ -3,7 +3,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import { useSearchParams } from 'next/navigation'
 import { trackAnalyticsEvent } from '@/lib/analytics'
 import { type FunnelSpecies } from '@/lib/funnel'
 import { URGENT_NOW_INTENT, isUrgentNowIntent } from '@/lib/urgent-now'
@@ -11,6 +10,11 @@ import { URGENT_NOW_INTENT, isUrgentNowIntent } from '@/lib/urgent-now'
 type FormState = 'idle' | 'loading' | 'success' | 'error'
 type Species = FunnelSpecies
 type SelectedSpecies = Species | ''
+type SearchParamValue = string | string[] | undefined
+
+type ContactLeadFormProps = {
+  searchParams?: Record<string, SearchParamValue>
+}
 
 type SubmissionPayload = {
   name: string
@@ -25,6 +29,9 @@ type SubmissionPayload = {
 }
 
 const MESSAGE_MAX_LENGTH = 500
+const CONTACT_SUCCESS_MESSAGE = 'Dziękuję za wiadomość. Wiadomość trafiła do mnie. Odpowiem na podany adres e-mail.'
+const URGENT_CONTACT_SUCCESS_MESSAGE =
+  'Dziękuję. Prośba o Kwadrans na już została przyjęta. Odpowiem priorytetowo na podany adres e-mail z realną propozycją terminu.'
 
 function createInitialForm(species: SelectedSpecies = ''): SubmissionPayload {
   return {
@@ -60,22 +67,31 @@ function normalizeSpeciesPreset(value: string | null): Species | null {
   return null
 }
 
-export function ContactLeadForm() {
-  const searchParams = useSearchParams()
-  const presetSpecies = normalizeSpeciesPreset(searchParams?.get('species') ?? null)
-  const intent = searchParams?.get('intent') ?? searchParams?.get('service') ?? null
-  const presetDate = searchParams?.get('requestedDate') ?? null
-  const presetTime = searchParams?.get('requestedTime') ?? null
-  const wasSentByFallback = searchParams?.get('sent') === '1'
-  const fallbackError = searchParams?.get('error') ?? null
+function readSearchParam(value: SearchParamValue): string | null {
+  if (Array.isArray(value)) {
+    return value[0] ?? null
+  }
+
+  return value ?? null
+}
+
+export function ContactLeadForm({ searchParams }: ContactLeadFormProps) {
+  const presetSpecies = normalizeSpeciesPreset(readSearchParam(searchParams?.species))
+  const intent = readSearchParam(searchParams?.intent) ?? readSearchParam(searchParams?.service)
+  const presetDate = readSearchParam(searchParams?.requestedDate)
+  const presetTime = readSearchParam(searchParams?.requestedTime)
+  const wasSentByFallback = readSearchParam(searchParams?.sent) === '1'
+  const fallbackError = readSearchParam(searchParams?.error)
   const isUrgentNow = isUrgentNowIntent(intent)
+  const initialStatus: FormState = wasSentByFallback ? 'success' : fallbackError ? 'error' : 'idle'
+  const initialFeedback = wasSentByFallback ? (isUrgentNow ? URGENT_CONTACT_SUCCESS_MESSAGE : CONTACT_SUCCESS_MESSAGE) : fallbackError ?? ''
   const [form, setForm] = useState<SubmissionPayload>({
     ...createInitialForm(presetSpecies ?? ''),
     requestedDate: presetDate ?? '',
     requestedTime: presetTime ?? '',
   })
-  const [status, setStatus] = useState<FormState>('idle')
-  const [feedback, setFeedback] = useState('')
+  const [status, setStatus] = useState<FormState>(initialStatus)
+  const [feedback, setFeedback] = useState(initialFeedback)
   const startedRef = useRef(false)
   const messageLength = form.message.length
   const isSubmitDisabled = status === 'loading'
@@ -100,11 +116,7 @@ export function ContactLeadForm() {
   useEffect(() => {
     if (wasSentByFallback) {
       setStatus('success')
-      setFeedback(
-        isUrgentNow
-          ? 'Dziękuję. Prośba o Kwadrans na już została przyjęta. Odpowiem priorytetowo na podany adres e-mail z realną propozycją terminu.'
-          : 'Dziękuję za wiadomość. Wiadomość trafiła do mnie. Odpowiem na podany adres e-mail.',
-      )
+      setFeedback(isUrgentNow ? URGENT_CONTACT_SUCCESS_MESSAGE : CONTACT_SUCCESS_MESSAGE)
       return
     }
 
@@ -253,9 +265,7 @@ export function ContactLeadForm() {
       setStatus('success')
       setFeedback(
         payload.message ??
-          (isUrgentNow
-            ? 'Dziękuję. Prośba o Kwadrans na już została przyjęta. Odpowiem priorytetowo na podany adres e-mail z realną propozycją terminu.'
-            : 'Dziękuję za wiadomość. Wiadomość trafiła do mnie. Odpowiem na podany adres e-mail.'),
+          (isUrgentNow ? URGENT_CONTACT_SUCCESS_MESSAGE : CONTACT_SUCCESS_MESSAGE),
       )
       setForm(createInitialForm(presetSpecies ?? ''))
       startedRef.current = false

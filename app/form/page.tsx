@@ -58,6 +58,7 @@ export default async function FormPage({
   const serviceType = normalizeBookingServiceType(readBookingServiceSearchParam(searchParams?.service))
   const serviceQuery = serviceType === DEFAULT_BOOKING_SERVICE ? null : serviceType
   const slotId = readSearchParam(searchParams?.slotId)
+  const fallbackError = readSearchParam(searchParams?.error)
   const qaBooking = readQaBookingSearchParam(searchParams?.qa)
   const requestedSpecies = readBookingSpeciesSearchParam(searchParams?.species)
 
@@ -136,8 +137,8 @@ export default async function FormPage({
           <div className="booking-form-hero-copy">
             <h1>Uzupełnij dane do rozmowy</h1>
             <p>
-              Podaj krótki opis sytuacji. Po wysłaniu formularza wybrany termin blokuje się na 15 minut, a rezerwacja
-              staje się pewna po opłaceniu i potwierdzeniu płatności.
+              Podaj krótki opis sytuacji. Potem przejdziesz do płatności, a po jej zakończeniu dostaniesz e-mail z
+              potwierdzeniem i dalszym krokiem.
             </p>
             {qaBooking ? (
               <div className="notatnik-contact-note">
@@ -178,6 +179,12 @@ export default async function FormPage({
         <section className="booking-form-layout">
           <article className="booking-form-card" id="formularz">
             <h2>Uzupełnij dane do rozmowy</h2>
+
+            {fallbackError ? (
+              <div className="notatnik-callout notatnik-callout-error" role="alert">
+                {fallbackError}
+              </div>
+            ) : null}
 
             {flowError ? (
               <>
@@ -301,7 +308,7 @@ export default async function FormPage({
           </div>
           <div className="booking-form-final-actions">
             <a href="#formularz" className="notatnik-btn notatnik-btn-accent">
-              Blokuję termin i przechodzę dalej
+              Przejdź do danych i płatności
             </a>
             <Link href={slotsHref} prefetch={false} className="notatnik-btn notatnik-btn-ghost">
               Wróć do wyboru

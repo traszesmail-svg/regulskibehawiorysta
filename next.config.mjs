@@ -17,6 +17,29 @@ const requestedDistDir = process.env.NEXT_DIST_DIR?.trim()
 const customDistDir =
   requestedDistDir && /^[a-zA-Z0-9._-]+$/.test(requestedDistDir) ? requestedDistDir : undefined
 
+const securityHeaders = [
+  {
+    key: 'X-Content-Type-Options',
+    value: 'nosniff',
+  },
+  {
+    key: 'Referrer-Policy',
+    value: 'strict-origin-when-cross-origin',
+  },
+  {
+    key: 'Permissions-Policy',
+    value: 'geolocation=(), interest-cohort=()',
+  },
+  {
+    key: 'X-Frame-Options',
+    value: 'SAMEORIGIN',
+  },
+  {
+    key: 'Content-Security-Policy',
+    value: "frame-ancestors 'self'",
+  },
+]
+
 const REMOVED_MATERIALY_SLUGS = [
   'kot-zyje-w-napieciu',
   'pies-ile-ruchu-potrzebuje',
@@ -298,19 +321,19 @@ const nextConfig = {
     ]
   },
   async headers() {
-    if (!blockSearchIndexing) {
-      return []
+    const headers = [...securityHeaders]
+
+    if (blockSearchIndexing) {
+      headers.push({
+        key: 'X-Robots-Tag',
+        value: 'noindex, follow, noarchive',
+      })
     }
 
     return [
       {
         source: '/:path*',
-        headers: [
-          {
-            key: 'X-Robots-Tag',
-            value: 'noindex, follow, noarchive',
-          },
-        ],
+        headers,
       },
     ]
   },

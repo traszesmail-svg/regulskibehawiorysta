@@ -209,16 +209,30 @@ export function BookingForm({
   }
 
   return (
-    <form className="notatnik-form booking-details-form" onSubmit={handleSubmit} data-booking-form="details" data-qa-booking={qaBooking ? 'true' : 'false'}>
+    <form
+      className="notatnik-form booking-details-form"
+      action="/api/bookings"
+      method="post"
+      onSubmit={handleSubmit}
+      data-booking-form="details"
+      data-qa-booking={qaBooking ? 'true' : 'false'}
+    >
       {qaBooking ? <div className="notatnik-callout">To jest rezerwacja testowa. Przejdziesz przez kontrolowaną płatność bez realnego obciążenia klienta.</div> : null}
 
       <input type="hidden" name="animalType" value={animalType} />
+      <input type="hidden" name="problemType" value={problemType} />
+      <input type="hidden" name="serviceType" value={serviceType} />
+      <input type="hidden" name="slotId" value={slotId} />
       <input type="hidden" name="slotLabel" value={slotLabel} />
+      <input type="hidden" name="petAge" value="Nie podano w formularzu rezerwacji." />
+      <input type="hidden" name="durationNotes" value="Nie podano w formularzu rezerwacji." />
+      {qaBooking ? <input type="hidden" name="qaBooking" value="true" /> : null}
 
       <div className="booking-details-field">
         <label htmlFor="booking-owner-name">Imię i nazwisko</label>
         <input
           id="booking-owner-name"
+          name="ownerName"
           value={ownerName}
           onChange={(event) => setOwnerName(event.target.value)}
           placeholder="Wpisz swoje imię i nazwisko"
@@ -230,6 +244,7 @@ export function BookingForm({
         <label htmlFor="booking-email">Adres e-mail</label>
         <input
           id="booking-email"
+          name="email"
           type="email"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
@@ -243,6 +258,7 @@ export function BookingForm({
         <p>Wystarczy kilka zdań. Szczegóły możesz dopisać później w materiałach przed rozmową.</p>
         <textarea
           id="booking-description"
+          name="description"
           rows={4}
           maxLength={500}
           value={description}
@@ -256,7 +272,9 @@ export function BookingForm({
       <label className="booking-details-consent" htmlFor="booking-privacy">
         <input
           id="booking-privacy"
+          name="consentTerms"
           type="checkbox"
+          value="true"
           checked={termsAccepted}
           onChange={(event) => setTermsAccepted(event.target.checked)}
         />
@@ -276,7 +294,9 @@ export function BookingForm({
       <label className="booking-details-consent" htmlFor="booking-early-start">
         <input
           id="booking-early-start"
+          name="consentEarlyStart"
           type="checkbox"
+          value="true"
           checked={earlyStartAccepted}
           onChange={(event) => setEarlyStartAccepted(event.target.checked)}
         />
@@ -300,10 +320,10 @@ export function BookingForm({
       <button type="submit" className="booking-details-submit" disabled={isSubmitting} data-booking-submit="payment">
         <span>
           {isSubmitting
-            ? 'Blokuję termin...'
+            ? 'Przygotowuję płatność...'
             : qaBooking
-              ? 'Blokuję termin i przechodzę do testowej płatności'
-              : 'Blokuję termin i przechodzę dalej'}
+              ? 'Przejdź do testowej płatności'
+              : 'Przejdź do płatności'}
         </span>
         <ArrowRight size={18} strokeWidth={1.9} aria-hidden="true" />
       </button>
@@ -311,8 +331,8 @@ export function BookingForm({
       <div className="booking-details-safe-note">
         <LockKeyhole size={13} strokeWidth={1.9} aria-hidden="true" />
         <span>
-          Po wysłaniu danych blokujemy wybrany termin na 15 minut. Rezerwacja jest pewna po opłaceniu i potwierdzeniu
-          płatności. Do zapłaty w kolejnym kroku: {amountLabel}.
+          Po wysłaniu danych trzymamy wybrany termin przez 15 minut na czas płatności. Po opłaceniu dostaniesz e-mail z
+          potwierdzeniem. Do zapłaty w kolejnym kroku: {amountLabel}.
         </span>
       </div>
     </form>

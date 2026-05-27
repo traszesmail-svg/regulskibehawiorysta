@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import type { ComponentType, ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import {
   CalendarDays,
   ChevronRight,
@@ -19,6 +19,7 @@ import {
   UserRound,
   Video,
   Zap,
+  type LucideIcon,
 } from 'lucide-react'
 import { NotatnikFooter, NotatnikTopbar, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
 import { ThemeToggle } from '@/components/ThemeToggle'
@@ -62,7 +63,7 @@ const navItems = [
 
 const bookingFlowSteps = ['Termin', 'Godzina', 'Dane', 'Płatność'] as const
 
-const summaryIconMap: Record<PaymentReferenceSummaryIcon, ComponentType<{ className?: string; 'aria-hidden'?: boolean }>> = {
+const summaryIconMap: Record<PaymentReferenceSummaryIcon, LucideIcon> = {
   calendar: CalendarDays,
   form: Video,
   problem: HelpCircle,
@@ -169,7 +170,7 @@ function PaymentReferenceSummary({
 
           return (
             <div key={`${row.label}-${row.value}`} className="payment-ref-summary-row">
-              <Icon className="payment-ref-summary-icon" aria-hidden="true" />
+              <Icon className="payment-ref-summary-icon" aria-hidden={true} />
               <span>
                 <strong>{row.label}</strong>
                 <em>{row.value}</em>

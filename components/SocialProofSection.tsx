@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { AddTestimonialForm } from '@/components/AddTestimonialForm'
 import { FUNNEL_CTA_LABELS } from '@/lib/funnel'
 import { MEDIA_MENTIONS } from '@/lib/site'
-import { REAL_CASE_STUDIES, getRealCaseProofPills } from '@/lib/real-case-studies'
+import { REAL_CASE_STUDIES, getRealCaseProofPills, type RealCaseStudy } from '@/lib/real-case-studies'
 import {
   TESTIMONIALS,
   getTestimonialDisplayName,
@@ -54,7 +54,7 @@ function getCaseImageDimensions(imageSrc: string) {
   return CASE_IMAGE_DIMENSIONS[imageSrc] ?? { width: 1200, height: 900 }
 }
 
-function CaseCard({ caseStudy }: { caseStudy: (typeof REAL_CASE_STUDIES)[number] }) {
+function CaseCard({ caseStudy }: { caseStudy: RealCaseStudy }) {
   const proofPills = getRealCaseProofPills(caseStudy)
 
   return (

@@ -250,15 +250,30 @@ export function HomepageServiceSelector({ mode = 'home', initialAnimal = null, a
                   </span>
                   <strong>{heroChoiceDisplay[choice.id].title}</strong>
                   {choice.id === 'unknown' ? <em className="router-choice-quiz-label">Quiz</em> : null}
-                  <span>{heroChoiceDisplay[choice.id].copy}</span>
+                  <span className="router-choice-copy">
+                    <span>{heroChoiceDisplay[choice.id].copy}</span>
+                    {choice.id === 'dog' || choice.id === 'cat' ? <span className="router-choice-price">od 69 zł</span> : null}
+                  </span>
                   <ArrowRight className="router-choice-arrow" size={18} strokeWidth={1.8} aria-hidden="true" />
                 </Link>
               ))}
             </div>
-            <Link href="/kwadrans-na-juz" prefetch={false} className="notatnik-btn notatnik-btn-urgent router-methodology-cta router-urgent-cta">
-              <Zap size={22} strokeWidth={2.2} aria-hidden="true" />
-              <span>Sprawdź najbliższy realny termin</span>
-            </Link>
+            <div className="router-hero-service-actions" aria-label="Szybki wybór rozmowy">
+              <Link
+                href="/kwadrans-na-juz"
+                prefetch={false}
+                className="notatnik-btn notatnik-btn-urgent router-methodology-cta router-service-cta router-urgent-cta"
+                onClick={() =>
+                  trackAnalyticsEvent('cta_click', {
+                    location: 'home-router-service-cta',
+                    service: 'kwadrans-na-juz',
+                  })
+                }
+              >
+                <Zap size={22} strokeWidth={2.2} aria-hidden="true" />
+                <span>Znajdź termin dla spraw pilnych!</span>
+              </Link>
+            </div>
             <p className="router-reference-copy router-choice-microcopy">
               Nie musisz diagnozować psa ani kota. Wystarczy, że opiszesz, co widzisz na co dzień.
             </p>

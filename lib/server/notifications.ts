@@ -256,7 +256,7 @@ export function getCustomerEmailDeliveryStatus(recipientEmail?: string | null): 
   const modeConfig = getCustomerEmailModeConfig()
   const mail = getMailProviderConfig()
 
-  const status = (() => {
+  const status: CustomerEmailDeliveryStatus = (() => {
     if (modeConfig.mode === 'invalid') {
       return {
         state: 'blocked',
@@ -1791,6 +1791,7 @@ export async function sendBookingConfirmationEmail(booking: BookingRecord): Prom
         ],
         'confirmation',
       )}
+      ${renderEmailActionButton({ href: booking.meetingUrl, label: 'Wejdź do pokoju rozmowy' })}
       ${prepGuideBlock}
       <p><strong>Co dalej:</strong> wejdź 3–5 minut przed czasem. Miej gotową jedną najważniejszą obserwację — to wystarczy, żeby zacząć.</p>
       ${renderContactBlockHtml()}
@@ -1865,9 +1866,11 @@ export async function sendBookingPaymentConfirmedOwnerEmail(booking: BookingReco
         ],
         'owner-confirmed',
       )}
+      ${renderEmailActionButton({ href: booking.meetingUrl, label: 'Otwórz pokój rozmowy' })}
+      ${renderEmailActionButton({ href: calendarUrl, label: 'Dodaj do Google Calendar', tone: 'secondary' })}
       ${renderEmailTextPanel('Opis zgłoszenia', formatMultilineHtml(booking.description))}
     `,
-    'Plik .ics jest dołączony do tej wiadomości. Możesz też użyć linku Google Calendar z treści maila.',
+    'Link do rozmowy jest głównym adresem spotkania. Plik .ics i Google Calendar są tylko dodatkiem do kalendarza.',
   )
   const text = [
     'Konsultacja opłacona i potwierdzona.',

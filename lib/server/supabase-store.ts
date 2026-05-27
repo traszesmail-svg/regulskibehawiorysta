@@ -354,8 +354,8 @@ function applyLegacyBookingSelectFallback(error: unknown): boolean {
   return BOOKING_SELECT_COLUMNS !== previousSelectColumns
 }
 
-async function runBookingSelectWithSchemaFallback<T extends { error: unknown }>(
-  query: () => Promise<T>,
+async function runBookingSelectWithSchemaFallback<T extends { error: unknown; data: unknown }>(
+  query: () => PromiseLike<T>,
 ): Promise<T> {
   let result = await query()
 

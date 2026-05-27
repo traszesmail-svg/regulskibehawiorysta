@@ -73,7 +73,7 @@ export function buildPageMetadata(pathOrOptions: string | BuildOptions): Metadat
       title: seo.title,
       description: seo.description,
       images: [ogImage],
-      ...(SITE.twitterHandle && { creator: SITE.twitterHandle }),
+      ...(SITE.twitterHandle ? { creator: SITE.twitterHandle } : {}),
     },
 
     icons: {

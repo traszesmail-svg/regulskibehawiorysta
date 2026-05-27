@@ -19,7 +19,7 @@ const MOBILE_MENU_LINK_CLOSE_DELAY_MS = 160
 
 export function NotatnikMobileMenuAutoClose() {
   useEffect(() => {
-    let autoCloseTimer: ReturnType<typeof window.setTimeout> | null = null
+    let autoCloseTimer: number | null = null
 
     const getOpenMenus = () => Array.from(document.querySelectorAll<HTMLDetailsElement>('.notatnik-mobile-menu[open]'))
 
@@ -119,7 +119,7 @@ export function NotatnikMobileMenuAutoClose() {
 
 export function NotatnikMobileMenu({ navItems, ctaHref = '/quiz', ctaLabel = 'Quiz' }: NotatnikMobileMenuProps) {
   const detailsRef = useRef<HTMLDetailsElement>(null)
-  const autoCloseTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(null)
+  const autoCloseTimerRef = useRef<number | null>(null)
 
   const clearAutoCloseTimer = useCallback(() => {
     if (autoCloseTimerRef.current) {

@@ -50,7 +50,7 @@ const offerVisuals: Partial<Record<PublicBookingServiceType, PricingVisual>> = {
     icon: Clock,
   },
   'kwadrans-na-juz': {
-    title: 'Kwadrans priorytetowy',
+    title: 'Kwadrans na już',
     copy: 'Ten sam zakres co Kwadrans, ale z priorytetową odpowiedzią i najbliższym realnym terminem. Dla spraw pilnych, które nie wymagają dłuższej analizy.',
     icon: Clock,
     featured: true,
@@ -121,6 +121,14 @@ export default function PricingPage() {
                 <Clock aria-hidden="true" />
                 Online - wygodnie - skutecznie
               </span>
+              <span>
+                <Mail aria-hidden="true" />
+                Faktura lub potwierdzenie płatności na życzenie
+              </span>
+              <span>
+                <CheckCircle2 aria-hidden="true" />
+                Link do rozmowy po potwierdzeniu płatności
+              </span>
             </div>
           </div>
           <div className="pricing-2026-hero-media" aria-hidden="true">
@@ -163,17 +171,19 @@ export default function PricingPage() {
                   <h2>{visual.title}</h2>
                   <p>{visual.copy}</p>
                 </div>
-                <strong className="pricing-2026-price">{card.price}</strong>
-                <Link
-                  href={getDirectBookingHref(card.service)}
-                  prefetch={false}
-                  className={`pricing-2026-btn ${
-                    visual.featured ? 'pricing-2026-btn-primary' : 'pricing-2026-btn-secondary'
-                  }`}
-                  aria-label={`${card.cta}: ${card.price}`}
-                >
-                  Wybieram
-                </Link>
+                <div className="pricing-2026-offer-action">
+                  <strong className="pricing-2026-price">{card.price}</strong>
+                  <Link
+                    href={getDirectBookingHref(card.service)}
+                    prefetch={false}
+                    className={`pricing-2026-btn ${
+                      visual.featured ? 'pricing-2026-btn-primary' : 'pricing-2026-btn-secondary'
+                    }`}
+                    aria-label={`${card.cta}: ${card.price}`}
+                  >
+                    Wybieram
+                  </Link>
+                </div>
               </article>
             )
           })}

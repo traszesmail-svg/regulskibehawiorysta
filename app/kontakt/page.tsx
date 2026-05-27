@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Suspense } from 'react'
 import {
   ArrowRight,
   CheckCircle2,
@@ -43,7 +42,11 @@ const contactFaqItems = [
   },
 ]
 
-export default function ContactPage() {
+export default function ContactPage({
+  searchParams,
+}: {
+  searchParams?: Record<string, string | string[] | undefined>
+}) {
   const contact = getPublicContactDetails()
   const email = contact.email ?? 'kontakt@regulskibehawiorysta.pl'
   const fallbackMailHref = buildMailtoHref(
@@ -159,16 +162,7 @@ export default function ContactPage() {
                 co trzeba poprawić.
               </div>
             </noscript>
-            <Suspense
-              fallback={
-                <div className="info-box">
-                  Formularz się ładuje. Jeśli nie pojawi się po chwili, napisz bezpośrednio:{' '}
-                  <a href={fallbackMailHref} className="contact-fallback-email">{email}</a>.
-                </div>
-              }
-            >
-              <ContactLeadForm />
-            </Suspense>
+            <ContactLeadForm searchParams={searchParams} />
             <div className="contact-form-fallback">
               <Mail size={18} strokeWidth={1.8} aria-hidden="true" />
               <span>

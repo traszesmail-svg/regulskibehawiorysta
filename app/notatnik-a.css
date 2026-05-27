@@ -11159,6 +11159,21 @@ html[data-theme='dark'] .notatnik-page .materialy-form .consent-line {
   font-size: 16px;
 }
 
+.router-hero-service-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  width: min(100%, 460px);
+  justify-self: center;
+  margin-top: 18px;
+}
+
+.router-hero-service-actions .router-methodology-cta {
+  width: auto;
+  margin-top: 0;
+  flex: 1 1 0;
+}
+
 .router-choice-card {
   display: grid;
   grid-template-rows: auto auto 1fr auto;
@@ -11277,6 +11292,26 @@ html[data-theme='dark'] .notatnik-page .materialy-form .consent-line {
   color: var(--ink-soft);
   font-size: 14px;
   line-height: 1.58;
+}
+
+.router-choice-copy {
+  display: grid;
+  gap: 9px;
+}
+
+.router-choice-price {
+  display: inline-flex;
+  width: fit-content;
+  min-height: 26px;
+  align-items: center;
+  padding: 0 11px;
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--line));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 9%, var(--paper));
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 850;
+  line-height: 1;
 }
 
 .router-choice-arrow {
@@ -25389,9 +25424,12 @@ a.reference-info-row,
 }
 
 .router-urgent-cta {
+  position: relative;
+  justify-content: center;
   border-color: color-mix(in srgb, var(--accent-warm, #b15d25) 88%, #6d3214);
   background: linear-gradient(180deg, color-mix(in srgb, var(--accent-warm, #b15d25) 92%, #8b3c17), #743414);
   color: #fffdf8;
+  text-align: center;
 }
 
 .router-urgent-cta:hover,
@@ -25402,11 +25440,45 @@ a.reference-info-row,
 }
 
 .router-urgent-cta svg {
+  position: absolute;
+  left: 22px;
+  top: 50%;
   flex: 0 0 auto;
+  transform: translateY(-50%);
+}
+
+.router-urgent-cta span {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  padding-inline: 34px;
+  line-height: 1.22;
 }
 
 .homepage-shell .router-methodology-cta.router-urgent-cta {
   padding-inline: 24px;
+}
+
+.homepage-shell .router-hero-service-actions .router-methodology-cta {
+  width: auto;
+  margin-top: 0;
+  padding-inline: 24px;
+  padding-left: 24px;
+}
+
+.homepage-shell .router-hero-service-actions .router-methodology-cta.router-urgent-cta {
+  min-height: 54px;
+  font-size: 15px;
+  font-weight: 820;
+  line-height: 1.16;
+}
+
+.homepage-shell .router-hero-service-actions .router-urgent-cta svg {
+  left: 18px;
+}
+
+.homepage-shell .router-hero-service-actions .router-urgent-cta span {
+  padding-inline: 30px;
 }
 
 .homepage-shell .router-methodology-cta::before,
@@ -25471,8 +25543,32 @@ a.reference-info-row,
 }
 
 @media (max-width: 760px) {
+  .router-hero-service-actions {
+    flex-direction: column;
+  }
+
   .homepage-shell .router-methodology-cta.router-urgent-cta {
     padding-inline: 20px;
+  }
+
+  .homepage-shell .router-hero-service-actions .router-methodology-cta {
+    width: 100%;
+    min-height: 62px;
+    padding-inline: 20px;
+    padding-left: 20px;
+  }
+
+  .homepage-shell .router-hero-service-actions .router-methodology-cta.router-urgent-cta {
+    min-height: 58px;
+    font-size: 14px;
+  }
+
+  .homepage-shell .router-hero-service-actions .router-urgent-cta svg {
+    left: 16px;
+  }
+
+  .homepage-shell .router-hero-service-actions .router-urgent-cta span {
+    padding-inline: 28px;
   }
 }
 
@@ -27932,7 +28028,7 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
 }
 
 .pricing-2026-offer {
-  grid-template-columns: 72px minmax(0, 1fr) auto 132px !important;
+  grid-template-columns: 72px minmax(0, 1fr) minmax(156px, 172px) !important;
   gap: 18px !important;
   padding: 20px 22px !important;
   border-color: rgba(23, 63, 36, 0.12) !important;
@@ -27988,6 +28084,16 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
   color: #07371f !important;
   font-size: clamp(28px, 3.5vw, 40px) !important;
   font-weight: 750 !important;
+  line-height: 1 !important;
+}
+
+.pricing-2026-offer-action {
+  display: grid !important;
+  min-width: 0 !important;
+  gap: 10px !important;
+  align-self: stretch !important;
+  align-content: center !important;
+  justify-items: stretch !important;
 }
 
 .pricing-2026-btn,
@@ -28106,11 +28212,18 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
   }
 
   .pricing-2026-offer {
-    grid-template-columns: 64px minmax(0, 1fr) auto !important;
+    grid-template-columns: 64px minmax(0, 1fr) minmax(150px, 168px) !important;
+  }
+
+  .pricing-2026-offer-action {
+    grid-column: 2 / -1 !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, auto) minmax(130px, 1fr) !important;
+    align-items: center !important;
   }
 
   .pricing-2026-offer .pricing-2026-btn {
-    grid-column: 2 / -1 !important;
+    width: 100% !important;
   }
 }
 
@@ -28146,8 +28259,12 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
   }
 
   .pricing-2026-price {
-    grid-column: 1 / -1 !important;
     font-size: 28px !important;
+  }
+
+  .pricing-2026-offer-action {
+    grid-column: 1 / -1 !important;
+    grid-template-columns: 1fr !important;
   }
 
   .pricing-2026-offer .pricing-2026-btn {

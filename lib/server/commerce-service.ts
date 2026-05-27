@@ -41,7 +41,11 @@ function paymentMethodForBooking(method: CommercePaymentMethod) {
 }
 
 export function isCommerceTestModeAllowed() {
-  return !isProductionDeployment() || process.env.COMMERCE_TEST_MODE?.trim() === '1'
+  if (isProductionDeployment()) {
+    return false
+  }
+
+  return process.env.COMMERCE_TEST_MODE?.trim() !== '0'
 }
 
 export function buildCommerceManualReviewUrl(order: CommerceOrder, action: 'approve' | 'reject') {
@@ -142,23 +146,28 @@ export async function fulfillCommerceOrderAndNotify(
   },
 ) {
   const orderBefore = await getCommerceOrder(orderNumber)
+  if (!orderBefore) {
+    throw new Error('Nie znaleziono zamówienia.')
+  }
+
   const alreadySent =
-    orderBefore?.productType === 'ebook' &&
+    orderBefore.productType === 'ebook' &&
     orderBefore.status === 'access_sent' &&
     Boolean(orderBefore.accessCode)
+
+  if (orderBefore.productType === 'consultation' && orderBefore.meta.bookingId) {
+    await markBookingPaid(orderBefore.meta.bookingId, {
+      paymentMethod: paymentMethodForBooking(method),
+      paymentReference: orderBefore.orderNumber,
+      paymentIntentId: options?.providerPaymentId ?? undefined,
+      triggerPaymentConfirmationSms: false,
+    })
+  }
+
   const order = await fulfillCommerceOrder(orderNumber, method, options)
 
   if (!order) {
     throw new Error('Nie znaleziono zamówienia.')
-  }
-
-  if (order.productType === 'consultation' && order.meta.bookingId) {
-    await markBookingPaid(order.meta.bookingId, {
-      paymentMethod: paymentMethodForBooking(method),
-      paymentReference: order.orderNumber,
-      paymentIntentId: options?.providerPaymentId ?? undefined,
-      triggerPaymentConfirmationSms: false,
-    })
   }
 
   if (!alreadySent && order.productType === 'ebook') {

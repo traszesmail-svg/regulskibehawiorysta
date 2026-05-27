@@ -19,7 +19,7 @@ Kilka zmiennych decyduje o tym, ile kosztuje spotkanie:
 
 **Format — online vs. wizyta na miejscu.** Konsultacje online są zazwyczaj tańsze, bo nie ma kosztów dojazdu ani czasu w terenie. Dla większości pierwszych problemów online wystarczy. Wizyta stacjonarna ma sens przy problemach, gdzie widok środowiska jest kluczowy (konflikty terytorialne, agresja o złożonym tle).
 
-**Długość konsultacji.** Im więcej czasu, tym głębiej można wejść w temat. Krótka rozmowa wstępna ma sens jako pierwsze sprawdzenie. Pełna godzinna konsultacja jest potrzebna przy problemach wielowątkowych.
+**Długość konsultacji.** Im więcej czasu, tym głębiej można wejść w temat. Krótka rozmowa wstępna ma sens jako pierwsze sprawdzenie. Pełna konsultacja trwa około 2h i jest potrzebna przy problemach wielowątkowych.
 
 **Doświadczenie i kwalifikacje specjalisty.** Specjalista po solidnym kursie afiliowanym (np. COAPE), z kilkuletnią praktyką, zazwyczaj liczy więcej niż ktoś po tygodniowym kursie. To nie jest reguła bez wyjątków, ale korelacja jest wyraźna.
 
@@ -61,7 +61,7 @@ Krótka rozmowa za niską cenę może być dobrym sprawdzeniem tematu, ale nie z
 - nie jesteś pewna/pewien, czy temat jest duży czy mały i chcesz to ustalić zanim zainwestujesz więcej,
 - dopiero zaczynasz z nowym psem albo kotem i chcesz dobrze ustawić fundament.
 
-W tych przypadkach Kwadrans z behawiorystą jest sensowniejszym pierwszym krokiem niż od razu godzinna konsultacja.
+W tych przypadkach Kwadrans z behawiorystą jest sensowniejszym pierwszym krokiem niż od razu pełna, około 2-godzinna konsultacja.
 
 ## Ile spotkań zwykle potrzeba
 

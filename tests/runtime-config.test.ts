@@ -219,11 +219,10 @@ test('book metadata is indexable and keeps the canonical booking path', async ()
   assert.match(String(metadata.title ?? ''), /Rezerwacja 15-minutowej konsultacji/)
 })
 
-test('home and animal category choices keep prices visible without restoring the 69 zl hero CTA', () => {
+test('home keeps price cue while animal category choices stay problem-first', () => {
   const selectorSource = readSource('components', 'HomepageServiceSelector.tsx')
   const bookPageSource = readSource('app', 'book', 'page.tsx')
   const choicePageSource = readSource('app', 'wybor', 'page.tsx')
-  const choiceCssSource = readSource('app', 'wybor', 'wybor.module.css')
   const pricingPageSource = readSource('app', 'cennik', 'page.tsx')
   const pricingCssSource = readSource('app', 'notatnik-a.css')
 
@@ -234,9 +233,9 @@ test('home and animal category choices keep prices visible without restoring the
   assert.match(selectorSource, /href="\/kwadrans-na-juz"/)
   assert.match(selectorSource, /Znajdź termin dla spraw pilnych!/)
   assert.match(selectorSource, /router-choice-price/)
-  assert.match(choicePageSource, /entryPriceLabel/)
-  assert.match(choicePageSource, /pricingStrip/)
-  assert.match(choiceCssSource, /\.choicePrice/)
+  assert.doesNotMatch(choicePageSource, /entryPriceLabel/)
+  assert.doesNotMatch(choicePageSource, /pricingStrip/)
+  assert.doesNotMatch(choicePageSource, /choicePrice/)
   assert.match(pricingPageSource, /pricing-2026-offer-action/)
   assert.match(pricingCssSource, /grid-template-columns: 72px minmax\(0, 1fr\) minmax\(156px, 172px\)/)
   assert.match(pricingCssSource, /\.router-urgent-cta\s*{[\s\S]*text-align: center/)

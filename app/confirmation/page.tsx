@@ -227,6 +227,7 @@ export default async function ConfirmationPage({
   const initialRemainingSeconds = booking ? getRemainingSelfCancellationSeconds(booking) : 0
   const smsPanel = getSmsPanelContent(booking?.smsConfirmationStatus)
   const customerEmailStatus = booking ? getCustomerEmailDeliveryStatus(booking.email) : null
+  const isPromoPayment = booking?.paymentMethod === 'promo'
   const bookingServiceType = booking ? resolveBookingServiceType(booking.serviceType, booking.amount) : null
   const bookingServiceTitle = bookingServiceType ? getBookingServiceTitle(bookingServiceType) : null
   const roomAccessLabel = bookingServiceType ? getBookingServiceRoomAccessLabel(bookingServiceType) : 'pokój rozmowy'
@@ -305,7 +306,9 @@ export default async function ConfirmationPage({
                 {isSelfCancelled
                   ? 'Zakup anulowany'
                   : isConfirmed
-                    ? 'Wpłata potwierdzona'
+                    ? isPromoPayment
+                      ? 'Kod promocyjny użyty'
+                      : 'Wpłata potwierdzona'
                     : isWaitingManual
                       ? 'Czekamy na potwierdzenie wpłaty'
                       : isRejected
@@ -335,7 +338,9 @@ export default async function ConfirmationPage({
                   : isConfirmed
                     ? qaBooking
                       ? 'Testowa płatność została potwierdzona'
-                      : `Wpłata za ${serviceLabel} została potwierdzona`
+                      : isPromoPayment
+                        ? `Termin na ${serviceLabel} został potwierdzony kodem promocyjnym`
+                        : `Wpłata za ${serviceLabel} została potwierdzona`
                     : isWaitingManual
                       ? 'Wpłata czeka na potwierdzenie'
                       : isRejected
@@ -348,7 +353,9 @@ export default async function ConfirmationPage({
                   : isConfirmed
                     ? qaBooking
                       ? 'To jest rezerwacja testowa. Poniżej masz potwierdzenie i kolejny krok bez realnej płatności.'
-                      : `Wpłata jest już potwierdzona. Poniżej masz podsumowanie rezerwacji, status wiadomości, ${roomAccessLabel} i dalszy krok.`
+                      : isPromoPayment
+                        ? `Kod promocyjny został przyjęty. Poniżej masz podsumowanie rezerwacji, status wiadomości, ${roomAccessLabel} i dalszy krok.`
+                        : `Wpłata jest już potwierdzona. Poniżej masz podsumowanie rezerwacji, status wiadomości, ${roomAccessLabel} i dalszy krok.`
                     : isWaitingManual
                       ? `Sprawdzamy wpłatę ręczną i potwierdzimy ją w godzinach obsługi. Gdy status zmieni się na opłacony, zobaczysz ${roomAccessLabel} i sekcję materiałów.`
                       : isRejected
@@ -380,8 +387,8 @@ export default async function ConfirmationPage({
                   </div>
                 ) : null}
                 <div className="summary-card tree-backed-card">
-                  <div className="stat-label">Kwota</div>
-                  <div className="summary-value">{formatPricePln(booking.amount)}</div>
+                  <div className="stat-label">{isPromoPayment ? 'Rozliczenie' : 'Kwota'}</div>
+                  <div className="summary-value">{isPromoPayment ? 'Kod promocyjny' : formatPricePln(booking.amount)}</div>
                 </div>
               </div>
 

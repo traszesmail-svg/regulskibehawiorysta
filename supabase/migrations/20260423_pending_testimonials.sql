@@ -18,7 +18,6 @@ revoke all on table public.pending_testimonials from anon, authenticated;
 grant all on table public.pending_testimonials to service_role;
 drop policy if exists "service role full access" on public.pending_testimonials;
 create policy "service role full access" on public.pending_testimonials
-  on public.pending_testimonials
   for all
   to service_role
   using (true)

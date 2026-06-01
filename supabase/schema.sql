@@ -77,7 +77,36 @@ create table if not exists public.funnel_events (
   id uuid primary key default gen_random_uuid(),
   event_type text not null check (
     event_type in (
+      'page_view',
+      'view_page',
+      'funnel_entry_15_min',
+      'funnel_entry_60_min',
+      'newsletter_signup',
+      'lead_magnet_signup',
+      'booking_start',
+      'booking_service_selected',
+      'booking_slot_selected',
+      'booking_form_started',
+      'booking_form_submitted',
+      'payment_viewed',
+      'payment_marked_pending',
+      'payment_completed',
+      'booking_confirmed',
+      'booking_drop',
+      'confirmation_viewed',
+      'call_room_viewed',
+      'contact_form_started',
+      'contact_form_submitted',
+      'hero_cta_click',
+      'service_select',
+      'slot_select',
+      'form_start',
+      'form_submit',
+      'payment_start',
+      'payment_reported',
+      'payment_confirmed',
       'home_view',
+      'dogs_page_view',
       'cta_click',
       'topic_selected',
       'slot_selected',
@@ -92,7 +121,10 @@ create table if not exists public.funnel_events (
       'payment_failed',
       'faq_open',
       'opinion_add',
-      'room_entered'
+      'room_entered',
+      'quiz_completed',
+      'notification_optin_submitted',
+      'notification_optout_submitted'
     )
   ),
   booking_id uuid references public.bookings(id) on delete set null,
@@ -192,7 +224,6 @@ revoke all on table public.pending_testimonials from anon, authenticated;
 grant all on table public.pending_testimonials to service_role;
 drop policy if exists "service role full access" on public.pending_testimonials;
 create policy "service role full access" on public.pending_testimonials
-  on public.pending_testimonials
   for all
   to service_role
   using (true)

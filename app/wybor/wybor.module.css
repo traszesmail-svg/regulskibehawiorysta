@@ -1362,58 +1362,6 @@
   }
 }
 
-.priceStrip {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 14px;
-}
-
-.priceStrip span,
-.choicePrice {
-  display: inline-flex;
-  width: fit-content;
-  align-items: center;
-  border: 1px solid rgba(20, 65, 38, 0.16);
-  border-radius: 999px;
-  background: #edf1dc;
-  color: #123d24;
-  font-weight: 900;
-  line-height: 1;
-}
-
-.priceStrip span {
-  min-height: 30px;
-  padding: 0 11px;
-  font-size: 12px;
-}
-
-.choicePrice {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 4;
-  min-height: 27px;
-  padding: 0 10px;
-  background: #0d5731;
-  color: #fffdf8;
-  font-size: 11px;
-  box-shadow: 0 8px 16px rgba(10, 55, 31, 0.18);
-}
-
-@media (max-width: 520px) {
-  .priceStrip {
-    gap: 6px;
-    margin-top: 12px;
-  }
-
-  .priceStrip span {
-    min-height: 28px;
-    padding-inline: 9px;
-    font-size: 11px;
-  }
-}
-
 @media (max-width: 380px) {
   .heroRow {
     grid-template-columns: 50px minmax(0, 1fr);

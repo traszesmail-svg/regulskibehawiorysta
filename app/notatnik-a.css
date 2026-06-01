@@ -27532,6 +27532,29 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
   margin-inline: auto !important;
 }
 
+.booking-flow-panel .summary-grid:not(.trust-grid) {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 154px), 1fr)) !important;
+  gap: 12px !important;
+}
+
+.booking-flow-panel .summary-grid.trust-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr)) !important;
+  gap: 12px !important;
+}
+
+.booking-flow-panel .summary-card {
+  min-width: 0 !important;
+  padding: 18px 16px !important;
+}
+
+.booking-flow-panel .summary-value {
+  font-size: clamp(18px, 1.8vw, 24px) !important;
+  line-height: 1.18 !important;
+  overflow-wrap: anywhere !important;
+  word-break: normal !important;
+  text-wrap: balance !important;
+}
+
 .booking-flow-panel .section-eyebrow {
   border-color: rgba(20, 75, 43, 0.14) !important;
   background: #edf2df !important;
@@ -27540,9 +27563,13 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
 
 .booking-flow-panel h1 {
   color: #073d26 !important;
-  font-size: clamp(34px, 4.8vw, 52px) !important;
+  font-size: clamp(30px, 4vw, 46px) !important;
   font-weight: 560 !important;
-  line-height: 1 !important;
+  line-height: 1.18 !important;
+  margin-inline: auto !important;
+  max-width: 680px !important;
+  overflow-wrap: anywhere !important;
+  text-wrap: balance !important;
 }
 
 @media (max-width: 680px) {

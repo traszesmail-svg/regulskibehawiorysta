@@ -48,7 +48,7 @@ export default async function AdminPage() {
   const goLiveChecks = getGoLiveChecks()
   const buildMarker = getBuildMarkerSnapshot()
   const latestQaReport = await readLatestQaReport()
-  const urgentRequests = await listUrgentNowRequests()
+  let urgentRequests: Awaited<ReturnType<typeof listUrgentNowRequests>> = []
   let bookings: Awaited<ReturnType<typeof listBookings>> = []
   let availability: Awaited<ReturnType<typeof listAvailabilityAdmin>> = []
   let funnelEvents: Awaited<ReturnType<typeof listFunnelEvents>> = []
@@ -57,11 +57,12 @@ export default async function AdminPage() {
   const dataLoadErrors: string[] = []
 
   if (runtime.data.isValid) {
-    const [bookingsResult, availabilityResult, funnelEventsResult, priceResult] = await Promise.allSettled([
+    const [bookingsResult, availabilityResult, funnelEventsResult, priceResult, urgentRequestsResult] = await Promise.allSettled([
       listBookings(),
       listAvailabilityAdmin(),
       listFunnelEvents(),
       getActiveConsultationPrice(),
+      listUrgentNowRequests(),
     ])
 
     if (bookingsResult.status === 'fulfilled') {
@@ -86,6 +87,12 @@ export default async function AdminPage() {
       price = priceResult.value
     } else {
       dataLoadErrors.push(formatDataLoadError('pricing', priceResult.reason))
+    }
+
+    if (urgentRequestsResult.status === 'fulfilled') {
+      urgentRequests = urgentRequestsResult.value
+    } else {
+      dataLoadErrors.push(formatDataLoadError('urgent_now_requests', urgentRequestsResult.reason))
     }
 
     funnelMetricsSnapshot = buildFunnelMetricsSnapshot({

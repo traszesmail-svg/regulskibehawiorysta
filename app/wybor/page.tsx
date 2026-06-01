@@ -18,8 +18,6 @@ import {
 } from 'lucide-react'
 import { NotatnikFooter, NotatnikTopbar, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
 import { Schema } from '@/components/schema'
-import { formatPricePln } from '@/lib/pricing'
-import { PUBLIC_OFFER_PRICES } from '@/lib/public-offer-copy'
 import { getBreadcrumbJsonLd } from '@/lib/schema'
 import { buildMarketingMetadata } from '@/lib/seo'
 import type { ProblemType } from '@/lib/types'
@@ -74,14 +72,6 @@ const animalCopy: Record<Animal, AnimalCopy> = {
     heroAlt: 'Spokojny kot',
   },
 }
-
-const entryPriceLabel = `od ${formatPricePln(PUBLIC_OFFER_PRICES.quick)}`
-const pricingStrip = [
-  `Kwadrans ${formatPricePln(PUBLIC_OFFER_PRICES.quick)}`,
-  `Pilne ${formatPricePln(PUBLIC_OFFER_PRICES.urgent)}`,
-  `30 min ${formatPricePln(PUBLIC_OFFER_PRICES.bridge)}`,
-  `Pełna ${formatPricePln(PUBLIC_OFFER_PRICES.premium)}`,
-] as const
 
 const dogChoices: Choice[] = [
   {
@@ -249,11 +239,6 @@ export default function ChoicePage({
                 <span className={styles.eyebrow}>{copy.eyebrow}</span>
                 <h1 id="wybor-title">{copy.title}</h1>
                 <p>{copy.lead}</p>
-                <div className={styles.priceStrip} aria-label="Ceny rozmów">
-                  {pricingStrip.map((item) => (
-                    <span key={item}>{item}</span>
-                  ))}
-                </div>
               </div>
               <figure className={styles.heroImage}>
                 <Image src={copy.heroImage} alt={copy.heroAlt} fill priority sizes="170px" />
@@ -291,7 +276,6 @@ export default function ChoicePage({
                       </span>
                     ) : null}
                     <span className={styles.choiceBody}>
-                      <span className={styles.choicePrice}>{entryPriceLabel}</span>
                       <span className={styles.choiceIcon} aria-hidden="true">
                         <Icon size={24} strokeWidth={1.9} />
                       </span>

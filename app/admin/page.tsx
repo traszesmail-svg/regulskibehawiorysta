@@ -4,6 +4,7 @@ import { AdminAvailabilityManager } from '@/components/AdminAvailabilityManager'
 import { AdminBookingActions } from '@/components/AdminBookingActions'
 import { AdminPricingManager } from '@/components/AdminPricingManager'
 import { AdminUrgentRequestActions } from '@/components/AdminUrgentRequestActions'
+import { BookingReminderOptIn } from '@/components/BookingReminderOptIn'
 import { Header } from '@/components/Header'
 import { getBuildMarkerSnapshot } from '@/lib/build-marker'
 import { formatDateLabel, formatDateTimeLabel, getBookingStatusLabel, getPaymentStatusLabel, getProblemLabel } from '@/lib/data'
@@ -14,6 +15,7 @@ import { getRuntimeModeSnapshot } from '@/lib/server/env'
 import { getGoLiveChecks } from '@/lib/server/go-live'
 import { getPaymentOptionsSummary } from '@/lib/server/payment-options'
 import { readLatestQaReport } from '@/lib/server/qa-report'
+import { createAdminPushToken } from '@/lib/server/admin-push-token'
 import { parseUrgentRequestedSlotsFromMessage, stripUrgentRequestedSlotsFromMessage } from '@/lib/urgent-now'
 
 export const dynamic = 'force-dynamic'
@@ -122,6 +124,8 @@ export default async function AdminPage() {
   const priceUpdatedAtLabel = price?.updatedAt
     ? `${formatDateLabel(price.updatedAt.slice(0, 10))}, ${price.updatedAt.slice(11, 16)}`
     : null
+  const pushPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY?.trim() || null
+  const adminPushToken = createAdminPushToken()
   const dataLoadIssue =
     dataLoadErrors.length > 0
       ? `Nie wszystkie dane panelu mogły się załadować: ${dataLoadErrors.join(' | ')}`
@@ -212,6 +216,16 @@ export default async function AdminPage() {
           </div>
 
           {dataLoadIssue ? <div className="error-box top-gap">{dataLoadIssue}</div> : null}
+
+          {pushPublicKey && adminPushToken ? (
+            <BookingReminderOptIn
+              role="owner"
+              publicKey={pushPublicKey}
+              ownerToken={adminPushToken}
+              targetUrl="/admin"
+              className="top-gap"
+            />
+          ) : null}
 
           <div className="top-gap">
             <div className="section-eyebrow">Go-live</div>

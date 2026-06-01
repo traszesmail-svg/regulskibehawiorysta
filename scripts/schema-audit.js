@@ -33,6 +33,11 @@ const REQUIRED_SCHEMA_MARKERS = [
     expectedCount: 1,
   },
   {
+    label: 'push_subscriptions',
+    needle: 'create table if not exists public.push_subscriptions',
+    expectedCount: 1,
+  },
+  {
     label: 'bookings.payment_reference',
     needle: 'payment_reference text',
     expectedCount: 1,
@@ -75,6 +80,7 @@ const REQUIRED_FILES = [
   'supabase/migrations/20260325_manual_payment_and_payu.sql',
   'supabase/migrations/20260406002_qa_checkout.sql',
   'supabase/migrations/20260601001_promo_codes.sql',
+  'supabase/migrations/20260601005_push_subscriptions.sql',
 ]
 
 function normalizeSchemaText(schemaText) {

@@ -5,6 +5,8 @@ import {
   buildVisibleServiceSlotsForDate,
   getNormalBookingMinDateKey,
 } from '@/lib/scheduling/rules'
+import { shouldSendReminderForBooking } from '@/lib/server/reminders'
+import { REMINDER_LEAD_TIME_MINUTES } from '@/lib/server/reminder-runner'
 import type { AvailabilitySlot } from '@/lib/types'
 
 function slotsFromSeed(now: Date): AvailabilitySlot[] {
@@ -51,5 +53,22 @@ describe('service scheduling rules', () => {
     assert.equal(sunday.find((slot) => slot.time === '08:00')?.statusLabel, 'Dostępny')
     assert.equal(sunday.find((slot) => slot.time === '08:30')?.statusLabel, 'Zajęte')
     assert.equal(christmas.find((slot) => slot.time === '08:15')?.statusLabel, 'Niedostępne')
+  })
+
+  it('sends booking reminders in the final 15-minute window', () => {
+    const start = { date: '2026-06-01', time: '10:00' }
+    const end = { date: '2026-06-01', time: '10:15' }
+    const baseBooking = {
+      bookingStatus: 'confirmed' as const,
+      paymentStatus: 'paid' as const,
+      reminderSent: false,
+      bookingDate: '2026-06-01',
+      bookingTime: '10:15',
+    }
+
+    assert.equal(REMINDER_LEAD_TIME_MINUTES, 15)
+    assert.equal(shouldSendReminderForBooking(baseBooking, start, end), true)
+    assert.equal(shouldSendReminderForBooking({ ...baseBooking, bookingTime: '10:16' }, start, end), false)
+    assert.equal(shouldSendReminderForBooking({ ...baseBooking, reminderSent: true }, start, end), false)
   })
 })

@@ -5,6 +5,7 @@ import { headers } from 'next/headers'
 import { CalendarDays } from 'lucide-react'
 import { AnalyticsEventOnMount } from '@/components/AnalyticsEventOnMount'
 import { BookingStageEyebrow } from '@/components/BookingStageEyebrow'
+import { BookingReminderOptIn } from '@/components/BookingReminderOptIn'
 import { getBookingAnalyticsContextParams } from '@/lib/analytics-schema'
 import { CustomerEmailStatusNotice } from '@/components/CustomerEmailStatusNotice'
 import { ConfirmationStatusWatcher } from '@/components/ConfirmationStatusWatcher'
@@ -256,6 +257,7 @@ export default async function ConfirmationPage({
   const confirmedChecklist = bookingServiceType ? getConfirmedChecklist(bookingServiceType) : null
   const confirmedFlowCards =
     booking && bookingServiceType ? getConfirmedFlowCards(bookingServiceType, roomAccessLabel, customerEmailStatus?.state === 'ready', booking.email) : []
+  const pushPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY?.trim() || null
 
   return (
     <NotatnikPageShell
@@ -397,6 +399,17 @@ export default async function ConfirmationPage({
                   status={customerEmailStatus}
                   recipientEmail={booking.email}
                   context="confirmation"
+                  className="top-gap"
+                />
+              ) : null}
+
+              {isConfirmed && accessToken ? (
+                <BookingReminderOptIn
+                  role="customer"
+                  publicKey={pushPublicKey}
+                  bookingId={booking.id}
+                  accessToken={accessToken}
+                  targetUrl={`/call/${booking.id}?access=${encodeURIComponent(accessToken)}`}
                   className="top-gap"
                 />
               ) : null}

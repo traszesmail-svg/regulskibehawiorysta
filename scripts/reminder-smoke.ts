@@ -35,7 +35,7 @@ async function main() {
   const marked: string[] = []
 
   const result = await runBookingReminderSweep({
-    now: () => new Date('2026-03-21T09:00:00Z'),
+    now: () => new Date('2026-03-21T09:15:00Z'),
     listBookings: async () => [
       createBooking('send-ok'),
       createBooking('send-skip'),
@@ -56,6 +56,17 @@ async function main() {
 
       return { status: 'failed' as const, reason: 'SMTP timeout' }
     },
+    sendOwnerBookingReminderEmail: async () => ({ status: 'skipped' as const, reason: 'smoke' }),
+    sendBookingPushReminders: async () => ({
+      configured: false,
+      attempted: 0,
+      sent: 0,
+      skipped: 1,
+      failed: 0,
+      expired: 0,
+      ownerSent: 0,
+      customerSent: 0,
+    }),
     markBookingReminderSent: async (bookingId) => {
       marked.push(bookingId)
       return createBooking(bookingId, { reminderSent: true })

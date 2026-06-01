@@ -1,6 +1,7 @@
 import { listBookings, markBookingReminderSent } from '@/lib/server/db'
 import { ConfigurationError } from '@/lib/server/env'
-import { sendBookingReminderEmail } from '@/lib/server/notifications'
+import { sendBookingReminderEmail, sendOwnerBookingReminderEmail } from '@/lib/server/notifications'
+import { sendBookingPushReminders } from '@/lib/server/push-notifications'
 import { LocalTimeWindow, getWarsawDateTime, shouldSendReminderForBooking } from '@/lib/server/reminders'
 import { BookingRecord } from '@/lib/types'
 
@@ -9,12 +10,16 @@ export const SUPABASE_REMINDER_JOB_NAME = 'regulski-booking-reminders'
 export const SUPABASE_REMINDER_SCHEDULE = '*/5 * * * *'
 export const SUPABASE_REMINDER_APP_URL_SECRET = 'regulski_app_url'
 export const SUPABASE_REMINDER_CRON_SECRET = 'regulski_cron_secret'
+export const REMINDER_LEAD_TIME_MINUTES = 15
 
 type ReminderDeliveryResult = Awaited<ReturnType<typeof sendBookingReminderEmail>>
+type PushReminderResult = Awaited<ReturnType<typeof sendBookingPushReminders>>
 
 type ReminderRunnerDeps = {
   listBookings: () => Promise<BookingRecord[]>
   sendBookingReminderEmail: (booking: BookingRecord) => Promise<ReminderDeliveryResult>
+  sendOwnerBookingReminderEmail: (booking: BookingRecord) => Promise<ReminderDeliveryResult>
+  sendBookingPushReminders: (booking: BookingRecord) => Promise<PushReminderResult>
   markBookingReminderSent: (bookingId: string) => Promise<BookingRecord | null>
   now: () => Date
 }
@@ -27,11 +32,14 @@ export type ReminderRunResult = {
   failed: number
   windowStart: LocalTimeWindow
   windowEnd: LocalTimeWindow
+  pushSent: number
 }
 
 const defaultDeps: ReminderRunnerDeps = {
   listBookings,
   sendBookingReminderEmail,
+  sendOwnerBookingReminderEmail,
+  sendBookingPushReminders,
   markBookingReminderSent,
   now: () => new Date(),
 }
@@ -60,24 +68,33 @@ export async function runBookingReminderSweep(overrides: Partial<ReminderRunnerD
   const deps = { ...defaultDeps, ...overrides }
   const now = deps.now()
   const windowStart = getWarsawDateTime(now)
-  const windowEnd = getWarsawDateTime(new Date(now.getTime() + 60 * 60 * 1000))
+  const windowEnd = getWarsawDateTime(new Date(now.getTime() + REMINDER_LEAD_TIME_MINUTES * 60 * 1000))
   const bookings = await deps.listBookings()
   const candidates = bookings.filter((booking) => shouldSendReminderForBooking(booking, windowStart, windowEnd))
 
   let sent = 0
   let skipped = 0
   let failed = 0
+  let pushSent = 0
 
   for (const booking of candidates) {
-    const delivery = await deps.sendBookingReminderEmail(booking)
+    const [customerEmail, ownerEmail, pushDelivery] = await Promise.all([
+      deps.sendBookingReminderEmail(booking),
+      deps.sendOwnerBookingReminderEmail(booking),
+      deps.sendBookingPushReminders(booking),
+    ])
+    const anyChannelSent = customerEmail.status === 'sent' || ownerEmail.status === 'sent' || pushDelivery.sent > 0
+    const anyChannelFailed = customerEmail.status === 'failed' || ownerEmail.status === 'failed' || pushDelivery.failed > 0
 
-    if (delivery.status === 'sent') {
+    pushSent += pushDelivery.sent
+
+    if (anyChannelSent) {
       await deps.markBookingReminderSent(booking.id)
       sent += 1
       continue
     }
 
-    if (delivery.status === 'skipped') {
+    if (!anyChannelFailed) {
       skipped += 1
       continue
     }
@@ -93,5 +110,6 @@ export async function runBookingReminderSweep(overrides: Partial<ReminderRunnerD
     failed,
     windowStart,
     windowEnd,
+    pushSent,
   }
 }

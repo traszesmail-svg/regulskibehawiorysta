@@ -90,7 +90,11 @@ const nextConfig = {
     webpackBuildWorker: false,
     optimizeCss: true,
     outputFileTracingIncludes: {
-      '/*': ['./qa-reports/latest-report.md'],
+      '/*': [
+        './qa-reports/latest-report.md',
+        './supabase/schema.sql',
+        './supabase/migrations/**/*.sql',
+      ],
     },
   },
   typescript: {

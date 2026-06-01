@@ -1763,6 +1763,7 @@ export async function sendBookingConfirmationEmail(booking: BookingRecord): Prom
   const summary = buildBookingSummary(booking)
   const subject = `Potwierdzenie konsultacji - ${EMAIL_BRAND_NAME} - ${summary}`
   const prepGuideUrl = getPrepGuideUrl(booking)
+  const calendarUrl = buildGoogleCalendarUrl(booking)
   const prepGuideBlock = prepGuideUrl
     ? renderEmailActionButton({ href: prepGuideUrl, label: 'Przeczytaj krótki poradnik', tone: 'secondary' })
     : ''
@@ -1792,8 +1793,9 @@ export async function sendBookingConfirmationEmail(booking: BookingRecord): Prom
         'confirmation',
       )}
       ${renderEmailActionButton({ href: booking.meetingUrl, label: 'Wejdź do pokoju rozmowy' })}
+      ${renderEmailActionButton({ href: calendarUrl, label: 'Dodaj do Google Calendar', tone: 'secondary' })}
       ${prepGuideBlock}
-      <p><strong>Co dalej:</strong> wejdź 3–5 minut przed czasem. Miej gotową jedną najważniejszą obserwację — to wystarczy, żeby zacząć.</p>
+      <p><strong>Co dalej:</strong> wejdź 3–5 minut przed czasem. Plik kalendarza ma przypomnienie 15 minut przed rozmową.</p>
       ${renderContactBlockHtml()}
     `,
     'Jeśli będzie potrzebny kolejny krok po rozmowie, dostaniesz jasną rekomendację zamiast ogólnych porad.',
@@ -1803,12 +1805,28 @@ export async function sendBookingConfirmationEmail(booking: BookingRecord): Prom
     `Termin: ${formatDateTimeLabel(booking.bookingDate, booking.bookingTime)}`,
     `Temat: ${getProblemLabel(booking.problemType)}`,
     `Link do rozmowy: ${booking.meetingUrl}`,
+    `Dodaj do Google Calendar: ${calendarUrl}`,
     prepGuideText,
-    'Co dalej: wejdź 3–5 minut przed czasem. Miej gotową jedną najważniejszą obserwację.',
+    'Co dalej: wejdź 3–5 minut przed czasem. Plik kalendarza ma przypomnienie 15 minut przed rozmową.',
     renderContactBlockText(),
   ].filter(Boolean).join('\n')
 
-  return deliverEmail({ to: booking.email, subject, html, text }, 'customer')
+  return deliverEmail(
+    {
+      to: booking.email,
+      subject,
+      html,
+      text,
+      attachments: [
+        {
+          filename: buildCalendarAttachmentFilename(booking),
+          content: buildGoogleCalendarIcs(booking),
+          contentType: 'text/calendar; charset=utf-8',
+        },
+      ],
+    },
+    'customer',
+  )
 }
 
 function buildCalendarAttachmentFilename(booking: Pick<BookingRecord, 'bookingDate' | 'bookingTime'>) {
@@ -2202,10 +2220,10 @@ export async function sendManualPaymentReportedAdminEmail(
 }
 
 export async function sendBookingReminderEmail(booking: BookingRecord): Promise<DeliveryResult> {
-  const subject = `Przypomnienie: konsultacja ${EMAIL_BRAND_NAME} startuje za mniej niż godzinę`
+  const subject = `Przypomnienie: konsultacja ${EMAIL_BRAND_NAME} startuje za około 15 minut`
   const html = renderEmailShell(
     'Przypomnienie o konsultacji',
-    'Za mniej niż godzinę startuje Twoja rozmowa. Warto wejść chwilę wcześniej, żeby zacząć spokojnie i bez pośpiechu.',
+    'Za około 15 minut startuje Twoja rozmowa. Warto wejść chwilę wcześniej, żeby zacząć spokojnie i bez pośpiechu.',
     `
       ${renderEmailDataTable(
         [
@@ -2224,6 +2242,7 @@ export async function sendBookingReminderEmail(booking: BookingRecord): Promise<
         ],
         'reminder',
       )}
+      ${renderEmailActionButton({ href: booking.meetingUrl, label: 'Otwórz pokój rozmowy' })}
       <p><strong>Przed rozmową:</strong> przygotuj 2-3 najważniejsze pytania i najkrótszy możliwy opis problemu.</p>
       ${renderContactBlockHtml()}
     `,
@@ -2239,6 +2258,67 @@ export async function sendBookingReminderEmail(booking: BookingRecord): Promise<
   ].join('\n')
 
   return deliverEmail({ to: booking.email, subject, html, text }, 'customer')
+}
+
+export async function sendOwnerBookingReminderEmail(booking: BookingRecord): Promise<DeliveryResult> {
+  const recipient = getAdminNotificationRecipientEmail()
+
+  if (!recipient) {
+    return {
+      status: 'skipped',
+      reason: 'ADMIN_NOTIFICATION_EMAIL missing',
+    }
+  }
+
+  const serviceTitle = getBookingServiceTitle(resolveBookingServiceType(booking.serviceType, booking.amount))
+  const subject = `[Za 15 minut] ${serviceTitle} - ${booking.ownerName} - ${formatDateTimeLabel(booking.bookingDate, booking.bookingTime)}`
+  const replyTo = isValidPublicEmail(booking.email) ? booking.email : undefined
+  const html = renderEmailShell(
+    'Rozmowa startuje za około 15 minut',
+    'To jest operacyjne przypomnienie dla specjalisty. Przycisk prowadzi bezpośrednio do pokoju rozmowy.',
+    `
+      ${renderEmailDataTable(
+        [
+          {
+            label: 'Termin',
+            htmlValue: escapeHtml(formatDateTimeLabel(booking.bookingDate, booking.bookingTime)),
+          },
+          {
+            label: 'Usługa',
+            htmlValue: escapeHtml(serviceTitle),
+          },
+          {
+            label: 'Temat',
+            htmlValue: escapeHtml(getProblemLabel(booking.problemType)),
+          },
+          {
+            label: 'Klient',
+            htmlValue: `${escapeHtml(booking.ownerName)} | <a href="mailto:${escapeHtml(booking.email)}">${escapeHtml(booking.email)}</a>${booking.phone ? ` | ${escapeHtml(booking.phone)}` : ''}`,
+          },
+          {
+            label: 'Link do rozmowy',
+            htmlValue: `<a href="${escapeHtml(booking.meetingUrl)}">${escapeHtml(booking.meetingUrl)}</a>`,
+          },
+        ],
+        'owner-reminder',
+      )}
+      ${renderEmailActionButton({ href: booking.meetingUrl, label: 'Otwórz pokój rozmowy' })}
+      ${renderEmailTextPanel('Opis zgłoszenia', formatMultilineHtml(booking.description))}
+    `,
+    'Powiadomienie push, jeśli jest włączone na telefonie, otworzy ten sam pokój rozmowy.',
+  )
+  const text = [
+    'Rozmowa startuje za około 15 minut.',
+    `Termin: ${formatDateTimeLabel(booking.bookingDate, booking.bookingTime)}`,
+    `Usługa: ${serviceTitle}`,
+    `Temat: ${getProblemLabel(booking.problemType)}`,
+    `Klient: ${booking.ownerName} | ${booking.email}${booking.phone ? ` | ${booking.phone}` : ''}`,
+    `Link do rozmowy: ${booking.meetingUrl}`,
+    'Opis zgłoszenia:',
+    booking.description,
+  ].join('\n')
+
+  return deliverEmail({ to: recipient, subject, html, text, replyTo }, 'internal')
 }
 
 export async function sendTestimonialSubmissionEmail(submission: TestimonialSubmission): Promise<DeliveryResult> {

@@ -186,6 +186,26 @@ create table if not exists public.promo_redemptions (
   meta jsonb not null default '{}'::jsonb
 );
 
+create table if not exists public.push_subscriptions (
+  id uuid primary key default gen_random_uuid(),
+  endpoint text not null unique,
+  p256dh text not null,
+  auth text not null,
+  user_role text not null check (user_role in ('owner', 'customer')),
+  booking_id uuid references public.bookings(id) on delete cascade,
+  customer_email text,
+  target_url text not null,
+  user_agent text,
+  created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now()),
+  unsubscribed_at timestamptz,
+  check (
+    (user_role = 'owner' and booking_id is null)
+    or
+    (user_role = 'customer' and booking_id is not null)
+  )
+);
+
 create table if not exists public.urgent_now_requests (
   id uuid primary key default gen_random_uuid(),
   status text not null default 'new' check (status in ('new', 'responded')),
@@ -249,6 +269,12 @@ create index if not exists promo_codes_campaign_id_idx on public.promo_codes(cam
 create index if not exists promo_codes_status_idx on public.promo_codes(status, expires_at);
 create index if not exists promo_redemptions_booking_id_idx on public.promo_redemptions(booking_id);
 create index if not exists promo_redemptions_campaign_id_idx on public.promo_redemptions(campaign_id, redeemed_at desc);
+create index if not exists push_subscriptions_booking_active_idx
+  on public.push_subscriptions(booking_id)
+  where unsubscribed_at is null;
+create index if not exists push_subscriptions_owner_active_idx
+  on public.push_subscriptions(user_role)
+  where user_role = 'owner' and unsubscribed_at is null;
 create index if not exists urgent_now_requests_created_at_idx on public.urgent_now_requests(created_at desc);
 create index if not exists urgent_now_requests_status_idx on public.urgent_now_requests(status, created_at desc);
 create index if not exists pending_testimonials_created_at_idx on public.pending_testimonials(created_at desc);
@@ -257,14 +283,17 @@ create index if not exists pending_testimonials_status_idx on public.pending_tes
 alter table public.promo_campaigns enable row level security;
 alter table public.promo_codes enable row level security;
 alter table public.promo_redemptions enable row level security;
+alter table public.push_subscriptions enable row level security;
 
 revoke all on table public.promo_campaigns from anon, authenticated;
 revoke all on table public.promo_codes from anon, authenticated;
 revoke all on table public.promo_redemptions from anon, authenticated;
+revoke all on table public.push_subscriptions from anon, authenticated;
 
 grant all on table public.promo_campaigns to service_role;
 grant all on table public.promo_codes to service_role;
 grant all on table public.promo_redemptions to service_role;
+grant all on table public.push_subscriptions to service_role;
 
 drop policy if exists "service role full access promo_campaigns" on public.promo_campaigns;
 create policy "service role full access promo_campaigns" on public.promo_campaigns
@@ -282,6 +311,13 @@ create policy "service role full access promo_codes" on public.promo_codes
 
 drop policy if exists "service role full access promo_redemptions" on public.promo_redemptions;
 create policy "service role full access promo_redemptions" on public.promo_redemptions
+  for all
+  to service_role
+  using (true)
+  with check (true);
+
+drop policy if exists "service role full access push_subscriptions" on public.push_subscriptions;
+create policy "service role full access push_subscriptions" on public.push_subscriptions
   for all
   to service_role
   using (true)

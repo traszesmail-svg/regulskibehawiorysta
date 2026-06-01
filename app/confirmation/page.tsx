@@ -262,6 +262,7 @@ export default async function ConfirmationPage({
   return (
     <NotatnikPageShell
       tag="Potwierdzenie rezerwacji"
+      pageClassName="confirmation-page"
       navItems={PUBLIC_BOOKING_FLOW_NAV_ITEMS}
       ctaHref={quickAudioHref}
       ctaLabel={FUNNEL_CTA_LABELS.primary}

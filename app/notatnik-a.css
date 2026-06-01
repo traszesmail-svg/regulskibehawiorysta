@@ -27555,6 +27555,36 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
   text-wrap: balance !important;
 }
 
+.notatnik-page.confirmation-page .booking-flow-panel {
+  max-width: min(100%, 860px) !important;
+}
+
+.notatnik-page.confirmation-page .booking-flow-panel .summary-grid:not(.trust-grid) {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr)) !important;
+  gap: 14px !important;
+}
+
+.notatnik-page.confirmation-page .booking-flow-panel .summary-card {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  align-content: start !important;
+}
+
+.notatnik-page.confirmation-page .booking-flow-panel .summary-value {
+  font-size: clamp(17px, 1.45vw, 22px) !important;
+  line-height: 1.2 !important;
+  letter-spacing: 0 !important;
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+  text-wrap: normal !important;
+}
+
+.notatnik-page.confirmation-page .booking-flow-panel :where(.info-box, .trust-card, .trust-card span, p, .muted) {
+  min-width: 0 !important;
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+}
+
 .booking-flow-panel .section-eyebrow {
   border-color: rgba(20, 75, 43, 0.14) !important;
   background: #edf2df !important;

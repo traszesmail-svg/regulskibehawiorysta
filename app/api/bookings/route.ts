@@ -4,10 +4,13 @@ export const revalidate = 0
 import { NextResponse } from 'next/server'
 import { isBookingServiceType } from '@/lib/booking-services'
 import { buildPaymentHref } from '@/lib/booking-routing'
+import { formatCommercePrice, getManualAmountForProduct } from '@/lib/commerce'
 import { getProblemSpecies, isProblemType } from '@/lib/data'
+import { formatPricePln } from '@/lib/pricing'
 import { createPendingBooking } from '@/lib/server/db'
 import { getBookingApiErrorSnapshot } from '@/lib/server/booking-api-errors'
-import { getQaCheckoutEligibility } from '@/lib/server/payment-options'
+import { getCustomerEmailDeliveryStatus } from '@/lib/server/notifications'
+import { getManualPaymentReference, getQaCheckoutEligibility } from '@/lib/server/payment-options'
 import { AnimalType, ProblemType } from '@/lib/types'
 
 function isAnimalType(value: unknown): value is AnimalType {
@@ -186,6 +189,12 @@ export async function POST(request: Request) {
     return NextResponse.json({
       bookingId: result.booking.id,
       accessToken: result.accessToken,
+      paymentReference: result.booking.paymentReference ?? getManualPaymentReference(result.booking.id),
+      amount: result.booking.amount,
+      amountLabel: formatPricePln(result.booking.amount),
+      manualAmountLabel: formatCommercePrice(getManualAmountForProduct('consultation', result.booking.amount)),
+      customerEmailAvailable: getCustomerEmailDeliveryStatus(result.booking.email).state === 'ready',
+      qaEligibility: getQaCheckoutEligibility(result.booking),
     })
   } catch (error) {
     console.error('[regulski-behawiorysta][booking-api] create failed', error)

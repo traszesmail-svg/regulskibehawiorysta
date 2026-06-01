@@ -21,7 +21,7 @@ export type BookingStatus = 'pending' | 'pending_manual_payment' | 'confirmed' |
 
 export type PaymentStatus = 'unpaid' | 'pending_manual_review' | 'paid' | 'failed' | 'rejected' | 'refunded'
 
-export type PaymentMethod = 'manual' | 'payu' | 'stripe' | 'mock'
+export type PaymentMethod = 'manual' | 'payu' | 'stripe' | 'mock' | 'promo'
 
 export type FunnelEventType =
   | 'page_view'

@@ -29,6 +29,8 @@ function getPaymentMethodLabel(value: string | null | undefined) {
       return 'Stripe legacy'
     case 'mock':
       return 'Mock QA'
+    case 'promo':
+      return 'Kod promocyjny'
     default:
       return 'Jeszcze nie wybrano'
   }
@@ -130,6 +132,9 @@ export default async function AdminPage() {
               <h1>Rezerwacje, płatności i terminy</h1>
             </div>
             <div className="hero-actions">
+              <Link href="/admin/promocje" className="button button-ghost">
+                Kody dla lecznic
+              </Link>
               <Link href="/admin/pokoj" className="button button-ghost">
                 Pokoje opiekunów
               </Link>

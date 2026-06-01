@@ -12,7 +12,18 @@ import {
 } from '@/lib/booking-services'
 import { buildPaymentHref, buildSlotHref } from '@/lib/booking-routing'
 import { isCatProblemType } from '@/lib/data'
-import { AnimalType, ProblemType } from '@/lib/types'
+import { AnimalType, ProblemType, QaCheckoutEligibility } from '@/lib/types'
+
+export type BookingCreatedPayload = {
+  bookingId: string
+  accessToken: string
+  paymentReference?: string | null
+  amount?: number
+  amountLabel?: string | null
+  manualAmountLabel?: string | null
+  customerEmailAvailable?: boolean
+  qaEligibility?: QaCheckoutEligibility | null
+}
 
 interface BookingFormProps {
   problemType: ProblemType
@@ -21,6 +32,10 @@ interface BookingFormProps {
   slotLabel: string
   amountLabel: string
   qaBooking?: boolean
+  sourcePage?: string
+  submitLabel?: string
+  submittingLabel?: string
+  onBookingCreated?: (booking: BookingCreatedPayload) => void
 }
 
 type BookingApiErrorCode = 'slot_unavailable' | 'booking_unavailable'
@@ -64,6 +79,10 @@ export function BookingForm({
   slotLabel,
   amountLabel,
   qaBooking = false,
+  sourcePage = '/form',
+  submitLabel,
+  submittingLabel,
+  onBookingCreated,
 }: BookingFormProps) {
   const router = useRouter()
   const formCopy = getProblemFormCopy(problemType)
@@ -87,14 +106,14 @@ export function BookingForm({
     trackAnalyticsEvent('booking_form_started', {
       slot_id: slotId,
       slot_time: slotLabel,
-      source_page: '/form',
+      source_page: sourcePage,
       ...getBookingAnalyticsContextParams({
         serviceType,
         animalType,
         problemType,
       }),
     })
-  }, [animalType, problemType, qaBooking, serviceType, slotId, slotLabel])
+  }, [animalType, problemType, qaBooking, serviceType, slotId, slotLabel, sourcePage])
 
   function isEmailValid(value: string): boolean {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
@@ -162,6 +181,12 @@ export function BookingForm({
       const payload = (await response.json()) as {
         bookingId?: string
         accessToken?: string
+        paymentReference?: string | null
+        amount?: number
+        amountLabel?: string | null
+        manualAmountLabel?: string | null
+        customerEmailAvailable?: boolean
+        qaEligibility?: QaCheckoutEligibility | null
         error?: string
         errorCode?: BookingApiErrorCode
       }
@@ -180,13 +205,28 @@ export function BookingForm({
         booking_id: payload.bookingId,
         slot_id: slotId,
         slot_time: slotLabel,
-        source_page: '/form',
+        source_page: sourcePage,
         ...getBookingAnalyticsContextParams({
           serviceType,
           animalType,
           problemType,
         }),
       })
+
+      if (onBookingCreated) {
+        onBookingCreated({
+          bookingId: payload.bookingId,
+          accessToken: payload.accessToken,
+          paymentReference: payload.paymentReference ?? null,
+          amount: payload.amount,
+          amountLabel: payload.amountLabel ?? null,
+          manualAmountLabel: payload.manualAmountLabel ?? null,
+          customerEmailAvailable: payload.customerEmailAvailable,
+          qaEligibility: payload.qaEligibility ?? null,
+        })
+        setIsSubmitting(false)
+        return
+      }
 
       router.push(
         buildPaymentHref(
@@ -320,10 +360,10 @@ export function BookingForm({
       <button type="submit" className="booking-details-submit" disabled={isSubmitting} data-booking-submit="payment">
         <span>
           {isSubmitting
-            ? 'Przygotowuję płatność...'
+            ? submittingLabel ?? 'Przygotowuję płatność...'
             : qaBooking
               ? 'Przejdź do testowej płatności'
-              : 'Przejdź do płatności'}
+              : submitLabel ?? 'Przejdź do płatności'}
         </span>
         <ArrowRight size={18} strokeWidth={1.9} aria-hidden="true" />
       </button>

@@ -11,6 +11,8 @@ import { TerminCalendarPicker, type TerminCalendarDay as PickerCalendarDay } fro
 import { Schema } from '@/components/schema'
 import {
   DEFAULT_BOOKING_SERVICE,
+  getBookingServicePrice,
+  getBookingServiceRoomAccessLabel,
   getBookingServiceSlotBadge,
   getBookingServiceSlotSummary,
   normalizeBookingServiceType,
@@ -37,6 +39,7 @@ import { getBreadcrumbJsonLd } from '@/lib/schema'
 import { buildMarketingMetadata } from '@/lib/seo'
 import { listAvailabilityAdmin } from '@/lib/server/db'
 import { getDataModeStatus } from '@/lib/server/env'
+import { getPublicManualPaymentConfig } from '@/lib/server/payment-options'
 import type { AvailabilitySlot, ProblemType } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
@@ -246,6 +249,8 @@ export async function BookingSlotCalendar({
         ? 'W Dwóch kwadransach masz więcej czasu na kontekst, spokojniejsze zalecenia i decyzję, czy potrzebna jest pełna konsultacja.'
         : 'W Kwadransie porządkujesz jedno główne pytanie i dostajesz pierwszy kierunek działania.'
   const calendarDays: PickerCalendarDay[] = calendar.days
+  const bookingAmount = getBookingServicePrice(serviceType, serviceConfig.priceAmount)
+  const manualPayment = getPublicManualPaymentConfig()
   const inlineChoicePanel = (
     <div className="termin-inline-choice-panel" aria-label="Szybka zmiana wyboru">
       <div>
@@ -373,12 +378,27 @@ export async function BookingSlotCalendar({
                 serviceTitle: serviceConfig.title,
                 serviceShortTitle: serviceConfig.shortTitle,
                 serviceBadge: getBookingServiceSlotBadge(serviceType),
+                serviceType,
+                problemType: problem,
                 problemLabel: getProblemLabel(problem),
                 species: problemSpecies,
+                animalType: problemSpecies === 'kot' ? 'Kot' : 'Pies',
                 modeLabel,
                 priceLabel: formatPricePln(serviceConfig.priceAmount),
+                priceAmount: bookingAmount,
                 slotSummary: getBookingServiceSlotSummary(serviceType),
                 contactHref,
+                roomAccessLabel: getBookingServiceRoomAccessLabel(serviceType),
+                qaBooking,
+              }}
+              paymentConfig={{
+                manualAvailable: manualPayment.isAvailable,
+                manualPhoneDisplay: manualPayment.phoneDisplay,
+                manualPaypalMeDisplay: manualPayment.paypalMeDisplay,
+                manualPaypalMeHref: manualPayment.paypalMeUrl,
+                manualAccountName: manualPayment.accountName,
+                manualInstructions: manualPayment.instructions,
+                manualSummary: manualPayment.summary,
               }}
               choicePanel={inlineChoicePanel}
             />

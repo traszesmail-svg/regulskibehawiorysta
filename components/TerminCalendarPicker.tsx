@@ -2,9 +2,13 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useMemo, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState, type MouseEvent, type ReactNode } from 'react'
 import { CalendarDays, Cat, Check, Clock3, Dog, Headphones, Lightbulb, PawPrint, Tag, Video } from 'lucide-react'
+import { BookingForm, type BookingCreatedPayload } from '@/components/BookingForm'
+import { PaymentActions } from '@/components/PaymentActions'
 import { trackAnalyticsEvent } from '@/lib/analytics'
+import type { BookingServiceType } from '@/lib/booking-services'
+import type { AnimalType, ProblemType } from '@/lib/types'
 
 export type TerminCalendarSlot = {
   id: string
@@ -35,12 +39,28 @@ export type TerminCalendarSummary = {
   serviceTitle: string
   serviceShortTitle: string
   serviceBadge: string
+  serviceType: BookingServiceType
+  problemType: ProblemType
   problemLabel: string
   species: 'pies' | 'kot' | 'inne'
+  animalType: AnimalType
   modeLabel: string
   priceLabel: string
+  priceAmount: number
   slotSummary: string
   contactHref: string
+  roomAccessLabel: string
+  qaBooking: boolean
+}
+
+export type TerminCalendarPaymentConfig = {
+  manualAvailable: boolean
+  manualPhoneDisplay?: string | null
+  manualPaypalMeDisplay?: string | null
+  manualPaypalMeHref?: string | null
+  manualAccountName?: string | null
+  manualInstructions?: string | null
+  manualSummary: string
 }
 
 type TerminCalendarPickerProps = {
@@ -48,6 +68,7 @@ type TerminCalendarPickerProps = {
   slotCount: number
   days: TerminCalendarDay[]
   summary: TerminCalendarSummary
+  paymentConfig: TerminCalendarPaymentConfig
   choicePanel?: ReactNode
 }
 
@@ -59,12 +80,14 @@ function getSpeciesIcon(species: TerminCalendarSummary['species']) {
   return PawPrint
 }
 
-export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, choicePanel }: TerminCalendarPickerProps) {
+export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, paymentConfig, choicePanel }: TerminCalendarPickerProps) {
   const flatSlots = useMemo(() => days.flatMap((day) => day.slots.filter((slot) => slot.isBookable)), [days])
   const nearestSlots = flatSlots.slice(0, 5)
   const firstAvailableDay = days.find((day) => day.availableSlotCount > 0) ?? days.find((day) => day.isInPrimaryMonth) ?? days[0] ?? null
   const [selectedDayDate, setSelectedDayDate] = useState(firstAvailableDay?.date ?? '')
   const [selectedSlotId, setSelectedSlotId] = useState(flatSlots[0]?.id ?? '')
+  const [createdBooking, setCreatedBooking] = useState<BookingCreatedPayload | null>(null)
+  const inlineFlowRef = useRef<HTMLElement | null>(null)
   const selectedDay = days.find((day) => day.date === selectedDayDate) ?? firstAvailableDay
   const selectedDayAvailableSlots = selectedDay?.slots.filter((slot) => slot.isBookable) ?? []
   const selectedSlot = selectedDayAvailableSlots.find((slot) => slot.id === selectedSlotId) ?? selectedDayAvailableSlots[0] ?? null
@@ -73,6 +96,16 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, cho
   const speciesLabel = summary.species === 'kot' ? 'Kot' : summary.species === 'pies' ? 'Pies' : 'Do wyboru'
   const petVisualSrc = summary.species === 'kot' ? '/wybor/cat-choice-avatar.png' : '/wybor/dog-choice-avatar.png'
   const petVisualAlt = summary.species === 'kot' ? 'Spokojny kot' : 'Spokojny pies'
+
+  useEffect(() => {
+    setCreatedBooking(null)
+  }, [selectedSlotId])
+
+  function scrollToInlineFlow() {
+    window.requestAnimationFrame(() => {
+      inlineFlowRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+  }
 
   function chooseDay(day: TerminCalendarDay) {
     setSelectedDayDate(day.date)
@@ -97,6 +130,35 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, cho
     setSelectedSlotId(slot.id)
     trackSlotSelect(slot, 'termin-calendar')
   }
+
+  function activateSlotInline(slot: TerminCalendarSlot) {
+    if (!slot.isBookable) {
+      return
+    }
+
+    setSelectedDayDate(slot.date)
+    setSelectedSlotId(slot.id)
+    scrollToInlineFlow()
+  }
+
+  function handleNearestSlotClick(event: MouseEvent<HTMLAnchorElement>, slot: TerminCalendarSlot) {
+    event.preventDefault()
+    trackSlotSelect(slot, 'termin-nearest-slots')
+    activateSlotInline(slot)
+  }
+
+  function handleSummarySlotClick(event: MouseEvent<HTMLAnchorElement>, selectedSlot: TerminCalendarSlot) {
+    event.preventDefault()
+    trackSlotSelect(selectedSlot, 'termin-summary')
+    activateSlotInline(selectedSlot)
+  }
+
+  function handleBookingCreated(booking: BookingCreatedPayload) {
+    setCreatedBooking(booking)
+    scrollToInlineFlow()
+  }
+
+  const inlineFlowStep = createdBooking ? 2 : selectedSlot ? 1 : 0
 
   return (
     <div className="termin-calendar-layout">
@@ -127,7 +189,7 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, cho
                     className="termin-nearest-slot-link"
                     data-nearest-slot-link="true"
                     data-slot-id={slot.id}
-                    onClick={() => trackSlotSelect(slot, 'termin-nearest-slots')}
+                    onClick={(event) => handleNearestSlotClick(event, slot)}
                   >
                     <span>{slot.dateLabel}</span>
                     <strong>{slot.time}</strong>
@@ -262,18 +324,102 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, cho
             className="notatnik-btn termin-summary-cta"
             data-selected-slot-link="true"
             data-slot-id={selectedSlot.id}
-            onClick={() => trackSlotSelect(selectedSlot, 'termin-summary')}
+            onClick={(event) => handleSummarySlotClick(event, selectedSlot)}
           >
             <CalendarDays size={17} strokeWidth={1.9} aria-hidden="true" />
-            <span>Zarezerwuj wybrany termin</span>
+            <span>Uzupełnij dane pod spodem</span>
           </Link>
         ) : (
           <Link href={summary.contactHref} prefetch={false} className="notatnik-btn termin-summary-cta">
             <span>Opisz krótko, co się dzieje</span>
           </Link>
         )}
-        <small>Płatność i rezerwacja online po wypełnieniu formularza.</small>
+        <small>Dane i płatność pojawią się niżej, bez otwierania osobnego ekranu.</small>
       </aside>
+
+      <section
+        ref={inlineFlowRef}
+        id="rezerwacja"
+        className="termin-inline-booking-flow"
+        data-inline-booking-flow="true"
+        data-inline-booking-state={createdBooking ? 'payment' : selectedSlot ? 'details' : 'slot'}
+        aria-live="polite"
+      >
+        <div className="termin-inline-flow-head">
+          <div>
+            <span className="termin-inline-flow-eyebrow">Rezerwacja bez przeładowania strony</span>
+            <h2>{createdBooking ? 'Wybierz płatność albo wpisz kod' : 'Uzupełnij dane do wybranego terminu'}</h2>
+            <p>
+              {selectedSlot
+                ? `${selectedSlot.dateLabel}, ${selectedSlot.time}. Dane i płatność zostają w tym samym widoku.`
+                : 'Wybierz dzień i godzinę, a formularz pojawi się tutaj.'}
+            </p>
+          </div>
+          <div className="termin-inline-flow-steps" aria-label="Etapy rezerwacji w tym widoku">
+            {['Termin', 'Dane', 'Płatność'].map((step, index) => (
+              <span key={step} className={index === inlineFlowStep ? 'is-active' : index < inlineFlowStep ? 'is-complete' : ''}>
+                <strong>{index + 1}</strong>
+                {step}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {selectedSlot ? (
+          <div className="termin-inline-flow-body">
+            {createdBooking ? (
+              <div className="termin-inline-payment-panel">
+                <div className="notatnik-callout">
+                  Termin jest zapisany i trzymany na czas płatności. Możesz użyć kodu od lecznicy albo przejść standardową płatnością.
+                </div>
+                <PaymentActions
+                  bookingId={createdBooking.bookingId}
+                  accessToken={createdBooking.accessToken}
+                  amountLabel={createdBooking.amountLabel ?? summary.priceLabel}
+                  manualAmountLabel={createdBooking.manualAmountLabel ?? null}
+                  paymentReference={createdBooking.paymentReference ?? `B15-${createdBooking.bookingId.replace(/-/g, '').slice(0, 12).toUpperCase()}`}
+                  manualAvailable={paymentConfig.manualAvailable}
+                  manualPhoneDisplay={paymentConfig.manualPhoneDisplay}
+                  manualPaypalMeDisplay={paymentConfig.manualPaypalMeDisplay}
+                  manualPaypalMeHref={paymentConfig.manualPaypalMeHref}
+                  manualAccountName={paymentConfig.manualAccountName}
+                  manualInstructions={paymentConfig.manualInstructions}
+                  manualSummary={paymentConfig.manualSummary}
+                  customerEmailAvailable={createdBooking.customerEmailAvailable ?? true}
+                  serviceType={summary.serviceType}
+                  amount={createdBooking.amount ?? summary.priceAmount}
+                  animalType={summary.animalType}
+                  problemType={summary.problemType}
+                  bookingStatus="pending"
+                  qaBooking={summary.qaBooking}
+                  qaEligibility={createdBooking.qaEligibility ?? null}
+                  sourcePage="/book"
+                  roomAccessLabel={summary.roomAccessLabel}
+                />
+              </div>
+            ) : (
+              <BookingForm
+                key={selectedSlot.id}
+                problemType={summary.problemType}
+                serviceType={summary.serviceType}
+                slotId={selectedSlot.id}
+                slotLabel={`${selectedSlot.dateLabel}, ${selectedSlot.time}`}
+                amountLabel={summary.priceLabel}
+                qaBooking={summary.qaBooking}
+                sourcePage="/book"
+                submitLabel="Dalej: płatność lub kod"
+                submittingLabel="Zapisuję termin..."
+                onBookingCreated={handleBookingCreated}
+              />
+            )}
+          </div>
+        ) : (
+          <div className="termin-inline-flow-empty">
+            <CalendarDays size={24} strokeWidth={1.8} aria-hidden="true" />
+            <span>Najpierw wybierz dostępny termin z kalendarza.</span>
+          </div>
+        )}
+      </section>
     </div>
   )
 }

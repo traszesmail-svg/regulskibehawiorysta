@@ -10,7 +10,7 @@
     "postbuild": "next-sitemap",
     "start": "next start",
     "lint": "next lint --no-cache",
-    "test": "node --import tsx --test tests/runtime-config.test.ts tests/customer-emails.test.ts tests/funnel-metrics.test.ts tests/booking-api-errors.test.ts tests/scheduling-rules.test.ts",
+    "test": "node --import tsx --test tests/runtime-config.test.ts tests/customer-emails.test.ts tests/funnel-metrics.test.ts tests/booking-api-errors.test.ts tests/scheduling-rules.test.ts tests/promo-codes.test.ts",
     "verify-flow": "node --import tsx scripts/verify-flow.ts",
     "slot-form-matrix": "node --import tsx scripts/slot-form-matrix.ts",
     "payu-smoke": "node --import tsx scripts/payu-smoke.ts",

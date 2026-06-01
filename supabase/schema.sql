@@ -31,7 +31,7 @@ create table if not exists public.bookings (
   qa_booking boolean not null default false,
   booking_status text not null check (booking_status in ('pending', 'pending_manual_payment', 'confirmed', 'done', 'cancelled', 'expired')),
   payment_status text not null check (payment_status in ('unpaid', 'pending_manual_review', 'paid', 'failed', 'rejected', 'refunded')),
-  payment_method text check (payment_method in ('manual', 'payu', 'stripe', 'mock')),
+  payment_method text check (payment_method in ('manual', 'payu', 'stripe', 'mock', 'promo')),
   payment_reference text,
   amount numeric(10,2) not null,
   meeting_url text not null,
@@ -116,6 +116,44 @@ create table if not exists public.availability (
   unique (booking_date, booking_time)
 );
 
+create table if not exists public.promo_campaigns (
+  id uuid primary key default gen_random_uuid(),
+  clinic_name text not null,
+  service_type text not null default 'szybka-konsultacja-15-min',
+  code_count integer not null default 5 check (code_count between 1 and 100),
+  status text not null default 'active' check (status in ('active', 'paused', 'archived')),
+  expires_at timestamptz,
+  created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now())
+);
+
+create table if not exists public.promo_codes (
+  id uuid primary key default gen_random_uuid(),
+  campaign_id uuid not null references public.promo_campaigns(id) on delete cascade,
+  code_hash text not null unique,
+  code_label text not null,
+  service_type text not null default 'szybka-konsultacja-15-min',
+  usage_limit integer not null default 1 check (usage_limit > 0),
+  usage_count integer not null default 0 check (usage_count >= 0),
+  status text not null default 'active' check (status in ('active', 'used', 'revoked', 'expired')),
+  expires_at timestamptz,
+  created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now()),
+  used_at timestamptz
+);
+
+create table if not exists public.promo_redemptions (
+  id uuid primary key default gen_random_uuid(),
+  code_id uuid not null references public.promo_codes(id) on delete restrict,
+  campaign_id uuid not null references public.promo_campaigns(id) on delete restrict,
+  booking_id uuid not null references public.bookings(id) on delete cascade,
+  customer_email text not null,
+  service_type text not null,
+  redeemed_at timestamptz not null default timezone('utc', now()),
+  released_at timestamptz,
+  meta jsonb not null default '{}'::jsonb
+);
+
 create table if not exists public.urgent_now_requests (
   id uuid primary key default gen_random_uuid(),
   status text not null default 'new' check (status in ('new', 'responded')),
@@ -174,10 +212,49 @@ create index if not exists funnel_events_qa_booking_idx on public.funnel_events(
 create index if not exists funnel_events_booking_id_idx on public.funnel_events(booking_id);
 create index if not exists availability_date_idx on public.availability(booking_date, booking_time);
 create index if not exists availability_booked_idx on public.availability(is_booked);
+create index if not exists promo_campaigns_created_at_idx on public.promo_campaigns(created_at desc);
+create index if not exists promo_campaigns_status_idx on public.promo_campaigns(status, created_at desc);
+create index if not exists promo_codes_campaign_id_idx on public.promo_codes(campaign_id);
+create index if not exists promo_codes_status_idx on public.promo_codes(status, expires_at);
+create index if not exists promo_redemptions_booking_id_idx on public.promo_redemptions(booking_id);
+create index if not exists promo_redemptions_campaign_id_idx on public.promo_redemptions(campaign_id, redeemed_at desc);
 create index if not exists urgent_now_requests_created_at_idx on public.urgent_now_requests(created_at desc);
 create index if not exists urgent_now_requests_status_idx on public.urgent_now_requests(status, created_at desc);
 create index if not exists pending_testimonials_created_at_idx on public.pending_testimonials(created_at desc);
 create index if not exists pending_testimonials_status_idx on public.pending_testimonials(status, created_at desc);
+
+alter table public.promo_campaigns enable row level security;
+alter table public.promo_codes enable row level security;
+alter table public.promo_redemptions enable row level security;
+
+revoke all on table public.promo_campaigns from anon, authenticated;
+revoke all on table public.promo_codes from anon, authenticated;
+revoke all on table public.promo_redemptions from anon, authenticated;
+
+grant all on table public.promo_campaigns to service_role;
+grant all on table public.promo_codes to service_role;
+grant all on table public.promo_redemptions to service_role;
+
+drop policy if exists "service role full access promo_campaigns" on public.promo_campaigns;
+create policy "service role full access promo_campaigns" on public.promo_campaigns
+  for all
+  to service_role
+  using (true)
+  with check (true);
+
+drop policy if exists "service role full access promo_codes" on public.promo_codes;
+create policy "service role full access promo_codes" on public.promo_codes
+  for all
+  to service_role
+  using (true)
+  with check (true);
+
+drop policy if exists "service role full access promo_redemptions" on public.promo_redemptions;
+create policy "service role full access promo_redemptions" on public.promo_redemptions
+  for all
+  to service_role
+  using (true)
+  with check (true);
 
 insert into public.pricing_settings (id, consultation_price)
 values ('consultation', 39.00)

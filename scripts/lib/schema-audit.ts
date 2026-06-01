@@ -40,7 +40,22 @@ const REQUIRED_SCHEMA_MARKERS: SchemaMarker[] = [
   },
   {
     label: 'bookings.payment_method',
-    needle: "payment_method text check (payment_method in ('manual', 'payu', 'stripe', 'mock'))",
+    needle: "payment_method text check (payment_method in ('manual', 'payu', 'stripe', 'mock', 'promo'))",
+    expectedCount: 1,
+  },
+  {
+    label: 'promo_campaigns',
+    needle: 'create table if not exists public.promo_campaigns',
+    expectedCount: 1,
+  },
+  {
+    label: 'promo_codes',
+    needle: 'create table if not exists public.promo_codes',
+    expectedCount: 1,
+  },
+  {
+    label: 'promo_redemptions',
+    needle: 'create table if not exists public.promo_redemptions',
     expectedCount: 1,
   },
   {
@@ -85,6 +100,7 @@ const REQUIRED_SCHEMA_MARKERS: SchemaMarker[] = [
 const REQUIRED_FILES = [
   'supabase/migrations/20260325_manual_payment_and_payu.sql',
   'supabase/migrations/20260406002_qa_checkout.sql',
+  'supabase/migrations/20260601001_promo_codes.sql',
 ]
 
 function normalizeSchemaText(schemaText: string) {

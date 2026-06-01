@@ -5760,6 +5760,57 @@ select:focus-visible {
   grid-template-columns: minmax(0, 280px);
 }
 
+.promo-code-output {
+  width: 100%;
+  min-height: 120px;
+  border: 1px solid rgba(92, 76, 58, 0.16);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--text);
+  padding: 14px 16px;
+  font-family: var(--font-mono, "Courier New", monospace);
+  font-size: 14px;
+  resize: vertical;
+}
+
+.promo-code-stats {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 0;
+}
+
+.promo-code-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.promo-code-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 4px 9px;
+  border-radius: 6px;
+  border: 1px solid rgba(92, 76, 58, 0.16);
+  background: rgba(255, 255, 255, 0.8);
+  color: rgba(31, 26, 23, 0.78);
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.promo-code-chip--used,
+.promo-code-chip--expired,
+.promo-code-chip--revoked {
+  opacity: 0.58;
+  text-decoration: line-through;
+}
+
+@media (max-width: 680px) {
+  .promo-code-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
 .trust-card {
   text-align: left;
 }
@@ -18865,7 +18916,7 @@ select:focus-visible {
 
 .payment-ref-method-tabs {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 14px;
 }
 
@@ -19009,6 +19060,26 @@ select:focus-visible {
 .payment-ref-field strong {
   overflow-wrap: anywhere;
   color: var(--ref-text);
+}
+
+.payment-ref-code-field input {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid rgba(72, 64, 50, 0.14);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--ref-text);
+  padding: 10px 12px;
+  font: inherit;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.payment-ref-code-field input:focus {
+  outline: 2px solid rgba(47, 118, 103, 0.2);
+  outline-offset: 2px;
+  border-color: rgba(47, 118, 103, 0.45);
 }
 
 .payment-ref-submit-row,

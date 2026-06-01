@@ -28280,6 +28280,175 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
   }
 }
 
+.termin-inline-booking-flow {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+  margin-top: 4px;
+  padding: clamp(20px, 3vw, 30px);
+  border: 1px solid rgba(23, 63, 36, 0.14);
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(255, 253, 248, 0.96), rgba(248, 244, 237, 0.9)),
+    var(--paper);
+  box-shadow: 0 18px 42px rgba(48, 39, 25, 0.08);
+  scroll-margin-top: 18px;
+}
+
+.termin-inline-flow-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.62fr);
+  gap: clamp(16px, 3vw, 28px);
+  align-items: start;
+}
+
+.termin-inline-flow-eyebrow {
+  display: inline-flex;
+  width: fit-content;
+  margin-bottom: 10px;
+  padding: 7px 11px;
+  border-radius: 999px;
+  background: rgba(212, 222, 190, 0.72);
+  color: #174b2c;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.termin-inline-flow-head h2 {
+  margin: 0;
+  color: #07371f;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(28px, 3vw, 38px);
+  font-weight: 650;
+  line-height: 1.08;
+  letter-spacing: 0;
+}
+
+.termin-inline-flow-head p {
+  max-width: 62ch;
+  margin: 10px 0 0;
+  color: rgba(22, 35, 28, 0.74);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.termin-inline-flow-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  min-width: 0;
+}
+
+.termin-inline-flow-steps span {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  min-height: 70px;
+  align-content: center;
+  justify-items: center;
+  padding: 10px;
+  border: 1px solid rgba(23, 63, 36, 0.12);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.64);
+  color: rgba(18, 47, 34, 0.7);
+  font-size: 12px;
+  font-weight: 850;
+  text-align: center;
+}
+
+.termin-inline-flow-steps strong {
+  display: inline-grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(23, 63, 36, 0.1);
+  color: #174b2c;
+  font-size: 13px;
+}
+
+.termin-inline-flow-steps span.is-active,
+.termin-inline-flow-steps span.is-complete {
+  border-color: rgba(23, 75, 44, 0.28);
+  background: #e9ecd8;
+  color: #07371f;
+}
+
+.termin-inline-flow-steps span.is-active strong,
+.termin-inline-flow-steps span.is-complete strong {
+  background: #174b2c;
+  color: #fffdf8;
+}
+
+.termin-inline-flow-body,
+.termin-inline-payment-panel {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+.termin-inline-booking-flow .booking-details-form {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.termin-inline-booking-flow .booking-details-safe-note,
+.termin-inline-booking-flow .booking-details-submit,
+.termin-inline-booking-flow .notatnik-callout,
+.termin-inline-booking-flow .booking-details-field-wide,
+.termin-inline-booking-flow .booking-details-consent {
+  grid-column: 1 / -1;
+}
+
+.termin-inline-booking-flow .payment-ref-action {
+  display: grid;
+  gap: 16px;
+}
+
+.termin-inline-booking-flow .payment-ref-method-tabs {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.termin-inline-flow-empty {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 58px;
+  color: rgba(22, 35, 28, 0.74);
+  font-weight: 800;
+}
+
+@media (max-width: 980px) {
+  .termin-inline-flow-head,
+  .termin-inline-booking-flow .booking-details-form,
+  .termin-inline-booking-flow .payment-ref-method-tabs {
+    grid-template-columns: 1fr;
+  }
+
+  .termin-inline-flow-steps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .termin-inline-booking-flow {
+    margin-inline: -2px;
+    padding: 18px;
+    border-radius: 14px;
+  }
+
+  .termin-inline-flow-steps span {
+    min-height: 58px;
+    padding: 8px 6px;
+    font-size: 11px;
+  }
+}
+
 /* Stage 9 layout guardrails for dense funnel controls. */
 .notatnik-page :where(.notatnik-btn, .button, .big-button, .router-choice-card, .termin-nearest-slot-link, .termin-summary-cta, .booking-details-submit, .pricing-2026-btn),
 .payment-ref-page :where(.payment-ref-submit, .payment-ref-method-tab, .payment-ref-secondary-button, .button, .big-button),

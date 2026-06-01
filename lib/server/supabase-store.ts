@@ -7,6 +7,7 @@ import {
   normalizeBookingServiceType,
   resolveBookingServiceType,
 } from '@/lib/booking-services'
+import { getUnpaidBookingExpiryCutoff } from '@/lib/booking-expiry'
 import { compareDateAndTime, formatDateLabel, isFutureAvailabilitySlot } from '@/lib/data'
 import { createActiveConsultationPrice, DEFAULT_PRICE_PLN, parseConsultationPriceInput } from '@/lib/pricing'
 import { normalizePolishPhone } from '@/lib/phone'
@@ -776,24 +777,109 @@ async function cleanupExpiredReservations() {
     throw expired.error
   }
 
-  if (!expired.data.length) {
+  if (expired.data.length) {
+    const availabilityIds = expired.data.map((row) => row.id)
+    const bookingIds = expired.data.map((row) => row.locked_by_booking_id).filter(Boolean) as string[]
+
+    const expiredAvailabilityCleanup = await supabase
+      .from('availability')
+      .update({
+        locked_by_booking_id: null,
+        locked_until: null,
+        updated_at: nowIso,
+      })
+      .in('id', availabilityIds)
+
+    if (expiredAvailabilityCleanup.error) {
+      throw expiredAvailabilityCleanup.error
+    }
+
+    if (bookingIds.length) {
+      const pendingExpired = await supabase
+        .from('bookings')
+        .update({
+          booking_status: 'expired',
+          payment_status: 'unpaid',
+          expired_at: nowIso,
+          updated_at: nowIso,
+        })
+        .eq('booking_status', 'pending')
+        .eq('payment_status', 'unpaid')
+        .in('id', bookingIds)
+
+      if (pendingExpired.error) {
+        throw pendingExpired.error
+      }
+
+      if (paymentSchemaMode !== 'legacy') {
+        const manualExpired = await supabase
+          .from('bookings')
+          .update({
+            booking_status: 'expired',
+            payment_status: 'rejected',
+            payment_rejected_at: nowIso,
+            payment_rejected_reason: 'Upłynął czas na potwierdzenie wpłaty.',
+            expired_at: nowIso,
+            updated_at: nowIso,
+          })
+          .eq('booking_status', 'pending_manual_payment')
+          .eq('payment_status', 'pending_manual_review')
+          .in('id', bookingIds)
+
+        if (manualExpired.error) {
+          if (!shouldRetryWithLegacyPaymentSchema(manualExpired.error, true)) {
+            throw manualExpired.error
+          }
+        } else {
+          setPaymentSchemaMode('modern')
+        }
+      }
+    }
+  }
+
+  const staleCutoffIso = getUnpaidBookingExpiryCutoff(new Date(nowIso)).toISOString()
+  const staleBookings = await runBookingSelectWithSchemaFallback(() =>
+    supabase
+      .from('bookings')
+      .select(BOOKING_SELECT_COLUMNS)
+      .in('booking_status', ['pending', 'pending_manual_payment'])
+      .in('payment_status', ['unpaid', 'pending_manual_review'])
+      .lt('created_at', staleCutoffIso),
+  )
+
+  if (staleBookings.error) {
+    throw staleBookings.error
+  }
+
+  const staleRows = ((staleBookings.data ?? []) as unknown as BookingRow[])
+  const staleIds = staleRows.map((row) => row.id)
+
+  if (!staleIds.length) {
     return
   }
 
-  const availabilityIds = expired.data.map((row) => row.id)
-  const bookingIds = expired.data.map((row) => row.locked_by_booking_id).filter(Boolean) as string[]
-
-  await supabase
+  const availabilityCleanup = await supabase
     .from('availability')
     .update({
       locked_by_booking_id: null,
       locked_until: null,
       updated_at: nowIso,
     })
-    .in('id', availabilityIds)
+    .in('locked_by_booking_id', staleIds)
 
-  if (bookingIds.length) {
-    await supabase
+  if (availabilityCleanup.error) {
+    throw availabilityCleanup.error
+  }
+
+  const stalePendingIds = staleRows
+    .filter((row) => row.booking_status === 'pending' && row.payment_status === 'unpaid')
+    .map((row) => row.id)
+  const staleManualIds = staleRows
+    .filter((row) => row.booking_status === 'pending_manual_payment' && row.payment_status === 'pending_manual_review')
+    .map((row) => row.id)
+
+  if (stalePendingIds.length) {
+    const pendingUpdate = await supabase
       .from('bookings')
       .update({
         booking_status: 'expired',
@@ -801,28 +887,58 @@ async function cleanupExpiredReservations() {
         expired_at: nowIso,
         updated_at: nowIso,
       })
-      .eq('booking_status', 'pending')
-      .eq('payment_status', 'unpaid')
-      .in('id', bookingIds)
+      .in('id', stalePendingIds)
 
-    if (paymentSchemaMode !== 'legacy') {
-      const manualExpired = await supabase
+    if (pendingUpdate.error) {
+      throw pendingUpdate.error
+    }
+  }
+
+  if (staleManualIds.length) {
+    if (paymentSchemaMode === 'legacy') {
+      const manualLegacyUpdate = await supabase
+        .from('bookings')
+        .update({
+          booking_status: 'expired',
+          payment_status: 'unpaid',
+          expired_at: nowIso,
+          updated_at: nowIso,
+        })
+        .in('id', staleManualIds)
+
+      if (manualLegacyUpdate.error) {
+        throw manualLegacyUpdate.error
+      }
+    } else {
+      const manualUpdate = await supabase
         .from('bookings')
         .update({
           booking_status: 'expired',
           payment_status: 'rejected',
           payment_rejected_at: nowIso,
-          payment_rejected_reason: 'Upłynął czas na potwierdzenie wpłaty.',
+          payment_rejected_reason: 'Upłynęły 24 godziny na potwierdzenie wpłaty.',
           expired_at: nowIso,
           updated_at: nowIso,
         })
-        .eq('booking_status', 'pending_manual_payment')
-        .eq('payment_status', 'pending_manual_review')
-        .in('id', bookingIds)
+        .in('id', staleManualIds)
 
-      if (manualExpired.error) {
-        if (!shouldRetryWithLegacyPaymentSchema(manualExpired.error, true)) {
-          throw manualExpired.error
+      if (manualUpdate.error) {
+        if (!shouldRetryWithLegacyPaymentSchema(manualUpdate.error, true)) {
+          throw manualUpdate.error
+        }
+
+        const manualLegacyUpdate = await supabase
+          .from('bookings')
+          .update({
+            booking_status: 'expired',
+            payment_status: 'unpaid',
+            expired_at: nowIso,
+            updated_at: nowIso,
+          })
+          .in('id', staleManualIds)
+
+        if (manualLegacyUpdate.error) {
+          throw manualLegacyUpdate.error
         }
       } else {
         setPaymentSchemaMode('modern')

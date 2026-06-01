@@ -7,6 +7,7 @@ import {
   normalizeBookingServiceType,
   resolveBookingServiceType,
 } from '@/lib/booking-services'
+import { isUnpaidBookingExpired } from '@/lib/booking-expiry'
 import { getBookingAnalyticsContextParams } from '@/lib/analytics-schema'
 import { compareDateAndTime, formatDateLabel, isFutureAvailabilitySlot } from '@/lib/data'
 import { normalizePolishPhone } from '@/lib/phone'
@@ -242,6 +243,30 @@ function normalizeExpiredReservations(store: LocalStoreData): LocalStoreData {
         ? booking.paymentRejectedReason ?? 'Upłynął czas na potwierdzenie wpłaty.'
         : booking.paymentRejectedReason ?? null
     booking.updatedAt = nowIso
+  }
+
+  for (const booking of bookings) {
+    if (!isUnpaidBookingExpired(booking, new Date(now))) {
+      continue
+    }
+
+    const nowIso = new Date().toISOString()
+    const slots = resolveBookingSlots(availability, booking)
+
+    if (slots.length > 0) {
+      releaseBookingSlots(slots, nowIso)
+    }
+
+    booking.bookingStatus = 'expired'
+    booking.paymentStatus = booking.paymentStatus === 'pending_manual_review' ? 'rejected' : 'unpaid'
+    booking.expiredAt = nowIso
+    booking.paymentRejectedAt = booking.paymentStatus === 'rejected' ? nowIso : booking.paymentRejectedAt ?? null
+    booking.paymentRejectedReason =
+      booking.paymentStatus === 'rejected'
+        ? booking.paymentRejectedReason ?? 'Upłynęły 24 godziny na potwierdzenie wpłaty.'
+        : booking.paymentRejectedReason ?? null
+    booking.updatedAt = nowIso
+    changed = true
   }
 
   return changed ? { availability, bookings, funnelEvents, pricingSettings, users } : { ...store, pricingSettings, funnelEvents }

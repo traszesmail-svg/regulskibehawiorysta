@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 type BookingReminderOptInProps = {
   role: 'owner' | 'customer'
@@ -12,7 +12,7 @@ type BookingReminderOptInProps = {
   className?: string
 }
 
-type OptInState = 'idle' | 'subscribing' | 'subscribed' | 'unsupported' | 'denied' | 'error'
+type OptInState = 'idle' | 'subscribing' | 'subscribed' | 'install-required' | 'unsupported' | 'denied' | 'error'
 
 function urlBase64ToUint8Array(value: string): Uint8Array {
   const padding = '='.repeat((4 - (value.length % 4)) % 4)
@@ -34,6 +34,36 @@ function hasPushSupport() {
     'PushManager' in window &&
     'Notification' in window
   )
+}
+
+function isIosLike() {
+  if (typeof navigator === 'undefined') {
+    return false
+  }
+
+  return (
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+  )
+}
+
+function isStandaloneApp() {
+  if (typeof window === 'undefined' || typeof navigator === 'undefined') {
+    return false
+  }
+
+  return (
+    window.matchMedia('(display-mode: standalone)').matches ||
+    Boolean((navigator as Navigator & { standalone?: boolean }).standalone)
+  )
+}
+
+function getUnsupportedPushMessage() {
+  if (isIosLike() && !isStandaloneApp()) {
+    return 'Na iPhonie najpierw dodaj stronę do ekranu początkowego i otwórz ją z ikony aplikacji. Dopiero wtedy iOS pozwala włączyć powiadomienia.'
+  }
+
+  return 'Ta przeglądarka nie obsługuje powiadomień push dla tej strony. Użyj Chrome/Edge na Androidzie albo aplikacji z ekranu początkowego na iPhonie.'
 }
 
 export function BookingReminderOptIn({
@@ -64,18 +94,64 @@ export function BookingReminderOptIn({
     }
   }, [role])
 
+  const vapidPublicKey = publicKey ?? ''
+
+  useEffect(() => {
+    if (!publicKey || typeof window === 'undefined') {
+      return
+    }
+
+    if (isIosLike() && !isStandaloneApp()) {
+      setState('install-required')
+      setMessage(getUnsupportedPushMessage())
+      return
+    }
+
+    if (!hasPushSupport()) {
+      setState('unsupported')
+      setMessage(getUnsupportedPushMessage())
+      return
+    }
+
+    if (Notification.permission === 'denied') {
+      setState('denied')
+      setMessage('Powiadomienia są zablokowane w ustawieniach przeglądarki lub telefonu.')
+      return
+    }
+
+    async function checkExistingSubscription() {
+      try {
+        const registration = await navigator.serviceWorker.getRegistration('/push-sw.js')
+        const subscription = await registration?.pushManager.getSubscription()
+
+        if (subscription) {
+          setState('subscribed')
+          setMessage('Przypomnienie jest już włączone na tym urządzeniu.')
+        }
+      } catch {
+        // The button can still attempt a fresh registration.
+      }
+    }
+
+    void checkExistingSubscription()
+  }, [publicKey])
+
   if (!publicKey) {
     return null
   }
 
-  const vapidPublicKey = publicKey
-
   async function subscribe() {
     setMessage(null)
 
+    if (isIosLike() && !isStandaloneApp()) {
+      setState('install-required')
+      setMessage(getUnsupportedPushMessage())
+      return
+    }
+
     if (!hasPushSupport()) {
       setState('unsupported')
-      setMessage('Ta przeglądarka nie obsługuje powiadomień push dla tej strony.')
+      setMessage(getUnsupportedPushMessage())
       return
     }
 
@@ -97,6 +173,7 @@ export function BookingReminderOptIn({
       }
 
       const registration = await navigator.serviceWorker.register('/push-sw.js')
+      await navigator.serviceWorker.ready
       let subscription = await registration.pushManager.getSubscription()
 
       if (!subscription) {
@@ -134,12 +211,30 @@ export function BookingReminderOptIn({
     }
   }
 
+  const actionLabel =
+    state === 'subscribed'
+      ? 'Włączone'
+      : state === 'install-required'
+        ? 'Dodaj do ekranu początkowego'
+        : state === 'unsupported'
+          ? 'Nieobsługiwane'
+          : state === 'denied'
+            ? 'Powiadomienia zablokowane'
+            : isBusy
+              ? 'Włączam...'
+              : copy.action
+  const isDisabled = isBusy || state === 'subscribed' || state === 'install-required' || state === 'unsupported' || state === 'denied'
+
   return (
-    <div className={`list-card accent-outline tree-backed-card${className ? ` ${className}` : ''}`} data-push-opt-in={role}>
+    <div
+      className={`list-card accent-outline tree-backed-card${className ? ` ${className}` : ''}`}
+      data-push-opt-in={role}
+      data-push-state={state}
+    >
       <strong>{copy.title}</strong>
       <span>{message ?? copy.body}</span>
-      <button className="button button-ghost small-button" type="button" onClick={subscribe} disabled={isBusy || state === 'subscribed'}>
-        {state === 'subscribed' ? 'Włączone' : isBusy ? 'Włączam...' : copy.action}
+      <button className="button button-ghost small-button" type="button" onClick={subscribe} disabled={isDisabled}>
+        {actionLabel}
       </button>
     </div>
   )

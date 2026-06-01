@@ -5,6 +5,7 @@ import {
   buildVisibleServiceSlotsForDate,
   getNormalBookingMinDateKey,
 } from '@/lib/scheduling/rules'
+import { UNPAID_BOOKING_EXPIRY_HOURS, isUnpaidBookingExpired } from '@/lib/booking-expiry'
 import { shouldSendReminderForBooking } from '@/lib/server/reminders'
 import { REMINDER_LEAD_TIME_MINUTES } from '@/lib/server/reminder-runner'
 import type { AvailabilitySlot } from '@/lib/types'
@@ -70,5 +71,27 @@ describe('service scheduling rules', () => {
     assert.equal(shouldSendReminderForBooking(baseBooking, start, end), true)
     assert.equal(shouldSendReminderForBooking({ ...baseBooking, bookingTime: '10:16' }, start, end), false)
     assert.equal(shouldSendReminderForBooking({ ...baseBooking, reminderSent: true }, start, end), false)
+  })
+
+  it('expires unpaid admin bookings after 24 hours', () => {
+    const now = new Date('2026-06-01T12:00:00.000Z')
+    const fresh = {
+      bookingStatus: 'pending' as const,
+      paymentStatus: 'unpaid' as const,
+      createdAt: '2026-05-31T13:00:00.000Z',
+    }
+    const stale = {
+      bookingStatus: 'pending_manual_payment' as const,
+      paymentStatus: 'pending_manual_review' as const,
+      createdAt: '2026-05-31T11:59:00.000Z',
+    }
+
+    assert.equal(UNPAID_BOOKING_EXPIRY_HOURS, 24)
+    assert.equal(isUnpaidBookingExpired(fresh, now), false)
+    assert.equal(isUnpaidBookingExpired(stale, now), true)
+    assert.equal(
+      isUnpaidBookingExpired({ ...stale, bookingStatus: 'confirmed', paymentStatus: 'paid' }, now),
+      false,
+    )
   })
 })

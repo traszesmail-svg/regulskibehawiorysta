@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import { ContactLeadForm } from '@/components/ContactLeadForm'
 import { NotatnikFooter, NotatnikTopbar, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
+import { ReferenceHeroLeaf } from '@/components/ReferencePageShell'
 import { Schema } from '@/components/schema'
 import { getBreadcrumbJsonLd, getFaqPageJsonLd } from '@/lib/schema'
 import { buildMarketingMetadata } from '@/lib/seo'
@@ -67,8 +68,19 @@ export default function ContactPage({
       <Schema data={structuredData} />
       <div className="notatnik-shell contact-shell">
         <NotatnikTopbar tag="Kontakt" navItems={PUBLIC_SITE_NAV_ITEMS} showUtilityLinks={false} />
+        <ReferenceHeroLeaf />
 
         <section className="contact-reference-hero" aria-labelledby="contact-title">
+          <div className="contact-reference-hero-copy">
+            <span className="reference-pill">Kontakt</span>
+            <h1 id="contact-title">
+              Napisz krótko, co się dzieje. Pomogę Ci wybrać najrozsądniejszy pierwszy krok.
+            </h1>
+            <p>
+              Krótka wiadomość wystarczy, bym zrozumiał sytuację i podpowiedział, od czego
+              najlepiej zacząć. Bez oceniania. Z uważnością i fachową wiedzą.
+            </p>
+          </div>
           <div className="contact-reference-photo-wrap">
             <figure className="contact-reference-photo">
               <Image
@@ -80,16 +92,6 @@ export default function ContactPage({
                 sizes="(max-width: 760px) 86vw, 360px"
               />
             </figure>
-          </div>
-
-          <div className="contact-reference-hero-copy">
-            <h1 id="contact-title">
-              Napisz krótko, co się dzieje. Pomogę Ci wybrać najrozsądniejszy pierwszy krok.
-            </h1>
-            <p>
-              Krótka wiadomość wystarczy, bym zrozumiał sytuację i podpowiedział, od czego
-              najlepiej zacząć. Bez oceniania. Z uważnością i fachową wiedzą.
-            </p>
           </div>
         </section>
 

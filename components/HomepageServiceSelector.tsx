@@ -77,13 +77,13 @@ const heroChoices = [
   {
     id: 'dog',
     title: 'Mam psa',
-    copy: 'Coś dzieje się na spacerach, w domu albo w kontakcie z ludźmi i psami.',
+    copy: 'Spacer, szczekanie, lęk, niszczenie albo napięcie w domu.',
     href: '/wybor?animal=dog',
   },
   {
     id: 'cat',
     title: 'Mam kota',
-    copy: 'Kuweta, napięcie, stres, drugi kot albo zmiana w domu.',
+    copy: 'Kuweta, chowanie się, wokalizacja, stres albo konflikt z kotem.',
     href: '/wybor?animal=cat',
   },
   {
@@ -97,11 +97,11 @@ const heroChoices = [
 const heroChoiceDisplay: Record<(typeof heroChoices)[number]['id'], { title: string; copy: string }> = {
   dog: {
     title: 'Mam psa',
-    copy: 'Coś dzieje się na spacerach, w domu albo w kontakcie z ludźmi i psami.',
+    copy: 'Spacer, szczekanie, lęk, niszczenie albo napięcie w domu.',
   },
   cat: {
     title: 'Mam kota',
-    copy: 'Kuweta, napięcie, stres, drugi kot albo zmiana w domu.',
+    copy: 'Kuweta, chowanie się, wokalizacja, stres albo konflikt z kotem.',
   },
   unknown: {
     title: 'Nie wiem, co wybrać',
@@ -222,11 +222,11 @@ export function HomepageServiceSelector({ mode = 'home', initialAnimal = null, a
             </figure>
             <div className="router-hero-intro">
               <div className="router-hero-text">
-                <h1 className="router-reference-title">Behawiorysta psów i kotów online — spokojny pierwszy krok</h1>
+                <h1 className="router-reference-title">Behawiorysta psów i kotów online — pomoc, gdy zachowanie zaczyna martwić</h1>
                 <p className="router-reference-copy router-hero-lede">
-                  <span>Nie musisz znać fachowej nazwy problemu.</span>
-                  <span>Opisz, co dzieje się w domu, na spacerze albo przy kuwecie.</span>
-                  <span>Pomogę Ci zrozumieć przyczynę i wybrać najlepszy kolejny krok.</span>
+                  <span>Pies reaguje na spacerach, szczeka, niszczy albo trudno mu się wyciszyć?</span>{' '}
+                  <span>Kot sika poza kuwetą, chowa się, wokalizuje albo źle znosi drugiego kota?</span>{' '}
+                  <span>Opisz sytuację, a dobiorę właściwy pierwszy krok.</span>
                 </p>
               </div>
 
@@ -252,7 +252,6 @@ export function HomepageServiceSelector({ mode = 'home', initialAnimal = null, a
                   {choice.id === 'unknown' ? <em className="router-choice-quiz-label">Quiz</em> : null}
                   <span className="router-choice-copy">
                     <span>{heroChoiceDisplay[choice.id].copy}</span>
-                    {choice.id === 'dog' || choice.id === 'cat' ? <span className="router-choice-price">od 69 zł</span> : null}
                   </span>
                   <ArrowRight className="router-choice-arrow" size={18} strokeWidth={1.8} aria-hidden="true" />
                 </Link>
@@ -274,9 +273,6 @@ export function HomepageServiceSelector({ mode = 'home', initialAnimal = null, a
                 <span>Znajdź termin dla spraw pilnych!</span>
               </Link>
             </div>
-            <p className="router-reference-copy router-choice-microcopy">
-              Nie musisz diagnozować psa ani kota. Wystarczy, że opiszesz, co widzisz na co dzień.
-            </p>
           </header>
         </div>
       ) : null}

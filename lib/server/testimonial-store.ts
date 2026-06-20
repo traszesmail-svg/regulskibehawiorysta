@@ -95,6 +95,10 @@ export async function listPendingTestimonials(status?: PendingTestimonialStatus)
   return (data ?? []).map((row) => mapRow(row as PendingTestimonialRow))
 }
 
+export async function listPublishedTestimonials(): Promise<PendingTestimonialRecord[]> {
+  return listPendingTestimonials('published')
+}
+
 export async function updatePendingTestimonialStatus(
   id: string,
   status: PendingTestimonialStatus,

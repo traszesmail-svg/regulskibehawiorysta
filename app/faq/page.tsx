@@ -17,7 +17,7 @@ const contactHref = '/kontakt#formularz'
 
 export default function FaqPage() {
   return (
-    <ReferencePageShell className="reference-faq-page" ctaHref={bookHref}>
+    <ReferencePageShell className="reference-faq-page" ctaHref={bookHref} showHeroLeaf>
       <Schema
         data={[
           getBreadcrumbJsonLd([

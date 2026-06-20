@@ -56,11 +56,20 @@ export function Footer(props: FooterProps) {
   const compactFooterVariants: Array<FooterProps['variant'] | undefined> = ['landing', 'lean', 'full', 'home', 'legal', undefined]
   const useCompactFooter = compactFooterVariants.includes(props.variant)
   const showReviews = props.showReviews !== false
+  const reviewSourceUrl = props.reviewSpecies === 'all' ? '/api/reviews' : undefined
+  const initialIndex = footerReviews.length > 1 ? Math.floor(Math.random() * footerReviews.length) : 0
 
   if (useCompactFooter) {
     return (
       <>
-        {showReviews ? <FinalReviewsQuoteCarousel reviews={footerReviews} intervalMs={10000} /> : null}
+        {showReviews ? (
+          <FinalReviewsQuoteCarousel
+            reviews={footerReviews}
+            intervalMs={6000}
+            initialIndex={initialIndex}
+            sourceUrl={reviewSourceUrl}
+          />
+        ) : null}
         <footer className="site-footer site-footer-home-compact" aria-label="Stopka" data-build-marker={buildMarker.value}>
           <nav className="home-footer-link-grid" aria-label="Nawigacja w stopce">
             {FOOTER_NAV_ITEMS.map((item) => {
@@ -86,7 +95,14 @@ export function Footer(props: FooterProps) {
 
   return (
     <>
-      {showReviews ? <FinalReviewsQuoteCarousel reviews={footerReviews} intervalMs={10000} /> : null}
+      {showReviews ? (
+        <FinalReviewsQuoteCarousel
+          reviews={footerReviews}
+          intervalMs={6000}
+          initialIndex={initialIndex}
+          sourceUrl={reviewSourceUrl}
+        />
+      ) : null}
       <footer className="site-footer" aria-label="Stopka" data-build-marker={buildMarker.value}>
         <div className="site-footer-grid">
           <div className="site-footer-brand">
@@ -97,7 +113,9 @@ export function Footer(props: FooterProps) {
               <span className="site-footer-brand-copy">
                 <span>{SITE_HEADER_BRAND}</span>
                 <small>
-                  Krzysztof Regulski - behawiorysta zwierzęcy, doświadczony technik weterynarii i dietetyk. Pomagam opiekunom psów i kotów zrozumieć zachowanie, znaleźć możliwą przyczynę i wybrać pierwszy krok bez presji, kar i zgadywania.
+                  Krzysztof Regulski - behawiorysta zwierzęcy, doświadczony technik weterynarii i dietetyk.
+                  Pomagam opiekunom psów i kotów zrozumieć zachowanie, znaleźć możliwą przyczynę i wybrać
+                  pierwszy krok bez presji, kar i zgadywania.
                 </small>
               </span>
             </Link>

@@ -16,7 +16,7 @@ import {
   Toilet,
   type LucideIcon,
 } from 'lucide-react'
-import { NotatnikFooter, NotatnikTopbar, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
+import { NotatnikPageShell, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
 import { Schema } from '@/components/schema'
 import { getBreadcrumbJsonLd } from '@/lib/schema'
 import { buildMarketingMetadata } from '@/lib/seo'
@@ -206,17 +206,24 @@ export default function ChoicePage({
   const copy = animalCopy[animal]
   const choices = animal === 'cat' ? catChoices : dogChoices
   return (
-    <main className={`notatnik-page homepage-shell ${styles.page} ${animal === 'cat' ? styles.catPage : styles.dogPage}`}>
+    <NotatnikPageShell
+      tag="Regulski"
+      navItems={PUBLIC_SITE_NAV_ITEMS}
+      ctaHref="/quiz"
+      ctaLabel="Quiz"
+      footerPrimaryHref="/"
+      footerPrimaryLabel="Wróć do strony głównej"
+      sideVisualVariant={animal === 'cat' ? 'cat' : 'dog'}
+      pageClassName={`homepage-shell ${styles.page} ${animal === 'cat' ? styles.catPage : styles.dogPage}`}
+      shellClassName={`homepage-main ${styles.shell}`}
+      showFooterReviews={false}
+    >
       <Schema
         data={getBreadcrumbJsonLd([
           { name: 'Strona główna', path: '/' },
           { name: 'Wybór tematu', path: '/wybor' },
         ])}
       />
-
-      <div className={`notatnik-shell homepage-main ${styles.shell}`}>
-        <NotatnikTopbar tag="Regulski" navItems={PUBLIC_SITE_NAV_ITEMS} showUtilityLinks={false} />
-
         <div className={styles.content}>
           <Link className={styles.backLink} href="/" prefetch={false}>
             <ArrowLeft size={17} strokeWidth={2} aria-hidden="true" />
@@ -291,9 +298,6 @@ export default function ChoicePage({
             </div>
           </section>
         </div>
-
-        <NotatnikFooter showReviews={false} />
-      </div>
-    </main>
+    </NotatnikPageShell>
   )
 }

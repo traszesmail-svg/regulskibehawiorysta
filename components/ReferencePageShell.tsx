@@ -10,6 +10,7 @@ type ReferencePageShellProps = {
   className?: string
   ctaHref: string
   ctaLabel?: string
+  showHeroLeaf?: boolean
   showFooterReviews?: boolean
   children: ReactNode
 }
@@ -27,6 +28,7 @@ export function ReferencePageShell({
   className,
   ctaHref,
   ctaLabel = 'Quiz',
+  showHeroLeaf = false,
   showFooterReviews = true,
   children,
 }: ReferencePageShellProps) {
@@ -40,10 +42,19 @@ export function ReferencePageShell({
           ctaLabel={ctaLabel}
           showUtilityLinks={false}
         />
+        {showHeroLeaf ? <ReferenceHeroLeaf /> : null}
         {children}
         <NotatnikFooter showReviews={showFooterReviews} />
       </div>
     </main>
+  )
+}
+
+export function ReferenceHeroLeaf() {
+  return (
+    <span className="reference-hero-leaf-anchor" aria-hidden="true">
+      <span className="reference-hero-leaf" />
+    </span>
   )
 }
 

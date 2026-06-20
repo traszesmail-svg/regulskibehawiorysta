@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Clock3, HeartHandshake, ShieldCheck } from 'lucide-react'
 import { DecisionQuiz } from '@/components/DecisionQuiz'
 import { NotatnikPageShell, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
+import { ReferenceHeroLeaf } from '@/components/ReferencePageShell'
 import { Schema } from '@/components/schema'
 import { buildBookHref } from '@/lib/booking-routing'
 import { getBreadcrumbJsonLd } from '@/lib/schema'
@@ -44,6 +45,7 @@ export default function QuizPage() {
           { name: 'Quiz', path: '/quiz' },
         ])}
       />
+      <ReferenceHeroLeaf />
 
       <div className="quiz-reference-stage">
         <section className="quiz-reference-card" aria-labelledby="quiz-title">

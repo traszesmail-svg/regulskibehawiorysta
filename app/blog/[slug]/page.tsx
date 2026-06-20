@@ -3,8 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowLeft, ArrowRight, CalendarDays, Clock3 } from 'lucide-react'
-import { EditorialIndexTopbar } from '@/components/EditorialIndexTopbar'
-import { NotatnikFooter } from '@/components/NotatnikA'
+import { NotatnikPageShell, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
 import { Schema } from '@/components/schema'
 import {
   BLOG_ROUTE_BASE,
@@ -50,7 +49,18 @@ export default function BlogArticlePage({ params }: BlogArticlePageProps) {
   const relatedPosts = listRelatedBlogPosts(post.slug, 3)
 
   return (
-    <main className="notatnik-page blog-page blog-article-page">
+    <NotatnikPageShell
+      tag="Regulski"
+      navItems={PUBLIC_SITE_NAV_ITEMS}
+      ctaHref="/quiz"
+      ctaLabel="Quiz"
+      footerPrimaryHref="/blog"
+      footerPrimaryLabel="Wróć do bloga"
+      sideVisualVariant="blog"
+      pageClassName="blog-page blog-article-page"
+      shellClassName="blog-index-shell"
+      showFooterReviews={false}
+    >
       <Schema
         data={[
           getBreadcrumbJsonLd([
@@ -61,9 +71,6 @@ export default function BlogArticlePage({ params }: BlogArticlePageProps) {
           getBlogArticleJsonLd(post, baseUrl),
         ]}
       />
-      <div className="notatnik-shell blog-index-shell">
-        <EditorialIndexTopbar />
-
         <div className="blog-index-content">
           <section className="blog-article-hero-panel">
             <div className="blog-article-hero-copy">
@@ -112,8 +119,6 @@ export default function BlogArticlePage({ params }: BlogArticlePageProps) {
           ) : null}
         </div>
 
-        <NotatnikFooter showReviews={false} />
-      </div>
-    </main>
+    </NotatnikPageShell>
   )
 }

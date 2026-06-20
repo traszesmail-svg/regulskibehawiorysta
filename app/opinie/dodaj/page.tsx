@@ -4,7 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react'
 import { ArrowLeft, CheckCircle2, ImagePlus, Send, ShieldCheck } from 'lucide-react'
-import { NotatnikFooter, NotatnikSideVisuals, NotatnikTopbar, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
+import { NotatnikPageShell, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
 import { REGULSKI_WEB_BADGE_LOGO } from '@/lib/regulski-web-assets'
 import { TESTIMONIAL_ISSUE_OPTIONS } from '@/lib/testimonials'
 
@@ -265,13 +265,19 @@ export default function AddOpinionPage() {
 
 function OpinionPageShell({ children }: { children: ReactNode }) {
   return (
-    <main className="notatnik-page opinions-showcase-page add-opinion-page">
-      <NotatnikSideVisuals variant="mixed" />
-      <div className="notatnik-shell opinions-showcase-shell add-opinion-shell">
-        <NotatnikTopbar tag="Opinie" navItems={PUBLIC_SITE_NAV_ITEMS} showUtilityLinks={false} />
-        {children}
-        <NotatnikFooter showReviews={false} />
-      </div>
-    </main>
+    <NotatnikPageShell
+      tag="Opinie"
+      navItems={PUBLIC_SITE_NAV_ITEMS}
+      ctaHref="/opinie"
+      ctaLabel="Wróć do opinii"
+      footerPrimaryHref="/opinie"
+      footerPrimaryLabel="Wróć do opinii"
+      sideVisualVariant="mixed"
+      pageClassName="opinions-showcase-page add-opinion-page"
+      shellClassName="opinions-showcase-shell add-opinion-shell"
+      showFooterReviews={false}
+    >
+      {children}
+    </NotatnikPageShell>
   )
 }

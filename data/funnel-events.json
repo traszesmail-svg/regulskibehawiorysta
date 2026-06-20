@@ -1,5 +1,587 @@
 [
   {
+    "id": "705ef064-a6ce-4dd5-a92f-4255c80269d5",
+    "eventType": "cta_click",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/",
+    "location": "homepage-intro-popup",
+    "properties": {
+      "location": "homepage-intro-popup",
+      "reason": "close"
+    },
+    "createdAt": "2026-06-20T20:39:55.449Z"
+  },
+  {
+    "id": "623ef3b2-d91e-4140-af42-8caa81fb2a4b",
+    "eventType": "booking_drop",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?problem=kot-zmiany-w-domu&service=konsultacja-30-min&species=kot",
+    "location": null,
+    "properties": {
+      "slot_id": "2026-06-22-08:00",
+      "slot_time": "poniedziałek, 22 czerwca 2026, 08:00",
+      "source_page": "/book",
+      "service_key": "konsultacja-30-min",
+      "service_name": "Dwa kwadranse z behawiorystą",
+      "service_duration": 30,
+      "service_price": 169,
+      "species": "kot",
+      "problem_key": "kot-zmiany-w-domu",
+      "last_step": "form_start",
+      "drop_reason": "pagehide",
+      "age_ms": 17896
+    },
+    "createdAt": "2026-06-20T17:13:50.004Z"
+  },
+  {
+    "id": "b482db41-f0ba-4581-a4eb-1f9321cb438b",
+    "eventType": "booking_form_started",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?problem=kot-zmiany-w-domu&service=konsultacja-30-min&species=kot",
+    "location": null,
+    "properties": {
+      "slot_id": "2026-06-22-08:00",
+      "slot_time": "poniedziałek, 22 czerwca 2026, 08:00",
+      "source_page": "/book",
+      "service_key": "konsultacja-30-min",
+      "service_name": "Dwa kwadranse z behawiorystą",
+      "service_duration": 30,
+      "service_price": 169,
+      "species": "kot",
+      "problem_key": "kot-zmiany-w-domu"
+    },
+    "createdAt": "2026-06-20T17:13:32.199Z"
+  },
+  {
+    "id": "6b264471-46bb-469f-b4c4-b5bf7213da95",
+    "eventType": "booking_service_selected",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?problem=kot-zmiany-w-domu&service=konsultacja-30-min&species=kot",
+    "location": null,
+    "properties": {
+      "source_page": "/book",
+      "service_type": "konsultacja-30-min",
+      "problem_type": "kot-zmiany-w-domu",
+      "species": "kot",
+      "qa_booking": false
+    },
+    "createdAt": "2026-06-20T17:13:31.938Z"
+  },
+  {
+    "id": "d71a9338-42a9-4b9b-afaf-56365c243d72",
+    "eventType": "booking_start",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?problem=kot-zmiany-w-domu&service=konsultacja-30-min&species=kot",
+    "location": null,
+    "properties": {
+      "source_page": "/book",
+      "service_type": "konsultacja-30-min",
+      "problem_type": "kot-zmiany-w-domu",
+      "species": "kot",
+      "qa_booking": false
+    },
+    "createdAt": "2026-06-20T17:13:31.596Z"
+  },
+  {
+    "id": "477f0f73-6b47-42bb-bc88-91b7ebc9d55e",
+    "eventType": "booking_form_started",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?problem=kot-zmiany-w-domu&service=kwadrans-na-juz&species=kot",
+    "location": null,
+    "properties": {
+      "slot_id": "2026-06-22-08:00",
+      "slot_time": "poniedziałek, 22 czerwca 2026, 08:00",
+      "source_page": "/book",
+      "service_key": "kwadrans-na-juz",
+      "service_name": "Kwadrans na już",
+      "service_duration": 15,
+      "service_price": 99,
+      "species": "kot",
+      "problem_key": "kot-zmiany-w-domu"
+    },
+    "createdAt": "2026-06-20T17:13:16.037Z"
+  },
+  {
+    "id": "2fa9a139-7ba0-4016-937b-7408c2de0449",
+    "eventType": "booking_service_selected",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?problem=kot-zmiany-w-domu&service=kwadrans-na-juz&species=kot",
+    "location": null,
+    "properties": {
+      "source_page": "/book",
+      "service_type": "kwadrans-na-juz",
+      "problem_type": "kot-zmiany-w-domu",
+      "species": "kot",
+      "qa_booking": false
+    },
+    "createdAt": "2026-06-20T17:13:15.744Z"
+  },
+  {
+    "id": "ba0ea0b2-4594-47ef-a5ee-b6dca230942e",
+    "eventType": "booking_start",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?problem=kot-zmiany-w-domu&service=kwadrans-na-juz&species=kot",
+    "location": null,
+    "properties": {
+      "source_page": "/book",
+      "service_type": "kwadrans-na-juz",
+      "problem_type": "kot-zmiany-w-domu",
+      "species": "kot",
+      "qa_booking": false
+    },
+    "createdAt": "2026-06-20T17:13:15.475Z"
+  },
+  {
+    "id": "c6672ea6-9e10-49b7-b07b-134bc0df6f18",
+    "eventType": "booking_form_started",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?problem=kot-zmiany-w-domu&species=kot",
+    "location": null,
+    "properties": {
+      "slot_id": "2026-06-22-08:00",
+      "slot_time": "poniedziałek, 22 czerwca 2026, 08:00",
+      "source_page": "/book",
+      "service_key": "szybka-konsultacja-15-min",
+      "service_name": "15-minutowa konsultacja behawioralna",
+      "service_duration": 15,
+      "service_price": 69,
+      "species": "kot",
+      "problem_key": "kot-zmiany-w-domu"
+    },
+    "createdAt": "2026-06-20T17:13:08.134Z"
+  },
+  {
+    "id": "1cb51938-638d-4d5e-a8ca-e4af385580b9",
+    "eventType": "booking_service_selected",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?problem=kot-zmiany-w-domu&species=kot",
+    "location": null,
+    "properties": {
+      "source_page": "/book",
+      "service_type": "szybka-konsultacja-15-min",
+      "problem_type": "kot-zmiany-w-domu",
+      "species": "kot",
+      "qa_booking": false
+    },
+    "createdAt": "2026-06-20T17:13:07.813Z"
+  },
+  {
+    "id": "3e53e856-8012-439f-b2cc-f67bfc0e2323",
+    "eventType": "booking_start",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?problem=kot-zmiany-w-domu&species=kot",
+    "location": null,
+    "properties": {
+      "source_page": "/book",
+      "service_type": "szybka-konsultacja-15-min",
+      "problem_type": "kot-zmiany-w-domu",
+      "species": "kot",
+      "qa_booking": false
+    },
+    "createdAt": "2026-06-20T17:13:07.544Z"
+  },
+  {
+    "id": "d690ccd6-83d5-4c97-b123-08b71ae0a4f3",
+    "eventType": "cta_click",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/",
+    "location": "home-router-choice",
+    "properties": {
+      "location": "home-router-choice",
+      "choice": "cat"
+    },
+    "createdAt": "2026-06-20T17:13:03.429Z"
+  },
+  {
+    "id": "e9627789-ef6e-4d63-98eb-2d8626dd33d3",
+    "eventType": "booking_form_started",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?problem=agresja&species=pies",
+    "location": null,
+    "properties": {
+      "slot_id": "2026-06-22-10:00",
+      "slot_time": "poniedziałek, 22 czerwca 2026, 10:00",
+      "source_page": "/book",
+      "service_key": "szybka-konsultacja-15-min",
+      "service_name": "15-minutowa konsultacja behawioralna",
+      "service_duration": 15,
+      "service_price": 69,
+      "species": "pies",
+      "problem_key": "agresja"
+    },
+    "createdAt": "2026-06-20T17:12:54.815Z"
+  },
+  {
+    "id": "eeccd709-ceb4-4b5c-8ec7-9e36d95aaa63",
+    "eventType": "booking_slot_selected",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?problem=agresja&species=pies",
+    "location": "termin-nearest-slots",
+    "properties": {
+      "location": "termin-nearest-slots",
+      "slot_id": "2026-06-22-10:00",
+      "slot_date": "2026-06-22",
+      "slot_time": "10:00",
+      "service": "szybka-konsultacja-15-min"
+    },
+    "createdAt": "2026-06-20T17:12:54.547Z"
+  },
+  {
+    "id": "14ac75cc-b798-4973-ac63-938eb1c3355d",
+    "eventType": "booking_form_started",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?problem=agresja&species=pies",
+    "location": null,
+    "properties": {
+      "slot_id": "2026-06-22-08:30",
+      "slot_time": "poniedziałek, 22 czerwca 2026, 08:30",
+      "source_page": "/book",
+      "service_key": "szybka-konsultacja-15-min",
+      "service_name": "15-minutowa konsultacja behawioralna",
+      "service_duration": 15,
+      "service_price": 69,
+      "species": "pies",
+      "problem_key": "agresja"
+    },
+    "createdAt": "2026-06-20T17:12:48.623Z"
+  },
+  {
+    "id": "f095fc3d-fe88-43d6-82c5-42caeb7a978e",
+    "eventType": "booking_slot_selected",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?problem=agresja&species=pies",
+    "location": "termin-nearest-slots",
+    "properties": {
+      "location": "termin-nearest-slots",
+      "slot_id": "2026-06-22-08:30",
+      "slot_date": "2026-06-22",
+      "slot_time": "08:30",
+      "service": "szybka-konsultacja-15-min"
+    },
+    "createdAt": "2026-06-20T17:12:48.283Z"
+  },
+  {
+    "id": "b202bfec-11f9-4b12-ba13-80e58ca10018",
+    "eventType": "booking_form_started",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?problem=agresja&species=pies",
+    "location": null,
+    "properties": {
+      "slot_id": "2026-07-14-10:30",
+      "slot_time": "wtorek, 14 lipca 2026, 10:30",
+      "source_page": "/book",
+      "service_key": "szybka-konsultacja-15-min",
+      "service_name": "15-minutowa konsultacja behawioralna",
+      "service_duration": 15,
+      "service_price": 69,
+      "species": "pies",
+      "problem_key": "agresja"
+    },
+    "createdAt": "2026-06-20T17:12:37.465Z"
+  },
+  {
+    "id": "ce20805f-85fe-4ec9-a47a-3735f2df84a7",
+    "eventType": "booking_slot_selected",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?problem=agresja&species=pies",
+    "location": "termin-calendar",
+    "properties": {
+      "location": "termin-calendar",
+      "slot_id": "2026-07-14-10:30",
+      "slot_date": "2026-07-14",
+      "slot_time": "10:30",
+      "service": "szybka-konsultacja-15-min"
+    },
+    "createdAt": "2026-06-20T17:12:37.230Z"
+  },
+  {
+    "id": "3d7ff6c8-105d-4532-860d-927de8a0a6aa",
+    "eventType": "booking_form_started",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?problem=agresja&species=pies",
+    "location": null,
+    "properties": {
+      "slot_id": "2026-07-14-08:00",
+      "slot_time": "wtorek, 14 lipca 2026, 08:00",
+      "source_page": "/book",
+      "service_key": "szybka-konsultacja-15-min",
+      "service_name": "15-minutowa konsultacja behawioralna",
+      "service_duration": 15,
+      "service_price": 69,
+      "species": "pies",
+      "problem_key": "agresja"
+    },
+    "createdAt": "2026-06-20T17:12:36.061Z"
+  },
+  {
+    "id": "ba645d3a-cfd7-4466-8b5d-c831939fcdd8",
+    "eventType": "booking_form_started",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?problem=agresja&species=pies",
+    "location": null,
+    "properties": {
+      "slot_id": "2026-07-15-08:00",
+      "slot_time": "środa, 15 lipca 2026, 08:00",
+      "source_page": "/book",
+      "service_key": "szybka-konsultacja-15-min",
+      "service_name": "15-minutowa konsultacja behawioralna",
+      "service_duration": 15,
+      "service_price": 69,
+      "species": "pies",
+      "problem_key": "agresja"
+    },
+    "createdAt": "2026-06-20T17:12:35.420Z"
+  },
+  {
+    "id": "5d7565d1-2de7-4ed9-9f24-5c83a5aef75b",
+    "eventType": "booking_form_started",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?problem=agresja&species=pies",
+    "location": null,
+    "properties": {
+      "slot_id": "2026-07-08-08:00",
+      "slot_time": "środa, 8 lipca 2026, 08:00",
+      "source_page": "/book",
+      "service_key": "szybka-konsultacja-15-min",
+      "service_name": "15-minutowa konsultacja behawioralna",
+      "service_duration": 15,
+      "service_price": 69,
+      "species": "pies",
+      "problem_key": "agresja"
+    },
+    "createdAt": "2026-06-20T17:12:34.699Z"
+  },
+  {
+    "id": "fc9dc97b-b070-4d5d-b209-8822c10b0710",
+    "eventType": "booking_form_started",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?problem=agresja&species=pies",
+    "location": null,
+    "properties": {
+      "slot_id": "2026-07-09-08:00",
+      "slot_time": "czwartek, 9 lipca 2026, 08:00",
+      "source_page": "/book",
+      "service_key": "szybka-konsultacja-15-min",
+      "service_name": "15-minutowa konsultacja behawioralna",
+      "service_duration": 15,
+      "service_price": 69,
+      "species": "pies",
+      "problem_key": "agresja"
+    },
+    "createdAt": "2026-06-20T17:12:33.358Z"
+  },
+  {
+    "id": "0bd41f1f-6ca5-4899-9899-9e314f951de1",
+    "eventType": "booking_form_started",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?problem=agresja&species=pies",
+    "location": null,
+    "properties": {
+      "slot_id": "2026-07-02-08:00",
+      "slot_time": "czwartek, 2 lipca 2026, 08:00",
+      "source_page": "/book",
+      "service_key": "szybka-konsultacja-15-min",
+      "service_name": "15-minutowa konsultacja behawioralna",
+      "service_duration": 15,
+      "service_price": 69,
+      "species": "pies",
+      "problem_key": "agresja"
+    },
+    "createdAt": "2026-06-20T17:12:32.394Z"
+  },
+  {
+    "id": "f3e892a2-7613-48f8-945f-de21eff0ba92",
+    "eventType": "booking_form_started",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?problem=agresja&species=pies",
+    "location": null,
+    "properties": {
+      "slot_id": "2026-07-20-08:00",
+      "slot_time": "poniedziałek, 20 lipca 2026, 08:00",
+      "source_page": "/book",
+      "service_key": "szybka-konsultacja-15-min",
+      "service_name": "15-minutowa konsultacja behawioralna",
+      "service_duration": 15,
+      "service_price": 69,
+      "species": "pies",
+      "problem_key": "agresja"
+    },
+    "createdAt": "2026-06-20T17:12:29.357Z"
+  },
+  {
+    "id": "f1ead63c-1e3a-4a4f-a743-09a06f81918f",
+    "eventType": "booking_form_started",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?problem=agresja&species=pies",
+    "location": null,
+    "properties": {
+      "slot_id": "2026-07-16-08:00",
+      "slot_time": "czwartek, 16 lipca 2026, 08:00",
+      "source_page": "/book",
+      "service_key": "szybka-konsultacja-15-min",
+      "service_name": "15-minutowa konsultacja behawioralna",
+      "service_duration": 15,
+      "service_price": 69,
+      "species": "pies",
+      "problem_key": "agresja"
+    },
+    "createdAt": "2026-06-20T17:12:28.387Z"
+  },
+  {
+    "id": "99877a20-c8d0-4ec7-8a86-551098b22a8c",
+    "eventType": "booking_form_started",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?problem=agresja&species=pies",
+    "location": null,
+    "properties": {
+      "slot_id": "2026-07-15-08:00",
+      "slot_time": "środa, 15 lipca 2026, 08:00",
+      "source_page": "/book",
+      "service_key": "szybka-konsultacja-15-min",
+      "service_name": "15-minutowa konsultacja behawioralna",
+      "service_duration": 15,
+      "service_price": 69,
+      "species": "pies",
+      "problem_key": "agresja"
+    },
+    "createdAt": "2026-06-20T17:12:25.632Z"
+  },
+  {
+    "id": "45309f60-ed27-476d-8350-e02266ff0109",
+    "eventType": "booking_form_started",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?problem=agresja&species=pies",
+    "location": null,
+    "properties": {
+      "slot_id": "2026-06-22-08:00",
+      "slot_time": "poniedziałek, 22 czerwca 2026, 08:00",
+      "source_page": "/book",
+      "service_key": "szybka-konsultacja-15-min",
+      "service_name": "15-minutowa konsultacja behawioralna",
+      "service_duration": 15,
+      "service_price": 69,
+      "species": "pies",
+      "problem_key": "agresja"
+    },
+    "createdAt": "2026-06-20T17:12:16.464Z"
+  },
+  {
+    "id": "a2cf445b-32cd-46f4-b3bc-21f82939d4b9",
+    "eventType": "booking_service_selected",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?problem=agresja&species=pies",
+    "location": null,
+    "properties": {
+      "source_page": "/book",
+      "service_type": "szybka-konsultacja-15-min",
+      "problem_type": "agresja",
+      "species": "pies",
+      "qa_booking": false
+    },
+    "createdAt": "2026-06-20T17:12:16.156Z"
+  },
+  {
+    "id": "3b46148f-7ab1-4e5a-a833-41885ccd570f",
+    "eventType": "booking_start",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?problem=agresja&species=pies",
+    "location": null,
+    "properties": {
+      "source_page": "/book",
+      "service_type": "szybka-konsultacja-15-min",
+      "problem_type": "agresja",
+      "species": "pies",
+      "qa_booking": false
+    },
+    "createdAt": "2026-06-20T17:12:15.888Z"
+  },
+  {
+    "id": "22c9fe95-a7d8-48ca-a4f0-6084503befa1",
+    "eventType": "cta_click",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/",
+    "location": "home-router-choice",
+    "properties": {
+      "location": "home-router-choice",
+      "choice": "dog"
+    },
+    "createdAt": "2026-06-20T17:12:08.718Z"
+  },
+  {
+    "id": "f08572ce-3bf2-49f6-ab48-c8be56ca903f",
+    "eventType": "cta_click",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/",
+    "location": "homepage-intro-popup",
+    "properties": {
+      "location": "homepage-intro-popup",
+      "reason": "close"
+    },
+    "createdAt": "2026-06-18T14:50:47.407Z"
+  },
+  {
     "id": "889418b9-771a-47bc-8e01-b2f553dd5dcb",
     "eventType": "topic_selected",
     "bookingId": null,

@@ -15,7 +15,7 @@ import {
   Zap,
   type LucideIcon,
 } from 'lucide-react'
-import { NotatnikFooter, NotatnikTopbar, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
+import { NotatnikPageShell, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
 import { Schema } from '@/components/schema'
 import type { BookingServiceType } from '@/lib/booking-services'
 import { buildBookHref, readProblemTypeSearchParam, type BookingSpecies } from '@/lib/booking-routing'
@@ -179,10 +179,19 @@ export default function ConsultationFormatPage({
   const backHref = `/wybor?animal=${animal}`
 
   return (
-    <main
-      className={`notatnik-page homepage-shell ${styles.page} ${styles.formatOnlyPage} ${
+    <NotatnikPageShell
+      tag="Regulski"
+      navItems={PUBLIC_SITE_NAV_ITEMS}
+      ctaHref="/quiz"
+      ctaLabel="Quiz"
+      footerPrimaryHref={backHref}
+      footerPrimaryLabel="Wróć do wyboru"
+      sideVisualVariant={animal === 'cat' ? 'cat' : 'dog'}
+      pageClassName={`homepage-shell ${styles.page} ${styles.formatOnlyPage} ${
         animal === 'cat' ? styles.catPage : styles.dogPage
       }`}
+      shellClassName={`homepage-main ${styles.shell}`}
+      showFooterReviews={false}
     >
       <Schema
         data={getBreadcrumbJsonLd([
@@ -191,10 +200,6 @@ export default function ConsultationFormatPage({
           { name: 'Wybór formatu', path: '/format-konsultacji' },
         ])}
       />
-
-      <div className={`notatnik-shell homepage-main ${styles.shell}`}>
-        <NotatnikTopbar tag="Regulski" navItems={PUBLIC_SITE_NAV_ITEMS} showUtilityLinks={false} />
-
         <div className={styles.content}>
           <Link className={styles.backLink} href={backHref} prefetch={false}>
             <ArrowLeft size={17} strokeWidth={2} aria-hidden="true" />
@@ -336,9 +341,6 @@ export default function ConsultationFormatPage({
             </div>
           </section>
         </div>
-
-        <NotatnikFooter showReviews={false} />
-      </div>
-    </main>
+    </NotatnikPageShell>
   )
 }

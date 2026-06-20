@@ -5,8 +5,7 @@ import { unstable_noStore as noStore } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { CalendarDays, Cat, Check, ChevronDown, Dog, Headphones, PawPrint } from 'lucide-react'
 import { AnalyticsEventOnMount } from '@/components/AnalyticsEventOnMount'
-import { EditorialIndexTopbar } from '@/components/EditorialIndexTopbar'
-import { NotatnikFooter, NotatnikSideVisuals } from '@/components/NotatnikA'
+import { NotatnikPageShell, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
 import { TerminCalendarPicker, type TerminCalendarDay as PickerCalendarDay } from '@/components/TerminCalendarPicker'
 import { Schema } from '@/components/schema'
 import {
@@ -52,6 +51,7 @@ export const metadata: Metadata = buildMarketingMetadata({
 })
 
 const terminSteps = ['Termin', 'Godzina', 'Dane', 'Płatność'] as const
+const urgentTerminSteps = ['Najbliższe terminy', 'Dane', 'Płatność'] as const
 
 const bookingFaqItems = [
   {
@@ -122,6 +122,11 @@ function getSundayEnd(date: Date) {
   return end
 }
 
+function isWeekendDateKey(dateKey: string) {
+  const day = parseDate(dateKey).getDay()
+  return day === 0 || day === 6
+}
+
 function buildCalendarDays(
   availabilitySlots: AvailabilitySlot[],
   serviceType: BookingServiceType,
@@ -138,16 +143,24 @@ function buildCalendarDays(
   const lastDate = visibleDates[visibleDates.length - 1] ? parseDate(visibleDates[visibleDates.length - 1]) : fallbackDate
   const primaryMonth = firstDate.getMonth()
   const primaryYear = firstDate.getFullYear()
-  const visibleRangeStart = new Date(primaryYear, primaryMonth, 1, 12)
-  const visibleRangeEnd = new Date(lastDate.getFullYear(), lastDate.getMonth() + 1, 0, 12)
+  const isUrgentService = serviceType === 'kwadrans-na-juz'
+  const visibleRangeStart = isUrgentService ? firstDate : new Date(primaryYear, primaryMonth, 1, 12)
+  const visibleRangeEnd = isUrgentService ? lastDate : new Date(lastDate.getFullYear(), lastDate.getMonth() + 1, 0, 12)
   const calendarStart = getMondayStart(visibleRangeStart)
   const calendarEnd = getSundayEnd(visibleRangeEnd)
   const days: CalendarDay[] = []
   const visibleDateSet = new Set(visibleDates)
 
-  for (const cursor = new Date(calendarStart); cursor <= calendarEnd; cursor.setDate(cursor.getDate() + 1)) {
+  const loopStart = isUrgentService ? visibleRangeStart : calendarStart
+  const loopEnd = isUrgentService ? visibleRangeEnd : calendarEnd
+
+  for (const cursor = new Date(loopStart); cursor <= loopEnd; cursor.setDate(cursor.getDate() + 1)) {
     const date = new Date(cursor)
     const dateKey = formatDateKey(date)
+    if (isUrgentService && isWeekendDateKey(dateKey)) {
+      continue
+    }
+
     const scheduleSlots = visibleDateSet.has(dateKey)
       ? buildVisibleServiceSlotsForDate(availabilitySlots, dateKey, serviceType, now)
       : []
@@ -281,7 +294,19 @@ export async function BookingSlotCalendar({
   )
 
   return (
-    <main className={`notatnik-page termin-page termin-${problemSpecies}-page`} data-analytics-disabled={qaBooking ? 'true' : undefined}>
+    <NotatnikPageShell
+      tag="Regulski"
+      navItems={PUBLIC_SITE_NAV_ITEMS}
+      ctaHref="/quiz"
+      ctaLabel="Quiz"
+      footerPrimaryHref="/wybor"
+      footerPrimaryLabel="Wróć do wyboru"
+      sideVisualVariant={sideVisualVariant}
+      pageClassName={`termin-page termin-${problemSpecies}-page`}
+      shellClassName="termin-shell"
+      showFooterReviews={false}
+      analyticsDisabled={qaBooking}
+    >
       <Schema
         data={getBreadcrumbJsonLd([
           { name: 'Strona główna', path: '/' },
@@ -289,11 +314,7 @@ export async function BookingSlotCalendar({
           { name: 'Termin', path: '/book' },
         ])}
       />
-      <NotatnikSideVisuals variant={sideVisualVariant} />
-      <div className="notatnik-shell termin-shell">
-        <EditorialIndexTopbar />
-
-        <section className="termin-calendar-section">
+      <section className="termin-calendar-section">
           <div className="termin-calendar-head">
             <div className="termin-breadcrumb">
               <CalendarDays size={17} strokeWidth={1.8} aria-hidden="true" />
@@ -315,8 +336,8 @@ export async function BookingSlotCalendar({
             <Image src={petVisualSrc} alt={petVisualAlt} fill priority sizes="(max-width: 680px) 340px, 430px" />
           </figure>
 
-          <div className="termin-step-track" aria-label="Etapy rezerwacji">
-            {terminSteps.map((step, index) => (
+          <div className="termin-step-track" aria-label="Etapy rezerwacji" data-urgent={isUrgentBooking ? 'true' : undefined}>
+            {(isUrgentBooking ? urgentTerminSteps : terminSteps).map((step, index) => (
               <span key={step} className={index === 0 ? 'is-active' : ''}>
                 <strong>{index + 1}</strong>
                 {step}
@@ -442,11 +463,8 @@ export async function BookingSlotCalendar({
             ))}
             <Link href="/faq" prefetch={false}>Zobacz wszystkie pytania</Link>
           </div>
-        </section>
-
-        <NotatnikFooter primaryHref="/wybor" primaryLabel="Wróć do wyboru" />
-      </div>
-    </main>
+      </section>
+    </NotatnikPageShell>
   )
 }
 

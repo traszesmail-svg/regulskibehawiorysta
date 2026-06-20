@@ -26,6 +26,7 @@ const VISIBLE_START_MINUTES = 6 * 60
 const VISIBLE_END_MINUTES = 20 * 60
 const SLOT_STEP_MINUTES = 30
 const STANDARD_HORIZON_DAYS = 30
+const URGENT_HORIZON_DAYS = 2
 const FULL_CONSULT_HORIZON_DAYS = 60
 const STANDARD_BOOKING_DELAY_DAYS = 2
 const FULL_CONSULT_WEEKDAY_TIME = '08:15'
@@ -138,6 +139,10 @@ export function getNormalBookingMinDateKey(now = new Date()) {
 }
 
 export function getServiceScheduleHorizonDays(serviceType: BookingServiceType) {
+  if (serviceType === 'kwadrans-na-juz') {
+    return URGENT_HORIZON_DAYS
+  }
+
   return serviceType === 'konsultacja-behawioralna-online' ? FULL_CONSULT_HORIZON_DAYS : STANDARD_HORIZON_DAYS
 }
 

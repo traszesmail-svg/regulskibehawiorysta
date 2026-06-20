@@ -6,6 +6,7 @@ import { execFileSync, spawn } from 'node:child_process'
 import { loadEnvConfig } from '@next/env'
 import { chromium, type Page } from 'playwright-core'
 import { problemOptions } from '../lib/data'
+import { getNormalBookingMinDateKey } from '../lib/scheduling/rules'
 import { createLocalDataSandbox } from './lib/local-data-sandbox'
 import { resolveBrowserExecutablePath } from './lib/browser-path'
 
@@ -37,31 +38,6 @@ function getWarsawTimestamp() {
   return {
     isoLike: `${values.year}-${values.month}-${values.day} ${values.hour}:${values.minute}:${values.second} Europe/Warsaw`,
     compact: `${values.year}${values.month}${values.day}-${values.hour}${values.minute}${values.second}`,
-  }
-}
-
-function getWarsawSlotInMinutes(offsetMinutes: number) {
-  const target = new Date(Date.now() + offsetMinutes * 60 * 1000)
-  const formatter = new Intl.DateTimeFormat('sv-SE', {
-    timeZone: 'Europe/Warsaw',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  })
-  const values: Record<string, string> = {}
-
-  for (const part of formatter.formatToParts(target)) {
-    if (part.type !== 'literal') {
-      values[part.type] = part.value
-    }
-  }
-
-  return {
-    date: `${values.year}-${values.month}-${values.day}`,
-    time: `${values.hour}:${values.minute}`,
   }
 }
 
@@ -117,8 +93,16 @@ function getFirstSlotLink(page: Page) {
   return page.locator('[data-selected-slot-link="true"], [data-nearest-slot-link="true"], a.slot-link').first()
 }
 
-function getSlotLinkById(page: Page, slotId: string) {
-  return page.locator(`[data-slot-id="${escapeAttributeValue(slotId)}"], a.slot-link[data-slot-id="${escapeAttributeValue(slotId)}"]`).first()
+function getDateButtonByDate(page: Page, date: string) {
+  return page.locator(`button[data-calendar-date="${escapeAttributeValue(date)}"]`).first()
+}
+
+function getSlotButtonById(page: Page, slotId: string) {
+  return page.locator(`button[data-slot-id="${escapeAttributeValue(slotId)}"]`).first()
+}
+
+function getSummarySlotLinkById(page: Page, slotId: string) {
+  return page.locator(`[data-selected-slot-link="true"][data-slot-id="${escapeAttributeValue(slotId)}"]`).first()
 }
 
 async function resolveServerCommand() {
@@ -198,10 +182,11 @@ async function main() {
   try {
     await cleanLocalData(dataDir)
 
+    const seededDate = getNormalBookingMinDateKey(new Date())
     const seededSlots = await Promise.all(
-      [120, 140].map(async (offsetMinutes) => {
-        const slot = getWarsawSlotInMinutes(offsetMinutes)
-        return localStore.createAvailabilitySlot(slot.date, slot.time)
+      ['08:00', '08:30'].map(async (time) => {
+        const slotId = `${seededDate}-${time}`
+        return (await localStore.getAvailabilitySlot(slotId)) ?? localStore.createAvailabilitySlot(seededDate, time)
       }),
     )
 
@@ -266,20 +251,29 @@ async function main() {
         capturedPageErrors.push(error.message)
       })
 
-      await page.goto(`${appUrl}/slot?problem=${encodeURIComponent(topic.id)}`, { waitUntil: 'domcontentloaded' })
+      await page.goto(`${appUrl}/book?problem=${encodeURIComponent(topic.id)}`, { waitUntil: 'domcontentloaded' })
       await getFirstSlotLink(page).waitFor()
 
       const slotResults: Array<{ slotId: string; slotLabel: string; url: string }> = []
 
       for (const slot of seededSlots) {
-        const slotLink = getSlotLinkById(page, slot.id)
+        const dateButton = getDateButtonByDate(page, slot.bookingDate)
+        await dateButton.waitFor()
+        await dateButton.click()
 
-        await slotLink.waitFor()
-        await slotLink.click()
+        const slotButton = getSlotButtonById(page, slot.id)
+        await slotButton.waitFor()
+        await slotButton.click()
+
+        const summaryLink = getSummarySlotLinkById(page, slot.id)
+        await summaryLink.waitFor()
+        const formHref = await summaryLink.getAttribute('href')
+        assert.ok(formHref, `Expected selected slot CTA href for ${slot.id}.`)
+        await page.goto(new URL(formHref, appUrl).toString(), { waitUntil: 'domcontentloaded' })
         await page.waitForURL(new RegExp(`/form\\?problem=${topic.id}&slotId=`), { timeout: 10000 })
-        await page.locator('form').waitFor({ timeout: 10000 })
-        await page.locator('form input[placeholder="np. Anna"]').waitFor({ timeout: 10000 })
-        await page.locator('form button[type="submit"]').waitFor({ timeout: 10000 })
+        await page.locator('[data-booking-form="details"]').waitFor({ timeout: 10000 })
+        await page.locator('[data-booking-field="owner-name"]').waitFor({ timeout: 10000 })
+        await page.locator('[data-booking-submit="payment"]').waitFor({ timeout: 10000 })
 
         assert.equal(capturedConsole.length, 0, `Unexpected slot->form console errors for ${topic.id}: ${capturedConsole.join(' | ')}`)
         assert.equal(capturedPageErrors.length, 0, `Unexpected slot->form page errors for ${topic.id}: ${capturedPageErrors.join(' | ')}`)
@@ -290,7 +284,7 @@ async function main() {
           url: page.url(),
         })
 
-        await page.goto(`${appUrl}/slot?problem=${encodeURIComponent(topic.id)}`, { waitUntil: 'domcontentloaded' })
+        await page.goto(`${appUrl}/book?problem=${encodeURIComponent(topic.id)}`, { waitUntil: 'domcontentloaded' })
         await getFirstSlotLink(page).waitFor()
       }
 

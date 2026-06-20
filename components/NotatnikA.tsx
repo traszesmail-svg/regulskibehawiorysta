@@ -20,10 +20,7 @@ export const PUBLIC_SITE_NAV_ITEMS: readonly NotatnikNavItem[] = [
   { href: '/kontakt', label: 'Kontakt' },
 ]
 
-export const PUBLIC_BOOKING_FLOW_NAV_ITEMS: readonly NotatnikNavItem[] = [
-  { href: '/cennik', label: 'Cennik' },
-  { href: '/kontakt#formularz', label: 'Kontakt' },
-]
+export const PUBLIC_BOOKING_FLOW_NAV_ITEMS: readonly NotatnikNavItem[] = PUBLIC_SITE_NAV_ITEMS
 
 type NotatnikTopbarProps = {
   tag: string
@@ -66,6 +63,10 @@ type NotatnikPageShellProps = {
   footerPrimaryLabel: string
   sideVisualVariant?: NotatnikSideVisualVariant
   pageClassName?: string
+  shellClassName?: string
+  footerVariant?: 'landing' | 'lean' | 'full' | 'home' | 'legal'
+  showFooterReviews?: boolean
+  analyticsDisabled?: boolean
   children: React.ReactNode
 }
 
@@ -110,9 +111,9 @@ function NotatnikBrandLockup() {
 }
 
 export function NotatnikTopbar({
+  navItems = PUBLIC_SITE_NAV_ITEMS,
   showUtilityLinks = false,
 }: NotatnikTopbarProps) {
-  const navItems = PUBLIC_SITE_NAV_ITEMS
   const ctaHref = '/quiz'
   const ctaLabel = 'Quiz'
   const hasNavItems = navItems.length > 0
@@ -279,8 +280,22 @@ export function NotatnikFinalCta({
   )
 }
 
-export function NotatnikFooter({ variant = 'home', showReviews = true, reviewSpecies = 'all' }: NotatnikFooterProps) {
-  return <Footer variant={variant} showReviews={showReviews} reviewSpecies={reviewSpecies} />
+export function NotatnikFooter({
+  primaryHref,
+  primaryLabel,
+  variant = 'home',
+  showReviews = true,
+  reviewSpecies = 'all',
+}: NotatnikFooterProps) {
+  return (
+    <Footer
+      variant={variant}
+      ctaHref={primaryHref}
+      ctaLabel={primaryLabel}
+      showReviews={showReviews}
+      reviewSpecies={reviewSpecies}
+    />
+  )
 }
 
 export function NotatnikPageShell({
@@ -292,15 +307,27 @@ export function NotatnikPageShell({
   footerPrimaryLabel,
   sideVisualVariant = 'mixed',
   pageClassName,
+  shellClassName,
+  footerVariant = 'home',
+  showFooterReviews = true,
+  analyticsDisabled = false,
   children,
 }: NotatnikPageShellProps) {
   return (
-    <main className={pageClassName ? `notatnik-page ${pageClassName}` : 'notatnik-page'}>
+    <main
+      className={pageClassName ? `notatnik-page ${pageClassName}` : 'notatnik-page'}
+      data-analytics-disabled={analyticsDisabled ? 'true' : undefined}
+    >
       <NotatnikSideVisuals variant={sideVisualVariant} />
-      <div className="notatnik-shell">
+      <div className={shellClassName ? `notatnik-shell ${shellClassName}` : 'notatnik-shell'}>
         <NotatnikTopbar tag={tag} navItems={navItems} ctaHref={ctaHref} ctaLabel={ctaLabel} />
         {children}
-        <NotatnikFooter primaryHref={footerPrimaryHref} primaryLabel={footerPrimaryLabel} />
+        <NotatnikFooter
+          primaryHref={footerPrimaryHref}
+          primaryLabel={footerPrimaryLabel}
+          variant={footerVariant}
+          showReviews={showFooterReviews}
+        />
       </div>
     </main>
   )

@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { CalendarCheck, Headphones, MessageSquareText, Video } from 'lucide-react'
 import { EditorialIndexTopbar } from '@/components/EditorialIndexTopbar'
 import { FaqAccordion } from '@/components/FaqAccordion'
+import { HomepageIntroPopup } from '@/components/HomepageIntroPopup'
 import { HomepageServiceSelector } from '@/components/HomepageServiceSelector'
 import { NotatnikFooter } from '@/components/NotatnikA'
 import { Schema } from '@/components/schema'
@@ -65,6 +66,7 @@ export default function HomePage() {
   return (
     <main className="notatnik-page homepage-shell">
       <Schema data={structuredData} />
+      <HomepageIntroPopup />
       <div className="notatnik-shell homepage-main">
         <EditorialIndexTopbar />
 
@@ -136,9 +138,6 @@ export default function HomePage() {
               </div>
             </div>
             <div className="home-diagnosis-copy">
-              <p className="notatnik-service-description">
-                Nie musisz diagnozować psa ani kota. Wystarczy, że opiszesz, co widzisz w domu, na spacerze albo przy kuwecie.
-              </p>
               <p className="notatnik-service-description">
                 Ja układam fakty i sprawdzam, co może stać za zachowaniem: emocje, zdrowie, ból, dietę, środowisko, historię uczenia się i codzienną rutynę. Dopiero potem wybieramy pierwszy krok.
               </p>

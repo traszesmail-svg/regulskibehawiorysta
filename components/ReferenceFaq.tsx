@@ -142,7 +142,7 @@ export function ReferenceFaq({ contactHref }: ReferenceFaqProps) {
         </div>
         <div className="reference-faq-hero-art" aria-hidden="true">
           <Image
-            src="/faq/faq-hero-pets-cutout.png"
+            src="/faq/faq-hero-pets-transparent.png"
             alt=""
             fill
             priority
@@ -150,7 +150,6 @@ export function ReferenceFaq({ contactHref }: ReferenceFaqProps) {
             className="reference-faq-hero-image"
           />
         </div>
-        <span className="reference-faq-leaves reference-faq-leaves-top" aria-hidden="true" />
         <span className="reference-faq-leaves reference-faq-leaves-left" aria-hidden="true" />
         <span className="reference-faq-paw-mark" aria-hidden="true">
           <PawPrint size={42} strokeWidth={1.7} />

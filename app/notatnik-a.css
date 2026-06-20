@@ -11159,6 +11159,18 @@ html[data-theme='dark'] .notatnik-page .materialy-form .consent-line {
   font-size: 16px;
 }
 
+.notatnik-final-review-kicker a,
+.notatnik-final-review-kicker a:visited {
+  color: inherit;
+  text-decoration: none;
+}
+
+.notatnik-final-review-kicker a:hover,
+.notatnik-final-review-kicker a:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 0.24em;
+}
+
 .router-hero-service-actions {
   display: flex;
   justify-content: center;
@@ -20142,12 +20154,7 @@ a.reference-info-row,
 }
 
 .contact-reference-hero::after {
-  top: 42px;
-  right: 56px;
-  width: 118px;
-  height: 140px;
-  background-image: url('/decor/leaf-transparent/leaf-top-right.png');
-  opacity: 0.88;
+  display: none;
 }
 
 .contact-reference-photo-wrap,
@@ -20637,10 +20644,7 @@ a.reference-info-row,
   }
 
   .contact-reference-hero::after {
-    right: 24px;
-    top: 32px;
-    width: 74px;
-    height: 92px;
+    display: none;
   }
 
   .contact-reference-photo {
@@ -20984,10 +20988,10 @@ a.reference-info-row,
   }
 
   .blog-redesign-page .blog-redesign-hero-leaves {
-    top: 92px;
-    right: -16px;
-    width: 126px;
-    height: 170px;
+    top: 78px;
+    right: 12px;
+    width: 114px;
+    height: 154px;
     opacity: 0.24;
   }
 
@@ -21061,10 +21065,10 @@ a.reference-info-row,
   }
 
   .blog-redesign-page .blog-redesign-hero-leaves {
-    top: 28px;
-    right: 32px;
-    width: 154px;
-    height: 210px;
+    top: 24px;
+    right: 18px;
+    width: 126px;
+    height: 172px;
   }
 }
 
@@ -23840,11 +23844,7 @@ a.reference-info-row,
 }
 
 .reference-faq-leaves-top {
-  top: 14px;
-  right: 18px;
-  width: 118px;
-  height: 92px;
-  opacity: 0.34;
+  display: none;
 }
 
 .reference-faq-leaves-left {
@@ -24176,20 +24176,20 @@ a.reference-info-row,
   opacity: 0.34 !important;
 }
 
-.notatnik-page:not(.homepage-shell) > .notatnik-shell,
-.notatnik-page:not(.homepage-shell) .reference-shell,
+.notatnik-page:not(.homepage-shell):not(.reference-about-redesign-page):not(.blog-redesign-page):not(.reference-faq-page):not(.reference-pricing-page):not(.contact-page-reference):not(.quiz-page) > .notatnik-shell,
+.notatnik-page:not(.homepage-shell):not(.reference-about-redesign-page):not(.reference-faq-page):not(.reference-pricing-page) .reference-shell,
 .blog-redesign-page .blog-redesign-content,
 .payment-ref-page .payment-ref-shell {
   position: relative;
   isolation: isolate;
 }
 
-.notatnik-page:not(.homepage-shell) > .notatnik-shell::before,
-.notatnik-page:not(.homepage-shell) .reference-shell::before,
+.notatnik-page:not(.homepage-shell):not(.reference-about-redesign-page):not(.blog-redesign-page):not(.reference-faq-page):not(.reference-pricing-page):not(.contact-page-reference):not(.quiz-page) > .notatnik-shell::before,
+.notatnik-page:not(.homepage-shell):not(.reference-about-redesign-page):not(.reference-faq-page):not(.reference-pricing-page) .reference-shell::before,
 .blog-redesign-page .blog-redesign-content::before,
 .payment-ref-page .payment-ref-shell::before,
-.notatnik-page:not(.homepage-shell) > .notatnik-shell::after,
-.notatnik-page:not(.homepage-shell) .reference-shell::after,
+.notatnik-page:not(.homepage-shell):not(.reference-about-redesign-page):not(.blog-redesign-page):not(.reference-faq-page):not(.reference-pricing-page):not(.contact-page-reference):not(.quiz-page) > .notatnik-shell::after,
+.notatnik-page:not(.homepage-shell):not(.reference-about-redesign-page):not(.reference-faq-page):not(.reference-pricing-page) .reference-shell::after,
 .blog-redesign-page .blog-redesign-content::after,
 .payment-ref-page .payment-ref-shell::after {
   content: '';
@@ -24201,8 +24201,8 @@ a.reference-info-row,
   background-size: contain;
 }
 
-.notatnik-page:not(.homepage-shell) > .notatnik-shell::before,
-.notatnik-page:not(.homepage-shell) .reference-shell::before,
+.notatnik-page:not(.homepage-shell):not(.reference-about-redesign-page):not(.blog-redesign-page):not(.reference-faq-page):not(.reference-pricing-page):not(.contact-page-reference):not(.quiz-page) > .notatnik-shell::before,
+.notatnik-page:not(.homepage-shell):not(.reference-about-redesign-page):not(.reference-faq-page):not(.reference-pricing-page) .reference-shell::before,
 .blog-redesign-page .blog-redesign-content::before,
 .payment-ref-page .payment-ref-shell::before {
   top: clamp(128px, 14vw, 196px);
@@ -24214,11 +24214,11 @@ a.reference-info-row,
   transform: rotate(-7deg);
 }
 
-.notatnik-page:not(.homepage-shell) > .notatnik-shell::after,
-.notatnik-page:not(.homepage-shell) .reference-shell::after,
+.notatnik-page:not(.homepage-shell):not(.reference-about-redesign-page):not(.blog-redesign-page):not(.reference-faq-page):not(.reference-pricing-page):not(.contact-page-reference):not(.quiz-page) > .notatnik-shell::after,
+.notatnik-page:not(.homepage-shell):not(.reference-about-redesign-page):not(.reference-faq-page):not(.reference-pricing-page) .reference-shell::after,
 .blog-redesign-page .blog-redesign-content::after,
 .payment-ref-page .payment-ref-shell::after {
-  top: clamp(118px, 13vw, 178px);
+  top: clamp(148px, 17vw, 214px);
   right: -38px;
   width: clamp(116px, 15vw, 168px);
   height: clamp(92px, 13vw, 148px);
@@ -24296,12 +24296,12 @@ a.reference-info-row,
     font-size: 12px !important;
   }
 
-  .notatnik-page:not(.homepage-shell) > .notatnik-shell::before,
-  .notatnik-page:not(.homepage-shell) .reference-shell::before,
+  .notatnik-page:not(.homepage-shell):not(.reference-about-redesign-page):not(.blog-redesign-page):not(.reference-faq-page):not(.reference-pricing-page):not(.contact-page-reference):not(.quiz-page) > .notatnik-shell::before,
+  .notatnik-page:not(.homepage-shell):not(.reference-about-redesign-page):not(.reference-faq-page):not(.reference-pricing-page) .reference-shell::before,
   .blog-redesign-page .blog-redesign-content::before,
   .payment-ref-page .payment-ref-shell::before,
-  .notatnik-page:not(.homepage-shell) > .notatnik-shell::after,
-  .notatnik-page:not(.homepage-shell) .reference-shell::after,
+  .notatnik-page:not(.homepage-shell):not(.reference-about-redesign-page):not(.blog-redesign-page):not(.reference-faq-page):not(.reference-pricing-page):not(.contact-page-reference):not(.quiz-page) > .notatnik-shell::after,
+  .notatnik-page:not(.homepage-shell):not(.reference-about-redesign-page):not(.reference-faq-page):not(.reference-pricing-page) .reference-shell::after,
   .blog-redesign-page .blog-redesign-content::after,
   .payment-ref-page .payment-ref-shell::after {
     width: 92px;
@@ -25116,14 +25116,13 @@ a.reference-info-row,
   isolation: isolate !important;
 }
 
-.notatnik-page > .notatnik-shell::after,
-.notatnik-page .reference-shell::after,
-.blog-redesign-page .blog-redesign-content::after,
+.notatnik-page:not(.homepage-shell):not(.reference-about-redesign-page):not(.blog-redesign-page):not(.reference-faq-page):not(.reference-pricing-page):not(.contact-page-reference):not(.quiz-page) > .notatnik-shell::after,
+.notatnik-page:not(.reference-about-redesign-page):not(.reference-faq-page):not(.reference-pricing-page) .reference-shell::after,
 .payment-ref-page .payment-ref-shell::after,
 .homepage-shell .homepage-main::after {
   content: '' !important;
   position: absolute !important;
-  top: clamp(118px, 13vw, 178px) !important;
+  top: clamp(144px, 16vw, 204px) !important;
   right: clamp(-18px, -2vw, -8px) !important;
   z-index: 0 !important;
   width: clamp(92px, 15vw, 142px) !important;
@@ -25135,8 +25134,7 @@ a.reference-info-row,
 }
 
 .reference-faq-page .reference-faq-leaves-top {
-  background-image: url('/decor/leaf-transparent/leaf-top-right.png') !important;
-  opacity: 0.34 !important;
+  display: none !important;
 }
 
 .notatnik-page .notatnik-final-reviews,
@@ -25764,13 +25762,7 @@ body {
 }
 
 .blog-redesign-page .blog-redesign-hero-leaves {
-  display: block !important;
-  top: 62px !important;
-  right: -10px !important;
-  width: clamp(132px, 24vw, 188px) !important;
-  height: clamp(162px, 30vw, 236px) !important;
-  opacity: 0.2 !important;
-  z-index: 1 !important;
+  display: none !important;
 }
 
 .blog-redesign-page .blog-redesign-hero-art {
@@ -26520,16 +26512,15 @@ body {
   opacity: 0.28 !important;
 }
 
-/* Remove top-right page foliage everywhere except /o-mnie. */
-.notatnik-page:not(.reference-about-redesign-page) > .notatnik-shell::after,
-.notatnik-page:not(.reference-about-redesign-page) .reference-shell::after,
-.blog-redesign-page .blog-redesign-content::after,
+/* Remove selected extra foliage while keeping the main top-right motif visible. */
+.notatnik-page:not(.reference-about-redesign-page):not(.blog-redesign-page):not(.reference-faq-page):not(.reference-pricing-page):not(.contact-page-reference):not(.quiz-page) > .notatnik-shell::after,
+.notatnik-page:not(.reference-about-redesign-page):not(.reference-faq-page):not(.reference-pricing-page) .reference-shell::after,
 .payment-ref-page .payment-ref-shell::after,
 .homepage-shell .homepage-main::after,
-.reference-faq-page .reference-faq-leaves-top,
-.blog-redesign-page .blog-redesign-hero-leaves,
-.quiz-reference-hero::after,
 .contact-reference-hero::after,
+.reference-faq-leaves-top,
+.blog-redesign-hero-leaves,
+.quiz-reference-hero::after,
 .contact-reference-cta-card::after,
 .contact-reference-reassurance::after,
 .homepage-shell .home-diagnosis-photo-stack::after {
@@ -26540,9 +26531,9 @@ body {
   opacity: 0 !important;
 }
 
-/* Sitewide final top-right leaf: match the sharpened /o-mnie leaf on every public page. */
-.notatnik-page:not(.reference-about-redesign-page) > .notatnik-shell,
-.notatnik-page:not(.reference-about-redesign-page) .reference-shell,
+/* Sitewide final top-right leaf: keep it visible lower on public pages. */
+.notatnik-page:not(.reference-about-redesign-page):not(.blog-redesign-page):not(.reference-faq-page):not(.reference-pricing-page):not(.contact-page-reference):not(.quiz-page) > .notatnik-shell,
+.notatnik-page:not(.reference-about-redesign-page):not(.reference-faq-page):not(.reference-pricing-page) .reference-shell,
 .blog-redesign-page .blog-redesign-content,
 .payment-ref-page .payment-ref-shell,
 .cat-ref-page .cat-ref-shell,
@@ -26551,15 +26542,15 @@ body {
   isolation: isolate !important;
 }
 
-.notatnik-page:not(.reference-about-redesign-page) > .notatnik-shell::after,
-.notatnik-page:not(.reference-about-redesign-page) .reference-shell::after,
-.blog-redesign-page .blog-redesign-content::after,
+.notatnik-page:not(.reference-about-redesign-page):not(.blog-redesign-page):not(.quiz-page) > .notatnik-shell::after,
+.notatnik-page:not(.reference-about-redesign-page):not(.reference-faq-page):not(.reference-pricing-page) .reference-shell::after,
+.homepage-shell .homepage-main::after,
 .payment-ref-page .payment-ref-shell::after,
 .cat-ref-page .cat-ref-shell::after,
-.homepage-shell .homepage-main::after {
+.blog-redesign-page .blog-redesign-content::after {
   content: '' !important;
   position: absolute !important;
-  top: 82px !important;
+  top: 118px !important;
   right: -36px !important;
   z-index: 1 !important;
   display: block !important;
@@ -26663,6 +26654,47 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
   background: url('/decor/leaf-raster/leaf-top-right.png') center / contain no-repeat !important;
   opacity: 0.24 !important;
   filter: saturate(1.08) contrast(1.1) !important;
+}
+
+/* Final public-page foliage normalization: one lower right leaf, no route-local duplicates. */
+.blog-redesign-page > .notatnik-shell::after,
+.blog-redesign-page .notatnik-shell::after,
+.blog-redesign-page .blog-redesign-content::after,
+.blog-redesign-page .blog-redesign-hero-leaves,
+.reference-faq-page .reference-faq-leaves-top,
+.contact-reference-hero::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  background-image: none !important;
+  opacity: 0 !important;
+}
+
+.notatnik-page:not(.reference-about-redesign-page):not(.homepage-shell):not(.blog-redesign-page):not(.reference-faq-page):not(.reference-pricing-page):not(.contact-page-reference):not(.quiz-page) > .notatnik-shell,
+.notatnik-page:not(.reference-about-redesign-page):not(.homepage-shell):not(.reference-faq-page):not(.reference-pricing-page) .reference-shell,
+.payment-ref-page .payment-ref-shell,
+.cat-ref-page .cat-ref-shell {
+  position: relative !important;
+  isolation: isolate !important;
+}
+
+.notatnik-page:not(.reference-about-redesign-page):not(.homepage-shell):not(.blog-redesign-page):not(.reference-faq-page):not(.reference-pricing-page):not(.contact-page-reference):not(.quiz-page) > .notatnik-shell::after,
+.notatnik-page:not(.reference-about-redesign-page):not(.homepage-shell):not(.reference-faq-page):not(.reference-pricing-page) .reference-shell::after,
+.payment-ref-page .payment-ref-shell::after,
+.cat-ref-page .cat-ref-shell::after {
+  content: '' !important;
+  position: absolute !important;
+  top: 220px !important;
+  right: -18px !important;
+  z-index: 1 !important;
+  display: block !important;
+  width: 196px !important;
+  height: 236px !important;
+  pointer-events: none !important;
+  background: url('/decor/leaf-raster/leaf-top-right.png') center / contain no-repeat !important;
+  opacity: 0.28 !important;
+  filter: saturate(1.14) contrast(1.18) !important;
+  transform: rotate(3deg) !important;
 }
 
 .termin-calendar-head {
@@ -26789,11 +26821,19 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
 }
 
 .termin-dog-page .termin-hero-photo img {
-  object-position: center 52% !important;
+  object-position: center 4% !important;
 }
 
 .termin-dog-page .termin-calendar-pet-visual img {
-  object-position: center 52% !important;
+  object-position: center 6% !important;
+}
+
+.termin-cat-page .termin-hero-photo img {
+  object-position: center 4% !important;
+}
+
+.termin-cat-page .termin-calendar-pet-visual img {
+  object-position: center 6% !important;
 }
 
 .termin-calendar-shell {
@@ -27064,7 +27104,56 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
 }
 
 .termin-nearest-slots {
+  display: grid !important;
+  gap: 12px !important;
+  margin: 0 24px 18px !important;
+  padding: 18px !important;
+  border: 1px solid rgba(80, 65, 47, 0.12) !important;
+  border-radius: 14px !important;
+  background:
+    radial-gradient(circle at 12% 8%, rgba(224, 231, 206, 0.78), transparent 42%),
+    #f8f3e9 !important;
+}
+
+.termin-calendar-layout-urgent .termin-nearest-slots {
+  display: grid !important;
+  gap: 12px !important;
+  margin: 0 24px 18px !important;
+  padding: 18px !important;
+  border: 1px solid rgba(80, 65, 47, 0.12) !important;
+  border-radius: 14px !important;
+  background:
+    radial-gradient(circle at 12% 8%, rgba(224, 231, 206, 0.78), transparent 42%),
+    #f8f3e9 !important;
+}
+
+.termin-calendar-layout-urgent .termin-calendar-weekdays,
+.termin-calendar-layout-urgent .termin-calendar-toolbar,
+.termin-calendar-layout-urgent .termin-calendar-grid,
+.termin-calendar-layout-urgent .termin-calendar-time-panel,
+.termin-calendar-layout-urgent .termin-calendar-hint-card,
+.termin-calendar-layout-urgent .termin-calendar-pet-visual,
+.termin-calendar-layout-urgent .termin-calendar-choice-slot {
   display: none !important;
+}
+
+.termin-calendar-layout-urgent .termin-nearest-slot-list {
+  display: grid !important;
+  gap: 8px !important;
+  max-height: 340px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.termin-nearest-empty {
+  margin: 0 24px 18px !important;
+  padding: 16px 18px !important;
+  border: 1px solid rgba(80, 65, 47, 0.12) !important;
+  border-radius: 12px !important;
+  background: #fffdf8 !important;
+  color: #233229 !important;
+  font-size: 14px !important;
+  line-height: 1.45 !important;
 }
 
 .termin-nearest-slot-link,
@@ -27072,6 +27161,16 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
 .notatnik-page a.termin-nearest-slot-link:visited {
   color: inherit !important;
   text-decoration: none !important;
+}
+
+.termin-nearest-slot-link.is-disabled {
+  cursor: not-allowed !important;
+  opacity: 0.72 !important;
+}
+
+.termin-nearest-slot-link.is-disabled strong,
+.termin-nearest-slot-link.is-disabled small {
+  color: rgba(35, 50, 41, 0.58) !important;
 }
 
 .booking-details-error-link,
@@ -27117,9 +27216,14 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
   }
 
   .termin-hero-photo {
-    height: 202px !important;
+    height: 224px !important;
     margin-top: 0 !important;
     border-radius: 14px !important;
+  }
+
+  .termin-dog-page .termin-hero-photo img,
+  .termin-cat-page .termin-hero-photo img {
+    object-position: center 0% !important;
   }
 
   .termin-calendar-layout {
@@ -27161,6 +27265,12 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
     gap: 8px !important;
   }
 
+  .termin-calendar-layout-urgent .termin-nearest-slot-list {
+    max-height: 360px !important;
+    overflow-y: auto !important;
+    padding-right: 4px !important;
+  }
+
   .termin-nearest-slot-link {
     display: grid !important;
     grid-template-columns: minmax(0, 1fr) auto !important;
@@ -27199,11 +27309,6 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
     font-weight: 760 !important;
   }
 
-  .termin-calendar-weekdays,
-  .termin-calendar-grid {
-    display: none !important;
-  }
-
   .termin-calendar-times {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     gap: 12px !important;
@@ -27212,6 +27317,11 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
   .termin-slot-button {
     min-height: 56px !important;
     font-size: 20px !important;
+  }
+
+  .termin-dog-page .termin-calendar-pet-visual img,
+  .termin-cat-page .termin-calendar-pet-visual img {
+    object-position: center 2% !important;
   }
 
   .termin-calendar-choice-slot {
@@ -28096,14 +28206,19 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
 
 .pricing-2026-offer.is-featured {
   border-color: rgba(9, 62, 35, 0.34) !important;
+  position: relative !important;
+  overflow: visible !important;
+  margin-top: 12px !important;
+  padding-top: 40px !important;
   box-shadow:
     0 18px 42px rgba(9, 62, 35, 0.1),
     inset 0 0 0 1px rgba(9, 62, 35, 0.06) !important;
 }
 
 .pricing-2026-offer-label {
-  top: -12px !important;
+  top: -16px !important;
   left: 112px !important;
+  z-index: 2 !important;
   min-height: 26px !important;
   padding: 0 14px !important;
   border-radius: 7px !important;
@@ -28310,7 +28425,13 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
     padding: 18px !important;
   }
 
+  .pricing-2026-offer.is-featured {
+    margin-top: 14px !important;
+    padding-top: 48px !important;
+  }
+
   .pricing-2026-offer-label {
+    top: -14px !important;
     left: 86px !important;
     max-width: calc(100% - 106px) !important;
   }
@@ -28527,4 +28648,1394 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
 .payment-ref-page :where(.payment-ref-method-tab, .payment-ref-method-panel),
 .opinions-showcase-page :where(.opinions-review-card, .opinions-proof-item) {
   contain: layout paint;
+}
+
+/* Final homepage acceptance fixes, June 2026. */
+.homepage-intro-popup {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgba(14, 18, 14, 0.58);
+  backdrop-filter: blur(10px);
+}
+
+.homepage-intro-popup-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(360px, 1fr) minmax(340px, 0.9fr);
+  gap: 0;
+  width: min(100%, 860px);
+  min-height: 430px;
+  overflow: hidden;
+  padding: 0;
+  border: 1px solid rgba(255, 253, 248, 0.78);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(218, 230, 196, 0.8), transparent 38%),
+    linear-gradient(145deg, #fffdf8, #f5efe3);
+  color: #172119;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.24);
+}
+
+.homepage-intro-popup-visual {
+  position: relative;
+  min-height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 32% 18%, rgba(255, 255, 255, 0.78), transparent 34%),
+    linear-gradient(150deg, #fffaf0, #eadfc9);
+}
+
+.homepage-intro-popup-visual::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-right: 1px solid rgba(23, 63, 36, 0.1);
+  background: linear-gradient(90deg, transparent 68%, rgba(255, 253, 248, 0.74));
+  pointer-events: none;
+}
+
+.homepage-intro-popup-visual img {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: cover;
+  object-position: center center;
+}
+
+.homepage-intro-popup-visual picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.homepage-intro-popup-content {
+  display: grid;
+  align-content: center;
+  gap: 16px;
+  padding: clamp(24px, 4vw, 36px);
+}
+
+.homepage-intro-popup-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
+  display: inline-grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border: 1px solid rgba(23, 63, 36, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 253, 248, 0.84);
+  color: #173f24;
+  cursor: pointer;
+}
+
+.homepage-intro-popup-kicker {
+  width: fit-content;
+  margin: 0;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: #e9ecd8;
+  color: #173f24;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.homepage-intro-popup-card h2 {
+  max-width: 13ch;
+  margin: 0;
+  color: #07371f;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(34px, 4vw, 48px);
+  font-weight: 650;
+  letter-spacing: 0;
+  line-height: 0.98;
+}
+
+.homepage-intro-popup-card p:not(.homepage-intro-popup-kicker) {
+  max-width: 36ch;
+  margin: 0;
+  color: rgba(22, 35, 28, 0.76);
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+.homepage-intro-popup-actions {
+  display: grid;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.homepage-intro-popup-actions a {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 18px;
+  border: 1px solid #174b2c;
+  border-radius: 12px;
+  background: #174b2c;
+  color: #fffdf8;
+  font-size: 15px;
+  font-weight: 850;
+  text-align: center;
+  text-decoration: none;
+}
+
+.homepage-intro-popup-actions a.is-secondary {
+  background: transparent;
+  color: #174b2c;
+}
+
+.homepage-shell .router-reference-title {
+  max-width: 18ch;
+}
+
+.homepage-shell .router-choice-card {
+  grid-template-rows: 132px auto minmax(58px, 1fr) auto;
+  min-height: 244px;
+  justify-items: center;
+  text-align: center;
+}
+
+.homepage-shell .router-choice-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 168px;
+  height: 128px;
+}
+
+.homepage-shell .router-choice-silhouette-dog {
+  width: 150px;
+  height: 116px;
+}
+
+.homepage-shell .router-choice-silhouette-cat {
+  width: 132px;
+  height: 116px;
+}
+
+.homepage-shell .router-choice-copy {
+  align-content: start;
+  gap: 0;
+  min-height: 48px;
+}
+
+.homepage-shell .router-choice-price,
+.homepage-shell .router-choice-microcopy {
+  display: none !important;
+}
+
+.homepage-shell .notatnik-final-review-track {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: min(100%, 720px);
+  max-width: 100%;
+  gap: 14px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  padding: 4px 10px 13px;
+  scroll-padding-inline: 10px;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+}
+
+.homepage-shell .notatnik-final-review-track::-webkit-scrollbar {
+  height: 7px;
+}
+
+.homepage-shell .notatnik-final-review-track::-webkit-scrollbar-track {
+  background: rgba(248, 241, 223, 0.16);
+  border-radius: 999px;
+}
+
+.homepage-shell .notatnik-final-review-track::-webkit-scrollbar-thumb {
+  background: rgba(216, 180, 110, 0.72);
+  border-radius: 999px;
+}
+
+.homepage-shell .notatnik-final-review-track .notatnik-final-review-quote {
+  flex: 0 0 min(82vw, 520px) !important;
+  width: min(82vw, 520px) !important;
+  min-height: 176px !important;
+  align-content: center !important;
+  padding: 18px !important;
+  border: 1px solid rgba(248, 241, 223, 0.18) !important;
+  border-radius: 14px !important;
+  background: rgba(255, 248, 233, 0.06) !important;
+  opacity: 0.72 !important;
+  scroll-snap-align: center !important;
+  transition: opacity 0.18s ease, transform 0.18s ease, background-color 0.18s ease !important;
+}
+
+.homepage-shell .notatnik-final-review-track .notatnik-final-review-quote.is-active {
+  background: rgba(255, 248, 233, 0.1) !important;
+  opacity: 1 !important;
+  transform: translateY(-1px) !important;
+}
+
+.homepage-shell .notatnik-final-review-track .notatnik-final-review-quote p {
+  display: block !important;
+  width: min(100%, 28ch) !important;
+  max-width: min(100%, 28ch) !important;
+  margin-inline: auto !important;
+  padding-inline: 0 !important;
+  box-sizing: border-box !important;
+  overflow-wrap: anywhere !important;
+  word-break: normal !important;
+  hyphens: auto !important;
+  text-wrap: balance !important;
+}
+
+.notatnik-page .home-footer-legal a::before,
+.notatnik-page .site-footer-legal a::before,
+.payment-ref-page .home-footer-legal a::before,
+.payment-ref-page .site-footer-legal a::before {
+  content: '\2022';
+  display: inline-block;
+  margin: 0 0.65em;
+  color: color-mix(in srgb, currentColor 48%, transparent);
+  text-decoration: none;
+}
+
+@media (max-width: 980px) {
+  .homepage-shell .router-choice-card {
+    grid-template-columns: 76px minmax(0, 1fr) 24px !important;
+    grid-template-rows: auto auto !important;
+    min-height: 104px !important;
+    align-items: center !important;
+    justify-items: stretch !important;
+    text-align: left !important;
+  }
+
+  .homepage-shell .router-choice-icon {
+    width: 70px !important;
+    height: 64px !important;
+    align-self: center !important;
+    justify-self: center !important;
+  }
+
+  .homepage-shell .router-choice-silhouette-dog {
+    width: 66px !important;
+    height: 58px !important;
+  }
+
+  .homepage-shell .router-choice-silhouette-cat {
+    width: 60px !important;
+    height: 58px !important;
+  }
+
+  .homepage-shell .router-choice-copy {
+    min-height: 0 !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .homepage-intro-popup {
+    align-items: end;
+    padding: 12px;
+  }
+
+  .homepage-intro-popup-card {
+    grid-template-columns: 1fr;
+    width: 100%;
+    min-height: 0;
+    max-height: calc(100vh - 24px);
+    border-radius: 16px;
+  }
+
+  .homepage-intro-popup-visual {
+    min-height: 240px;
+    max-height: 300px;
+  }
+
+  .homepage-intro-popup-visual::after {
+    border-right: 0;
+    border-bottom: 1px solid rgba(23, 63, 36, 0.1);
+    background: linear-gradient(180deg, transparent 58%, rgba(255, 253, 248, 0.72));
+  }
+
+  .homepage-intro-popup-visual img {
+    min-height: 0;
+    object-position: center center;
+  }
+
+  .homepage-intro-popup-content {
+    gap: 13px;
+    padding: 20px 20px 22px;
+  }
+
+  .homepage-intro-popup-card h2 {
+    max-width: 12ch;
+    font-size: clamp(31px, 10vw, 42px);
+  }
+
+  .homepage-intro-popup-actions a {
+    min-height: 46px;
+  }
+
+  .homepage-shell .notatnik-final-review-track {
+    width: 100%;
+    padding-inline: 8px;
+  }
+
+  .homepage-shell .notatnik-final-review-track .notatnik-final-review-quote {
+    flex-basis: min(88vw, 440px) !important;
+    width: min(88vw, 440px) !important;
+    padding-inline: 24px !important;
+    overflow: visible !important;
+  }
+
+  .homepage-shell .notatnik-final-review-track .notatnik-final-review-quote p {
+    width: min(100%, 26ch) !important;
+    max-width: min(100%, 26ch) !important;
+    font-size: 13px !important;
+    line-height: 1.55 !important;
+    font-style: normal !important;
+  }
+}
+
+/* Top-nav reference parity: explicit hero leaf only, matching /o-mnie. */
+.blog-redesign-page .blog-redesign-content::before,
+.blog-redesign-page .blog-redesign-content::after,
+.blog-redesign-page .blog-redesign-shell::before,
+.blog-redesign-page .blog-redesign-shell::after,
+.notatnik-page.reference-faq-page > .reference-shell::before,
+.notatnik-page.reference-faq-page > .reference-shell::after,
+.notatnik-page.reference-pricing-page > .reference-shell::before,
+.notatnik-page.reference-pricing-page > .reference-shell::after,
+.notatnik-page.contact-page-reference > .contact-shell::before,
+.notatnik-page.contact-page-reference > .contact-shell::after,
+.blog-redesign-page .blog-redesign-hero-leaves,
+.reference-faq-page .reference-faq-leaves-top,
+.contact-reference-hero::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  background-image: none !important;
+  opacity: 0 !important;
+}
+
+.blog-redesign-page .blog-redesign-hero,
+.reference-faq-page .reference-faq-hero,
+.pricing-2026-page .pricing-2026-hero,
+.contact-page-reference .contact-reference-hero {
+  position: relative !important;
+  isolation: isolate !important;
+  overflow: visible !important;
+}
+
+.reference-hero-leaf {
+  position: absolute !important;
+  top: -22px !important;
+  right: -36px !important;
+  z-index: 1 !important;
+  display: block !important;
+  width: 196px !important;
+  height: 236px !important;
+  pointer-events: none !important;
+  background: url('/decor/leaf-raster/leaf-top-right.png') center / contain no-repeat !important;
+  opacity: 0.28 !important;
+  filter: saturate(1.14) contrast(1.18) !important;
+  transform: rotate(3deg) !important;
+}
+
+.blog-redesign-page .blog-redesign-shell,
+.notatnik-page.reference-faq-page > .reference-shell,
+.notatnik-page.reference-pricing-page > .reference-shell,
+.notatnik-page.contact-page-reference > .contact-shell {
+  width: min(1080px, calc(100vw - 48px)) !important;
+  max-width: 1080px !important;
+  margin: 0 auto !important;
+  overflow: hidden !important;
+  border-radius: 14px !important;
+  background: rgba(255, 253, 247, 0.98) !important;
+  box-shadow: 0 22px 60px rgba(31, 26, 23, 0.1) !important;
+}
+
+.blog-redesign-page .blog-redesign-content,
+.pricing-2026-shell {
+  width: 100% !important;
+  max-width: 1010px !important;
+  margin: 0 auto !important;
+}
+
+.blog-redesign-page .blog-redesign-hero,
+.reference-faq-page .reference-faq-hero,
+.pricing-2026-page .pricing-2026-hero,
+.contact-page-reference .contact-reference-hero {
+  grid-template-columns: minmax(0, 0.9fr) minmax(320px, 1fr) !important;
+  gap: clamp(28px, 5vw, 64px) !important;
+  align-items: center !important;
+  min-height: 420px !important;
+  padding: 46px 42px 34px !important;
+}
+
+.blog-redesign-page .blog-redesign-kicker,
+.reference-faq-page .reference-pill,
+.pricing-2026-pill,
+.contact-page-reference .reference-pill {
+  display: inline-flex !important;
+  width: fit-content !important;
+  min-height: 30px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 15px !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: #e9eddd !important;
+  color: #123f28 !important;
+  font-size: 13px !important;
+  font-weight: 850 !important;
+  letter-spacing: 0 !important;
+  line-height: 1 !important;
+  text-transform: none !important;
+}
+
+.blog-redesign-page .blog-redesign-hero h1,
+.reference-faq-page .reference-faq-hero h1,
+.pricing-2026-hero h1,
+.contact-reference-hero-copy h1 {
+  max-width: 560px !important;
+  margin: 18px 0 !important;
+  color: #123f28 !important;
+  font-family: var(--font-display), Georgia, serif !important;
+  font-size: clamp(44px, 5vw, 56px) !important;
+  font-weight: 800 !important;
+  letter-spacing: 0 !important;
+  line-height: 1.02 !important;
+}
+
+.blog-redesign-page .blog-redesign-hero p,
+.reference-faq-page .reference-faq-hero p,
+.pricing-2026-hero p,
+.contact-reference-hero-copy p {
+  max-width: 520px !important;
+  margin: 0 !important;
+  color: #2d352d !important;
+  font-size: 18px !important;
+  line-height: 1.58 !important;
+}
+
+.blog-redesign-page .blog-redesign-hero-copy,
+.reference-faq-page .reference-faq-hero-copy,
+.pricing-2026-hero-copy,
+.contact-reference-hero-copy {
+  position: relative !important;
+  z-index: 2 !important;
+  align-self: center !important;
+  max-width: 560px !important;
+}
+
+.blog-redesign-page .blog-redesign-hero-art,
+.reference-faq-page .reference-faq-hero-art,
+.pricing-2026-hero-media,
+.contact-reference-photo-wrap {
+  position: relative !important;
+  z-index: 2 !important;
+  justify-self: end !important;
+}
+
+.blog-redesign-page .blog-redesign-hero-art,
+.pricing-2026-hero-media,
+.contact-reference-photo {
+  width: min(430px, 100%) !important;
+  border-radius: 22px !important;
+}
+
+.contact-page-reference .contact-reference-hero {
+  grid-template-areas: 'copy media' !important;
+}
+
+.contact-page-reference .contact-reference-hero-copy {
+  grid-area: copy !important;
+  justify-items: start !important;
+  text-align: left !important;
+}
+
+.contact-page-reference .contact-reference-photo-wrap {
+  grid-area: media !important;
+}
+
+@media (max-width: 980px) {
+  .blog-redesign-page .blog-redesign-hero,
+  .reference-faq-page .reference-faq-hero,
+  .pricing-2026-page .pricing-2026-hero,
+  .contact-page-reference .contact-reference-hero {
+    grid-template-columns: 1fr !important;
+    min-height: 0 !important;
+    padding: 38px 26px 28px !important;
+  }
+
+  .contact-page-reference .contact-reference-hero {
+    grid-template-areas:
+      'copy'
+      'media' !important;
+  }
+
+  .blog-redesign-page .blog-redesign-hero-art,
+  .reference-faq-page .reference-faq-hero-art,
+  .pricing-2026-hero-media,
+  .contact-reference-photo-wrap {
+    justify-self: center !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .blog-redesign-page .blog-redesign-shell,
+  .notatnik-page.reference-faq-page > .reference-shell,
+  .notatnik-page.reference-pricing-page > .reference-shell,
+  .notatnik-page.contact-page-reference > .contact-shell {
+    width: min(100%, calc(100vw - 24px)) !important;
+  }
+
+  .blog-redesign-page .blog-redesign-hero,
+  .reference-faq-page .reference-faq-hero,
+  .pricing-2026-page .pricing-2026-hero,
+  .contact-page-reference .contact-reference-hero {
+    padding: 28px 20px 26px !important;
+  }
+
+  .reference-hero-leaf {
+    top: -18px !important;
+    right: -42px !important;
+    width: 150px !important;
+    height: 181px !important;
+  }
+
+  .blog-redesign-page .blog-redesign-hero h1,
+  .reference-faq-page .reference-faq-hero h1,
+  .pricing-2026-hero h1,
+  .contact-reference-hero-copy h1 {
+    font-size: clamp(36px, 10vw, 39px) !important;
+  }
+
+  .blog-redesign-page .blog-redesign-hero p,
+  .reference-faq-page .reference-faq-hero p,
+  .pricing-2026-hero p,
+  .contact-reference-hero-copy p {
+    font-size: 16px !important;
+  }
+}
+
+/* Final top-nav foliage contract: only one explicit hero leaf on the four aligned pages. */
+main.notatnik-page.blog-redesign-page > .notatnik-shell.blog-redesign-shell::before,
+main.notatnik-page.blog-redesign-page > .notatnik-shell.blog-redesign-shell::after,
+main.notatnik-page.blog-redesign-page .blog-redesign-content::before,
+main.notatnik-page.blog-redesign-page .blog-redesign-content::after,
+main.notatnik-page.reference-faq-page > .notatnik-shell.reference-shell::before,
+main.notatnik-page.reference-faq-page > .notatnik-shell.reference-shell::after,
+main.notatnik-page.reference-pricing-page > .notatnik-shell.reference-shell::before,
+main.notatnik-page.reference-pricing-page > .notatnik-shell.reference-shell::after,
+main.notatnik-page.contact-page-reference > .notatnik-shell.contact-shell::before,
+main.notatnik-page.contact-page-reference > .notatnik-shell.contact-shell::after,
+main.notatnik-page.contact-page-reference .contact-reference-hero::before,
+main.notatnik-page.contact-page-reference .contact-reference-hero::after,
+main.notatnik-page.blog-redesign-page .blog-redesign-hero-leaves,
+main.notatnik-page.reference-faq-page .reference-faq-leaves-top,
+main.notatnik-page.reference-faq-page .reference-faq-leaves-left,
+main.notatnik-page.reference-faq-page .reference-faq-leaves-bottom,
+main.notatnik-page.reference-faq-page .reference-faq-paw-mark {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  background-image: none !important;
+  opacity: 0 !important;
+}
+
+main.notatnik-page.blog-redesign-page .reference-hero-leaf,
+main.notatnik-page.reference-faq-page .reference-hero-leaf,
+main.notatnik-page.reference-pricing-page .reference-hero-leaf,
+main.notatnik-page.contact-page-reference .reference-hero-leaf {
+  top: -22px !important;
+  right: -36px !important;
+  width: 196px !important;
+  height: 236px !important;
+  background: url('/decor/leaf-raster/leaf-top-right.png') center / contain no-repeat !important;
+  opacity: 0.28 !important;
+  filter: saturate(1.14) contrast(1.18) !important;
+  transform: rotate(3deg) !important;
+}
+
+@media (max-width: 760px) {
+  main.notatnik-page.blog-redesign-page .reference-hero-leaf,
+  main.notatnik-page.reference-faq-page .reference-hero-leaf,
+  main.notatnik-page.reference-pricing-page .reference-hero-leaf,
+  main.notatnik-page.contact-page-reference .reference-hero-leaf {
+    top: -18px !important;
+    right: -42px !important;
+    width: 150px !important;
+    height: 181px !important;
+  }
+}
+
+main.notatnik-page.blog-redesign-page .reference-hero-leaf,
+main.notatnik-page.reference-faq-page .reference-hero-leaf,
+main.notatnik-page.reference-pricing-page .reference-hero-leaf,
+main.notatnik-page.contact-page-reference .reference-hero-leaf {
+  top: -22px !important;
+  right: -36px !important;
+  width: 196px !important;
+  height: 236px !important;
+}
+
+/* Shared top-nav leaf anchor: identical geometry directly below every topbar. */
+main.notatnik-page.blog-redesign-page > .blog-redesign-shell,
+main.notatnik-page.reference-faq-page > .reference-shell,
+main.notatnik-page.reference-pricing-page > .reference-shell,
+main.notatnik-page.contact-page-reference > .contact-shell {
+  position: relative !important;
+}
+
+main.notatnik-page.blog-redesign-page .reference-hero-leaf-anchor,
+main.notatnik-page.reference-faq-page .reference-hero-leaf-anchor,
+main.notatnik-page.reference-pricing-page .reference-hero-leaf-anchor,
+main.notatnik-page.contact-page-reference .reference-hero-leaf-anchor {
+  position: relative !important;
+  z-index: 1 !important;
+  display: block !important;
+  width: 100% !important;
+  height: 0 !important;
+  pointer-events: none !important;
+}
+
+main.notatnik-page.blog-redesign-page .reference-hero-leaf-anchor > .reference-hero-leaf,
+main.notatnik-page.reference-faq-page .reference-hero-leaf-anchor > .reference-hero-leaf,
+main.notatnik-page.reference-pricing-page .reference-hero-leaf-anchor > .reference-hero-leaf,
+main.notatnik-page.contact-page-reference .reference-hero-leaf-anchor > .reference-hero-leaf {
+  top: -22px !important;
+  right: -36px !important;
+  width: 196px !important;
+  height: 236px !important;
+}
+
+@media (max-width: 760px) {
+  .blog-redesign-page .blog-redesign-shell,
+  .notatnik-page.reference-faq-page > .reference-shell,
+  .notatnik-page.reference-pricing-page > .reference-shell,
+  .notatnik-page.contact-page-reference > .contact-shell {
+    width: min(100% - 10px, 100%) !important;
+    border-radius: 22px !important;
+  }
+
+  .blog-redesign-page .notatnik-topbar,
+  .reference-faq-page .notatnik-topbar,
+  .reference-pricing-page .notatnik-topbar,
+  .contact-page-reference .notatnik-topbar {
+    grid-template-columns: minmax(0, 1fr) 44px !important;
+    min-height: 104px !important;
+    padding: 4.8vw 5vw !important;
+  }
+}
+
+/* Final leaf parity with /o-mnie: one shared top-right motif per public shell. */
+main.notatnik-page.blog-redesign-page .blog-redesign-content::before,
+main.notatnik-page.blog-redesign-page .blog-redesign-content::after,
+main.notatnik-page.blog-redesign-page .blog-redesign-shell::before,
+main.notatnik-page.blog-redesign-page .blog-redesign-shell::after,
+main.notatnik-page.reference-faq-page > .reference-shell::before,
+main.notatnik-page.reference-faq-page > .reference-shell::after,
+main.notatnik-page.reference-pricing-page > .reference-shell::before,
+main.notatnik-page.reference-pricing-page > .reference-shell::after,
+main.notatnik-page.contact-page-reference > .contact-shell::before,
+main.notatnik-page.contact-page-reference > .contact-shell::after,
+main.notatnik-page .blog-redesign-hero-leaves,
+main.notatnik-page .reference-faq-leaves-top,
+main.notatnik-page .contact-reference-hero::after,
+main.notatnik-page .contact-reference-cta-card::after,
+main.notatnik-page .contact-reference-reassurance::after,
+main.notatnik-page .termin-calendar-section::before,
+main.notatnik-page .home-diagnosis-photo-stack::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  background-image: none !important;
+  opacity: 0 !important;
+}
+
+main.notatnik-page.blog-redesign-page .reference-hero-leaf-anchor,
+main.notatnik-page.reference-faq-page .reference-hero-leaf-anchor,
+main.notatnik-page.reference-pricing-page .reference-hero-leaf-anchor,
+main.notatnik-page.contact-page-reference .reference-hero-leaf-anchor {
+  position: relative !important;
+  z-index: 1 !important;
+  display: block !important;
+  width: 100% !important;
+  height: 0 !important;
+  pointer-events: none !important;
+}
+
+main.notatnik-page.blog-redesign-page .reference-hero-leaf-anchor > .reference-hero-leaf,
+main.notatnik-page.reference-faq-page .reference-hero-leaf-anchor > .reference-hero-leaf,
+main.notatnik-page.reference-pricing-page .reference-hero-leaf-anchor > .reference-hero-leaf,
+main.notatnik-page.contact-page-reference .reference-hero-leaf-anchor > .reference-hero-leaf,
+main.notatnik-page.reference-about-redesign-page .reference-about-leaf-right {
+  position: absolute !important;
+  top: -22px !important;
+  right: -36px !important;
+  z-index: 1 !important;
+  display: block !important;
+  width: 196px !important;
+  height: 236px !important;
+  pointer-events: none !important;
+  background: url('/decor/leaf-raster/leaf-top-right.png') center / contain no-repeat !important;
+  opacity: 0.28 !important;
+  filter: saturate(1.14) contrast(1.18) !important;
+  transform: rotate(3deg) !important;
+}
+
+main.notatnik-page:not(.reference-about-redesign-page):not(.homepage-shell):not(.blog-redesign-page):not(.reference-faq-page):not(.reference-pricing-page):not(.contact-page-reference):not(.quiz-page) > .notatnik-shell,
+main.notatnik-page:not(.reference-about-redesign-page):not(.homepage-shell):not(.blog-redesign-page):not(.reference-faq-page):not(.reference-pricing-page):not(.contact-page-reference):not(.quiz-page) .reference-shell {
+  position: relative !important;
+  isolation: isolate !important;
+}
+
+main.notatnik-page:not(.reference-about-redesign-page):not(.homepage-shell):not(.blog-redesign-page):not(.reference-faq-page):not(.reference-pricing-page):not(.contact-page-reference):not(.quiz-page) > .notatnik-shell::after,
+main.notatnik-page:not(.reference-about-redesign-page):not(.homepage-shell):not(.blog-redesign-page):not(.reference-faq-page):not(.reference-pricing-page):not(.contact-page-reference):not(.quiz-page) .reference-shell::after {
+  content: '' !important;
+  position: absolute !important;
+  top: 82px !important;
+  right: -36px !important;
+  z-index: 1 !important;
+  display: block !important;
+  width: 196px !important;
+  height: 236px !important;
+  pointer-events: none !important;
+  background: url('/decor/leaf-raster/leaf-top-right.png') center / contain no-repeat !important;
+  opacity: 0.28 !important;
+  filter: saturate(1.14) contrast(1.18) !important;
+  transform: rotate(3deg) !important;
+}
+
+main.notatnik-page.homepage-shell > .notatnik-shell::after,
+main.notatnik-page.homepage-shell .homepage-main::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  background-image: none !important;
+  opacity: 0 !important;
+}
+
+@media (max-width: 760px) {
+  main.notatnik-page.blog-redesign-page .reference-hero-leaf-anchor > .reference-hero-leaf,
+  main.notatnik-page.reference-faq-page .reference-hero-leaf-anchor > .reference-hero-leaf,
+  main.notatnik-page.reference-pricing-page .reference-hero-leaf-anchor > .reference-hero-leaf,
+  main.notatnik-page.contact-page-reference .reference-hero-leaf-anchor > .reference-hero-leaf,
+  main.notatnik-page.reference-about-redesign-page .reference-about-leaf-right,
+  main.notatnik-page:not(.reference-about-redesign-page):not(.homepage-shell):not(.blog-redesign-page):not(.reference-faq-page):not(.reference-pricing-page):not(.contact-page-reference):not(.quiz-page) > .notatnik-shell::after,
+  main.notatnik-page:not(.reference-about-redesign-page):not(.homepage-shell):not(.blog-redesign-page):not(.reference-faq-page):not(.reference-pricing-page):not(.contact-page-reference):not(.quiz-page) .reference-shell::after {
+    width: 196px !important;
+    height: 236px !important;
+  }
+}
+
+/* Single /o-mnie leaf contract across top-nav pages. */
+main.notatnik-page.blog-redesign-page > .notatnik-shell::before,
+main.notatnik-page.blog-redesign-page > .notatnik-shell::after,
+main.notatnik-page.blog-redesign-page .blog-redesign-content::before,
+main.notatnik-page.blog-redesign-page .blog-redesign-content::after,
+main.notatnik-page.reference-faq-page > .notatnik-shell::before,
+main.notatnik-page.reference-faq-page > .notatnik-shell::after,
+main.notatnik-page.reference-pricing-page > .notatnik-shell::before,
+main.notatnik-page.reference-pricing-page > .notatnik-shell::after,
+main.notatnik-page.contact-page-reference > .notatnik-shell::before,
+main.notatnik-page.contact-page-reference > .notatnik-shell::after,
+main.notatnik-page.quiz-page > .notatnik-shell::before,
+main.notatnik-page.quiz-page > .notatnik-shell::after,
+main.notatnik-page.blog-redesign-page .blog-redesign-hero-leaves,
+main.notatnik-page.reference-faq-page .reference-faq-leaves-top,
+main.notatnik-page.reference-faq-page .reference-faq-leaves-left,
+main.notatnik-page.reference-faq-page .reference-faq-leaves-bottom,
+main.notatnik-page.reference-faq-page .reference-faq-paw-mark,
+main.notatnik-page.contact-page-reference .contact-reference-hero::before,
+main.notatnik-page.contact-page-reference .contact-reference-hero::after,
+main.notatnik-page.contact-page-reference .contact-reference-cta-card::after,
+main.notatnik-page.contact-page-reference .contact-reference-reassurance::after,
+main.notatnik-page.quiz-page .quiz-reference-card::before,
+main.notatnik-page.quiz-page .quiz-reference-card::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  background-image: none !important;
+  opacity: 0 !important;
+}
+
+main.notatnik-page.blog-redesign-page .reference-hero-leaf-anchor,
+main.notatnik-page.reference-faq-page .reference-hero-leaf-anchor,
+main.notatnik-page.reference-pricing-page .reference-hero-leaf-anchor,
+main.notatnik-page.contact-page-reference .reference-hero-leaf-anchor,
+main.notatnik-page.quiz-page .reference-hero-leaf-anchor {
+  position: relative !important;
+  z-index: 1 !important;
+  display: block !important;
+  width: 100% !important;
+  height: 0 !important;
+  pointer-events: none !important;
+}
+
+main.notatnik-page.blog-redesign-page .reference-hero-leaf-anchor > .reference-hero-leaf,
+main.notatnik-page.reference-faq-page .reference-hero-leaf-anchor > .reference-hero-leaf,
+main.notatnik-page.reference-pricing-page .reference-hero-leaf-anchor > .reference-hero-leaf,
+main.notatnik-page.contact-page-reference .reference-hero-leaf-anchor > .reference-hero-leaf,
+main.notatnik-page.quiz-page .reference-hero-leaf-anchor > .reference-hero-leaf,
+main.notatnik-page.reference-about-redesign-page .reference-about-leaf-right {
+  position: absolute !important;
+  top: -22px !important;
+  right: -36px !important;
+  z-index: 1 !important;
+  display: block !important;
+  width: 196px !important;
+  height: 236px !important;
+  pointer-events: none !important;
+  background: url('/decor/leaf-raster/leaf-top-right.png') center / contain no-repeat !important;
+  opacity: 0.28 !important;
+  filter: saturate(1.14) contrast(1.18) !important;
+  transform: rotate(3deg) !important;
+}
+
+main.notatnik-page.blog-redesign-page .notatnik-topbar,
+main.notatnik-page.reference-faq-page .notatnik-topbar,
+main.notatnik-page.reference-pricing-page .notatnik-topbar,
+main.notatnik-page.contact-page-reference .notatnik-topbar,
+main.notatnik-page.quiz-page .notatnik-topbar {
+  min-height: 104px !important;
+}
+
+@media (max-width: 760px) {
+  main.notatnik-page.blog-redesign-page .notatnik-topbar,
+  main.notatnik-page.reference-faq-page .notatnik-topbar,
+  main.notatnik-page.reference-pricing-page .notatnik-topbar,
+  main.notatnik-page.contact-page-reference .notatnik-topbar,
+  main.notatnik-page.quiz-page .notatnik-topbar {
+    grid-template-columns: minmax(0, 1fr) 44px !important;
+    min-height: 104px !important;
+    padding: 4.8vw 5vw !important;
+  }
+
+  main.notatnik-page.blog-redesign-page .reference-hero-leaf-anchor > .reference-hero-leaf,
+  main.notatnik-page.reference-faq-page .reference-hero-leaf-anchor > .reference-hero-leaf,
+  main.notatnik-page.reference-pricing-page .reference-hero-leaf-anchor > .reference-hero-leaf,
+  main.notatnik-page.contact-page-reference .reference-hero-leaf-anchor > .reference-hero-leaf,
+  main.notatnik-page.quiz-page .reference-hero-leaf-anchor > .reference-hero-leaf,
+  main.notatnik-page.reference-about-redesign-page .reference-about-leaf-right {
+    top: -22px !important;
+    right: -36px !important;
+    width: 196px !important;
+    height: 236px !important;
+  }
+}
+
+/* FAQ acceptance fix: keep the pet illustration fully composed inside the hero frame. */
+main.notatnik-page.reference-faq-page .reference-faq-hero-art {
+  background:
+    radial-gradient(circle at 24% 18%, rgba(255, 253, 248, 0.88), transparent 34%),
+    linear-gradient(150deg, #fffdf8, #f2ecdf) !important;
+}
+
+main.notatnik-page.reference-faq-page .reference-faq-hero-image {
+  object-fit: cover !important;
+  object-position: center bottom !important;
+}
+
+/* Stage 2 quick fixes from mobile acceptance: keep featured pricing badge and booking pet art inside their frames. */
+@media (max-width: 680px) {
+  main.notatnik-page.reference-pricing-page .pricing-2026-offer.is-featured {
+    overflow: visible !important;
+    padding-top: 58px !important;
+  }
+
+  main.notatnik-page.reference-pricing-page .pricing-2026-offer-label {
+    top: 14px !important;
+    left: 18px !important;
+    max-width: calc(100% - 36px) !important;
+  }
+
+  main.notatnik-page.termin-page .termin-hero-photo {
+    height: 300px !important;
+    background: #fbf5ea !important;
+  }
+
+  main.notatnik-page.termin-page .termin-hero-photo img {
+    object-fit: cover !important;
+    object-position: center top !important;
+  }
+
+  main.notatnik-page.termin-page .termin-step-track[data-urgent='true'] {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  main.notatnik-page.termin-page .termin-step-track[data-urgent='true']::before {
+    left: 16.666% !important;
+    right: 16.666% !important;
+  }
+
+  main.notatnik-page.termin-page .termin-calendar-layout-urgent .termin-nearest-slot-list {
+    max-height: 260px !important;
+    overflow-y: auto !important;
+    padding-right: 4px !important;
+  }
+
+  main.notatnik-page.termin-dog-page .termin-calendar-pet-visual {
+    height: 210px !important;
+  }
+
+  main.notatnik-page.termin-dog-page .termin-calendar-pet-visual img {
+    object-fit: contain !important;
+    object-position: center bottom !important;
+  }
+}
+
+/* Remaining public pages: one shared shell and leaf contract. */
+main.notatnik-page:not(.homepage-shell):not(.reference-about-redesign-page):not(.blog-redesign-page):not(.reference-faq-page):not(.reference-pricing-page):not(.contact-page-reference):not(.quiz-page),
+main.payment-ref-page {
+  --top-page-shell-width: 1120px;
+  --top-page-shell-bg: rgba(255, 253, 248, 0.9);
+  --top-page-border: rgba(232, 223, 207, 0.95);
+  --top-page-green: #123f28;
+  overflow-x: clip !important;
+  background:
+    radial-gradient(circle at 12% 6%, rgba(197, 176, 130, 0.16), transparent 28%),
+    radial-gradient(circle at 88% 12%, rgba(47, 101, 64, 0.08), transparent 26%),
+    linear-gradient(180deg, #fffdf8 0%, #f8f4ec 100%) !important;
+}
+
+main.notatnik-page:not(.homepage-shell):not(.reference-about-redesign-page):not(.blog-redesign-page):not(.reference-faq-page):not(.reference-pricing-page):not(.contact-page-reference):not(.quiz-page) > .notatnik-shell,
+main.payment-ref-page > .payment-ref-shell {
+  position: relative !important;
+  isolation: isolate !important;
+  width: min(var(--top-page-shell-width), calc(100vw - 48px)) !important;
+  max-width: var(--top-page-shell-width) !important;
+  margin: 0 auto !important;
+  padding-top: 0 !important;
+  overflow: hidden !important;
+  border-radius: 26px !important;
+  background: var(--top-page-shell-bg) !important;
+  box-shadow: 0 24px 70px rgba(67, 49, 22, 0.08) !important;
+}
+
+main.notatnik-page:not(.homepage-shell):not(.reference-about-redesign-page):not(.blog-redesign-page):not(.reference-faq-page):not(.reference-pricing-page):not(.contact-page-reference):not(.quiz-page) .notatnik-topbar,
+main.payment-ref-page .notatnik-topbar {
+  min-height: 104px !important;
+  border: 1px solid var(--top-page-border) !important;
+  border-radius: 26px 26px 0 0 !important;
+  background: rgba(255, 253, 248, 0.96) !important;
+  box-shadow: 0 18px 48px rgba(67, 49, 22, 0.07) !important;
+}
+
+main.notatnik-page:not(.homepage-shell):not(.reference-about-redesign-page):not(.blog-redesign-page):not(.reference-faq-page):not(.reference-pricing-page):not(.contact-page-reference):not(.quiz-page) > .notatnik-shell::after,
+main.payment-ref-page > .payment-ref-shell::after {
+  content: '' !important;
+  position: absolute !important;
+  top: 82px !important;
+  right: -36px !important;
+  z-index: 3 !important;
+  display: block !important;
+  width: 196px !important;
+  height: 236px !important;
+  pointer-events: none !important;
+  background: url('/decor/leaf-raster/leaf-top-right.png') center / contain no-repeat !important;
+  opacity: 0.28 !important;
+  filter: saturate(1.14) contrast(1.18) !important;
+  transform: rotate(3deg) !important;
+}
+
+main.notatnik-page:not(.homepage-shell):not(.reference-about-redesign-page):not(.blog-redesign-page):not(.reference-faq-page):not(.reference-pricing-page):not(.contact-page-reference):not(.quiz-page) > .notatnik-shell::before,
+main.payment-ref-page > .payment-ref-shell::before {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  background-image: none !important;
+  opacity: 0 !important;
+}
+
+@media (max-width: 760px) {
+  main.notatnik-page:not(.homepage-shell):not(.reference-about-redesign-page):not(.blog-redesign-page):not(.reference-faq-page):not(.reference-pricing-page):not(.contact-page-reference):not(.quiz-page) > .notatnik-shell,
+  main.payment-ref-page > .payment-ref-shell {
+    width: min(100%, calc(100vw - 10px)) !important;
+    border-radius: 22px !important;
+  }
+
+  main.notatnik-page:not(.homepage-shell):not(.reference-about-redesign-page):not(.blog-redesign-page):not(.reference-faq-page):not(.reference-pricing-page):not(.contact-page-reference):not(.quiz-page) .notatnik-topbar,
+  main.payment-ref-page .notatnik-topbar {
+    grid-template-columns: minmax(0, 1fr) 44px !important;
+    min-height: 104px !important;
+    padding: 4.8vw 5vw !important;
+  }
+
+  main.notatnik-page:not(.homepage-shell):not(.reference-about-redesign-page):not(.blog-redesign-page):not(.reference-faq-page):not(.reference-pricing-page):not(.contact-page-reference):not(.quiz-page) > .notatnik-shell::after,
+  main.payment-ref-page > .payment-ref-shell::after {
+    top: 82px !important;
+    right: -36px !important;
+    width: 196px !important;
+    height: 236px !important;
+  }
+}
+
+main.notatnik-page.quiz-page > .notatnik-shell::before,
+main.notatnik-page.quiz-page > .notatnik-shell::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  background-image: none !important;
+  opacity: 0 !important;
+  filter: none !important;
+}
+
+html body main.notatnik-page.reference-faq-page.reference-faq-page > div.notatnik-shell.reference-shell.reference-shell::before,
+html body main.notatnik-page.reference-faq-page.reference-faq-page > div.notatnik-shell.reference-shell.reference-shell::after,
+html body main.notatnik-page.reference-pricing-page.reference-pricing-page > div.notatnik-shell.reference-shell.reference-shell::before,
+html body main.notatnik-page.reference-pricing-page.reference-pricing-page > div.notatnik-shell.reference-shell.reference-shell::after,
+html body main.notatnik-page.contact-page-reference.contact-page-reference > div.notatnik-shell.contact-shell.contact-shell::before,
+html body main.notatnik-page.contact-page-reference.contact-page-reference > div.notatnik-shell.contact-shell.contact-shell::after,
+html body main.notatnik-page.quiz-page.quiz-page > div.notatnik-shell.notatnik-shell::before,
+html body main.notatnik-page.quiz-page.quiz-page > div.notatnik-shell.notatnik-shell::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  background-image: none !important;
+  opacity: 0 !important;
+  filter: none !important;
+}
+
+/* Hard final unification: /o-mnie is the visual contract for public top pages. */
+main.notatnik-page.reference-about-redesign-page,
+main.notatnik-page.blog-redesign-page,
+main.notatnik-page.reference-faq-page,
+main.notatnik-page.reference-pricing-page,
+main.notatnik-page.contact-page-reference,
+main.notatnik-page.quiz-page {
+  --top-page-shell-width: 1120px;
+  --top-page-shell-bg: rgba(255, 253, 248, 0.9);
+  --top-page-panel-bg: rgba(255, 253, 248, 0.74);
+  --top-page-border: rgba(232, 223, 207, 0.95);
+  --top-page-green: #123f28;
+  background:
+    radial-gradient(circle at 12% 6%, rgba(197, 176, 130, 0.16), transparent 28%),
+    radial-gradient(circle at 88% 12%, rgba(47, 101, 64, 0.08), transparent 26%),
+    linear-gradient(180deg, #fffdf8 0%, #f8f4ec 100%) !important;
+}
+
+main.notatnik-page.reference-about-redesign-page > .notatnik-shell,
+main.notatnik-page.blog-redesign-page > .notatnik-shell,
+main.notatnik-page.reference-faq-page > .notatnik-shell,
+main.notatnik-page.reference-pricing-page > .notatnik-shell,
+main.notatnik-page.contact-page-reference > .notatnik-shell,
+main.notatnik-page.quiz-page > .notatnik-shell {
+  width: min(var(--top-page-shell-width), calc(100vw - 48px)) !important;
+  max-width: var(--top-page-shell-width) !important;
+  margin: 0 auto !important;
+  padding-top: 0 !important;
+  overflow: hidden !important;
+  border-radius: 26px !important;
+  background: var(--top-page-shell-bg) !important;
+  box-shadow: 0 24px 70px rgba(67, 49, 22, 0.08) !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .notatnik-topbar,
+main.notatnik-page.blog-redesign-page .notatnik-topbar,
+main.notatnik-page.reference-faq-page .notatnik-topbar,
+main.notatnik-page.reference-pricing-page .notatnik-topbar,
+main.notatnik-page.contact-page-reference .notatnik-topbar,
+main.notatnik-page.quiz-page .notatnik-topbar {
+  min-height: 104px !important;
+  border: 1px solid var(--top-page-border) !important;
+  border-radius: 26px 26px 0 0 !important;
+  background: rgba(255, 253, 248, 0.96) !important;
+  box-shadow: 0 18px 48px rgba(67, 49, 22, 0.07) !important;
+}
+
+main.notatnik-page.blog-redesign-page .blog-redesign-content,
+main.notatnik-page.reference-pricing-page .pricing-2026-shell,
+main.notatnik-page.quiz-page .quiz-reference-stage {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-redesign-hero,
+main.notatnik-page.blog-redesign-page .blog-redesign-hero,
+main.notatnik-page.reference-faq-page .reference-faq-hero,
+main.notatnik-page.reference-pricing-page .pricing-2026-hero,
+main.notatnik-page.contact-page-reference .contact-reference-hero,
+main.notatnik-page.quiz-page .quiz-reference-card {
+  position: relative !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 0.9fr) minmax(360px, 1fr) !important;
+  gap: 64px !important;
+  align-items: center !important;
+  min-height: 420px !important;
+  margin: 0 0 34px !important;
+  padding: 46px 42px 34px !important;
+  border: 1px solid var(--top-page-border) !important;
+  border-top: 0 !important;
+  border-radius: 0 0 30px 30px !important;
+  background: var(--top-page-panel-bg) !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+  box-shadow: none !important;
+}
+
+main.notatnik-page.quiz-page .quiz-reference-card {
+  gap: 24px 64px !important;
+}
+
+main.notatnik-page.quiz-page .quiz-reference-hero {
+  min-height: 0 !important;
+  padding: 0 !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-pill,
+main.notatnik-page.blog-redesign-page .blog-redesign-kicker,
+main.notatnik-page.reference-faq-page .reference-pill,
+main.notatnik-page.reference-pricing-page .pricing-2026-pill,
+main.notatnik-page.contact-page-reference .reference-pill,
+main.notatnik-page.quiz-page .section-eyebrow {
+  display: inline-flex !important;
+  width: fit-content !important;
+  min-height: 30px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 15px !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: #e9eddd !important;
+  color: var(--top-page-green) !important;
+  font-size: 13px !important;
+  font-weight: 850 !important;
+  letter-spacing: 0 !important;
+  line-height: 1 !important;
+  text-transform: none !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-redesign-hero h1,
+main.notatnik-page.blog-redesign-page .blog-redesign-hero h1,
+main.notatnik-page.reference-faq-page .reference-faq-hero h1,
+main.notatnik-page.reference-pricing-page .pricing-2026-hero h1,
+main.notatnik-page.contact-page-reference .contact-reference-hero-copy h1,
+main.notatnik-page.quiz-page .quiz-reference-hero h1 {
+  max-width: 560px !important;
+  margin: 18px 0 !important;
+  color: var(--top-page-green) !important;
+  font-family: var(--font-display), Georgia, serif !important;
+  font-size: 56px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0 !important;
+  line-height: 1.02 !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-redesign-hero p,
+main.notatnik-page.blog-redesign-page .blog-redesign-hero p,
+main.notatnik-page.reference-faq-page .reference-faq-hero p,
+main.notatnik-page.reference-pricing-page .pricing-2026-hero p,
+main.notatnik-page.contact-page-reference .contact-reference-hero-copy p,
+main.notatnik-page.quiz-page .quiz-reference-hero p {
+  max-width: 520px !important;
+  margin: 0 !important;
+  color: #2d352d !important;
+  font-size: 18px !important;
+  line-height: 1.58 !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-hero-copy,
+main.notatnik-page.blog-redesign-page .blog-redesign-hero-copy,
+main.notatnik-page.reference-faq-page .reference-faq-hero-copy,
+main.notatnik-page.reference-pricing-page .pricing-2026-hero-copy,
+main.notatnik-page.contact-page-reference .contact-reference-hero-copy,
+main.notatnik-page.quiz-page .quiz-reference-hero {
+  position: relative !important;
+  z-index: 2 !important;
+  align-self: center !important;
+  max-width: 560px !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-portrait-card,
+main.notatnik-page.blog-redesign-page .blog-redesign-hero-art,
+main.notatnik-page.reference-faq-page .reference-faq-hero-art,
+main.notatnik-page.reference-pricing-page .pricing-2026-hero-media,
+main.notatnik-page.contact-page-reference .contact-reference-photo-wrap {
+  position: relative !important;
+  z-index: 2 !important;
+  justify-self: end !important;
+  width: min(430px, 100%) !important;
+}
+
+main.notatnik-page.blog-redesign-page .blog-redesign-hero-art,
+main.notatnik-page.reference-faq-page .reference-faq-hero-art,
+main.notatnik-page.reference-pricing-page .pricing-2026-hero-media,
+main.notatnik-page.contact-page-reference .contact-reference-photo,
+main.notatnik-page.reference-about-redesign-page .reference-about-portrait-card {
+  height: 342px !important;
+  border: 1px solid var(--top-page-border) !important;
+  border-radius: 22px !important;
+  background: #f4efe5 !important;
+  box-shadow: 0 22px 54px rgba(62, 47, 25, 0.12) !important;
+  overflow: hidden !important;
+}
+
+main.notatnik-page.quiz-page .quiz-benefit-strip,
+main.notatnik-page.quiz-page .decision-quiz {
+  position: relative !important;
+  z-index: 2 !important;
+  grid-column: 1 / -1 !important;
+}
+
+main.notatnik-page.blog-redesign-page > .notatnik-shell::before,
+main.notatnik-page.blog-redesign-page > .notatnik-shell::after,
+main.notatnik-page.blog-redesign-page .blog-redesign-content::before,
+main.notatnik-page.blog-redesign-page .blog-redesign-content::after,
+main.notatnik-page.reference-faq-page > .notatnik-shell::before,
+main.notatnik-page.reference-faq-page > .notatnik-shell::after,
+main.notatnik-page.reference-pricing-page > .notatnik-shell::before,
+main.notatnik-page.reference-pricing-page > .notatnik-shell::after,
+main.notatnik-page.contact-page-reference > .notatnik-shell::before,
+main.notatnik-page.contact-page-reference > .notatnik-shell::after,
+main.notatnik-page.quiz-page > .notatnik-shell::before,
+main.notatnik-page.quiz-page > .notatnik-shell::after,
+main.notatnik-page.blog-redesign-page .blog-redesign-hero-leaves,
+main.notatnik-page.reference-faq-page .reference-faq-leaves-top,
+main.notatnik-page.reference-faq-page .reference-faq-leaves-left,
+main.notatnik-page.reference-faq-page .reference-faq-leaves-bottom,
+main.notatnik-page.reference-faq-page .reference-faq-paw-mark,
+main.notatnik-page.contact-page-reference .contact-reference-hero::before,
+main.notatnik-page.contact-page-reference .contact-reference-hero::after,
+main.notatnik-page.contact-page-reference .contact-reference-cta-card::after,
+main.notatnik-page.contact-page-reference .contact-reference-reassurance::after,
+main.notatnik-page.quiz-page .quiz-reference-card::before,
+main.notatnik-page.quiz-page .quiz-reference-card::after,
+main.notatnik-page.quiz-page .quiz-reference-hero::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  background-image: none !important;
+  opacity: 0 !important;
+  filter: none !important;
+}
+
+main.notatnik-page.blog-redesign-page .reference-hero-leaf-anchor,
+main.notatnik-page.reference-faq-page .reference-hero-leaf-anchor,
+main.notatnik-page.reference-pricing-page .reference-hero-leaf-anchor,
+main.notatnik-page.contact-page-reference .reference-hero-leaf-anchor,
+main.notatnik-page.quiz-page .reference-hero-leaf-anchor {
+  position: relative !important;
+  z-index: 3 !important;
+  display: block !important;
+  width: 100% !important;
+  height: 0 !important;
+  pointer-events: none !important;
+}
+
+main.notatnik-page.blog-redesign-page .reference-hero-leaf-anchor > .reference-hero-leaf,
+main.notatnik-page.reference-faq-page .reference-hero-leaf-anchor > .reference-hero-leaf,
+main.notatnik-page.reference-pricing-page .reference-hero-leaf-anchor > .reference-hero-leaf,
+main.notatnik-page.contact-page-reference .reference-hero-leaf-anchor > .reference-hero-leaf,
+main.notatnik-page.quiz-page .reference-hero-leaf-anchor > .reference-hero-leaf,
+main.notatnik-page.reference-about-redesign-page .reference-about-leaf-right {
+  position: absolute !important;
+  top: -22px !important;
+  right: -36px !important;
+  z-index: 3 !important;
+  display: block !important;
+  width: 196px !important;
+  height: 236px !important;
+  pointer-events: none !important;
+  background: url('/decor/leaf-raster/leaf-top-right.png') center / contain no-repeat !important;
+  opacity: 0.28 !important;
+  filter: saturate(1.14) contrast(1.18) !important;
+  transform: rotate(3deg) !important;
+}
+
+@media (max-width: 980px) {
+  main.notatnik-page.reference-about-redesign-page .reference-about-redesign-hero,
+  main.notatnik-page.blog-redesign-page .blog-redesign-hero,
+  main.notatnik-page.reference-faq-page .reference-faq-hero,
+  main.notatnik-page.reference-pricing-page .pricing-2026-hero,
+  main.notatnik-page.contact-page-reference .contact-reference-hero,
+  main.notatnik-page.quiz-page .quiz-reference-card {
+    grid-template-columns: 1fr !important;
+    gap: 28px !important;
+    min-height: 0 !important;
+    padding: 38px 26px 28px !important;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-portrait-card,
+  main.notatnik-page.blog-redesign-page .blog-redesign-hero-art,
+  main.notatnik-page.reference-faq-page .reference-faq-hero-art,
+  main.notatnik-page.reference-pricing-page .pricing-2026-hero-media,
+  main.notatnik-page.contact-page-reference .contact-reference-photo-wrap {
+    justify-self: center !important;
+  }
+}
+
+@media (max-width: 760px) {
+  main.notatnik-page.reference-about-redesign-page > .notatnik-shell,
+  main.notatnik-page.blog-redesign-page > .notatnik-shell,
+  main.notatnik-page.reference-faq-page > .notatnik-shell,
+  main.notatnik-page.reference-pricing-page > .notatnik-shell,
+  main.notatnik-page.contact-page-reference > .notatnik-shell,
+  main.notatnik-page.quiz-page > .notatnik-shell {
+    width: min(100%, calc(100vw - 10px)) !important;
+    border-radius: 22px !important;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .notatnik-topbar,
+  main.notatnik-page.blog-redesign-page .notatnik-topbar,
+  main.notatnik-page.reference-faq-page .notatnik-topbar,
+  main.notatnik-page.reference-pricing-page .notatnik-topbar,
+  main.notatnik-page.contact-page-reference .notatnik-topbar,
+  main.notatnik-page.quiz-page .notatnik-topbar {
+    grid-template-columns: minmax(0, 1fr) 44px !important;
+    min-height: 104px !important;
+    padding: 4.8vw 5vw !important;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-redesign-hero,
+  main.notatnik-page.blog-redesign-page .blog-redesign-hero,
+  main.notatnik-page.reference-faq-page .reference-faq-hero,
+  main.notatnik-page.reference-pricing-page .pricing-2026-hero,
+  main.notatnik-page.contact-page-reference .contact-reference-hero,
+  main.notatnik-page.quiz-page .quiz-reference-card {
+    margin-bottom: 24px !important;
+    padding: 28px 20px 26px !important;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-redesign-hero h1,
+  main.notatnik-page.blog-redesign-page .blog-redesign-hero h1,
+  main.notatnik-page.reference-faq-page .reference-faq-hero h1,
+  main.notatnik-page.reference-pricing-page .pricing-2026-hero h1,
+  main.notatnik-page.contact-page-reference .contact-reference-hero-copy h1,
+  main.notatnik-page.quiz-page .quiz-reference-hero h1 {
+    font-size: 39px !important;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-redesign-hero p,
+  main.notatnik-page.blog-redesign-page .blog-redesign-hero p,
+  main.notatnik-page.reference-faq-page .reference-faq-hero p,
+  main.notatnik-page.reference-pricing-page .pricing-2026-hero p,
+  main.notatnik-page.contact-page-reference .contact-reference-hero-copy p,
+  main.notatnik-page.quiz-page .quiz-reference-hero p {
+    font-size: 16px !important;
+  }
+
+  main.notatnik-page.blog-redesign-page .reference-hero-leaf-anchor > .reference-hero-leaf,
+  main.notatnik-page.reference-faq-page .reference-hero-leaf-anchor > .reference-hero-leaf,
+  main.notatnik-page.reference-pricing-page .reference-hero-leaf-anchor > .reference-hero-leaf,
+  main.notatnik-page.contact-page-reference .reference-hero-leaf-anchor > .reference-hero-leaf,
+  main.notatnik-page.quiz-page .reference-hero-leaf-anchor > .reference-hero-leaf,
+  main.notatnik-page.reference-about-redesign-page .reference-about-leaf-right {
+    top: -22px !important;
+    right: -36px !important;
+    width: 196px !important;
+    height: 236px !important;
+  }
 }

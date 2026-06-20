@@ -89,7 +89,7 @@ export default function PricingPage() {
   const contact = getPublicContactDetails()
 
   return (
-    <ReferencePageShell className="reference-pricing-page pricing-2026-page" ctaHref={bookHref}>
+    <ReferencePageShell className="reference-pricing-page pricing-2026-page" ctaHref={bookHref} showHeroLeaf>
       <Schema
         data={[
           getBreadcrumbJsonLd([

@@ -141,14 +141,14 @@ export function SocialProofSection({ showSubmissionForm = true }: SocialProofSec
       <div className="summary-grid trust-grid top-gap">
         <div className="summary-card tree-backed-card">
           <div className="stat-label">Typowe starty</div>
-          <span>Najczęstsze sprawy z opisanym formatem pracy, etapem i przyblizonym czasem.</span>
+          <span>Najczęstsze sprawy z opisanym formatem pracy, etapem i przybliżonym czasem.</span>
         </div>
         <div className="summary-card tree-backed-card">
           <div className="stat-label">Profil i publikacje</div>
-          <span>Obok przykladow są też podstawowe informacje o kwalifikacjach i artykułach.</span>
+          <span>Obok przykładów są też podstawowe informacje o kwalifikacjach i artykułach.</span>
         </div>
         <div className="summary-card tree-backed-card">
-          <div className="stat-label">Reczne sprawdzićenie</div>
+          <div className="stat-label">Ręczne sprawdzenie</div>
           <span>Nic nie trafia na stronę automatycznie.</span>
         </div>
       </div>
@@ -251,14 +251,14 @@ export function SocialProofSection({ showSubmissionForm = true }: SocialProofSec
         <div className="offer-detail-cta-band top-gap">
           <div className="offer-detail-cta-copy">
             <span className="section-eyebrow">Dalszy krok</span>
-            <strong>Chcesz zobaczyć pełna sekcje opinii?</strong>
+            <strong>Chcesz zobaczyć pełną sekcję opinii?</strong>
             <span>Jeśli wolisz spokojniejszy start, możesz wybrać 15-minutową konsultację behawioralną albo materiały PDF.</span>
-            <span>Pełny formularz publikacji i dodatkowe wskazowki są na osobnej podstronie.</span>
+            <span>Pełny formularz publikacji i dodatkowe wskazówki są na osobnej podstronie.</span>
           </div>
 
           <div className="hero-actions offer-detail-actions">
             <Link href="/opinie" prefetch={false} className="button button-primary big-button">
-              Zobacz pełna sekcje opinii
+              Zobacz pełną sekcję opinii
             </Link>
             <Link href="/book" prefetch={false} className="button button-ghost big-button">
               {FUNNEL_CTA_LABELS.primary}

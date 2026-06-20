@@ -14,8 +14,8 @@ import {
   UsersRound,
   type LucideIcon,
 } from 'lucide-react'
-import { EditorialIndexTopbar } from '@/components/EditorialIndexTopbar'
-import { NotatnikFooter } from '@/components/NotatnikA'
+import { NotatnikFooter, NotatnikTopbar, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
+import { ReferenceHeroLeaf } from '@/components/ReferencePageShell'
 import { Schema } from '@/components/schema'
 import { BLOG_ROUTE_BASE, getBlogListingMetadata, listBlogPosts, type BlogPost } from '@/lib/blog'
 import { repairCopy } from '@/lib/copy'
@@ -244,7 +244,8 @@ export default function BlogPage({ searchParams }: { searchParams?: BlogSearchPa
     <main className="notatnik-page blog-page blog-index-page blog-redesign-page">
       <Schema data={structuredData} />
       <div className="notatnik-shell blog-index-shell blog-redesign-shell">
-        <EditorialIndexTopbar />
+        <NotatnikTopbar tag="Regulski" navItems={PUBLIC_SITE_NAV_ITEMS} showUtilityLinks={false} />
+        <ReferenceHeroLeaf />
 
         <div className="blog-redesign-content">
           <section className="blog-redesign-hero" aria-labelledby="blog-index-title">
@@ -256,7 +257,6 @@ export default function BlogPage({ searchParams }: { searchParams?: BlogSearchPa
                 Bez presji, bez mitów. Z empatią i doświadczeniem.
               </p>
             </div>
-            <div className="blog-redesign-hero-leaves" aria-hidden="true" />
             <div className="blog-redesign-hero-art" aria-hidden="true">
               <Image src="/blog/hero-opiekun-pies-kot.jpg" alt="" fill sizes="(max-width: 760px) calc(100vw - 44px), 680px" priority />
             </div>

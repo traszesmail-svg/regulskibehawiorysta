@@ -7,7 +7,7 @@ export default function NotFound() {
       code="404"
       eyebrow="Strona nie istnieje"
       title="Nie znaleźliśmy tej strony"
-      description="Ten adres nie prowadzi już do publicznej podstrony. Wróć do sprawdzićonej ścieżki i wybierz najkrótszy kolejny krok."
+      description="Ten adres nie prowadzi już do publicznej podstrony. Wróć do sprawdzonej ścieżki i wybierz najkrótszy kolejny krok."
       highlights={['Co możesz zrobić', 'Wrócić do strony głównej, ścieżki psa lub kota albo przejść od razu do 15 min audio.']}
       actions={[
         { href: '/', label: 'Strona główna', primary: true },

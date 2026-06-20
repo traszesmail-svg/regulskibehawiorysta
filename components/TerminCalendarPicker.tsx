@@ -81,8 +81,10 @@ function getSpeciesIcon(species: TerminCalendarSummary['species']) {
 }
 
 export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, paymentConfig, choicePanel }: TerminCalendarPickerProps) {
-  const flatSlots = useMemo(() => days.flatMap((day) => day.slots.filter((slot) => slot.isBookable)), [days])
-  const nearestSlots = flatSlots.slice(0, 5)
+  const allVisibleSlots = useMemo(() => days.flatMap((day) => day.slots), [days])
+  const flatSlots = useMemo(() => allVisibleSlots.filter((slot) => slot.isBookable), [allVisibleSlots])
+  const isUrgentBooking = summary.serviceType === 'kwadrans-na-juz'
+  const nearestSlots = isUrgentBooking ? allVisibleSlots : flatSlots.slice(0, 5)
   const firstAvailableDay = days.find((day) => day.availableSlotCount > 0) ?? days.find((day) => day.isInPrimaryMonth) ?? days[0] ?? null
   const [selectedDayDate, setSelectedDayDate] = useState(firstAvailableDay?.date ?? '')
   const [selectedSlotId, setSelectedSlotId] = useState(flatSlots[0]?.id ?? '')
@@ -161,27 +163,17 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, pay
   const inlineFlowStep = createdBooking ? 2 : selectedSlot ? 1 : 0
 
   return (
-    <div className="termin-calendar-layout">
+    <div className={`termin-calendar-layout${isUrgentBooking ? ' termin-calendar-layout-urgent' : ''}`}>
       <div className="termin-calendar-board">
-        <div className="termin-calendar-toolbar">
-          <div>
-            <span>1. Wybierz datę</span>
-            <strong>{monthLabel}</strong>
-          </div>
-          <p>
-            {slotCount > 0 ? `${slotCount} dostępnych terminów` : 'Brak dostępnych terminów'} / {summary.serviceBadge}
-          </p>
-        </div>
-
-        {nearestSlots.length > 0 ? (
+        {isUrgentBooking || nearestSlots.length > 0 ? (
           <section className="termin-nearest-slots" aria-label="Najbliższe dostępne terminy">
             <div className="termin-nearest-slots-head">
-              <span>Najbliższe terminy</span>
+              <span>{isUrgentBooking ? 'Najbliższe terminy' : '1. Najbliższe terminy'}</span>
               <strong>Wybierz od razu, jeśli chcesz szybciej przejść dalej.</strong>
             </div>
             <div className="termin-nearest-slot-list">
               {nearestSlots.map((slot) =>
-                slot.href ? (
+                slot.href && slot.isBookable ? (
                   <Link
                     key={slot.id}
                     href={slot.href}
@@ -195,19 +187,39 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, pay
                     <strong>{slot.time}</strong>
                     <small>{slot.serviceTitle}</small>
                   </Link>
-                ) : null,
+                ) : (
+                  <span key={slot.id} className="termin-nearest-slot-link is-disabled" aria-disabled="true">
+                    <span>{slot.dateLabel}</span>
+                    <strong>{slot.time}</strong>
+                    <small>{slot.statusLabel}</small>
+                  </span>
+                ),
               )}
             </div>
           </section>
         ) : null}
 
-        <div className="termin-calendar-weekdays" aria-hidden="true">
+        {isUrgentBooking && nearestSlots.length === 0 ? (
+          <p className="termin-nearest-empty">Brak wolnego okna dziś i jutro. Opisz krótko, co się dzieje.</p>
+        ) : null}
+
+        {!isUrgentBooking ? <div className="termin-calendar-toolbar">
+          <div>
+            <span>2. Wybierz datę</span>
+            <strong>{monthLabel}</strong>
+          </div>
+          <p>
+            {slotCount > 0 ? `${slotCount} dostępnych terminów` : 'Brak dostępnych terminów'} / {summary.serviceBadge}
+          </p>
+        </div> : null}
+
+        {!isUrgentBooking ? <div className="termin-calendar-weekdays" aria-hidden="true">
           {weekdayLabels.map((label) => (
             <span key={label}>{label}</span>
           ))}
-        </div>
+        </div> : null}
 
-        <div className="termin-calendar-grid" aria-label="Kalendarz dostępnych terminów">
+        {!isUrgentBooking ? <div className="termin-calendar-grid" aria-label="Kalendarz dostępnych terminów">
           {days.map((day) => (
             <article
               key={day.date}
@@ -218,6 +230,7 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, pay
                 className={`termin-calendar-date-button${selectedDay?.date === day.date ? ' is-selected' : ''}`}
                 onClick={() => chooseDay(day)}
                 aria-pressed={selectedDay?.date === day.date}
+                data-calendar-date={day.date}
               >
                 <span>
                   <strong>{day.dayNumber}</strong>
@@ -227,11 +240,11 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, pay
               </button>
             </article>
           ))}
-        </div>
+        </div> : null}
 
-        <div className="termin-calendar-time-panel">
+        {!isUrgentBooking ? <div className="termin-calendar-time-panel">
           <div className="termin-calendar-time-head">
-            <h3>2. Wybierz godzinę</h3>
+            <h3>3. Wybierz godzinę</h3>
             <p>{selectedDay ? selectedDay.label : 'Brak wybranej daty'}</p>
           </div>
           {selectedDay && selectedDay.slots.length > 0 ? (
@@ -245,6 +258,8 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, pay
                   aria-label={`${slot.time}. ${slot.reasonLabel}`}
                   disabled={!slot.isBookable}
                   onClick={() => chooseSlot(slot)}
+                  data-slot-id={slot.id}
+                  data-slot-time={slot.time}
                 >
                   <span>{slot.time}</span>
                   {!slot.isBookable ? <small>{slot.statusLabel}</small> : null}
@@ -254,8 +269,8 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, pay
           ) : (
             <div className="termin-time-empty">Brak terminów w tym dniu.</div>
           )}
-        </div>
-        <div className="termin-calendar-hint-card">
+        </div> : null}
+        {!isUrgentBooking ? <div className="termin-calendar-hint-card">
           <span aria-hidden="true">
             <Lightbulb size={23} strokeWidth={1.85} />
           </span>
@@ -263,11 +278,11 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, pay
             <strong>Nie wiesz, którą godzinę wybrać?</strong>
             <p>Wybierz moment, w którym możesz spokojnie skupić się na rozmowie. Szczegóły doprecyzujemy w formularzu.</p>
           </div>
-        </div>
-        <div className="termin-calendar-pet-visual" aria-hidden="true">
+        </div> : null}
+        {!isUrgentBooking ? <div className="termin-calendar-pet-visual" aria-hidden="true">
           <Image src={petVisualSrc} alt={petVisualAlt} fill sizes="(max-width: 680px) 320px, 360px" />
-        </div>
-        {choicePanel ? <div className="termin-calendar-choice-slot">{choicePanel}</div> : null}
+        </div> : null}
+        {!isUrgentBooking && choicePanel ? <div className="termin-calendar-choice-slot">{choicePanel}</div> : null}
       </div>
 
       <aside className="termin-calendar-summary" aria-label="Podsumowanie rezerwacji">
@@ -327,11 +342,11 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, pay
             onClick={(event) => handleSummarySlotClick(event, selectedSlot)}
           >
             <CalendarDays size={17} strokeWidth={1.9} aria-hidden="true" />
-            <span>Uzupełnij dane pod spodem</span>
+            <span>Uzupełnij dane</span>
           </Link>
         ) : (
           <Link href={summary.contactHref} prefetch={false} className="notatnik-btn termin-summary-cta">
-            <span>Opisz krótko, co się dzieje</span>
+            <span>Opisz krótko, co się dzieje.</span>
           </Link>
         )}
         <small>Dane i płatność pojawią się niżej, bez otwierania osobnego ekranu.</small>
@@ -407,7 +422,7 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, pay
                 amountLabel={summary.priceLabel}
                 qaBooking={summary.qaBooking}
                 sourcePage="/book"
-                submitLabel="Dalej: płatność lub kod"
+                submitLabel="Dalej"
                 submittingLabel="Zapisuję termin..."
                 onBookingCreated={handleBookingCreated}
               />

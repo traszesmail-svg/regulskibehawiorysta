@@ -29,7 +29,7 @@ export function RouteFallbackPage({
   actions,
   footerCtaHref = '/book',
   footerCtaLabel = FUNNEL_CTA_LABELS.primary,
-  footerHeadline = 'Wróć do sprawdzićonego punktu startu',
+  footerHeadline = 'Wróć do sprawdzonego punktu startu',
   footerDescription = 'Najprościej wrócić do strony głównej, wejść na stronę psa lub kota albo wybrać 15-minutową konsultację behawioralną.',
 }: RouteFallbackPageProps) {
   return (

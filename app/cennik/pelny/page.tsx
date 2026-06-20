@@ -18,7 +18,7 @@ export const metadata: Metadata = buildMarketingMetadata({
 
 export default function FullPricingPage() {
   return (
-    <ReferencePageShell className="reference-pricing-page reference-full-pricing-page" ctaHref={bookHref}>
+    <ReferencePageShell className="reference-pricing-page reference-full-pricing-page" ctaHref={bookHref} showHeroLeaf>
       <Schema
         data={[
           getBreadcrumbJsonLd([

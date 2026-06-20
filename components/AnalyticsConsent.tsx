@@ -282,7 +282,7 @@ export function AnalyticsConsent({ measurementId, cookiebotDomainGroupId }: Anal
               Odrzuć
             </button>
             <button type="button" className="button button-primary small-button" onClick={() => updateConsent('granted')}>
-              Akceptuje analityke
+              Akceptuję analitykę
             </button>
           </div>
         </div>

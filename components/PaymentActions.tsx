@@ -16,6 +16,13 @@ interface PaymentActionsProps {
   roomAccessLabel: string
   paymentReference: string
   manualAvailable: boolean
+  onlinePayment?: {
+    available: boolean
+    label: string
+    buttonLabel: string
+    description: string
+    unavailableMessage: string
+  }
   manualPhoneDisplay?: string | null
   manualPaypalMeDisplay?: string | null
   manualPaypalMeHref?: string | null
@@ -33,6 +40,15 @@ interface PaymentActionsProps {
   sourcePage?: string
 }
 
+const disabledOnlinePayment = {
+  available: false,
+  label: 'Płatność online wyłączona',
+  buttonLabel: 'Płatność online wyłączona',
+  description: 'W tym trybie korzystasz z BLIK po instrukcji e-mail albo PayPal.me.',
+  unavailableMessage:
+    'Płatność online jest wyłączona w aktywnym trybie manualnym. Wybierz BLIK po instrukcji e-mail albo PayPal.me.',
+}
+
 export function PaymentActions({
   bookingId,
   accessToken,
@@ -41,6 +57,7 @@ export function PaymentActions({
   roomAccessLabel,
   paymentReference,
   manualAvailable,
+  onlinePayment,
   amount,
   serviceType,
   animalType,
@@ -55,7 +72,10 @@ export function PaymentActions({
   const [commerceLoading, setCommerceLoading] = useState(false)
   const [promoLoading, setPromoLoading] = useState(false)
   const [promoCode, setPromoCode] = useState('')
-  const [selectedMethod, setSelectedMethod] = useState<'online' | 'manual' | 'promo'>(manualAvailable ? 'manual' : 'online')
+  const effectiveOnlinePayment = onlinePayment ?? disabledOnlinePayment
+  const [selectedMethod, setSelectedMethod] = useState<'online' | 'manual' | 'promo'>(
+    manualAvailable ? 'manual' : effectiveOnlinePayment.available ? 'online' : 'manual',
+  )
   const qaAvailable = Boolean(qaBooking && qaEligibility?.isAllowed)
   const promoAvailable = serviceType === PROMO_CODE_SERVICE_TYPE
 
@@ -153,7 +173,16 @@ export function PaymentActions({
 
   async function handleCommerceCheckout(method: 'online' | 'manual') {
     if (method === 'manual' && !manualAvailable) {
-      setError('BLIK po instrukcji e-mail jest chwilowo niedostępny. Wybierz płatność online albo napisz wiadomość.')
+      setError(
+        effectiveOnlinePayment.available
+          ? 'BLIK po instrukcji e-mail jest chwilowo niedostępny. Wybierz płatność online albo napisz wiadomość.'
+          : 'BLIK po instrukcji e-mail jest chwilowo niedostępny. Napisz wiadomość albo wróć później.',
+      )
+      return
+    }
+
+    if (method === 'online' && !effectiveOnlinePayment.available) {
+      setError(effectiveOnlinePayment.unavailableMessage)
       return
     }
 
@@ -307,13 +336,18 @@ export function PaymentActions({
           data-selected={selectedMethod === 'online' ? 'true' : 'false'}
           data-payment-method="online"
           onClick={() => setSelectedMethod('online')}
+          disabled={!effectiveOnlinePayment.available}
           role="radio"
           aria-checked={selectedMethod === 'online'}
         >
           <CreditCard aria-hidden="true" />
           <span>
-            <strong>Karta / Apple Pay / Google Pay</strong>
-            <em>Płatność online; portfele zależą od urządzenia i przeglądarki</em>
+            <strong>{effectiveOnlinePayment.label}</strong>
+            <em>
+              {effectiveOnlinePayment.available
+                ? effectiveOnlinePayment.description
+                : effectiveOnlinePayment.unavailableMessage}
+            </em>
           </span>
         </button>
         <button
@@ -338,7 +372,9 @@ export function PaymentActions({
         <h3>{selectedMethod === 'online' ? 'Płatność online' : isPromoSelected ? 'Kod promocyjny' : 'BLIK po instrukcji e-mail'}</h3>
         <p>
           {selectedMethod === 'online'
-            ? 'Po kliknięciu otworzy się bezpieczny checkout online z kartą oraz, gdy urządzenie je udostępnia, Apple Pay i Google Pay.'
+            ? effectiveOnlinePayment.available
+              ? 'Po kliknięciu otworzy się bezpieczny checkout online z kartą oraz, gdy urządzenie je udostępnia, Apple Pay i Google Pay.'
+              : effectiveOnlinePayment.unavailableMessage
             : isPromoSelected
               ? 'Wpisz kod przekazany przez lecznicę. Po poprawnym użyciu termin zostanie potwierdzony bez płatności.'
               : 'Przejdziesz do instrukcji BLIK bez publicznego numeru. To najtańsza ścieżka, bo nie dolicza prowizji pośrednika.'}
@@ -380,7 +416,12 @@ export function PaymentActions({
 
             void handleCommerceCheckout(isManualSelected ? 'manual' : 'online')
           }}
-          disabled={commerceLoading || promoLoading}
+          disabled={
+            commerceLoading ||
+            promoLoading ||
+            (selectedMethod === 'manual' && !manualAvailable) ||
+            (selectedMethod === 'online' && !effectiveOnlinePayment.available)
+          }
         >
           {commerceLoading || promoLoading
             ? isPromoSelected

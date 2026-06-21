@@ -33,6 +33,7 @@ import {
   getPublicManualPaymentConfig,
   getQaCheckoutEligibility,
 } from '@/lib/server/payment-options'
+import { getOnlinePaymentRuntime } from '@/lib/server/online-payments'
 import { buildTechnicalMetadata } from '@/lib/seo'
 
 export const dynamic = 'force-dynamic'
@@ -80,6 +81,7 @@ export default async function PaymentPage({
     phoneDisplay: manualPayment.phoneDisplay,
     paypalMeDisplay: manualPayment.paypalMeDisplay,
   })
+  const onlinePayment = getOnlinePaymentRuntime(null)
   let booking: Awaited<ReturnType<typeof getBookingForViewer>> = null
   let flowError: string | null = null
 
@@ -133,7 +135,9 @@ export default async function PaymentPage({
     : isWaitingManual
       ? `Wpłata jest już zgłoszona. Potwierdzimy ją ręcznie w godzinach obsługi. Po zmianie statusu zobaczysz ${roomAccessLabel} i dalszą instrukcję.`
       : manualPayment.isAvailable
-        ? `Termin jest wstępnie zablokowany na czas płatności. Wybierz BLIK po instrukcji e-mail albo płatność online; po potwierdzeniu wpłaty rezerwacja staje się pewna.`
+        ? onlinePayment.available
+          ? `Termin jest wstępnie zablokowany na czas płatności. Wybierz BLIK po instrukcji e-mail albo płatność online; po potwierdzeniu wpłaty rezerwacja staje się pewna.`
+          : 'Termin jest wstępnie zablokowany na czas płatności. Wybierz BLIK po instrukcji e-mail albo PayPal.me. Płatność online jest wyłączona w tym trybie.'
         : 'Płatność jest chwilowo niedostępna. Opisz krótko, co się dzieje, i wróć do rezerwacji później.'
 
   const paymentSummaryRows: PaymentReferenceSummaryRow[] = booking
@@ -240,7 +244,9 @@ export default async function PaymentPage({
         >
           {qaBooking
             ? 'To kontrolowana ścieżka testowa bez realnego obciążenia.'
-            : 'BLIK po instrukcji e-mail jest najtańszy, bo nie przechodzi przez prowizyjnego pośrednika. Karta, Apple Pay i Google Pay są dostępne jako płatność online. Jeśli płatność nie zostanie potwierdzona w czasie blokady, termin wróci do kalendarza.'}
+            : onlinePayment.available
+              ? 'BLIK po instrukcji e-mail jest najtańszy, bo nie przechodzi przez prowizyjnego pośrednika. Karta, Apple Pay i Google Pay są dostępne jako płatność online. Jeśli płatność nie zostanie potwierdzona w czasie blokady, termin wróci do kalendarza.'
+              : 'BLIK po instrukcji e-mail jest najtańszy, bo nie przechodzi przez prowizyjnego pośrednika. Płatność online jest wyłączona w tym trybie. Jeśli płatność nie zostanie potwierdzona w czasie blokady, termin wróci do kalendarza.'}
         </PaymentReferenceCardTitle>
 
         {flowError ? (
@@ -336,6 +342,7 @@ export default async function PaymentPage({
                     (qaBooking ? qaEligibility?.paymentReference ?? getQaCheckoutEligibility(booking).paymentReference : getManualPaymentReference(booking.id))
                   }
                   manualAvailable={manualPayment.isAvailable}
+                  onlinePayment={onlinePayment}
                   manualPhoneDisplay={manualPayment.phoneDisplay}
                   manualPaypalMeDisplay={manualPayment.paypalMeDisplay}
                   manualPaypalMeHref={manualPayment.paypalMeUrl}

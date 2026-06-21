@@ -36,6 +36,11 @@ export function CommerceCheckoutActions({
   const [selectedMethod, setSelectedMethod] = useState<'online' | 'manual'>('manual')
 
   async function startOnline(mock = false) {
+    if (!mock && !onlinePayment.available) {
+      setError(onlinePayment.unavailableMessage)
+      return
+    }
+
     setError('')
     setLoading(mock ? 'mock' : 'online')
 

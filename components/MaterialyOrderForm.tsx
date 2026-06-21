@@ -112,7 +112,7 @@ export function MaterialyOrderForm({ productKind, productSlug, productTitle, pri
     <form className="materialy-form" onSubmit={handleSubmit} noValidate data-free-download={isFree ? 'true' : 'false'}>
       <p className="form-summary">
         Zamawiasz: <strong>{productTitle}</strong> - <strong>{priceLabel}</strong>
-        {!isFree && ' (płatność online albo BLIK po instrukcji e-mail w kolejnym kroku)'}
+        {!isFree && ' (w kolejnym kroku dostaniesz instrukcję płatności)'}
       </p>
 
       {!isFree ? (

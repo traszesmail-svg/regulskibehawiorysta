@@ -5,6 +5,7 @@ import {
 } from '@/lib/booking-services'
 import type { CommerceOrder } from '@/lib/commerce'
 import { FUNNEL_SERVICE_CONFIG } from '@/lib/funnel'
+import { getPaymentModeStatus } from '@/lib/server/env'
 
 export type OnlinePaymentProvider = 'naffy' | 'stripe' | 'none'
 
@@ -74,6 +75,19 @@ function readGlobalNaffyPaymentUrl(): string | null {
   return readFirstValidHttpsEnv(GLOBAL_NAFFY_ENV_NAMES)
 }
 
+function buildManualPaymentOnlyRuntime(): OnlinePaymentRuntime {
+  return {
+    provider: 'none',
+    available: false,
+    label: 'Płatność online wyłączona',
+    buttonLabel: 'Płatność online wyłączona',
+    description: 'W tym trybie korzystasz z BLIK po instrukcji e-mail albo PayPal.me.',
+    unavailableMessage:
+      'Płatność online jest wyłączona w aktywnym trybie manualnym. Wybierz BLIK po instrukcji e-mail albo PayPal.me.',
+    naffyUrl: null,
+  }
+}
+
 function resolveConsultationServiceType(order: CommerceOrder): BookingServiceType {
   const metaServiceType = order.meta.serviceType
 
@@ -110,6 +124,12 @@ function readNaffyPaymentUrl(order?: CommerceOrder | null): string | null {
 }
 
 export function getOnlinePaymentRuntime(order?: CommerceOrder | null): OnlinePaymentRuntime {
+  const paymentMode = getPaymentModeStatus()
+
+  if (paymentMode.active === 'manual') {
+    return buildManualPaymentOnlyRuntime()
+  }
+
   const naffyUrl = readNaffyPaymentUrl(order)
 
   if (naffyUrl) {

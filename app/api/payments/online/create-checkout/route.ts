@@ -63,6 +63,13 @@ export async function POST(request: Request) {
     })
   }
 
+  if (onlinePayment.provider === 'none') {
+    return NextResponse.json(
+      { error: onlinePayment.unavailableMessage },
+      { status: 503 },
+    )
+  }
+
   const secretKey = process.env.STRIPE_SECRET_KEY?.trim()
 
   if (!secretKey) {

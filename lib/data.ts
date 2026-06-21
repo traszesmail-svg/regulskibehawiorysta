@@ -74,7 +74,7 @@ export const faq = [
   },
   {
     q: 'Czy zakup jest bezpieczny?',
-    a: 'Tak. Możesz wybrać prostą wpłatę BLIK po instrukcji e-mail albo płatność online, a link do rozmowy odblokowuje się dopiero po potwierdzeniu wpłaty.',
+    a: 'Tak. Możesz wybrać prostą wpłatę BLIK po instrukcji e-mail albo płatność online, jeśli jest aktywna dla danego zamówienia. Link do rozmowy odblokowuje się dopiero po potwierdzeniu wpłaty.',
   },
   {
     q: 'Czy mogę anulować zakup?',

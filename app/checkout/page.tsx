@@ -31,7 +31,7 @@ export function generateMetadata(): Metadata {
   return buildTechnicalMetadata({
     title: 'Wybierz metodę płatności',
     path: '/checkout',
-    description: 'Wybierz płatność online albo BLIK po instrukcji e-mail.',
+    description: 'Wybierz metodę płatności i dokończ rezerwację.',
     noIndex: true,
     follow: false,
   })
@@ -143,8 +143,12 @@ export default async function CheckoutPage({
       title={isConsultation ? 'Ostatni krok do potwierdzenia konsultacji.' : 'Ostatni krok do dostępu do materiału.'}
       lead={
         isConsultation
-          ? 'Wybierz BLIK po instrukcji e-mail albo płatność online kartą, Apple Pay lub Google Pay. Termin jest pewny po opłaceniu i potwierdzeniu płatności.'
-          : 'Wybierz BLIK po instrukcji e-mail albo płatność online kartą, Apple Pay lub Google Pay. Po potwierdzeniu dostaniesz kod dostępu do materiału.'
+          ? onlinePayment.available
+            ? 'Wybierz BLIK po instrukcji e-mail albo płatność online kartą, Apple Pay lub Google Pay. Termin jest pewny po opłaceniu i potwierdzeniu płatności.'
+            : 'Wybierz BLIK po instrukcji e-mail albo PayPal.me. Płatność online jest wyłączona w tym trybie. Termin jest pewny po potwierdzeniu płatności.'
+          : onlinePayment.available
+            ? 'Wybierz BLIK po instrukcji e-mail albo płatność online kartą, Apple Pay lub Google Pay. Po potwierdzeniu dostaniesz kod dostępu do materiału.'
+            : 'Wybierz BLIK po instrukcji e-mail albo PayPal.me. Płatność online jest wyłączona w tym trybie. Po potwierdzeniu dostaniesz kod dostępu do materiału.'
       }
       heroImage={order?.meta.animalType === 'Kot' ? 'cat' : 'dog'}
       variant="compact"
@@ -169,7 +173,7 @@ export default async function CheckoutPage({
         ) : (
           <>
             <PaymentReferenceCardTitle title={`Płatność za ${isConsultation ? 'konsultację' : 'zamówienie'}`}>
-              Zamówienie {order.orderNumber}. Wybierz metodę płatności i dokończ rezerwację bez publicznego numeru.
+              Zamówienie {order.orderNumber}. {onlinePayment.available ? 'Wybierz metodę płatności i dokończ rezerwację bez publicznego numeru.' : 'W tym trybie dokończysz rezerwację przez BLIK po instrukcji e-mail albo PayPal.me bez publicznego numeru.'}
             </PaymentReferenceCardTitle>
             <CommerceCheckoutActions
               orderNumber={order.orderNumber}

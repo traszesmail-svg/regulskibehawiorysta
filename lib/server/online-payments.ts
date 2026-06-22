@@ -5,7 +5,6 @@ import {
 } from '@/lib/booking-services'
 import type { CommerceOrder } from '@/lib/commerce'
 import { FUNNEL_SERVICE_CONFIG } from '@/lib/funnel'
-import { getPaymentModeStatus } from '@/lib/server/env'
 
 export type OnlinePaymentProvider = 'naffy' | 'stripe' | 'none'
 
@@ -40,6 +39,10 @@ export const CONSULTATION_NAFFY_ENV_BY_SERVICE: Record<BookingServiceType, reado
   ],
 }
 
+export function getConsultationNaffyPaymentUrl(serviceType: BookingServiceType): string | null {
+  return readFirstValidHttpsEnv(CONSULTATION_NAFFY_ENV_BY_SERVICE[serviceType])
+}
+
 function readTrimmedEnv(name: string): string | null {
   const value = process.env[name]?.trim()
   return value ? value : null
@@ -52,7 +55,10 @@ function normalizeHttpsUrl(raw: string | null): string | null {
 
   try {
     const url = new URL(raw)
-    if (url.protocol !== 'https:') return null
+    if (url.protocol !== 'https:') {
+      return null
+    }
+
     return url.toString()
   } catch {
     return null
@@ -73,19 +79,6 @@ function readFirstValidHttpsEnv(names: readonly string[]): string | null {
 
 function readGlobalNaffyPaymentUrl(): string | null {
   return readFirstValidHttpsEnv(GLOBAL_NAFFY_ENV_NAMES)
-}
-
-function buildManualPaymentOnlyRuntime(): OnlinePaymentRuntime {
-  return {
-    provider: 'none',
-    available: false,
-    label: 'Płatność online wyłączona',
-    buttonLabel: 'Płatność online wyłączona',
-    description: 'W tym trybie korzystasz z BLIK po instrukcji e-mail albo PayPal.me.',
-    unavailableMessage:
-      'Płatność online jest wyłączona w aktywnym trybie manualnym. Wybierz BLIK po instrukcji e-mail albo PayPal.me.',
-    naffyUrl: null,
-  }
 }
 
 function resolveConsultationServiceType(order: CommerceOrder): BookingServiceType {
@@ -113,7 +106,7 @@ function resolveConsultationServiceType(order: CommerceOrder): BookingServiceTyp
 function readNaffyPaymentUrl(order?: CommerceOrder | null): string | null {
   if (order?.productType === 'consultation') {
     const serviceType = resolveConsultationServiceType(order)
-    const serviceUrl = readFirstValidHttpsEnv(CONSULTATION_NAFFY_ENV_BY_SERVICE[serviceType])
+    const serviceUrl = getConsultationNaffyPaymentUrl(serviceType)
 
     if (serviceUrl) {
       return serviceUrl
@@ -123,26 +116,33 @@ function readNaffyPaymentUrl(order?: CommerceOrder | null): string | null {
   return readGlobalNaffyPaymentUrl()
 }
 
-export function getOnlinePaymentRuntime(order?: CommerceOrder | null): OnlinePaymentRuntime {
-  const paymentMode = getPaymentModeStatus()
+function buildAvailableRuntime(naffyUrl: string): OnlinePaymentRuntime {
+  return {
+    provider: 'naffy',
+    available: true,
+    label: 'Karta / Apple Pay / Google Pay',
+    buttonLabel: 'Zapłać online',
+    description: 'Karta oraz portfele Apple Pay i Google Pay, gdy urządzenie i przeglądarka je udostępniają.',
+    unavailableMessage: '',
+    naffyUrl,
+  }
+}
 
-  if (paymentMode.active === 'manual') {
-    return buildManualPaymentOnlyRuntime()
+export function getOnlinePaymentRuntimeForConsultation(serviceType: BookingServiceType): OnlinePaymentRuntime {
+  const naffyUrl = getConsultationNaffyPaymentUrl(serviceType) ?? readGlobalNaffyPaymentUrl()
+
+  if (naffyUrl) {
+    return buildAvailableRuntime(naffyUrl)
   }
 
+  return getOnlinePaymentRuntime(null)
+}
+
+export function getOnlinePaymentRuntime(order?: CommerceOrder | null): OnlinePaymentRuntime {
   const naffyUrl = readNaffyPaymentUrl(order)
 
   if (naffyUrl) {
-    return {
-      provider: 'naffy',
-      available: true,
-      label: 'Karta / Apple Pay / Google Pay',
-      buttonLabel: 'Zapłać online',
-      description:
-        'Karta oraz portfele Apple Pay i Google Pay, gdy urządzenie i przeglądarka je udostępniają.',
-      unavailableMessage: '',
-      naffyUrl,
-    }
+    return buildAvailableRuntime(naffyUrl)
   }
 
   if (readTrimmedEnv('STRIPE_SECRET_KEY')) {

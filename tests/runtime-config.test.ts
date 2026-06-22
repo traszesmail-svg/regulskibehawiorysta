@@ -21,7 +21,7 @@ import { getDeployReadinessChecks, getGoLiveChecks, getVerifiedDeployReadinessCh
 import { getPaymentModeStatus } from '@/lib/server/env'
 import { isCommerceTestModeAllowed } from '@/lib/server/commerce-service'
 import { getQaCheckoutEligibility, getQaCheckoutPaymentReference, getPublicManualPaymentConfig } from '@/lib/server/payment-options'
-import { getOnlinePaymentRuntime } from '@/lib/server/online-payments'
+import { getOnlinePaymentRuntime, getOnlinePaymentRuntimeForConsultation } from '@/lib/server/online-payments'
 import { buildTodayUrgentSlotCandidates, isTodayUrgentSlotCandidate } from '@/lib/urgent-now'
 import { auditSupabaseSchemaText, getSupabaseSchemaAudit } from '@/scripts/lib/schema-audit'
 import { getDefaultProductionEnvSnapshotPath } from '@/scripts/lib/env-file'
@@ -979,12 +979,13 @@ test('public manual payment stays available when only BLIK phone is configured',
   }
 })
 
-test('manual payment mode becomes the valid live payment runtime when BLIK is configured', () => {
+test('manual payment mode still allows online payment when Naffy checkout is configured', () => {
   withEnv(
     {
       APP_PAYMENT_MODE: 'manual',
       MANUAL_PAYMENT_BLIK_PHONE: '500600700',
       MANUAL_PAYMENT_PAYPAL_ME_URL: null,
+      NAFFY_PAYMENT_URL: 'https://pay.example/checkout',
       STRIPE_SECRET_KEY: null,
       VERCEL_ENV: 'production',
     },
@@ -998,19 +999,20 @@ test('manual payment mode becomes the valid live payment runtime when BLIK is co
       assert.deepEqual(paymentMode.missing, [])
       assert.match(paymentMode.summary, /APP_PAYMENT_MODE=manual/)
       assert.match(paymentMode.summary, /ręczna|ręcznym/i)
-      assert.equal(onlinePayment.provider, 'none')
-      assert.equal(onlinePayment.available, false)
-      assert.match(onlinePayment.unavailableMessage, /Płatność online jest wyłączona/i)
+      assert.equal(onlinePayment.provider, 'naffy')
+      assert.equal(onlinePayment.available, true)
+      assert.equal(onlinePayment.naffyUrl, 'https://pay.example/checkout')
     },
   )
 })
 
-test('online payment runtime stays disabled when auto mode falls back to active manual payments', () => {
+test('online payment runtime stays available when auto mode falls back to active manual payments', () => {
   withEnv(
     {
       APP_PAYMENT_MODE: 'auto',
       MANUAL_PAYMENT_BLIK_PHONE: '500600700',
       MANUAL_PAYMENT_PAYPAL_ME_URL: null,
+      NAFFY_PAYMENT_URL: 'https://pay.example/checkout',
       STRIPE_SECRET_KEY: null,
       VERCEL_ENV: 'production',
     },
@@ -1021,9 +1023,9 @@ test('online payment runtime stays disabled when auto mode falls back to active 
       assert.equal(paymentMode.isValid, true)
       assert.equal(paymentMode.active, 'manual')
       assert.equal(paymentMode.usesFallback, true)
-      assert.equal(onlinePayment.provider, 'none')
-      assert.equal(onlinePayment.available, false)
-      assert.match(onlinePayment.unavailableMessage, /Płatność online jest wyłączona/i)
+      assert.equal(onlinePayment.provider, 'naffy')
+      assert.equal(onlinePayment.available, true)
+      assert.equal(onlinePayment.naffyUrl, 'https://pay.example/checkout')
     },
   )
 })
@@ -1675,4 +1677,24 @@ test('default production env snapshot path prefers the current production snapsh
   } finally {
     rmSync(tempRoot, { recursive: true, force: true })
   }
+})
+
+test('consultation payment runtime resolves service-specific Naffy checkout without a global link', () => {
+  withEnv(
+    {
+      APP_PAYMENT_MODE: 'manual',
+      MANUAL_PAYMENT_BLIK_PHONE: '500600700',
+      NAFFY_CONSULTATION_30_URL: 'https://pay.example/dwa-kwadranse',
+      NAFFY_PAYMENT_URL: undefined,
+      NAFFY_CHECKOUT_URL: undefined,
+      STRIPE_SECRET_KEY: undefined,
+    },
+    () => {
+      const onlinePayment = getOnlinePaymentRuntimeForConsultation('konsultacja-30-min')
+
+      assert.equal(onlinePayment.provider, 'naffy')
+      assert.equal(onlinePayment.available, true)
+      assert.equal(onlinePayment.naffyUrl, 'https://pay.example/dwa-kwadranse')
+    },
+  )
 })

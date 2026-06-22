@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useDeferredValue, useState } from 'react'
 import { Download, MessageCircle, PawPrint, RefreshCw, Send } from 'lucide-react'
 import type { AccountAdminRoom } from '@/lib/server/account-store'
 
@@ -29,11 +30,106 @@ function formatBytes(value: number) {
   return `${(value / 1024 / 1024).toFixed(1)} MB`
 }
 
+function csvEscape(value: string | number | boolean | null | undefined) {
+  const normalized = value == null ? '' : String(value)
+  return `"${normalized.replaceAll('"', '""')}"`
+}
+
+function getRoomSearchHaystack(room: AccountAdminRoom) {
+  const petText = room.pets
+    .map((pet) => [pet.name, pet.species, pet.age, pet.behaviorNotes].filter(Boolean).join(' '))
+    .join(' ')
+  const bookingText = room.bookings
+    .map((booking) => [booking.title, booking.species, booking.description, booking.dateLabel, booking.statusLabel, booking.paymentLabel].filter(Boolean).join(' '))
+    .join(' ')
+  const materialText = room.materials
+    .map((material) => [material.productName, material.statusLabel, material.accessUrl].filter(Boolean).join(' '))
+    .join(' ')
+  const conversationText = room.conversations
+    .map((conversation) =>
+      [
+        conversation.subject,
+        conversation.status,
+        conversation.messages.map((message) => [message.body, message.attachments.map((attachment) => attachment.fileName).join(' ')].filter(Boolean).join(' ')).join(' '),
+      ]
+        .filter(Boolean)
+        .join(' '),
+    )
+    .join(' ')
+
+  return [
+    room.userId,
+    room.email,
+    room.profile.displayName,
+    petText,
+    bookingText,
+    materialText,
+    conversationText,
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase()
+}
+
+function buildRoomsCsv(rooms: AccountAdminRoom[]) {
+  const header = [
+    'userId',
+    'email',
+    'displayName',
+    'petsCount',
+    'bookingsCount',
+    'materialsCount',
+    'conversationsCount',
+    'openConversationsCount',
+    'messageCount',
+    'updatedAt',
+    'lastMessageAt',
+  ]
+
+  const rows = rooms.map((room) => {
+    const openConversationsCount = room.conversations.filter((conversation) => conversation.status === 'open').length
+
+    return [
+      room.userId,
+      room.email,
+      room.profile.displayName,
+      room.pets.length,
+      room.bookings.length,
+      room.materials.length,
+      room.conversations.length,
+      openConversationsCount,
+      room.messageCount,
+      room.updatedAt,
+      room.lastMessageAt ?? '',
+    ]
+      .map(csvEscape)
+      .join(',')
+  })
+
+  return [header.map(csvEscape).join(','), ...rows].join('\r\n')
+}
+
+function downloadCsv(filename: string, csv: string) {
+  const blob = new Blob([`\ufeff${csv}`], { type: 'text/csv;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const anchor = document.createElement('a')
+  anchor.href = url
+  anchor.download = filename
+  anchor.click()
+  setTimeout(() => URL.revokeObjectURL(url), 0)
+}
+
 export function AdminAccountRooms({ rooms }: AdminAccountRoomsProps) {
+  const router = useRouter()
+  const [query, setQuery] = useState('')
   const [drafts, setDrafts] = useState<Record<string, string>>({})
   const [closing, setClosing] = useState<Record<string, boolean>>({})
   const [loadingId, setLoadingId] = useState<string | null>(null)
   const [error, setError] = useState('')
+  const deferredQuery = useDeferredValue(query)
+  const normalizedQuery = deferredQuery.trim().toLowerCase()
+  const filteredRooms = normalizedQuery ? rooms.filter((room) => getRoomSearchHaystack(room).includes(normalizedQuery)) : rooms
+  const showFilters = rooms.length > 0
 
   async function submit(userId: string, conversationId: string) {
     const key = `${userId}:${conversationId}`
@@ -55,12 +151,26 @@ export function AdminAccountRooms({ rooms }: AdminAccountRoomsProps) {
         throw new Error(payload.error ?? 'Nie udało się zapisać odpowiedzi.')
       }
 
-      window.location.reload()
+      setDrafts((current) => {
+        const next = { ...current }
+        delete next[key]
+        return next
+      })
+      setClosing((current) => {
+        const next = { ...current }
+        delete next[key]
+        return next
+      })
+      router.refresh()
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : 'Nie udało się zapisać odpowiedzi.')
     } finally {
       setLoadingId(null)
     }
+  }
+
+  function handleExportCsv() {
+    downloadCsv('admin-pokoje.csv', buildRoomsCsv(filteredRooms))
   }
 
   if (rooms.length === 0) {
@@ -76,15 +186,48 @@ export function AdminAccountRooms({ rooms }: AdminAccountRoomsProps) {
   return (
     <div className="admin-account-rooms">
       {error ? <div className="admin-account-error">{error}</div> : null}
+      {showFilters ? (
+        <div className="admin-account-searchbar">
+          <label className="admin-account-searchfield">
+            <span>Szukaj</span>
+            <input
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Mail, imię pupila, rozmowa, plik..."
+            />
+          </label>
+          {query ? (
+            <button type="button" className="button button-ghost small-button" onClick={() => setQuery('')}>
+              Wyczyść
+            </button>
+          ) : null}
+        </div>
+      ) : null}
       <div className="admin-account-toolbar">
-        <span>{rooms.length} kont</span>
-        <button type="button" className="button button-ghost small-button" onClick={() => window.location.reload()}>
-          <RefreshCw size={15} aria-hidden="true" />
-          Odśwież
-        </button>
+        <span>
+          {filteredRooms.length} z {rooms.length} kont
+        </span>
+        <div className="admin-account-toolbar-actions">
+          <button
+            type="button"
+            className="button button-ghost small-button"
+            onClick={handleExportCsv}
+            disabled={filteredRooms.length === 0}
+          >
+            Eksport CSV
+          </button>
+          <button type="button" className="button button-ghost small-button" onClick={() => router.refresh()}>
+            <RefreshCw size={15} aria-hidden="true" />
+            Odśwież
+          </button>
+        </div>
       </div>
 
-      {rooms.map((room) => (
+      {filteredRooms.length === 0 ? (
+        <div className="admin-account-empty">Brak pokoi dla wybranego filtra.</div>
+      ) : (
+        filteredRooms.map((room) => (
         <article key={room.userId} className="admin-account-room">
           <header className="admin-account-room-head">
             <div>
@@ -200,12 +343,39 @@ export function AdminAccountRooms({ rooms }: AdminAccountRoomsProps) {
             })}
           </div>
         </article>
-      ))}
+        ))
+      )}
 
       <style jsx>{`
         .admin-account-rooms {
           display: grid;
           gap: 18px;
+        }
+
+        .admin-account-searchbar {
+          display: flex;
+          align-items: end;
+          justify-content: space-between;
+          gap: 14px;
+          flex-wrap: wrap;
+        }
+
+        .admin-account-searchfield {
+          display: grid;
+          gap: 6px;
+          flex: 1 1 320px;
+          color: rgba(31, 26, 23, 0.68);
+          font-size: 14px;
+        }
+
+        .admin-account-searchfield input {
+          width: 100%;
+          border: 1px solid rgba(92, 76, 58, 0.18);
+          border-radius: 8px;
+          padding: 10px 12px;
+          font: inherit;
+          background: #fff;
+          color: #1f1a17;
         }
 
         .admin-account-toolbar,
@@ -221,6 +391,13 @@ export function AdminAccountRooms({ rooms }: AdminAccountRoomsProps) {
           align-items: center;
           color: rgba(31, 26, 23, 0.68);
           font-size: 14px;
+        }
+
+        .admin-account-toolbar-actions {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          flex-wrap: wrap;
         }
 
         .admin-account-room,
@@ -397,6 +574,19 @@ export function AdminAccountRooms({ rooms }: AdminAccountRoomsProps) {
         }
 
         @media (max-width: 720px) {
+          .admin-account-searchbar {
+            align-items: flex-start;
+          }
+
+          .admin-account-toolbar {
+            align-items: flex-start;
+            flex-direction: column;
+          }
+
+          .admin-account-toolbar-actions {
+            width: 100%;
+          }
+
           .admin-account-room-head,
           .admin-account-conversation-head {
             display: grid;

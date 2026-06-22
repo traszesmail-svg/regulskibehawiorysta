@@ -1,7 +1,7 @@
-import { unstable_noStore as noStore } from 'next/cache'
 import Link from 'next/link'
-import { Header } from '@/components/Header'
+import { unstable_noStore as noStore } from 'next/cache'
 import { AdminMaterialyOrders } from '@/components/AdminMaterialyOrders'
+import { AdminPageShell } from '@/components/AdminPageShell'
 import { listAllOrders } from '@/lib/server/materialy-storage'
 
 export const dynamic = 'force-dynamic'
@@ -13,22 +13,27 @@ export default async function AdminMaterialyPage() {
   orders.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
 
   return (
-    <>
-      <Header />
-      <main className="page-shell" style={{ paddingBlock: '40px' }}>
-        <div className="page-shell-inner" style={{ maxWidth: '960px', margin: '0 auto', padding: '0 24px' }}>
-          <p style={{ marginBottom: '12px' }}>
-            <Link href="/admin">&larr; Panel admina</Link>
-          </p>
-          <h1>Zamówienia /materiały</h1>
-          <p style={{ color: '#5e4a3c', maxWidth: '720px' }}>
-            Po wpływie BLIK kliknij „Potwierdź wpłatę i wyślij kod&quot;. Klient dostanie 6-cyfrowy kod
-            mailem i pobierze PDF na <Link href="/materialy/pobranie">/materialy/pobranie</Link>.
-          </p>
-
-          <AdminMaterialyOrders initialOrders={orders} />
-        </div>
-      </main>
-    </>
+    <AdminPageShell
+      eyebrow="Materiały"
+      title="Zamówienia /materiały"
+      description={
+        <>
+          Po wpływie BLIK kliknij „Potwierdź wpłatę i wyślij kod”. Klient dostanie 6-cyfrowy kod mailem i pobierze
+          PDF na <Link href="/materialy/pobranie">/materialy/pobranie</Link>.
+        </>
+      }
+      actions={
+        <>
+          <Link href="/admin" className="button button-ghost">
+            Panel admina
+          </Link>
+          <Link href="/payment" className="button button-primary">
+            Podgląd płatności
+          </Link>
+        </>
+      }
+    >
+      <AdminMaterialyOrders initialOrders={orders} />
+    </AdminPageShell>
   )
 }

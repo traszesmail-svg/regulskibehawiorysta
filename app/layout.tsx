@@ -37,7 +37,7 @@ const jetbrainsMono = JetBrains_Mono({
 
 const metadataBase = new URL(getCanonicalBaseUrl())
 const blockSearchIndexing = shouldBlockSearchIndexing()
-const RELEASE_ID = '2026-04-23-live-verification-v1'
+const RELEASE_ID = '2026-06-21-payment-fix-v1'
 
 export const metadata: Metadata = {
   metadataBase,
@@ -93,7 +93,7 @@ export const viewport: Viewport = {
 
 const themeBootstrapScript = `
 (() => {
-  const fallbackTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  const fallbackTheme = typeof window.matchMedia === 'function' && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 
   try {
     const storedTheme = window.localStorage.getItem('${THEME_STORAGE_KEY}');

@@ -1,7 +1,8 @@
-import { unstable_noStore as noStore } from 'next/cache'
 import Link from 'next/link'
-import { listPendingTestimonials } from '@/lib/server/testimonial-store'
+import { unstable_noStore as noStore } from 'next/cache'
+import { AdminPageShell } from '@/components/AdminPageShell'
 import { getTestimonialIssueLabel } from '@/lib/testimonials'
+import { listPendingTestimonials } from '@/lib/server/testimonial-store'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -36,88 +37,92 @@ export default async function AdminOpiniePage() {
   const rest = testimonials.filter((t) => t.status !== 'pending')
 
   return (
-    <main style={{ maxWidth: 760, margin: '40px auto', padding: '0 20px', fontFamily: 'sans-serif', color: '#1f1a17' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 32 }}>
-        <h1 style={{ margin: 0, fontSize: '1.4rem' }}>Opinie klientów</h1>
-        <Link href="/admin" style={{ fontSize: 13, color: '#6b625b' }}>Panel admin</Link>
+    <AdminPageShell
+      eyebrow="Opinie"
+      title="Opinie klientów"
+      actions={
+        <Link href="/admin" className="button button-ghost">
+          Panel admina
+        </Link>
+      }
+    >
+      <div className="summary-grid top-gap">
+        <div className="summary-card">
+          <div className="stat-label">Oczekujące</div>
+          <div className="summary-value">{pending.length}</div>
+        </div>
+        <div className="summary-card">
+          <div className="stat-label">Historia</div>
+          <div className="summary-value">{rest.length}</div>
+        </div>
       </div>
 
       {loadError && (
-        <p style={{ color: '#b91c1c', background: '#fef2f2', padding: '12px 16px', borderRadius: 8 }}>
-          Błąd ładowania danych: {loadError}
-        </p>
+        <p className="error-box top-gap">Błąd ładowania danych: {loadError}</p>
       )}
 
-      <section>
-        <h2 style={{ fontSize: '1rem', marginBottom: 16 }}>
-          Oczekujące na decyzję ({pending.length})
-        </h2>
+      <section className="top-gap">
+        <div className="section-eyebrow">Oczekujące na decyzję</div>
+        <h2>Do sprawdzenia ({pending.length})</h2>
 
-        {pending.length === 0 && !loadError && (
-          <p style={{ color: '#6b625b' }}>Brak oczekujących opinii.</p>
-        )}
+        {pending.length === 0 && !loadError && <p className="muted">Brak oczekujących opinii.</p>}
 
-        {pending.map((t) => (
-          <article
-            key={t.id}
-            style={{
-              background: '#fafaf8',
-              border: '1px solid #e9dfcf',
-              borderRadius: 12,
-              padding: '20px 24px',
-              marginBottom: 16,
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 8 }}>
-              <div>
-                <strong style={{ fontSize: '1rem' }}>{t.displayName}</strong>
-                <span style={{ marginLeft: 12, fontSize: 13, color: '#6b625b' }}>{t.email}</span>
-              </div>
-              <span style={{ fontSize: 12, color: '#6b625b' }}>{formatDate(t.createdAt)}</span>
-            </div>
+        {pending.length > 0 ? (
+          <div className="booking-list top-gap">
+            {pending.map((t) => (
+              <article
+                key={t.id}
+                className="booking-row"
+                style={{
+                  background: '#fafaf8',
+                  border: '1px solid #e9dfcf',
+                  borderRadius: 12,
+                  padding: '20px 24px',
+                }}
+              >
+                <div>
+                  <div className="booking-title">{t.displayName}</div>
+                  <div className="booking-meta">{t.email}</div>
+                  <div className="booking-meta">Kategoria: {getTestimonialIssueLabel(t.issueCategory)}</div>
+                </div>
 
-            <p style={{ margin: '6px 0 0', fontSize: 13, color: '#6b625b' }}>
-              Kategoria: {getTestimonialIssueLabel(t.issueCategory)}
-            </p>
+                <div className="booking-description">
+                  <blockquote style={{ margin: 0, padding: '12px 16px', background: '#fff', borderLeft: '3px solid #d9cfc3', borderRadius: 6 }}>
+                    <p style={{ margin: 0, fontSize: 14, lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{t.opinion}</p>
+                  </blockquote>
+                  {t.photoUrl ? (
+                    <p className="booking-meta" style={{ marginTop: 12 }}>
+                      Zdjęcie:{' '}
+                      {isExternalUrl(t.photoUrl) ? (
+                        <a href={t.photoUrl} target="_blank" rel="noopener noreferrer">
+                          {t.photoUrl}
+                        </a>
+                      ) : (
+                        <span>{t.photoUrl}</span>
+                      )}
+                    </p>
+                  ) : null}
+                </div>
 
-            <blockquote style={{ margin: '14px 0', padding: '12px 16px', background: '#fff', borderLeft: '3px solid #d9cfc3', borderRadius: 6 }}>
-              <p style={{ margin: 0, fontSize: 14, lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{t.opinion}</p>
-            </blockquote>
-
-            {t.photoUrl && (
-              <p style={{ margin: '0 0 14px', fontSize: 13 }}>
-                Zdjęcie:{' '}
-                {isExternalUrl(t.photoUrl) ? (
-                  <a href={t.photoUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#1f1a17' }}>
-                    {t.photoUrl}
+                <div className="booking-actions">
+                  <span className="booking-meta">{formatDate(t.createdAt)}</span>
+                  <a href={`/api/admin/testimonials/${t.id}?action=publish`} className="button button-primary small-button">
+                    Opublikuj
                   </a>
-                ) : (
-                  <span>{t.photoUrl}</span>
-                )}
-              </p>
-            )}
-
-            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-              <a
-                href={`/api/admin/testimonials/${t.id}?action=publish`}
-                style={btnStyle('#1f7a1f')}
-              >
-                Opublikuj
-              </a>
-              <a
-                href={`/api/admin/testimonials/${t.id}?action=skip`}
-                style={btnStyle('#6b625b')}
-              >
-                Odłóż
-              </a>
-            </div>
-          </article>
-        ))}
+                  <a href={`/api/admin/testimonials/${t.id}?action=skip`} className="button button-ghost small-button">
+                    Odłóż
+                  </a>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : null}
       </section>
 
       {rest.length > 0 && (
-        <section style={{ marginTop: 48 }}>
-          <h2 style={{ fontSize: '1rem', marginBottom: 16 }}>Historia ({rest.length})</h2>
+        <section className="top-gap">
+          <div className="section-eyebrow">Historia</div>
+          <h2>Wszystkie decyzje ({rest.length})</h2>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
               <tr style={{ borderBottom: '1px solid #e9dfcf' }}>
@@ -140,21 +145,8 @@ export default async function AdminOpiniePage() {
           </table>
         </section>
       )}
-    </main>
+    </AdminPageShell>
   )
-}
-
-function btnStyle(bg: string): React.CSSProperties {
-  return {
-    display: 'inline-block',
-    padding: '10px 20px',
-    borderRadius: 999,
-    background: bg,
-    color: '#fff',
-    fontWeight: 700,
-    fontSize: 14,
-    textDecoration: 'none',
-  }
 }
 
 const thStyle: React.CSSProperties = {

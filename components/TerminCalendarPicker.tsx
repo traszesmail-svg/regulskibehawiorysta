@@ -61,6 +61,22 @@ export type TerminCalendarPaymentConfig = {
   manualAccountName?: string | null
   manualInstructions?: string | null
   manualSummary: string
+  onlinePayment?: {
+    available: boolean
+    label: string
+    buttonLabel: string
+    description: string
+    unavailableMessage: string
+  }
+}
+
+const disabledOnlinePayment = {
+  available: false,
+  label: 'Płatność online',
+  buttonLabel: 'Zapłać online',
+  description: 'Płatność online jest chwilowo niedostępna. Wybierz BLIK po instrukcji e-mail albo wróć później.',
+  unavailableMessage:
+    'Płatność online jest chwilowo niedostępna. Wybierz BLIK po instrukcji e-mail albo wróć później.',
 }
 
 type TerminCalendarPickerProps = {
@@ -98,6 +114,8 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, pay
   const speciesLabel = summary.species === 'kot' ? 'Kot' : summary.species === 'pies' ? 'Pies' : 'Do wyboru'
   const petVisualSrc = summary.species === 'kot' ? '/wybor/cat-choice-avatar.png' : '/wybor/dog-choice-avatar.png'
   const petVisualAlt = summary.species === 'kot' ? 'Spokojny kot' : 'Spokojny pies'
+  const onlinePayment = paymentConfig.onlinePayment ?? disabledOnlinePayment
+  const showSpeciesAndTopic = !isUrgentBooking
 
   useEffect(() => {
     setCreatedBooking(null)
@@ -288,16 +306,20 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, pay
       <aside className="termin-calendar-summary" aria-label="Podsumowanie rezerwacji">
         <h2>Podsumowanie</h2>
         <div className="termin-calendar-summary-list">
-          <span>
-            <SpeciesIcon size={22} strokeWidth={1.8} aria-hidden="true" />
-            <small>Gatunek</small>
-            <strong>{speciesLabel}</strong>
-          </span>
-          <span>
-            <PawPrint size={22} strokeWidth={1.8} aria-hidden="true" />
-            <small>Temat konsultacji</small>
-            <strong>{summary.problemLabel}</strong>
-          </span>
+          {showSpeciesAndTopic ? (
+            <span>
+              <SpeciesIcon size={22} strokeWidth={1.8} aria-hidden="true" />
+              <small>Gatunek</small>
+              <strong>{speciesLabel}</strong>
+            </span>
+          ) : null}
+          {showSpeciesAndTopic ? (
+            <span>
+              <PawPrint size={22} strokeWidth={1.8} aria-hidden="true" />
+              <small>Temat konsultacji</small>
+              <strong>{summary.problemLabel}</strong>
+            </span>
+          ) : null}
           <span>
             <CalendarDays size={22} strokeWidth={1.8} aria-hidden="true" />
             <small>Data</small>
@@ -394,6 +416,7 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, pay
                   manualAmountLabel={createdBooking.manualAmountLabel ?? null}
                   paymentReference={createdBooking.paymentReference ?? `B15-${createdBooking.bookingId.replace(/-/g, '').slice(0, 12).toUpperCase()}`}
                   manualAvailable={paymentConfig.manualAvailable}
+                  onlinePayment={onlinePayment}
                   manualPhoneDisplay={paymentConfig.manualPhoneDisplay}
                   manualPaypalMeDisplay={paymentConfig.manualPaypalMeDisplay}
                   manualPaypalMeHref={paymentConfig.manualPaypalMeHref}

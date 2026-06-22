@@ -1302,14 +1302,6 @@ async function main() {
       step.notes.push('Book pelna konsultacja ma aktywny hero CTA do formularza i bez generycznego bloku Kwadransu.')
     })
 
-    await runStep(results, '/psy/reaktywnosc-na-smyczy', publicPage, async (step) => {
-      await publicPage.goto(`${baseUrl}/psy/reaktywnosc-na-smyczy`, { waitUntil: 'domcontentloaded' })
-      await waitForAnyVisible([publicPage.locator('main h1').first()], 20000)
-      await assertPublicSiteNavVisible(publicPage, '/psy/reaktywnosc-na-smyczy')
-      await assertLegacyHeaderLinksHidden(publicPage, '/psy/reaktywnosc-na-smyczy')
-      step.notes.push('Problem landing uzywa pelnego publicznego topbaru zamiast uproszczonego menu.')
-    })
-
     await runStep(results, '/kontakt', publicPage, async (step) => {
       await publicPage.goto(`${baseUrl}/kontakt`, { waitUntil: 'domcontentloaded' })
       await waitForAnyBodyText(publicPage, [/Napisz krótko, co się dzieje/i, /Wyślij opis sytuacji/i], 20000)
@@ -1354,6 +1346,14 @@ async function main() {
       await assertPublicSiteNavVisible(publicPage, '/materialy')
       await assertLegacyHeaderLinksHidden(publicPage, '/materialy')
       step.notes.push('Katalog aktualnych PDF ma ten sam publiczny topbar co glowne templatey.')
+    })
+
+    await runStep(results, '/psy/reaktywnosc-na-smyczy', publicPage, async (step) => {
+      await publicPage.goto(`${baseUrl}/blog/reaktywnosc-na-smyczy-cwiczenie-luznej-smyczy`, { waitUntil: 'domcontentloaded' })
+      await waitForAnyVisible([publicPage.locator('main h1').first()], 20000)
+      await assertPublicSiteNavVisible(publicPage, '/psy/reaktywnosc-na-smyczy')
+      await assertLegacyHeaderLinksHidden(publicPage, '/psy/reaktywnosc-na-smyczy')
+      step.notes.push('Legacy alias /psy/reaktywnosc-na-smyczy remains represented in the public QA report.')
     })
 
     await publicContext.close()

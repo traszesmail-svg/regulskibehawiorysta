@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { unstable_noStore as noStore } from 'next/cache'
 import { AdminAccountRooms } from '@/components/AdminAccountRooms'
-import { Header } from '@/components/Header'
+import { AdminPageShell } from '@/components/AdminPageShell'
 import { listAccountRoomsForAdmin } from '@/lib/server/account-store'
 
 export const dynamic = 'force-dynamic'
@@ -20,33 +20,23 @@ export default async function AdminAccountRoomsPage() {
   }
 
   return (
-    <main className="page-wrap" data-analytics-disabled="true">
-      <div className="container">
-        <Header />
-
-        <section className="panel section-panel">
-          <div className="section-head">
-            <div>
-              <div className="section-eyebrow">Panel specjalisty</div>
-              <h1>Pokój opiekuna: rozmowy i pliki</h1>
-              <p className="hero-text">
-                Tu widzisz konta klientów, pupile, przesłane pliki i rozmowy z aplikacji.
-              </p>
-            </div>
-            <Link href="/admin" className="button button-ghost">
-              Panel główny
-            </Link>
-          </div>
-
-          {error ? (
-            <div className="form-error top-gap">{error}</div>
-          ) : (
-            <div className="top-gap">
-              <AdminAccountRooms rooms={rooms} />
-            </div>
-          )}
-        </section>
-      </div>
-    </main>
+    <AdminPageShell
+      eyebrow="Panel specjalisty"
+      title="Pokój opiekuna: rozmowy i pliki"
+      description="Tu widzisz konta klientów, pupile, przesłane pliki i rozmowy z aplikacji."
+      actions={
+        <Link href="/admin" className="button button-ghost">
+          Panel główny
+        </Link>
+      }
+    >
+      {error ? (
+        <div className="form-error top-gap">{error}</div>
+      ) : (
+        <div className="top-gap">
+          <AdminAccountRooms rooms={rooms} />
+        </div>
+      )}
+    </AdminPageShell>
   )
 }

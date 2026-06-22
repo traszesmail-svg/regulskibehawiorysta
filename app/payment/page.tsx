@@ -33,7 +33,7 @@ import {
   getPublicManualPaymentConfig,
   getQaCheckoutEligibility,
 } from '@/lib/server/payment-options'
-import { getOnlinePaymentRuntime } from '@/lib/server/online-payments'
+import { getOnlinePaymentRuntime, getOnlinePaymentRuntimeForConsultation } from '@/lib/server/online-payments'
 import { buildTechnicalMetadata } from '@/lib/seo'
 
 export const dynamic = 'force-dynamic'
@@ -81,7 +81,6 @@ export default async function PaymentPage({
     phoneDisplay: manualPayment.phoneDisplay,
     paypalMeDisplay: manualPayment.paypalMeDisplay,
   })
-  const onlinePayment = getOnlinePaymentRuntime(null)
   let booking: Awaited<ReturnType<typeof getBookingForViewer>> = null
   let flowError: string | null = null
 
@@ -106,6 +105,9 @@ export default async function PaymentPage({
   const bookingPriceLabel = booking ? formatPricePln(booking.amount) : null
   const bookingManualPriceLabel = booking ? formatCommercePrice(getManualAmountForProduct('consultation', booking.amount)) : null
   const bookingServiceType = booking ? resolveBookingServiceType(booking.serviceType, booking.amount) : null
+  const onlinePayment = bookingServiceType
+    ? getOnlinePaymentRuntimeForConsultation(bookingServiceType)
+    : getOnlinePaymentRuntime(null)
   const bookingServiceTitle = bookingServiceType ? getBookingServiceTitle(bookingServiceType) : null
   const bookingServiceSummary = bookingServiceType ? getBookingServiceRoomSummary(bookingServiceType) : null
   const roomAccessLabel = bookingServiceType ? getBookingServiceRoomAccessLabel(bookingServiceType) : 'pokój rozmowy'
@@ -137,7 +139,7 @@ export default async function PaymentPage({
       : manualPayment.isAvailable
         ? onlinePayment.available
           ? `Termin jest wstępnie zablokowany na czas płatności. Wybierz BLIK po instrukcji e-mail albo płatność online; po potwierdzeniu wpłaty rezerwacja staje się pewna.`
-          : 'Termin jest wstępnie zablokowany na czas płatności. Wybierz BLIK po instrukcji e-mail albo PayPal.me. Płatność online jest wyłączona w tym trybie.'
+          : 'Termin jest wstępnie zablokowany na czas płatności. Wybierz BLIK po instrukcji e-mail. Płatność online jest chwilowo niedostępna.'
         : 'Płatność jest chwilowo niedostępna. Opisz krótko, co się dzieje, i wróć do rezerwacji później.'
 
   const paymentSummaryRows: PaymentReferenceSummaryRow[] = booking
@@ -246,7 +248,7 @@ export default async function PaymentPage({
             ? 'To kontrolowana ścieżka testowa bez realnego obciążenia.'
             : onlinePayment.available
               ? 'BLIK po instrukcji e-mail jest najtańszy, bo nie przechodzi przez prowizyjnego pośrednika. Karta, Apple Pay i Google Pay są dostępne jako płatność online. Jeśli płatność nie zostanie potwierdzona w czasie blokady, termin wróci do kalendarza.'
-              : 'BLIK po instrukcji e-mail jest najtańszy, bo nie przechodzi przez prowizyjnego pośrednika. Płatność online jest wyłączona w tym trybie. Jeśli płatność nie zostanie potwierdzona w czasie blokady, termin wróci do kalendarza.'}
+              : 'BLIK po instrukcji e-mail jest najtańszy, bo nie przechodzi przez prowizyjnego pośrednika. Płatność online jest chwilowo niedostępna. Jeśli płatność nie zostanie potwierdzona w czasie blokady, termin wróci do kalendarza.'}
         </PaymentReferenceCardTitle>
 
         {flowError ? (

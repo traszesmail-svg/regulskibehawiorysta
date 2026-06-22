@@ -78,10 +78,10 @@ const pdfRoutePaths = [
 const localSeoPaths = ['/behawiorysta-online-polska']
 const leadMagnetPaths = listLeadMagnetPaths()
 const problemLandingPaths = [
-  '/psy/reaktywnosc-na-smyczy',
-  '/psy/lek-separacyjny',
-  '/koty/zalatwianie-poza-kuweta',
-  '/koty/konflikt-miedzy-kotami',
+  '/blog/reaktywnosc-na-smyczy-cwiczenie-luznej-smyczy',
+  '/blog/pies-wyje-kiedy-zostaje-sam',
+  '/blog/kot-zalatwia-sie-poza-kuweta',
+  '/blog/jak-zapoznac-dwa-koty',
 ]
 
 const BASE_SEEDS = Array.from(new Set([

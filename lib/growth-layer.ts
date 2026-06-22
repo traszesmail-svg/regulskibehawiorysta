@@ -71,7 +71,7 @@ export type TopicalCluster = {
 
 const TOPICAL_CLUSTERS: TopicalCluster[] = [
   {
-    routePath: '/psy/reaktywnosc-na-smyczy',
+    routePath: '/blog/reaktywnosc-na-smyczy-cwiczenie-luznej-smyczy',
     serviceLink: {
       href: '/behawiorysta-online-polska',
       label: 'Behawiorysta psów i kotów online',
@@ -96,7 +96,7 @@ const TOPICAL_CLUSTERS: TopicalCluster[] = [
     ],
   },
   {
-    routePath: '/psy/lek-separacyjny',
+    routePath: '/blog/pies-wyje-kiedy-zostaje-sam',
     serviceLink: {
       href: '/behawiorysta-online-polska',
       label: 'Behawiorysta psów i kotów online',
@@ -121,7 +121,7 @@ const TOPICAL_CLUSTERS: TopicalCluster[] = [
     ],
   },
   {
-    routePath: '/koty/zalatwianie-poza-kuweta',
+    routePath: '/blog/kot-zalatwia-sie-poza-kuweta',
     serviceLink: {
       href: '/behawiorysta-online-polska',
       label: 'Behawiorysta psów i kotów online',
@@ -146,7 +146,7 @@ const TOPICAL_CLUSTERS: TopicalCluster[] = [
     ],
   },
   {
-    routePath: '/koty/konflikt-miedzy-kotami',
+    routePath: '/blog/jak-zapoznac-dwa-koty',
     serviceLink: {
       href: '/behawiorysta-online-polska',
       label: 'Behawiorysta psów i kotów online',

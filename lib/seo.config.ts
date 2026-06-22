@@ -48,14 +48,14 @@ export const pageSeo: Record<string, PageSeo> = {
     priority: 0.9,
     changefreq: 'monthly',
   },
-  '/psy/reaktywnosc-na-smyczy': {
+  '/blog/reaktywnosc-na-smyczy-cwiczenie-luznej-smyczy': {
     title: 'Pies reaktywny na smyczy — co robić? | Regulski',
     description: 'Pies ciągnie, szczeka i rzuca się na inne psy lub ludzi? Wytłumaczę mechanizm i pokażę krok po kroku jak wprowadzić spokój. Konsultacja online.',
     keywords: ['pies reaktywny', 'pies ciągnie smycz', 'agresja na inne psy', 'jak nauczyć psa spokoju'],
     priority: 0.8,
     changefreq: 'monthly',
   },
-  '/psy/lek-separacyjny': {
+  '/blog/pies-wyje-kiedy-zostaje-sam': {
     title: 'Lęk separacyjny u psa — pomoc behawiorystyczna | Regulski',
     description: 'Pies wyje, szczeka, niszczy rzeczy gdy zostaje sam? Plan poprawy krok po kroku. Konsultacja online z behawiorystą COAPE.',
     keywords: ['lęk separacyjny pies', 'pies sam w domu', 'pies wyje', 'jak nauczyć psa zostawania samemu'],
@@ -69,14 +69,14 @@ export const pageSeo: Record<string, PageSeo> = {
     priority: 0.9,
     changefreq: 'monthly',
   },
-  '/koty/zalatwianie-poza-kuweta': {
+  '/blog/kot-zalatwia-sie-poza-kuweta': {
     title: 'Kot sika poza kuwetą — pomoc behawiorysty | Regulski',
     description: 'Kot załatwia się poza kuwetą? Sprawdźimy ustawienie kuwety, środowisko, stres i zdrowie. Konkretny plan poprawy w 1 konsultacji.',
     keywords: ['kot sika poza kuwetą', 'kot kuweta problem', 'kot załatwia się w domu'],
     priority: 0.8,
     changefreq: 'monthly',
   },
-  '/koty/konflikt-miedzy-kotami': {
+  '/blog/jak-zapoznac-dwa-koty': {
     title: 'Konflikt między kotami — co robić? | Regulski',
     description: 'Dwa koty walczą, syczą, blokują się przy zasobach? Plan resocjalizacji i wprowadzenia spokoju w domu z wieloma kotami.',
     keywords: ['konflikt kotów', 'koty walczą', 'dwa koty w domu', 'jak pogodzić koty'],

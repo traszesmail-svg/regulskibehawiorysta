@@ -1,5 +1,177 @@
 [
   {
+    "id": "34ff1f79-c7ed-4a03-be5e-fa1b50bed62e",
+    "eventType": "booking_drop",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?service=kwadrans-na-juz",
+    "location": null,
+    "properties": {
+      "slot_id": "2026-06-22-08:00",
+      "slot_time": "poniedziałek, 22 czerwca 2026, 08:00",
+      "source_page": "/book",
+      "service_key": "kwadrans-na-juz",
+      "service_name": "Kwadrans na już",
+      "service_duration": 15,
+      "service_price": 99,
+      "species": "pies",
+      "problem_key": "szczeniak",
+      "last_step": "form_start",
+      "drop_reason": "visibility_hidden",
+      "age_ms": 524354
+    },
+    "createdAt": "2026-06-21T05:55:25.921Z"
+  },
+  {
+    "id": "d10644bb-31f5-4924-8ab1-a676733db938",
+    "eventType": "booking_start",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?service=kwadrans-na-juz",
+    "location": null,
+    "properties": {
+      "source_page": "/book",
+      "service_type": "kwadrans-na-juz",
+      "problem_type": "szczeniak",
+      "species": "pies",
+      "qa_booking": false
+    },
+    "createdAt": "2026-06-21T05:46:41.223Z"
+  },
+  {
+    "id": "a3f9307e-2fc5-44c5-8861-7d1427ed0d76",
+    "eventType": "booking_form_started",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?service=kwadrans-na-juz",
+    "location": null,
+    "properties": {
+      "slot_id": "2026-06-22-08:00",
+      "slot_time": "poniedziałek, 22 czerwca 2026, 08:00",
+      "source_page": "/book",
+      "service_key": "kwadrans-na-juz",
+      "service_name": "Kwadrans na już",
+      "service_duration": 15,
+      "service_price": 99,
+      "species": "pies",
+      "problem_key": "szczeniak"
+    },
+    "createdAt": "2026-06-21T05:46:40.973Z"
+  },
+  {
+    "id": "a1e68bea-2c70-4a00-92f2-f381df471dff",
+    "eventType": "booking_service_selected",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?service=kwadrans-na-juz",
+    "location": null,
+    "properties": {
+      "source_page": "/book",
+      "service_type": "kwadrans-na-juz",
+      "problem_type": "szczeniak",
+      "species": "pies",
+      "qa_booking": false
+    },
+    "createdAt": "2026-06-21T05:46:40.653Z"
+  },
+  {
+    "id": "7b520eee-9fb4-4152-a9be-d267ae38a8df",
+    "eventType": "cta_click",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/",
+    "location": "home-router-service-cta",
+    "properties": {
+      "location": "home-router-service-cta",
+      "service": "kwadrans-na-juz"
+    },
+    "createdAt": "2026-06-21T05:46:38.376Z"
+  },
+  {
+    "id": "cd7c1c73-a912-4a04-8d39-47953bb891c3",
+    "eventType": "booking_drop",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?service=kwadrans-na-juz",
+    "location": null,
+    "properties": {
+      "slot_id": "2026-06-22-08:00",
+      "slot_time": "poniedziałek, 22 czerwca 2026, 08:00",
+      "source_page": "/book",
+      "service_key": "kwadrans-na-juz",
+      "service_name": "Kwadrans na już",
+      "service_duration": 15,
+      "service_price": 99,
+      "species": "pies",
+      "problem_key": "szczeniak",
+      "last_step": "form_start",
+      "drop_reason": "visibility_hidden",
+      "age_ms": 51717
+    },
+    "createdAt": "2026-06-21T05:39:32.845Z"
+  },
+  {
+    "id": "8ff6d714-fffa-4297-b8b4-b864864ccf8e",
+    "eventType": "booking_form_started",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?service=kwadrans-na-juz",
+    "location": null,
+    "properties": {
+      "slot_id": "2026-06-22-08:00",
+      "slot_time": "poniedziałek, 22 czerwca 2026, 08:00",
+      "source_page": "/book",
+      "service_key": "kwadrans-na-juz",
+      "service_name": "Kwadrans na już",
+      "service_duration": 15,
+      "service_price": 99,
+      "species": "pies",
+      "problem_key": "szczeniak"
+    },
+    "createdAt": "2026-06-21T05:38:43.015Z"
+  },
+  {
+    "id": "b493badf-ebe2-4081-8707-c30d03fe5b08",
+    "eventType": "booking_service_selected",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?service=kwadrans-na-juz",
+    "location": null,
+    "properties": {
+      "source_page": "/book",
+      "service_type": "kwadrans-na-juz",
+      "problem_type": "szczeniak",
+      "species": "pies",
+      "qa_booking": false
+    },
+    "createdAt": "2026-06-21T05:38:42.725Z"
+  },
+  {
+    "id": "d618e4ed-2655-40a3-9eaa-3e0f94e99513",
+    "eventType": "booking_start",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?service=kwadrans-na-juz",
+    "location": null,
+    "properties": {
+      "source_page": "/book",
+      "service_type": "kwadrans-na-juz",
+      "problem_type": "szczeniak",
+      "species": "pies",
+      "qa_booking": false
+    },
+    "createdAt": "2026-06-21T05:38:42.390Z"
+  },
+  {
     "id": "705ef064-a6ce-4dd5-a92f-4255c80269d5",
     "eventType": "cta_click",
     "bookingId": null,

@@ -39,6 +39,7 @@ import { buildMarketingMetadata } from '@/lib/seo'
 import { listAvailabilityAdmin } from '@/lib/server/db'
 import { getDataModeStatus } from '@/lib/server/env'
 import { getPublicManualPaymentConfig } from '@/lib/server/payment-options'
+import { getOnlinePaymentRuntimeForConsultation } from '@/lib/server/online-payments'
 import type { AvailabilitySlot, ProblemType } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
@@ -244,10 +245,15 @@ export async function BookingSlotCalendar({
 
   const calendar = buildCalendarDays(availabilitySlots, serviceType, problem, serviceQuery, qaBooking, requestedSpecies)
   const problemSpecies = requestedSpecies ?? getProblemSpecies(problem)
-  const petVisualSrc = problemSpecies === 'kot' ? '/wybor/cat-choice-avatar.png' : '/wybor/dog-choice-avatar.png'
-  const petVisualAlt = problemSpecies === 'kot' ? 'Spokojny kot' : 'Spokojny pies'
-  const contactHref = `/kontakt?species=${problemSpecies}#formularz`
   const isUrgentBooking = serviceType === 'kwadrans-na-juz'
+  const petVisualSrc = isUrgentBooking
+    ? '/images/mobile-header-pies-kot-reference.png'
+    : problemSpecies === 'kot'
+      ? '/wybor/cat-choice-avatar.png'
+      : '/wybor/dog-choice-avatar.png'
+  const petVisualAlt = isUrgentBooking ? 'Spokojny pies i kot w jasnym, domowym świetle' : problemSpecies === 'kot' ? 'Spokojny kot' : 'Spokojny pies'
+  const contactHref = `/kontakt?species=${problemSpecies}#formularz`
+  const pageClassName = isUrgentBooking ? 'termin-page termin-urgent-page' : `termin-page termin-${problemSpecies}-page`
   const sideVisualVariant = 'booking'
   const modeLabel =
     serviceType === 'konsultacja-behawioralna-online'
@@ -264,6 +270,7 @@ export async function BookingSlotCalendar({
   const calendarDays: PickerCalendarDay[] = calendar.days
   const bookingAmount = getBookingServicePrice(serviceType, serviceConfig.priceAmount)
   const manualPayment = getPublicManualPaymentConfig()
+  const onlinePayment = getOnlinePaymentRuntimeForConsultation(serviceType)
   const inlineChoicePanel = (
     <div className="termin-inline-choice-panel" aria-label="Szybka zmiana wyboru">
       <div>
@@ -302,7 +309,7 @@ export async function BookingSlotCalendar({
       footerPrimaryHref="/wybor"
       footerPrimaryLabel="Wróć do wyboru"
       sideVisualVariant={sideVisualVariant}
-      pageClassName={`termin-page termin-${problemSpecies}-page`}
+      pageClassName={pageClassName}
       shellClassName="termin-shell"
       showFooterReviews={false}
       analyticsDisabled={qaBooking}
@@ -420,6 +427,7 @@ export async function BookingSlotCalendar({
                 manualAccountName: manualPayment.accountName,
                 manualInstructions: manualPayment.instructions,
                 manualSummary: manualPayment.summary,
+                onlinePayment,
               }}
               choicePanel={inlineChoicePanel}
             />

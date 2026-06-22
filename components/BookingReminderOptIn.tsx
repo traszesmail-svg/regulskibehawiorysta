@@ -53,7 +53,7 @@ function isStandaloneApp() {
   }
 
   return (
-    window.matchMedia('(display-mode: standalone)').matches ||
+    (typeof window.matchMedia === 'function' && window.matchMedia('(display-mode: standalone)').matches) ||
     Boolean((navigator as Navigator & { standalone?: boolean }).standalone)
   )
 }

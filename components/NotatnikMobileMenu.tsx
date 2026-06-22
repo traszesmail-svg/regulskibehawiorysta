@@ -17,6 +17,18 @@ type NotatnikMobileMenuProps = {
 const MOBILE_MENU_AUTO_CLOSE_DELAY_MS = 8000
 const MOBILE_MENU_LINK_CLOSE_DELAY_MS = 160
 
+function isDetailsElement(target: EventTarget | null): target is HTMLDetailsElement {
+  return typeof HTMLDetailsElement !== 'undefined' && target instanceof HTMLDetailsElement
+}
+
+function closestElement(target: EventTarget | null, selector: string): Element | null {
+  if (!(target instanceof Element) || typeof target.closest !== 'function') {
+    return null
+  }
+
+  return target.closest(selector)
+}
+
 export function NotatnikMobileMenuAutoClose() {
   useEffect(() => {
     let autoCloseTimer: number | null = null
@@ -52,12 +64,12 @@ export function NotatnikMobileMenuAutoClose() {
         return
       }
 
-      if (target.closest('.notatnik-mobile-menu a')) {
+      if (closestElement(target, '.notatnik-mobile-menu a')) {
         window.setTimeout(closeOpenMenus, MOBILE_MENU_LINK_CLOSE_DELAY_MS)
         return
       }
 
-      if (target.closest('.notatnik-mobile-menu')) {
+      if (closestElement(target, '.notatnik-mobile-menu')) {
         window.setTimeout(scheduleAutoClose, 0)
         return
       }
@@ -70,7 +82,7 @@ export function NotatnikMobileMenuAutoClose() {
     const onMenuToggle = (event: Event) => {
       const target = event.target
 
-      if (!(target instanceof HTMLDetailsElement) || !target.classList.contains('notatnik-mobile-menu')) {
+      if (!isDetailsElement(target) || !target.classList.contains('notatnik-mobile-menu')) {
         return
       }
 
@@ -89,7 +101,7 @@ export function NotatnikMobileMenuAutoClose() {
 
       const target = event.target
 
-      if ((event.key === 'Enter' || event.key === ' ') && target instanceof Element && target.closest('.notatnik-mobile-menu summary')) {
+      if ((event.key === 'Enter' || event.key === ' ') && closestElement(target, '.notatnik-mobile-menu summary')) {
         window.setTimeout(scheduleAutoClose, 0)
       }
     }
@@ -177,7 +189,7 @@ export function NotatnikMobileMenu({ navItems, ctaHref = '/quiz', ctaLabel = 'Qu
         return
       }
 
-      if (!target.closest('.notatnik-mobile-menu')) {
+      if (!closestElement(target, '.notatnik-mobile-menu')) {
         closeMenu()
       }
     }

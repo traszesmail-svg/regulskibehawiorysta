@@ -1,53 +1,34 @@
 import Link from 'next/link'
 import { unstable_noStore as noStore } from 'next/cache'
 import { AdminAvailabilityManager } from '@/components/AdminAvailabilityManager'
-import { AdminBookingActions } from '@/components/AdminBookingActions'
+import { AdminBookingList } from '@/components/AdminBookingList'
 import { AdminLazyDetails } from '@/components/AdminLazyDetails'
 import { AdminPricingManager } from '@/components/AdminPricingManager'
 import { AdminUrgentRequestActions } from '@/components/AdminUrgentRequestActions'
 import { BookingReminderOptIn } from '@/components/BookingReminderOptIn'
-import { Header } from '@/components/Header'
 import { getBuildMarkerSnapshot } from '@/lib/build-marker'
 import { UNPAID_BOOKING_EXPIRY_HOURS, isUnpaidBookingExpired } from '@/lib/booking-expiry'
 import {
   compareDateAndTime,
   formatDateLabel,
-  formatDateTimeLabel,
-  getBookingStatusLabel,
-  getPaymentStatusLabel,
-  getProblemLabel,
   getWarsawNowBoundary,
 } from '@/lib/data'
+import { listAllOrders } from '@/lib/server/materialy-storage'
 import { buildFunnelMetricsSnapshot } from '@/lib/server/funnel-metrics'
-import { formatPreparationFileSize, hasPreparationMaterials } from '@/lib/preparation'
 import { getActiveConsultationPrice, listAvailabilityAdmin, listBookings, listFunnelEvents, listUrgentNowRequests } from '@/lib/server/db'
 import { getRuntimeModeSnapshot } from '@/lib/server/env'
 import { getGoLiveChecks } from '@/lib/server/go-live'
 import { getPaymentOptionsSummary } from '@/lib/server/payment-options'
+import { listPromoCampaigns } from '@/lib/server/promo-codes'
 import { readLatestQaReport } from '@/lib/server/qa-report'
+import { listPendingTestimonials } from '@/lib/server/testimonial-store'
 import { createAdminPushToken } from '@/lib/server/admin-push-token'
 import { parseUrgentRequestedSlotsFromMessage, stripUrgentRequestedSlotsFromMessage } from '@/lib/urgent-now'
+import { listAccountRoomsForAdmin } from '@/lib/server/account-store'
 import type { BookingRecord } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
-
-function getPaymentMethodLabel(value: string | null | undefined) {
-  switch (value) {
-    case 'manual':
-      return 'BLIK do potwierdzenia'
-    case 'payu':
-      return 'PayU'
-    case 'stripe':
-      return 'Stripe legacy'
-    case 'mock':
-      return 'Mock QA'
-    case 'promo':
-      return 'Kod promocyjny'
-    default:
-      return 'Jeszcze nie wybrano'
-  }
-}
 
 function formatDataLoadError(label: string, error: unknown) {
   const message = error instanceof Error ? error.message : String(error)
@@ -121,92 +102,32 @@ function createAdminBookingGroups(bookings: BookingRecord[], now = new Date()) {
   }
 }
 
-function formatCreatedAtLabel(value: string) {
-  return value ? `${formatDateLabel(value.slice(0, 10))}, ${value.slice(11, 16)}` : 'brak daty'
-}
+const adminNavItems = [
+  { href: '/admin', label: 'Dashboard' },
+  { href: '/admin/lead-bookings', label: 'Leady' },
+  { href: '/admin/materialy', label: 'Materiały' },
+  { href: '/admin/promocje', label: 'Kody' },
+  { href: '/admin/pokoj', label: 'Pokoje' },
+  { href: '#inbox', label: 'Inbox' },
+  { href: '#terminy', label: 'Terminy' },
+  { href: '#system', label: 'System' },
+]
 
-function BookingRows({ bookings }: { bookings: BookingRecord[] }) {
+function AdminTopbar() {
   return (
-    <div className="booking-list admin-booking-list">
-      {bookings.map((booking) => (
-        <div
-          key={booking.id}
-          className="booking-row admin-booking-row"
-          data-booking-id={booking.id}
-          data-booking-email={booking.email}
-          data-booking-status={booking.bookingStatus}
-          data-payment-status={booking.paymentStatus}
-          data-booking-qa={booking.qaBooking ? 'true' : 'false'}
-        >
-          <div>
-            <div className="booking-title">{getProblemLabel(booking.problemType)}</div>
-            <div className="booking-meta">{formatDateTimeLabel(booking.bookingDate, booking.bookingTime)}</div>
-            <div className="booking-meta">
-              {booking.ownerName} - {booking.email} - {booking.animalType}
-            </div>
-            <div className="booking-meta">Utworzono: {formatCreatedAtLabel(booking.createdAt)}</div>
-            {booking.qaBooking ? <div className="booking-meta">Etykieta: booking testowy QA</div> : null}
-          </div>
-
-          <div className="booking-description">
-            <div>{booking.description}</div>
-            <div className="booking-meta top-gap-small">Status rezerwacji: {getBookingStatusLabel(booking.bookingStatus)}</div>
-            <div className="booking-meta">Status płatności: {getPaymentStatusLabel(booking.paymentStatus)}</div>
-            <div className="booking-meta">Metoda płatności: {getPaymentMethodLabel(booking.paymentMethod)}</div>
-            {booking.paymentReference ? <div className="booking-meta">Tytuł / ID płatności: {booking.paymentReference}</div> : null}
-            {booking.payuOrderId ? <div className="booking-meta">PayU orderId: {booking.payuOrderId}</div> : null}
-            {booking.paymentRejectedReason ? <div className="booking-meta">Powód odrzucenia: {booking.paymentRejectedReason}</div> : null}
-            <div className="booking-meta top-gap-small">
-              {hasPreparationMaterials(booking)
-                ? 'Dodano materiały przygotowawcze do rozmowy.'
-                : 'Bez dodatkowych materiałów przed rozmową.'}
-            </div>
-            {booking.prepVideoPath ? (
-              <div className="booking-meta">
-                Nagranie:{' '}
-                <a href={`/api/bookings/${booking.id}/prep/video`} target="_blank" rel="noopener noreferrer" className="prep-inline-link">
-                  {booking.prepVideoFilename ?? 'Otwórz nagranie'}
-                  {booking.prepVideoSizeBytes ? ` (${formatPreparationFileSize(booking.prepVideoSizeBytes)})` : ''}
-                </a>
-              </div>
-            ) : null}
-            {booking.prepLinkUrl ? (
-              <div className="booking-meta">
-                Link:{' '}
-                <a href={booking.prepLinkUrl} target="_blank" rel="noopener noreferrer" className="prep-inline-link">
-                  {booking.prepLinkUrl}
-                </a>
-              </div>
-            ) : null}
-            {booking.prepNotes ? <div className="booking-meta">Notatki: {booking.prepNotes}</div> : null}
-          </div>
-
-          <div className="booking-actions">
-            <span
-              className={`status-pill ${
-                booking.bookingStatus === 'done'
-                  ? 'status-done'
-                  : booking.bookingStatus === 'confirmed'
-                    ? 'status-paid'
-                    : 'status-pending'
-              }`}
-            >
-              {getBookingStatusLabel(booking.bookingStatus)}
-            </span>
-            <span className={`status-pill ${booking.paymentStatus === 'paid' ? 'status-paid' : 'status-pending'}`}>
-              {getPaymentStatusLabel(booking.paymentStatus)}
-            </span>
-            <AdminBookingActions
-              bookingId={booking.id}
-              bookingStatus={booking.bookingStatus}
-              paymentStatus={booking.paymentStatus}
-              meetingUrl={booking.meetingUrl}
-              qaBooking={Boolean(booking.qaBooking)}
-            />
-          </div>
-        </div>
-      ))}
-    </div>
+    <header className="admin-topbar" aria-label="Nawigacja panelu admina">
+      <Link href="/admin" className="admin-topbar-brand">
+        <span>RBH Admin</span>
+        <small>rezerwacje i operacje</small>
+      </Link>
+      <nav className="admin-topbar-nav" aria-label="Sekcje panelu">
+        {adminNavItems.map((item) => (
+          <Link key={item.href} href={item.href} className="admin-topbar-link">
+            {item.label}
+          </Link>
+        ))}
+      </nav>
+    </header>
   )
 }
 
@@ -228,7 +149,7 @@ function AdminBookingSection({
       <div className="section-eyebrow">{eyebrow}</div>
       <h2>{title}</h2>
       {description ? <p className="muted paragraph-gap">{description}</p> : null}
-      {bookings.length === 0 ? <div className="empty-box">{emptyLabel}</div> : <BookingRows bookings={bookings} />}
+      {bookings.length === 0 ? <div className="empty-box">{emptyLabel}</div> : <AdminBookingList bookings={bookings} />}
     </div>
   )
 }
@@ -245,16 +166,34 @@ export default async function AdminPage() {
   let availability: Awaited<ReturnType<typeof listAvailabilityAdmin>> = []
   let funnelEvents: Awaited<ReturnType<typeof listFunnelEvents>> = []
   let price: Awaited<ReturnType<typeof getActiveConsultationPrice>> | null = null
+  let rooms: Awaited<ReturnType<typeof listAccountRoomsForAdmin>> = []
+  let materialOrders: Awaited<ReturnType<typeof listAllOrders>> = []
+  let testimonials: Awaited<ReturnType<typeof listPendingTestimonials>> = []
+  let promoCampaigns: Awaited<ReturnType<typeof listPromoCampaigns>> = []
   let funnelMetricsSnapshot: ReturnType<typeof buildFunnelMetricsSnapshot> | null = null
   const dataLoadErrors: string[] = []
 
   if (runtime.data.isValid) {
-    const [bookingsResult, availabilityResult, funnelEventsResult, priceResult, urgentRequestsResult] = await Promise.allSettled([
+    const [
+      bookingsResult,
+      availabilityResult,
+      funnelEventsResult,
+      priceResult,
+      urgentRequestsResult,
+      roomsResult,
+      materialOrdersResult,
+      testimonialsResult,
+      promoCampaignsResult,
+    ] = await Promise.allSettled([
       listBookings(),
       listAvailabilityAdmin(),
       listFunnelEvents(),
       getActiveConsultationPrice(),
       listUrgentNowRequests(),
+      listAccountRoomsForAdmin(),
+      listAllOrders(),
+      listPendingTestimonials(),
+      listPromoCampaigns(),
     ])
 
     if (bookingsResult.status === 'fulfilled') {
@@ -287,6 +226,30 @@ export default async function AdminPage() {
       dataLoadErrors.push(formatDataLoadError('urgent_now_requests', urgentRequestsResult.reason))
     }
 
+    if (roomsResult.status === 'fulfilled') {
+      rooms = roomsResult.value
+    } else {
+      dataLoadErrors.push(formatDataLoadError('account_rooms', roomsResult.reason))
+    }
+
+    if (materialOrdersResult.status === 'fulfilled') {
+      materialOrders = materialOrdersResult.value
+    } else {
+      dataLoadErrors.push(formatDataLoadError('material_orders', materialOrdersResult.reason))
+    }
+
+    if (testimonialsResult.status === 'fulfilled') {
+      testimonials = testimonialsResult.value
+    } else {
+      dataLoadErrors.push(formatDataLoadError('testimonials', testimonialsResult.reason))
+    }
+
+    if (promoCampaignsResult.status === 'fulfilled') {
+      promoCampaigns = promoCampaignsResult.value
+    } else {
+      dataLoadErrors.push(formatDataLoadError('promo_campaigns', promoCampaignsResult.reason))
+    }
+
     funnelMetricsSnapshot = buildFunnelMetricsSnapshot({
       events: funnelEvents,
       bookings,
@@ -309,6 +272,14 @@ export default async function AdminPage() {
       ).length,
       failed: bookings.filter((booking) => booking.paymentStatus === 'failed').length,
     }
+  const pendingUrgentCount = urgentRequests.filter((request) => request.status === 'new').length
+  const openConversationCount = rooms.reduce(
+    (total, room) => total + room.conversations.filter((conversation) => conversation.status === 'open').length,
+    0,
+  )
+  const pendingMaterialOrdersCount = materialOrders.filter((order) => order.status === 'pending').length
+  const pendingTestimonialsCount = testimonials.filter((testimonial) => testimonial.status === 'pending').length
+  const activePromoCampaignCount = promoCampaigns.filter((campaign) => campaign.activeCount > 0).length
   const goLiveReadyCount = goLiveChecks.filter((check) => check.tone === 'ready').length
   const goLiveAttentionCount = goLiveChecks.length - goLiveReadyCount
   const priceUpdatedAtLabel = price?.updatedAt
@@ -321,11 +292,49 @@ export default async function AdminPage() {
     dataLoadErrors.length > 0
       ? `Nie wszystkie dane panelu mogły się załadować: ${dataLoadErrors.join(' | ')}`
       : null
+  const inboxCards = [
+    {
+      href: '#terminy',
+      label: 'Do potwierdzenia',
+      value: bookingCounts.pendingManualReview,
+      note: 'Wpłaty BLIK i manual review',
+    },
+    {
+      href: '#terminy',
+      label: 'Pilne zgłoszenia',
+      value: pendingUrgentCount,
+      note: 'Kwadrans na już do odpowiedzi',
+    },
+    {
+      href: '/admin/pokoj',
+      label: 'Otwartych rozmów',
+      value: openConversationCount,
+      note: 'Pokoje opiekunów z aktywną rozmową',
+    },
+    {
+      href: '/admin/materialy',
+      label: 'Zamówień PDF',
+      value: pendingMaterialOrdersCount,
+      note: 'Zamówienia czekające na potwierdzenie',
+    },
+    {
+      href: '/admin/opinie',
+      label: 'Opinii do decyzji',
+      value: pendingTestimonialsCount,
+      note: 'Opinie oczekujące na publikację',
+    },
+    {
+      href: '/admin/promocje',
+      label: 'Aktywnych kampanii',
+      value: activePromoCampaignCount,
+      note: 'Pule kodów promocyjnych',
+    },
+  ]
 
   return (
     <main className="page-wrap" data-analytics-disabled="true">
       <div className="container">
-        <Header />
+        <AdminTopbar />
 
         <section className="panel section-panel">
           <div className="section-head">
@@ -373,32 +382,6 @@ export default async function AdminPage() {
             </div>
           </div>
 
-          <details className="admin-disclosure top-gap">
-            <summary>Status techniczny</summary>
-            <div className="stack-gap top-gap-small">
-              <div className="list-card">
-                <strong>Tryb danych</strong>
-                <span>{runtime.data.summary}</span>
-              </div>
-              <div className="list-card">
-                <strong>Tryb płatności live</strong>
-                <span>{runtime.payment.summary}</span>
-              </div>
-              <div className="list-card">
-                <strong>Opcje płatności</strong>
-                <span>{paymentOptions.summary}</span>
-              </div>
-              <div className="list-card">
-                <strong>QA checkout</strong>
-                <span>{paymentOptions.qa}</span>
-              </div>
-              <div className="list-card">
-                <strong>Build marker</strong>
-                <span>{buildMarker.value}</span>
-              </div>
-            </div>
-          </details>
-
           {dataLoadIssue ? <div className="error-box top-gap">{dataLoadIssue}</div> : null}
 
           {pushPublicKey && adminPushToken ? (
@@ -410,6 +393,44 @@ export default async function AdminPage() {
               className="top-gap"
             />
           ) : null}
+
+          <section className="panel section-panel top-gap" id="inbox">
+            <div className="section-head">
+              <div>
+                <div className="section-eyebrow">Inbox operacyjny</div>
+                <h2>Zadania do przejrzenia</h2>
+              </div>
+              <span className={`status-pill ${dataLoadErrors.length === 0 ? 'status-paid' : 'status-pending'}`}>
+                {dataLoadErrors.length === 0 ? 'Brak błędów danych' : `${dataLoadErrors.length} błędów danych`}
+              </span>
+            </div>
+
+            {dataLoadIssue ? <div className="error-box top-gap">{dataLoadIssue}</div> : null}
+
+            <div className="summary-grid top-gap">
+              {inboxCards.map((card) => (
+                <Link key={card.label} href={card.href} className="summary-card">
+                  <div className="stat-label">{card.label}</div>
+                  <div className="summary-value">{card.value}</div>
+                  <div className="admin-price-meta">{card.note}</div>
+                </Link>
+              ))}
+            </div>
+
+            <div className="list-card top-gap">
+              <strong>QA i deploy</strong>
+              <span>
+                {latestQaReport.exists
+                  ? latestQaReport.updatedAt
+                    ? `Ostatni raport QA: ${formatDateLabel(latestQaReport.updatedAt.slice(0, 10))}, ${latestQaReport.updatedAt.slice(11, 16)}.`
+                    : 'Raport QA istnieje, ale nie ma daty aktualizacji.'
+                  : 'Brak zapisanego raportu QA.'}{' '}
+                <Link href="/__internal/qa-report" prefetch={false}>
+                  Otwórz raport
+                </Link>
+              </span>
+            </div>
+          </section>
 
           <AdminBookingSection
             eyebrow="Wpłaty"
@@ -444,7 +465,7 @@ export default async function AdminPage() {
             {bookingGroups.archive.length === 0 ? (
               <div className="empty-box">Archiwum jest puste.</div>
             ) : (
-              <BookingRows bookings={bookingGroups.archive.slice(0, 80)} />
+              <AdminBookingList bookings={bookingGroups.archive.slice(0, 80)} />
             )}
           </AdminLazyDetails>
 
@@ -457,34 +478,8 @@ export default async function AdminPage() {
             {bookingGroups.qa.length === 0 ? (
               <div className="empty-box">Brak bookingów testowych.</div>
             ) : (
-              <BookingRows bookings={bookingGroups.qa.slice(0, 80)} />
+              <AdminBookingList bookings={bookingGroups.qa.slice(0, 80)} />
             )}
-          </AdminLazyDetails>
-
-          <AdminLazyDetails
-            className="admin-disclosure top-gap"
-            summary={`Go-live (${goLiveReadyCount}/${goLiveChecks.length})`}
-            contentClassName="top-gap-small"
-          >
-              <div className="section-eyebrow">Go-live</div>
-              <h2>Stan go-live</h2>
-              <p className="muted paragraph-gap">
-                Te karty pokazują, czy customer email i PayU są aktywnie włączone. Gdy są celowo wyłączone, live działa na manual payment.
-              </p>
-              <div className="summary-grid">
-                {goLiveChecks.map((check) => (
-                  <div
-                    key={check.id}
-                    className={`list-card tree-backed-card${check.tone === 'ready' ? '' : ' accent-outline'}`}
-                  >
-                    <span className={`status-pill ${check.tone === 'ready' ? 'status-paid' : 'status-pending'}`}>{check.statusLabel}</span>
-                    <strong>{check.label}</strong>
-                    <span>Stan: {check.state}</span>
-                    <span>{check.summary}</span>
-                    <span>Dalej: {check.nextStep}</span>
-                  </div>
-                ))}
-              </div>
           </AdminLazyDetails>
 
           <div className="top-gap">
@@ -539,6 +534,76 @@ export default async function AdminPage() {
             )}
           </div>
 
+          <div className="top-gap">
+            <div className="section-eyebrow">Cena konsultacji</div>
+            <h2>Aktywna cena dla nowych rezerwacji</h2>
+            <p className="muted paragraph-gap">Nowa cena dotyczy tylko kolejnych bookingów. Opłacone lub zapisane wcześniej rezerwację zachowują swoją historyczną kwotę.</p>
+            {runtime.data.isValid && price ? (
+              <AdminPricingManager currentAmount={price.amount} currentLabel={price.formattedAmount} updatedAtLabel={priceUpdatedAtLabel} />
+            ) : (
+              <div className="error-box">Zmiana ceny jest zablokowana: {runtime.data.summary}</div>
+            )}
+          </div>
+
+        </section>
+
+        <section className="panel section-panel admin-system-panel" id="system">
+          <div className="section-head">
+            <div>
+              <div className="section-eyebrow">System</div>
+              <h2>Go-live, analityka i deploy</h2>
+            </div>
+            <span className={`status-pill ${goLiveAttentionCount === 0 ? 'status-paid' : 'status-pending'}`}>
+              {goLiveReadyCount}/{goLiveChecks.length} ready
+            </span>
+          </div>
+
+          <div className="summary-grid top-gap">
+            <div className="summary-card tree-backed-card">
+              <div className="stat-label">Tryb danych</div>
+              <div className="summary-value">{runtime.data.isValid ? 'OK' : 'Blokada'}</div>
+              <span>{runtime.data.summary}</span>
+            </div>
+            <div className="summary-card tree-backed-card">
+              <div className="stat-label">Płatności live</div>
+              <div className="summary-value">{runtime.payment.isValid ? 'OK' : 'Mock'}</div>
+              <span>{runtime.payment.summary}</span>
+              <span>{paymentOptions.summary}</span>
+            </div>
+            <div className="summary-card tree-backed-card">
+              <div className="stat-label">Build</div>
+              <div className="summary-value">{goLiveAttentionCount}</div>
+              <span>Elementy wymagające uwagi</span>
+              <span>Marker: {buildMarker.value}</span>
+            </div>
+          </div>
+
+          <AdminLazyDetails
+            className="admin-disclosure top-gap"
+            summary={`Go-live (${goLiveReadyCount}/${goLiveChecks.length})`}
+            contentClassName="top-gap-small"
+          >
+              <div className="section-eyebrow">Go-live</div>
+              <h2>Stan go-live</h2>
+              <p className="muted paragraph-gap">
+                Te karty pokazują, czy customer email i PayU są aktywnie włączone. Gdy są celowo wyłączone, live działa na manual payment.
+              </p>
+              <div className="summary-grid">
+                {goLiveChecks.map((check) => (
+                  <div
+                    key={check.id}
+                    className={`list-card tree-backed-card${check.tone === 'ready' ? '' : ' accent-outline'}`}
+                  >
+                    <span className={`status-pill ${check.tone === 'ready' ? 'status-paid' : 'status-pending'}`}>{check.statusLabel}</span>
+                    <strong>{check.label}</strong>
+                    <span>Stan: {check.state}</span>
+                    <span>{check.summary}</span>
+                    <span>Dalej: {check.nextStep}</span>
+                  </div>
+                ))}
+              </div>
+          </AdminLazyDetails>
+
           <AdminLazyDetails className="admin-disclosure top-gap" summary="Analityka i rytuał deploy" contentClassName="top-gap-small">
               <div className="section-eyebrow">Analityka i operacje</div>
               <h2>First-party KPI i rytuał przed deployem</h2>
@@ -560,11 +625,9 @@ export default async function AdminPage() {
                       <span>QA bookingi: {bookingCounts.qa}</span>
                     </div>
                     <div className="summary-card tree-backed-card">
-                      <div className="stat-label">Go-live readiness</div>
-                      <div className="summary-value">
-                        {goLiveReadyCount}/{goLiveChecks.length}
-                      </div>
-                      <span>Attention: {goLiveAttentionCount}</span>
+                      <div className="stat-label">QA checkout</div>
+                      <div className="summary-value">{bookingCounts.qa}</div>
+                      <span>{paymentOptions.qa}</span>
                     </div>
                   </div>
 
@@ -587,7 +650,7 @@ export default async function AdminPage() {
                   </div>
                 </>
               ) : (
-                <div className="error-box">Analitka jest zablokowana: {runtime.data.summary}</div>
+                <div className="error-box">Analityka jest zablokowana: {runtime.data.summary}</div>
               )}
 
               <div className="stack-gap top-gap">
@@ -602,7 +665,7 @@ export default async function AdminPage() {
                 <div className="list-card tree-backed-card">
                   <strong>Rytuał przed deployem</strong>
                   <span>npm run funnel-metrics · npm run release-checklist · npm run stage9-performance-audit · npm run full-public-crawl</span>
-                  <span>Wejścia wewnętrzne: /admin oraz /_internal/qa-report.</span>
+                  <span>Wejścia wewnętrzne: /admin oraz /__internal/qa-report.</span>
                 </div>
                 <div className="list-card tree-backed-card">
                   <strong>Aktualny sygnał readiness</strong>
@@ -611,21 +674,9 @@ export default async function AdminPage() {
                 </div>
               </div>
           </AdminLazyDetails>
-
-          <div className="top-gap">
-            <div className="section-eyebrow">Cena konsultacji</div>
-            <h2>Aktywna cena dla nowych rezerwacji</h2>
-            <p className="muted paragraph-gap">Nowa cena dotyczy tylko kolejnych bookingów. Opłacone lub zapisane wcześniej rezerwację zachowują swoją historyczną kwotę.</p>
-            {runtime.data.isValid && price ? (
-              <AdminPricingManager currentAmount={price.amount} currentLabel={price.formattedAmount} updatedAtLabel={priceUpdatedAtLabel} />
-            ) : (
-              <div className="error-box">Zmiana ceny jest zablokowana: {runtime.data.summary}</div>
-            )}
-          </div>
-
         </section>
 
-        <section className="panel section-panel">
+        <section className="panel section-panel" id="terminy">
           <AdminLazyDetails
             className="admin-disclosure"
             dataAttribute="data-admin-availability-panel"

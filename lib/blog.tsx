@@ -324,7 +324,7 @@ const PREP_GUIDE_LINK: BlogSupportLink = {
 
 const REACTIVITY_LANDING_LINK: BlogSupportLink = {
   label: 'Reaktywność na smyczy',
-  href: '/psy/reaktywnosc-na-smyczy',
+  href: '/materialy#psy',
   description: 'Główny landing problemowy dla spacerów, szczekania, napięcia i pracy poniżej progu.',
 }
 
@@ -336,7 +336,7 @@ const REACTIVITY_GUIDE_LINK: BlogSupportLink = {
 
 const SEPARATION_LANDING_LINK: BlogSupportLink = {
   label: 'Lęk separacyjny u psa',
-  href: '/psy/lek-separacyjny',
+  href: '/materialy#psy',
   description: 'Główny landing problemowy o zostawaniu samemu, analizie zachowania i pierwszym bezpiecznym planie.',
 }
 
@@ -348,7 +348,7 @@ const SEPARATION_GUIDE_LINK: BlogSupportLink = {
 
 const LITTER_LANDING_LINK: BlogSupportLink = {
   label: 'Załatwianie poza kuwetą',
-  href: '/koty/zalatwianie-poza-kuweta',
+  href: '/materialy#koty',
   description: 'Główny landing problemowy o zdrowiu, kuwecie, stresie i kolejności sprawdzania przyczyn.',
 }
 
@@ -360,7 +360,7 @@ const LITTER_GUIDE_LINK: BlogSupportLink = {
 
 const CAT_CONFLICT_LANDING_LINK: BlogSupportLink = {
   label: 'Konflikt między kotami',
-  href: '/koty/konflikt-miedzy-kotami',
+  href: '/materialy#koty',
   description: 'Główny landing problemowy dla napięcia, gonitw, blokowania zasobów i trudnych relacji w domu.',
 }
 
@@ -413,7 +413,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     supportLinks: [
       {
         label: 'Reaktywność na smyczy',
-        href: '/psy/reaktywnosc-na-smyczy',
+        href: '/materialy#psy',
         description: 'Pełniejsza strona problemowa o spacerach i napięciu na smyczy.',
       },
       {
@@ -444,7 +444,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     supportLinks: [
       {
         label: 'Lęk separacyjny u psa',
-        href: '/psy/lek-separacyjny',
+        href: '/materialy#psy',
         description: 'Pełniejszy przewodnik, jeśli problem powtarza się albo szybko narasta.',
       },
       {
@@ -475,7 +475,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     supportLinks: [
       {
         label: 'Załatwianie poza kuwetą',
-        href: '/koty/zalatwianie-poza-kuweta',
+        href: '/materialy#koty',
         description: 'Pełniejsza strona problemowa o filtrach diagnostycznych i pierwszych decyzjach.',
       },
       {
@@ -537,7 +537,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     supportLinks: [
       {
         label: 'Reaktywność na smyczy',
-        href: '/psy/reaktywnosc-na-smyczy',
+        href: '/materialy#psy',
         description: 'Pełniejsza strona problemowa, jeśli samo ciągnięcie jest częścią większego napięcia.',
       },
       {
@@ -568,7 +568,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     supportLinks: [
       {
         label: 'Załatwianie poza kuwetą',
-        href: '/koty/zalatwianie-poza-kuweta',
+        href: '/materialy#koty',
         description: 'Jeśli obok drapania widzisz też napięcie środowiskowe lub problem toaletowy.',
       },
       {
@@ -977,8 +977,51 @@ const BLOG_POST_ORDER = BLOG_POST_CONFIGS.map((config) => config.slug)
 const BLOG_POSTS = BLOG_POST_CONFIGS.map(buildBlogPostFromConfig)
 const BLOG_POST_BY_SLUG = new Map(BLOG_POSTS.map((post) => [post.slug, post] as const))
 
-function readBlogFile(fileName: string): string {
-  return readFileSync(path.join(BLOG_DIR, fileName), 'utf8')
+function titleCaseFromSlug(slug: string): string {
+  return slug
+    .split('-')
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ')
+}
+
+function buildFallbackBlogSource(config: BlogPostConfig): string {
+  const title = titleCaseFromSlug(config.slug)
+  const description = `${title} - wpis w kategorii ${config.categoryLabel} na ${SITE_SHORT_NAME}.`
+
+  return `---
+slug: ${config.slug}
+title_seo: ${title} | ${SITE_SHORT_NAME}
+meta_description: ${description}
+h1: ${title}
+author: ${BLOG_AUTHOR_NAME}
+publishedAt: ${config.publishedAt}
+---
+
+## O czym jest ten wpis
+
+Ten wpis korzysta z bezpiecznego fallbacku treści, gdy plik markdown nie jest obecny w repozytorium.
+
+## Co sprawdzić dalej
+
+- Zobacz kategorię: [${config.categoryLabel}](${config.categoryHref})
+- Przejdź do pierwszego kroku: [umów konsultację](${config.audioHref})
+- Wróć do bloga: [blog](${BLOG_ROUTE_BASE})
+`
+}
+
+function readBlogFile(config: BlogPostConfig): string {
+  try {
+    return readFileSync(path.join(BLOG_DIR, config.fileName), 'utf8')
+  } catch (error) {
+    const maybeNodeError = error as NodeJS.ErrnoException
+
+    if (maybeNodeError.code === 'ENOENT') {
+      return buildFallbackBlogSource(config)
+    }
+
+    throw error
+  }
 }
 
 function stripWrappingQuotes(value: string): string {
@@ -1468,7 +1511,7 @@ function renderBlogContentBlocks(post: BlogPost): ReactNode[] {
 }
 
 function buildBlogPostFromConfig(config: BlogPostConfig): BlogPost {
-  const source = readBlogFile(config.fileName)
+  const source = readBlogFile(config)
   const { frontmatter, body } = parseFrontmatter(source)
   const repairedBody = repairCopy(body)
   const blocks = parseMarkdownBlocks(repairedBody)

@@ -30,10 +30,25 @@ export function AdminPromoCodeGenerator() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const codeList = useMemo(() => created?.codes.join('\n') ?? '', [created])
 
+  function handleReset() {
+    setClinicName('')
+    setCodeCount(String(DEFAULT_PROMO_CODE_COUNT))
+    setExpiresAt(defaultExpiryDate())
+    setCreated(null)
+    setError('')
+    setSuccess('')
+  }
+
   async function copyCodes() {
     if (!codeList) return
-    await navigator.clipboard.writeText(codeList)
-    setSuccess('Skopiowano kody.')
+
+    try {
+      await navigator.clipboard.writeText(codeList)
+      setError('')
+      setSuccess('Skopiowano kody.')
+    } catch {
+      setError('Nie udało się skopiować kodów.')
+    }
   }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -73,6 +88,21 @@ export function AdminPromoCodeGenerator() {
 
   return (
     <div className="stack-gap top-gap">
+      <div className="promo-generator-toolbar">
+        <div>
+          <strong>Szybkie akcje</strong>
+          <p>Wyczyść formularz, odśwież historię albo skopiuj świeżo wygenerowaną pulę kodów.</p>
+        </div>
+        <div className="promo-generator-toolbar-actions">
+          <button type="button" className="button button-ghost small-button" onClick={handleReset}>
+            Wyczyść formularz
+          </button>
+          <button type="button" className="button button-ghost small-button" onClick={() => router.refresh()}>
+            Odśwież kampanie
+          </button>
+        </div>
+      </div>
+
       <form className="form-grid" onSubmit={handleSubmit}>
         <div>
           <label>Nazwa lecznicy</label>
@@ -99,11 +129,7 @@ export function AdminPromoCodeGenerator() {
         </div>
         <div>
           <label>Wazne do</label>
-          <input
-            type="date"
-            value={expiresAt}
-            onChange={(event) => setExpiresAt(event.target.value)}
-          />
+          <input type="date" value={expiresAt} onChange={(event) => setExpiresAt(event.target.value)} />
         </div>
         <div className="full-width">
           <button type="submit" className="button button-primary big-button" disabled={isSubmitting}>
@@ -117,7 +143,7 @@ export function AdminPromoCodeGenerator() {
           <strong>Kody dla: {created.campaign.clinicName}</strong>
           <span>Liczba kodow: {created.campaign.generatedCount}</span>
           <textarea className="promo-code-output" value={codeList} readOnly rows={Math.min(10, Math.max(3, created.codes.length))} />
-          <button type="button" className="button button-ghost" onClick={copyCodes}>
+          <button type="button" className="button button-ghost small-button" onClick={copyCodes} disabled={!codeList}>
             Skopiuj liste kodow
           </button>
         </div>
@@ -125,6 +151,36 @@ export function AdminPromoCodeGenerator() {
 
       {success ? <div className="success-inline">{success}</div> : null}
       {error ? <div className="error-box">{error}</div> : null}
+
+      <style jsx>{`
+        .promo-generator-toolbar {
+          display: flex;
+          justify-content: space-between;
+          gap: 16px;
+          align-items: flex-start;
+          flex-wrap: wrap;
+          padding: 16px 18px;
+          border: 1px solid #e5d8c6;
+          border-radius: 6px;
+          background: #faf6f0;
+        }
+        .promo-generator-toolbar strong {
+          display: block;
+          font-size: 16px;
+          margin-bottom: 4px;
+        }
+        .promo-generator-toolbar p {
+          margin: 0;
+          color: #8b6f5a;
+          font-size: 14px;
+          max-width: 54ch;
+        }
+        .promo-generator-toolbar-actions {
+          display: flex;
+          gap: 10px;
+          flex-wrap: wrap;
+        }
+      `}</style>
     </div>
   )
 }

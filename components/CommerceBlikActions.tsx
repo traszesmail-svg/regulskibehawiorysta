@@ -5,9 +5,10 @@ import { trackAnalyticsEvent } from '@/lib/analytics'
 
 type Props = {
   orderNumber: string
+  phoneDisplay?: string | null
 }
 
-export function CommerceBlikActions({ orderNumber }: Props) {
+export function CommerceBlikActions({ orderNumber, phoneDisplay }: Props) {
   const [copied, setCopied] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -65,7 +66,7 @@ export function CommerceBlikActions({ orderNumber }: Props) {
       <div className="summary-grid">
         <div className="summary-card tree-backed-card">
           <div className="stat-label">Instrukcja BLIK</div>
-          <div className="summary-value">Bez publicznego numeru</div>
+          <div className="summary-value">{phoneDisplay ?? 'Brak numeru'}</div>
         </div>
         <div className="summary-card tree-backed-card">
           <div className="stat-label">Tytuł przelewu</div>

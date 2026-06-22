@@ -5,6 +5,10 @@ import { Moon, Sun } from 'lucide-react'
 import { APP_THEME_ATTRIBUTE, THEME_STORAGE_KEY, isAppTheme, type AppTheme } from '@/lib/theme'
 
 function getSystemTheme(): AppTheme {
+  if (typeof window.matchMedia !== 'function') {
+    return 'light'
+  }
+
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
 
@@ -35,6 +39,10 @@ export function ThemeToggle() {
   }, [])
 
   useEffect(() => {
+    if (typeof window.matchMedia !== 'function') {
+      return
+    }
+
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
     const handleChange = () => {
       const storedTheme = window.localStorage.getItem(THEME_STORAGE_KEY)

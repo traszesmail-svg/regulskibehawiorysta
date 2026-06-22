@@ -272,7 +272,7 @@ function OpinionPageShell({ children }: { children: ReactNode }) {
       ctaLabel="Wróć do opinii"
       footerPrimaryHref="/opinie"
       footerPrimaryLabel="Wróć do opinii"
-      sideVisualVariant="mixed"
+      showSideVisuals={false}
       pageClassName="opinions-showcase-page add-opinion-page"
       shellClassName="opinions-showcase-shell add-opinion-shell"
       showFooterReviews={false}

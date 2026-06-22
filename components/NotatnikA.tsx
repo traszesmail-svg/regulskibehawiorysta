@@ -62,6 +62,7 @@ type NotatnikPageShellProps = {
   footerPrimaryHref: string
   footerPrimaryLabel: string
   sideVisualVariant?: NotatnikSideVisualVariant
+  showSideVisuals?: boolean
   pageClassName?: string
   shellClassName?: string
   footerVariant?: 'landing' | 'lean' | 'full' | 'home' | 'legal'
@@ -306,6 +307,7 @@ export function NotatnikPageShell({
   footerPrimaryHref,
   footerPrimaryLabel,
   sideVisualVariant = 'mixed',
+  showSideVisuals = true,
   pageClassName,
   shellClassName,
   footerVariant = 'home',
@@ -318,7 +320,7 @@ export function NotatnikPageShell({
       className={pageClassName ? `notatnik-page ${pageClassName}` : 'notatnik-page'}
       data-analytics-disabled={analyticsDisabled ? 'true' : undefined}
     >
-      <NotatnikSideVisuals variant={sideVisualVariant} />
+      {showSideVisuals ? <NotatnikSideVisuals variant={sideVisualVariant} /> : null}
       <div className={shellClassName ? `notatnik-shell ${shellClassName}` : 'notatnik-shell'}>
         <NotatnikTopbar tag={tag} navItems={navItems} ctaHref={ctaHref} ctaLabel={ctaLabel} />
         {children}

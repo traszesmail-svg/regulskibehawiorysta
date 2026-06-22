@@ -141,6 +141,10 @@ export function Header() {
       return
     }
 
+    if (typeof IntersectionObserver === 'undefined') {
+      return
+    }
+
     const observer = new IntersectionObserver(
       (entries) => {
         const visibleEntries = entries.filter((entry) => entry.isIntersecting)

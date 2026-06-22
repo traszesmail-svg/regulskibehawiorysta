@@ -57,10 +57,12 @@ export default async function BlikPaymentPage({ params }: { params: { orderNumbe
               <div className="section-eyebrow">Płatność ręczna</div>
               <h1>BLIK po instrukcji e-mail</h1>
               <p className="hero-text small-width center-text">
-                Kwota: <strong>{formatCommercePrice(order.manualAmount)}</strong>. Numer do BLIK nie jest publikowany w serwisie. Jeśli wybierasz BLIK, skorzystaj z instrukcji przesłanej mailowo i w tytule wpisz dokładnie numer zamówienia.
+                Kwota: <strong>{formatCommercePrice(order.manualAmount)}</strong>. Zrób przelew BLIK na numer{' '}
+                <strong>{manual.phoneDisplay ?? manual.phone ?? 'brak numeru'}</strong> i w tytule wpisz dokładnie numer zamówienia.
               </p>
               <CommerceBlikActions
                 orderNumber={order.orderNumber}
+                phoneDisplay={manual.phoneDisplay ?? manual.phone}
               />
               <div className="disclaimer">
                 Po wykonaniu wpłaty kliknij „Zapłaciłem/am”. Dostęp zostanie aktywowany po ręcznym potwierdzeniu płatności.

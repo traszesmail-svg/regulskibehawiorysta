@@ -20181,7 +20181,7 @@ a.reference-info-row,
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 50% 44%;
+  object-position: 50% 18%;
 }
 
 .contact-reference-hero-copy {
@@ -24542,8 +24542,11 @@ a.reference-info-row,
   }
 
   .notatnik-topbar .notatnik-mobile-menu summary {
-    width: clamp(46px, 12vw, 52px) !important;
-    height: clamp(46px, 12vw, 52px) !important;
+    width: clamp(52px, 12vw, 56px) !important;
+    height: clamp(52px, 12vw, 56px) !important;
+    min-width: 52px !important;
+    min-height: 52px !important;
+    touch-action: manipulation !important;
   }
 
   .notatnik-topbar .notatnik-mobile-menu-bars {
@@ -24586,8 +24589,11 @@ a.reference-info-row,
   }
 
   .notatnik-topbar .notatnik-mobile-menu summary {
-    width: 46px !important;
-    height: 46px !important;
+    width: 52px !important;
+    height: 52px !important;
+    min-width: 52px !important;
+    min-height: 52px !important;
+    touch-action: manipulation !important;
   }
 }
 
@@ -28043,41 +28049,29 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
   display: block !important;
   width: min(318px, 34vw) !important;
   max-width: 318px !important;
-  aspect-ratio: 1 / 1 !important;
+  aspect-ratio: 355 / 208 !important;
   overflow: hidden !important;
   border-radius: 18px !important;
-  background-image: url('/faq/faq-help-animation-strip.png') !important;
+  background-image: url('/faq/faq-help-illustration-clean.png') !important;
   background-repeat: no-repeat !important;
-  background-size: 400% 100% !important;
-  background-position: 0 0;
+  background-size: contain !important;
+  background-position: center bottom !important;
   opacity: 0.98 !important;
   mix-blend-mode: multiply !important;
   pointer-events: none !important;
 }
 
 .reference-faq-final-cta .reference-faq-help-sprite {
-  animation: faq-help-sprite-frames 2.8s infinite;
+  animation: faq-help-float 8s ease-in-out infinite alternate;
 }
 
-@keyframes faq-help-sprite-frames {
-  0%,
-  24.99% {
-    background-position: 0 0;
+@keyframes faq-help-float {
+  from {
+    transform: translateY(0);
   }
-  25%,
-  49.99% {
-    background-position: 33.333% 0;
-  }
-  50%,
-  74.99% {
-    background-position: 66.666% 0;
-  }
-  75%,
-  99.99% {
-    background-position: 100% 0;
-  }
-  100% {
-    background-position: 0 0;
+
+  to {
+    transform: translateY(-8px);
   }
 }
 
@@ -29705,6 +29699,23 @@ html body main.notatnik-page.quiz-page.quiz-page > div.notatnik-shell.notatnik-s
   background-image: none !important;
   opacity: 0 !important;
   filter: none !important;
+}
+
+/* Opinions page: keep the shell leaf a little farther from the clipped edge. */
+main.notatnik-page.opinions-showcase-page:not(.reference-about-redesign-page):not(.homepage-shell):not(.blog-redesign-page):not(.reference-faq-page):not(.reference-pricing-page):not(.contact-page-reference):not(.quiz-page) > .notatnik-shell::after {
+  top: 90px !important;
+  right: -14px !important;
+}
+
+main.notatnik-page.opinions-showcase-page > .notatnik-side-visual {
+  display: none !important;
+}
+
+@media (max-width: 760px) {
+  main.notatnik-page.opinions-showcase-page:not(.reference-about-redesign-page):not(.homepage-shell):not(.blog-redesign-page):not(.reference-faq-page):not(.reference-pricing-page):not(.contact-page-reference):not(.quiz-page) > .notatnik-shell::after {
+    top: 84px !important;
+    right: -6px !important;
+  }
 }
 
 /* Hard final unification: /o-mnie is the visual contract for public top pages. */

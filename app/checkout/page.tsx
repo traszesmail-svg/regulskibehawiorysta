@@ -145,10 +145,10 @@ export default async function CheckoutPage({
         isConsultation
           ? onlinePayment.available
             ? 'Wybierz BLIK po instrukcji e-mail albo płatność online kartą, Apple Pay lub Google Pay. Termin jest pewny po opłaceniu i potwierdzeniu płatności.'
-            : 'Wybierz BLIK po instrukcji e-mail albo PayPal.me. Płatność online jest wyłączona w tym trybie. Termin jest pewny po potwierdzeniu płatności.'
+            : 'Wybierz BLIK po instrukcji e-mail. Płatność online jest chwilowo niedostępna. Termin jest pewny po potwierdzeniu płatności.'
           : onlinePayment.available
             ? 'Wybierz BLIK po instrukcji e-mail albo płatność online kartą, Apple Pay lub Google Pay. Po potwierdzeniu dostaniesz kod dostępu do materiału.'
-            : 'Wybierz BLIK po instrukcji e-mail albo PayPal.me. Płatność online jest wyłączona w tym trybie. Po potwierdzeniu dostaniesz kod dostępu do materiału.'
+            : 'Wybierz BLIK po instrukcji e-mail. Płatność online jest chwilowo niedostępna. Po potwierdzeniu dostaniesz kod dostępu do materiału.'
       }
       heroImage={order?.meta.animalType === 'Kot' ? 'cat' : 'dog'}
       variant="compact"
@@ -173,7 +173,7 @@ export default async function CheckoutPage({
         ) : (
           <>
             <PaymentReferenceCardTitle title={`Płatność za ${isConsultation ? 'konsultację' : 'zamówienie'}`}>
-              Zamówienie {order.orderNumber}. {onlinePayment.available ? 'Wybierz metodę płatności i dokończ rezerwację bez publicznego numeru.' : 'W tym trybie dokończysz rezerwację przez BLIK po instrukcji e-mail albo PayPal.me bez publicznego numeru.'}
+              Zamówienie {order.orderNumber}. {onlinePayment.available ? 'Wybierz metodę płatności i dokończ rezerwację bez publicznego numeru.' : 'W tym trybie dokończysz rezerwację przez BLIK po instrukcji e-mail bez publicznego numeru.'}
             </PaymentReferenceCardTitle>
             <CommerceCheckoutActions
               orderNumber={order.orderNumber}

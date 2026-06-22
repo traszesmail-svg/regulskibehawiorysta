@@ -42,11 +42,11 @@ interface PaymentActionsProps {
 
 const disabledOnlinePayment = {
   available: false,
-  label: 'Płatność online wyłączona',
-  buttonLabel: 'Płatność online wyłączona',
-  description: 'W tym trybie korzystasz z BLIK po instrukcji e-mail albo PayPal.me.',
+  label: 'Płatność online',
+  buttonLabel: 'Zapłać online',
+  description: 'Płatność online jest chwilowo niedostępna. Wybierz BLIK po instrukcji e-mail albo wróć później.',
   unavailableMessage:
-    'Płatność online jest wyłączona w aktywnym trybie manualnym. Wybierz BLIK po instrukcji e-mail albo PayPal.me.',
+    'Płatność online jest chwilowo niedostępna. Wybierz BLIK po instrukcji e-mail albo wróć później.',
 }
 
 export function PaymentActions({
@@ -377,7 +377,7 @@ export function PaymentActions({
               : effectiveOnlinePayment.unavailableMessage
             : isPromoSelected
               ? 'Wpisz kod przekazany przez lecznicę. Po poprawnym użyciu termin zostanie potwierdzony bez płatności.'
-              : 'Przejdziesz do instrukcji BLIK bez publicznego numeru. To najtańsza ścieżka, bo nie dolicza prowizji pośrednika.'}
+              : 'Przejdziesz do instrukcji BLIK i zgłosisz wpłatę. To najtańsza ścieżka, bo nie dolicza prowizji pośrednika.'}
         </p>
         <div className="payment-ref-field">
           <span>Kwota</span>

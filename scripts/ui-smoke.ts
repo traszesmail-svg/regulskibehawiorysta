@@ -579,26 +579,6 @@ async function runUiSmokeOnce() {
         heading: homeHeading,
       },
       {
-        path: '/psy/lek-separacyjny',
-        destinationPath: '/',
-        heading: homeHeading,
-      },
-      {
-        path: '/psy/reaktywnosc-na-smyczy',
-        destinationPath: '/',
-        heading: homeHeading,
-      },
-      {
-        path: '/koty/konflikt-miedzy-kotami',
-        destinationPath: '/',
-        heading: homeHeading,
-      },
-      {
-        path: '/koty/zalatwianie-poza-kuweta',
-        destinationPath: '/',
-        heading: homeHeading,
-      },
-      {
         path: '/oferta/konsultacja-behawioralna-online',
         destinationPath: '/cennik',
         heading: pricingHeading,

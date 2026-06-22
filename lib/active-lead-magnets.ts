@@ -31,7 +31,7 @@ export const LEAD_MAGNETS: LeadMagnet[] = [
     categoryHref: '/psy',
     categoryLabel: 'Psy',
     relatedLinks: [
-      { href: '/psy/reaktywnosc-na-smyczy', label: 'Reaktywność na smyczy' },
+      { href: '/materialy#psy', label: 'Reaktywność na smyczy' },
       { href: '/materialy#psy', label: 'PDF: Pies sam w domu: co sprawdzić, zanim zaczniesz trening zostawania' },
       { href: '/behawiorysta-online-polska', label: 'Behawiorysta psów i kotów online' },
     ],
@@ -72,8 +72,8 @@ export const LEAD_MAGNETS: LeadMagnet[] = [
     categoryHref: '/koty',
     categoryLabel: 'Koty',
     relatedLinks: [
-      { href: '/koty/zalatwianie-poza-kuweta', label: 'Załatwianie poza kuwetą' },
-      { href: '/koty/konflikt-miedzy-kotami', label: 'Konflikt między kotami' },
+      { href: '/materialy#koty', label: 'Załatwianie poza kuwetą' },
+      { href: '/materialy#koty', label: 'Konflikt między kotami' },
       { href: '/behawiorysta-online-polska', label: 'Behawiorysta psów i kotów online' },
     ],
     asset: {
@@ -191,11 +191,11 @@ export const LEAD_MAGNETS: LeadMagnet[] = [
     followUpTitle: 'Co pokazało zostawanie psa samemu?',
     followUpBody: 'Jeśli po materiale nadal nie wiesz, czy to panika, frustracja czy przeciążenie, Kwadrans pomoże ustalić pierwszy bezpieczny krok.',
     nextStepCopy: 'Najbliższy kolejny krok prowadzi do strony o lęku separacyjnym albo do krótkiej rozmowy.',
-    nextStepHref: '/psy/lek-separacyjny',
+    nextStepHref: '/materialy#psy',
     categoryHref: '/psy',
     categoryLabel: 'Psy',
     relatedLinks: [
-      { href: '/psy/lek-separacyjny', label: 'Lęk separacyjny u psa' },
+      { href: '/materialy#psy', label: 'Lęk separacyjny u psa' },
       { href: '/materialy#psy', label: 'PDF: Czy Twój pies potrzebuje więcej ruchu - czy mniej pobudzenia?' },
       { href: '/behawiorysta-online-polska', label: 'Behawiorysta psów i kotów online' },
     ],
@@ -216,20 +216,4 @@ export function listLeadMagnetPaths() {
 
 export function getLeadMagnetBySlug(slug: string) {
   return LEAD_MAGNET_BY_SLUG.get(slug) ?? null
-}
-
-export function getProblemLandingLeadMagnetSlug(routePath: string) {
-  if (routePath === '/psy/lek-separacyjny') {
-    return 'pies-sam-w-domu'
-  }
-
-  if (routePath === '/psy/reaktywnosc-na-smyczy') {
-    return 'pies-ile-ruchu-potrzebuje'
-  }
-
-  if (routePath === '/koty/zalatwianie-poza-kuweta' || routePath === '/koty/konflikt-miedzy-kotami') {
-    return 'kot-zyje-w-napieciu'
-  }
-
-  return '30-zachowan'
 }

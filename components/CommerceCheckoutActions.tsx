@@ -116,7 +116,7 @@ export function CommerceCheckoutActions({
         <p>
           {selectedMethod === 'online'
             ? 'Po kliknięciu otworzy się checkout online z kartą oraz, gdy urządzenie je udostępnia, Apple Pay i Google Pay. Dostęp aktywuje się po zaksięgowaniu płatności.'
-            : 'Przejdziesz do instrukcji BLIK bez publicznego numeru i zgłosisz wpłatę. To najtańsza ścieżka, bo nie dolicza prowizji pośrednika.'}
+            : 'Przejdziesz do instrukcji BLIK i zgłosisz wpłatę. To najtańsza ścieżka, bo nie dolicza prowizji pośrednika.'}
         </p>
         <div className="payment-ref-field">
           <span>Kwota online</span>

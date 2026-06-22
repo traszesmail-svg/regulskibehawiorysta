@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useState, useTransition } from 'react'
 import { BookingStatus, PaymentStatus } from '@/lib/types'
 
 interface AdminBookingActionsProps {
@@ -18,15 +19,22 @@ export function AdminBookingActions({
   meetingUrl,
   qaBooking,
 }: AdminBookingActionsProps) {
+  const router = useRouter()
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
   const [loadingAction, setLoadingAction] = useState<'approve' | 'reject' | 'done' | 'qa-confirm' | null>(null)
+  const [isRefreshing, startTransition] = useTransition()
 
-  function refreshAdminPage() {
-    window.location.reload()
+  function refreshAdminPage(message: string) {
+    setSuccess(message)
+    startTransition(() => {
+      router.refresh()
+    })
   }
 
   async function handleMarkDone() {
     setError('')
+    setSuccess('')
     setLoadingAction('done')
 
     try {
@@ -45,7 +53,7 @@ export function AdminBookingActions({
         throw new Error(payload.error ?? 'Nie udało się oznaczyć konsultacji jako done.')
       }
 
-      refreshAdminPage()
+      refreshAdminPage('Konsultacja oznaczona jako zakończona.')
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : 'Wystąpił błąd akcji admina.')
     } finally {
@@ -55,6 +63,7 @@ export function AdminBookingActions({
 
   async function handleManualPaymentAction(action: 'approve' | 'reject') {
     setError('')
+    setSuccess('')
     setLoadingAction(action)
 
     try {
@@ -74,7 +83,7 @@ export function AdminBookingActions({
         throw new Error(payload.error ?? 'Nie udało się zaktualizować płatności.')
       }
 
-      refreshAdminPage()
+      refreshAdminPage(action === 'approve' ? 'Płatność potwierdzona.' : 'Wpłata odrzucona.')
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : 'Wystąpił błąd akcji admina.')
     } finally {
@@ -84,6 +93,7 @@ export function AdminBookingActions({
 
   async function handleQaConfirm() {
     setError('')
+    setSuccess('')
     setLoadingAction('qa-confirm')
 
     try {
@@ -99,11 +109,23 @@ export function AdminBookingActions({
         throw new Error(payload.error ?? 'Nie udało się potwierdzić QA bookingu.')
       }
 
-      refreshAdminPage()
+      refreshAdminPage('Booking QA potwierdzony.')
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : 'Wystąpił błąd akcji admina.')
     } finally {
       setLoadingAction(null)
+    }
+  }
+
+  async function handleCopyMeetingUrl() {
+    setError('')
+    setSuccess('')
+
+    try {
+      await navigator.clipboard.writeText(meetingUrl)
+      setSuccess('Link do rozmowy skopiowany.')
+    } catch {
+      setError('Nie udało się skopiować linku do rozmowy.')
     }
   }
 
@@ -112,6 +134,9 @@ export function AdminBookingActions({
       <a href={meetingUrl} target="_blank" rel="noopener noreferrer" className="button button-ghost small-button">
         Link do rozmowy
       </a>
+      <button type="button" className="button button-ghost small-button" onClick={handleCopyMeetingUrl} disabled={isRefreshing}>
+        Kopiuj link
+      </button>
 
       {paymentStatus === 'pending_manual_review' ? (
         <>
@@ -120,7 +145,7 @@ export function AdminBookingActions({
             className="button button-primary small-button"
             data-admin-manual-action="approve"
             onClick={() => handleManualPaymentAction('approve')}
-            disabled={loadingAction !== null}
+            disabled={loadingAction !== null || isRefreshing}
           >
             {loadingAction === 'approve' ? 'Potwierdzam...' : 'Potwierdź płatność'}
           </button>
@@ -129,7 +154,7 @@ export function AdminBookingActions({
             className="button button-ghost small-button"
             data-admin-manual-action="reject"
             onClick={() => handleManualPaymentAction('reject')}
-            disabled={loadingAction !== null}
+            disabled={loadingAction !== null || isRefreshing}
           >
             {loadingAction === 'reject' ? 'Odrzucam...' : 'Odrzuć wpłatę'}
           </button>
@@ -142,7 +167,7 @@ export function AdminBookingActions({
           className="button button-primary small-button"
           data-admin-booking-action="qa-confirm"
           onClick={handleQaConfirm}
-          disabled={loadingAction !== null}
+          disabled={loadingAction !== null || isRefreshing}
         >
           {loadingAction === 'qa-confirm' ? 'Potwierdzam QA...' : 'Potwierdź QA'}
         </button>
@@ -154,13 +179,14 @@ export function AdminBookingActions({
           className="button button-primary small-button"
           data-admin-booking-action="done"
           onClick={handleMarkDone}
-          disabled={loadingAction !== null}
+          disabled={loadingAction !== null || isRefreshing}
         >
           {loadingAction === 'done' ? 'Zapisywanie...' : 'Oznacz jako zakończoną'}
         </button>
       ) : null}
 
-      {error ? <span className="booking-meta">{error}</span> : null}
+      {success ? <span className="booking-meta admin-action-success">{success}</span> : null}
+      {error ? <span className="booking-meta admin-action-error">{error}</span> : null}
     </div>
   )
 }

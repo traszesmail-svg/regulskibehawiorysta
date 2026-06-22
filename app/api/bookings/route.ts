@@ -147,7 +147,13 @@ export async function POST(request: Request) {
     }
 
     if (description.trim().length < 10) {
-      return bookingErrorResponse(request, body, shouldRedirect, 'Napisz jednym zdaniem, z czym chcesz wejść na rozmowę.', 400)
+      return bookingErrorResponse(
+        request,
+        body,
+        shouldRedirect,
+        'Napisz krótko, co się dzieje i z czym potrzebujesz pomocy.',
+        400,
+      )
     }
 
     if (!consentTerms || !consentEarlyStart) {

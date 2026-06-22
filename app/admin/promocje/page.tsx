@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { unstable_noStore as noStore } from 'next/cache'
+import { AdminPageShell } from '@/components/AdminPageShell'
 import { AdminPromoCodeGenerator } from '@/components/AdminPromoCodeGenerator'
-import { Header } from '@/components/Header'
 import { formatDateLabel } from '@/lib/data'
 import { listPromoCampaigns } from '@/lib/server/promo-codes'
 
@@ -24,104 +24,96 @@ export default async function AdminPromoCodesPage() {
   try {
     campaigns = await listPromoCampaigns()
   } catch (error) {
-    dataError = error instanceof Error ? error.message : 'Nie udalo sie wczytac kampanii.'
+    dataError = error instanceof Error ? error.message : 'Nie udało się wczytać kampanii.'
   }
 
   return (
-    <main className="page-wrap" data-analytics-disabled="true">
-      <div className="container">
-        <Header />
+    <AdminPageShell
+      eyebrow="Promocje dla lecznic"
+      title="Kody na Kwadrans z behawiorystą"
+      actions={
+        <>
+          <Link href="/admin" className="button button-ghost">
+            Panel admina
+          </Link>
+          <Link href="/payment" className="button button-primary">
+            Podgląd płatności
+          </Link>
+        </>
+      }
+    >
+      <div className="summary-grid top-gap">
+        <div className="summary-card">
+          <div className="stat-label">Kampanie</div>
+          <div className="summary-value">{campaigns.length}</div>
+        </div>
+        <div className="summary-card">
+          <div className="stat-label">Wolne kody</div>
+          <div className="summary-value">{campaigns.reduce((sum, campaign) => sum + campaign.activeCount, 0)}</div>
+        </div>
+        <div className="summary-card">
+          <div className="stat-label">Użyte kody</div>
+          <div className="summary-value">{campaigns.reduce((sum, campaign) => sum + campaign.usedCount, 0)}</div>
+        </div>
+      </div>
 
-        <section className="panel section-panel">
-          <div className="section-head">
-            <div>
-              <div className="section-eyebrow">Promocje dla lecznic</div>
-              <h1>Kody na Kwadrans z behawiorysta</h1>
-            </div>
-            <div className="hero-actions">
-              <Link href="/admin" className="button button-ghost">
-                Panel admina
-              </Link>
-              <Link href="/payment" className="button button-primary">
-                Podglad platnosci
-              </Link>
-            </div>
-          </div>
+      <div className="top-gap">
+        <div className="section-eyebrow">Generator</div>
+        <h2>Nowa pula kodów</h2>
+        <AdminPromoCodeGenerator />
+      </div>
 
-          <div className="summary-grid top-gap">
-            <div className="summary-card">
-              <div className="stat-label">Kampanie</div>
-              <div className="summary-value">{campaigns.length}</div>
-            </div>
-            <div className="summary-card">
-              <div className="stat-label">Wolne kody</div>
-              <div className="summary-value">{campaigns.reduce((sum, campaign) => sum + campaign.activeCount, 0)}</div>
-            </div>
-            <div className="summary-card">
-              <div className="stat-label">Uzyte kody</div>
-              <div className="summary-value">{campaigns.reduce((sum, campaign) => sum + campaign.usedCount, 0)}</div>
-            </div>
-          </div>
+      <div className="top-gap">
+        <div className="section-eyebrow">Historia</div>
+        <h2>Pule kodów</h2>
 
-          <div className="top-gap">
-            <div className="section-eyebrow">Generator</div>
-            <h2>Nowa pula kodow</h2>
-            <AdminPromoCodeGenerator />
-          </div>
+        {dataError ? <div className="error-box">{dataError}</div> : null}
 
-          <div className="top-gap">
-            <div className="section-eyebrow">Historia</div>
-            <h2>Pule kodow</h2>
-
-            {dataError ? <div className="error-box">{dataError}</div> : null}
-
-            {campaigns.length === 0 ? (
-              <div className="empty-box">Nie ma jeszcze wygenerowanych kodow promocyjnych.</div>
-            ) : (
-              <div className="booking-list">
-                {campaigns.map((campaign) => (
-                  <div key={campaign.id} className="booking-row" data-promo-campaign-id={campaign.id}>
-                    <div>
-                      <div className="booking-title">{campaign.clinicName}</div>
-                      <div className="booking-meta">Status: {campaign.status}</div>
-                      <div className="booking-meta">Wazne do: {formatDateTime(campaign.expiresAt)}</div>
+        {campaigns.length === 0 ? (
+          <div className="empty-box">Nie ma jeszcze wygenerowanych kodów promocyjnych.</div>
+        ) : (
+          <div className="booking-list">
+            {campaigns.map((campaign) => (
+              <div key={campaign.id} className="booking-row" data-promo-campaign-id={campaign.id}>
+                <div>
+                  <div className="booking-title">{campaign.clinicName}</div>
+                  <div className="booking-meta">Status: {campaign.status}</div>
+                  <div className="booking-meta">Ważne do: {formatDateTime(campaign.expiresAt)}</div>
+                </div>
+                <div className="booking-description">
+                  <div className="summary-grid promo-code-stats">
+                    <div className="summary-card">
+                      <div className="stat-label">Wygenerowane</div>
+                      <div className="summary-value">{campaign.generatedCount}</div>
                     </div>
-                    <div className="booking-description">
-                      <div className="summary-grid promo-code-stats">
-                        <div className="summary-card">
-                          <div className="stat-label">Wygenerowane</div>
-                          <div className="summary-value">{campaign.generatedCount}</div>
-                        </div>
-                        <div className="summary-card">
-                          <div className="stat-label">Wolne</div>
-                          <div className="summary-value">{campaign.activeCount}</div>
-                        </div>
-                        <div className="summary-card">
-                          <div className="stat-label">Uzyte</div>
-                          <div className="summary-value">{campaign.usedCount}</div>
-                        </div>
-                      </div>
-                      <div className="promo-code-chip-row">
-                        {campaign.codes.map((code) => (
-                          <span key={code.id} className={`promo-code-chip promo-code-chip--${code.status}`}>
-                            {code.codeLabel} / {code.usageCount}/{code.usageLimit}
-                          </span>
-                        ))}
-                      </div>
+                    <div className="summary-card">
+                      <div className="stat-label">Wolne</div>
+                      <div className="summary-value">{campaign.activeCount}</div>
                     </div>
-                    <div className="booking-actions">
-                      <span className={`status-pill ${campaign.activeCount > 0 ? 'status-paid' : 'status-pending'}`}>
-                        {campaign.activeCount > 0 ? 'aktywna pula' : 'brak wolnych'}
-                      </span>
-                      {campaign.lastUsedAt ? <span className="booking-meta">Ostatnio: {formatDateTime(campaign.lastUsedAt)}</span> : null}
+                    <div className="summary-card">
+                      <div className="stat-label">Użyte</div>
+                      <div className="summary-value">{campaign.usedCount}</div>
                     </div>
                   </div>
-                ))}
+                  <div className="promo-code-chip-row">
+                    {campaign.codes.map((code) => (
+                      <span key={code.id} className={`promo-code-chip promo-code-chip--${code.status}`}>
+                        {code.codeLabel} / {code.usageCount}/{code.usageLimit}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className="booking-actions">
+                  <span className={`status-pill ${campaign.activeCount > 0 ? 'status-paid' : 'status-pending'}`}>
+                    {campaign.activeCount > 0 ? 'aktywna pula' : 'brak wolnych'}
+                  </span>
+                  {campaign.lastUsedAt ? <span className="booking-meta">Ostatnio: {formatDateTime(campaign.lastUsedAt)}</span> : null}
+                </div>
               </div>
-            )}
+            ))}
           </div>
-        </section>
+        )}
       </div>
-    </main>
+    </AdminPageShell>
   )
 }

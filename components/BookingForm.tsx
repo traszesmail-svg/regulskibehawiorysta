@@ -144,7 +144,7 @@ export function BookingForm({
     }
 
     if (description.trim().length < 10) {
-      showError('Napisz jednym zdaniem, z czym chcesz wejść na rozmowę.')
+      showError('Napisz krótko, co się dzieje i z czym potrzebujesz pomocy.')
       return
     }
 
@@ -294,8 +294,8 @@ export function BookingForm({
       </div>
 
       <div className="booking-details-field booking-details-field-wide">
-        <label htmlFor="booking-description">Krótki opis problemu</label>
-        <p>Wystarczy kilka zdań. Szczegóły możesz dopisać później w materiałach przed rozmową.</p>
+        <label htmlFor="booking-description">Krótko opisz, co się dzieje</label>
+        <p>Wystarczą 2-3 proste zdania. Szczegóły będzie można dopisać później, już po rezerwacji.</p>
         <textarea
           id="booking-description"
           name="description"
@@ -303,7 +303,7 @@ export function BookingForm({
           maxLength={500}
           value={description}
           onChange={(event) => setDescription(event.target.value)}
-          placeholder="Napisz jednym zdaniem, z czym chcesz wejść na rozmowę."
+          placeholder="Na przykład: od kilku dni kot załatwia się poza kuwetą i nie wiemy, od czego zacząć."
           data-booking-field="description"
         />
         <small>{description.length} / 500</small>
@@ -341,8 +341,8 @@ export function BookingForm({
           onChange={(event) => setEarlyStartAccepted(event.target.checked)}
         />
         <span>
-          Żądam rozpoczęcia świadczenia usługi przed upływem 14 dni i przyjmuję do wiadomości, że po wykonaniu konsultacji
-          utracę prawo odstąpienia od umowy w zakresie wykonanej usługi.
+          Chcę, aby konsultacja rozpoczęła się przed upływem 14 dni. Rozumiem, że po jej wykonaniu tracę prawo
+          odstąpienia od umowy w zakresie zrealizowanej usługi.
         </span>
       </label>
 

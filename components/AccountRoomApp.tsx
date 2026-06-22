@@ -83,7 +83,7 @@ function AccountInstallPrompt() {
   const [installed, setInstalled] = useState(false)
 
   useEffect(() => {
-    const standalone = window.matchMedia('(display-mode: standalone)').matches ||
+    const standalone = (typeof window.matchMedia === 'function' && window.matchMedia('(display-mode: standalone)').matches) ||
       Boolean((window.navigator as Navigator & { standalone?: boolean }).standalone)
     setInstalled(standalone)
     setIsIos(/iPad|iPhone|iPod/.test(window.navigator.userAgent))

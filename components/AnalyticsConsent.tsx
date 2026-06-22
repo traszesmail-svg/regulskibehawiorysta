@@ -54,10 +54,11 @@ export function AnalyticsConsent({ measurementId, cookiebotDomainGroupId }: Anal
   const pathname = usePathname() ?? '/'
   const searchParams = useSearchParams()
   const hasCookiebot = Boolean(cookiebotDomainGroupId)
-  const shouldShowFallbackBanner = !hasCookiebot && Boolean(measurementId) && consent === 'unset'
+  const isInternalPath = pathname.startsWith('/admin') || pathname.startsWith('/__internal') || pathname.startsWith('/api')
+  const shouldShowFallbackBanner = !isInternalPath && !hasCookiebot && Boolean(measurementId) && consent === 'unset'
 
   useEffect(() => {
-    if (!measurementId) {
+    if (!measurementId || isInternalPath) {
       return
     }
 
@@ -85,10 +86,10 @@ export function AnalyticsConsent({ measurementId, cookiebotDomainGroupId }: Anal
     }
 
     setConsent(readAnalyticsConsent())
-  }, [hasCookiebot, measurementId])
+  }, [hasCookiebot, isInternalPath, measurementId])
 
   useEffect(() => {
-    if (!measurementId) {
+    if (!measurementId || isInternalPath) {
       return
     }
 
@@ -151,10 +152,10 @@ export function AnalyticsConsent({ measurementId, cookiebotDomainGroupId }: Anal
       document.removeEventListener('click', handleTrackedClick)
       document.removeEventListener('focusin', handleTrackedFormStart)
     }
-  }, [measurementId, pathname])
+  }, [isInternalPath, measurementId, pathname])
 
   useEffect(() => {
-    if (!measurementId || consent !== 'granted') {
+    if (!measurementId || consent !== 'granted' || isInternalPath) {
       return
     }
 
@@ -164,7 +165,7 @@ export function AnalyticsConsent({ measurementId, cookiebotDomainGroupId }: Anal
       source_page: pathname,
       page_path: query ? `${pathname}?${query}` : pathname,
     })
-  }, [consent, measurementId, pathname, searchParams])
+  }, [consent, isInternalPath, measurementId, pathname, searchParams])
 
   useEffect(() => {
     if (!shouldShowFallbackBanner) {
@@ -173,7 +174,8 @@ export function AnalyticsConsent({ measurementId, cookiebotDomainGroupId }: Anal
     }
 
     let revealed = false
-    const isCompactViewport = window.matchMedia(FALLBACK_BANNER_COMPACT_VIEWPORT_QUERY).matches
+    const isCompactViewport =
+      typeof window.matchMedia === 'function' && window.matchMedia(FALLBACK_BANNER_COMPACT_VIEWPORT_QUERY).matches
     const scrollOffset = isCompactViewport
       ? FALLBACK_BANNER_COMPACT_SCROLL_OFFSET
       : FALLBACK_BANNER_SCROLL_OFFSET
@@ -222,7 +224,7 @@ export function AnalyticsConsent({ measurementId, cookiebotDomainGroupId }: Anal
     document.body.removeAttribute('data-consent-banner-visible')
   }, [isFallbackBannerReady, shouldShowFallbackBanner])
 
-  if (!measurementId && !hasCookiebot) {
+  if (isInternalPath || (!measurementId && !hasCookiebot)) {
     return null
   }
 

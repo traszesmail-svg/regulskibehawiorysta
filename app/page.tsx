@@ -163,7 +163,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        <FinalReviewsQuoteCarousel reviews={[]} sourceUrl="/api/reviews" />
         <NotatnikFooter variant="home" primaryHref="/quiz" primaryLabel="Quiz" />
       </div>
     </main>

@@ -217,3 +217,10 @@ export function listLeadMagnetPaths() {
 export function getLeadMagnetBySlug(slug: string) {
   return LEAD_MAGNET_BY_SLUG.get(slug) ?? null
 }
+
+export function getProblemLandingLeadMagnetSlug(routePath: string): string {
+  if (routePath.includes('reaktywnosc')) return 'pies-ile-ruchu-potrzebuje'
+  if (routePath.includes('lek-separacyjny')) return 'pies-sam-w-domu'
+  if (routePath.includes('zalatwianie') || routePath.includes('konflikt')) return 'kot-zyje-w-napieciu'
+  return '30-zachowan'
+}

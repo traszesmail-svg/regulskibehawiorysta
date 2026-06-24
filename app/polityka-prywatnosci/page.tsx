@@ -18,7 +18,7 @@ const summaryItems: LegalSummaryItem[] = [
   },
   {
     label: 'Podstawowe narzędzia',
-    value: 'Supabase, Resend, Jitsi, WhatsApp/Meta, PayPal.me, obsługa BLIK oraz narzędzia analityczne uruchamiane wyłącznie po wyrażeniu zgody.',
+    value: 'Supabase, Resend, Jitsi, WhatsApp/Meta, Naffy, obsługa BLIK na telefon oraz narzędzia analityczne uruchamiane wyłącznie po wyrażeniu zgody.',
   },
   {
     label: 'Publiczny kontakt',
@@ -47,7 +47,7 @@ const sections: LegalSection[] = [
           <li>Przy rezerwacji: dane identyfikacyjne i kontaktowe, temat, termin, status rezerwacji oraz status płatności.</li>
           <li>Przy realizacji usługi: dane potrzebne do potwierdzenia rezerwacji, wysyłki wiadomości oraz dostępu do pokoju rozmowy.</li>
           <li>W materiałach przygotowawczych: notatki, linki i pliki dodane dobrowolnie przez klienta.</li>
-          <li>W formularzach materiałów bezpłatnych i newslettera: adres e-mail, segment tematyczny oraz identyfikator materiału lub źródla zapisu.</li>
+          <li>W formularzach materiałów bezpłatnych i newslettera: adres e-mail, segment tematyczny oraz identyfikator materiału lub źródła zapisu.</li>
         </ul>
       </>
     ),
@@ -104,11 +104,11 @@ const sections: LegalSection[] = [
           e-mailowy jako alternatywny kanał pisemny.
         </p>
         <p>
-          Przy płatnościach dane mogą być przetwarzane przez operatora płatności online, PayPal.me albo w ramach ręcznej
-          obsługi BLIK, zależnie od metody aktywnej dla danej rezerwacji lub zamówienia materiału.
+          Przy płatnościach dane mogą być przetwarzane przez operatora płatności online (Naffy) albo w ramach ręcznej
+          obsługi BLIK na telefon, zależnie od metody aktywnej dla danej rezerwacji lub zamówienia materiału.
         </p>
         <p>
-          Część dostawców, w szczególności Meta, PayPal lub narzędzia analityczne, może przetwarzać dane poza Europejskim
+          Część dostawców, w szczególności Meta, Naffy lub narzędzia analityczne, może przetwarzać dane poza Europejskim
           Obszarem Gospodarczym. W takim przypadku podstawą przekazania są mechanizmy stosowane przez danego dostawcę,
           w szczególności standardowe klauzule umowne albo inne zabezpieczenia przewidziane w RODO.
         </p>

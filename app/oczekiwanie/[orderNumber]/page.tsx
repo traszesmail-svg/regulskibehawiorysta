@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { headers } from 'next/headers'
 import Link from 'next/link'
 import { CommerceWaitingStatus } from '@/components/CommerceWaitingStatus'
+import { PreConsultationForm } from '@/components/PreConsultationForm'
 import { NotatnikPageShell, PUBLIC_BOOKING_FLOW_NAV_ITEMS } from '@/components/NotatnikA'
 import { isCommerceTestModeAllowed } from '@/lib/server/commerce-service'
 import { canUseCommerceAccess, getCommerceOrder } from '@/lib/server/commerce-store'
@@ -108,6 +109,16 @@ export default async function WaitingPage({ params }: { params: { orderNumber: s
             </>
           )}
         </section>
+
+        {order?.productType === 'consultation' && (paymentReported || consultationReady) ? (
+          <section className="panel centered-panel hero-surface booking-stage-panel transaction-panel booking-flow-panel" style={{ marginTop: '2rem' }}>
+            <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Pomóż mi przygotować się do rozmowy</h2>
+            <p className="hero-text small-width">
+              Jeśli masz teraz chwilę, wypełnij ten krótki, opcjonalny formularz. Twoje odpowiedzi pozwolą mi lepiej zrozumieć sytuację jeszcze przed naszym spotkaniem.
+            </p>
+            <PreConsultationForm orderNumber={order.orderNumber} />
+          </section>
+        ) : null}
       </div>
     </NotatnikPageShell>
   )

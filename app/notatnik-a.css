@@ -28889,6 +28889,13 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
   word-break: normal !important;
   hyphens: auto !important;
   text-wrap: balance !important;
+  text-align: center !important;
+}
+
+.homepage-shell .notatnik-final-review-track .notatnik-final-review-quote footer,
+.homepage-shell .notatnik-final-review-track .notatnik-final-review-quote strong {
+  text-align: center !important;
+  justify-content: center !important;
 }
 
 .notatnik-page .home-footer-legal a::before,

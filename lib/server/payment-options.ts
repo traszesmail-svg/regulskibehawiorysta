@@ -47,60 +47,32 @@ function formatPhone(value: string | null): string | null {
   return value
 }
 
-function formatPaypalMe(value: string | null): { display: string | null; url: string | null } {
-  if (!value) {
-    return { display: null, url: null }
-  }
 
-  const trimmed = value.trim()
 
-  if (!trimmed) {
-    return { display: null, url: null }
-  }
-
-  if (/^https?:\/\//i.test(trimmed)) {
-    return {
-      display: trimmed.replace(/^https?:\/\//i, ''),
-      url: trimmed,
-    }
-  }
-
-  const normalizedPath = trimmed.replace(/^\/+/, '').replace(/^paypal\.me\//i, '')
-
-  return {
-    display: `paypal.me/${normalizedPath}`,
-    url: `https://paypal.me/${normalizedPath}`,
-  }
-}
-
-function getManualPaymentMethodLabel(phone: string | null, paypalMeUrl: string | null) {
-  if (phone && paypalMeUrl) {
-    return 'BLIK po instrukcji e-mail i PayPal.me'
+function getManualPaymentMethodLabel(phone: string | null) {
+  if (phone) {
+    return 'BLIK po instrukcji e-mail'
   }
 
   if (phone) {
     return 'BLIK po instrukcji e-mail'
   }
 
-  if (paypalMeUrl) {
-    return 'PayPal.me'
-  }
+
 
   return 'Wpłata ręczna'
 }
 
-function getManualPaymentAvailabilityLabel(phone: string | null, paypalMeUrl: string | null) {
-  if (phone && paypalMeUrl) {
-    return 'BLIK po instrukcji e-mail i PayPal.me są dostępne'
+function getManualPaymentAvailabilityLabel(phone: string | null) {
+  if (phone) {
+    return 'BLIK po instrukcji e-mail jest dostępny'
   }
 
   if (phone) {
     return 'BLIK po instrukcji e-mail jest dostępny'
   }
 
-  if (paypalMeUrl) {
-    return 'PayPal.me jest dostępny'
-  }
+
 
   return 'Wpłata ręczna jest dostępna'
 }
@@ -285,15 +257,13 @@ export function getManualPaymentReference(bookingId: string): string {
 
 export function getManualPaymentConfig(): ManualPaymentConfig {
   const phone = readEnv('MANUAL_PAYMENT_BLIK_PHONE') ?? null
-  const paypalMeRaw = readEnv('MANUAL_PAYMENT_PAYPAL_ME_URL') ?? readEnv('MANUAL_PAYMENT_PAYPAL_ME')
-  const paypalMe = formatPaypalMe(paypalMeRaw)
   const instructions = readEnv('MANUAL_PAYMENT_INSTRUCTIONS')
   const accountName = readEnv('MANUAL_PAYMENT_ACCOUNT_NAME') ?? SPECIALIST_NAME
   const holdMinutesRaw = Number(readEnv('MANUAL_PAYMENT_HOLD_MINUTES'))
   const holdMinutes =
     Number.isFinite(holdMinutesRaw) && holdMinutesRaw > 0 ? holdMinutesRaw : DEFAULT_MANUAL_PAYMENT_HOLD_MINUTES
 
-  if (!phone && !paypalMe.url) {
+  if (!phone) {
     return {
       isAvailable: false,
       phone: null,
@@ -304,7 +274,7 @@ export function getManualPaymentConfig(): ManualPaymentConfig {
       accountName,
       instructions,
       holdMinutes,
-      summary: 'Wpłata ręczna wymaga aktywnej konfiguracji BLIK po instrukcji e-mail lub PayPal.me.',
+      summary: 'Wpłata ręczna wymaga aktywnej konfiguracji BLIK po instrukcji e-mail.',
     }
   }
 
@@ -312,13 +282,13 @@ export function getManualPaymentConfig(): ManualPaymentConfig {
     isAvailable: true,
     phone,
     phoneDisplay: formatPhone(phone),
-    paypalMe: paypalMeRaw,
-    paypalMeDisplay: paypalMe.display,
-    paypalMeUrl: paypalMe.url,
+    paypalMe: null,
+    paypalMeDisplay: null,
+    paypalMeUrl: null,
     accountName,
     instructions,
     holdMinutes,
-    summary: `${getManualPaymentAvailabilityLabel(phone, paypalMe.url)}.`,
+    summary: `${getManualPaymentAvailabilityLabel(phone)}.`,
   }
 }
 

@@ -56,8 +56,6 @@ export type TerminCalendarSummary = {
 export type TerminCalendarPaymentConfig = {
   manualAvailable: boolean
   manualPhoneDisplay?: string | null
-  manualPaypalMeDisplay?: string | null
-  manualPaypalMeHref?: string | null
   manualAccountName?: string | null
   manualInstructions?: string | null
   manualSummary: string
@@ -418,8 +416,6 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, pay
                   manualAvailable={paymentConfig.manualAvailable}
                   onlinePayment={onlinePayment}
                   manualPhoneDisplay={paymentConfig.manualPhoneDisplay}
-                  manualPaypalMeDisplay={paymentConfig.manualPaypalMeDisplay}
-                  manualPaypalMeHref={paymentConfig.manualPaypalMeHref}
                   manualAccountName={paymentConfig.manualAccountName}
                   manualInstructions={paymentConfig.manualInstructions}
                   manualSummary={paymentConfig.manualSummary}

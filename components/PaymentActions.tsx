@@ -24,8 +24,6 @@ interface PaymentActionsProps {
     unavailableMessage: string
   }
   manualPhoneDisplay?: string | null
-  manualPaypalMeDisplay?: string | null
-  manualPaypalMeHref?: string | null
   manualAccountName?: string | null
   manualInstructions?: string | null
   manualSummary: string

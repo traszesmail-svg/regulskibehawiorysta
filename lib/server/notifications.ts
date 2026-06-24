@@ -1175,7 +1175,7 @@ export async function sendPdfOrderEmail(submission: PdfOrderSubmission): Promise
   const subject = `Zamówienie ${itemTypeLabel} - ${submission.itemTitle} - ${submission.name}`
   const html = renderEmailShell(
     'Nowe zamówienie PDF',
-    'Klient wysłał zamówienie poradnika PDF albo pakietu. Odpowiedz z potwierdzeniem wyboru i preferuj PayPal albo BLIK po instrukcji e-mail bez eksponowania numeru publicznie.',
+    'Klient wysłał zamówienie poradnika PDF albo pakietu. Odpowiedz z potwierdzeniem wyboru i preferuj BLIK po instrukcji e-mail bez eksponowania numeru publicznie.',
     `
       ${renderEmailDataTable(
         [
@@ -1254,7 +1254,7 @@ export async function sendPdfOrderAutoReplyEmail(submission: PdfOrderSubmission)
   const html = renderEmailShell(
     `Cześć ${escapeHtml(submission.name)}, dostałem Twoje zamówienie.`,
     hasPaypalButton
-      ? 'Zamówienie jest zapisane. Możesz od razu przejść do płatności przez PayPal z przycisku poniżej. BLIK po instrukcji e-mail zostaje dostępny jako opcja zapasowa bez publikowania numeru na stronie.'
+      ? 'Zamówienie jest zapisane. Możesz od razu przejść do płatności przez PayPal BLIK po instrukcji e-mail zostaje dostępny jako opcja zapasowa bez publikowania numeru na stronie.'
       : 'Zamówienie jest zapisane. Odpowiem mailowo z dalszym krokiem płatności. BLIK po instrukcji e-mail zostaje dostępny bez publikowania numeru na stronie.',
     `
       ${renderEmailDataTable(
@@ -1269,7 +1269,7 @@ export async function sendPdfOrderAutoReplyEmail(submission: PdfOrderSubmission)
           },
           {
             label: 'Metody płatności',
-            htmlValue: 'PayPal albo BLIK po instrukcji e-mail.',
+            htmlValue: 'BLIK po instrukcji e-mail.',
           },
           {
             label: 'Dalszy krok',
@@ -1294,13 +1294,13 @@ export async function sendPdfOrderAutoReplyEmail(submission: PdfOrderSubmission)
     `Cześć ${submission.name},`,
     '',
     hasPaypalButton
-      ? 'Dostałem Twoje zamówienie. Możesz od razu przejść do płatności przez PayPal z linku poniżej. BLIK po instrukcji e-mail zostaje dostępny jako opcja zapasowa.'
+      ? 'Dostałem Twoje zamówienie. Możesz od razu przejść do płatności przez PayPal BLIK po instrukcji e-mail zostaje dostępny jako opcja zapasowa.'
       : 'Dostałem Twoje zamówienie. Odpiszę z potwierdzeniem wyboru i instrukcją płatności. BLIK po instrukcji e-mail zostaje dostępny bez publikowania numeru na stronie.',
     '',
     `Produkt: ${submission.itemTitle}`,
     `Cena: ${submission.itemPrice}`,
-    'Metody płatności: PayPal albo BLIK po instrukcji e-mail.',
-    `${hasPaypalButton ? 'Przycisk do PayPal' : 'Szczegóły zamówienia'}: ${action.href}`,
+    'Metody płatności: BLIK po instrukcji e-mail.',
+    `Szczegóły zamówienia: ${action.href}`,
     'Jeśli chcesz coś doprecyzować, po prostu odpowiedz na tego maila.',
     renderContactBlockText(),
   ].join('\n')
@@ -1344,7 +1344,7 @@ export async function sendBookRequestEmail(submission: BookRequestSubmission): P
     'Nowa prośba o rezerwację',
     submission.service === 'kwadrans-na-juz'
       ? 'Klient wysłał pilną prośbę o Kwadrans na już. Wróć z odpowiedzią priorytetowo i odeślij potwierdzenie terminu z PayPal albo instrukcją BLIK po e-mailu.'
-      : 'Klient wysłał prośbę o rezerwację konsultacji. Odpowiedz z potwierdzonym terminem i preferuj PayPal albo BLIK po instrukcji e-mail bez eksponowania numeru publicznie.',
+      : 'Klient wysłał prośbę o rezerwację konsultacji. Odpowiedz z potwierdzonym terminem i preferuj BLIK po instrukcji e-mail bez eksponowania numeru publicznie.',
     `
       ${renderEmailDataTable(
         [
@@ -1398,7 +1398,7 @@ export async function sendBookRequestEmail(submission: BookRequestSubmission): P
     '',
     submission.service === 'kwadrans-na-juz'
       ? 'Następny krok: odpisz priorytetowo z pierwszym wolnym terminem i dalszym krokiem płatności.'
-      : 'Następny krok: potwierdź termin i wyślij klientowi PayPal albo instrukcję BLIK po e-mailu.',
+      : 'Następny krok: potwierdź termin i wyślij klientowi instrukcję BLIK po e-mailu.',
   ].join('\n')
 
   return deliverEmail(
@@ -1427,7 +1427,7 @@ export async function sendBookRequestAutoReplyEmail(submission: BookRequestSubmi
   const subject = `Dostałem Twoją rezerwację - ${submission.serviceLabel}`
   const html = renderEmailShell(
     `Cześć ${escapeHtml(submission.name)}, dostałem Twoją rezerwację.`,
-    `Prośba o ${escapeHtml(submission.serviceLabel)} (${escapeHtml(submission.servicePrice)}) trafiła do mnie poprawnie. Płatność zostaje w modelu PayPal albo BLIK po instrukcji e-mail, bez publikowania numeru na stronie.`,
+    `Prośba o ${escapeHtml(submission.serviceLabel)} (${escapeHtml(submission.servicePrice)}) trafiła do mnie poprawnie. Płatność zostaje w modelu BLIK po instrukcji e-mail, bez publikowania numeru na stronie.`,
     `
       ${renderEmailDataTable(
         [
@@ -1448,7 +1448,7 @@ export async function sendBookRequestAutoReplyEmail(submission: BookRequestSubmi
           },
           {
             label: 'Płatność',
-            htmlValue: 'Dostaniesz PayPal albo instrukcję BLIK po e-mailu, zależnie od najprostszego wariantu dla tej rezerwacji.',
+            htmlValue: 'Dostaniesz instrukcję BLIK po e-mailu, zależnie od najprostszego wariantu dla tej rezerwacji.',
           },
         ],
         'book-request-reply',
@@ -1464,13 +1464,13 @@ export async function sendBookRequestAutoReplyEmail(submission: BookRequestSubmi
     `Cześć ${submission.name},`,
     '',
     `Dostałem Twoją rezerwację: ${submission.serviceLabel} (${submission.servicePrice}).`,
-    'Płatność zostaje w modelu PayPal albo BLIK po instrukcji e-mail, bez publikowania numeru na stronie.',
+    'Płatność zostaje w modelu BLIK po instrukcji e-mail, bez publikowania numeru na stronie.',
     '',
     'Co dalej:',
     submission.service === 'kwadrans-na-juz'
       ? '1. Odezwę się priorytetowo z pierwszym wolnym terminem i dalszym krokiem płatności.'
       : '1. Odezwę się w ciągu kilku godzin, między 9 a 21, z potwierdzeniem terminu i dalszym krokiem płatności.',
-    '2. Dostaniesz PayPal albo instrukcję BLIK po e-mailu.',
+    '2. Dostaniesz instrukcję BLIK po e-mailu.',
     '3. Po potwierdzeniu płatności odsyłam link do rozmowy oraz wpis do kalendarza.',
     '',
     'Twoje preferowane terminy:',
@@ -2810,7 +2810,7 @@ export async function sendMaterialyOrderPendingCustomerEmail(payload: MaterialyO
       )}
       <h2 style="font-size:16px;margin-top:24px;">Jak opłacić</h2>
       <p>Odpowiedz na tego maila, jeśli wybierasz BLIK po instrukcji e-mail. Numer do BLIK nie jest publikowany w serwisie.</p>
-      <p>Możesz też wybrać płatność online albo PayPal, jeśli ten wariant jest dostępny dla zamówienia.</p>
+      <p>Możesz też wybrać płatność online jeśli ten wariant jest dostępny dla zamówienia.</p>
       <h2 style="font-size:16px;margin-top:24px;">Co dalej</h2>
       <p>Po zaksięgowaniu wpłaty wyślę Ci e-mail z 6-cyfrowym kodem. Kod wpisujesz na stronie <a href="https://regulskibehawiorysta.pl/materialy/pobranie">regulskibehawiorysta.pl/materialy/pobranie</a> i pobierasz PDF.</p>
       <p>Kod jest ważny 72 godziny.</p>

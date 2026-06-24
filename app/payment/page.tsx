@@ -79,7 +79,6 @@ export default async function PaymentPage({
   const manualPayment = getPublicManualPaymentConfig()
   const manualPaymentCopy = getManualPaymentDisplayCopy({
     phoneDisplay: manualPayment.phoneDisplay,
-    paypalMeDisplay: manualPayment.paypalMeDisplay,
   })
   let booking: Awaited<ReturnType<typeof getBookingForViewer>> = null
   let flowError: string | null = null
@@ -346,8 +345,6 @@ export default async function PaymentPage({
                   manualAvailable={manualPayment.isAvailable}
                   onlinePayment={onlinePayment}
                   manualPhoneDisplay={manualPayment.phoneDisplay}
-                  manualPaypalMeDisplay={manualPayment.paypalMeDisplay}
-                  manualPaypalMeHref={manualPayment.paypalMeUrl}
                   manualAccountName={manualPayment.accountName}
                   manualInstructions={manualPayment.instructions}
                   manualSummary={manualPayment.summary}

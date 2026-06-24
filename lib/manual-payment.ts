@@ -1,7 +1,5 @@
 type ManualPaymentCopyInput = {
   phoneDisplay?: string | null
-  paypalMeDisplay?: string | null
-  paypalMeHref?: string | null
   accountName?: string | null
 }
 
@@ -12,7 +10,7 @@ export type ManualPaymentDisplayCopy = {
 }
 
 export type ManualPaymentDetailCard = {
-  key: 'phone' | 'paypal' | 'account'
+  key: 'phone' | 'account'
   label: string
   value: string
   href?: string | null
@@ -20,32 +18,14 @@ export type ManualPaymentDetailCard = {
 
 export function getManualPaymentDisplayCopy({
   phoneDisplay,
-  paypalMeDisplay,
 }: ManualPaymentCopyInput): ManualPaymentDisplayCopy {
   const hasPhone = Boolean(phoneDisplay)
-  const hasPaypalMe = Boolean(paypalMeDisplay)
-
-  if (hasPhone && hasPaypalMe) {
-    return {
-      selectionTitle: 'Wpłata ręczna',
-      summaryTitle: 'Wpłata ręczna z potwierdzeniem',
-      description: 'Opłać rezerwację wybraną metodą i poczekaj na ręczne potwierdzenie wpłaty.',
-    }
-  }
 
   if (hasPhone) {
     return {
       selectionTitle: 'Wpłata ręczna',
       summaryTitle: 'Wpłata ręczna z potwierdzeniem',
       description: 'Opłać rezerwację zgodnie z danymi poniżej i poczekaj na ręczne potwierdzenie wpłaty.',
-    }
-  }
-
-  if (hasPaypalMe) {
-    return {
-      selectionTitle: 'PayPal.me',
-      summaryTitle: 'PayPal.me z ręcznym potwierdzeniem',
-      description: 'Opłać rezerwację przez PayPal.me i poczekaj na ręczne potwierdzenie wpłaty.',
     }
   }
 
@@ -58,8 +38,6 @@ export function getManualPaymentDisplayCopy({
 
 export function getManualPaymentDetailCards({
   phoneDisplay,
-  paypalMeDisplay,
-  paypalMeHref,
   accountName,
 }: ManualPaymentCopyInput): ManualPaymentDetailCard[] {
   const cards: ManualPaymentDetailCard[] = []
@@ -69,15 +47,6 @@ export function getManualPaymentDetailCards({
       key: 'phone',
       label: 'BLIK po instrukcji e-mail',
       value: phoneDisplay,
-    })
-  }
-
-  if (paypalMeDisplay) {
-    cards.push({
-      key: 'paypal',
-      label: 'PayPal.me',
-      value: paypalMeDisplay,
-      href: paypalMeHref ?? null,
     })
   }
 

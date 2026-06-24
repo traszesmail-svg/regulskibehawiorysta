@@ -422,8 +422,6 @@ export async function BookingSlotCalendar({
               paymentConfig={{
                 manualAvailable: manualPayment.isAvailable,
                 manualPhoneDisplay: manualPayment.phoneDisplay,
-                manualPaypalMeDisplay: manualPayment.paypalMeDisplay,
-                manualPaypalMeHref: manualPayment.paypalMeUrl,
                 manualAccountName: manualPayment.accountName,
                 manualInstructions: manualPayment.instructions,
                 manualSummary: manualPayment.summary,

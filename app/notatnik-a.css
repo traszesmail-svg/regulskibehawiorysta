@@ -7932,20 +7932,23 @@ html[data-theme='dark'] .notatnik-page .materialy-form .consent-line {
 }
 
 .booking-details-consent {
-  display: grid;
-  grid-template-columns: 20px minmax(0, 1fr);
+  display: flex;
   gap: 12px;
-  align-items: start;
+  align-items: flex-start;
   color: rgba(31, 31, 26, 0.68);
   font-size: 12.5px;
   line-height: 1.45;
+  cursor: pointer;
 }
 
 .booking-details-consent input {
+  flex-shrink: 0;
   width: 18px;
   height: 18px;
+  min-width: 18px;
   margin: 1px 0 0;
   accent-color: #104326;
+  cursor: pointer;
 }
 
 .booking-details-consent a {

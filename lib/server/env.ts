@@ -180,7 +180,7 @@ function buildSupabaseConfigMessage(
 }
 
 function hasManualPaymentConfig(): boolean {
-  return Boolean(readEnv('MANUAL_PAYMENT_BLIK_PHONE') || readEnv('MANUAL_PAYMENT_PAYPAL_ME_URL') || readEnv('MANUAL_PAYMENT_PAYPAL_ME'))
+  return Boolean(readEnv('MANUAL_PAYMENT_BLIK_PHONE'))
 }
 
 function logRuntimeMessage(key: string, summary: string, level: 'info' | 'warn') {
@@ -351,8 +351,8 @@ export function getPaymentModeStatus(): RuntimeModeStatus<PaymentMode, ActivePay
         active: null,
         isValid: false,
         usesFallback: false,
-        missing: ['MANUAL_PAYMENT_BLIK_PHONE lub MANUAL_PAYMENT_PAYPAL_ME_URL'],
-        summary: 'APP_PAYMENT_MODE=manual wymaga aktywnej konfiguracji wpłaty ręcznej przez BLIK albo PayPal.me.',
+        missing: ['MANUAL_PAYMENT_BLIK_PHONE'],
+        summary: 'APP_PAYMENT_MODE=manual wymaga aktywnej konfiguracji wpłaty ręcznej przez BLIK.',
       }
     }
 
@@ -374,7 +374,7 @@ export function getPaymentModeStatus(): RuntimeModeStatus<PaymentMode, ActivePay
       isValid: true,
       usesFallback: true,
       missing: [],
-      summary: 'APP_PAYMENT_MODE=auto -> aktywna jest wpłata ręczna (BLIK/PayPal.me skonfigurowane).',
+      summary: 'APP_PAYMENT_MODE=auto -> aktywna jest wpłata ręczna (BLIK skonfigurowane).',
     }
   }
 

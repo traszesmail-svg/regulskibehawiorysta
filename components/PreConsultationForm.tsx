@@ -161,7 +161,7 @@ ${form.links || 'Brak odpowiedzi'}
 
       <div className="full-width form-field">
         <label htmlFor="pre-triggers">4. Sytuacje wyzwalające</label>
-        <p className="field-hint" style={{ fontSize: '13px', color: '#666', marginTop: '-2px', marginBottom: '8px' }}>Czy jesteś w stanie przewidzieć ten moment, w którym zwierzę "wybucha" lub wycofuje się? Co dzieje się sekundy przedtem?</p>
+        <p className="field-hint" style={{ fontSize: '13px', color: '#666', marginTop: '-2px', marginBottom: '8px' }}>Czy jesteś w stanie przewidzieć ten moment, w którym zwierzę &quot;wybucha&quot; lub wycofuje się? Co dzieje się sekundy przedtem?</p>
         <textarea
           id="pre-triggers"
           name="triggers"

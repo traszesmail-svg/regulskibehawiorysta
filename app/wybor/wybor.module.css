@@ -1751,7 +1751,7 @@
 
 .fullFormatCard {
   display: grid;
-  grid-template-columns: 72px minmax(0, 1fr) minmax(150px, 210px) 54px;
+  grid-template-columns: minmax(0, 1fr) minmax(150px, 210px) 54px;
   gap: 18px;
   align-items: center;
   min-height: 262px;
@@ -1858,7 +1858,7 @@
   }
 
   .fullFormatCard {
-    grid-template-columns: 64px minmax(0, 1fr) 48px;
+    grid-template-columns: minmax(0, 1fr) 48px;
   }
 
   .fullFormatImage {
@@ -1948,7 +1948,7 @@
   }
 
   .fullFormatCard {
-    grid-template-columns: 58px minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
     min-height: 0;
     padding: 22px 20px;
   }
@@ -1963,7 +1963,7 @@
   }
 
   .fullFormatCard .formatArrow {
-    grid-column: 2;
+    align-self: end;
   }
 
   .formatHelpCard {

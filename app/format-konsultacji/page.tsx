@@ -306,10 +306,10 @@ export default function ConsultationFormatPage({
                       prefetch={false}
                       className={styles.fullFormatCard}
                     >
-                      <span className={styles.formatChoiceIcon} aria-hidden="true">
-                        <Icon size={35} strokeWidth={1.65} />
-                      </span>
                       <span className={styles.fullFormatCopy}>
+                        <span className={styles.formatChoiceIcon} aria-hidden="true" style={{ marginBottom: '16px' }}>
+                          <Icon size={35} strokeWidth={1.65} />
+                        </span>
                         <strong>{format.title}</strong>
                         <span className={styles.formatPriceRow}>
                           <small>{format.badge}</small>

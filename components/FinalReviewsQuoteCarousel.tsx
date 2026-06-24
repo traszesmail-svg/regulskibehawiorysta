@@ -103,6 +103,11 @@ export function FinalReviewsQuoteCarousel({
 
   return (
     <section className="notatnik-final notatnik-final-reviews" aria-label="Opinie opiekunów po rozmowie">
+      <style>{`
+        .notatnik-final-review-quote {
+          margin: 0 auto !important;
+        }
+      `}</style>
       <h2 className="notatnik-final-review-kicker">
         <Link href="/opinie" prefetch={false}>Co mówią opiekunowie po rozmowie?</Link>
       </h2>

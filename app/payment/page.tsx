@@ -1,4 +1,4 @@
-﻿import type { Metadata } from 'next'
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { unstable_noStore as noStore } from 'next/cache'
@@ -35,6 +35,7 @@ import {
 } from '@/lib/server/payment-options'
 import { getOnlinePaymentRuntime, getOnlinePaymentRuntimeForConsultation } from '@/lib/server/online-payments'
 import { buildTechnicalMetadata } from '@/lib/seo'
+import { BookingTimer } from '@/components/BookingTimer'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -238,6 +239,10 @@ export default async function PaymentPage({
               }),
             }}
           />
+        ) : null}
+
+        {booking && !isClosed && !isConfirmed && !isWaitingManual ? (
+          <BookingTimer createdAt={booking.createdAt} />
         ) : null}
 
         <PaymentReferenceCardTitle

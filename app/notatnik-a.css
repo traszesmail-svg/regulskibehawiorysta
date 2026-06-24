@@ -2870,6 +2870,15 @@ html[data-theme='dark'] .notatnik-page {
   width: 100%;
 }
 
+.notatnik-mobile-menu-footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  margin-top: 4px;
+}
+
 .notatnik-social-link {
   display: inline-flex;
   align-items: center;

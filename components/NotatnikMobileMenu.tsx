@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, type MouseEvent as ReactMouseEvent } from 'react'
 import Link from 'next/link'
+import { ThemeToggle } from '@/components/ThemeToggle'
 
 type NotatnikMobileMenuItem = {
   href: string
@@ -240,6 +241,9 @@ export function NotatnikMobileMenu({ navItems, ctaHref = '/quiz', ctaLabel = 'Qu
             </Link>
           ))}
         </nav>
+        <div className="notatnik-mobile-menu-footer">
+          <ThemeToggle />
+        </div>
       </div>
     </details>
   )

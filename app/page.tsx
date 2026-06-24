@@ -3,6 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { CalendarCheck, Headphones, MessageSquareText, Video } from 'lucide-react'
 import { EditorialIndexTopbar } from '@/components/EditorialIndexTopbar'
+import { FinalReviewsQuoteCarousel } from '@/components/FinalReviewsQuoteCarousel'
 import { FaqAccordion } from '@/components/FaqAccordion'
 import { HomepageIntroPopup } from '@/components/HomepageIntroPopup'
 import { HomepageServiceSelector } from '@/components/HomepageServiceSelector'
@@ -162,6 +163,7 @@ export default function HomePage() {
           </div>
         </section>
 
+        <FinalReviewsQuoteCarousel reviews={[]} sourceUrl="/api/reviews" />
         <NotatnikFooter variant="home" primaryHref="/quiz" primaryLabel="Quiz" />
       </div>
     </main>

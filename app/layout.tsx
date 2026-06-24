@@ -6,6 +6,7 @@ import { ClickSound } from '@/components/ClickSound'
 import { Schema } from '@/components/schema'
 import { ScrollProgress } from '@/components/ScrollProgress'
 import { ThemeProvider } from '@/components/ThemeProvider'
+import { PwaRegister } from '@/components/PwaRegister'
 import { APP_THEME_ATTRIBUTE, THEME_STORAGE_KEY } from '@/lib/theme'
 import { getRootSchemaGraphJsonLd } from '@/lib/schema'
 import { generateReviewsSchema } from '@/lib/reviewsSchema'
@@ -118,6 +119,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemeProvider>
           <ScrollProgress />
           <ClickSound />
+          <PwaRegister />
           {children}
           <Suspense fallback={null}>
             <AnalyticsConsent

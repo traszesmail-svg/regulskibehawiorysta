@@ -18,6 +18,7 @@ export const PUBLIC_SITE_NAV_ITEMS: readonly NotatnikNavItem[] = [
   { href: '/faq', label: 'FAQ' },
   { href: '/blog', label: 'Blog' },
   { href: '/kontakt', label: 'Kontakt' },
+  { href: '/pokoj', label: 'Twój pokój' },
 ]
 
 export const PUBLIC_BOOKING_FLOW_NAV_ITEMS: readonly NotatnikNavItem[] = PUBLIC_SITE_NAV_ITEMS
@@ -113,7 +114,7 @@ function NotatnikBrandLockup() {
 
 export function NotatnikTopbar({
   navItems = PUBLIC_SITE_NAV_ITEMS,
-  showUtilityLinks = false,
+  showUtilityLinks = true,
 }: NotatnikTopbarProps) {
   const ctaHref = '/quiz'
   const ctaLabel = 'Quiz'
@@ -311,7 +312,7 @@ export function NotatnikPageShell({
   pageClassName,
   shellClassName,
   footerVariant = 'home',
-  showFooterReviews = true,
+  showFooterReviews = false,
   analyticsDisabled = false,
   children,
 }: NotatnikPageShellProps) {

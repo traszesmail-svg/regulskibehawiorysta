@@ -29,7 +29,7 @@ export function ReferencePageShell({
   ctaHref,
   ctaLabel = 'Quiz',
   showHeroLeaf = false,
-  showFooterReviews = true,
+  showFooterReviews = false,
   children,
 }: ReferencePageShellProps) {
   return (

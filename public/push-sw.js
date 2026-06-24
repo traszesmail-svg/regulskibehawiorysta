@@ -49,3 +49,7 @@ self.addEventListener('notificationclick', (event) => {
     }),
   )
 })
+
+self.addEventListener('fetch', (event) => {
+  // Puste przechwytywanie fetch - niezbędne by Chrome uznał to za instalowalne PWA
+})

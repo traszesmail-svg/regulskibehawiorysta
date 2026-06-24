@@ -19456,7 +19456,7 @@ a.reference-info-row,
   .homepage-shell .notatnik-final-review-kicker {
     position: relative;
     z-index: 1;
-    max-width: 13ch;
+    max-width: none;
     color: rgba(248, 241, 223, 0.82);
     font-family: var(--font-display), Georgia, serif;
     font-size: clamp(25px, 8vw, 34px);
@@ -28189,7 +28189,7 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
 }
 
 .pricing-2026-offer {
-  grid-template-columns: 72px minmax(0, 1fr) minmax(156px, 172px) !important;
+  grid-template-columns: 72px minmax(0, 1fr) minmax(100px, 130px) minmax(130px, 158px) !important;
   gap: 18px !important;
   padding: 20px 22px !important;
   border-color: rgba(23, 63, 36, 0.12) !important;

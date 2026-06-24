@@ -38,6 +38,7 @@ type FormatChoice = {
   id: string
   title: string
   badge: string
+  price: string
   desc: string
   checks: string[]
   icon: LucideIcon
@@ -98,6 +99,7 @@ const formatChoices: FormatChoice[] = [
     id: 'kwadrans',
     title: 'Kwadrans',
     badge: '15 min',
+    price: '69 zł',
     desc: '15 min audio bez kamery na jedno główne pytanie. Szybko porządkujesz sytuację i dostajesz pierwszy kierunek działania.',
     checks: ['Jedno główne pytanie', 'Pierwszy kierunek działania'],
     icon: Clock3,
@@ -107,6 +109,7 @@ const formatChoices: FormatChoice[] = [
     id: 'kwadrans-na-juz',
     title: 'Kwadrans na już',
     badge: '15 min',
+    price: '99 zł',
     desc: 'Ten sam zakres co Kwadrans, ale z priorytetem i najbliższym realnym terminem. Dla spraw pilnych, które nie wymagają dłuższej analizy.',
     checks: ['Ten sam zakres co Kwadrans', 'Najbliższy realny termin'],
     icon: Zap,
@@ -117,6 +120,7 @@ const formatChoices: FormatChoice[] = [
     id: 'dwa-kwadranse',
     title: 'Dwa kwadranse',
     badge: '30 min',
+    price: '169 zł',
     desc: '30 min online, gdy temat ma kilka wątków. Więcej czasu na kontekst, spokojniejsze zalecenia i decyzję, czy potrzebna jest pełna konsultacja.',
     checks: ['Więcej czasu na kontekst', 'Decyzja o kolejnym kroku'],
     icon: Hourglass,
@@ -126,6 +130,7 @@ const formatChoices: FormatChoice[] = [
     id: 'pelna-konsultacja',
     title: 'Pełna konsultacja',
     badge: 'ok. 2h online',
+    price: '470 zł',
     desc: 'Około 2h online dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 7 dni wsparcia przez WhatsApp przy wdrażaniu zaleceń.',
     checks: ['Analiza i plan działania', '7 dni wsparcia WhatsApp'],
     icon: Star,
@@ -266,7 +271,10 @@ export default function ConsultationFormatPage({
                       </span>
                       <span className={styles.formatChoiceCopy}>
                         <strong>{format.title}</strong>
-                        <small>{format.badge}</small>
+                        <span className={styles.formatPriceRow}>
+                          <small>{format.badge}</small>
+                          <span className={styles.formatPrice}>{format.price}</span>
+                        </span>
                         <p>{format.desc}</p>
                       </span>
                       <span className={styles.formatCheckList}>
@@ -303,7 +311,10 @@ export default function ConsultationFormatPage({
                       </span>
                       <span className={styles.fullFormatCopy}>
                         <strong>{format.title}</strong>
-                        <small>{format.badge}</small>
+                        <span className={styles.formatPriceRow}>
+                          <small>{format.badge}</small>
+                          <span className={styles.formatPrice}>{format.price}</span>
+                        </span>
                         <p>{format.desc}</p>
                         <span className={styles.formatCheckList}>
                           {format.checks.map((check) => (

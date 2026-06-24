@@ -108,8 +108,8 @@ export function ClickSound() {
       playSoftClick(audioContext)
     }
 
-    const onPointerDown = (event: PointerEvent) => {
-      if (event.defaultPrevented || event.button !== 0 || !event.isPrimary) {
+    const onClick = (event: MouseEvent) => {
+      if (event.defaultPrevented || event.button !== 0 || !event.isTrusted) {
         return
       }
 
@@ -124,11 +124,11 @@ export function ClickSound() {
       triggerClickSound(event.target)
     }
 
-    document.addEventListener('pointerdown', onPointerDown, { capture: true })
+    document.addEventListener('click', onClick, { capture: true })
     document.addEventListener('keydown', onKeyDown, { capture: true })
 
     return () => {
-      document.removeEventListener('pointerdown', onPointerDown, { capture: true })
+      document.removeEventListener('click', onClick, { capture: true })
       document.removeEventListener('keydown', onKeyDown, { capture: true })
       void audioContextRef.current?.close()
       audioContextRef.current = null

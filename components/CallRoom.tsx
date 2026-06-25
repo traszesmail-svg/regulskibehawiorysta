@@ -14,7 +14,7 @@ import {
 } from '@/lib/booking-services'
 import { formatDateTimeLabel, getSecondsUntilRoomUnlock } from '@/lib/data'
 import { createMeetingEmbedUrl } from '@/lib/server/jitsi'
-import { CAPBT_LOGO, COAPE_LOGO, SITE_NAME } from '@/lib/site'
+import { CAPBT_LOGO, COAPE_LOGO, SITE_NAME, COAPE_ORG_URL, CAPBT_PROFILE_URL } from '@/lib/site'
 import { AnimalType, BookingRecord, ProblemType } from '@/lib/types'
 
 function formatTime(seconds: number): string {
@@ -363,7 +363,13 @@ export function CallRoom({
                   <span>Pełny dostęp pojawi się automatycznie 15 minut przed terminem {roomEntryLabel}.</span>
                 </div>
                 <div className="waiting-room-logos" aria-label="Certyfikacje specjalisty">
-                  <div className="waiting-room-logo">
+                  <a
+                    href={COAPE_ORG_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="waiting-room-logo"
+                    aria-label="Otwórz stronę COAPE"
+                  >
                     <Image
                       src={COAPE_LOGO.src}
                       alt={COAPE_LOGO.alt}
@@ -372,8 +378,14 @@ export function CallRoom({
                       sizes="221px"
                       style={{ width: 221, height: 'auto' }}
                     />
-                  </div>
-                  <div className="waiting-room-logo">
+                  </a>
+                  <a
+                    href={CAPBT_PROFILE_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="waiting-room-logo"
+                    aria-label="Otwórz profil specjalisty w CAPBT"
+                  >
                     <Image
                       src={CAPBT_LOGO.src}
                       alt={CAPBT_LOGO.alt}
@@ -382,7 +394,7 @@ export function CallRoom({
                       sizes="218px"
                       style={{ width: 218, height: 'auto' }}
                     />
-                  </div>
+                  </a>
                 </div>
               </div>
             ) : null}

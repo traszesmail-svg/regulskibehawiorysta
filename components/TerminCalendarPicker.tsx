@@ -347,7 +347,6 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, pay
             <ul>
               <li>{summary.slotSummary}</li>
               <li>Indywidualne wskazówki</li>
-              <li>Podsumowanie zaleceń e-mail</li>
             </ul>
           </div>
         </div>

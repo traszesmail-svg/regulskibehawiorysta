@@ -38,6 +38,7 @@ if (!globalRateLimitStore.__regulskiBehawiorystaContactRateLimitStore) {
 type ValidatedContactLeadPayload = {
   name: string
   email: string
+  phone?: string | null
   species: ContactLeadSpecies
   topicId: ProblemType
   topic: string
@@ -221,6 +222,7 @@ function consumeContactRateLimit(request: Request): { allowed: true } | { allowe
 function validatePayload(body: Record<string, unknown>): { payload?: ValidatedContactLeadPayload; error?: string } {
   const name = normalizeSingleLine(body.name ?? body.displayName, 120)
   const contact = pickContactCandidate(body)
+  const phone = normalizeSingleLine(body.phone ?? body.phoneNumber, 32)
   const species = normalizeSpecies(body.species)
   const topicId = normalizeSingleLine(body.topicId, 80)
   const knownSpecies = species === 'pies' || species === 'kot' ? species : null
@@ -254,10 +256,6 @@ function validatePayload(body: Record<string, unknown>): { payload?: ValidatedCo
     return { error: 'Zaznacz zgodę na kontakt i akceptację polityki prywatności.' }
   }
 
-  if (isUrgentNowIntent(intent) && (!requestedDate || !requestedTime)) {
-    return { error: 'Przy Kwadransie na już podaj preferowaną datę i godzinę.' }
-  }
-
   if (isUrgentNowIntent(intent) && species === 'nie-wiem') {
     return { error: 'Przy prośbie o pilny termin wybierz, czy sprawa dotyczy psa czy kota.' }
   }
@@ -266,6 +264,7 @@ function validatePayload(body: Record<string, unknown>): { payload?: ValidatedCo
     payload: {
       name,
       email: contact,
+      phone,
       species,
       topicId: topicOption?.id ?? 'inne',
       topic,
@@ -325,6 +324,7 @@ export async function POST(request: Request) {
       await createUrgentNowRequest({
         name: payload.name,
         email: payload.email,
+        phone: payload.phone,
         species: payload.species,
         topicId: payload.topicId,
         topicLabel: payload.topic,

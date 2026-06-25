@@ -19,6 +19,7 @@ type ContactLeadFormProps = {
 type SubmissionPayload = {
   name: string
   contact: string
+  phone: string
   species: SelectedSpecies
   message: string
   requestedDate: string
@@ -37,6 +38,7 @@ function createInitialForm(species: SelectedSpecies = ''): SubmissionPayload {
   return {
     name: '',
     contact: '',
+    phone: '',
     species,
     message: '',
     requestedDate: '',
@@ -189,10 +191,6 @@ export function ContactLeadForm({ searchParams }: ContactLeadFormProps) {
       return 'Skróć opis sytuacji do krótkiej wiadomości.'
     }
 
-    if (isUrgentNow && (!form.requestedDate || !form.requestedTime)) {
-      return 'Przy Kwadransie na już podaj preferowaną datę i godzinę.'
-    }
-
     if (!form.consentProcessing || !form.consentPolicy) {
       return 'Zaznacz zgody na kontakt i akceptację polityki prywatności.'
     }
@@ -235,9 +233,10 @@ export function ContactLeadForm({ searchParams }: ContactLeadFormProps) {
           name: normalizeShortText(form.name),
           email: normalizeShortText(form.contact),
           contact: normalizeShortText(form.contact),
+          phone: normalizeShortText(form.phone),
           species: selectedSpecies,
           topicId: 'inne',
-          topic: 'Wiadomość z formularza kontaktowego',
+          topic: isUrgentNow ? 'Kwadrans na już - prośba o termin' : 'Wiadomość z formularza kontaktowego',
           message: normalizedMessage,
           requestedDate: isUrgentNow ? form.requestedDate : null,
           requestedTime: isUrgentNow ? form.requestedTime : null,
@@ -368,36 +367,24 @@ export function ContactLeadForm({ searchParams }: ContactLeadFormProps) {
       </div>
 
       {isUrgentNow ? (
-        <>
-          <div className="form-field">
-            <label htmlFor="contact-requested-date">Preferowana data</label>
-            <input
-              id="contact-requested-date"
-              name="requestedDate"
-              type="date"
-              value={form.requestedDate}
-              onChange={(event) => updateField('requestedDate', event.target.value)}
-              onFocus={markStarted}
-            />
-          </div>
-
-          <div className="form-field">
-            <label htmlFor="contact-requested-time">Preferowana godzina</label>
-            <input
-              id="contact-requested-time"
-              name="requestedTime"
-              type="time"
-              value={form.requestedTime}
-              onChange={(event) => updateField('requestedTime', event.target.value)}
-              onFocus={markStarted}
-            />
-          </div>
-        </>
+        <div className="form-field">
+          <label htmlFor="contact-phone">Numer telefonu (opcjonalnie)</label>
+          <input
+            id="contact-phone"
+            name="phone"
+            type="tel"
+            value={form.phone}
+            onChange={(event) => updateField('phone', event.target.value)}
+            onFocus={markStarted}
+            placeholder="np. +48 500 600 700"
+            autoComplete="tel"
+          />
+        </div>
       ) : null}
 
       <div className="full-width form-field">
         <div className="contact-message-label-row">
-          <label htmlFor="contact-message">{isUrgentNow ? 'Krótki opis i kontekst terminu' : 'Krótki opis sytuacji'}</label>
+          <label htmlFor="contact-message">{isUrgentNow ? 'Krótki opis sytuacji i preferowane pory dnia' : 'Krótki opis sytuacji'}</label>
           <span className="contact-message-count" aria-live="polite">
             {messageLength}/{MESSAGE_MAX_LENGTH}
           </span>
@@ -411,7 +398,7 @@ export function ContactLeadForm({ searchParams }: ContactLeadFormProps) {
           onFocus={markStarted}
           placeholder={
             isUrgentNow
-              ? 'Napisz w 2-4 zdaniach, czego dotyczy temat i czy wskazana data/godzina są sztywne czy orientacyjne.'
+              ? 'Opisz krótko u jakiego zwierzęcia i jaki jest problem, oraz kiedy masz czas na pilną rozmowę (np. rano / popołudniu).'
               : 'Napisz po ludzku, co się dzieje: od kiedy trwa sytuacja, kiedy się pojawia, co już próbowaliście i co najbardziej Cię martwi.'
           }
           enterKeyHint="send"

@@ -1,4 +1,4 @@
-﻿import nodemailer from 'nodemailer'
+import nodemailer from 'nodemailer'
 import type { LeadMagnet } from '@/lib/growth-layer'
 import { getBookingServiceTitle, resolveBookingServiceType } from '@/lib/booking-services'
 import { repairCopy } from '@/lib/copy'
@@ -964,6 +964,7 @@ export async function sendBookingOwnerNotificationEmail(booking: BookingRecord):
 export type ContactLeadSubmission = {
   name: string
   email: string
+  phone?: string | null
   topic: string
   message: string
   contextLabel: string
@@ -1043,6 +1044,12 @@ export async function sendContactLeadEmail(submission: ContactLeadSubmission): P
               ? `<a href="mailto:${escapeHtml(contactValue)}">${escapeHtml(contactValue)}</a>`
               : escapeHtml(contactValue),
           },
+          submission.phone
+            ? {
+                label: 'Telefon',
+                htmlValue: escapeHtml(submission.phone),
+              }
+            : null,
           {
             label: 'Temat',
             htmlValue: escapeHtml(submission.topic),
@@ -1080,6 +1087,7 @@ export async function sendContactLeadEmail(submission: ContactLeadSubmission): P
     'Nowa wiadomość z formularza kontaktu.',
     `Imię: ${submission.name}`,
     `Kontakt: ${contactValue}`,
+    submission.phone ? `Telefon: ${submission.phone}` : null,
     `Temat: ${submission.topic}`,
     submission.serviceLabel ? `Ścieżka: ${submission.serviceLabel}` : null,
     `Kontekst: ${submission.contextLabel}`,

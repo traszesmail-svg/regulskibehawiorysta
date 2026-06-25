@@ -33,6 +33,13 @@ function buildTodaySlots(requestedDate?: string | null, requestedTime?: string |
   }).filter((slot, index, all) => all.findIndex((item) => item.time === slot.time) === index)
 }
 
+const TIME_OPTIONS = [
+  '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+  '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30',
+  '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30',
+  '20:00'
+]
+
 export function AdminUrgentRequestActions({
   requestId,
   disabled = false,
@@ -40,13 +47,13 @@ export function AdminUrgentRequestActions({
   requestedTime = null,
   requestedSlots = [],
 }: AdminUrgentRequestActionsProps) {
-  const [proposedDate, setProposedDate] = useState(requestedDate ?? '')
-  const [proposedTime, setProposedTime] = useState(requestedTime ?? '')
+  const defaultDate = requestedDate || toLocalDateInputValue(new Date())
+  const [proposedDate, setProposedDate] = useState(defaultDate)
+  const [proposedTime, setProposedTime] = useState(requestedTime || '10:00')
   const [responseNote, setResponseNote] = useState('')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
-  const todaySlots = requestedSlots.length > 0 ? requestedSlots : buildTodaySlots(requestedDate, requestedTime)
 
   async function handleRespond() {
     setLoading(true)
@@ -82,28 +89,37 @@ export function AdminUrgentRequestActions({
 
   return (
     <div className="booking-actions" data-urgent-request-actions={requestId}>
-      <div className="booking-meta">Wybierz godzinę na dziś albo wpisz najbliższy realny termin.</div>
-      <div className="urgent-admin-slots" aria-label="Szybki wybór godziny">
-        {todaySlots.map((slot) => {
-          const selected = proposedDate === slot.date && proposedTime === slot.time
-          return (
-            <button
-              key={`${slot.date}-${slot.time}`}
-              type="button"
-              className={`button small-button ${selected ? 'button-primary' : 'button-ghost'}`}
-              onClick={() => {
-                setProposedDate(slot.date)
-                setProposedTime(slot.time)
-              }}
-              disabled={disabled || loading}
-            >
-              {slot.time}
-            </button>
-          )
-        })}
+      <div className="booking-meta">Wybierz termin (data oraz godzina co 30 min) i zatwierdź.</div>
+      
+      <div style={{ display: 'grid', gap: 12, gridTemplateColumns: '1fr 1fr', margin: '8px 0' }}>
+        <div>
+          <label style={{ display: 'block', fontSize: 12, marginBottom: 4, fontWeight: 600 }}>Data</label>
+          <input 
+            type="date" 
+            value={proposedDate} 
+            onChange={(event) => setProposedDate(event.target.value)} 
+            disabled={disabled || loading} 
+            style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #e1d6c8' }}
+          />
+        </div>
+        
+        <div>
+          <label style={{ display: 'block', fontSize: 12, marginBottom: 4, fontWeight: 600 }}>Godzina</label>
+          <select 
+            value={proposedTime} 
+            onChange={(event) => setProposedTime(event.target.value)} 
+            disabled={disabled || loading}
+            style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #e1d6c8', background: '#fff' }}
+          >
+            {TIME_OPTIONS.map((time) => (
+              <option key={time} value={time}>
+                {time}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
-      <input type="date" value={proposedDate} onChange={(event) => setProposedDate(event.target.value)} disabled={disabled || loading} />
-      <input type="time" value={proposedTime} onChange={(event) => setProposedTime(event.target.value)} disabled={disabled || loading} />
+
       <input
         type="text"
         value={responseNote}

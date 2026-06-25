@@ -26856,7 +26856,8 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
 }
 
 .termin-dog-page .termin-calendar-pet-visual img {
-  object-position: center 6% !important;
+  object-fit: contain !important;
+  object-position: center !important;
 }
 
 .termin-cat-page .termin-hero-photo img {
@@ -26864,7 +26865,8 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
 }
 
 .termin-cat-page .termin-calendar-pet-visual img {
-  object-position: center 6% !important;
+  object-fit: contain !important;
+  object-position: center !important;
 }
 
 .termin-calendar-shell {
@@ -27106,8 +27108,8 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
 }
 
 .termin-calendar-pet-visual img {
-  object-fit: cover !important;
-  object-position: center bottom !important;
+  object-fit: contain !important;
+  object-position: center !important;
 }
 
 .termin-calendar-summary {
@@ -27352,7 +27354,7 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
 
   .termin-dog-page .termin-calendar-pet-visual img,
   .termin-cat-page .termin-calendar-pet-visual img {
-    object-position: center 2% !important;
+    object-position: center !important;
   }
 
   .termin-calendar-choice-slot {
@@ -29619,7 +29621,7 @@ main.notatnik-page.reference-faq-page .reference-faq-hero-image {
 
   main.notatnik-page.termin-dog-page .termin-calendar-pet-visual img {
     object-fit: contain !important;
-    object-position: center bottom !important;
+    object-position: center !important;
   }
 }
 

@@ -109,9 +109,6 @@ export function NotatnikMobileMenuAutoClose() {
 
     document.addEventListener('toggle', onMenuToggle, true)
     window.addEventListener('click', onDocumentClick)
-    window.addEventListener('scroll', closeOpenMenus, { passive: true })
-    window.addEventListener('wheel', closeOpenMenus, { passive: true })
-    window.addEventListener('touchmove', closeOpenMenus, { passive: true })
     window.addEventListener('resize', closeOpenMenus)
     window.addEventListener('keydown', onKeyDown)
 
@@ -119,9 +116,6 @@ export function NotatnikMobileMenuAutoClose() {
       clearAutoCloseTimer()
       document.removeEventListener('toggle', onMenuToggle, true)
       window.removeEventListener('click', onDocumentClick)
-      window.removeEventListener('scroll', closeOpenMenus)
-      window.removeEventListener('wheel', closeOpenMenus)
-      window.removeEventListener('touchmove', closeOpenMenus)
       window.removeEventListener('resize', closeOpenMenus)
       window.removeEventListener('keydown', onKeyDown)
     }
@@ -203,9 +197,6 @@ export function NotatnikMobileMenu({ navItems, ctaHref = '/quiz', ctaLabel = 'Qu
 
     details?.addEventListener('toggle', onToggle)
     window.addEventListener('click', onDocumentClick)
-    window.addEventListener('scroll', closeMenu, { passive: true })
-    window.addEventListener('wheel', closeMenu, { passive: true })
-    window.addEventListener('touchmove', closeMenu, { passive: true })
     window.addEventListener('resize', closeMenu)
     window.addEventListener('keydown', onKeyDown)
 
@@ -213,9 +204,6 @@ export function NotatnikMobileMenu({ navItems, ctaHref = '/quiz', ctaLabel = 'Qu
       clearAutoCloseTimer()
       details?.removeEventListener('toggle', onToggle)
       window.removeEventListener('click', onDocumentClick)
-      window.removeEventListener('scroll', closeMenu)
-      window.removeEventListener('wheel', closeMenu)
-      window.removeEventListener('touchmove', closeMenu)
       window.removeEventListener('resize', closeMenu)
       window.removeEventListener('keydown', onKeyDown)
     }

@@ -76,8 +76,8 @@ export function HomepageIntroPopup() {
 
         <figure className="homepage-intro-popup-visual">
           <picture>
-            <source srcSet="/branding/homepage/home-intro-popup-scene.webp" type="image/webp" />
-            <img src="/branding/homepage/home-intro-popup-scene.png" alt="" aria-hidden="true" />
+            <source srcSet="/branding/homepage/home-intro-scene.webp" type="image/webp" />
+            <img src="/branding/homepage/home-intro-scene.png" alt="" aria-hidden="true" />
           </picture>
         </figure>
 

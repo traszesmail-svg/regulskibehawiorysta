@@ -2521,13 +2521,13 @@ html[data-theme='dark'] .notatnik-page {
 .notatnik-page.homepage-shell {
   min-height: 100vh;
   overflow-x: hidden;
-  background: #f8f4ed;
+  background: var(--bg);
 }
 
 .homepage-shell .homepage-main {
   z-index: 1;
   width: min(1080px, calc(100vw - 48px));
-  background: rgba(255, 253, 247, 0.98);
+  background: var(--shell-bg);
   box-shadow: 0 22px 60px rgba(31, 26, 23, 0.1);
   backdrop-filter: blur(1px);
 }

@@ -1781,16 +1781,16 @@
 }
 
 .fullFormatImage img {
-  object-fit: cover;
-  object-position: center;
+  object-fit: contain !important;
+  object-position: center !important;
 }
 
 .dogPage .fullFormatImage img {
-  object-position: 50% 42%;
+  object-position: center !important;
 }
 
 .catPage .fullFormatImage img {
-  object-position: 50% 42%;
+  object-position: center !important;
 }
 
 .formatHelpCard {

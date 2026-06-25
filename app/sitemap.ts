@@ -1,5 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { getCanonicalBaseUrl } from '@/lib/server/env'
+import { listBlogRoutePaths } from '@/lib/blog'
+import { listPdfGuides } from '@/lib/pdf-guides'
 
 const STATIC_ROUTES: Array<{ path: string; priority: number; changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency'] }> = [
   { path: '/', priority: 1, changeFrequency: 'weekly' },
@@ -34,6 +36,38 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: route.changeFrequency,
       priority: route.priority,
     })
+  }
+
+  try {
+    const blogPaths = listBlogRoutePaths()
+    for (const path of blogPaths) {
+      if (path && path !== '/blog') {
+        routeMap.set(path, {
+          url: buildAbsoluteUrl(baseUrl, path),
+          lastModified,
+          changeFrequency: 'weekly',
+          priority: 0.75,
+        })
+      }
+    }
+  } catch (err) {
+    console.error('[sitemap] Failed to add blog paths', err)
+  }
+
+  try {
+    const pdfGuides = listPdfGuides()
+    for (const guide of pdfGuides) {
+      if (guide?.routePath) {
+        routeMap.set(guide.routePath, {
+          url: buildAbsoluteUrl(baseUrl, guide.routePath),
+          lastModified,
+          changeFrequency: 'weekly',
+          priority: 0.8,
+        })
+      }
+    }
+  } catch (err) {
+    console.error('[sitemap] Failed to add PDF guides', err)
   }
 
   return [...routeMap.values()]

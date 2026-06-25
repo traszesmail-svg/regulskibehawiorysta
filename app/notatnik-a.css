@@ -30110,3 +30110,17 @@ html[data-theme='dark'] input[type="checkbox"] {
   border-color: initial !important;
   color: initial !important;
 }
+
+/* Make point 3 wrap to the next row on mobile for space and balance */
+@media (max-width: 680px) {
+  .termin-process-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 24px 16px !important;
+  }
+  .termin-process-grid article:nth-child(3) {
+    grid-column: 1 / -1 !important;
+    max-width: 320px !important;
+    justify-self: center !important;
+    text-align: center !important;
+  }
+}

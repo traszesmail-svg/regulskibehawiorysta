@@ -247,7 +247,7 @@ export async function BookingSlotCalendar({
   const problemSpecies = requestedSpecies ?? getProblemSpecies(problem)
   const isUrgentBooking = serviceType === 'kwadrans-na-juz'
   const petVisualSrc = isUrgentBooking
-    ? '/images/mobile-header-pies-kot-reference.png'
+    ? '/branding/regulski-web/hero/hero-home.png'
     : problemSpecies === 'kot'
       ? '/wybor/cat-choice-avatar.png'
       : '/wybor/dog-choice-avatar.png'

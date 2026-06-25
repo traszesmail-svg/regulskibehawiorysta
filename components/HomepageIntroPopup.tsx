@@ -23,12 +23,22 @@ export function HomepageIntroPopup() {
   }, [])
 
   useEffect(() => {
+    // Enable force display via query parameter for testing/previewing
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search)
+      if (urlParams.get('popup') === 'force') {
+        const timer = window.setTimeout(() => setIsVisible(true), 700)
+        return () => window.clearTimeout(timer)
+      }
+    }
+
     try {
       if (window.localStorage.getItem(STORAGE_KEY) === 'dismissed') {
         return
       }
-    } catch {
-      return
+    } catch (e) {
+      // Don't return on error (e.g. Incognito mode / blocked storage).
+      // Proceed to show the popup.
     }
 
     const timer = window.setTimeout(() => setIsVisible(true), 700)

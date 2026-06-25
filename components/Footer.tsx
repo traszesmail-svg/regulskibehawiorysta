@@ -65,7 +65,7 @@ export function Footer(props: FooterProps) {
         {showReviews ? (
           <FinalReviewsQuoteCarousel
             reviews={footerReviews}
-            intervalMs={6000}
+            intervalMs={9000}
             initialIndex={initialIndex}
             sourceUrl={reviewSourceUrl}
           />
@@ -98,7 +98,7 @@ export function Footer(props: FooterProps) {
       {showReviews ? (
         <FinalReviewsQuoteCarousel
           reviews={footerReviews}
-          intervalMs={6000}
+          intervalMs={9000}
           initialIndex={initialIndex}
           sourceUrl={reviewSourceUrl}
         />

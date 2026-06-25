@@ -1,5 +1,222 @@
 [
   {
+    "id": "c20ecedf-619f-4ed7-be0b-bc1a094b1a60",
+    "eventType": "booking_drop",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?problem=separacja&service=konsultacja-behawioralna-online&species=pies",
+    "location": null,
+    "properties": {
+      "slot_id": "2026-06-26-08:15",
+      "slot_time": "piątek, 26 czerwca 2026, 08:15",
+      "source_page": "/book",
+      "service_key": "konsultacja-behawioralna-online",
+      "service_name": "Pełna konsultacja behawioralna",
+      "service_duration": 120,
+      "service_price": 470,
+      "species": "pies",
+      "problem_key": "separacja",
+      "last_step": "form_start",
+      "drop_reason": "visibility_hidden",
+      "age_ms": 17548
+    },
+    "createdAt": "2026-06-25T09:54:53.140Z"
+  },
+  {
+    "id": "acca33da-1cad-434f-a6b1-017105af3bce",
+    "eventType": "booking_form_started",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?problem=separacja&service=konsultacja-behawioralna-online&species=pies",
+    "location": null,
+    "properties": {
+      "slot_id": "2026-06-26-08:15",
+      "slot_time": "piątek, 26 czerwca 2026, 08:15",
+      "source_page": "/book",
+      "service_key": "konsultacja-behawioralna-online",
+      "service_name": "Pełna konsultacja behawioralna",
+      "service_duration": 120,
+      "service_price": 470,
+      "species": "pies",
+      "problem_key": "separacja"
+    },
+    "createdAt": "2026-06-25T09:54:36.128Z"
+  },
+  {
+    "id": "abb9d515-dd57-48cf-81bf-9025cd95fc02",
+    "eventType": "booking_service_selected",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?problem=separacja&service=konsultacja-behawioralna-online&species=pies",
+    "location": null,
+    "properties": {
+      "source_page": "/book",
+      "service_type": "konsultacja-behawioralna-online",
+      "problem_type": "separacja",
+      "species": "pies",
+      "qa_booking": false
+    },
+    "createdAt": "2026-06-25T09:54:35.901Z"
+  },
+  {
+    "id": "dc1110ed-4c9c-4b4b-b87e-8d62b04b2eca",
+    "eventType": "booking_start",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?problem=separacja&service=konsultacja-behawioralna-online&species=pies",
+    "location": null,
+    "properties": {
+      "source_page": "/book",
+      "service_type": "konsultacja-behawioralna-online",
+      "problem_type": "separacja",
+      "species": "pies",
+      "qa_booking": false
+    },
+    "createdAt": "2026-06-25T09:54:35.674Z"
+  },
+  {
+    "id": "e3e78905-933e-4037-b12b-bffa8370488b",
+    "eventType": "booking_form_started",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?problem=separacja&service=konsultacja-30-min&species=pies",
+    "location": null,
+    "properties": {
+      "slot_id": "2026-06-29-08:00",
+      "slot_time": "poniedziałek, 29 czerwca 2026, 08:00",
+      "source_page": "/book",
+      "service_key": "konsultacja-30-min",
+      "service_name": "Dwa kwadranse z behawiorystą",
+      "service_duration": 30,
+      "service_price": 169,
+      "species": "pies",
+      "problem_key": "separacja"
+    },
+    "createdAt": "2026-06-25T09:54:27.401Z"
+  },
+  {
+    "id": "3970a5f1-a596-41f0-93fd-d8867dee1774",
+    "eventType": "booking_service_selected",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?problem=separacja&service=konsultacja-30-min&species=pies",
+    "location": null,
+    "properties": {
+      "source_page": "/book",
+      "service_type": "konsultacja-30-min",
+      "problem_type": "separacja",
+      "species": "pies",
+      "qa_booking": false
+    },
+    "createdAt": "2026-06-25T09:54:27.175Z"
+  },
+  {
+    "id": "e8db2af2-4933-4957-ab20-22303360eb08",
+    "eventType": "booking_start",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?problem=separacja&service=konsultacja-30-min&species=pies",
+    "location": null,
+    "properties": {
+      "source_page": "/book",
+      "service_type": "konsultacja-30-min",
+      "problem_type": "separacja",
+      "species": "pies",
+      "qa_booking": false
+    },
+    "createdAt": "2026-06-25T09:54:26.935Z"
+  },
+  {
+    "id": "c60147af-46db-408c-b2cd-4ac11af6454a",
+    "eventType": "booking_form_started",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?problem=separacja&service=kwadrans-na-juz&species=pies",
+    "location": null,
+    "properties": {
+      "slot_id": "2026-06-25-16:00",
+      "slot_time": "czwartek, 25 czerwca 2026, 16:00",
+      "source_page": "/book",
+      "service_key": "kwadrans-na-juz",
+      "service_name": "Kwadrans na już",
+      "service_duration": 15,
+      "service_price": 99,
+      "species": "pies",
+      "problem_key": "separacja"
+    },
+    "createdAt": "2026-06-25T09:54:20.279Z"
+  },
+  {
+    "id": "0f00e152-158f-47de-8579-bea2f6d8a65f",
+    "eventType": "booking_service_selected",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?problem=separacja&service=kwadrans-na-juz&species=pies",
+    "location": null,
+    "properties": {
+      "source_page": "/book",
+      "service_type": "kwadrans-na-juz",
+      "problem_type": "separacja",
+      "species": "pies",
+      "qa_booking": false
+    },
+    "createdAt": "2026-06-25T09:54:20.025Z"
+  },
+  {
+    "id": "8fac622c-5a69-4da0-b371-3ab964a7cbed",
+    "eventType": "booking_start",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/book?problem=separacja&service=kwadrans-na-juz&species=pies",
+    "location": null,
+    "properties": {
+      "source_page": "/book",
+      "service_type": "kwadrans-na-juz",
+      "problem_type": "separacja",
+      "species": "pies",
+      "qa_booking": false
+    },
+    "createdAt": "2026-06-25T09:54:19.707Z"
+  },
+  {
+    "id": "209129a5-7aab-484a-97ef-654f2cdca2be",
+    "eventType": "cta_click",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/",
+    "location": "home-router-choice",
+    "properties": {
+      "location": "home-router-choice",
+      "choice": "dog"
+    },
+    "createdAt": "2026-06-25T09:54:09.454Z"
+  },
+  {
+    "id": "db991261-4969-4411-843e-28d708137e53",
+    "eventType": "view_page",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/",
+    "location": null,
+    "properties": {
+      "source_page": "/",
+      "page_path": "/"
+    },
+    "createdAt": "2026-06-25T06:10:30.724Z"
+  },
+  {
     "id": "34ff1f79-c7ed-4a03-be5e-fa1b50bed62e",
     "eventType": "booking_drop",
     "bookingId": null,

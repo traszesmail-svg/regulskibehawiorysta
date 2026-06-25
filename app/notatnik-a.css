@@ -4584,6 +4584,7 @@ button.notatnik-inline-link {
 }
 
 .notatnik-final-reviews {
+  box-sizing: border-box;
   display: grid;
   place-items: center;
   gap: 18px;
@@ -18965,12 +18966,22 @@ a.reference-info-row,
 
 /* Mobile homepage hero from the May 2026 reference board. */
 .router-mobile-hero-visual {
-  display: none;
+  display: block;
+  width: min(100%, 885px);
+  margin: 0 auto 32px;
+  position: relative;
+  line-height: 0;
+}
+.router-mobile-hero-visual img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: clamp(14px, 4vw, 24px);
 }
 
 @media (max-width: 760px) {
   .homepage-shell .notatnik-router-hero-section {
-    padding: 18px 22px 32px;
+    padding: 18px 22px 20px;
     background: #fdf9ef;
   }
 
@@ -19430,7 +19441,9 @@ a.reference-info-row,
   .homepage-shell .notatnik-final-reviews {
     position: relative;
     overflow: hidden;
-    margin: 0 14px 0;
+    margin: 0 auto 32px !important;
+    width: calc(100vw - 48px) !important;
+    max-width: 100%;
     padding: 26px 24px 30px;
     border-radius: 16px;
     background:
@@ -28802,7 +28815,7 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
 }
 
 .homepage-shell .router-reference-title {
-  max-width: 18ch;
+  max-width: 100%;
 }
 
 .homepage-shell .router-choice-card {
@@ -28842,6 +28855,7 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
 }
 
 .homepage-shell .notatnik-final-review-track {
+  box-sizing: border-box !important;
   position: relative;
   z-index: 1;
   display: flex;
@@ -28871,8 +28885,9 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
 }
 
 .homepage-shell .notatnik-final-review-track .notatnik-final-review-quote {
-  flex: 0 0 min(82vw, 520px) !important;
-  width: min(82vw, 520px) !important;
+  box-sizing: border-box !important;
+  flex: 0 0 min(70vw, 442px) !important;
+  width: min(70vw, 442px) !important;
   min-height: 176px !important;
   align-content: center !important;
   padding: 18px !important;
@@ -29003,8 +29018,8 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
   }
 
   .homepage-shell .notatnik-final-review-track .notatnik-final-review-quote {
-    flex-basis: min(88vw, 440px) !important;
-    width: min(88vw, 440px) !important;
+    flex-basis: min(75vw, 374px) !important;
+    width: min(75vw, 374px) !important;
     padding-inline: 24px !important;
     overflow: visible !important;
   }

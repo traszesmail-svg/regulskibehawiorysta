@@ -212,12 +212,12 @@ export function HomepageServiceSelector({ mode = 'home', initialAnimal = null, a
           <header className="router-hero-copy">
             <figure className="router-mobile-hero-visual" aria-label="Spokojny pies i kot w jasnym, domowym świetle">
               <Image
-                src="/images/mobile-header-pies-kot-reference.png"
+                src="/branding/regulski-web/hero/hero-home.png"
                 alt="Spokojny pies i kot leżą obok siebie w jasnym, ciepłym świetle"
                 width={885}
                 height={432}
                 priority
-                sizes="(max-width: 760px) calc(100vw - 44px), 1px"
+                sizes="(max-width: 760px) calc(100vw - 44px), 885px"
               />
             </figure>
             <div className="router-hero-intro">

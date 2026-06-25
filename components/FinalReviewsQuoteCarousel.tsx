@@ -11,13 +11,22 @@ type FinalReviewsQuoteCarouselProps = {
   sourceUrl?: string
 }
 
+function shuffleArray<T>(array: T[]): T[] {
+  const arr = [...array]
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]]
+  }
+  return arr
+}
+
 export function FinalReviewsQuoteCarousel({
   reviews,
   intervalMs = 6000,
   initialIndex = 0,
   sourceUrl,
 }: FinalReviewsQuoteCarouselProps) {
-  const [visibleReviews, setVisibleReviews] = useState(reviews)
+  const [visibleReviews, setVisibleReviews] = useState(() => shuffleArray(reviews))
   const trackRef = useRef<HTMLDivElement | null>(null)
   const [index, setIndex] = useState(() => {
     if (visibleReviews.length === 0) {
@@ -28,7 +37,7 @@ export function FinalReviewsQuoteCarousel({
   })
 
   useEffect(() => {
-    setVisibleReviews(reviews)
+    setVisibleReviews(shuffleArray(reviews))
   }, [reviews])
 
   useEffect(() => {
@@ -53,8 +62,9 @@ export function FinalReviewsQuoteCarousel({
           return
         }
 
-        setVisibleReviews(nextReviews)
-        setIndex(Math.floor(Math.random() * nextReviews.length))
+        const shuffled = shuffleArray(nextReviews)
+        setVisibleReviews(shuffled)
+        setIndex(Math.floor(Math.random() * shuffled.length))
       })
       .catch(() => {})
 

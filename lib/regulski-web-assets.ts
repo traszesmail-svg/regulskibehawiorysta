@@ -2,7 +2,7 @@ export const REGULSKI_WEB_LOGO = '/branding/regulski-web/logos/logo-regulski.png
 export const REGULSKI_WEB_BADGE_LOGO = '/branding/regulski-web/logos/favicon-180.png'
 
 export const REGULSKI_WEB_HERO = {
-  home: '/branding/regulski-web/hero/hero-home.webp',
+  home: '/branding/regulski-web/hero/hero-home.png',
   dogs: '/branding/regulski-web/hero/hero-dogs.webp',
   cats: '/branding/regulski-web/hero/hero-cats.webp',
   materialy: '/branding/regulski-web/hero/hero-materialy.webp',

@@ -449,7 +449,11 @@ export async function BookingSlotCalendar({
                 </article>
                 <article>
                   <Check size={30} strokeWidth={1.7} aria-hidden="true" />
-                  <strong>3. Otrzymaj analizę zachowania</strong>
+                  <strong>
+                    3. Otrzymaj
+                    <br />
+                    analizę zachowania
+                  </strong>
                   <span>{processOutcomeCopy}</span>
                 </article>
               </div>

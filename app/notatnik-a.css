@@ -6968,6 +6968,7 @@ html[data-theme='dark'] .notatnik-subhero-pet-figure {
   width: 18px;
   min-height: 18px;
   margin-top: 2px;
+  accent-color: var(--accent-warm);
 }
 
 .notatnik-page .materialy-form .consent-line .notatnik-inline-link {
@@ -6992,10 +6993,10 @@ html[data-theme='dark'] .notatnik-page .materialy-form {
   box-shadow: none;
 }
 
-html[data-theme='dark'] .notatnik-page .form-grid input,
+html[data-theme='dark'] .notatnik-page .form-grid input:not([type="checkbox"]),
 html[data-theme='dark'] .notatnik-page .form-grid textarea,
 html[data-theme='dark'] .notatnik-page .form-grid select,
-html[data-theme='dark'] .notatnik-page .materialy-form input,
+html[data-theme='dark'] .notatnik-page .materialy-form input:not([type="checkbox"]),
 html[data-theme='dark'] .notatnik-page .materialy-form textarea {
   background: #101311;
   border-color: #465044;
@@ -7957,8 +7958,12 @@ html[data-theme='dark'] .notatnik-page .materialy-form .consent-line {
   height: 18px;
   min-width: 18px;
   margin: 1px 0 0;
-  accent-color: #104326;
+  accent-color: #1e5a36;
   cursor: pointer;
+}
+
+html[data-theme='dark'] .booking-details-consent input {
+  accent-color: #9eaa70;
 }
 
 .booking-details-consent a {
@@ -30085,4 +30090,23 @@ main.notatnik-page.reference-about-redesign-page .reference-about-leaf-right {
     width: 196px !important;
     height: 236px !important;
   }
+}
+
+/* Fix checkbox visibility/darkening issues in forms across the site */
+.checkbox-card input,
+.contact-page #formularz .checkbox-card input,
+.add-opinion-checkbox input {
+  accent-color: #1e5a36 !important;
+}
+
+html[data-theme='dark'] .checkbox-card input,
+html[data-theme='dark'] .contact-page #formularz .checkbox-card input,
+html[data-theme='dark'] .add-opinion-checkbox input {
+  accent-color: #8fa882 !important;
+}
+
+html[data-theme='dark'] input[type="checkbox"] {
+  background: initial !important;
+  border-color: initial !important;
+  color: initial !important;
 }

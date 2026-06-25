@@ -352,24 +352,14 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, pay
           </div>
         </div>
 
-        {selectedSlot?.href ? (
-          <Link
-            href={selectedSlot.href}
-            prefetch={false}
-            className="notatnik-btn termin-summary-cta"
-            data-selected-slot-link="true"
-            data-slot-id={selectedSlot.id}
-            onClick={(event) => handleSummarySlotClick(event, selectedSlot)}
-          >
-            <CalendarDays size={17} strokeWidth={1.9} aria-hidden="true" />
-            <span>Uzupełnij dane</span>
-          </Link>
-        ) : (
+        {!selectedSlot ? (
           <Link href={summary.contactHref} prefetch={false} className="notatnik-btn termin-summary-cta">
             <span>Opisz krótko, co się dzieje.</span>
           </Link>
-        )}
-        <small>Dane i płatność pojawią się niżej, bez otwierania osobnego ekranu.</small>
+        ) : null}
+        {!selectedSlot ? (
+          <small>Dane i płatność pojawią się niżej, bez otwierania osobnego ekranu.</small>
+        ) : null}
       </aside>
 
       <section

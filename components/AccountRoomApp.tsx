@@ -261,7 +261,7 @@ export function AccountRoomApp({ initialView = 'start' }: AccountRoomAppProps) {
 
   if (loading) {
     return (
-      <section className="account-room-panel">
+      <section className="account-room-panel account-room-panel-shell">
         <div className="section-eyebrow">Pokój opiekuna</div>
         <h1>Ładuję konto...</h1>
       </section>
@@ -270,7 +270,7 @@ export function AccountRoomApp({ initialView = 'start' }: AccountRoomAppProps) {
 
   if (!authenticated) {
     return (
-      <section className="account-room-panel">
+      <section className="account-room-panel account-room-panel-shell">
         <div className="section-eyebrow">Pokój opiekuna</div>
         <h1>Zaloguj się, żeby zobaczyć swoje rezerwacje i materiały.</h1>
         <p className="hero-text small-width center-text">
@@ -290,7 +290,7 @@ export function AccountRoomApp({ initialView = 'start' }: AccountRoomAppProps) {
   }
 
   return (
-    <section className="account-room-panel">
+    <section className="account-room-panel account-room-panel-shell">
       <div className="account-room-header">
         <div>
           <div className="section-eyebrow">Pokój opiekuna</div>

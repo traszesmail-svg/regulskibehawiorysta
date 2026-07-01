@@ -92,8 +92,10 @@ export default function MaterialyLandingPage() {
       footerPrimaryHref={quickHref}
       footerPrimaryLabel="Kwadrans z behawiorystą"
       sideVisualVariant="materials"
+      pageClassName="homepage-shell materialy-page"
+      shellClassName="homepage-main materialy-shell"
     >
-      <section className="notatnik-subhero">
+      <section className="notatnik-subhero materialy-home-hero compact-home-section">
         <div>
           <div className="notatnik-subhero-tag notatnik-mono">Materiały PDF</div>
           <h1>
@@ -116,7 +118,7 @@ export default function MaterialyLandingPage() {
           </div>
         </div>
 
-        <div className="summary-card tree-backed-card regulski-web-summary-card">
+        <div className="summary-card tree-backed-card regulski-web-summary-card materialy-home-sidecard">
           <RegulskiWebHero variant="materialy" priority />
           <div className="section-eyebrow">Dostęp</div>
           <h3>Pobranie przez e-mail i kod dostępu</h3>
@@ -128,7 +130,7 @@ export default function MaterialyLandingPage() {
       </section>
 
       {sharedGuides.length > 0 ? (
-        <section id="start">
+        <section id="start" className="compact-home-section materialy-home-section">
           <NotatnikSectionHead index="I." kicker="Start" title="Najszerszy materiał dla opiekuna psa albo kota." />
           <div className="notatnik-material-grid top-gap-small">
             {sharedGuides.map((guide) => (
@@ -138,7 +140,7 @@ export default function MaterialyLandingPage() {
         </section>
       ) : null}
 
-      <section id="psy" style={{ background: 'var(--paper)' }}>
+      <section id="psy" className="compact-home-section materialy-home-section materialy-home-section-alt">
         <NotatnikSectionHead index="II." kicker="Psy" title="Materiały dla opiekunów psów." />
         <p style={{ maxWidth: '720px', color: 'var(--ink-quiet)' }}>
           Zostawanie samemu, smycz, goście, zasoby, niszczenie w domu, pobudzenie i pierwsze plany pracy ze szczeniakiem.
@@ -150,7 +152,7 @@ export default function MaterialyLandingPage() {
         </div>
       </section>
 
-      <section id="koty">
+      <section id="koty" className="compact-home-section materialy-home-section">
         <NotatnikSectionHead index="III." kicker="Koty" title="Materiały dla opiekunów kotów." />
         <p style={{ maxWidth: '720px', color: 'var(--ink-quiet)' }}>
           Kuweta, napięcie między kotami, nocne i poranne miauczenie, chowanie się po zmianach oraz kontakt z człowiekiem.
@@ -162,7 +164,7 @@ export default function MaterialyLandingPage() {
         </div>
       </section>
 
-      <section id="jak-to-dziala" style={{ background: 'var(--paper)' }}>
+      <section id="jak-to-dziala" className="compact-home-section materialy-home-section materialy-home-section-alt">
         <NotatnikSectionHead index="IV." kicker="Jak to działa" title="Pobranie w 3 krokach." />
         <div className="notatnik-steps">
           <article className="notatnik-step">

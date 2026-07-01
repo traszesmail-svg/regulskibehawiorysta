@@ -206,7 +206,7 @@ export default function PrivacyPolicyPage() {
       structuredData={[
         getBreadcrumbJsonLd([
           { name: 'Strona główna', path: '/' },
-          { name: 'Polityka prywatności', path: '/polityka-prywatności' },
+          { name: 'Polityka prywatności', path: '/polityka-prywatnosci' },
         ]),
       ]}
     />

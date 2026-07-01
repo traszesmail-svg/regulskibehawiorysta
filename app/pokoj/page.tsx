@@ -59,15 +59,18 @@ export default async function RoomAccessPage({
       ctaLabel="Wpisz kod"
       footerPrimaryHref="/dostep"
       footerPrimaryLabel="Wpisz kod dostępu"
+      sideVisualVariant="booking"
+      pageClassName="homepage-shell pokoj-page"
+      shellClassName="homepage-main pokoj-shell"
     >
       {!shouldUseLegacyAccess ? (
-        <div className="container">
+        <div className="container pokoj-shell-content">
           <AccountRoomApp />
         </div>
       ) : null}
 
       {shouldUseLegacyAccess ? (
-        <div className="container">
+        <div className="container pokoj-shell-content">
         <section className="panel centered-panel hero-surface booking-stage-panel transaction-panel booking-flow-panel">
           {!hasAccess || !order ? (
             <div className="stack-gap">

@@ -7,7 +7,6 @@
     "dev": "next dev",
     "local": "npm run build && npm run start -- --hostname 127.0.0.1 --port 3000",
     "build": "next lint --no-cache && next build --no-lint",
-    "postbuild": "next-sitemap",
     "start": "next start",
     "lint": "next lint --no-cache",
     "test": "node --import tsx --test tests/runtime-config.test.ts tests/customer-emails.test.ts tests/funnel-metrics.test.ts tests/booking-api-errors.test.ts tests/scheduling-rules.test.ts tests/promo-codes.test.ts",

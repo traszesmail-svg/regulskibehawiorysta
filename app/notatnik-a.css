@@ -24384,7 +24384,8 @@ a.reference-info-row,
 
 .notatnik-topbar .notatnik-nav,
 .notatnik-topbar .notatnik-topbar-actions {
-  display: none !important;
+  display: flex !important;
+  align-items: center !important;
 }
 
 .notatnik-topbar .notatnik-brand {
@@ -24459,7 +24460,7 @@ a.reference-info-row,
 }
 
 .notatnik-topbar .notatnik-mobile-menu {
-  display: block !important;
+  display: none !important;
   flex: 0 0 auto !important;
   justify-self: auto !important;
   margin-left: auto !important;
@@ -24509,6 +24510,15 @@ a.reference-info-row,
 }
 
 @media (max-width: 760px) {
+  .notatnik-topbar .notatnik-nav,
+  .notatnik-topbar .notatnik-topbar-actions {
+    display: none !important;
+  }
+
+  .notatnik-topbar .notatnik-mobile-menu {
+    display: block !important;
+  }
+
   .notatnik-page > .notatnik-shell,
   .notatnik-page .reference-shell,
   .blog-redesign-page .blog-redesign-shell,

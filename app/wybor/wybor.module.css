@@ -553,6 +553,16 @@
   padding: 16px 30px 14px !important;
 }
 
+.page :global(.notatnik-nav),
+.page :global(.notatnik-topbar-actions) {
+  display: none !important;
+}
+
+.page :global(.notatnik-mobile-menu) {
+  display: block !important;
+  justify-self: end !important;
+}
+
 .page :global(.notatnik-brand) {
   width: auto !important;
   max-width: 100% !important;
@@ -594,6 +604,7 @@
 }
 
 .page :global(.notatnik-mobile-menu) {
+  display: block !important;
   justify-self: end !important;
 }
 
@@ -1984,3 +1995,4 @@
     width: 100%;
   }
 }
+

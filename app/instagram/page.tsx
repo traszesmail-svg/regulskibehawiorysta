@@ -60,12 +60,19 @@ export default function InstagramLinksPage() {
 
         <div className="blog-redesign-content instagram-link-content">
           <section className="instagram-link-hero" aria-labelledby="instagram-link-title">
-            <span className="blog-redesign-kicker">Regulski Behawiorysta / Instagram</span>
-            <h1 id="instagram-link-title">Linki do tematów z postów i stories</h1>
-            <p>
+            <div className="instagram-link-hero-copy">
+              <span className="blog-redesign-kicker">Regulski Behawiorysta / Instagram</span>
+              <h1 id="instagram-link-title">Linki do tematów z postów i stories</h1>
+              <p>
               Wybierz temat, który pasuje do sytuacji. Link prowadzi do strony problemowej, artykułu albo quizu, żeby nie zgadywać
               zakresu pomocy po samym poście.
-            </p>
+              </p>
+            </div>
+            <aside className="instagram-link-hero-guide" aria-label="Jak korzystać z linków z Instagrama">
+              <span>Jak czytać post</span>
+              <strong>Najpierw problem, potem kontekst i dopiero decyzja o kroku.</strong>
+              <p>Ten adres ma skracać drogę z bio albo stories: bez presji na rezerwację, z bezpiecznym pierwszym wyborem tematu.</p>
+            </aside>
           </section>
 
           <section className="instagram-link-section" aria-labelledby="instagram-link-main-title">

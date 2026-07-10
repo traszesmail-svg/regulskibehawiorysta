@@ -26,7 +26,7 @@ export function FinalReviewsQuoteCarousel({
   initialIndex = 0,
   sourceUrl,
 }: FinalReviewsQuoteCarouselProps) {
-  const [visibleReviews, setVisibleReviews] = useState(() => shuffleArray(reviews))
+  const [visibleReviews, setVisibleReviews] = useState(() => reviews)
   const trackRef = useRef<HTMLDivElement | null>(null)
   const [index, setIndex] = useState(() => {
     if (visibleReviews.length === 0) {

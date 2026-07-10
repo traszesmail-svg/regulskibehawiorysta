@@ -711,7 +711,7 @@ export function ProblemLandingPage({ routePath }: { routePath: string }) {
   )
 
   return (
-    <main className="page-wrap editorial-home-page premium-home-page">
+    <main className="page-wrap editorial-home-page premium-home-page problem-landing-page">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
       <NotatnikSideVisuals variant={landing.categoryHref === '/koty' ? 'cat' : 'dog'} />
 

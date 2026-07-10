@@ -111,9 +111,13 @@ export function AnalyticsConsent({ measurementId, cookiebotDomainGroupId }: Anal
         return
       }
 
+      const trackedLink = target.closest<HTMLAnchorElement>('a[href]')
+
       trackAnalyticsEvent(eventName, {
         location: target.dataset.analyticsLocation,
         source_page: target.dataset.analyticsSourcePage ?? pathname,
+        target_href: target.dataset.analyticsTargetHref ?? trackedLink?.getAttribute('href'),
+        campaign: target.dataset.analyticsCampaign,
         problem_key: target.dataset.analyticsProblem,
         species: target.dataset.analyticsSpecies,
         service_key: target.dataset.analyticsService,

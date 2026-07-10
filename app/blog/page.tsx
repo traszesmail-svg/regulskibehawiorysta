@@ -65,6 +65,7 @@ type BlogCategory = {
   count: number
   icon: LucideIcon
   predicate?: (post: BlogPost) => boolean
+  group?: 'core' | 'trend'
 }
 
 function getSingleParam(value: string | string[] | undefined) {
@@ -150,6 +151,69 @@ function buildCategories(posts: BlogPost[]): BlogCategory[] {
       icon: Baby,
       predicate: (post) => /szczeniak|kocie|kocię|nowy-pies|nowego-kota/i.test(post.slug),
     },
+    {
+      id: 'smycz-spacery',
+      label: 'Smycz i spacery',
+      href: getCategoryHref('smycz-spacery'),
+      count: countBy(posts, (post) => /smycz|spacer|reaktywnosc|ciagnie/i.test(post.slug)),
+      icon: Dog,
+      group: 'trend',
+      predicate: (post) => /smycz|spacer|reaktywnosc|ciagnie/i.test(post.slug),
+    },
+    {
+      id: 'samotnosc-psa',
+      label: 'Samotność psa',
+      href: getCategoryHref('samotnosc-psa'),
+      count: countBy(posts, (post) => /sam|samotnos|wyje|zostawania/i.test(post.slug)),
+      icon: Home,
+      group: 'trend',
+      predicate: (post) => /sam|samotnos|wyje|zostawania/i.test(post.slug),
+    },
+    {
+      id: 'kuweta',
+      label: 'Kuweta',
+      href: getCategoryHref('kuweta'),
+      count: countBy(posts, (post) => /kuwet|toalet/i.test(post.slug)),
+      icon: Cat,
+      group: 'trend',
+      predicate: (post) => /kuwet|toalet/i.test(post.slug),
+    },
+    {
+      id: 'relacje-kotow',
+      label: 'Relacje kotów',
+      href: getCategoryHref('relacje-kotow'),
+      count: countBy(posts, (post) => /kot.*kot|zapoznac|nowego-kota|relac|konflikt/i.test(post.slug)),
+      icon: UsersRound,
+      group: 'trend',
+      predicate: (post) => /kot.*kot|zapoznac|nowego-kota|relac|konflikt/i.test(post.slug),
+    },
+    {
+      id: 'nagla-zmiana',
+      label: 'Nagła zmiana zachowania',
+      href: getCategoryHref('nagla-zmiana'),
+      count: countBy(posts, (post) => /stres|kuwet|agres|boi|chowa|zachowan/i.test(post.slug)),
+      icon: Heart,
+      group: 'trend',
+      predicate: (post) => /stres|kuwet|agres|boi|chowa|zachowan/i.test(post.slug),
+    },
+    {
+      id: 'adopcja-pierwsze-dni',
+      label: 'Pierwsze dni po adopcji',
+      href: getCategoryHref('adopcja-pierwsze-dni'),
+      count: countBy(posts, (post) => /nowy-pies|nowego-kota|pierwsza-noc|pierwsze-72/i.test(post.slug)),
+      icon: Baby,
+      group: 'trend',
+      predicate: (post) => /nowy-pies|nowego-kota|pierwsza-noc|pierwsze-72/i.test(post.slug),
+    },
+    {
+      id: 'halas-burza-fajerwerki',
+      label: 'Hałas, burza, fajerwerki',
+      href: getCategoryHref('halas-burza-fajerwerki'),
+      count: countBy(posts, (post) => /lek|lÄ™k|boi|stres|panik|dzwiek|halas/i.test(post.slug)),
+      icon: Brain,
+      group: 'trend',
+      predicate: (post) => /lek|lÄ™k|boi|stres|panik|dzwiek|halas/i.test(post.slug),
+    },
   ]
 }
 
@@ -213,6 +277,8 @@ function pickPostsBySlugs(posts: BlogPost[], slugs: readonly string[]) {
 export default function BlogPage({ searchParams }: { searchParams?: BlogSearchParams }) {
   const posts = listBlogPosts()
   const categories = buildCategories(posts)
+  const coreCategories = categories.filter((category) => category.group !== 'trend')
+  const trendCategories = categories.filter((category) => category.group === 'trend')
   const categoryId = normalizeParam(searchParams?.category) || 'all'
   const activeCategory =
     categories.find((category) => category.id === categoryId && (category.id === 'all' || category.predicate)) ?? categories[0]
@@ -263,7 +329,7 @@ export default function BlogPage({ searchParams }: { searchParams?: BlogSearchPa
           </section>
 
           <nav id="blog-kategorie" className="blog-redesign-category-pills" aria-label="Kategorie bloga">
-            {categories.map((category) => {
+            {coreCategories.map((category) => {
               const Icon = category.icon
               const isActive = category.id === activeCategory?.id
 
@@ -283,6 +349,39 @@ export default function BlogPage({ searchParams }: { searchParams?: BlogSearchPa
             })}
           </nav>
 
+
+          <section className="blog-trend-topic-panel" aria-labelledby="blog-trend-topic-title">
+            <div className="blog-redesign-section-heading">
+              <h2 id="blog-trend-topic-title">Najczęściej szukane tematy</h2>
+              <p>Problemowe filtry prowadzą szybciej do języka opiekuna: smycz, samotność, kuweta, relacje, adopcja i nagła zmiana.</p>
+            </div>
+            <div className="blog-trend-topic-grid">
+              {trendCategories.map((category) => {
+                const Icon = category.icon
+                const isActive = category.id === activeCategory?.id
+
+                return (
+                  <Link
+                    key={category.id}
+                    href={category.href}
+                    prefetch={false}
+                    className={isActive ? 'is-active' : undefined}
+                    aria-current={isActive ? 'page' : undefined}
+                    data-analytics-event="topic_selected"
+                    data-analytics-location="blog-trend-topics"
+                    data-analytics-problem={category.id}
+                    data-analytics-cta-label={category.label}
+                    data-analytics-item-type="blog_problem_filter"
+                    data-analytics-item-slug={category.id}
+                  >
+                    <Icon size={17} strokeWidth={1.9} aria-hidden="true" />
+                    <span>{repairCopy(category.label)}</span>
+                    <small>{category.count} wpisów</small>
+                  </Link>
+                )
+              })}
+            </div>
+          </section>
           <section id="artykuly" className="blog-redesign-section-block" aria-label="Artykuły blogowe">
             <div className="blog-redesign-section-heading">
               <h2>{activeCategory.id === 'all' ? 'Wszystkie artykuły' : `Artykuły: ${repairCopy(activeCategory.label)}`}</h2>
@@ -360,7 +459,7 @@ export default function BlogPage({ searchParams }: { searchParams?: BlogSearchPa
             <div>
               <h2>Kategorie</h2>
               <div className="blog-redesign-category-table">
-                {categories.map((category) => {
+                {coreCategories.map((category) => {
                   const Icon = category.icon
 
                   return (

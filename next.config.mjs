@@ -124,22 +124,12 @@ const nextConfig = {
       },
       {
         source: '/psy',
-        destination: '/',
-        statusCode: 301,
-      },
-      {
-        source: '/psy/:path*',
-        destination: '/',
+        destination: '/problemy#pies',
         statusCode: 301,
       },
       {
         source: '/koty',
-        destination: '/',
-        statusCode: 301,
-      },
-      {
-        source: '/koty/:path*',
-        destination: '/',
+        destination: '/problemy#kot',
         statusCode: 301,
       },
       {

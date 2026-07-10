@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { CalendarCheck, Headphones, MessageSquareText, Video } from 'lucide-react'
+import { ArrowRight, CalendarCheck, Headphones, MessageSquareText, Video } from 'lucide-react'
 import { EditorialIndexTopbar } from '@/components/EditorialIndexTopbar'
 import { FinalReviewsQuoteCarousel } from '@/components/FinalReviewsQuoteCarousel'
 import { FaqAccordion } from '@/components/FaqAccordion'
@@ -13,6 +13,8 @@ import { homepageProcessSteps } from '@/lib/homepage-data'
 import { getBreadcrumbJsonLd, getFaqPageJsonLd, getServiceJsonLd } from '@/lib/schema'
 import { buildHomeMetadata } from '@/lib/seo'
 import { COAPE_POLSKA_LOGO, HOME_HERO_PHOTO } from '@/lib/site'
+import { getSeasonalTrendRadar } from '@/lib/seasonal-trend-radar'
+import { HOME_TREND_PROBLEM_CARDS } from '@/lib/trend-problems'
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildHomeMetadata()
@@ -42,6 +44,7 @@ const routerFaqItems = [
 ] as const
 
 export default function HomePage() {
+  const seasonalTrendRadar = getSeasonalTrendRadar()
   const structuredData = [
     getBreadcrumbJsonLd([{ name: 'Strona główna', path: '/' }]),
     getServiceJsonLd({
@@ -75,6 +78,111 @@ export default function HomePage() {
           <HomepageServiceSelector />
         </section>
 
+        <section className="compact-home-section home-trend-problems-section" id="najczestsze-problemy">
+          <div className="home-trend-problems-heading">
+            <div className="home-section-title">
+              <span className="home-trend-problems-kicker">Najczęściej szukane teraz</span>
+              <h2>Wybierz problem, który najbardziej przypomina Twoją sytuację</h2>
+              <p>
+                Nie musisz znać przyczyny. Zacznij od tego, co widzisz na co dzień, a potem przejdź do artykułu,
+                szerszej strony problemowej albo quizu.
+              </p>
+            </div>
+            <Link
+              href="/problemy"
+              prefetch={false}
+              className="home-trend-problems-all"
+              data-analytics-event="cta_click"
+              data-analytics-location="home-trend-problems"
+              data-analytics-cta-label="Zobacz mapę problemów"
+              data-analytics-item-type="problem_hub"
+            >
+              Zobacz mapę problemów
+              <ArrowRight size={17} strokeWidth={1.9} aria-hidden="true" />
+            </Link>
+          </div>
+
+          <div className="home-trend-problems-grid">
+            {HOME_TREND_PROBLEM_CARDS.map((problem) => (
+              <article key={problem.id} className="home-trend-problem-card">
+                <span className="home-trend-problem-eyebrow">{problem.eyebrow}</span>
+                <h3>{problem.title}</h3>
+                <p>{problem.copy}</p>
+                <div className="home-trend-problem-actions">
+                  <Link
+                    href={problem.primaryHref}
+                    prefetch={false}
+                    data-analytics-event="topic_selected"
+                    data-analytics-location="home-trend-problems"
+                    data-analytics-problem={problem.id}
+                    data-analytics-species={problem.group === 'bezpieczenstwo' ? undefined : problem.group}
+                    data-analytics-cta-label={problem.primaryLabel}
+                    data-analytics-item-type="problem_card"
+                    data-analytics-item-slug={problem.id}
+                    data-analytics-target-href={problem.primaryHref}
+                  >
+                    {problem.primaryLabel}
+                    <ArrowRight size={15} strokeWidth={1.9} aria-hidden="true" />
+                  </Link>
+                  {problem.secondaryHref ? (
+                    <Link
+                      href={problem.secondaryHref}
+                      prefetch={false}
+                      data-analytics-event="cta_click"
+                      data-analytics-location="home-trend-problems-secondary"
+                      data-analytics-problem={problem.id}
+                      data-analytics-species={problem.group === 'bezpieczenstwo' ? undefined : problem.group}
+                      data-analytics-cta-label={problem.secondaryLabel ?? 'Zobacz więcej'}
+                      data-analytics-item-type="problem_card_secondary"
+                      data-analytics-item-slug={problem.id}
+                      data-analytics-target-href={problem.secondaryHref}
+                    >
+                      {problem.secondaryLabel ?? 'Zobacz więcej'}
+                    </Link>
+                  ) : null}
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+        <section className="compact-home-section home-seasonal-trend-section" aria-labelledby="home-seasonal-trend-title">
+          <div className="home-seasonal-trend-panel">
+            <div className="home-seasonal-trend-copy">
+              <span className="home-trend-problems-kicker">Trend radar sezonowy</span>
+              <h2 id="home-seasonal-trend-title">Teraz warto sprawdzić tematy, które zwykle nasilają się w sezonie</h2>
+              <p>
+                To nie są osobne usługi. To szybkie wejścia do istniejącej ścieżki: problem, pierwszy kontekst i quiz, gdy trzeba wybrać zakres pomocy.
+              </p>
+            </div>
+            <div className="home-seasonal-trend-grid">
+              {seasonalTrendRadar.activeEntries.map((entry) => (
+                <Link
+                  key={entry.id}
+                  href={entry.href}
+                  prefetch={false}
+                  className="home-seasonal-trend-card"
+                  data-analytics-event="topic_selected"
+                  data-analytics-location="home-seasonal-trends"
+                  data-analytics-campaign={seasonalTrendRadar.campaign}
+                  data-analytics-problem={entry.problemKey}
+                  data-analytics-species={entry.species}
+                  data-analytics-cta-label={entry.ctaLabel}
+                  data-analytics-item-type="seasonal_topic"
+                  data-analytics-item-slug={entry.id}
+                  data-analytics-target-href={entry.href}
+                >
+                  <span>{entry.eyebrow}</span>
+                  <strong>{entry.title}</strong>
+                  <p>{entry.copy}</p>
+                  <small>
+                    {entry.seasonLabel}
+                    <ArrowRight size={14} strokeWidth={1.9} aria-hidden="true" />
+                  </small>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
         <section className="compact-home-section home-process-section" id="jak-to-działa">
           <div className="home-section-title">
             <h2>Jak wygląda współpraca?</h2>

@@ -1,6 +1,8 @@
 import type { MetadataRoute } from 'next'
 import { getCanonicalBaseUrl } from '@/lib/server/env'
 import { listBlogRoutePaths } from '@/lib/blog'
+import { listProblemPagePaths } from '@/lib/problem-pages'
+import { listProblemLandingPaths } from '@/lib/problem-landings'
 import { listPdfGuides } from '@/lib/pdf-guides'
 
 const STATIC_ROUTES: Array<{ path: string; priority: number; changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency'] }> = [
@@ -12,6 +14,8 @@ const STATIC_ROUTES: Array<{ path: string; priority: number; changeFrequency: Me
   { path: '/kontakt', priority: 0.8, changeFrequency: 'monthly' },
   { path: '/faq', priority: 0.7, changeFrequency: 'monthly' },
   { path: '/blog', priority: 0.8, changeFrequency: 'weekly' },
+  { path: '/problemy', priority: 0.82, changeFrequency: 'weekly' },
+  { path: '/instagram', priority: 0.7, changeFrequency: 'weekly' },
   { path: '/regulamin', priority: 0.4, changeFrequency: 'yearly' },
   { path: '/polityka-prywatnosci', priority: 0.4, changeFrequency: 'yearly' },
   { path: '/newsletter', priority: 0.5, changeFrequency: 'monthly' },
@@ -54,6 +58,32 @@ export default function sitemap(): MetadataRoute.Sitemap {
     console.error('[sitemap] Failed to add blog paths', err)
   }
 
+  try {
+    const problemPagePaths = listProblemPagePaths()
+    for (const path of problemPagePaths) {
+      routeMap.set(path, {
+        url: buildAbsoluteUrl(baseUrl, path),
+        lastModified,
+        changeFrequency: 'weekly',
+        priority: 0.8,
+      })
+    }
+  } catch (err) {
+    console.error('[sitemap] Failed to add detailed problem page paths', err)
+  }
+  try {
+    const problemPaths = listProblemLandingPaths()
+    for (const path of problemPaths) {
+      routeMap.set(path, {
+        url: buildAbsoluteUrl(baseUrl, path),
+        lastModified,
+        changeFrequency: 'weekly',
+        priority: 0.78,
+      })
+    }
+  } catch (err) {
+    console.error('[sitemap] Failed to add problem landing paths', err)
+  }
   try {
     const pdfGuides = listPdfGuides()
     for (const guide of pdfGuides) {

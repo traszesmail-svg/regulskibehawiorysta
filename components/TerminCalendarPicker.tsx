@@ -196,6 +196,7 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, pay
                     prefetch={false}
                     className="termin-nearest-slot-link"
                     data-nearest-slot-link="true"
+                    data-selected-slot-link="true"
                     data-slot-id={slot.id}
                     onClick={(event) => handleNearestSlotClick(event, slot)}
                   >

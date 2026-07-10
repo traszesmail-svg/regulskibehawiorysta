@@ -29,6 +29,7 @@ import { trackAnalyticsEvent } from '@/lib/analytics'
 import {
   QUIZ_QUESTIONS,
   QUIZ_SERVICE_LABELS,
+  getQuizProblemContext,
   resolveQuizResult,
   type QuizAnswers,
   type QuizServiceKey,
@@ -36,6 +37,7 @@ import {
 
 type DecisionQuizProps = {
   bookingHrefs: Record<QuizServiceKey, string>
+  initialProblemKey?: string | null
 }
 
 type OptionVisual = {
@@ -97,15 +99,31 @@ function OptionIcon({ optionId, selected }: { optionId: string; selected: boolea
   )
 }
 
-export function DecisionQuiz({ bookingHrefs }: DecisionQuizProps) {
-  const [stepIndex, setStepIndex] = useState(0)
-  const [answers, setAnswers] = useState<QuizAnswers>({})
+export function DecisionQuiz({ bookingHrefs, initialProblemKey }: DecisionQuizProps) {
+  const problemContext = getQuizProblemContext(initialProblemKey)
+  const initialStepIndex = problemContext?.species
+    ? Math.max(
+        QUIZ_QUESTIONS.findIndex((question) => question.id === 'main_topic'),
+        0,
+      )
+    : 0
+  const [stepIndex, setStepIndex] = useState(initialStepIndex)
+  const [answers, setAnswers] = useState<QuizAnswers>(() => ({
+    ...(problemContext?.species ? { species: problemContext.species } : {}),
+    ...(problemContext ? { problem_context: problemContext.problemKey } : {}),
+  }))
   const [showResult, setShowResult] = useState(false)
   const autoAdvanceTimer = useRef<number | null>(null)
   const quizRootRef = useRef<HTMLDivElement | null>(null)
   const hasMountedRef = useRef(false)
 
   const currentQuestion = QUIZ_QUESTIONS[stepIndex]
+  const questionTitle =
+    problemContext && currentQuestion?.id === 'main_topic' ? 'Co dzieje się najczęściej?' : currentQuestion?.title
+  const questionHelper =
+    problemContext && currentQuestion?.id === 'main_topic'
+      ? 'Wybierz najbliższy opis. Temat z linku zostanie dopięty do wyniku quizu.'
+      : currentQuestion?.helper
   const result = useMemo(() => resolveQuizResult(answers), [answers])
   const resultMeta = QUIZ_SERVICE_LABELS[result.serviceKey]
   const currentAnswer = currentQuestion ? answers[currentQuestion.id] : undefined
@@ -134,7 +152,8 @@ export function DecisionQuiz({ bookingHrefs }: DecisionQuizProps) {
     trackAnalyticsEvent('quiz_completed', {
       location: 'quiz',
       result: finalResult.serviceKey,
-      species: finalAnswers.species ?? 'unknown',
+      species: finalAnswers.species ?? problemContext?.species ?? 'unknown',
+      problem_key: finalAnswers.problem_context ?? problemContext?.problemKey ?? null,
     })
   }
 
@@ -168,6 +187,7 @@ export function DecisionQuiz({ bookingHrefs }: DecisionQuizProps) {
       location: 'quiz',
       question: questionId,
       answer: optionId,
+      problem_key: nextAnswers.problem_context ?? problemContext?.problemKey ?? null,
     })
 
     scheduleAutoAdvance(questionId, nextAnswers)
@@ -214,6 +234,35 @@ export function DecisionQuiz({ bookingHrefs }: DecisionQuizProps) {
           <h2>{result.title}</h2>
           <p>{result.summary}</p>
 
+          {result.firstStep || result.avoid ? (
+            <div className="decision-quiz-context-result">
+              {result.firstStep ? (
+                <div>
+                  <strong>Pierwszy krok</strong>
+                  <p>{result.firstStep}</p>
+                </div>
+              ) : null}
+              {result.avoid ? (
+                <div>
+                  <strong>Czego nie robić na start</strong>
+                  <p>{result.avoid}</p>
+                </div>
+              ) : null}
+              <div className="decision-quiz-context-links">
+                {result.articleHref ? (
+                  <Link href={result.articleHref} prefetch={false}>
+                    {result.articleLabel ?? 'Czytaj artykuł'}
+                  </Link>
+                ) : null}
+                {result.problemHref ? (
+                  <Link href={result.problemHref} prefetch={false}>
+                    {result.problemLabel ?? 'Zobacz stronę problemową'}
+                  </Link>
+                ) : null}
+              </div>
+            </div>
+          ) : null}
+
           <div className="decision-quiz-result-price" aria-label="Sugerowana konsultacja">
             <span>{resultMeta.label}</span>
             <strong>{resultMeta.price}</strong>
@@ -237,6 +286,7 @@ export function DecisionQuiz({ bookingHrefs }: DecisionQuizProps) {
                 trackAnalyticsEvent('cta_click', {
                   location: 'quiz-result',
                   service: result.serviceKey,
+                  problem_key: answers.problem_context ?? problemContext?.problemKey ?? null,
                 })
               }
             >
@@ -285,10 +335,10 @@ export function DecisionQuiz({ bookingHrefs }: DecisionQuizProps) {
 
       <article className="decision-quiz-card">
         <div className="quiz-question-pill">Pytanie {stepIndex + 1}</div>
-        <h2>{currentQuestion.title}</h2>
-        {currentQuestion.helper ? <p className="muted">{currentQuestion.helper}</p> : null}
+        <h2>{questionTitle}</h2>
+        {questionHelper ? <p className="muted">{questionHelper}</p> : null}
 
-        <div className="decision-quiz-options" role="radiogroup" aria-label={currentQuestion.title}>
+        <div className="decision-quiz-options" role="radiogroup" aria-label={questionTitle}>
           {currentQuestion.options.map((option) => {
             const selected = currentAnswer === option.id
 

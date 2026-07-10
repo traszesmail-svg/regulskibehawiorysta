@@ -5,6 +5,7 @@ import { NotatnikPageShell, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA
 import { ReferenceHeroLeaf } from '@/components/ReferencePageShell'
 import { Schema } from '@/components/schema'
 import { buildBookHref } from '@/lib/booking-routing'
+import { getQuizProblemContext } from '@/lib/quiz'
 import { getBreadcrumbJsonLd } from '@/lib/schema'
 import { buildMarketingMetadata } from '@/lib/seo'
 
@@ -21,13 +22,22 @@ const bookingHrefs = {
   'pelna-konsultacja': buildBookHref(null, 'konsultacja-behawioralna-online'),
 } as const
 
+
+type QuizSearchParams = {
+  problem?: string | string[]
+}
+
+function getSingleParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value
+}
 const quizBenefits = [
   { icon: ShieldCheck, title: 'Bez zobowiązań' },
   { icon: Clock3, title: 'Zajmie 2-3 minuty' },
   { icon: HeartHandshake, title: 'Dla psa i kota' },
 ] as const
 
-export default function QuizPage() {
+export default function QuizPage({ searchParams }: { searchParams?: QuizSearchParams }) {
+  const problemContext = getQuizProblemContext(getSingleParam(searchParams?.problem))
   return (
     <NotatnikPageShell
       tag="Quiz"
@@ -51,10 +61,10 @@ export default function QuizPage() {
         <section className="quiz-reference-card" aria-labelledby="quiz-title">
           <div className="quiz-reference-hero">
             <div className="section-eyebrow">Quiz</div>
-            <h1 id="quiz-title">Dobierzmy najlepszy pierwszy krok</h1>
+            <h1 id="quiz-title">{problemContext?.heroTitle ?? 'Dobierzmy najlepszy pierwszy krok'}</h1>
             <p>
-              Odpowiedz na kilka prostych pytań. Na końcu podpowiem, czy wystarczy krótka rozmowa, dłuższa konsultacja
-              czy spokojne doprecyzowanie sytuacji.
+              {problemContext?.heroCopy ??
+                'Odpowiedz na kilka prostych pytań. Na końcu podpowiem, czy wystarczy krótka rozmowa, dłuższa konsultacja czy spokojne doprecyzowanie sytuacji.'}
             </p>
           </div>
 
@@ -73,7 +83,7 @@ export default function QuizPage() {
             })}
           </div>
 
-          <DecisionQuiz bookingHrefs={bookingHrefs} />
+          <DecisionQuiz bookingHrefs={bookingHrefs} initialProblemKey={problemContext?.problemKey} />
         </section>
       </div>
     </NotatnikPageShell>

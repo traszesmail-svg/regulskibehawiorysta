@@ -1,4 +1,4 @@
-﻿import 'server-only'
+import 'server-only'
 
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
@@ -324,7 +324,7 @@ const PREP_GUIDE_LINK: BlogSupportLink = {
 
 const REACTIVITY_LANDING_LINK: BlogSupportLink = {
   label: 'Reaktywność na smyczy',
-  href: '/materialy#psy',
+  href: '/psy/reaktywnosc-na-smyczy',
   description: 'Główny landing problemowy dla spacerów, szczekania, napięcia i pracy poniżej progu.',
 }
 
@@ -336,7 +336,7 @@ const REACTIVITY_GUIDE_LINK: BlogSupportLink = {
 
 const SEPARATION_LANDING_LINK: BlogSupportLink = {
   label: 'Lęk separacyjny u psa',
-  href: '/materialy#psy',
+  href: '/psy/lek-separacyjny',
   description: 'Główny landing problemowy o zostawaniu samemu, analizie zachowania i pierwszym bezpiecznym planie.',
 }
 
@@ -348,7 +348,7 @@ const SEPARATION_GUIDE_LINK: BlogSupportLink = {
 
 const LITTER_LANDING_LINK: BlogSupportLink = {
   label: 'Załatwianie poza kuwetą',
-  href: '/materialy#koty',
+  href: '/koty/zalatwianie-poza-kuweta',
   description: 'Główny landing problemowy o zdrowiu, kuwecie, stresie i kolejności sprawdzania przyczyn.',
 }
 
@@ -360,7 +360,7 @@ const LITTER_GUIDE_LINK: BlogSupportLink = {
 
 const CAT_CONFLICT_LANDING_LINK: BlogSupportLink = {
   label: 'Konflikt między kotami',
-  href: '/materialy#koty',
+  href: '/koty/konflikt-miedzy-kotami',
   description: 'Główny landing problemowy dla napięcia, gonitw, blokowania zasobów i trudnych relacji w domu.',
 }
 
@@ -413,7 +413,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     supportLinks: [
       {
         label: 'Reaktywność na smyczy',
-        href: '/materialy#psy',
+        href: '/psy/reaktywnosc-na-smyczy',
         description: 'Pełniejsza strona problemowa o spacerach i napięciu na smyczy.',
       },
       {
@@ -444,7 +444,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     supportLinks: [
       {
         label: 'Lęk separacyjny u psa',
-        href: '/materialy#psy',
+        href: '/psy/lek-separacyjny',
         description: 'Pełniejszy przewodnik, jeśli problem powtarza się albo szybko narasta.',
       },
       {
@@ -475,7 +475,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     supportLinks: [
       {
         label: 'Załatwianie poza kuwetą',
-        href: '/materialy#koty',
+        href: '/koty/zalatwianie-poza-kuweta',
         description: 'Pełniejsza strona problemowa o filtrach diagnostycznych i pierwszych decyzjach.',
       },
       {
@@ -537,7 +537,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     supportLinks: [
       {
         label: 'Reaktywność na smyczy',
-        href: '/materialy#psy',
+        href: '/psy/reaktywnosc-na-smyczy',
         description: 'Pełniejsza strona problemowa, jeśli samo ciągnięcie jest częścią większego napięcia.',
       },
       {
@@ -568,7 +568,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     supportLinks: [
       {
         label: 'Załatwianie poza kuwetą',
-        href: '/materialy#koty',
+        href: '/koty/zalatwianie-poza-kuweta',
         description: 'Jeśli obok drapania widzisz też napięcie środowiskowe lub problem toaletowy.',
       },
       {

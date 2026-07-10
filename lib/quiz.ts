@@ -22,8 +22,192 @@ export type QuizResult = {
   summary: string
   reasons: string[]
   note: string
+  problemTitle?: string
+  firstStep?: string
+  avoid?: string
+  articleHref?: string
+  articleLabel?: string
+  problemHref?: string
+  problemLabel?: string
 }
 
+export type QuizProblemContext = {
+  problemKey: string
+  species?: QuizSpecies
+  mainTopic: string
+  heroTitle: string
+  heroCopy: string
+  resultTitle: string
+  resultSummary: string
+  firstStep: string
+  avoid: string
+  articleHref?: string
+  articleLabel?: string
+  problemHref?: string
+  problemLabel?: string
+  note?: string
+}
+
+export const QUIZ_PROBLEM_CONTEXTS: Record<string, QuizProblemContext> = {
+  'pies-szczeka-na-psy': {
+    problemKey: 'pies-szczeka-na-psy',
+    species: 'pies',
+    mainTopic: 'walks',
+    heroTitle: 'Quiz: pies szczeka na inne psy',
+    heroCopy: 'Zaczynamy od spaceru i reakcji na psy. Pominąłem wybór gatunku, żeby szybciej dojść do ryzyka, zdrowia i skali problemu.',
+    resultTitle: 'Pies reaguje na spacerze',
+    resultSummary: 'Wynik odnosi się do szczekania, napięcia i mijanek na spacerze.',
+    firstStep: 'Sprawdź dystans, przy którym pies jeszcze może węszyć, jeść albo wrócić do kontaktu.',
+    avoid: 'Nie zaczynaj od korekt w najtrudniejszym miejscu i nie skracaj dystansu na siłę.',
+    articleHref: '/blog/dlaczego-moj-pies-szczeka-na-inne-psy',
+    articleLabel: 'Dlaczego pies szczeka na inne psy?',
+    problemHref: '/problemy/pies-szczeka-na-psy',
+    problemLabel: 'Strona problemowa: szczekanie na psy',
+  },
+  'pies-ciagnie-na-smyczy': {
+    problemKey: 'pies-ciagnie-na-smyczy',
+    species: 'pies',
+    mainTopic: 'walks',
+    heroTitle: 'Quiz: pies ciągnie na smyczy',
+    heroCopy: 'Zaczynamy od spaceru, pobudzenia i tempa. Quiz pomoże odróżnić prostą korektę spaceru od szerszego problemu emocji.',
+    resultTitle: 'Pies i spacer pod napięciem',
+    resultSummary: 'Wynik odnosi się do ciągnięcia, pobudzenia i trudności z kontaktem na smyczy.',
+    firstStep: 'Wybierz jeden krótki odcinek spaceru, na którym celem jest wolniejsze tempo i kontakt, nie przejście jak najdalej.',
+    avoid: 'Nie traktuj zmiany sprzętu jako jedynego rozwiązania i nie ćwicz długo, gdy pies jest już ponad progiem.',
+    articleHref: '/blog/pies-ciagnie-na-smyczy',
+    articleLabel: 'Pies ciągnie na smyczy',
+    problemHref: '/problemy/pies-ciagnie-na-smyczy',
+    problemLabel: 'Strona problemowa: smycz',
+  },
+  'pies-nie-zostaje-sam': {
+    problemKey: 'pies-nie-zostaje-sam',
+    species: 'pies',
+    mainTopic: 'fear_stress',
+    heroTitle: 'Quiz: pies nie zostaje sam',
+    heroCopy: 'Zaczynamy od rozłąki, nagrania i emocji po wyjściu opiekuna. To ważne, żeby nie pomylić nudy z paniką.',
+    resultTitle: 'Pies zostawiany sam',
+    resultSummary: 'Wynik odnosi się do samotności, wycia, niszczenia albo napięcia po wyjściu opiekuna.',
+    firstStep: 'Nagraj 20-30 minut po wyjściu i sprawdź, kiedy pojawia się pierwszy objaw.',
+    avoid: 'Nie zostawiaj psa, żeby się wypłakał, jeśli na nagraniu widać panikę.',
+    articleHref: '/blog/pies-wyje-kiedy-zostaje-sam',
+    articleLabel: 'Pies wyje, kiedy zostaje sam',
+    problemHref: '/problemy/pies-nie-zostaje-sam',
+    problemLabel: 'Strona problemowa: samotność psa',
+  },
+  'wakacje-opieka-zmiana-rytmu': {
+    problemKey: 'wakacje-opieka-zmiana-rytmu',
+    species: 'pies',
+    mainTopic: 'fear_stress',
+    heroTitle: 'Quiz: wakacje, opieka i zmiana rytmu',
+    heroCopy:
+      'Zaczynamy od tego, co zmieni się podczas wyjazdu: opiekun, rytm dnia, zostawanie samemu, miejsce odpoczynku i poziom bodźców.',
+    resultTitle: 'Wakacyjna zmiana rytmu',
+    resultSummary: 'Wynik odnosi się do wyjazdu, opieki innej osoby i ryzyka nasilenia samotności albo napięcia.',
+    firstStep: 'Spisz, co dokładnie zmieni się w opiece: godziny wyjść, miejsce snu, spacery, karmienie i osoby w domu.',
+    avoid: 'Nie zostawiaj pierwszej długiej rozłąki na dzień wyjazdu i nie zakładaj, że pies sam dopasuje się do nowego rytmu.',
+    articleHref: '/blog/pies-wyje-kiedy-zostaje-sam',
+    articleLabel: 'Pies wyje, kiedy zostaje sam',
+    problemHref: '/problemy/pies-nie-zostaje-sam',
+    problemLabel: 'Strona problemowa: samotność psa',
+  },
+  'kot-sika-poza-kuweta': {
+    problemKey: 'kot-sika-poza-kuweta',
+    species: 'kot',
+    mainTopic: 'home_behavior',
+    heroTitle: 'Quiz: kot sika poza kuwetą',
+    heroCopy: 'Zaczynamy od kuwety, zdrowia i stresu. Przy nagłej zmianie równolegle warto brać pod uwagę lekarza weterynarii.',
+    resultTitle: 'Kot i kuweta',
+    resultSummary: 'Wynik odnosi się do zachowań toaletowych, zasobów, stresu i możliwego tła zdrowotnego.',
+    firstStep: 'Zacznij od kontroli zdrowia i spisu: liczba kuwet, miejsca zdarzeń, żwirek, zmiany w domu.',
+    avoid: 'Nie karz kota i nie zakładaj złośliwości. To może być sygnał bólu albo stresu.',
+    articleHref: '/blog/kot-zalatwia-sie-poza-kuweta',
+    articleLabel: 'Kot załatwia się poza kuwetą',
+    problemHref: '/problemy/kot-sika-poza-kuweta',
+    problemLabel: 'Strona problemowa: kuweta',
+  },
+  'kot-gryzie-przy-glaskaniu': {
+    problemKey: 'kot-gryzie-przy-glaskaniu',
+    species: 'kot',
+    mainTopic: 'relationships',
+    heroTitle: 'Quiz: kot gryzie przy głaskaniu',
+    heroCopy: 'Zaczynamy od kontaktu, sygnałów napięcia i możliwego bólu. Quiz pomoże ustalić, czy wystarczy protokół dotyku, czy trzeba szerzej sprawdzić tło.',
+    resultTitle: 'Kot i kontakt z człowiekiem',
+    resultSummary: 'Wynik odnosi się do gryzienia przy głaskaniu, przestymulowania i sygnałów ostrzegawczych.',
+    firstStep: 'Skróć głaskanie do kilku sekund i kończ kontakt zanim kot napnie ogon, uszy albo skórę grzbietu.',
+    avoid: 'Nie przytrzymuj kota i nie testuj granic, gdy już pokazał napięcie.',
+    articleHref: '/blog/stres-kota-a-zachowania-toaletowe',
+    articleLabel: 'Stres kota i zachowanie',
+    problemHref: '/problemy/kot-gryzie-przy-glaskaniu',
+    problemLabel: 'Strona problemowa: gryzienie przy głaskaniu',
+  },
+  'konflikt-miedzy-kotami': {
+    problemKey: 'konflikt-miedzy-kotami',
+    species: 'kot',
+    mainTopic: 'relationships',
+    heroTitle: 'Quiz: koty żyją w napięciu',
+    heroCopy: 'Zaczynamy od relacji, zasobów i cichego blokowania przestrzeni. Konflikt nie zawsze wygląda jak otwarta bójka.',
+    resultTitle: 'Koty i napięcie w domu',
+    resultSummary: 'Wynik odnosi się do relacji między kotami, zasobów, unikania i konfliktu.',
+    firstStep: 'Zmapuj kuwety, miski, wodę, kryjówki i przejścia. Sprawdź, czy jeden kot nie blokuje drugiego.',
+    avoid: 'Nie zostawiaj kotów, żeby same ustaliły hierarchię, jeśli napięcie narasta.',
+    articleHref: '/blog/jak-zapoznac-dwa-koty',
+    articleLabel: 'Jak zapoznać dwa koty',
+    problemHref: '/problemy/konflikt-miedzy-kotami',
+    problemLabel: 'Strona problemowa: konflikt kotów',
+  },
+  'nagla-zmiana-zachowania': {
+    problemKey: 'nagla-zmiana-zachowania',
+    mainTopic: 'other',
+    heroTitle: 'Quiz: nagła zmiana zachowania',
+    heroCopy: 'Zaczynamy od czerwonych flag. Przy nagłej zmianie zachowania zdrowie i ból trzeba traktować poważnie.',
+    resultTitle: 'Nagła zmiana zachowania',
+    resultSummary: 'Wynik odnosi się do sytuacji, w której najpierw trzeba uporządkować bezpieczeństwo i możliwe tło zdrowotne.',
+    firstStep: 'Spisz, co zmieniło się nagle: jedzenie, sen, ruch, kuweta, agresja, chowanie się albo wokalizacja.',
+    avoid: 'Nie zaczynaj od treningu, jeśli pojawił się ból, apatia, nagła agresja albo szybkie pogorszenie.',
+    note: 'Przy czerwonych flagach zacznij równolegle od lekarza weterynarii.',
+  },
+  'halas-burza-fajerwerki': {
+    problemKey: 'halas-burza-fajerwerki',
+    mainTopic: 'fear_stress',
+    heroTitle: 'Quiz: hałas, burza, fajerwerki',
+    heroCopy: 'Zaczynamy od bezpieczeństwa i skali lęku. Plan robi się przed sezonem, ale pierwszy krok można uporządkować już teraz.',
+    resultTitle: 'Hałas i panika',
+    resultSummary: 'Wynik odnosi się do reakcji na dźwięki, burze, fajerwerki i silny stres.',
+    firstStep: 'Zabezpiecz miejsce odpoczynku, ogranicz presję i zanotuj, kiedy zaczyna się reakcja.',
+    avoid: 'Nie wystawiaj zwierzęcia na hałas, żeby się przyzwyczaiło, jeśli już widać panikę.',
+  },
+}
+
+export function getQuizProblemContext(problemKey: string | null | undefined): QuizProblemContext | null {
+  if (!problemKey) {
+    return null
+  }
+
+  return QUIZ_PROBLEM_CONTEXTS[problemKey.trim().toLowerCase()] ?? null
+}
+
+function applyQuizProblemContext(result: QuizResult, problemKey: string | null | undefined): QuizResult {
+  const context = getQuizProblemContext(problemKey)
+
+  if (!context) {
+    return result
+  }
+
+  return {
+    ...result,
+    title: context.resultTitle,
+    summary: `${context.resultSummary} ${result.summary}`,
+    reasons: [context.firstStep, ...result.reasons].slice(0, 4),
+    note: context.note ?? result.note,
+    problemTitle: context.resultTitle,
+    firstStep: context.firstStep,
+    avoid: context.avoid,
+    articleHref: context.articleHref,
+    articleLabel: context.articleLabel,
+    problemHref: context.problemHref,
+    problemLabel: context.problemLabel,
+  }
+}
 export const QUIZ_QUESTIONS: QuizQuestion[] = [
   {
     id: 'species',
@@ -196,8 +380,10 @@ export function resolveQuizResult(answers: QuizAnswers): QuizResult {
     reasons.push('najpierw trzeba uporządkować fakty i dotychczasowe próby')
   }
 
+  let result: QuizResult
+
   if (score >= 8) {
-    return {
+    result = {
       serviceKey: 'pelna-konsultacja',
       title: 'Najlepszy pierwszy krok: pełna konsultacja',
       summary:
@@ -208,10 +394,8 @@ export function resolveQuizResult(answers: QuizAnswers): QuizResult {
           ? 'Przy nagłej zmianie zachowania, bólu albo objawach zdrowotnych zacznij równolegle od lekarza weterynarii.'
           : 'Przed rozmową przydadzą się krótkie nagrania, opis rutyny i lista rzeczy, które były już próbowane.',
     }
-  }
-
-  if (score >= 4) {
-    return {
+  } else if (score >= 4) {
+    result = {
       serviceKey: 'dwa-kwadranse',
       title: 'Najlepszy pierwszy krok: konsultacja 30 min',
       summary:
@@ -222,18 +406,20 @@ export function resolveQuizResult(answers: QuizAnswers): QuizResult {
           : ['jest kilka rzeczy do połączenia', 'warto dopytać o rytm dnia, emocje i środowisko'],
       note: 'Jeśli w trakcie rozmowy okaże się, że temat jest szerszy, łatwiej będzie zdecydować o dalszym kroku.',
     }
+  } else {
+    result = {
+      serviceKey: 'kwadrans',
+      title: 'Najlepszy pierwszy krok: Kwadrans',
+      summary:
+        'To spokojny start, gdy chcesz ustalić pierwszy priorytet bez wchodzenia od razu w dużą konsultację. Kwadrans pomaga sprawdzić, co zrobić najpierw.',
+      reasons: [
+        duration === 'fresh' ? 'sytuacja wygląda na świeżą' : 'nie trzeba od razu zaczynać od pełnej analizy',
+        predictability === 'clear' ? 'wyzwalacz jest dość czytelny' : 'najważniejsze jest wybranie pierwszego priorytetu',
+        'można zacząć od krótkiej rozmowy audio bez kamery',
+      ],
+      note: 'Kwadrans nie musi zamykać sprawy. Ma pomóc wybrać najprostszy następny krok.',
+    }
   }
 
-  return {
-    serviceKey: 'kwadrans',
-    title: 'Najlepszy pierwszy krok: Kwadrans',
-    summary:
-      'To spokojny start, gdy chcesz ustalić pierwszy priorytet bez wchodzenia od razu w dużą konsultację. Kwadrans pomaga sprawdzić, co zrobić najpierw.',
-    reasons: [
-      duration === 'fresh' ? 'sytuacja wygląda na świeżą' : 'nie trzeba od razu zaczynać od pełnej analizy',
-      predictability === 'clear' ? 'wyzwalacz jest dość czytelny' : 'najważniejsze jest wybranie pierwszego priorytetu',
-      'można zacząć od krótkiej rozmowy audio bez kamery',
-    ],
-    note: 'Kwadrans nie musi zamykać sprawy. Ma pomóc wybrać najprostszy następny krok.',
-  }
+  return applyQuizProblemContext(result, answers.problem_context)
 }

@@ -31337,3 +31337,186 @@ html[data-theme='dark'] input[type="checkbox"] {
     line-height: 1.08;
   }
 }
+
+/* Full polishing: keep trend cards editorial, readable, and un-underlined. */
+.notatnik-page a.home-seasonal-trend-card,
+.notatnik-page a.home-seasonal-trend-card:visited,
+.notatnik-page a.home-seasonal-trend-card:hover,
+.notatnik-page a.home-seasonal-trend-card:focus-visible,
+.notatnik-page a.problem-hub-seasonal-card,
+.notatnik-page a.problem-hub-seasonal-card:visited,
+.notatnik-page a.problem-hub-seasonal-card:hover,
+.notatnik-page a.problem-hub-seasonal-card:focus-visible,
+.notatnik-page a.instagram-link-card,
+.notatnik-page a.instagram-link-card:visited,
+.notatnik-page a.instagram-link-card:hover,
+.notatnik-page a.instagram-link-card:focus-visible,
+.blog-redesign-page .blog-trend-topic-grid a,
+.blog-redesign-page .blog-trend-topic-grid a:visited,
+.blog-redesign-page .blog-trend-topic-grid a:hover,
+.blog-redesign-page .blog-trend-topic-grid a:focus-visible {
+  text-decoration: none !important;
+  text-decoration-line: none !important;
+}
+
+.notatnik-page a.home-seasonal-trend-card :where(span, strong, p, small, svg),
+.notatnik-page a.problem-hub-seasonal-card :where(span, strong, p, small, svg),
+.notatnik-page a.instagram-link-card :where(span, strong, p, small, svg),
+.blog-redesign-page .blog-trend-topic-grid a :where(span, strong, small, svg) {
+  text-decoration: none !important;
+  text-decoration-line: none !important;
+}
+
+.home-seasonal-trend-panel {
+  grid-template-columns: minmax(0, 0.86fr) minmax(340px, 1fr);
+}
+
+.home-seasonal-trend-grid,
+.problem-hub-seasonal-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: clamp(16px, 2vw, 20px);
+  align-items: stretch;
+}
+
+.home-seasonal-trend-card,
+.problem-hub-seasonal-card {
+  min-height: 0;
+  gap: 12px;
+  padding: clamp(22px, 2.8vw, 28px);
+}
+
+.home-seasonal-trend-card strong,
+.problem-hub-seasonal-card strong {
+  max-width: 13.5ch;
+  font-size: clamp(23px, 2.1vw, 30px);
+  line-height: 1.08;
+}
+
+.home-seasonal-trend-card p,
+.problem-hub-seasonal-card p {
+  font-size: 14.5px;
+  line-height: 1.62;
+}
+
+.home-seasonal-trend-card small,
+.problem-hub-seasonal-card small {
+  padding-top: 8px;
+}
+
+.blog-redesign-page .blog-trend-topic-panel .blog-redesign-section-heading {
+  display: grid !important;
+  align-items: start !important;
+  justify-content: stretch !important;
+  gap: 10px !important;
+  margin-bottom: 18px !important;
+}
+
+.blog-redesign-page .blog-trend-topic-panel .blog-redesign-section-heading h2 {
+  max-width: 16ch;
+  font-size: clamp(30px, 4.7vw, 42px) !important;
+  line-height: 1.04 !important;
+  letter-spacing: -0.04em !important;
+}
+
+.blog-redesign-page .blog-trend-topic-panel .blog-redesign-section-heading p {
+  max-width: 68ch !important;
+  white-space: normal !important;
+  font-size: 14px !important;
+  line-height: 1.55 !important;
+  font-weight: 650 !important;
+}
+
+.blog-trend-topic-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)) !important;
+  gap: 12px !important;
+}
+
+.blog-trend-topic-grid a {
+  min-height: 84px;
+  padding: 18px 20px;
+}
+
+@media (min-width: 921px) {
+  .blog-trend-topic-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 1160px) {
+  .home-seasonal-trend-panel {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .blog-trend-topic-panel {
+    padding: 20px 16px !important;
+    border-radius: 24px;
+  }
+
+  .blog-redesign-page .blog-trend-topic-panel .blog-redesign-section-heading h2 {
+    max-width: 100%;
+    font-size: clamp(29px, 8vw, 36px) !important;
+  }
+
+  .blog-trend-topic-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 680px) {
+  .home-seasonal-trend-grid,
+  .problem-hub-seasonal-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .home-seasonal-trend-card,
+  .problem-hub-seasonal-card {
+    padding: 18px;
+  }
+
+  .home-seasonal-trend-card strong,
+  .problem-hub-seasonal-card strong {
+    font-size: clamp(22px, 6.2vw, 27px);
+  }
+
+  .home-seasonal-trend-card p,
+  .problem-hub-seasonal-card p {
+    font-size: 14px;
+  }
+}
+
+/* Full polishing follow-up: seasonal problem heading stays readable on tablet widths. */
+.problem-hub-seasonal .problem-hub-group-heading {
+  max-width: none;
+}
+
+.problem-hub-seasonal .problem-hub-group-heading > div {
+  min-width: 0;
+  max-width: 68ch;
+}
+
+.problem-hub-seasonal .problem-hub-group-heading h2 {
+  max-width: 18ch;
+  font-size: clamp(30px, 4.2vw, 42px) !important;
+  line-height: 1.04 !important;
+  letter-spacing: -0.04em !important;
+}
+
+.problem-hub-seasonal .problem-hub-group-heading p {
+  max-width: 68ch;
+  font-size: 14px;
+  line-height: 1.55;
+  font-weight: 650;
+}
+
+@media (max-width: 700px) {
+  .problem-hub-seasonal .problem-hub-group-heading {
+    gap: 12px;
+  }
+
+  .problem-hub-seasonal .problem-hub-group-heading h2 {
+    max-width: 100%;
+    font-size: clamp(29px, 8vw, 36px) !important;
+  }
+}

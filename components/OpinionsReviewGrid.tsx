@@ -50,7 +50,7 @@ export function OpinionsReviewGrid({ filters, reviews }: OpinionsReviewGridProps
     <section className="opinions-review-section" id="opinie">
       <div className="opinions-review-section-head">
         <span>Opinie po konsultacjach</span>
-        <h2>Historie, które pokazują, jak zaczyna się spokojniejsza codzienność</h2>
+        <h1>Historie, które pokazują, jak zaczyna się spokojniejsza codzienność</h1>
         <p>
           Krótkie, anonimowe fragmenty opinii opiekunów psów i kotów. Pokazują, jak wygląda proces i co realnie pomaga po
           rozmowie.

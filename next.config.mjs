@@ -148,6 +148,11 @@ const nextConfig = {
         statusCode: 301,
       },
       {
+        source: '/niezbednik',
+        destination: '/materialy',
+        statusCode: 301,
+      },
+      {
         source: '/oferta',
         destination: '/cennik',
         statusCode: 301,

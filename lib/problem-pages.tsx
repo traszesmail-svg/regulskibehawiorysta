@@ -383,6 +383,7 @@ export function getProblemPageMetadata(slug: string): Metadata | null {
     title: page.seoTitle,
     path: page.path,
     description: page.description,
+    maxTitleLength: 70,
   })
 }
 

@@ -15,7 +15,7 @@ import {
 } from '@/lib/materialy-catalog'
 
 export const metadata: Metadata = buildMarketingMetadata({
-  title: 'Materiały PDF do pobrania | Regulski Behawiorysta',
+  title: 'Materiały PDF do pobrania',
   path: '/materialy',
   description:
     'Praktyczne materiały PDF dla opiekunów psów i kotów: obserwacja zachowań, napięcie, zostawanie samemu i przygotowanie do konsultacji.',

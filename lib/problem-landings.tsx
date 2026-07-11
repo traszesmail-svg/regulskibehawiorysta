@@ -657,6 +657,7 @@ export function getProblemLandingMetadata(routePath: string): Metadata {
     title: landing.seoTitle,
     path: landing.path,
     description: landing.metaDescription,
+    maxTitleLength: 70,
   })
 }
 

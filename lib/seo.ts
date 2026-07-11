@@ -9,6 +9,7 @@ type MarketingMetadataInput = {
   path: string
   description: string
   appendLocalContext?: boolean
+  maxTitleLength?: number
 }
 
 type TechnicalMetadataInput = MarketingMetadataInput & {
@@ -24,12 +25,36 @@ function buildMetadataTitle(title: string) {
   return title === SITE_NAME ? SITE_NAME : `${title} | ${SITE_SHORT_NAME}`
 }
 
-export function buildMarketingMetadata({ title, path, description, appendLocalContext = true }: MarketingMetadataInput): Metadata {
+export function buildLimitedMetadataTitle(title: string, maxLength = 70) {
+  if (title === SITE_NAME) {
+    return SITE_NAME
+  }
+
+  const suffix = ` | ${SITE_SHORT_NAME}`
+  const normalizedTitle = title
+    .replace(` | ${SITE_SHORT_NAME}`, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+  const availableLength = maxLength - suffix.length
+
+  if (normalizedTitle.length <= availableLength) {
+    return `${normalizedTitle}${suffix}`
+  }
+
+  const clippedTitle = normalizedTitle
+    .slice(0, Math.max(12, availableLength - 3))
+    .trimEnd()
+    .replace(/[,:;.-]+$/, '')
+
+  return `${clippedTitle}...${suffix}`
+}
+
+export function buildMarketingMetadata({ title, path, description, appendLocalContext = true, maxTitleLength }: MarketingMetadataInput): Metadata {
   const localizedDescription = appendLocalContext ? appendLocalSeoContext(description) : description
-  const fullTitle = buildMetadataTitle(title)
+  const fullTitle = maxTitleLength ? buildLimitedMetadataTitle(title, maxTitleLength) : buildMetadataTitle(title)
 
   return {
-    title,
+    title: maxTitleLength ? { absolute: fullTitle } : title,
     description: localizedDescription,
     alternates: {
       canonical: path,
@@ -121,7 +146,7 @@ export async function buildBookMetadata(serviceType: BookingServiceType = DEFAUL
   const isQuick = serviceType === 'szybka-konsultacja-15-min'
 
   return buildMarketingMetadata({
-    title: isQuick ? 'Rezerwacja 15-minutowej konsultacji behawioralnej' : `Rezerwacja konsultacji: ${serviceTitle}`,
+    title: isQuick ? 'Rezerwacja Kwadransa behawioralnego' : `Rezerwacja: ${serviceTitle}`,
     path: '/book',
     description: isQuick
       ? 'Umów spokojny pierwszy krok: 15 minut rozmowy audio bez kamery, analiza zachowania na podstawie informacji i spokojne uporządkowanie tematu.'

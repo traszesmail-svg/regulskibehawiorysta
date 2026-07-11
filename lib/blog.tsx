@@ -7,6 +7,7 @@ import React, { type ReactNode } from 'react'
 import { buildBookHref } from '@/lib/booking-routing'
 import { repairCopy } from '@/lib/copy'
 import { FUNNEL_CTA_LABELS } from '@/lib/funnel'
+import { buildLimitedMetadataTitle } from '@/lib/seo'
 import { SITE_NAME, SITE_OG_IMAGE, SITE_SHORT_NAME, SPECIALIST_NAME } from '@/lib/site'
 
 export type BlogTopic = 'pies' | 'koty' | 'konsultacja'
@@ -1615,6 +1616,7 @@ export function getBlogListingMetadata({ title, description, path: routePath }: 
 }
 
 export function getBlogPostMetadata({ post, description }: BlogPostMetadataInput): Metadata {
+  const title = buildLimitedMetadataTitle(post.seoTitle)
   const cover = {
     url: post.cover.src,
     width: post.cover.width,
@@ -1623,7 +1625,9 @@ export function getBlogPostMetadata({ post, description }: BlogPostMetadataInput
   }
 
   return {
-    title: post.seoTitle,
+    title: {
+      absolute: title,
+    },
     description,
     alternates: {
       canonical: post.path,
@@ -1633,7 +1637,7 @@ export function getBlogPostMetadata({ post, description }: BlogPostMetadataInput
       follow: true,
     },
     openGraph: {
-      title: `${post.seoTitle} | ${SITE_SHORT_NAME}`,
+      title,
       description,
       siteName: SITE_NAME,
       type: 'article',
@@ -1647,7 +1651,7 @@ export function getBlogPostMetadata({ post, description }: BlogPostMetadataInput
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${post.seoTitle} | ${SITE_SHORT_NAME}`,
+      title,
       description,
       images: [post.cover.src],
     },

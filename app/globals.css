@@ -21052,6 +21052,7 @@ select:focus-visible {
   text-transform: uppercase;
 }
 
+.opinions-review-section-head h1,
 .opinions-review-section-head h2,
 .opinions-case-snippets-head h2 {
   max-width: none;
@@ -21939,6 +21940,7 @@ html[data-theme='dark'] .add-opinion-checkbox span {
 
 html[data-theme='dark'] .opinions-showcase-hero h1,
 html[data-theme='dark'] .opinions-showcase-stat strong,
+html[data-theme='dark'] .opinions-review-section-head h1,
 html[data-theme='dark'] .opinions-review-section-head h2,
 html[data-theme='dark'] .opinions-review-card strong,
 html[data-theme='dark'] .opinions-case-snippets-head h2,
@@ -22308,6 +22310,7 @@ html[data-theme='dark'] .opinions-showcase-wave {
     padding: 24px 22px;
   }
 
+  .opinions-review-section-head h1,
   .opinions-review-section-head h2,
   .opinions-case-snippets-head h2 {
     max-width: none;

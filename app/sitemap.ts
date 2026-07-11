@@ -3,7 +3,6 @@ import { getCanonicalBaseUrl } from '@/lib/server/env'
 import { listBlogRoutePaths } from '@/lib/blog'
 import { listProblemPagePaths } from '@/lib/problem-pages'
 import { listProblemLandingPaths } from '@/lib/problem-landings'
-import { listPdfGuides } from '@/lib/pdf-guides'
 
 const STATIC_ROUTES: Array<{ path: string; priority: number; changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency'] }> = [
   { path: '/', priority: 1, changeFrequency: 'weekly' },
@@ -15,8 +14,11 @@ const STATIC_ROUTES: Array<{ path: string; priority: number; changeFrequency: Me
   { path: '/faq', priority: 0.7, changeFrequency: 'monthly' },
   { path: '/blog', priority: 0.8, changeFrequency: 'weekly' },
   { path: '/problemy', priority: 0.82, changeFrequency: 'weekly' },
+  { path: '/kwadrans-na-juz', priority: 0.82, changeFrequency: 'weekly' },
+  { path: '/quiz', priority: 0.76, changeFrequency: 'monthly' },
   { path: '/instagram', priority: 0.7, changeFrequency: 'weekly' },
   { path: '/regulamin', priority: 0.4, changeFrequency: 'yearly' },
+  { path: '/regulamin-pelna-konsultacja', priority: 0.35, changeFrequency: 'yearly' },
   { path: '/polityka-prywatnosci', priority: 0.4, changeFrequency: 'yearly' },
   { path: '/newsletter', priority: 0.5, changeFrequency: 'monthly' },
   { path: '/wybor', priority: 0.7, changeFrequency: 'monthly' },
@@ -83,21 +85,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }
   } catch (err) {
     console.error('[sitemap] Failed to add problem landing paths', err)
-  }
-  try {
-    const pdfGuides = listPdfGuides()
-    for (const guide of pdfGuides) {
-      if (guide?.routePath) {
-        routeMap.set(guide.routePath, {
-          url: buildAbsoluteUrl(baseUrl, guide.routePath),
-          lastModified,
-          changeFrequency: 'weekly',
-          priority: 0.8,
-        })
-      }
-    }
-  } catch (err) {
-    console.error('[sitemap] Failed to add PDF guides', err)
   }
 
   return [...routeMap.values()]

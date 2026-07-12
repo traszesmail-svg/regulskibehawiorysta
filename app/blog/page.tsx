@@ -10,6 +10,7 @@ import {
   Dog,
   Heart,
   Home,
+  Mail,
   PawPrint,
   UsersRound,
   type LucideIcon,
@@ -48,9 +49,13 @@ const BLOG_PAGE_SIZE = 9
 
 const BLOG_POPULAR_SLUGS = [
   'dlaczego-moj-pies-szczeka-na-inne-psy',
+  'pies-wyje-kiedy-zostaje-sam',
   'kot-zalatwia-sie-poza-kuweta',
   'pies-ciagnie-na-smyczy',
 ] as const
+
+const BLOG_HERO_IMAGE = '/branding/regulski-web/hero/hero-blog.png'
+const BLOG_AUTHOR_IMAGE = '/branding/specialist-krzysztof-portrait.jpg'
 
 type BlogSearchParams = {
   category?: string | string[]
@@ -101,16 +106,16 @@ function isBehaviorPost(post: BlogPost) {
 }
 
 function getCategoryHref(categoryId: string) {
-  if (categoryId === 'all') return `${BLOG_ROUTE_BASE}#artykuly`
+  if (categoryId === 'all') return BLOG_ROUTE_BASE + '#artykuly'
 
-  return `${BLOG_ROUTE_BASE}?category=${encodeURIComponent(categoryId)}#artykuly`
+  return BLOG_ROUTE_BASE + '?category=' + encodeURIComponent(categoryId) + '#artykuly'
 }
 
 function buildCategories(posts: BlogPost[]): BlogCategory[] {
   return [
-    { id: 'all', label: 'Wszystkie', href: getCategoryHref('all'), count: posts.length, icon: PawPrint },
-    { id: 'pies', label: 'Pies', href: getCategoryHref('pies'), count: countBy(posts, isDogPost), icon: Dog, predicate: isDogPost },
-    { id: 'kot', label: 'Kot', href: getCategoryHref('kot'), count: countBy(posts, isCatPost), icon: Cat, predicate: isCatPost },
+    { id: 'all', label: 'Wszystkie artykuły', href: getCategoryHref('all'), count: posts.length, icon: PawPrint },
+    { id: 'pies', label: 'Psy', href: getCategoryHref('pies'), count: countBy(posts, isDogPost), icon: Dog, predicate: isDogPost },
+    { id: 'kot', label: 'Koty', href: getCategoryHref('kot'), count: countBy(posts, isCatPost), icon: Cat, predicate: isCatPost },
     {
       id: 'zachowanie',
       label: 'Zachowanie',
@@ -121,7 +126,7 @@ function buildCategories(posts: BlogPost[]): BlogCategory[] {
     },
     {
       id: 'emocje',
-      label: 'Emocje',
+      label: 'Emocje i stres',
       href: getCategoryHref('emocje'),
       count: countBy(posts, (post) => /stres|lęk|lek|wyje|boi|napieciu|napięciu|emoc/i.test(post.slug)),
       icon: Heart,
@@ -209,10 +214,10 @@ function buildCategories(posts: BlogPost[]): BlogCategory[] {
       id: 'halas-burza-fajerwerki',
       label: 'Hałas, burza, fajerwerki',
       href: getCategoryHref('halas-burza-fajerwerki'),
-      count: countBy(posts, (post) => /lek|lÄ™k|boi|stres|panik|dzwiek|halas/i.test(post.slug)),
+      count: countBy(posts, (post) => /lek|lęk|boi|stres|panik|dzwiek|halas/i.test(post.slug)),
       icon: Brain,
       group: 'trend',
-      predicate: (post) => /lek|lÄ™k|boi|stres|panik|dzwiek|halas/i.test(post.slug),
+      predicate: (post) => /lek|lęk|boi|stres|panik|dzwiek|halas/i.test(post.slug),
     },
   ]
 }
@@ -251,7 +256,7 @@ function buildBlogPageHref(page: number, categoryId: string) {
 
   const query = params.toString()
 
-  return `${BLOG_ROUTE_BASE}${query ? `?${query}` : ''}#artykuly`
+  return BLOG_ROUTE_BASE + (query ? '?' + query : '') + '#artykuly'
 }
 
 function getSpeciesBadge(post: BlogPost) {
@@ -265,7 +270,7 @@ function getRedesignImage(post: BlogPost) {
 }
 
 function formatPostMeta(post: BlogPost) {
-  return `${post.readingTimeMinutes} min czytania · ${repairCopy(post.publishedAtLabel)}`
+  return repairCopy(post.publishedAtLabel) + ' · ' + post.readingTimeMinutes + ' min czytania'
 }
 
 function pickPostsBySlugs(posts: BlogPost[], slugs: readonly string[]) {
@@ -292,6 +297,9 @@ export default function BlogPage({ searchParams }: { searchParams?: BlogSearchPa
   const pageEnd = pageStart + paginatedPosts.length
   const shouldShowResetLink = activeCategory.id !== 'all' || currentPage > 1
   const popularPosts = pickPostsBySlugs(orderedPosts, BLOG_POPULAR_SLUGS)
+  const spotlightPost = paginatedPosts[0] ?? orderedPosts[0]
+  const topCards = paginatedPosts.slice(0, 5)
+  const remainingPosts = paginatedPosts.slice(5)
   const structuredData = [
     getBreadcrumbJsonLd([
       { name: 'Strona główna', path: '/' },
@@ -307,28 +315,35 @@ export default function BlogPage({ searchParams }: { searchParams?: BlogSearchPa
   ]
 
   return (
-    <main className="notatnik-page blog-page blog-index-page blog-redesign-page">
+    <main className="notatnik-page blog-page blog-index-page blog-redesign-page blog-magazine-page">
       <Schema data={structuredData} />
-      <div className="notatnik-shell blog-index-shell blog-redesign-shell">
+      <div className="notatnik-shell blog-index-shell blog-redesign-shell blog-magazine-shell">
         <NotatnikTopbar tag="Regulski" navItems={PUBLIC_SITE_NAV_ITEMS} showUtilityLinks={false} />
         <ReferenceHeroLeaf />
 
-        <div className="blog-redesign-content">
-          <section className="blog-redesign-hero" aria-labelledby="blog-index-title">
-            <div className="blog-redesign-hero-copy">
+        <div className="blog-redesign-content blog-magazine-content">
+          <section className="blog-magazine-hero" aria-labelledby="blog-index-title">
+            <div className="blog-magazine-hero-copy">
               <span className="blog-redesign-kicker">Blog</span>
-              <h1 id="blog-index-title">Zanim zaczniesz poprawiać zachowanie, warto zrozumieć, po co ono się pojawia.</h1>
+              <h1 id="blog-index-title">Wiedza, która pomaga spokojniej żyć z psem i kotem</h1>
               <p>
-                Praktyczne artykuły o psach i kotach — o emocjach, relacjach i codziennych wyzwaniach.
-                Bez presji, bez mitów. Z empatią i doświadczeniem.
+                Praktyczne artykuły, sprawdzone metody i spokojne wyjaśnienia. Zacznij od problemu, który widzisz,
+                a potem wybierz pierwszy krok dla swojej sytuacji.
               </p>
+              <div className="blog-magazine-hero-actions">
+                <Link href="/quiz" prefetch={false}>
+                  Umów konsultację
+                  <ArrowRight size={17} strokeWidth={1.9} aria-hidden="true" />
+                </Link>
+                <span>Indywidualna pomoc dopasowana do Was</span>
+              </div>
             </div>
-            <div className="blog-redesign-hero-art" aria-hidden="true">
-              <Image src="/blog/hero-opiekun-pies-kot.jpg" alt="" fill sizes="(max-width: 760px) calc(100vw - 44px), 680px" priority />
-            </div>
+            <figure className="blog-magazine-hero-art" aria-hidden="true">
+              <Image src={BLOG_HERO_IMAGE} alt="" fill sizes="(max-width: 760px) 92vw, 620px" priority />
+            </figure>
           </section>
 
-          <nav id="blog-kategorie" className="blog-redesign-category-pills" aria-label="Kategorie bloga">
+          <nav id="blog-kategorie" className="blog-magazine-category-rail" aria-label="Kategorie bloga">
             {coreCategories.map((category) => {
               const Icon = category.icon
               const isActive = category.id === activeCategory?.id
@@ -341,170 +356,165 @@ export default function BlogPage({ searchParams }: { searchParams?: BlogSearchPa
                   className={isActive ? 'is-active' : undefined}
                   aria-current={isActive ? 'page' : undefined}
                 >
-                  <Icon size={16} strokeWidth={1.9} aria-hidden="true" />
+                  <Icon size={24} strokeWidth={1.55} aria-hidden="true" />
                   <span>{repairCopy(category.label)}</span>
-                  <small>{category.count}</small>
                 </Link>
               )
             })}
           </nav>
 
+          <section className="blog-magazine-layout" id="artykuly" aria-label="Artykuły blogowe">
+            <div className="blog-magazine-main">
+              <div className="blog-magazine-section-head">
+                <div>
+                  <span>{activeCategory.id === 'all' ? 'Polecane teraz' : 'Wybrany temat'}</span>
+                  <h2>{activeCategory.id === 'all' ? 'Najbardziej pomocne artykuły' : 'Artykuły: ' + repairCopy(activeCategory.label)}</h2>
+                </div>
+                <p>
+                  {filteredPosts.length > 0
+                    ? String(pageStart + 1) + '-' + String(pageEnd) + ' z ' + String(filteredPosts.length) + ' wpisów'
+                    : 'Brak wpisów dla wybranego filtra'}
+                </p>
+              </div>
 
-          <section className="blog-trend-topic-panel" aria-labelledby="blog-trend-topic-title">
-            <div className="blog-redesign-section-heading">
-              <h2 id="blog-trend-topic-title">Najczęściej szukane tematy</h2>
-              <p>Problemowe filtry prowadzą szybciej do języka opiekuna: smycz, samotność, kuweta, relacje, adopcja i nagła zmiana.</p>
-            </div>
-            <div className="blog-trend-topic-grid">
-              {trendCategories.map((category) => {
-                const Icon = category.icon
-                const isActive = category.id === activeCategory?.id
-
-                return (
-                  <Link
-                    key={category.id}
-                    href={category.href}
-                    prefetch={false}
-                    className={isActive ? 'is-active' : undefined}
-                    aria-current={isActive ? 'page' : undefined}
-                    data-analytics-event="topic_selected"
-                    data-analytics-location="blog-trend-topics"
-                    data-analytics-problem={category.id}
-                    data-analytics-cta-label={category.label}
-                    data-analytics-item-type="blog_problem_filter"
-                    data-analytics-item-slug={category.id}
-                  >
-                    <Icon size={17} strokeWidth={1.9} aria-hidden="true" />
-                    <span>{repairCopy(category.label)}</span>
-                    <small>{category.count} wpisów</small>
-                  </Link>
-                )
-              })}
-            </div>
-          </section>
-          <section id="artykuly" className="blog-redesign-section-block" aria-label="Artykuły blogowe">
-            <div className="blog-redesign-section-heading">
-              <h2>{activeCategory.id === 'all' ? 'Wszystkie artykuły' : `Artykuły: ${repairCopy(activeCategory.label)}`}</h2>
-              <p>
-                {filteredPosts.length > 0
-                  ? `${pageStart + 1}-${pageEnd} z ${filteredPosts.length} wpisów`
-                  : 'Brak wpisów dla wybranego filtra'}
-              </p>
-            </div>
-            <div className="blog-redesign-latest-list">
-              {paginatedPosts.map((post) => (
-                <Link href={post.path} prefetch={false} className="blog-redesign-list-row" key={post.slug}>
-                  <span className="blog-redesign-list-image">
-                    <Image src={getRedesignImage(post)} alt="" fill sizes="112px" />
-                  </span>
-                  <span className="blog-redesign-list-copy">
-                    <span>{getSpeciesBadge(post)}</span>
-                    <strong>{repairCopy(post.title)}</strong>
-                    <small>{formatPostMeta(post)}</small>
-                  </span>
-                  <ChevronRight size={19} strokeWidth={1.8} aria-hidden="true" />
-                </Link>
-              ))}
               {filteredPosts.length === 0 ? (
                 <div className="blog-redesign-empty">
                   <h2>Brak artykułów dla tego filtra</h2>
                   <p>Zmień kategorię, żeby zobaczyć pełną listę wpisów.</p>
-                  <Link href={`${BLOG_ROUTE_BASE}#artykuly`} prefetch={false}>
+                  <Link href={BLOG_ROUTE_BASE + '#artykuly'} prefetch={false}>
                     Pokaż wszystkie artykuły
                   </Link>
                 </div>
+              ) : (
+                <div className="blog-magazine-card-grid">
+                  {topCards.map((post, index) => (
+                    <Link
+                      href={post.path}
+                      prefetch={false}
+                      className={index < 2 ? 'blog-magazine-card is-large' : 'blog-magazine-card'}
+                      key={post.slug}
+                    >
+                      <span className="blog-magazine-card-media">
+                        <Image src={getRedesignImage(post)} alt="" fill sizes={index < 2 ? '(max-width: 760px) 92vw, 410px' : '(max-width: 760px) 92vw, 260px'} />
+                        {index === 0 ? <em>Polecany artykuł</em> : null}
+                      </span>
+                      <span className="blog-magazine-card-body">
+                        <small>{formatPostMeta(post)}</small>
+                        <strong>{repairCopy(post.title)}</strong>
+                        <span>{repairCopy(post.excerpt)}</span>
+                        <b>
+                          Czytaj więcej
+                          <ArrowRight size={15} strokeWidth={1.9} aria-hidden="true" />
+                        </b>
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+
+              {remainingPosts.length > 0 ? (
+                <div className="blog-magazine-list">
+                  {remainingPosts.map((post) => (
+                    <Link href={post.path} prefetch={false} className="blog-magazine-list-row" key={post.slug}>
+                      <span>{getSpeciesBadge(post)}</span>
+                      <strong>{repairCopy(post.title)}</strong>
+                      <small>{formatPostMeta(post)}</small>
+                      <ChevronRight size={18} strokeWidth={1.8} aria-hidden="true" />
+                    </Link>
+                  ))}
+                </div>
               ) : null}
+
               {shouldShowResetLink ? (
-                <Link href={`${BLOG_ROUTE_BASE}#artykuly`} prefetch={false} className="blog-redesign-see-all">
+                <Link href={BLOG_ROUTE_BASE + '#artykuly'} prefetch={false} className="blog-redesign-see-all">
                   Zobacz wszystkie artykuły
                   <ArrowRight size={16} strokeWidth={1.9} aria-hidden="true" />
                 </Link>
               ) : null}
-            </div>
-            {totalPages > 1 ? (
-              <nav className="blog-redesign-pagination" aria-label="Paginacja artykułów">
-                {currentPage > 1 ? (
-                  <Link href={buildBlogPageHref(currentPage - 1, activeCategory.id)} prefetch={false}>
-                    Poprzednia
-                  </Link>
-                ) : (
-                  <span aria-disabled="true">Poprzednia</span>
-                )}
-                {Array.from({ length: totalPages }, (_, index) => {
-                  const pageNumber = index + 1
 
-                  return (
-                    <Link
-                      key={pageNumber}
-                      href={buildBlogPageHref(pageNumber, activeCategory.id)}
-                      prefetch={false}
-                      aria-current={pageNumber === currentPage ? 'page' : undefined}
-                    >
-                      {pageNumber}
+              {totalPages > 1 ? (
+                <nav className="blog-redesign-pagination" aria-label="Paginacja artykułów">
+                  {currentPage > 1 ? (
+                    <Link href={buildBlogPageHref(currentPage - 1, activeCategory.id)} prefetch={false}>
+                      Poprzednia
                     </Link>
-                  )
-                })}
-                {currentPage < totalPages ? (
-                  <Link href={buildBlogPageHref(currentPage + 1, activeCategory.id)} prefetch={false}>
-                    Następna
-                  </Link>
-                ) : (
-                  <span aria-disabled="true">Następna</span>
-                )}
-              </nav>
-            ) : null}
-          </section>
+                  ) : (
+                    <span aria-disabled="true">Poprzednia</span>
+                  )}
+                  {Array.from({ length: totalPages }, (_, index) => {
+                    const pageNumber = index + 1
 
-          <section className="blog-redesign-section-block blog-redesign-two-column" aria-label="Kategorie i popularne artykuły">
-            <div>
-              <h2>Kategorie</h2>
-              <div className="blog-redesign-category-table">
-                {coreCategories.map((category) => {
-                  const Icon = category.icon
-
-                  return (
-                    <Link href={category.href} prefetch={false} key={category.id}>
-                      <span>
-                        <Icon size={16} strokeWidth={1.8} aria-hidden="true" />
-                        {repairCopy(category.label)}
-                      </span>
-                      <b>{category.count}</b>
-                      <ChevronRight size={16} strokeWidth={1.7} aria-hidden="true" />
+                    return (
+                      <Link
+                        key={pageNumber}
+                        href={buildBlogPageHref(pageNumber, activeCategory.id)}
+                        prefetch={false}
+                        aria-current={pageNumber === currentPage ? 'page' : undefined}
+                      >
+                        {pageNumber}
+                      </Link>
+                    )
+                  })}
+                  {currentPage < totalPages ? (
+                    <Link href={buildBlogPageHref(currentPage + 1, activeCategory.id)} prefetch={false}>
+                      Następna
                     </Link>
-                  )
-                })}
-              </div>
+                  ) : (
+                    <span aria-disabled="true">Następna</span>
+                  )}
+                </nav>
+              ) : null}
             </div>
-            <div>
-              <h2>Popularne artykuły</h2>
-              <ol className="blog-redesign-popular-list">
-                {popularPosts.map((post, index) => (
-                  <li key={post.slug}>
-                    <Link href={post.path} prefetch={false}>
-                      <span>{String(index + 1).padStart(2, '0')}</span>
-                      <strong>{repairCopy(post.title)}</strong>
-                      <ChevronRight size={17} strokeWidth={1.8} aria-hidden="true" />
-                    </Link>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          </section>
 
-          <section className="blog-redesign-help-card site-help-cta">
-            <div className="site-help-cta-copy">
-              <h2>Potrzebujesz pomocy w rozwiązaniu problemu?</h2>
-              <p>Skonsultuj się ze mną. Wspólnie znajdziemy najlepsze rozwiązanie dla Ciebie i Twojego zwierzęcia.</p>
-              <div className="site-help-cta-actions">
-                <Link href="/" prefetch={false} className="blog-redesign-help-link">
-                  Umów konsultację
-                  <ArrowRight size={17} strokeWidth={1.9} aria-hidden="true" />
+            <aside className="blog-magazine-sidebar" aria-label="Pomocnicze informacje bloga">
+              <section className="blog-author-card">
+                <h2>O autorze</h2>
+                <Image src={BLOG_AUTHOR_IMAGE} alt="Krzysztof Regulski" width={132} height={132} loading="eager" />
+                <strong>Krzysztof Regulski</strong>
+                <span>Behawiorysta psów i kotów</span>
+                <p>Pomagam opiekunom lepiej zrozumieć zachowanie zwierząt i dobrać spokojny, praktyczny pierwszy krok.</p>
+                <Link href="/o-mnie" prefetch={false}>
+                  Dowiedz się więcej o mnie
+                  <ArrowRight size={15} strokeWidth={1.9} aria-hidden="true" />
                 </Link>
-              </div>
+              </section>
+
+              <section className="blog-newsletter-card">
+                <Mail size={30} strokeWidth={1.55} aria-hidden="true" />
+                <h2>Bądź na bieżąco</h2>
+                <p>Nowe artykuły, proste wskazówki i tematy, które warto zauważyć wcześniej.</p>
+                <Link href="/newsletter" prefetch={false}>
+                  Zapisz się
+                  <ArrowRight size={15} strokeWidth={1.9} aria-hidden="true" />
+                </Link>
+              </section>
+
+              <section className="blog-popular-topics-card">
+                <h2>Popularne tematy</h2>
+                <div>
+                  {trendCategories.slice(0, 7).map((category) => (
+                    <Link key={category.id} href={category.href} prefetch={false} className={category.id === activeCategory.id ? 'is-active' : undefined}>
+                      <span>{repairCopy(category.label)}</span>
+                      <small>{category.count}</small>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            </aside>
+          </section>
+
+          <section className="blog-magazine-bottom-cta">
+            <figure aria-hidden="true">
+              <Image src={spotlightPost?.cover.src ?? BLOG_HERO_IMAGE} alt="" fill sizes="(max-width: 760px) 42vw, 210px" />
+            </figure>
+            <div>
+              <h2>Potrzebujesz indywidualnej pomocy?</h2>
+              <p>Każde zwierzę jest inne. Jeśli artykuł pomaga nazwać problem, konsultacja pomaga ułożyć pierwszy plan działania.</p>
             </div>
-            <div className="blog-redesign-help-image site-help-cta-image" aria-hidden="true">
-              <Image src="/faq/faq-help-illustration-clean.png" alt="" width={355} height={208} sizes="(max-width: 760px) 58vw, 210px" />
-            </div>
+            <Link href="/quiz" prefetch={false}>
+              Umów konsultację
+              <ArrowRight size={17} strokeWidth={1.9} aria-hidden="true" />
+            </Link>
           </section>
         </div>
 

@@ -311,7 +311,7 @@ export const PROBLEM_PAGE_CONFIGS: ProblemPageConfig[] = [
     title: 'Konflikt między kotami',
     seoTitle: 'Konflikt między kotami - napięcie, zasoby i pierwszy krok',
     description:
-      'Jak rozpoznać konflikt między kotami, także wtedy, gdy nie ma otwartej bójki.',
+      'Jak rozpoznać konflikt między kotami: blokowanie zasobów, napięcie przy kuwecie, gonitwy, unikanie kontaktu i ciche sygnały stresu bez otwartej bójki.',
     intro:
       'Konflikt między kotami często jest cichy: blokowanie przejść, zasobów, kuwety, legowisk albo uwagi człowieka. Brak bójki nie zawsze oznacza brak problemu.',
     signals: [

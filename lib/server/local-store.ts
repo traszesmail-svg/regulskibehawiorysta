@@ -1207,3 +1207,26 @@ export async function markBookingReminderSent(bookingId: string): Promise<Bookin
     return booking
   })
 }
+
+export async function updateBookingQuiz(
+  bookingId: string,
+  patch: { petAge?: string; durationNotes?: string; description?: string; questionsRemaining?: number | null },
+): Promise<BookingRecord | null> {
+  return withLock(async () => {
+    const store = await readStore()
+    const booking = store.bookings.find((item) => item.id === bookingId)
+
+    if (!booking) {
+      return null
+    }
+
+    if (patch.petAge !== undefined) booking.petAge = patch.petAge
+    if (patch.durationNotes !== undefined) booking.durationNotes = patch.durationNotes
+    if (patch.description !== undefined) booking.description = patch.description
+    if (patch.questionsRemaining !== undefined) booking.questionsRemaining = patch.questionsRemaining
+
+    booking.updatedAt = new Date().toISOString()
+    await persistStore(store)
+    return booking
+  })
+}

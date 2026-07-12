@@ -235,6 +235,10 @@ const BASE_BOOKING_SELECT_COLUMNS = [
   'prep_uploaded_at',
   'created_at',
   'updated_at',
+  'call_id',
+  'call_status',
+  'started_at',
+  'questions_remaining',
 ] as const
 
 const QA_BOOKING_SELECT_COLUMNS = ['qa_booking'] as const
@@ -566,6 +570,10 @@ function mapBookingRow(row: BookingRow): BookingRecord {
     prepLinkUrl: row.prep_link_url,
     prepNotes: row.prep_notes,
     prepUploadedAt: row.prep_uploaded_at,
+    callId: row.call_id ?? null,
+    callStatus: row.call_status ?? null,
+    startedAt: row.started_at ?? null,
+    questionsRemaining: row.questions_remaining ?? null,
   }
 }
 
@@ -2430,6 +2438,34 @@ export async function markBookingReminderSent(bookingId: string): Promise<Bookin
       reminder_sent: true,
       updated_at: new Date().toISOString(),
     })
+    .eq('id', bookingId)
+    .select(BOOKING_SELECT_COLUMNS)
+    .maybeSingle()
+
+  if (error) {
+    throw error
+  }
+
+  return data ? mapBookingRow(data as unknown as BookingRow) : null
+}
+
+export async function updateBookingQuiz(
+  bookingId: string,
+  patch: { petAge?: string; durationNotes?: string; description?: string; questionsRemaining?: number | null },
+): Promise<BookingRecord | null> {
+  const supabase = getSupabaseAdmin()
+  const updatePayload: Record<string, unknown> = {
+    updated_at: new Date().toISOString(),
+  }
+
+  if (patch.petAge !== undefined) updatePayload.pet_age = patch.petAge
+  if (patch.durationNotes !== undefined) updatePayload.duration_notes = patch.durationNotes
+  if (patch.description !== undefined) updatePayload.description = patch.description
+  if (patch.questionsRemaining !== undefined) updatePayload.questions_remaining = patch.questionsRemaining
+
+  const { data, error } = await supabase
+    .from('bookings')
+    .update(updatePayload)
     .eq('id', bookingId)
     .select(BOOKING_SELECT_COLUMNS)
     .maybeSingle()

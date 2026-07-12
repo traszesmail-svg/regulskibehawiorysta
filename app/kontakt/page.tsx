@@ -11,6 +11,7 @@ import {
   Search,
 } from 'lucide-react'
 import { ContactLeadForm } from '@/components/ContactLeadForm'
+import { MobileFirstStepCta } from '@/components/MobileFirstStepCta'
 import { NotatnikFooter, NotatnikTopbar, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
 import { ReferenceHeroLeaf } from '@/components/ReferencePageShell'
 import { Schema } from '@/components/schema'
@@ -80,6 +81,15 @@ export default function ContactPage({
               Krótka wiadomość wystarczy, bym zrozumiał sytuację i podpowiedział, od czego
               najlepiej zacząć. Bez oceniania. Z uważnością i fachową wiedzą.
             </p>
+            <MobileFirstStepCta
+              eyebrow="Nie musisz znać nazwy problemu"
+              title="Opisz sytuację w kilku zdaniach"
+              copy="Jeśli nie wiesz, czy wybrać Kwadrans, dłuższą rozmowę czy najpierw doprecyzować temat, zacznij od formularza."
+              primaryHref="#formularz"
+              primaryLabel="Przejdź do formularza"
+              secondaryHref="/cennik"
+              secondaryLabel="Zobacz cennik"
+            />
           </div>
           <div className="contact-reference-photo-wrap">
             <figure className="contact-reference-photo">

@@ -17,8 +17,8 @@ import {
   getPaymentStatusLabel,
 } from '@/lib/account'
 import { normalizeCommerceEmail } from '@/lib/commerce'
-import { listBookings } from '@/lib/server/db'
-import { listLeadBookings, type LeadBookingRecord } from '@/lib/server/lead-bookings'
+import { listBookings, updateBookingQuiz } from '@/lib/server/db'
+import { listLeadBookings, updateLeadBooking, type LeadBookingRecord } from '@/lib/server/lead-bookings'
 import { listCommerceOrdersByEmail } from '@/lib/server/commerce-store'
 import { getSupabaseServerConfig } from '@/lib/server/env'
 import { sendAccountRoomReplyEmail } from '@/lib/server/notifications'
@@ -335,10 +335,19 @@ function bookingToSummary(booking: BookingRecord): AccountBookingSummary {
       : null,
     paymentUrl: null,
     createdAt: booking.createdAt,
+    callId: booking.callId ?? null,
+    callStatus: booking.callStatus ?? null,
+    startedAt: booking.startedAt ?? null,
+    questionsRemaining: booking.questionsRemaining ?? null,
   }
 }
 
 function leadBookingToSummary(booking: LeadBookingRecord): AccountBookingSummary {
+  const isAudio = booking.service === 'szybka-konsultacja-15-min' || booking.service === 'kwadrans-na-juz' || booking.service === 'konsultacja-30-min';
+  const meetingUrl = isAudio
+    ? `/call/${booking.id}?access=${booking.accessToken}`
+    : booking.callRoomUrl;
+
   return {
     id: booking.id,
     source: 'lead_booking',
@@ -354,9 +363,13 @@ function leadBookingToSummary(booking: LeadBookingRecord): AccountBookingSummary
         ? 'anulowana'
         : 'w toku',
     paymentLabel: booking.paymentMethod ? `platnosc: ${booking.paymentMethod}` : 'platnosc do potwierdzenia',
-    meetingUrl: booking.callRoomUrl,
+    meetingUrl: meetingUrl,
     paymentUrl: booking.paymentLink,
     createdAt: booking.createdAt,
+    callId: booking.callId ?? null,
+    callStatus: booking.callStatus ?? null,
+    startedAt: booking.startedAt ?? null,
+    questionsRemaining: booking.questionsRemaining ?? null,
   }
 }
 
@@ -731,6 +744,36 @@ export async function createAccountMessage(user: User, input: CreateAccountMessa
 
   const state = await readAccountState(user)
   await ensureProfile(user, state)
+
+  const userEmail = user.email?.trim().toLowerCase()
+  if (userEmail) {
+    const [allBookings, allLeadBookings] = await Promise.all([
+      listBookings(),
+      listLeadBookings(),
+    ])
+    const userBookingsAll = allBookings.filter(b => b.email?.trim().toLowerCase() === userEmail)
+    const userLeadBookingsAll = allLeadBookings.filter(b => b.email?.trim().toLowerCase() === userEmail && (b.status === 'paid' || b.status === 'confirmed'))
+
+    const mappedAll = [
+      ...userBookingsAll.map(b => ({ id: b.id, createdAt: b.createdAt, serviceType: b.serviceType, questionsRemaining: b.questionsRemaining ?? null, isLead: false })),
+      ...userLeadBookingsAll.map(b => ({ id: b.id, createdAt: b.createdAt, serviceType: b.service || null, questionsRemaining: b.questionsRemaining ?? null, isLead: true })),
+    ].sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+
+    const latestBooking = mappedAll[0]
+    if (latestBooking && (latestBooking.serviceType === 'szybka-konsultacja-15-min' || latestBooking.serviceType === 'kwadrans-na-juz' || latestBooking.serviceType === 'konsultacja-30-min')) {
+      if (latestBooking.questionsRemaining !== null) {
+        if (latestBooking.questionsRemaining <= 0) {
+          throw new Error('Wykorzystałeś już limit pytań na czacie po tej konsultacji. Jeśli potrzebujesz dalszej pomocy, wybierz kolejną usługę.')
+        }
+        const nextVal = latestBooking.questionsRemaining - 1
+        if (latestBooking.isLead) {
+          await updateLeadBooking({ id: latestBooking.id, questionsRemaining: nextVal })
+        } else {
+          await updateBookingQuiz(latestBooking.id, { questionsRemaining: nextVal })
+        }
+      }
+    }
+  }
 
   const conversation = getOrCreateConversation(state, input.petId, input.conversationId)
   const now = new Date().toISOString()

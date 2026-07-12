@@ -182,6 +182,14 @@ export default async function CallPage({
               problemType={booking.problemType}
               serviceType={serviceType}
               qaBooking={qaBooking}
+              callId={booking.callId ?? null}
+              callStatus={booking.callStatus ?? null}
+              startedAt={booking.startedAt ?? null}
+              questionsRemaining={booking.questionsRemaining ?? null}
+              phone={booking.phone}
+              petAge={booking.petAge}
+              durationNotes={booking.durationNotes}
+              description={booking.description}
             />
             <PreparationMaterialsCard
               bookingId={booking.id}

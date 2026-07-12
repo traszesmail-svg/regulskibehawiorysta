@@ -3,6 +3,8 @@ import type { UrgentNowRequestRecord } from '@/lib/urgent-now'
 import * as localStore from '@/lib/server/local-store'
 import { reportRuntimeModeUsage, resolveDataMode } from '@/lib/server/env'
 import * as supabaseStore from '@/lib/server/supabase-store'
+import { getLeadBookingById, updateLeadBooking } from '@/lib/server/lead-bookings'
+import type { BookingRecord } from '@/lib/types'
 
 type StoreProvider = typeof localStore
 
@@ -54,6 +56,34 @@ export async function getBookingByCustomerAccess(id: string, accessToken: string
   return getProvider().getBookingByCustomerAccess(id, accessToken)
 }
 
+function mapLeadBookingToBookingRecord(lead: any): BookingRecord {
+  return {
+    id: lead.id,
+    ownerName: lead.name,
+    serviceType: lead.service,
+    problemType: 'inne',
+    animalType: lead.species === 'kot' ? 'Kot' : 'Pies',
+    petAge: '',
+    durationNotes: lead.preferredSlots,
+    description: lead.description,
+    phone: lead.phone ?? '',
+    email: lead.email,
+    bookingDate: lead.confirmedDate ?? '',
+    bookingTime: lead.confirmedTime ?? '',
+    slotId: '',
+    amount: parseFloat(lead.servicePrice) || 0,
+    bookingStatus: lead.status === 'paid' ? 'confirmed' : 'pending',
+    paymentStatus: lead.status === 'paid' ? 'paid' : 'unpaid',
+    meetingUrl: lead.callRoomUrl ?? '',
+    createdAt: lead.createdAt,
+    updatedAt: lead.updatedAt,
+    callId: lead.callId ?? null,
+    callStatus: lead.callStatus ?? null,
+    startedAt: lead.startedAt ?? null,
+    questionsRemaining: lead.questionsRemaining ?? null,
+  }
+}
+
 export async function getBookingForViewer(
   id: string,
   accessToken?: string | null,
@@ -62,12 +92,23 @@ export async function getBookingForViewer(
   const adminSecret = getAdminAccessSecret()
 
   if (adminSecret && hasValidAdminAuthorization(authorizationHeader ?? null, adminSecret)) {
-    return getBookingById(id)
+    const b = await getBookingById(id)
+    if (b) return b
+    const lb = await getLeadBookingById(id)
+    if (lb) return mapLeadBookingToBookingRecord(lb)
+    return null
   }
 
   const booking = await getBookingById(id)
 
   if (!booking) {
+    const leadBooking = await getLeadBookingById(id)
+    if (!leadBooking) {
+      return null
+    }
+    if (leadBooking.accessToken === accessToken) {
+      return mapLeadBookingToBookingRecord(leadBooking)
+    }
     return null
   }
 
@@ -162,4 +203,29 @@ export async function markBookingDone(bookingId: string, recommendedNextStep?: s
 
 export async function markBookingReminderSent(bookingId: string) {
   return getProvider().markBookingReminderSent(bookingId)
+}
+
+export async function updateBookingQuiz(
+  bookingId: string,
+  patch: { petAge?: string; durationNotes?: string; description?: string },
+): Promise<BookingRecord | null> {
+  const b = await getBookingById(bookingId)
+  if (b) {
+    return (getProvider() as any).updateBookingQuiz(bookingId, patch)
+  }
+  const lb = await getLeadBookingById(bookingId)
+  if (lb) {
+    const updatePayload: any = {}
+    if (patch.durationNotes !== undefined) {
+      updatePayload.preferredSlots = patch.durationNotes
+    }
+    if (patch.description !== undefined) {
+      updatePayload.description = patch.description
+    }
+    const updatedLb = await updateLeadBooking({ id: bookingId, ...updatePayload })
+    if (updatedLb) {
+      return mapLeadBookingToBookingRecord(updatedLb)
+    }
+  }
+  return null
 }

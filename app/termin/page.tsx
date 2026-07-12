@@ -5,6 +5,7 @@ import { unstable_noStore as noStore } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { CalendarDays, Cat, Check, ChevronDown, Dog, Headphones, PawPrint } from 'lucide-react'
 import { AnalyticsEventOnMount } from '@/components/AnalyticsEventOnMount'
+import { MobileFirstStepCta } from '@/components/MobileFirstStepCta'
 import { NotatnikPageShell, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
 import { TerminCalendarPicker, type TerminCalendarDay as PickerCalendarDay } from '@/components/TerminCalendarPicker'
 import { Schema } from '@/components/schema'
@@ -14,6 +15,7 @@ import {
   getBookingServiceRoomAccessLabel,
   getBookingServiceSlotBadge,
   getBookingServiceSlotSummary,
+  getBookingServiceDurationLabel,
   normalizeBookingServiceType,
   type BookingServiceType,
 } from '@/lib/booking-services'
@@ -337,6 +339,16 @@ export async function BookingSlotCalendar({
                 ? 'Wybierz najbliższy dostępny termin krótkiej konsultacji. W kolejnym kroku wpiszesz dane, opłacisz rezerwację i dostaniesz e-mail z potwierdzeniem.'
                 : 'Wybierz dogodny dzień i godzinę. W kolejnym kroku wpiszesz dane, opłacisz rezerwację i dostaniesz e-mail z potwierdzeniem.'}
             </p>
+            <MobileFirstStepCta
+              eyebrow="Najbliższy krok"
+              title={serviceConfig.shortTitle}
+              copy={getBookingServiceSlotSummary(serviceType)}
+              meta={`${formatPricePln(serviceConfig.priceAmount)} / ${getBookingServiceDurationLabel(serviceType)}`}
+              primaryHref="#najblizsze-terminy"
+              primaryLabel="Zobacz terminy"
+              secondaryHref="/cennik"
+              secondaryLabel="Porównaj opcje"
+            />
           </div>
 
           <figure className="termin-hero-photo" aria-hidden="true">
@@ -352,7 +364,7 @@ export async function BookingSlotCalendar({
             ))}
           </div>
 
-          <div className="termin-calendar-shell">
+          <div className="termin-calendar-shell" id="najblizsze-terminy">
             <div className="notatnik-callout termin-calendar-callout">
               Prosty proces: wybierasz termin, wpisujesz dane, przechodzisz do płatności i dostajesz potwierdzenie e-mailem.
               Wybrany termin trzymamy przez 15 minut na czas spokojnego dokończenia rezerwacji.

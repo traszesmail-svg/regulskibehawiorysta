@@ -423,58 +423,88 @@ export function AccountRoomApp({ initialView = 'start' }: AccountRoomAppProps) {
         </div>
       ) : null}
 
-      {activeView === 'rozmowa' ? (
-        <div className="account-split">
-          <div className="account-room-card">
-            <h2>Dodaj wiadomość albo plik</h2>
-            <form className="materialy-form account-form" onSubmit={sendMessage}>
-              <label>
-                Wiadomość
-                <textarea value={messageBody} onChange={(event) => setMessageBody(event.target.value)} rows={6} />
-              </label>
-              <label>
-                Plik
-                <input
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp,application/pdf,video/mp4,video/quicktime"
-                  onChange={(event) => setMessageFile(event.target.files?.[0] ?? null)}
-                />
-              </label>
-              <button type="submit" className="button button-primary big-button" disabled={busy}>
-                <Upload size={17} aria-hidden="true" />
-                {busy ? 'Wysyłam...' : 'Dodaj do rozmowy'}
-              </button>
-            </form>
-          </div>
+      {activeView === 'rozmowa' ? (() => {
+        const latestBooking = account?.bookings?.[0]
+        const isLimited = latestBooking && (latestBooking.serviceType === 'szybka-konsultacja-15-min' || latestBooking.serviceType === 'kwadrans-na-juz' || latestBooking.serviceType === 'konsultacja-30-min')
+        const questionsRemaining = isLimited ? latestBooking.questionsRemaining : null
+        const isChatBlocked = isLimited && questionsRemaining !== null && questionsRemaining <= 0
 
-          <div className="account-message-list">
-            {(account?.conversations.length ?? 0) === 0 ? (
-              <div className="account-room-card">
-                <h2>Brak rozmowy</h2>
-                <p>Pierwsza wiadomość utworzy wątek w pokoju opiekuna.</p>
-              </div>
-            ) : null}
-            {account?.conversations.map((conversation) => (
-              <article key={conversation.id} className="account-room-card">
-                <span className="account-card-kicker">{conversation.subject}</span>
-                {conversation.messages.length === 0 ? <p>Wątek jest pusty.</p> : null}
-                {conversation.messages.map((message) => (
-                  <div key={message.id} className={`account-message-bubble is-${message.sender}`}>
-                    <div className="account-message-meta">{formatDateTime(message.createdAt)}</div>
-                    {message.body ? <p>{message.body}</p> : null}
-                    {message.attachments.map((attachment) => (
-                      <a key={attachment.id} href={attachment.signedUrl ?? '#'} className="account-attachment-link" target="_blank" rel="noopener noreferrer">
-                        <Download size={15} aria-hidden="true" />
-                        {attachment.fileName} ({formatBytes(attachment.fileSizeBytes)})
-                      </a>
-                    ))}
-                  </div>
-                ))}
-              </article>
-            ))}
+        return (
+          <div className="account-split">
+            <div className="account-room-card">
+              <h2>Dodaj wiadomość albo plik</h2>
+              {isLimited && questionsRemaining !== null ? (
+                <div style={{
+                  padding: '0.8rem 1rem',
+                  borderRadius: '8px',
+                  background: isChatBlocked ? 'rgba(138, 48, 34, 0.1)' : 'rgba(23, 63, 36, 0.08)',
+                  border: `1px solid ${isChatBlocked ? '#8a3022' : 'var(--border)'}`,
+                  marginBottom: '1rem',
+                  fontSize: '0.9rem'
+                }}>
+                  {isChatBlocked ? (
+                    <strong>Wykorzystałeś limit pytań uzupełniających na czacie po tej konsultacji.</strong>
+                  ) : (
+                    <span>Pozostało pytań uzupełniających do Behawiorysty na czacie: <strong>{questionsRemaining}</strong>.</span>
+                  )}
+                </div>
+              ) : null}
+              <form className="materialy-form account-form" onSubmit={sendMessage}>
+                <label>
+                  Wiadomość
+                  <textarea
+                    value={messageBody}
+                    onChange={(event) => setMessageBody(event.target.value)}
+                    rows={6}
+                    disabled={isChatBlocked}
+                    placeholder={isChatBlocked ? "Czat zablokowany - wyczerpano limit pytań." : "Napisz wiadomość..."}
+                  />
+                </label>
+                <label>
+                  Plik
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,application/pdf,video/mp4,video/quicktime"
+                    onChange={(event) => setMessageFile(event.target.files?.[0] ?? null)}
+                    disabled={isChatBlocked}
+                  />
+                </label>
+                <button type="submit" className="button button-primary big-button" disabled={busy || isChatBlocked}>
+                  <Upload size={17} aria-hidden="true" />
+                  {busy ? 'Wysyłam...' : 'Dodaj do rozmowy'}
+                </button>
+              </form>
+            </div>
+
+            <div className="account-message-list">
+              {(account?.conversations.length ?? 0) === 0 ? (
+                <div className="account-room-card">
+                  <h2>Brak rozmowy</h2>
+                  <p>Pierwsza wiadomość utworzy wątek w pokoju opiekuna.</p>
+                </div>
+              ) : null}
+              {account?.conversations.map((conversation) => (
+                <article key={conversation.id} className="account-room-card">
+                  <span className="account-card-kicker">{conversation.subject}</span>
+                  {conversation.messages.length === 0 ? <p>Wątek jest pusty.</p> : null}
+                  {conversation.messages.map((message) => (
+                    <div key={message.id} className={`account-message-bubble is-${message.sender}`}>
+                      <div className="account-message-meta">{formatDateTime(message.createdAt)}</div>
+                      {message.body ? <p>{message.body}</p> : null}
+                      {message.attachments.map((attachment) => (
+                        <a key={attachment.id} href={attachment.signedUrl ?? '#'} className="account-attachment-link" target="_blank" rel="noopener noreferrer">
+                          <Download size={15} aria-hidden="true" />
+                          {attachment.fileName} ({formatBytes(attachment.fileSizeBytes)})
+                        </a>
+                      ))}
+                    </div>
+                  ))}
+                </article>
+              ))}
+            </div>
           </div>
-        </div>
-      ) : null}
+        )
+      })() : null}
 
       {activeView === 'materialy' ? (
         <div className="account-list-grid">

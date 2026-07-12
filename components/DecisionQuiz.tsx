@@ -25,6 +25,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { trackAnalyticsEvent } from '@/lib/analytics'
 import {
   QUIZ_QUESTIONS,
@@ -77,6 +78,12 @@ const optionVisuals: Record<string, OptionVisual> = {
   check: { icon: SearchCheck },
   plan: { icon: ListChecks },
   diagnosis: { icon: Stethoscope },
+  yes_good: { icon: Check },
+  yes_bad: { icon: Stethoscope },
+  vocalization: { icon: CloudLightning },
+  destruction: { icon: ShieldCheck },
+  elimination: { icon: Home },
+  pacing: { icon: Route },
 }
 
 function OptionIcon({ optionId, selected }: { optionId: string; selected: boolean }) {
@@ -101,23 +108,57 @@ function OptionIcon({ optionId, selected }: { optionId: string; selected: boolea
 
 export function DecisionQuiz({ bookingHrefs, initialProblemKey }: DecisionQuizProps) {
   const problemContext = getQuizProblemContext(initialProblemKey)
-  const initialStepIndex = problemContext?.species
-    ? Math.max(
-        QUIZ_QUESTIONS.findIndex((question) => question.id === 'main_topic'),
-        0,
-      )
-    : 0
-  const [stepIndex, setStepIndex] = useState(initialStepIndex)
   const [answers, setAnswers] = useState<QuizAnswers>(() => ({
     ...(problemContext?.species ? { species: problemContext.species } : {}),
+    ...(problemContext?.mainTopic ? { main_topic: problemContext.mainTopic } : {}),
     ...(problemContext ? { problem_context: problemContext.problemKey } : {}),
   }))
+  const [stepIndex, setStepIndex] = useState(0)
   const [showResult, setShowResult] = useState(false)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [analysisText, setAnalysisText] = useState('Koreluję odpowiedzi...')
   const autoAdvanceTimer = useRef<number | null>(null)
   const quizRootRef = useRef<HTMLDivElement | null>(null)
   const hasMountedRef = useRef(false)
 
-  const currentQuestion = QUIZ_QUESTIONS[stepIndex]
+  useEffect(() => {
+    if (!isAnalyzing) return
+    quizRootRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+
+    const texts = [
+      'Koreluję odpowiedzi...',
+      'Oceniam ryzyko środowiskowe...',
+      'Dobieram najbezpieczniejszy plan...'
+    ]
+    
+    let textIndex = 0
+    const interval = setInterval(() => {
+      textIndex++
+      if (textIndex < texts.length) {
+        setAnalysisText(texts[textIndex])
+      }
+    }, 800)
+
+    const finishTimeout = setTimeout(() => {
+      clearInterval(interval)
+      setIsAnalyzing(false)
+      setShowResult(true)
+    }, 2400)
+
+    return () => {
+      clearInterval(interval)
+      clearTimeout(finishTimeout)
+    }
+  }, [isAnalyzing])
+
+  const activeQuestions = useMemo(() => {
+    return QUIZ_QUESTIONS.filter(q => {
+      if (!q.condition) return true
+      return q.condition(answers, problemContext ?? null)
+    })
+  }, [answers, problemContext])
+
+  const currentQuestion = activeQuestions[stepIndex]
   const questionTitle =
     problemContext && currentQuestion?.id === 'main_topic' ? 'Co dzieje się najczęściej?' : currentQuestion?.title
   const questionHelper =
@@ -127,7 +168,7 @@ export function DecisionQuiz({ bookingHrefs, initialProblemKey }: DecisionQuizPr
   const result = useMemo(() => resolveQuizResult(answers), [answers])
   const resultMeta = QUIZ_SERVICE_LABELS[result.serviceKey]
   const currentAnswer = currentQuestion ? answers[currentQuestion.id] : undefined
-  const progress = ((showResult ? QUIZ_QUESTIONS.length : stepIndex + 1) / QUIZ_QUESTIONS.length) * 100
+  const progress = ((showResult ? activeQuestions.length : stepIndex + 1) / activeQuestions.length) * 100
 
   useEffect(() => {
     if (!hasMountedRef.current) {
@@ -148,34 +189,13 @@ export function DecisionQuiz({ bookingHrefs, initialProblemKey }: DecisionQuizPr
   function completeQuiz(finalAnswers: QuizAnswers) {
     const finalResult = resolveQuizResult(finalAnswers)
 
-    setShowResult(true)
+    setIsAnalyzing(true)
     trackAnalyticsEvent('quiz_completed', {
       location: 'quiz',
       result: finalResult.serviceKey,
       species: finalAnswers.species ?? problemContext?.species ?? 'unknown',
       problem_key: finalAnswers.problem_context ?? problemContext?.problemKey ?? null,
     })
-  }
-
-  function scheduleAutoAdvance(questionId: string, nextAnswers: QuizAnswers) {
-    clearAutoAdvance()
-
-    const questionIndex = QUIZ_QUESTIONS.findIndex((question) => question.id === questionId)
-
-    if (questionIndex === -1) {
-      return
-    }
-
-    autoAdvanceTimer.current = window.setTimeout(() => {
-      autoAdvanceTimer.current = null
-
-      if (questionIndex >= QUIZ_QUESTIONS.length - 1) {
-        completeQuiz(nextAnswers)
-        return
-      }
-
-      setStepIndex((current) => (current === questionIndex ? current + 1 : current))
-    }, 380)
   }
 
   function selectAnswer(questionId: string, optionId: string) {
@@ -190,7 +210,26 @@ export function DecisionQuiz({ bookingHrefs, initialProblemKey }: DecisionQuizPr
       problem_key: nextAnswers.problem_context ?? problemContext?.problemKey ?? null,
     })
 
-    scheduleAutoAdvance(questionId, nextAnswers)
+    clearAutoAdvance()
+
+    autoAdvanceTimer.current = window.setTimeout(() => {
+      autoAdvanceTimer.current = null
+
+      const nextActiveQuestions = QUIZ_QUESTIONS.filter(q => {
+        if (!q.condition) return true
+        return q.condition(nextAnswers, problemContext ?? null)
+      })
+
+      const questionIndex = nextActiveQuestions.findIndex((q) => q.id === questionId)
+      
+      if (questionIndex === -1) return
+
+      if (questionIndex >= nextActiveQuestions.length - 1) {
+        completeQuiz(nextAnswers)
+      } else {
+        setStepIndex(questionIndex + 1)
+      }
+    }, 380)
   }
 
   function goNext() {
@@ -200,7 +239,7 @@ export function DecisionQuiz({ bookingHrefs, initialProblemKey }: DecisionQuizPr
 
     clearAutoAdvance()
 
-    if (stepIndex >= QUIZ_QUESTIONS.length - 1) {
+    if (stepIndex >= activeQuestions.length - 1) {
       completeQuiz(answers)
       return
     }
@@ -213,7 +252,7 @@ export function DecisionQuiz({ bookingHrefs, initialProblemKey }: DecisionQuizPr
 
     if (showResult) {
       setShowResult(false)
-      setStepIndex(QUIZ_QUESTIONS.length - 1)
+      setStepIndex(activeQuestions.length - 1)
       return
     }
 
@@ -224,12 +263,61 @@ export function DecisionQuiz({ bookingHrefs, initialProblemKey }: DecisionQuizPr
     return null
   }
 
+  if (isAnalyzing) {
+    return (
+      <div ref={quizRootRef} className="decision-quiz decision-quiz-labor">
+        <motion.div 
+          className="decision-quiz-card"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '300px' }}
+        >
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ repeat: Infinity, duration: 1.2, ease: "linear" }}
+            style={{ width: 48, height: 48, borderRadius: '50%', border: '4px solid var(--border)', borderTopColor: 'var(--brand-main)', marginBottom: '2rem' }}
+          />
+          <AnimatePresence mode="wait">
+            <motion.h2
+              key={analysisText}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              style={{ textAlign: 'center', margin: 0 }}
+            >
+              {analysisText}
+            </motion.h2>
+          </AnimatePresence>
+        </motion.div>
+      </div>
+    )
+  }
+
   if (showResult) {
-    const bookingHref = bookingHrefs[result.serviceKey]
+    let bookingHref = bookingHrefs[result.serviceKey]
+    try {
+      const isAbsolute = bookingHref.startsWith('http')
+      const url = new URL(bookingHref, isAbsolute ? undefined : window.location.origin)
+      const answersText = Object.entries(answers)
+          .filter(([k]) => k !== 'problem_context')
+          .map(([k, v]) => `${k}: ${v}`)
+          .join(' | ')
+      url.searchParams.set('notes', `[Z quizu] ${answersText}`)
+      bookingHref = isAbsolute ? url.toString() : `${url.pathname}${url.search}`
+    } catch(e) {
+      // fallback to original if parsing fails
+    }
 
     return (
       <div ref={quizRootRef} className="decision-quiz decision-quiz-result">
-        <article className="decision-quiz-result-card">
+        <motion.article 
+          className="decision-quiz-result-card"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        >
           <div className="quiz-question-pill">Wynik quizu</div>
           <h2>{result.title}</h2>
           <p>{result.summary}</p>
@@ -297,9 +385,14 @@ export function DecisionQuiz({ bookingHrefs, initialProblemKey }: DecisionQuizPr
               Zmień odpowiedzi
             </button>
           </div>
-        </article>
+        </motion.article>
 
-        <article className="quiz-safe-note">
+        <motion.article 
+          className="quiz-safe-note"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+        >
           <span className="quiz-option-icon" aria-hidden="true">
             <ShieldCheck size={28} strokeWidth={1.9} />
           </span>
@@ -307,7 +400,7 @@ export function DecisionQuiz({ bookingHrefs, initialProblemKey }: DecisionQuizPr
             <strong>Spokojny kolejny krok</strong>
             <small>Po kliknięciu wybierzesz termin i krótko opiszesz sytuację. Bez formularza na kilkanaście stron.</small>
           </span>
-        </article>
+        </motion.article>
 
         <div className="quiz-bottom-pets" aria-hidden="true">
           <Image src="/faq/faq-hero-pets-transparent.png" alt="" width={520} height={340} priority={false} />
@@ -320,7 +413,7 @@ export function DecisionQuiz({ bookingHrefs, initialProblemKey }: DecisionQuizPr
     <div ref={quizRootRef} className="decision-quiz">
       <div className="decision-quiz-progress" aria-label="Postęp quizu">
         <div className="decision-quiz-progress-label">
-          <span>Krok {stepIndex + 1} z {QUIZ_QUESTIONS.length}</span>
+          <span>Krok {stepIndex + 1} z {activeQuestions.length}</span>
           {stepIndex > 0 ? (
             <button type="button" onClick={goBack}>
               <ArrowLeft size={18} strokeWidth={2} aria-hidden="true" />
@@ -333,9 +426,17 @@ export function DecisionQuiz({ bookingHrefs, initialProblemKey }: DecisionQuizPr
         </div>
       </div>
 
-      <article className="decision-quiz-card">
-        <div className="quiz-question-pill">Pytanie {stepIndex + 1}</div>
-        <h2>{questionTitle}</h2>
+      <AnimatePresence mode="wait">
+        <motion.article 
+          key={stepIndex}
+          className="decision-quiz-card"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -20 }}
+          transition={{ duration: 0.3, ease: "easeInOut" }}
+        >
+          <div className="quiz-question-pill">Pytanie {stepIndex + 1}</div>
+          <h2>{questionTitle}</h2>
         {questionHelper ? <p className="muted">{questionHelper}</p> : null}
 
         <div className="decision-quiz-options" role="radiogroup" aria-label={questionTitle}>
@@ -366,11 +467,12 @@ export function DecisionQuiz({ bookingHrefs, initialProblemKey }: DecisionQuizPr
 
         <div className="quiz-actions">
           <button type="button" className="button button-primary big-button" onClick={goNext} disabled={!currentAnswer}>
-            <span>{stepIndex >= QUIZ_QUESTIONS.length - 1 ? 'Pokaż wynik' : 'Dalej'}</span>
+            <span>{stepIndex >= activeQuestions.length - 1 ? 'Pokaż wynik' : 'Dalej'}</span>
             <ArrowRight size={22} strokeWidth={2.1} aria-hidden="true" />
           </button>
         </div>
-      </article>
+        </motion.article>
+      </AnimatePresence>
 
       <article className="quiz-safe-note">
         <span className="quiz-option-icon" aria-hidden="true">

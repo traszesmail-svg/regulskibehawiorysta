@@ -206,6 +206,10 @@ export interface BookingRecord {
   prepLinkUrl?: string | null
   prepNotes?: string | null
   prepUploadedAt?: string | null
+  callId?: string | null
+  callStatus?: string | null
+  startedAt?: string | null
+  questionsRemaining?: number | null
 }
 
 export interface BookingCreateResult {

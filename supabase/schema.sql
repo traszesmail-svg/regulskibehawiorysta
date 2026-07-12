@@ -69,6 +69,10 @@ create table if not exists public.bookings (
   prep_link_url text,
   prep_notes text,
   prep_uploaded_at timestamptz,
+  call_id text,
+  call_status text,
+  started_at timestamptz,
+  questions_remaining integer,
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now())
 );

@@ -198,7 +198,7 @@ export const referenceFaqItems: ReferenceFaqItem[] = [
       'Termin jest potwierdzony po rezerwacji i sprawdzeniu płatności. Jeśli coś wymaga doprecyzowania, kontaktuję się mailowo.',
   },
   {
-    id: 'platnosc-faktura',
+    id: 'platnosc-potwierdzenie',
     category: 'płatności',
     question: 'Czy mogę poprosić o potwierdzenie płatności?',
     answer:

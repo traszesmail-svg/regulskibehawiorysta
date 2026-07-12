@@ -222,7 +222,7 @@ test('book metadata is indexable and keeps the canonical booking path', async ()
 
   assert.equal(metadata.alternates?.canonical, '/book')
   assert.equal(robots, null)
-  assert.match(String(metadata.title ?? ''), /Rezerwacja 15-minutowej konsultacji/)
+  assert.match(String(metadata.title ?? ''), /Rezerwacja Kwadransa behawioralnego/)
 })
 
 test('home keeps animal category choices problem-first without price badges', () => {
@@ -267,7 +267,7 @@ test('audit priority fixes keep booking copy, no-js contact and technical SEO al
 
   assert.doesNotMatch(`${pricingPageSource}\n${pricingContentSource}`, /Kwadrans priorytetowy/)
   assert.match(`${pricingPageSource}\n${pricingContentSource}`, /Kwadrans na już/)
-  assert.match(pricingPageSource, /Faktura lub potwierdzenie płatności na życzenie/)
+  assert.match(pricingPageSource, /Potwierdzenie płatności na życzenie/)
   assert.match(pricingPageSource, /Link do rozmowy po potwierdzeniu płatności/)
 
   assert.doesNotMatch(blogCostSource, /Pełna godzinna konsultacja|od razu godzinna konsultacja/)

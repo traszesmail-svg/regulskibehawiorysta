@@ -15,6 +15,7 @@ import {
   Star,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+import { MobileFirstStepCta } from '@/components/MobileFirstStepCta'
 import { ReferencePageShell } from '@/components/ReferencePageShell'
 import { Schema } from '@/components/schema'
 import { getBreadcrumbJsonLd, getServiceJsonLd } from '@/lib/schema'
@@ -123,13 +124,23 @@ export default function PricingPage() {
               </span>
               <span>
                 <Mail aria-hidden="true" />
-                Faktura lub potwierdzenie płatności na życzenie
+                Potwierdzenie płatności na życzenie
               </span>
               <span>
                 <CheckCircle2 aria-hidden="true" />
                 Link do rozmowy po potwierdzeniu płatności
               </span>
             </div>
+            <MobileFirstStepCta
+              eyebrow="Najprostszy start"
+              title="Kwadrans / 69 zł"
+              copy="Jeśli chcesz szybko uporządkować jedno pytanie, zacznij od 15 minut audio bez kamery."
+              meta="Dla psa i kota. Online."
+              primaryHref={getDirectBookingHref('szybka-konsultacja-15-min')}
+              primaryLabel="Wybieram Kwadrans"
+              secondaryHref="/quiz"
+              secondaryLabel="Nie wiem, quiz"
+            />
           </div>
           <div className="pricing-2026-hero-media" aria-hidden="true">
             <Image

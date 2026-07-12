@@ -128,7 +128,17 @@ const nextConfig = {
         statusCode: 301,
       },
       {
+        source: '/psy/:path*',
+        destination: '/problemy#pies',
+        statusCode: 301,
+      },
+      {
         source: '/koty',
+        destination: '/problemy#kot',
+        statusCode: 301,
+      },
+      {
+        source: '/koty/:path*',
         destination: '/problemy#kot',
         statusCode: 301,
       },

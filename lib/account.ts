@@ -35,6 +35,10 @@ export type AccountBookingSummary = {
   meetingUrl: string | null
   paymentUrl: string | null
   createdAt: string
+  callId: string | null
+  callStatus: string | null
+  startedAt: string | null
+  questionsRemaining: number | null
 }
 
 export type AccountMaterialSummary = {

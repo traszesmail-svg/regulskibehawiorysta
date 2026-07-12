@@ -2152,6 +2152,39 @@ export async function sendBookingStatusOutcomeEmail(booking: BookingRecord): Pro
   return deliverEmail(email, 'customer')
 }
 
+export async function sendRescheduleRequestEmail(booking: BookingRecord, reason: string): Promise<DeliveryResult> {
+  const adminEmail = getAdminNotificationRecipientEmail()
+  if (!adminEmail) {
+    return { status: 'skipped', reason: 'Admin email not configured' }
+  }
+
+  const subject = `Prośba o zmianę terminu: ${booking.ownerName}`
+  const title = 'Zgłoszono prośbę o zmianę terminu'
+  const serviceTitle = getBookingServiceTitle(resolveBookingServiceType(booking.serviceType, booking.amount))
+  const intro = `Opiekun ${booking.ownerName} zgłosił prośbę o zmianę terminu dla konsultacji ${serviceTitle}.`
+
+  const facts = [
+    { label: 'Opiekun', htmlValue: escapeHtml(booking.ownerName), textValue: booking.ownerName },
+    { label: 'E-mail', htmlValue: `<a href="mailto:${booking.email}">${booking.email}</a>`, textValue: booking.email },
+    { label: 'Telefon', htmlValue: escapeHtml(booking.phone), textValue: booking.phone },
+    { label: 'Usługa', htmlValue: escapeHtml(serviceTitle), textValue: serviceTitle },
+    { label: 'Zaplanowany termin', htmlValue: `${booking.bookingDate}, ${booking.bookingTime}`, textValue: `${booking.bookingDate}, ${booking.bookingTime}` },
+    { label: 'Powód zmiany terminu', htmlValue: `<strong>${escapeHtml(reason)}</strong>`, textValue: reason },
+  ]
+
+  const payload = buildBookingCustomerEmail(
+    { ...booking, email: adminEmail },
+    subject,
+    title,
+    intro,
+    facts,
+    'Skontaktuj się z opiekunem, aby ustalić nowy dogodny termin.',
+    null
+  )
+
+  return deliverEmail(payload, 'internal')
+}
+
 export async function sendManualPaymentReportedAdminEmail(
   booking: BookingRecord,
   links: ManualPaymentReviewLinks,

@@ -38,6 +38,10 @@ export type LeadBookingRecord = {
   callRoomUrl: string | null
   calendarUrl: string | null
   adminNotes: string | null
+  callId: string | null
+  callStatus: string | null
+  startedAt: string | null
+  questionsRemaining: number | null
 }
 
 export type CreateLeadBookingInput = {
@@ -49,6 +53,7 @@ export type CreateLeadBookingInput = {
   species: 'pies' | 'kot'
   description: string
   preferredSlots: string
+  phone?: string | null
 }
 
 export type UpdateLeadBookingInput = {
@@ -62,6 +67,10 @@ export type UpdateLeadBookingInput = {
   callRoomUrl?: string | null
   calendarUrl?: string | null
   adminNotes?: string | null
+  callId?: string | null
+  callStatus?: string | null
+  startedAt?: string | null
+  questionsRemaining?: number | null
 }
 
 // ─── Supabase row shape ────────────────────────────────────────────────────
@@ -88,6 +97,11 @@ type SupabaseRow = {
   call_room_url: string | null
   calendar_url: string | null
   admin_notes: string | null
+  phone: string | null
+  call_id: string | null
+  call_status: string | null
+  started_at: string | null
+  questions_remaining: number | null
 }
 
 function rowToRecord(row: SupabaseRow): LeadBookingRecord {
@@ -113,6 +127,11 @@ function rowToRecord(row: SupabaseRow): LeadBookingRecord {
     callRoomUrl: row.call_room_url,
     calendarUrl: row.calendar_url,
     adminNotes: row.admin_notes,
+    phone: row.phone ?? null,
+    callId: row.call_id ?? null,
+    callStatus: row.call_status ?? null,
+    startedAt: row.started_at ?? null,
+    questionsRemaining: row.questions_remaining ?? null,
   }
 }
 
@@ -163,6 +182,15 @@ export async function createLeadBooking(input: CreateLeadBookingInput): Promise<
   const id = randomUUID()
   const accessToken = createAccessToken()
 
+  let initialQuestions = null
+  if (input.service === 'kwadrans-na-juz' || input.service === 'szybka-konsultacja-15-min') {
+    initialQuestions = 2
+  } else if (input.service === 'konsultacja-30-min') {
+    initialQuestions = 4
+  } else if (input.service === 'konsultacja-behawioralna-online') {
+    initialQuestions = 0
+  }
+
   if (shouldUseSupabase()) {
     const supabase = getSupabaseClient()!
     const { data, error } = await supabase
@@ -181,6 +209,11 @@ export async function createLeadBooking(input: CreateLeadBookingInput): Promise<
         species: input.species,
         description: input.description,
         preferred_slots: input.preferredSlots,
+        phone: input.phone ?? null,
+        call_id: null,
+        call_status: 'idle',
+        started_at: null,
+        questions_remaining: initialQuestions,
       })
       .select()
       .single()
@@ -196,6 +229,11 @@ export async function createLeadBooking(input: CreateLeadBookingInput): Promise<
     description: input.description, preferredSlots: input.preferredSlots,
     confirmedDate: null, confirmedTime: null, paymentLink: null,
     paymentMethod: null, paidAt: null, callRoomUrl: null, calendarUrl: null, adminNotes: null,
+    phone: input.phone ?? null,
+    callId: null,
+    callStatus: 'idle',
+    startedAt: null,
+    questionsRemaining: initialQuestions,
   }
   const store = await readStore()
   store.bookings.unshift(record)
@@ -266,6 +304,10 @@ export async function updateLeadBooking(input: UpdateLeadBookingInput): Promise<
     if (input.callRoomUrl !== undefined) patch.call_room_url = input.callRoomUrl
     if (input.calendarUrl !== undefined) patch.calendar_url = input.calendarUrl
     if (input.adminNotes !== undefined) patch.admin_notes = input.adminNotes
+    if (input.callId !== undefined) patch.call_id = input.callId
+    if (input.callStatus !== undefined) patch.call_status = input.callStatus
+    if (input.startedAt !== undefined) patch.started_at = input.startedAt
+    if (input.questionsRemaining !== undefined) patch.questions_remaining = input.questionsRemaining
 
     const { data, error } = await supabase
       .from('lead_bookings')
@@ -290,6 +332,10 @@ export async function updateLeadBooking(input: UpdateLeadBookingInput): Promise<
   if (input.callRoomUrl !== undefined) booking.callRoomUrl = input.callRoomUrl
   if (input.calendarUrl !== undefined) booking.calendarUrl = input.calendarUrl
   if (input.adminNotes !== undefined) booking.adminNotes = input.adminNotes
+  if (input.callId !== undefined) booking.callId = input.callId
+  if (input.callStatus !== undefined) booking.callStatus = input.callStatus
+  if (input.startedAt !== undefined) booking.startedAt = input.startedAt
+  if (input.questionsRemaining !== undefined) booking.questionsRemaining = input.questionsRemaining
   booking.updatedAt = now
 
   await writeStore(store)

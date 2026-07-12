@@ -135,7 +135,7 @@ export default async function FormPage({
 
         <section className="booking-form-hero">
           <div className="booking-form-hero-copy">
-            <h1>Uzupełnij dane do rozmowy</h1>
+            <p className="booking-form-hero-title">Uzupełnij dane do rozmowy</p>
             <p>
               Podaj krótki opis sytuacji. Potem przejdziesz do płatności, a po jej zakończeniu dostaniesz e-mail z
               potwierdzeniem i dalszym krokiem.
@@ -177,8 +177,8 @@ export default async function FormPage({
         </section>
 
         <section className="booking-form-layout">
-          <article className="booking-form-card" id="formularz">
-            <h2>Uzupełnij dane do rozmowy</h2>
+          <article className="booking-form-card" id="formularz" aria-labelledby="booking-form-title">
+            <h1 id="booking-form-title">Uzupełnij dane do rozmowy</h1>
 
             {fallbackError ? (
               <div className="notatnik-callout notatnik-callout-error" role="alert">

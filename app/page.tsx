@@ -24,6 +24,32 @@ const serviceLandingHref = '/'
 
 const processIcons = [MessageSquareText, Headphones, CalendarCheck] as const
 
+const HOME_PROBLEM_VISUALS: Record<string, { src: string; alt: string }> = {
+  'pies-szczeka-na-psy': {
+    src: '/branding/topic-cards/border-collie-running.jpg',
+    alt: 'Pies reagujący na innego psa podczas spaceru',
+  },
+  'pies-ciagnie-na-smyczy': {
+    src: '/branding/topic-cards/french-bulldog-leash.jpg',
+    alt: 'Pies ciągnący na smyczy',
+  },
+  'pies-nie-zostaje-sam': {
+    src: '/branding/topic-cards/dog-window-alone.jpg',
+    alt: 'Pies czekający przy oknie w domu',
+  },
+  'kot-sika-poza-kuweta': {
+    src: '/branding/topic-cards/cats/cat-litter-box.jpg',
+    alt: 'Kot obok kuwety',
+  },
+}
+
+function getHomeProblemVisual(problemId: string) {
+  return HOME_PROBLEM_VISUALS[problemId] ?? {
+    src: '/branding/regulski-web/hero/hero-home.png',
+    alt: 'Pies i kot w spokojnym domowym otoczeniu',
+  }
+}
+
 const routerFaqItems = [
   {
     question: 'Czy jeśli nie wiem, co wybrać, mogę zacząć od quizu?',
@@ -78,16 +104,14 @@ export default function HomePage() {
           <HomepageServiceSelector />
         </section>
 
-        <section className="compact-home-section home-trend-problems-section" id="najczestsze-problemy">
-          <div className="home-trend-problems-heading">
-            <div className="home-section-title">
-              <span className="home-trend-problems-kicker">Najczęściej szukane teraz</span>
-              <h2>Wybierz problem, który najbardziej przypomina Twoją sytuację</h2>
-              <p>
-                Nie musisz znać przyczyny. Zacznij od tego, co widzisz na co dzień, a potem przejdź do artykułu,
-                szerszej strony problemowej albo quizu.
-              </p>
-            </div>
+        <section className="compact-home-section home-trend-problems-section home-problem-story-section" id="najczestsze-problemy">
+          <div className="home-problem-story-heading">
+            <span className="home-trend-problems-kicker">Najczęściej szukane teraz</span>
+            <h2>Wybierz problem, który najbardziej przypomina Twoją sytuację</h2>
+            <p>
+              Nie musisz znać przyczyny. Zacznij od tego, co widzisz na co dzień, a potem przejdź do artykułu,
+              pierwszego kroku albo quizu.
+            </p>
             <Link
               href="/problemy"
               prefetch={false}
@@ -102,47 +126,64 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div className="home-trend-problems-grid">
-            {HOME_TREND_PROBLEM_CARDS.map((problem) => (
-              <article key={problem.id} className="home-trend-problem-card">
-                <span className="home-trend-problem-eyebrow">{problem.eyebrow}</span>
-                <h3>{problem.title}</h3>
-                <p>{problem.copy}</p>
-                <div className="home-trend-problem-actions">
-                  <Link
-                    href={problem.primaryHref}
-                    prefetch={false}
-                    data-analytics-event="topic_selected"
-                    data-analytics-location="home-trend-problems"
-                    data-analytics-problem={problem.id}
-                    data-analytics-species={problem.group === 'bezpieczenstwo' ? undefined : problem.group}
-                    data-analytics-cta-label={problem.primaryLabel}
-                    data-analytics-item-type="problem_card"
-                    data-analytics-item-slug={problem.id}
-                    data-analytics-target-href={problem.primaryHref}
-                  >
-                    {problem.primaryLabel}
-                    <ArrowRight size={15} strokeWidth={1.9} aria-hidden="true" />
-                  </Link>
-                  {problem.secondaryHref ? (
-                    <Link
-                      href={problem.secondaryHref}
-                      prefetch={false}
-                      data-analytics-event="cta_click"
-                      data-analytics-location="home-trend-problems-secondary"
-                      data-analytics-problem={problem.id}
-                      data-analytics-species={problem.group === 'bezpieczenstwo' ? undefined : problem.group}
-                      data-analytics-cta-label={problem.secondaryLabel ?? 'Zobacz więcej'}
-                      data-analytics-item-type="problem_card_secondary"
-                      data-analytics-item-slug={problem.id}
-                      data-analytics-target-href={problem.secondaryHref}
-                    >
-                      {problem.secondaryLabel ?? 'Zobacz więcej'}
-                    </Link>
-                  ) : null}
-                </div>
-              </article>
-            ))}
+          <div className="home-problem-story-list">
+            {HOME_TREND_PROBLEM_CARDS.slice(0, 4).map((problem) => {
+              const visual = getHomeProblemVisual(problem.id)
+
+              return (
+                <article key={problem.id} className={'home-problem-story-card home-problem-story-card-' + problem.group}>
+                  <figure className="home-problem-story-media">
+                    <Image src={visual.src} alt={visual.alt} fill sizes="(max-width: 760px) 92vw, 420px" />
+                  </figure>
+                  <div className="home-problem-story-copy">
+                    <span className="home-trend-problem-eyebrow">{problem.eyebrow}</span>
+                    <h3>{problem.title}</h3>
+                    <p>{problem.copy}</p>
+                    <div className="home-trend-problem-actions">
+                      <Link
+                        href={problem.primaryHref}
+                        prefetch={false}
+                        data-analytics-event="topic_selected"
+                        data-analytics-location="home-trend-problems"
+                        data-analytics-problem={problem.id}
+                        data-analytics-species={problem.group === 'bezpieczenstwo' ? undefined : problem.group}
+                        data-analytics-cta-label={problem.primaryLabel}
+                        data-analytics-item-type="problem_card"
+                        data-analytics-item-slug={problem.id}
+                        data-analytics-target-href={problem.primaryHref}
+                      >
+                        {problem.primaryLabel}
+                        <ArrowRight size={15} strokeWidth={1.9} aria-hidden="true" />
+                      </Link>
+                      {problem.secondaryHref ? (
+                        <Link
+                          href={problem.secondaryHref}
+                          prefetch={false}
+                          data-analytics-event="cta_click"
+                          data-analytics-location="home-trend-problems-secondary"
+                          data-analytics-problem={problem.id}
+                          data-analytics-species={problem.group === 'bezpieczenstwo' ? undefined : problem.group}
+                          data-analytics-cta-label={problem.secondaryLabel ?? 'Czytaj artykuł'}
+                          data-analytics-item-type="problem_card_secondary"
+                          data-analytics-item-slug={problem.id}
+                          data-analytics-target-href={problem.secondaryHref}
+                        >
+                          {problem.secondaryLabel ?? 'Czytaj artykuł'}
+                        </Link>
+                      ) : null}
+                    </div>
+                  </div>
+                </article>
+              )
+            })}
+          </div>
+
+          <div className="home-problem-story-more">
+            <span>Przesuń niżej, żeby zobaczyć więcej tematów</span>
+            <Link href="/problemy" prefetch={false}>
+              Zobacz więcej problemów
+              <ArrowRight size={16} strokeWidth={1.9} aria-hidden="true" />
+            </Link>
           </div>
         </section>
         <section className="compact-home-section home-seasonal-trend-section" aria-labelledby="home-seasonal-trend-title">

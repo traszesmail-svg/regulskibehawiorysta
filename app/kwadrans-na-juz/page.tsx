@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Mail, MessageSquare, Phone } from 'lucide-react'
 import { ContactLeadForm } from '@/components/ContactLeadForm'
+import { MobileFirstStepCta } from '@/components/MobileFirstStepCta'
 import { NotatnikFooter, NotatnikTopbar, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
 import { ReferenceHeroLeaf } from '@/components/ReferencePageShell'
 import { Schema } from '@/components/schema'
@@ -61,6 +62,16 @@ export default function KwadransNaJuzPage({
               Dostanę powiadomienie e-mail i skontaktuję się z Tobą najszybciej jak to możliwe (często tego samego dnia), 
               proponując najbliższy dogodny termin rozmowy telefonicznej lub wideo.
             </p>
+            <MobileFirstStepCta
+              eyebrow="Pilny pierwszy krok"
+              title="Wyślij zgłoszenie Kwadransa na już"
+              copy="To ten sam 15-minutowy format co Kwadrans, ale z priorytetem terminu."
+              meta="99 zł po ustaleniu realnej godziny."
+              primaryHref="#formularz"
+              primaryLabel="Wyślij zgłoszenie"
+              secondaryHref="/cennik"
+              secondaryLabel="Porównaj opcje"
+            />
           </div>
         </section>
 

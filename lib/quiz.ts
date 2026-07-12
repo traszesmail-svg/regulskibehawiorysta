@@ -3,6 +3,11 @@ export type QuizAnswers = Record<string, QuizAnswerValue>
 export type QuizSpecies = 'pies' | 'kot'
 export type QuizServiceKey = 'kwadrans' | 'dwa-kwadranse' | 'pelna-konsultacja'
 
+export type QuizAnswerValue = string
+export type QuizAnswers = Record<string, QuizAnswerValue>
+export type QuizSpecies = 'pies' | 'kot'
+export type QuizServiceKey = 'kwadrans' | 'dwa-kwadranse' | 'pelna-konsultacja'
+
 export type QuizOption = {
   id: string
   label: string
@@ -14,6 +19,7 @@ export type QuizQuestion = {
   title: string
   helper?: string
   options: QuizOption[]
+  condition?: (answers: QuizAnswers, context: QuizProblemContext | null) => boolean
 }
 
 export type QuizResult = {
@@ -208,6 +214,7 @@ function applyQuizProblemContext(result: QuizResult, problemKey: string | null |
     problemLabel: context.problemLabel,
   }
 }
+
 export const QUIZ_QUESTIONS: QuizQuestion[] = [
   {
     id: 'species',
@@ -217,6 +224,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
       { id: 'pies', label: 'Pies', helper: 'Spacery, zostawanie samemu, pobudzenie, napięcie, szczeniak.' },
       { id: 'kot', label: 'Kot', helper: 'Kuweta, stres, relacje między kotami, nocna aktywność.' },
     ],
+    condition: (_, context) => !context?.species,
   },
   {
     id: 'main_topic',
@@ -229,6 +237,70 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
       { id: 'relationships', label: 'Relacje i konflikty', helper: 'Napięcie z ludźmi, zwierzętami albo wokół zasobów.' },
       { id: 'other', label: 'Inny problem', helper: 'Nie musisz trafnie nazwać tematu. Doprecyzujemy go po drodze.' },
     ],
+    condition: (_, context) => !context?.mainTopic,
+  },
+  {
+    id: 'litter_medical',
+    title: 'Czy kot miał badany mocz/krew w ciągu ostatniego miesiąca?',
+    helper: 'To krytyczne przy problemach z kuwetą, by wykluczyć ból lub zapalenie pęcherza.',
+    options: [
+      { id: 'yes_good', label: 'Tak, wyniki w normie', helper: 'Znamy aktualny stan zdrowotny.' },
+      { id: 'yes_bad', label: 'Tak, wyniki wskazały na chorobę', helper: 'Wprowadzane jest leczenie medyczne.' },
+      { id: 'no', label: 'Nie, nie był ostatnio badany', helper: 'Brak świeżych wyników badań.' },
+    ],
+    condition: (answers, context) => 
+      context?.problemKey === 'kot-sika-poza-kuweta' || (answers.species === 'kot' && answers.main_topic === 'home_behavior'),
+  },
+  {
+    id: 'separation_symptoms',
+    title: 'Jak pies zachowuje się pod Twoją nieobecność?',
+    helper: 'Wybierz objaw, który występuje najsilniej.',
+    options: [
+      { id: 'vocalization', label: 'Wyje lub szczeka', helper: 'Bardzo głośno wokalizuje, słychać go na zewnątrz.' },
+      { id: 'destruction', label: 'Niszczy rzeczy', helper: 'Gryzie framugi, niszczy meble lub buty.' },
+      { id: 'elimination', label: 'Załatwia się w domu', helper: 'Popuszcza mocz lub kał ze stresu.' },
+      { id: 'pacing', label: 'Krąży i ziaje', helper: 'Nie potrafi usiedzieć w miejscu i zasnąć.' },
+    ],
+    condition: (answers, context) => 
+      context?.problemKey === 'pies-nie-zostaje-sam' || (answers.species === 'pies' && answers.main_topic === 'fear_stress'),
+  },
+  {
+    id: 'reactivity_trigger',
+    title: 'Kiedy najczęściej pies zaczyna reagować na spacerze?',
+    helper: 'To pomoże ocenić próg pobudzenia.',
+    options: [
+      { id: 'far', label: 'Gdy tylko zobaczy psa/człowieka z dużej odległości', helper: 'Reakcja zaczyna się bardzo wcześnie.' },
+      { id: 'close', label: 'Dopiero przy mijaniu blisko', helper: 'Traci kontrolę dopiero przy małym dystansie.' },
+      { id: 'surprise', label: 'Tylko przy nagłym zaskoczeniu', helper: 'Gdy ktoś wyjdzie zza rogu lub z klatki.' },
+      { id: 'frustration', label: 'Gdy nie może podejść', helper: 'Ciągnie, piszczy i szczeka, bo smycz go blokuje.' }
+    ],
+    condition: (answers, context) =>
+      context?.problemKey === 'pies-szczeka-na-psy' || (answers.species === 'pies' && answers.main_topic === 'walks'),
+  },
+  {
+    id: 'resource_guarding',
+    title: 'Wobec czego pies wykazuje największe napięcie lub broni dostępu?',
+    helper: 'Wybierz najważniejszy zasób.',
+    options: [
+      { id: 'food', label: 'Miska, jedzenie lub gryzaki', helper: 'Warzy, zastyga lub ucieka z jedzeniem.' },
+      { id: 'space', label: 'Kanapa, legowisko lub przestrzeń', helper: 'Broni miejsca, w którym odpoczywa.' },
+      { id: 'person', label: 'Opiekun', helper: 'Odgania inne zwierzęta lub ludzi od Ciebie.' },
+      { id: 'stolen', label: 'Kradzione przedmioty', helper: 'Skarpetki, chusteczki, śmieci.' }
+    ],
+    condition: (answers, context) =>
+      context?.problemKey === 'pies-obrona-zasobow' || (answers.species === 'pies' && answers.main_topic === 'home_behavior'),
+  },
+  {
+    id: 'cat_conflict_victim',
+    title: 'Jak w tej sytuacji zachowuje się kot wycofany (ofiara konfliktu)?',
+    helper: 'To pomoże ocenić, jak bardzo stres wpływa na jego życie.',
+    options: [
+      { id: 'hiding_always', label: 'Chowa się niemal cały czas', helper: 'Wychodzi tylko w nocy lub gdy jest bezpiecznie.' },
+      { id: 'avoiding_litter', label: 'Ma problemy z kuwetą lub jedzeniem', helper: 'Konflikt wpływa na podstawowe potrzeby.' },
+      { id: 'normal_but_tense', label: 'Funkcjonuje normalnie, ale ucieka przy spotkaniu', helper: 'Stres pojawia się tylko przy bezpośrednim kontakcie.' }
+    ],
+    condition: (answers, context) =>
+      context?.problemKey === 'konflikt-miedzy-kotami' || (answers.species === 'kot' && answers.main_topic === 'relationships'),
   },
   {
     id: 'safety',
@@ -341,6 +413,11 @@ export function resolveQuizResult(answers: QuizAnswers): QuizResult {
   const resources = answers.resources
   const previousAttempts = answers.previous_attempts
   const goal = answers.goal
+  const litterMedical = answers.litter_medical
+  const separationSymptoms = answers.separation_symptoms
+  const reactivityTrigger = answers.reactivity_trigger
+  const resourceGuarding = answers.resource_guarding
+  const catConflictVictim = answers.cat_conflict_victim
 
   let score = 0
   const reasons: string[] = []
@@ -363,6 +440,11 @@ export function resolveQuizResult(answers: QuizAnswers): QuizResult {
   if (previousAttempts === 'many') score += 2
   if (goal === 'plan') score += 2
   if (goal === 'diagnosis') score += 4
+  if (litterMedical === 'no') score += 2
+  if (separationSymptoms === 'destruction' || separationSymptoms === 'elimination') score += 2
+  if (reactivityTrigger === 'far' || reactivityTrigger === 'surprise') score += 2
+  if (resourceGuarding === 'food' || resourceGuarding === 'space' || resourceGuarding === 'person') score += 2
+  if (catConflictVictim === 'hiding_always' || catConflictVictim === 'avoiding_litter') score += 3
 
   if (safety === 'danger') {
     reasons.push('pojawia się realne ryzyko bezpieczeństwa')
@@ -378,6 +460,21 @@ export function resolveQuizResult(answers: QuizAnswers): QuizResult {
   }
   if (predictability === 'unclear' || previousAttempts === 'many') {
     reasons.push('najpierw trzeba uporządkować fakty i dotychczasowe próby')
+  }
+  if (litterMedical === 'no') {
+    reasons.push('warto pilnie wykonać profilaktyczne badanie moczu u lekarza weterynarii')
+  }
+  if (separationSymptoms) {
+    reasons.push('na spotkaniu przeanalizujemy nagrania z nieobecności')
+  }
+  if (reactivityTrigger === 'far') {
+    reasons.push('próg pobudzenia na spacerze wydaje się bardzo niski')
+  }
+  if (resourceGuarding) {
+    reasons.push('widać obronę zasobów, co wymaga ostrożnego zarządzania przestrzenią')
+  }
+  if (catConflictVictim === 'hiding_always' || catConflictVictim === 'avoiding_litter') {
+    reasons.push('konflikt między kotami wpływa już na podstawowe poczucie bezpieczeństwa')
   }
 
   let result: QuizResult

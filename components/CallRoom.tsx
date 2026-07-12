@@ -114,6 +114,14 @@ interface CallRoomProps {
   problemType: ProblemType
   serviceType: BookingServiceType
   qaBooking?: boolean
+  callId?: string | null
+  callStatus?: string | null
+  startedAt?: string | null
+  questionsRemaining?: number | null
+  phone?: string | null
+  petAge?: string | null
+  durationNotes?: string | null
+  description?: string | null
 }
 
 export function CallRoom({
@@ -128,6 +136,14 @@ export function CallRoom({
   problemType,
   serviceType,
   qaBooking = false,
+  callId = null,
+  callStatus = null,
+  startedAt = null,
+  questionsRemaining = null,
+  phone = null,
+  petAge = null,
+  durationNotes = null,
+  description = null,
 }: CallRoomProps) {
   const router = useRouter()
   const trackedEntryRef = useRef(false)
@@ -143,6 +159,18 @@ export function CallRoom({
   const [unlockInSeconds, setUnlockInSeconds] = useState(() =>
     Math.max(0, getSecondsUntilRoomUnlock(bookingDate, bookingTime)),
   )
+  const isPhoneCall = serviceType === 'szybka-konsultacja-15-min' || serviceType === 'kwadrans-na-juz' || serviceType === 'konsultacja-30-min'
+  const [callSecondsLeft, setCallSecondsLeft] = useState(roomDurationMinutes * 60)
+  const [emergencyReason, setEmergencyReason] = useState('')
+  const [emergencySubmitted, setEmergencySubmitted] = useState(false)
+  const [emergencyLoading, setEmergencyLoading] = useState(false)
+  const [emergencyError, setEmergencyError] = useState('')
+  const [draftPetAge, setDraftPetAge] = useState(petAge || '')
+  const [draftDurationNotes, setDraftDurationNotes] = useState(durationNotes || '')
+  const [draftDescription, setDraftDescription] = useState(description || '')
+  const [quizSaved, setQuizSaved] = useState(false)
+  const [quizLoading, setQuizLoading] = useState(false)
+  const [quizError, setQuizError] = useState('')
   const embedUrl = useMemo(() => createMeetingEmbedUrl(meetingUrl), [meetingUrl])
   const roomEntryLabel = useMemo(() => formatDateTimeLabel(bookingDate, bookingTime), [bookingDate, bookingTime])
   const roomUnlocked = finished || unlockInSeconds === 0
@@ -301,12 +329,78 @@ export function CallRoom({
 
     return () => {
       stopped = true
-      for (const timeout of timeouts) {
+      for (const timeout of timeouts)
         window.clearTimeout(timeout)
-      }
       void context.close().catch(() => {})
     }
   }, [ambienceEnabled, roomUnlocked])
+
+  useEffect(() => {
+    if (!startedAt || (callStatus !== 'active' && callStatus !== 'warning_sent')) {
+      return
+    }
+    const updateTimer = () => {
+      const elapsed = Math.floor((Date.now() - Date.parse(startedAt)) / 1000)
+      const left = Math.max(0, roomDurationMinutes * 60 - elapsed)
+      setCallSecondsLeft(left)
+    }
+    updateTimer()
+    const interval = setInterval(updateTimer, 1000)
+    return () => clearInterval(interval)
+  }, [startedAt, callStatus, roomDurationMinutes])
+
+  async function handleEmergencyReschedule(e: React.FormEvent) {
+    e.preventDefault()
+    if (!emergencyReason.trim()) return
+    setEmergencyLoading(true)
+    setEmergencyError('')
+    try {
+      const accessParam = accessToken ? `?access=${encodeURIComponent(accessToken)}` : ''
+      const res = await fetch(`/api/bookings/${bookingId}/reschedule${accessParam}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason: emergencyReason.trim() }),
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || 'Błąd serwera.')
+      }
+      setEmergencySubmitted(true)
+      setEmergencyReason('')
+    } catch (err: any) {
+      setEmergencyError(err.message || 'Nie udało się zgłosić zmiany terminu.')
+    } finally {
+      setEmergencyLoading(false)
+    }
+  }
+
+  async function handleSaveQuiz(e: React.FormEvent) {
+    e.preventDefault()
+    setQuizLoading(true)
+    setQuizError('')
+    setQuizSaved(false)
+    try {
+      const accessParam = accessToken ? `?access=${encodeURIComponent(accessToken)}` : ''
+      const res = await fetch(`/api/bookings/${bookingId}/update-quiz${accessParam}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          petAge: draftPetAge,
+          durationNotes: draftDurationNotes,
+          description: draftDescription,
+        }),
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || 'Błąd serwera.')
+      }
+      setQuizSaved(true)
+    } catch (err: any) {
+      setQuizError(err.message || 'Nie udało się zapisać zmian w formularzu.')
+    } finally {
+      setQuizLoading(false)
+    }
+  }
 
   async function handleFinish() {
     setError('')
@@ -334,6 +428,132 @@ export function CallRoom({
       console.error('[regulski-behawiorysta][room] finish failed', finishError)
       setError(finishError instanceof Error ? finishError.message : 'Wystąpił błąd podczas zamykania konsultacji.')
     }
+  }
+
+  if (isPhoneCall) {
+    const activeCall = callStatus === 'active' || callStatus === 'warning_sent'
+    const activeCallTimerLabel = activeCall ? formatTime(callSecondsLeft) : formatCountdown(unlockInSeconds)
+    const activeCallStatusLabel = finished || callStatus === 'completed'
+      ? 'Rozmowa zakończona'
+      : activeCall
+        ? 'Połączenie aktywne'
+        : callStatus === 'calling'
+          ? 'Łączenie telefoniczne...'
+          : 'Oczekiwanie na telefon'
+
+    return (
+      <section className="two-col-section booking-layout">
+        <div className="panel room-panel">
+          <div className="section-eyebrow">Telefoniczny pokój konsultacji</div>
+          <h1>{serviceTitle}</h1>
+          <p className="muted paragraph-gap">
+            Rozmowa telefoniczna odbędzie się na Twoim telefonie ({phone || 'podany numer'}). Kamera nie jest wymagana.
+          </p>
+
+          <div className="waiting-room-copy" style={{ padding: '2rem', border: '1px solid var(--border)', borderRadius: '12px', background: 'var(--panel-bg-card)', marginBottom: '2rem' }}>
+            <h3 style={{ margin: '0 0 1rem' }}>How does it work?</h3>
+            <ul style={{ margin: 0, paddingLeft: '1.2rem', lineHeight: '1.6' }}>
+              <li>O ustalonej godzinie ({bookingTime}) system automatycznie połączy Behawiorystę z Twoim numerem.</li>
+              <li>Wykonujemy maksymalnie <strong>2 próby połączenia co minutę</strong>. Jeśli nie odbierzesz, konsultacja przepada.</li>
+              <li>Upewnij się, że nie blokujesz połączeń z numerów zastrzeżonych.</li>
+              <li>Rozmowa zostanie automatycznie rozłączona po upływie {roomDurationMinutes} minut.</li>
+              <li><strong>Minutę przed końcem otrzymasz SMS ostrzegawczy</strong>.</li>
+            </ul>
+          </div>
+
+          {/* Emergency Reschedule Form */}
+          <div className="account-room-card" style={{ border: '1px dashed #caa56e', padding: '1.5rem', borderRadius: '12px', marginBottom: '2rem' }}>
+            <h3 style={{ margin: '0 0 0.5rem', color: '#8a3022' }}>Sytuacja awaryjna?</h3>
+            <p style={{ margin: '0 0 1rem', fontSize: '0.9rem' }}>Jeśli nie możesz odebrać telefonu z przyczyn losowych, zgłoś prośbę o zmianę terminu.</p>
+            {emergencySubmitted ? (
+              <p className="form-success">Prośba o zmianę terminu została wysłana do behawiorysty.</p>
+            ) : (
+              <form onSubmit={handleEmergencyReschedule} className="account-form">
+                <textarea
+                  value={emergencyReason}
+                  onChange={(e) => setEmergencyReason(e.target.value)}
+                  placeholder="Opisz krótko sytuację i zaproponuj nowy termin..."
+                  rows={3}
+                  required
+                  style={{ width: '100%', padding: '0.8rem', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--input-bg)', color: 'var(--text)', marginBottom: '1rem' }}
+                />
+                {emergencyError ? <p className="form-error">{emergencyError}</p> : null}
+                <button type="submit" className="button button-ghost" disabled={emergencyLoading}>
+                  {emergencyLoading ? 'Zgłaszanie...' : 'Zgłoś zmianę terminu'}
+                </button>
+              </form>
+            )}
+          </div>
+
+          {/* Edit Quiz Answers */}
+          <div className="account-room-card" style={{ padding: '1.5rem', borderRadius: '12px' }}>
+            <h3>Edycja formularza zgłoszeniowego (Quiz)</h3>
+            <p style={{ margin: '0 0 1rem', fontSize: '0.9rem' }}>Możesz edytować i dopisać informacje przed rozpoczęciem rozmowy.</p>
+            <form onSubmit={handleSaveQuiz} className="account-form" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <label style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                <span>Wiek pupila:</span>
+                <input
+                  type="text"
+                  value={draftPetAge}
+                  onChange={(e) => setDraftPetAge(e.target.value)}
+                  style={{ padding: '0.6rem', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--input-bg)', color: 'var(--text)' }}
+                />
+              </label>
+              <label style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                <span>Twoje notatki / tło sprawy (np. z quizu):</span>
+                <textarea
+                  value={draftDurationNotes}
+                  onChange={(e) => setDraftDurationNotes(e.target.value)}
+                  rows={3}
+                  style={{ padding: '0.6rem', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--input-bg)', color: 'var(--text)' }}
+                />
+              </label>
+              <label style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                <span>Opis problemu:</span>
+                <textarea
+                  value={draftDescription}
+                  onChange={(e) => setDraftDescription(e.target.value)}
+                  rows={4}
+                  style={{ padding: '0.6rem', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--input-bg)', color: 'var(--text)' }}
+                />
+              </label>
+              {quizError ? <p className="form-error">{quizError}</p> : null}
+              {quizSaved ? <p className="form-success">Formularz został pomyślnie zaktualizowany.</p> : null}
+              <button type="submit" className="button button-primary" style={{ alignSelf: 'flex-start' }} disabled={quizLoading}>
+                {quizLoading ? 'Zapisywanie...' : 'Zapisz zmiany w formularzu'}
+              </button>
+            </form>
+          </div>
+
+        </div>
+
+        <div className="panel section-panel room-sidebar">
+          <div className="timer-box tree-backed-card">{activeCallTimerLabel}</div>
+          <div className="status-box tree-backed-card">{activeCallStatusLabel}</div>
+
+          <div className="stack-gap top-gap">
+            <div className="list-card tree-backed-card">
+              <strong>Zaplanowany termin</strong>
+              <span>{roomEntryLabel}</span>
+            </div>
+            <div className="list-card tree-backed-card">
+              <strong>Opiekun</strong>
+              <span>{ownerName}</span>
+            </div>
+            <div className="list-card tree-backed-card">
+              <strong>Numer telefonu</strong>
+              <span>{phone || 'brak'}</span>
+            </div>
+            {questionsRemaining !== null ? (
+              <div className="list-card accent-outline tree-backed-card">
+                <strong>Pytania uzupełniające</strong>
+                <span>Pozostało pytań na czacie po rozmowie: <strong>{questionsRemaining}</strong></span>
+              </div>
+            ) : null}
+          </div>
+        </div>
+      </section>
+    )
   }
 
   return (

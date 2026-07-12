@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Clock3, HeartHandshake, ShieldCheck } from 'lucide-react'
 import { DecisionQuiz } from '@/components/DecisionQuiz'
+import { MobileFirstStepCta } from '@/components/MobileFirstStepCta'
 import { NotatnikPageShell, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
 import { ReferenceHeroLeaf } from '@/components/ReferencePageShell'
 import { Schema } from '@/components/schema'
@@ -66,6 +67,15 @@ export default function QuizPage({ searchParams }: { searchParams?: QuizSearchPa
               {problemContext?.heroCopy ??
                 'Odpowiedz na kilka prostych pytań. Na końcu podpowiem, czy wystarczy krótka rozmowa, dłuższa konsultacja czy spokojne doprecyzowanie sytuacji.'}
             </p>
+            <MobileFirstStepCta
+              eyebrow="2-3 minuty"
+              title="Nie wiesz, co kupić?"
+              copy="Odpowiedz na pierwsze pytanie i zobacz, czy wystarczy Kwadrans, czy lepszy będzie szerszy format."
+              primaryHref="#quiz-start"
+              primaryLabel="Zacznij quiz"
+              secondaryHref="/cennik"
+              secondaryLabel="Zobacz ceny"
+            />
           </div>
 
           <div className="quiz-benefit-strip" aria-label="Co daje quiz">
@@ -83,7 +93,9 @@ export default function QuizPage({ searchParams }: { searchParams?: QuizSearchPa
             })}
           </div>
 
-          <DecisionQuiz bookingHrefs={bookingHrefs} initialProblemKey={problemContext?.problemKey} />
+          <div id="quiz-start" className="quiz-start-anchor">
+            <DecisionQuiz bookingHrefs={bookingHrefs} initialProblemKey={problemContext?.problemKey} />
+          </div>
         </section>
       </div>
     </NotatnikPageShell>

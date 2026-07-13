@@ -10,8 +10,9 @@ import {
   DEFAULT_BOOKING_SERVICE,
   type BookingServiceType,
 } from '@/lib/booking-services'
-import { buildPaymentHref, buildSlotHref } from '@/lib/booking-routing'
+import { appendSearchParams, buildPaymentHref, buildSlotHref } from '@/lib/booking-routing'
 import { isCatProblemType } from '@/lib/data'
+import { clearQuizBookingHandoff, readQuizBookingHandoff } from '@/lib/quiz-booking-handoff'
 import { AnimalType, ProblemType, QaCheckoutEligibility } from '@/lib/types'
 
 export type BookingCreatedPayload = {
@@ -72,6 +73,21 @@ function isSlotUnavailableBookingMessage(value: string) {
   )
 }
 
+function getMarketingParamsFromBrowser() {
+  if (typeof window === 'undefined') return {}
+
+  const params: Record<string, string> = {}
+  const source = new URLSearchParams(window.location.search)
+  const keys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content'] as const
+
+  for (const key of keys) {
+    const value = source.get(key)?.trim()
+    if (value && value.length <= 120) params[key] = value
+  }
+
+  return params
+}
+
 export function BookingForm({
   problemType,
   serviceType,
@@ -95,7 +111,18 @@ export function BookingForm({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [errorActionHref, setErrorActionHref] = useState<string | null>(null)
+  const [quizBrief, setQuizBrief] = useState('')
   const animalType = formCopy.animalType
+
+  useEffect(() => {
+    const handoff = readQuizBookingHandoff({
+      problemType,
+      serviceType,
+      species: isCatProblemType(problemType) ? 'kot' : 'pies',
+    })
+
+    setQuizBrief(handoff?.brief ?? '')
+  }, [problemType, serviceType])
 
   useEffect(() => {
     if (qaBooking || trackedStartRef.current) {
@@ -168,7 +195,7 @@ export function BookingForm({
           problemType,
           animalType,
           petAge: 'Nie podano w formularzu rezerwacji.',
-          durationNotes: 'Nie podano w formularzu rezerwacji.',
+          durationNotes: quizBrief || 'Nie podano w formularzu rezerwacji.',
           description: normalizedDescription,
           email,
           slotId,
@@ -213,6 +240,8 @@ export function BookingForm({
         }),
       })
 
+      clearQuizBookingHandoff()
+
       if (onBookingCreated) {
         onBookingCreated({
           bookingId: payload.bookingId,
@@ -229,11 +258,14 @@ export function BookingForm({
       }
 
       router.push(
-        buildPaymentHref(
-          payload.bookingId,
-          payload.accessToken,
-          serviceType === DEFAULT_BOOKING_SERVICE ? null : serviceType,
-          qaBooking,
+        appendSearchParams(
+          buildPaymentHref(
+            payload.bookingId,
+            payload.accessToken,
+            serviceType === DEFAULT_BOOKING_SERVICE ? null : serviceType,
+            qaBooking,
+          ),
+          getMarketingParamsFromBrowser(),
         ),
       )
     } catch (submissionError) {
@@ -265,7 +297,7 @@ export function BookingForm({
       <input type="hidden" name="slotId" value={slotId} />
       <input type="hidden" name="slotLabel" value={slotLabel} />
       <input type="hidden" name="petAge" value="Nie podano w formularzu rezerwacji." />
-      <input type="hidden" name="durationNotes" value="Nie podano w formularzu rezerwacji." />
+      <input type="hidden" name="durationNotes" value={quizBrief || 'Nie podano w formularzu rezerwacji.'} />
       {qaBooking ? <input type="hidden" name="qaBooking" value="true" /> : null}
 
       <div className="booking-details-field">
@@ -294,6 +326,12 @@ export function BookingForm({
       </div>
 
       <div className="booking-details-field booking-details-field-wide">
+        {quizBrief ? (
+          <div className="notatnik-callout">
+            <strong>Kontekst z Mapy pierwszego kroku</strong>
+            <p>{quizBrief}</p>
+          </div>
+        ) : null}
         <label htmlFor="booking-description">Krótko opisz, co się dzieje</label>
         <p>Wystarczą 2-3 proste zdania. Szczegóły będzie można dopisać później, już po rezerwacji.</p>
         <textarea

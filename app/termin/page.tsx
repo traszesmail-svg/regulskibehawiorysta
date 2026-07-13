@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+﻿import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { unstable_noStore as noStore } from 'next/cache'
@@ -50,32 +50,32 @@ export const revalidate = 0
 export const metadata: Metadata = buildMarketingMetadata({
   title: 'Wybierz termin konsultacji',
   path: '/termin',
-  description: 'Prosty widok wyboru terminu po krótkim wyborze tematu psa albo kota.',
+  description: 'Prosty widok wyboru terminu po krĂłtkim wyborze tematu psa albo kota.',
 })
 
-const terminSteps = ['Termin', 'Godzina', 'Dane', 'Płatność'] as const
-const urgentTerminSteps = ['Najbliższe terminy', 'Dane', 'Płatność'] as const
+const terminSteps = ['Termin', 'Godzina', 'Dane', 'PĹ‚atnoĹ›Ä‡'] as const
+const urgentTerminSteps = ['NajbliĹĽsze terminy', 'Dane', 'PĹ‚atnoĹ›Ä‡'] as const
 
 const bookingFaqItems = [
   {
-    question: 'Jak wygląda konsultacja online?',
+    question: 'Jak wyglÄ…da konsultacja online?',
     answer:
-      'Kwadrans odbywa się jako rozmowa audio bez kamery. Dwa kwadranse i Pełna konsultacja są online; przy pełnej konsultacji forma audio albo video zależy od potrzeb sprawy.',
+      'Kwadrans odbywa siÄ™ jako rozmowa audio bez kamery. Dwa kwadranse i PeĹ‚na konsultacja sÄ… online; przy peĹ‚nej konsultacji forma audio albo video zaleĹĽy od potrzeb sprawy.',
   },
   {
-    question: 'Czy muszę instalować jakąś aplikację?',
+    question: 'Czy muszÄ™ instalowaÄ‡ jakÄ…Ĺ› aplikacjÄ™?',
     answer:
-      'Nie zakładam instalacji aplikacji ani konta. Po potwierdzeniu płatności dostaniesz e-mail z linkiem do rozmowy, najczęściej w Jitsi albo pokoju rozmowy w serwisie.',
+      'Nie zakĹ‚adam instalacji aplikacji ani konta. Po potwierdzeniu pĹ‚atnoĹ›ci dostaniesz e-mail z linkiem do rozmowy, najczÄ™Ĺ›ciej w Jitsi albo pokoju rozmowy w serwisie.',
   },
   {
     question: 'Kiedy termin jest pewny?',
     answer:
-      'Wybrany termin trzymamy przez 15 minut na dokończenie rezerwacji. Termin jest pewny po opłaceniu i potwierdzeniu płatności; przy płatności ręcznej potwierdzenie może wymagać obsługi w godzinach 9-21.',
+      'Wybrany termin trzymamy przez 15 minut na dokoĹ„czenie rezerwacji. Termin jest pewny po opĹ‚aceniu i potwierdzeniu pĹ‚atnoĹ›ci; przy pĹ‚atnoĹ›ci rÄ™cznej potwierdzenie moĹĽe wymagaÄ‡ obsĹ‚ugi w godzinach 9-21.',
   },
   {
-    question: 'Czy mogę zmienić lub odwołać termin?',
+    question: 'Czy mogÄ™ zmieniÄ‡ lub odwoĹ‚aÄ‡ termin?',
     answer:
-      'Po potwierdzeniu wpłaty możesz w ciągu 24 godzin napisać przez formularz albo odpowiedzieć na e-mail i zgłosić zmianę terminu lub rezygnację.',
+      'Po potwierdzeniu wpĹ‚aty moĹĽesz w ciÄ…gu 24 godzin napisaÄ‡ przez formularz albo odpowiedzieÄ‡ na e-mail i zgĹ‚osiÄ‡ zmianÄ™ terminu lub rezygnacjÄ™.',
   },
 ] as const
 
@@ -130,6 +130,19 @@ function isWeekendDateKey(dateKey: string) {
   return day === 0 || day === 6
 }
 
+function getMarketingParams(searchParams?: Record<string, string | string[] | undefined>) {
+  const params: Record<string, string> = {}
+  const keys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content'] as const
+
+  for (const key of keys) {
+    const rawValue = searchParams?.[key]
+    const value = (Array.isArray(rawValue) ? rawValue[0] : rawValue)?.trim()
+    if (value && value.length <= 120) params[key] = value
+  }
+
+  return params
+}
+
 function buildCalendarDays(
   availabilitySlots: AvailabilitySlot[],
   serviceType: BookingServiceType,
@@ -137,6 +150,7 @@ function buildCalendarDays(
   serviceQuery: BookingServiceType | null,
   qaBooking: boolean,
   requestedSpecies: 'pies' | 'kot' | null,
+  marketingParams: Record<string, string>,
   now = new Date(),
 ): { days: CalendarDay[]; label: string; slotCount: number } {
   const visibleDates = buildScheduleDateKeys(now, getServiceScheduleHorizonDays(serviceType))
@@ -168,7 +182,7 @@ function buildCalendarDays(
       ? buildVisibleServiceSlotsForDate(availabilitySlots, dateKey, serviceType, now)
       : []
     const availableSlotCount = scheduleSlots.filter((slot) => slot.isBookable).length
-    const hasBusySlots = scheduleSlots.some((slot) => slot.statusLabel === 'Zajęte')
+    const hasBusySlots = scheduleSlots.some((slot) => slot.statusLabel === 'ZajÄ™te')
 
     days.push({
       date: dateKey,
@@ -177,13 +191,15 @@ function buildCalendarDays(
       isInPrimaryMonth: date >= visibleRangeStart && date <= visibleRangeEnd,
       label: formatReadableDate(parseDate(dateKey)),
       availableSlotCount,
-      statusLabel: availableSlotCount > 0 ? `${availableSlotCount} terminów` : hasBusySlots ? 'Zajęte' : 'Niedostępne',
+      statusLabel: availableSlotCount > 0 ? `${availableSlotCount} terminĂłw` : hasBusySlots ? 'ZajÄ™te' : 'NiedostÄ™pne',
       slots: scheduleSlots.map((slot) => ({
         id: slot.id,
         date: dateKey,
         dateLabel: formatReadableDate(parseDate(dateKey)),
         time: slot.time,
-        href: slot.isBookable ? buildFormHref(problem, slot.id, serviceQuery, qaBooking, requestedSpecies) : null,
+        href: slot.isBookable
+          ? appendSearchParams(buildFormHref(problem, slot.id, serviceQuery, qaBooking, requestedSpecies), marketingParams)
+          : null,
         serviceType,
         serviceTitle: FUNNEL_SERVICE_CONFIG[serviceType].title,
         state: slot.state,
@@ -223,9 +239,10 @@ export async function BookingSlotCalendar({
   const serviceQuery = getServiceQuery(serviceType)
   const qaBooking = readQaBookingSearchParam(searchParams?.qa)
   const requestedSpecies = readBookingSpeciesSearchParam(searchParams?.species)
+  const marketingParams = getMarketingParams(searchParams)
   const serviceConfig = FUNNEL_SERVICE_CONFIG[serviceType]
 
-  const retryHref = buildSlotHref(problem, serviceQuery, qaBooking, requestedSpecies)
+  const retryHref = appendSearchParams(buildSlotHref(problem, serviceQuery, qaBooking, requestedSpecies), marketingParams)
   const dataMode = getDataModeStatus()
   let availabilitySlots: AvailabilitySlot[] = []
   let publicFlowMessage: string | null = null
@@ -238,14 +255,14 @@ export async function BookingSlotCalendar({
         dataMode: dataMode.summary,
         error: error instanceof Error ? { name: error.name, message: error.message, stack: error.stack } : String(error),
       })
-      publicFlowMessage = 'Terminy chwilowo się odświeżają. Spróbuj ponownie za moment.'
+      publicFlowMessage = 'Terminy chwilowo siÄ™ odĹ›wieĹĽajÄ…. SprĂłbuj ponownie za moment.'
     }
   } else {
     console.warn('[regulski][termin] booking data mode is invalid', dataMode.summary)
-    publicFlowMessage = 'Terminy chwilowo się odświeżają. Spróbuj ponownie za moment.'
+    publicFlowMessage = 'Terminy chwilowo siÄ™ odĹ›wieĹĽajÄ…. SprĂłbuj ponownie za moment.'
   }
 
-  const calendar = buildCalendarDays(availabilitySlots, serviceType, problem, serviceQuery, qaBooking, requestedSpecies)
+  const calendar = buildCalendarDays(availabilitySlots, serviceType, problem, serviceQuery, qaBooking, requestedSpecies, marketingParams)
   const problemSpecies = requestedSpecies ?? getProblemSpecies(problem)
   const isUrgentBooking = serviceType === 'kwadrans-na-juz'
   const petVisualSrc = isUrgentBooking
@@ -253,7 +270,7 @@ export async function BookingSlotCalendar({
     : problemSpecies === 'kot'
       ? '/wybor/cat-choice-avatar.png'
       : '/wybor/dog-choice-avatar.png'
-  const petVisualAlt = isUrgentBooking ? 'Spokojny pies i kot w jasnym, domowym świetle' : problemSpecies === 'kot' ? 'Spokojny kot' : 'Spokojny pies'
+  const petVisualAlt = isUrgentBooking ? 'Spokojny pies i kot w jasnym, domowym Ĺ›wietle' : problemSpecies === 'kot' ? 'Spokojny kot' : 'Spokojny pies'
   const contactHref = `/kontakt?species=${problemSpecies}#formularz`
   const pageClassName = isUrgentBooking ? 'termin-page termin-urgent-page' : `termin-page termin-${problemSpecies}-page`
   const sideVisualVariant = 'booking'
@@ -265,10 +282,10 @@ export async function BookingSlotCalendar({
         : 'Online'
   const processOutcomeCopy =
     serviceType === 'konsultacja-behawioralna-online'
-      ? 'W pełnej konsultacji dostajesz analizę zachowania, prawdopodobną przyczynę problemu, plan działania i 7 dni wsparcia przez WhatsApp.'
+      ? 'W peĹ‚nej konsultacji dostajesz analizÄ™ zachowania, prawdopodobnÄ… przyczynÄ™ problemu, plan dziaĹ‚ania i 14 dni komunikacji w pokoju klienta.'
       : serviceType === 'konsultacja-30-min'
-        ? 'W Dwóch kwadransach masz więcej czasu na kontekst, spokojniejsze zalecenia i decyzję, czy potrzebna jest pełna konsultacja.'
-        : 'W Kwadransie porządkujesz jedno główne pytanie i dostajesz pierwszy kierunek działania.'
+        ? 'W DwĂłch kwadransach masz wiÄ™cej czasu na kontekst, spokojniejsze zalecenia i decyzjÄ™, czy potrzebna jest peĹ‚na konsultacja.'
+        : 'W Kwadransie porzÄ…dkujesz jedno gĹ‚Ăłwne pytanie i dostajesz pierwszy kierunek dziaĹ‚ania.'
   const calendarDays: PickerCalendarDay[] = calendar.days
   const bookingAmount = getBookingServicePrice(serviceType, serviceConfig.priceAmount)
   const manualPayment = getPublicManualPaymentConfig()
@@ -289,7 +306,7 @@ export async function BookingSlotCalendar({
         </div>
         <Link href="/wybor" prefetch={false} className="termin-inline-topic-select">
           <PawPrint size={18} strokeWidth={1.9} aria-hidden="true" />
-          Zmień wybór
+          ZmieĹ„ wybĂłr
         </Link>
       </div>
       <div>
@@ -309,7 +326,7 @@ export async function BookingSlotCalendar({
       ctaHref="/quiz"
       ctaLabel="Quiz"
       footerPrimaryHref="/wybor"
-      footerPrimaryLabel="Wróć do wyboru"
+      footerPrimaryLabel="WrĂłÄ‡ do wyboru"
       sideVisualVariant={sideVisualVariant}
       pageClassName={pageClassName}
       shellClassName="termin-shell"
@@ -318,7 +335,7 @@ export async function BookingSlotCalendar({
     >
       <Schema
         data={getBreadcrumbJsonLd([
-          { name: 'Strona główna', path: '/' },
+          { name: 'Strona gĹ‚Ăłwna', path: '/' },
           { name: 'Quiz', path: '/quiz' },
           { name: 'Termin', path: '/book' },
         ])}
@@ -327,27 +344,27 @@ export async function BookingSlotCalendar({
           <div className="termin-calendar-head">
             <div className="termin-breadcrumb">
               <CalendarDays size={17} strokeWidth={1.8} aria-hidden="true" />
-              <span>Wybór terminu</span>
+              <span>WybĂłr terminu</span>
             </div>
             {isUrgentBooking ? (
-              <h1>Rezerwacja Kwadrans na już</h1>
+              <h1>Rezerwacja Kwadrans na juĹĽ</h1>
             ) : (
               <h1>Wybierz termin konsultacji</h1>
             )}
             <p>
               {isUrgentBooking
-                ? 'Wybierz najbliższy dostępny termin krótkiej konsultacji. W kolejnym kroku wpiszesz dane, opłacisz rezerwację i dostaniesz e-mail z potwierdzeniem.'
-                : 'Wybierz dogodny dzień i godzinę. W kolejnym kroku wpiszesz dane, opłacisz rezerwację i dostaniesz e-mail z potwierdzeniem.'}
+                ? 'Wybierz najbliĹĽszy dostÄ™pny termin krĂłtkiej konsultacji. W kolejnym kroku wpiszesz dane, opĹ‚acisz rezerwacjÄ™ i dostaniesz e-mail z potwierdzeniem.'
+                : 'Wybierz dogodny dzieĹ„ i godzinÄ™. W kolejnym kroku wpiszesz dane, opĹ‚acisz rezerwacjÄ™ i dostaniesz e-mail z potwierdzeniem.'}
             </p>
             <MobileFirstStepCta
-              eyebrow="Najbliższy krok"
+              eyebrow="NajbliĹĽszy krok"
               title={serviceConfig.shortTitle}
               copy={getBookingServiceSlotSummary(serviceType)}
               meta={`${formatPricePln(serviceConfig.priceAmount)} / ${getBookingServiceDurationLabel(serviceType)}`}
               primaryHref="#najblizsze-terminy"
               primaryLabel="Zobacz terminy"
               secondaryHref="/cennik"
-              secondaryLabel="Porównaj opcje"
+              secondaryLabel="PorĂłwnaj opcje"
             />
           </div>
 
@@ -366,15 +383,15 @@ export async function BookingSlotCalendar({
 
           <div className="termin-calendar-shell" id="najblizsze-terminy">
             <div className="notatnik-callout termin-calendar-callout">
-              Prosty proces: wybierasz termin, wpisujesz dane, przechodzisz do płatności i dostajesz potwierdzenie e-mailem.
-              Wybrany termin trzymamy przez 15 minut na czas spokojnego dokończenia rezerwacji.
+              Prosty proces: wybierasz termin, wpisujesz dane, przechodzisz do pĹ‚atnoĹ›ci i dostajesz potwierdzenie e-mailem.
+              Wybrany termin trzymamy przez 15 minut na czas spokojnego dokoĹ„czenia rezerwacji.
             </div>
 
             {publicFlowMessage ? (
               <div className="notatnik-callout termin-calendar-callout">
                 {publicFlowMessage}{' '}
                 <Link href={retryHref} prefetch={false}>
-                  Odśwież terminy
+                  OdĹ›wieĹĽ terminy
                 </Link>
                 .
               </div>
@@ -447,24 +464,24 @@ export async function BookingSlotCalendar({
         {!isUrgentBooking ? (
           <>
             <section className="termin-process-section compact-home-section">
-              <h2>Jak to działa?</h2>
+              <h2>Jak to dziaĹ‚a?</h2>
               <div className="termin-process-grid">
                 <article>
                   <CalendarDays size={30} strokeWidth={1.7} aria-hidden="true" />
                   <strong>1. Wybierz termin</strong>
-                  <span>Wybierz datę i godzinę, która Ci odpowiada.</span>
+                  <span>Wybierz datÄ™ i godzinÄ™, ktĂłra Ci odpowiada.</span>
                 </article>
                 <article>
                   <Headphones size={30} strokeWidth={1.7} aria-hidden="true" />
-                  <strong>2. Wejdź w konsultację</strong>
-                  <span>Połączymy się online w formie audio lub wideo.</span>
+                  <strong>2. WejdĹş w konsultacjÄ™</strong>
+                  <span>PoĹ‚Ä…czymy siÄ™ online w formie audio lub wideo.</span>
                 </article>
                 <article>
                   <Check size={30} strokeWidth={1.7} aria-hidden="true" />
                   <strong>
                     3. Otrzymaj
                     <br />
-                    analizę zachowania
+                    analizÄ™ zachowania
                   </strong>
                   <span>{processOutcomeCopy}</span>
                 </article>
@@ -476,7 +493,7 @@ export async function BookingSlotCalendar({
 
         <section className="termin-bottom-section compact-home-section">
           <div className="termin-faq-card">
-            <h2>Najczęściej zadawane pytania</h2>
+            <h2>NajczÄ™Ĺ›ciej zadawane pytania</h2>
             {bookingFaqItems.map((item) => (
               <details key={item.question}>
                 <summary>{item.question}</summary>
@@ -497,3 +514,4 @@ export default function TerminRedirectPage({
 }) {
   redirect(appendSearchParams('/book', searchParams))
 }
+

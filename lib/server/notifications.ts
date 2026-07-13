@@ -2936,8 +2936,9 @@ export type LeadBookingConfirmedPayload = {
   serviceLabel: string
   confirmedDate: string
   confirmedTime: string
-  callRoomUrl: string
+  callRoomUrl: string | null
   calendarUrl?: string | null
+  roomSetupUrl?: string | null
 }
 
 export async function sendLeadBookingConfirmedEmail(payload: LeadBookingConfirmedPayload): Promise<DeliveryResult> {
@@ -2950,10 +2951,16 @@ export async function sendLeadBookingConfirmedEmail(payload: LeadBookingConfirme
   const calendarBlock = payload.calendarUrl
     ? renderEmailActionButton({ href: payload.calendarUrl, label: 'Dodaj do kalendarza Google' })
     : ''
+  const roomSetupBlock = payload.roomSetupUrl
+    ? renderEmailActionButton({ href: payload.roomSetupUrl, label: 'Ustaw hasło do pokoju klienta' })
+    : ''
+  const callDetails = payload.callRoomUrl
+    ? `Link do spotkania: <a href="${escapeHtml(payload.callRoomUrl)}">${escapeHtml(payload.callRoomUrl)}</a>`
+    : 'O ustalonej godzinie zadzwonię na numer podany w rezerwacji.'
 
   const html = renderEmailShell(
     `Cześć ${escapeHtml(payload.name)}, konsultacja potwierdzona!`,
-    'Płatność dotarła. Poniżej znajdziesz termin i link do pokoju rozmowy.',
+    'Płatność dotarła. Poniżej znajdziesz termin oraz dostęp do pokoju klienta.',
     `
       ${renderEmailDataTable(
         [
@@ -2966,13 +2973,14 @@ export async function sendLeadBookingConfirmedEmail(payload: LeadBookingConfirme
             htmlValue: `${escapeHtml(payload.confirmedDate)} o ${escapeHtml(payload.confirmedTime)}`,
           },
           {
-            label: 'Link do rozmowy',
-            htmlValue: `<a href="${escapeHtml(payload.callRoomUrl)}">${escapeHtml(payload.callRoomUrl)}</a>`,
+            label: payload.callRoomUrl ? 'Link do spotkania Jitsi' : 'Rozmowa',
+            htmlValue: callDetails,
           },
         ],
         'lead-booking-confirmed',
       )}
-      <p>Połączenie jest audio (bez kamery). Wejdź na powyższy link o ustalonej porze - bez instalacji, bezpośrednio w przeglądarce.</p>
+      ${payload.callRoomUrl ? '<p>Pełna konsultacja odbywa się przez Jitsi. Wejdź na link o ustalonej porze.</p>' : '<p>Krótka konsultacja odbywa się telefonicznie przez Zadarmę.</p>'}
+      ${roomSetupBlock}
       ${calendarBlock}
     `,
     'Jeśli masz pytania przed konsultacją, odpisz na tego maila.',
@@ -2983,8 +2991,9 @@ export async function sendLeadBookingConfirmedEmail(payload: LeadBookingConfirme
     '',
     `Usługa: ${payload.serviceLabel}`,
     `Data i godzina: ${payload.confirmedDate} o ${payload.confirmedTime}`,
-    `Link do rozmowy: ${payload.callRoomUrl}`,
+    payload.callRoomUrl ? `Link do spotkania Jitsi: ${payload.callRoomUrl}` : 'Rozmowa: o ustalonej godzinie zadzwonię na numer podany w rezerwacji.',
     payload.calendarUrl ? `Dodaj do kalendarza: ${payload.calendarUrl}` : '',
+    payload.roomSetupUrl ? `Ustaw hasło do pokoju klienta: ${payload.roomSetupUrl}` : '',
     '',
     'Jeśli masz pytania przed konsultacją, odpisz na tego maila.',
   ].filter(Boolean).join('\n')

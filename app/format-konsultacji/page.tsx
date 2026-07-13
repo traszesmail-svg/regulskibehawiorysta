@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+﻿import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
@@ -79,17 +79,17 @@ const topicTitles: Record<Animal, Partial<Record<ProblemType, string>>> = {
   dog: {
     pobudzenie: 'Zachowanie w domu',
     spacer: 'Zachowanie na spacerach',
-    separacja: 'Lęk i stres',
-    agresja: 'Relacje z innymi zwierzętami',
-    szczeniak: 'Szczeniak i młody pies',
+    separacja: 'LÄ™k i stres',
+    agresja: 'Relacje z innymi zwierzÄ™tami',
+    szczeniak: 'Szczeniak i mĹ‚ody pies',
     inne: 'Inny problem',
   },
   cat: {
-    'kot-kuweta': 'Kuweta i załatwianie poza kuwetą',
+    'kot-kuweta': 'Kuweta i zaĹ‚atwianie poza kuwetÄ…',
     'kot-zmiany-w-domu': 'Stres lub zmiana w domu',
-    'kot-konflikt': 'Konflikty między kotami',
-    'kot-stres': 'Lęk, agresja lub wycofanie',
-    'kot-wokalizacja': 'Nocna aktywność i pobudzenie',
+    'kot-konflikt': 'Konflikty miÄ™dzy kotami',
+    'kot-stres': 'LÄ™k, agresja lub wycofanie',
+    'kot-wokalizacja': 'Nocna aktywnoĹ›Ä‡ i pobudzenie',
     inne: 'Inny problem z kotem',
   },
 }
@@ -99,19 +99,19 @@ const formatChoices: FormatChoice[] = [
     id: 'kwadrans',
     title: 'Kwadrans',
     badge: '15 min',
-    price: '69 zł',
-    desc: '15 min audio bez kamery na jedno główne pytanie. Po rozmowie masz prawo do 2 dopytań na czacie w swoim pokoju konsultacji.',
-    checks: ['Jedno główne pytanie', 'Do 2 pytań w pokoju po rozmowie'],
+    price: '69 zĹ‚',
+    desc: '15 min audio bez kamery na jedno gĹ‚Ăłwne pytanie. Po rozmowie masz prawo do 2 dopytaĹ„ na czacie w swoim pokoju konsultacji.',
+    checks: ['Jedno gĹ‚Ăłwne pytanie', 'Do 2 pytaĹ„ w pokoju po rozmowie'],
     icon: Clock3,
     service: null,
   },
   {
     id: 'kwadrans-na-juz',
-    title: 'Kwadrans na już',
+    title: 'Kwadrans na juĹĽ',
     badge: '15 min',
-    price: '99 zł',
-    desc: 'Ten sam zakres co Kwadrans (w tym prawo do 2 dopytań w pokoju), ale z priorytetem i najbliższym realnym terminem.',
-    checks: ['Wariant priorytetowy', 'Do 2 pytań w pokoju po rozmowie'],
+    price: '99 zĹ‚',
+    desc: 'Ten sam zakres co Kwadrans (w tym prawo do 2 dopytaĹ„ w pokoju), ale z priorytetem i najbliĹĽszym realnym terminem.',
+    checks: ['Wariant priorytetowy', 'Do 2 pytaĹ„ w pokoju po rozmowie'],
     icon: Zap,
     service: 'kwadrans-na-juz',
     featured: true,
@@ -120,19 +120,19 @@ const formatChoices: FormatChoice[] = [
     id: 'dwa-kwadranse',
     title: 'Dwa kwadranse',
     badge: '30 min',
-    price: '169 zł',
-    desc: '30 min online, gdy temat ma kilka wątków. Po rozmowie masz prawo do 4 dopytań na czacie w swoim pokoju konsultacji.',
-    checks: ['Więcej czasu na kontekst', 'Do 4 pytań w pokoju po rozmowie'],
+    price: '169 zĹ‚',
+    desc: '30 min online, gdy temat ma kilka wÄ…tkĂłw. Po rozmowie masz prawo do 4 dopytaĹ„ na czacie w swoim pokoju konsultacji.',
+    checks: ['WiÄ™cej czasu na kontekst', 'Do 4 pytaĹ„ w pokoju po rozmowie'],
     icon: Hourglass,
     service: 'konsultacja-30-min',
   },
   {
     id: 'pelna-konsultacja',
-    title: 'Pełna konsultacja',
+    title: 'PeĹ‚na konsultacja',
     badge: 'ok. 2h online',
-    price: '470 zł',
-    desc: 'Około 2h online dla spraw złożonych: analiza zachowania, plan działania i czat w pokoju po rozmowie (tylko w miarę dostępności czasu).',
-    checks: ['Analiza i plan działania', 'Czat w pokoju (w miarę czasu)'],
+    price: '470 zĹ‚',
+    desc: 'OkoĹ‚o 2h online dla spraw zĹ‚oĹĽonych: analiza zachowania, plan dziaĹ‚ania i czat w pokoju po rozmowie (tylko w miarÄ™ dostÄ™pnoĹ›ci czasu).',
+    checks: ['Analiza i plan dziaĹ‚ania', 'Czat w pokoju (w miarÄ™ czasu)'],
     icon: Star,
     service: 'konsultacja-behawioralna-online',
     wide: true,
@@ -146,13 +146,13 @@ const formatBenefits = [
     icon: Clock3,
   },
   {
-    title: 'Najbliższe terminy',
-    copy: 'Pokażemy Ci dostępne okna w kolejnym kroku',
+    title: 'NajbliĹĽsze terminy',
+    copy: 'PokaĹĽemy Ci dostÄ™pne okna w kolejnym kroku',
     icon: CalendarDays,
   },
   {
-    title: 'Bezpieczne płatności',
-    copy: 'Twoje dane są u nas zawsze bezpieczne',
+    title: 'Bezpieczne pĹ‚atnoĹ›ci',
+    copy: 'Twoje dane sÄ… u nas zawsze bezpieczne',
     icon: ShieldCheck,
   },
 ]
@@ -190,7 +190,7 @@ export default function ConsultationFormatPage({
       ctaHref="/quiz"
       ctaLabel="Quiz"
       footerPrimaryHref={backHref}
-      footerPrimaryLabel="Wróć do wyboru"
+      footerPrimaryLabel="WrĂłÄ‡ do wyboru"
       sideVisualVariant={animal === 'cat' ? 'cat' : 'dog'}
       pageClassName={`homepage-shell ${styles.page} ${styles.formatOnlyPage} ${
         animal === 'cat' ? styles.catPage : styles.dogPage
@@ -200,19 +200,19 @@ export default function ConsultationFormatPage({
     >
       <Schema
         data={getBreadcrumbJsonLd([
-          { name: 'Strona główna', path: '/' },
-          { name: 'Wybór tematu', path: '/wybor' },
-          { name: 'Wybór formatu', path: '/format-konsultacji' },
+          { name: 'Strona gĹ‚Ăłwna', path: '/' },
+          { name: 'WybĂłr tematu', path: '/wybor' },
+          { name: 'WybĂłr formatu', path: '/format-konsultacji' },
         ])}
       />
         <div className={styles.content}>
           <Link className={styles.backLink} href={backHref} prefetch={false}>
             <ArrowLeft size={17} strokeWidth={2} aria-hidden="true" />
-            <span>Wróć</span>
+            <span>WrĂłÄ‡</span>
           </Link>
 
           <section className={styles.intro} aria-labelledby="format-title">
-            <div className={styles.progressGroup} aria-label="Wybór formatu konsultacji">
+            <div className={styles.progressGroup} aria-label="WybĂłr formatu konsultacji">
               <span>Krok 2 z 2</span>
               <span className={styles.progressTrack}>
                 <span className={styles.formatProgressFill} />
@@ -234,7 +234,7 @@ export default function ConsultationFormatPage({
           </section>
 
           <section className={styles.choiceSection} aria-label="Wybierz format konsultacji">
-            <div className={styles.formatBenefitStrip} aria-label="Co ułatwia wybór formatu">
+            <div className={styles.formatBenefitStrip} aria-label="Co uĹ‚atwia wybĂłr formatu">
               {formatBenefits.map((benefit) => {
                 const Icon = benefit.icon
 
@@ -342,10 +342,10 @@ export default function ConsultationFormatPage({
                 })}
 
               <aside className={styles.formatHelpCard}>
-                <h2>Nie wiesz, co wybrać?</h2>
-                <p>Napisz do mnie - pomogę Ci dobrać najlepszy format do Twojej sytuacji.</p>
+                <h2>Nie wiesz, co wybraÄ‡?</h2>
+                <p>Napisz do mnie - pomogÄ™ Ci dobraÄ‡ najlepszy format do Twojej sytuacji.</p>
                 <Link href={copy.contactHref} prefetch={false}>
-                  <span>Napisz wiadomość</span>
+                  <span>Napisz wiadomoĹ›Ä‡</span>
                   <MessageCircle size={18} strokeWidth={1.8} aria-hidden="true" />
                 </Link>
               </aside>
@@ -355,3 +355,4 @@ export default function ConsultationFormatPage({
     </NotatnikPageShell>
   )
 }
+

@@ -184,9 +184,9 @@ export async function createLeadBooking(input: CreateLeadBookingInput): Promise<
 
   let initialQuestions = null
   if (input.service === 'kwadrans-na-juz' || input.service === 'szybka-konsultacja-15-min') {
-    initialQuestions = 2
+    initialQuestions = 1
   } else if (input.service === 'konsultacja-30-min') {
-    initialQuestions = 4
+    initialQuestions = 2
   } else if (input.service === 'konsultacja-behawioralna-online') {
     initialQuestions = 0
   }

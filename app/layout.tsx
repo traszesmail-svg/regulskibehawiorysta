@@ -42,7 +42,7 @@ const RELEASE_ID = '2026-06-21-payment-fix-v1'
 
 export const metadata: Metadata = {
   metadataBase,
-  referrer: 'no-referrer',
+  referrer: 'strict-origin-when-cross-origin',
   title: {
     default: SITE_NAME,
     template: `%s | ${SITE_SHORT_NAME}`,

@@ -52,7 +52,7 @@ export function generateReviewsSchema(
         '@type': 'Person',
         name: r.author,
       },
-      datePublished: r.date,
+      ...(r.date && { datePublished: r.date }),
       reviewBody: r.text,
       ...(r.location && {
         itemReviewed: {
@@ -81,7 +81,7 @@ export function generateSingleReviewSchema(review: Review, businessName: string)
       '@type': 'Person',
       name: review.author,
     },
-    datePublished: review.date,
+    ...(review.date && { datePublished: review.date }),
     reviewBody: review.text,
   };
 }

@@ -1,4 +1,4 @@
-import 'server-only'
+﻿import 'server-only'
 
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
@@ -131,17 +131,17 @@ const PROBLEM_LANDING_CONFIGS: ProblemLandingConfig[] = [
     visualWidth: 1024,
     visualHeight: 1536,
     toolkitHref: '/materialy#psy',
-    toolkitLabel: 'Bezpłatny materiał: pies i poziom ruchu',
+    toolkitLabel: 'BezpĹ‚atny materiaĹ‚: pies i poziom ruchu',
     crossLinks: [
       {
         href: '/psy/lek-separacyjny',
-        label: 'Lęk separacyjny u psa',
-        copy: 'Jeśli obok spacerów widzisz też trudność z rozłąką albo z wyciszeniem po wyjściu opiekuna, sprawdź też ten temat.',
+        label: 'LÄ™k separacyjny u psa',
+        copy: 'JeĹ›li obok spacerĂłw widzisz teĹĽ trudnoĹ›Ä‡ z rozĹ‚Ä…kÄ… albo z wyciszeniem po wyjĹ›ciu opiekuna, sprawdĹş teĹĽ ten temat.',
       },
       {
         href: '/materialy#psy',
         label: 'PDF: pies i poziom ruchu',
-        copy: 'Jeśli jeden materiał to za mało, zacznij od sprawdzenia rytmu dnia, odpoczynku i przeciążenia.',
+        copy: 'JeĹ›li jeden materiaĹ‚ to za maĹ‚o, zacznij od sprawdzenia rytmu dnia, odpoczynku i przeciÄ…ĹĽenia.',
       },
     ],
   },
@@ -162,13 +162,13 @@ const PROBLEM_LANDING_CONFIGS: ProblemLandingConfig[] = [
     crossLinks: [
       {
         href: '/psy/reaktywnosc-na-smyczy',
-        label: 'Reaktywność na smyczy',
-        copy: 'Jeśli obok trudności z samotnością pojawia się też wysokie napięcie na spacerach, zobacz również tę stronę problemową.',
+        label: 'ReaktywnoĹ›Ä‡ na smyczy',
+        copy: 'JeĹ›li obok trudnoĹ›ci z samotnoĹ›ciÄ… pojawia siÄ™ teĹĽ wysokie napiÄ™cie na spacerach, zobacz rĂłwnieĹĽ tÄ™ stronÄ™ problemowÄ….',
       },
       {
         href: '/materialy#psy',
-        label: 'Materiały PDF',
-        copy: 'Jeśli chcesz zobaczyć więcej materiałów i spokojnie porównać ścieżki, przejdź do materiałów dla opiekunów psów.',
+        label: 'MateriaĹ‚y PDF',
+        copy: 'JeĹ›li chcesz zobaczyÄ‡ wiÄ™cej materiaĹ‚Ăłw i spokojnie porĂłwnaÄ‡ Ĺ›cieĹĽki, przejdĹş do materiaĹ‚Ăłw dla opiekunĂłw psĂłw.',
       },
     ],
   },
@@ -185,12 +185,12 @@ const PROBLEM_LANDING_CONFIGS: ProblemLandingConfig[] = [
     visualWidth: 1024,
     visualHeight: 1536,
     toolkitHref: '/materialy#koty',
-    toolkitLabel: 'Bezpłatny materiał: kot żyje w napięciu',
+    toolkitLabel: 'BezpĹ‚atny materiaĹ‚: kot ĹĽyje w napiÄ™ciu',
     crossLinks: [
       {
         href: '/koty/konflikt-miedzy-kotami',
-        label: 'Konflikt między kotami',
-        copy: 'Jeśli obok problemu z kuwetą widzisz też napięcie w domu, sprawdź również stronę o relacjach między kotami.',
+        label: 'Konflikt miÄ™dzy kotami',
+        copy: 'JeĹ›li obok problemu z kuwetÄ… widzisz teĹĽ napiÄ™cie w domu, sprawdĹş rĂłwnieĹĽ stronÄ™ o relacjach miÄ™dzy kotami.',
       },
     ],
   },
@@ -207,12 +207,12 @@ const PROBLEM_LANDING_CONFIGS: ProblemLandingConfig[] = [
     visualWidth: 1024,
     visualHeight: 1536,
     toolkitHref: '/materialy#koty',
-    toolkitLabel: 'PDF: kot żyje w napięciu',
+    toolkitLabel: 'PDF: kot ĹĽyje w napiÄ™ciu',
     crossLinks: [
       {
         href: '/koty/zalatwianie-poza-kuweta',
-        label: 'Załatwianie poza kuwetą',
-        copy: 'Jeśli obok konfliktu pojawiły się problemy toaletowe, zajrzyj też do strony o kuwecie.',
+        label: 'ZaĹ‚atwianie poza kuwetÄ…',
+        copy: 'JeĹ›li obok konfliktu pojawiĹ‚y siÄ™ problemy toaletowe, zajrzyj teĹĽ do strony o kuwecie.',
       },
     ],
   },
@@ -430,7 +430,7 @@ function normalizeSectionHeading(value: string): string {
 }
 
 function isSkipSectionHeading(text: string): boolean {
-  return /linkowanie wewnętrzne/i.test(text)
+  return /linkowanie wewnÄ™trzne/i.test(text)
 }
 
 function buildSections(slug: string, blocks: ProblemLandingBlock[]): ProblemLandingSection[] {
@@ -497,7 +497,7 @@ function buildSections(slug: string, blocks: ProblemLandingBlock[]): ProblemLand
 }
 
 function extractIntroText(sections: ProblemLandingSection[]): string {
-  const introSection = sections.find((section) => normalizeSectionHeading(section.heading?.text ?? '') === 'jak to wygląda w praktyce')
+  const introSection = sections.find((section) => normalizeSectionHeading(section.heading?.text ?? '') === 'jak to wyglÄ…da w praktyce')
 
   if (!introSection) {
     const firstParagraph = sections.flatMap((section) => section.blocks).find((block): block is ProblemLandingParagraphBlock => block.type === 'paragraph')
@@ -705,7 +705,7 @@ export function ProblemLandingPage({ routePath }: { routePath: string }) {
 
   structuredData.push(
     getBreadcrumbJsonLd([
-      { name: 'Strona główna', path: '/' },
+      { name: 'Strona gĹ‚Ăłwna', path: '/' },
       { name: landing.categoryLabel, path: landing.categoryHref },
       { name: landing.h1, path: landing.path },
     ]),
@@ -721,7 +721,7 @@ export function ProblemLandingPage({ routePath }: { routePath: string }) {
           tag={`${landing.categoryLabel} / problem`}
           navItems={PUBLIC_SITE_NAV_ITEMS}
           ctaHref={landing.audioHref}
-          ctaLabel="Kwadrans / 69 zł"
+          ctaLabel="Kwadrans / 69 zĹ‚"
         />
         <Breadcrumbs items={[
           { name: landing.categoryLabel, url: landing.categoryHref },
@@ -735,7 +735,7 @@ export function ProblemLandingPage({ routePath }: { routePath: string }) {
                 <Link href={landing.categoryHref} prefetch={false} className="prep-inline-link">
                   {landing.categoryLabel}
                 </Link>{' '}
-                · {landing.eyebrow}
+                Â· {landing.eyebrow}
               </div>
               <h1>{landing.h1}</h1>
             </div>
@@ -754,11 +754,11 @@ export function ProblemLandingPage({ routePath }: { routePath: string }) {
                 secondaryLocation={`${landing.slug}-hero-toolkit`}
                 note={
                   <>
-                    Jeśli chcesz wrócić do szerszego kontekstu, zobacz{' '}
+                    JeĹ›li chcesz wrĂłciÄ‡ do szerszego kontekstu, zobacz{' '}
                     <Link href={landing.categoryHref} prefetch={false} className="prep-inline-link">
                       {landing.categoryLabel.toLowerCase()}
                     </Link>
-                    . Jeśli wolisz najpierw materiał do czytania, zajrzyj też do{' '}
+                    . JeĹ›li wolisz najpierw materiaĹ‚ do czytania, zajrzyj teĹĽ do{' '}
                     <Link href={landing.toolkitHref} prefetch={false} className="prep-inline-link">
                       {landing.toolkitLabel.toLowerCase()}
                     </Link>
@@ -776,7 +776,7 @@ export function ProblemLandingPage({ routePath }: { routePath: string }) {
                   : landing.slug === 'zalatwianie-poza-kuweta' ? 'koty-kuweta'
                   : 'koty-konflikt'
                 }
-                emojiPlaceholder={landing.species === 'pies' ? '🐕' : '🐈'}
+                emojiPlaceholder={landing.species === 'pies' ? 'đź•' : 'đź'}
                 className="w-full h-full min-h-[380px]"
               />
             </aside>
@@ -797,10 +797,10 @@ export function ProblemLandingPage({ routePath }: { routePath: string }) {
             <section className="panel section-panel editorial-section">
               <div className="editorial-section-head">
                 <div className="editorial-section-head-copy">
-                  <div className="section-eyebrow">Przykładowa historia</div>
-                  <h2>Jak wygląda punkt startu przy podobnym problemie</h2>
+                  <div className="section-eyebrow">PrzykĹ‚adowa historia</div>
+                  <h2>Jak wyglÄ…da punkt startu przy podobnym problemie</h2>
                 </div>
-                <p className="editorial-section-lead">Jeden konkretny przykład pomaga lepiej niż długa lista obietnic.</p>
+                <p className="editorial-section-lead">Jeden konkretny przykĹ‚ad pomaga lepiej niĹĽ dĹ‚uga lista obietnic.</p>
               </div>
 
               <article className="summary-card tree-backed-card">
@@ -824,19 +824,19 @@ export function ProblemLandingPage({ routePath }: { routePath: string }) {
 
         <TrustSignalSection
           eyebrow="Zaufanie"
-          title="Spokojna analiza zachowania oparta na danych przed kolejnymi próbami"
-          description="Przy takich sytuacjach najważniejsze jest dobre rozpoznanie kontekstu i uczciwy pierwszy plan."
+          title="Spokojna analiza zachowania oparta na danych przed kolejnymi prĂłbami"
+          description="Przy takich sytuacjach najwaĹĽniejsze jest dobre rozpoznanie kontekstu i uczciwy pierwszy plan."
           items={[
             {
               title: 'Najpierw analiza zachowania oparta na informacjach, potem technika',
-              copy: 'Najważniejsze jest zrozumienie wyzwalaczy, tła i priorytetu, zanim wejdziesz w kolejne ćwiczenia.',
+              copy: 'NajwaĹĽniejsze jest zrozumienie wyzwalaczy, tĹ‚a i priorytetu, zanim wejdziesz w kolejne Ä‡wiczenia.',
             },
             {
-              title: 'Jeśli online nie wystarczy, powiem to wprost',
-              copy: 'Nie będę zatrzymywać Cię w formacie, który nie ma sensu dla tego przypadku.',
+              title: 'JeĹ›li online nie wystarczy, powiem to wprost',
+              copy: 'Nie bÄ™dÄ™ zatrzymywaÄ‡ CiÄ™ w formacie, ktĂłry nie ma sensu dla tego przypadku.',
             },
             {
-              title: 'Pierwsza rozmowa ma uporządkować temat',
+              title: 'Pierwsza rozmowa ma uporzÄ…dkowaÄ‡ temat',
               copy: 'Celem jest spokojny plan i mniej chaosu, nie obietnica cudu po jednym kontakcie.',
             },
           ]}
@@ -846,15 +846,15 @@ export function ProblemLandingPage({ routePath }: { routePath: string }) {
           <div className="editorial-section-head">
             <div className="editorial-section-head-copy">
               <div className="section-eyebrow">Dalej</div>
-              <h2>Zobacz też</h2>
+              <h2>Zobacz teĹĽ</h2>
             </div>
-            <p className="editorial-section-lead">Najbliższe strony i materiały związane z tym tematem.</p>
+            <p className="editorial-section-lead">NajbliĹĽsze strony i materiaĹ‚y zwiÄ…zane z tym tematem.</p>
           </div>
 
           <div className="blog-related-grid">
             <Link href={landing.audioHref} prefetch={false} className="summary-card tree-backed-card blog-related-card">
               <strong>{FUNNEL_CTA_LABELS.primary}</strong>
-              <span>Najprostszy pierwszy krok, jeśli chcesz omówić swoją sytuację.</span>
+              <span>Najprostszy pierwszy krok, jeĹ›li chcesz omĂłwiÄ‡ swojÄ… sytuacjÄ™.</span>
             </Link>
             {cluster ? (
               <Link href={cluster.serviceLink.href} prefetch={false} className="summary-card tree-backed-card blog-related-card">
@@ -864,15 +864,15 @@ export function ProblemLandingPage({ routePath }: { routePath: string }) {
             ) : null}
             <Link href="/book" prefetch={false} className="summary-card tree-backed-card blog-related-card">
               <strong>Rezerwacja</strong>
-              <span>Zobacz dostępne warianty i przejdź do właściwego startu.</span>
+              <span>Zobacz dostÄ™pne warianty i przejdĹş do wĹ‚aĹ›ciwego startu.</span>
             </Link>
             <Link href={landing.categoryHref} prefetch={false} className="summary-card tree-backed-card blog-related-card">
               <strong>{landing.categoryLabel}</strong>
-              <span>Wróć do głównej strony tej kategorii.</span>
+              <span>WrĂłÄ‡ do gĹ‚Ăłwnej strony tej kategorii.</span>
             </Link>
             <Link href={landing.toolkitHref} prefetch={false} className="summary-card tree-backed-card blog-related-card">
               <strong>{landing.toolkitLabel}</strong>
-              <span>Materiał pomocniczy, jeśli chcesz najpierw spokojnie poczytać.</span>
+              <span>MateriaĹ‚ pomocniczy, jeĹ›li chcesz najpierw spokojnie poczytaÄ‡.</span>
             </Link>
             {cluster?.blogLinks.map((link) => (
               <Link key={link.href} href={link.href} prefetch={false} className="summary-card tree-backed-card blog-related-card">
@@ -888,7 +888,7 @@ export function ProblemLandingPage({ routePath }: { routePath: string }) {
             ))}
             <Link href="/o-mnie" prefetch={false} className="summary-card tree-backed-card blog-related-card">
               <strong>O mnie</strong>
-              <span>Jeśli chcesz sprawdzić kwalifikacje i sposób pracy.</span>
+              <span>JeĹ›li chcesz sprawdziÄ‡ kwalifikacje i sposĂłb pracy.</span>
             </Link>
           </div>
         </section>
@@ -896,10 +896,10 @@ export function ProblemLandingPage({ routePath }: { routePath: string }) {
         <section className="panel section-panel editorial-section">
           <div className="editorial-section-head">
             <div className="editorial-section-head-copy">
-              <div className="section-eyebrow">Materiały</div>
-              <h2>Jeśli wolisz zacząć od czytania</h2>
+              <div className="section-eyebrow">MateriaĹ‚y</div>
+              <h2>JeĹ›li wolisz zaczÄ…Ä‡ od czytania</h2>
             </div>
-            <p className="editorial-section-lead">Bezpłatny materiał startowy i newsletter zostają tutaj niżej, jako spokojne uzupełnienie.</p>
+            <p className="editorial-section-lead">BezpĹ‚atny materiaĹ‚ startowy i newsletter zostajÄ… tutaj niĹĽej, jako spokojne uzupeĹ‚nienie.</p>
           </div>
 
           <div className="premium-two-column-grid top-gap-small">
@@ -917,8 +917,8 @@ export function ProblemLandingPage({ routePath }: { routePath: string }) {
         <section className="panel cta-panel editorial-final-panel" id="final-cta">
           <div className="editorial-final-copy">
             <div className="section-eyebrow">Pierwszy krok</div>
-            <h2>Zacznij od Kwadransu z behawiorystą</h2>
-            <p>Jeśli to brzmi jak Twoja sytuacja, jedna krótka rozmowa wystarczy, żeby ustalić, od czego zacząć i co ma sens dalej.</p>
+            <h2>Zacznij od Kwadransu z behawiorystÄ…</h2>
+            <p>JeĹ›li to brzmi jak Twoja sytuacja, jedna krĂłtka rozmowa wystarczy, ĹĽeby ustaliÄ‡, od czego zaczÄ…Ä‡ i co ma sens dalej.</p>
 
             <FunnelPrimaryActions
               audioHref={landing.audioHref}
@@ -968,3 +968,4 @@ export function getProblemLandingWebPageJsonLd(routePath: string) {
     inLanguage: 'pl-PL',
   }
 }
+

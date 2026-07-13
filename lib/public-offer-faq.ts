@@ -1,39 +1,40 @@
-import type { TrustFaqItem } from '@/lib/trust-layer'
+﻿import type { TrustFaqItem } from '@/lib/trust-layer'
 
 export const PUBLIC_OFFER_FAQ_ITEMS: TrustFaqItem[] = [
   {
-    question: 'Czym rozni się Kwadrans za 69 zł od Kwadransu na już za 99 zł?',
+    question: 'Czym rozni siÄ™ Kwadrans za 69 zĹ‚ od Kwadransu na juĹĽ za 99 zĹ‚?',
     answer:
-      'Forma rozmowy jest ta sama: 15 minut audio bez kamery. Przy 99 zł placisz za priorytet i możliwie szybki termin, a nie za dłuższa konsultacje.',
+      'Forma rozmowy jest ta sama: 15 minut audio bez kamery. Przy 99 zĹ‚ placisz za priorytet i moĹĽliwie szybki termin, a nie za dĹ‚uĹĽsza konsultacje.',
   },
   {
-    question: 'Kiedy wybrać Dwa kwadranse za 169 zł?',
+    question: 'Kiedy wybraÄ‡ Dwa kwadranse za 169 zĹ‚?',
     answer:
-      'Wtedy, gdy 15 minut to za mało, temat ma 2-3 wątki albo chcesz spokojniej uporządkować sytuację przed decyzja o Pełnej konsultacji.',
+      'Wtedy, gdy 15 minut to za maĹ‚o, temat ma 2-3 wÄ…tki albo chcesz spokojniej uporzÄ…dkowaÄ‡ sytuacjÄ™ przed decyzja o PeĹ‚nej konsultacji.',
   },
   {
-    question: 'Co obejmuje Pełna konsultacja 470 zł?',
+    question: 'Co obejmuje PeĹ‚na konsultacja 470 zĹ‚?',
     answer:
-      'Około 2h online audio albo audio/video, analizę zachowania, prawdopodobną przyczynę problemu, plan działania i 7 dni wsparcia przez WhatsApp przy wdrażaniu zaleceń. W tym czasie można zadawać pytania, wysyłać filmy i konsultować kolejne kroki.',
+      'OkoĹ‚o 2h online audio albo audio/video, analizÄ™ zachowania, prawdopodobnÄ… przyczynÄ™ problemu, plan dziaĹ‚ania i 14 dni komunikacji w pokoju klienta przy wdraĹĽaniu zaleceĹ„. W tym czasie moĹĽna zadawaÄ‡ pytania, wysyĹ‚aÄ‡ filmy i konsultowaÄ‡ kolejne kroki.',
   },
   {
     question: 'Kiedy nie warto zaczynac od Kwadransu?',
     answer:
-      'Nie wtedy, gdy od razu widzisz, że temat jest złożony, trwa długo albo dotyczy kilku obszarów naraz. W takiej sytuacji lepiej od razu wejść w Dwa kwadranse albo Pełną konsultację.',
+      'Nie wtedy, gdy od razu widzisz, ĹĽe temat jest zĹ‚oĹĽony, trwa dĹ‚ugo albo dotyczy kilku obszarĂłw naraz. W takiej sytuacji lepiej od razu wejĹ›Ä‡ w Dwa kwadranse albo PeĹ‚nÄ… konsultacjÄ™.',
   },
   {
-    question: 'Co jeśli wybiore za maly format?',
+    question: 'Co jeĹ›li wybiore za maly format?',
     answer:
-      'W trakcie wyboru i po pierwszym opisie sytuacji powiem wprost, czy wystarczy Kwadrans, czy lepiej od razu przejść do Dwóch kwadransów albo Pełnej konsultacji.',
+      'W trakcie wyboru i po pierwszym opisie sytuacji powiem wprost, czy wystarczy Kwadrans, czy lepiej od razu przejĹ›Ä‡ do DwĂłch kwadransĂłw albo PeĹ‚nej konsultacji.',
   },
   {
-    question: 'Jak działa Kwadrans na już?',
+    question: 'Jak dziaĹ‚a Kwadrans na juĹĽ?',
     answer:
-      'To ten sam 15-minutowy format co zwykły Kwadrans, ale z priorytetem i możliwie szybkim terminem. Różnica dotyczy czasu wejścia, nie zakresu rozmowy.',
+      'To ten sam 15-minutowy format co zwykĹ‚y Kwadrans, ale z priorytetem i moĹĽliwie szybkim terminem. RĂłĹĽnica dotyczy czasu wejĹ›cia, nie zakresu rozmowy.',
   },
   {
-    question: 'Co jeśli nie wiem, od czego zacząć?',
+    question: 'Co jeĹ›li nie wiem, od czego zaczÄ…Ä‡?',
     answer:
-      'Najprostszy start to zwykły Kwadrans za 69 zł. Jeśli potrzebujesz tego samego formatu szybciej, wybierz Kwadrans na już. Jeśli temat jest szerszy, wejdź w Dwa kwadranse. Jeśli sprawa jest złożona albo przewlekła, wybierz Pełną konsultację.',
+      'Najprostszy start to zwykĹ‚y Kwadrans za 69 zĹ‚. JeĹ›li potrzebujesz tego samego formatu szybciej, wybierz Kwadrans na juĹĽ. JeĹ›li temat jest szerszy, wejdĹş w Dwa kwadranse. JeĹ›li sprawa jest zĹ‚oĹĽona albo przewlekĹ‚a, wybierz PeĹ‚nÄ… konsultacjÄ™.',
   },
 ]
+

@@ -31,7 +31,7 @@ export function AccountAuthForm() {
     const accessToken = hash.get('access_token')
     const type = hash.get('type')
 
-    if (accessToken && type === 'recovery') {
+    if (accessToken && (type === 'recovery' || type === 'invite')) {
       setRecoveryToken(accessToken)
       setMode('new-password')
       window.history.replaceState(null, '', window.location.pathname)

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { OpinionReview } from '@/components/OpinionsReviewGrid'
-import { opinionReviews } from '@/app/opinie/page'
+import { opinionReviews } from '@/lib/opinion-reviews'
 
 export const revalidate = 86400
 

@@ -1,4 +1,4 @@
-import Link from 'next/link'
+﻿import Link from 'next/link'
 import { PriceDisplay } from '@/components/PriceDisplay'
 import { buildBookHref, type BookingSpecies } from '@/lib/booking-routing'
 import { PUBLIC_OFFER_CANCELLATION_COPY, PUBLIC_OFFER_FULL_VALUE_POINTS, PUBLIC_OFFER_PRICES } from '@/lib/public-offer-copy'
@@ -17,11 +17,11 @@ const SERVICES = [
     price: PUBLIC_OFFER_PRICES.quick,
     duration: '15 min',
     mode: 'audio, bez kamery',
-    who: 'jedno główne pytanie i szybkie uporządkowanie sytuacji',
-    plan: 'pierwszy kierunek działania i decyzja, czy potrzebny jest szerszy format',
-    materials: 'bez wsparcia po rozmowie; to krótki pierwszy krok',
+    who: 'jedno gĹ‚Ăłwne pytanie i szybkie uporzÄ…dkowanie sytuacji',
+    plan: 'pierwszy kierunek dziaĹ‚ania i decyzja, czy potrzebny jest szerszy format',
+    materials: 'bez wsparcia po rozmowie; to krĂłtki pierwszy krok',
     refund: PUBLIC_OFFER_CANCELLATION_COPY,
-    cta: 'Chcę zacząć od Kwadransa',
+    cta: 'ChcÄ™ zaczÄ…Ä‡ od Kwadransa',
   },
   {
     id: 'konsultacja-30-min',
@@ -30,24 +30,24 @@ const SERVICES = [
     price: PUBLIC_OFFER_PRICES.bridge,
     duration: '30 min',
     mode: 'audio lub video',
-    who: 'gdy temat ma kilka wątków i 15 minut to za mało',
-    plan: 'więcej czasu na kontekst, spokojniejsze zalecenia i decyzję, czy potrzebna jest pełna konsultacja',
-    materials: 'bez 7-dniowego wsparcia WhatsApp po rozmowie',
+    who: 'gdy temat ma kilka wÄ…tkĂłw i 15 minut to za maĹ‚o',
+    plan: 'wiÄ™cej czasu na kontekst, spokojniejsze zalecenia i decyzjÄ™, czy potrzebna jest peĹ‚na konsultacja',
+    materials: 'bez 14-dniowej komunikacji w pokoju klienta po rozmowie',
     refund: PUBLIC_OFFER_CANCELLATION_COPY,
-    cta: 'Chcę spokojniej omówić temat',
+    cta: 'ChcÄ™ spokojniej omĂłwiÄ‡ temat',
   },
   {
     id: 'konsultacja-behawioralna-online',
-    title: 'Pełna konsultacja',
+    title: 'PeĹ‚na konsultacja',
     badge: null,
     price: PUBLIC_OFFER_PRICES.premium,
     duration: 'ok. 2h online',
     mode: 'audio lub video',
-    who: 'gdy sytuacja jest złożona, trwa długo albo obejmuje kilka obszarów naraz',
-    plan: 'analiza zachowania, prawdopodobna przyczyna problemu i plan działania',
-    materials: '7 dni wsparcia przez WhatsApp przy wdrażaniu zaleceń',
-    refund: 'Osobny regulamin dla pełnej konsultacji.',
-    cta: 'Chcę pełną konsultację',
+    who: 'gdy sytuacja jest zĹ‚oĹĽona, trwa dĹ‚ugo albo obejmuje kilka obszarĂłw naraz',
+    plan: 'analiza zachowania, prawdopodobna przyczyna problemu i plan dziaĹ‚ania',
+    materials: '14 dni komunikacji w pokoju klienta przy wdraĹĽaniu zaleceĹ„',
+    refund: 'Osobny regulamin dla peĹ‚nej konsultacji.',
+    cta: 'ChcÄ™ peĹ‚nÄ… konsultacjÄ™',
   },
 ] as const
 
@@ -55,7 +55,7 @@ const ROWS = [
   { key: 'price', label: 'Cena' },
   { key: 'duration', label: 'Czas' },
   { key: 'mode', label: 'Forma' },
-  { key: 'who', label: 'Kiedy wybrać' },
+  { key: 'who', label: 'Kiedy wybraÄ‡' },
   { key: 'plan', label: 'Po co ta rozmowa' },
   { key: 'materials', label: 'Po rozmowie' },
   { key: 'refund', label: 'Zmiana / zwrot' },
@@ -68,8 +68,8 @@ function getHref(serviceId: (typeof SERVICES)[number]['id'], species?: BookingSp
 
 export function ServicesComparison({ species = null, qaBooking = false, className }: ServicesComparisonProps) {
   return (
-    <section className={className ? `services-comparison ${className}` : 'services-comparison'} aria-label="Porównanie usług">
-      <div className="services-comparison-desktop" role="table" aria-label="Tabela porównawcza usług">
+    <section className={className ? `services-comparison ${className}` : 'services-comparison'} aria-label="PorĂłwnanie usĹ‚ug">
+      <div className="services-comparison-desktop" role="table" aria-label="Tabela porĂłwnawcza usĹ‚ug">
         <div className="services-comparison-grid services-comparison-grid-head" role="rowgroup">
           <div className="services-comparison-cell services-comparison-feature" role="columnheader">
             Cecha
@@ -139,7 +139,7 @@ export function ServicesComparison({ species = null, qaBooking = false, classNam
                 <dd>{service.mode}</dd>
               </div>
               <div>
-                <dt>Kiedy wybrać</dt>
+                <dt>Kiedy wybraÄ‡</dt>
                 <dd>{service.who}</dd>
               </div>
               <div>
@@ -157,7 +157,7 @@ export function ServicesComparison({ species = null, qaBooking = false, classNam
             </dl>
 
             {service.id === 'konsultacja-behawioralna-online' ? (
-              <div className="notatnik-service-note top-gap-small" aria-label="Zakres pełnej konsultacji">
+              <div className="notatnik-service-note top-gap-small" aria-label="Zakres peĹ‚nej konsultacji">
                 <ul className="notatnik-service-list">
                   {PUBLIC_OFFER_FULL_VALUE_POINTS.map((point) => (
                     <li key={point}>{point}</li>
@@ -175,3 +175,4 @@ export function ServicesComparison({ species = null, qaBooking = false, classNam
     </section>
   )
 }
+

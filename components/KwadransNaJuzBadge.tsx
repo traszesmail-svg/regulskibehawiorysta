@@ -1,5 +1,5 @@
-// handoff/components/KwadransNaJuzBadge.tsx
-// Badge "Kwadrans na już" — używaj WSZĘDZIE gdzie wspomniana jest ta opcja
+﻿// handoff/components/KwadransNaJuzBadge.tsx
+// Badge "Kwadrans na juĹĽ" â€” uĹĽywaj WSZÄDZIE gdzie wspomniana jest ta opcja
 // Strony: /, /book, /cennik, /psy, /koty
 
 import { Icon } from '@/components/icons-config';
@@ -14,7 +14,7 @@ export function KwadransNaJuzBadge({ variant = 'box', showPrice = true }: Kwadra
     return (
       <span className="inline-flex items-center gap-1.5 text-accent-dark font-semibold">
         <Icon name="zap" size={16} className="text-accent" strokeWidth={3} />
-        Kwadrans na już{showPrice && ' · 99 zł'}
+        Kwadrans na juĹĽ{showPrice && ' Â· 99 zĹ‚'}
       </span>
     );
   }
@@ -23,9 +23,10 @@ export function KwadransNaJuzBadge({ variant = 'box', showPrice = true }: Kwadra
     <div className="flex items-center gap-3 bg-accent-light border-l-4 border-accent rounded-r-lg px-4 py-3.5 max-w-xl">
       <Icon name="zap" size={20} className="text-accent shrink-0" strokeWidth={3} />
       <span className="text-sm text-accent-dark">
-        <strong>Kwadrans na już</strong> — priorytet i najbliższy realny termin
-        {showPrice && <span className="opacity-80"> · 99 zł</span>}
+        <strong>Kwadrans na juĹĽ</strong> â€” priorytet i najbliĹĽszy realny termin
+        {showPrice && <span className="opacity-80"> Â· 99 zĹ‚</span>}
       </span>
     </div>
   );
 }
+

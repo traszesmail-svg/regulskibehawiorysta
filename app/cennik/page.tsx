@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+﻿import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import {
@@ -34,7 +34,7 @@ export const metadata: Metadata = buildMarketingMetadata({
   title: 'Cennik konsultacji behawioralnych',
   path: '/cennik',
   description:
-    'Kwadrans 69 zł, Kwadrans na już 99 zł, Dwa kwadranse 169 zł i Pełna konsultacja 470 zł. W każdej usłudze analiza zachowania oparta na danych od opiekuna.',
+    'Kwadrans 69 zĹ‚, Kwadrans na juĹĽ 99 zĹ‚, Dwa kwadranse 169 zĹ‚ i PeĹ‚na konsultacja 470 zĹ‚. W kaĹĽdej usĹ‚udze analiza zachowania oparta na danych od opiekuna.',
 })
 
 type PricingVisual = {
@@ -47,23 +47,23 @@ type PricingVisual = {
 const offerVisuals: Partial<Record<PublicBookingServiceType, PricingVisual>> = {
   'szybka-konsultacja-15-min': {
     title: 'Kwadrans',
-    copy: '15 min audio bez kamery na jedno główne pytanie. Szybko porządkujesz sytuację i dostajesz pierwszy kierunek działania.',
+    copy: '15 min audio bez kamery na jedno gĹ‚Ăłwne pytanie. Szybko porzÄ…dkujesz sytuacjÄ™ i dostajesz pierwszy kierunek dziaĹ‚ania.',
     icon: Clock,
   },
   'kwadrans-na-juz': {
-    title: 'Kwadrans na już',
-    copy: 'Ten sam zakres co Kwadrans, ale z priorytetową odpowiedzią i najbliższym realnym terminem. Dla spraw pilnych, które nie wymagają dłuższej analizy.',
+    title: 'Kwadrans na juĹĽ',
+    copy: 'Ten sam zakres co Kwadrans, ale z priorytetowÄ… odpowiedziÄ… i najbliĹĽszym realnym terminem. Dla spraw pilnych, ktĂłre nie wymagajÄ… dĹ‚uĹĽszej analizy.',
     icon: Clock,
     featured: true,
   },
   'konsultacja-30-min': {
     title: 'Dwa kwadranse',
-    copy: '30 min online, gdy temat ma kilka wątków. Więcej czasu na kontekst, spokojniejsze zalecenia i decyzję, czy potrzebna jest pełna konsultacja.',
+    copy: '30 min online, gdy temat ma kilka wÄ…tkĂłw. WiÄ™cej czasu na kontekst, spokojniejsze zalecenia i decyzjÄ™, czy potrzebna jest peĹ‚na konsultacja.',
     icon: Clock,
   },
   'konsultacja-behawioralna-online': {
-    title: 'Pełna konsultacja',
-    copy: 'Około 2h online dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 7 dni wsparcia przez WhatsApp.',
+    title: 'PeĹ‚na konsultacja',
+    copy: 'OkoĹ‚o 2h online dla spraw zĹ‚oĹĽonych: analiza zachowania, prawdopodobna przyczyna problemu, plan dziaĹ‚ania i 14 dni komunikacji w pokoju klienta.',
     icon: Leaf,
   },
 }
@@ -71,17 +71,17 @@ const offerVisuals: Partial<Record<PublicBookingServiceType, PricingVisual>> = {
 const benefits = [
   {
     title: 'Jasny pierwszy krok',
-    copy: 'Szybko wiesz, co robić i od czego zacząć.',
+    copy: 'Szybko wiesz, co robiÄ‡ i od czego zaczÄ…Ä‡.',
     icon: Sprout,
   },
   {
     title: 'Analiza oparta na danych',
-    copy: 'Układam fakty, nie domysły. Plan dostosowany do Ciebie i Twojego psa lub kota.',
+    copy: 'UkĹ‚adam fakty, nie domysĹ‚y. Plan dostosowany do Ciebie i Twojego psa lub kota.',
     icon: BarChart3,
   },
   {
     title: 'Spokojne wsparcie',
-    copy: 'Bez oceniania. Wspieram z empatią i szacunkiem do Waszej relacji.',
+    copy: 'Bez oceniania. Wspieram z empatiÄ… i szacunkiem do Waszej relacji.',
     icon: HeartHandshake,
   },
 ]
@@ -94,13 +94,13 @@ export default function PricingPage() {
       <Schema
         data={[
           getBreadcrumbJsonLd([
-            { name: 'Strona główna', path: '/' },
+            { name: 'Strona gĹ‚Ăłwna', path: '/' },
             { name: 'Cennik', path: '/cennik' },
           ]),
           getServiceJsonLd({
-            name: 'Cennik rozmów behawioralnych - psy i koty',
+            name: 'Cennik rozmĂłw behawioralnych - psy i koty',
             description:
-              'Formaty rozmowy: Kwadrans, Kwadrans na już, Dwa kwadranse i Pełna konsultacja online.',
+              'Formaty rozmowy: Kwadrans, Kwadrans na juĹĽ, Dwa kwadranse i PeĹ‚na konsultacja online.',
             serviceUrl: '/cennik',
             offerCatalog: getPricingOfferCatalog(),
           }),
@@ -111,9 +111,9 @@ export default function PricingPage() {
         <section className="pricing-2026-hero" aria-labelledby="pricing-2026-title">
           <div className="pricing-2026-hero-copy">
             <span className="pricing-2026-pill">Cennik</span>
-            <h1 id="pricing-2026-title">Wybierz rozmowę dopasowaną do sytuacji</h1>
-            <p>Bez presji, bez oceniania. Daj mi 15 minut, a powiem Ci, od czego zacząć.</p>
-            <div className="pricing-2026-trust-row" aria-label="Najważniejsze informacje">
+            <h1 id="pricing-2026-title">Wybierz rozmowÄ™ dopasowanÄ… do sytuacji</h1>
+            <p>Bez presji, bez oceniania. Daj mi 15 minut, a powiem Ci, od czego zaczÄ…Ä‡.</p>
+            <div className="pricing-2026-trust-row" aria-label="NajwaĹĽniejsze informacje">
               <span>
                 <ShieldCheck aria-hidden="true" />
                 Empatycznie i konkretnie
@@ -124,17 +124,17 @@ export default function PricingPage() {
               </span>
               <span>
                 <Mail aria-hidden="true" />
-                Potwierdzenie płatności na życzenie
+                Potwierdzenie pĹ‚atnoĹ›ci na ĹĽyczenie
               </span>
               <span>
                 <CheckCircle2 aria-hidden="true" />
-                Link do rozmowy po potwierdzeniu płatności
+                Link do rozmowy po potwierdzeniu pĹ‚atnoĹ›ci
               </span>
             </div>
             <MobileFirstStepCta
               eyebrow="Najprostszy start"
-              title="Kwadrans / 69 zł"
-              copy="Jeśli chcesz szybko uporządkować jedno pytanie, zacznij od 15 minut audio bez kamery."
+              title="Kwadrans / 69 zĹ‚"
+              copy="JeĹ›li chcesz szybko uporzÄ…dkowaÄ‡ jedno pytanie, zacznij od 15 minut audio bez kamery."
               meta="Dla psa i kota. Online."
               primaryHref={getDirectBookingHref('szybka-konsultacja-15-min')}
               primaryLabel="Wybieram Kwadrans"
@@ -154,7 +154,7 @@ export default function PricingPage() {
           </div>
         </section>
 
-        <section className="pricing-2026-offers" aria-label="Formaty rozmów i ceny">
+        <section className="pricing-2026-offers" aria-label="Formaty rozmĂłw i ceny">
           {pricingCards.map((card) => {
             const visual = offerVisuals[card.service]
 
@@ -172,7 +172,7 @@ export default function PricingPage() {
                 {visual.featured ? (
                   <span className="pricing-2026-offer-label">
                     <Star size={13} fill="currentColor" aria-hidden="true" />
-                    Najczęściej wybierane
+                    NajczÄ™Ĺ›ciej wybierane
                   </span>
                 ) : null}
                 <span className="pricing-2026-icon-wrap" aria-hidden="true">
@@ -200,7 +200,7 @@ export default function PricingPage() {
           })}
           <p className="pricing-2026-online-note">
             <CheckCircle2 aria-hidden="true" />
-            Wszystkie rozmowy odbywają się online.
+            Wszystkie rozmowy odbywajÄ… siÄ™ online.
           </p>
         </section>
 
@@ -222,14 +222,14 @@ export default function PricingPage() {
 
         <section className="pricing-2026-diagnosis">
           <div>
-            <h2>W każdej usłudze dostajesz analizę zachowania opartą na danych</h2>
+            <h2>W kaĹĽdej usĹ‚udze dostajesz analizÄ™ zachowania opartÄ… na danych</h2>
             <p>
-              To nie jest przypadkowa porada z internetu. Analizuję opis sytuacji, odpowiedzi z
-              formularza, historię zachowania i kontekst domu lub spacerów. Jeśli masz nagrania,
-              pomagają szybciej ustalić, co naprawdę może napędzać zachowanie i od czego zacząć.
+              To nie jest przypadkowa porada z internetu. AnalizujÄ™ opis sytuacji, odpowiedzi z
+              formularza, historiÄ™ zachowania i kontekst domu lub spacerĂłw. JeĹ›li masz nagrania,
+              pomagajÄ… szybciej ustaliÄ‡, co naprawdÄ™ moĹĽe napÄ™dzaÄ‡ zachowanie i od czego zaczÄ…Ä‡.
             </p>
             <Link href={bookHref} prefetch={false} className="pricing-2026-btn pricing-2026-btn-primary">
-              Pomóż mi dobrać pierwszy krok
+              PomĂłĹĽ mi dobraÄ‡ pierwszy krok
             </Link>
           </div>
         </section>
@@ -237,13 +237,13 @@ export default function PricingPage() {
         <section className="pricing-2026-help site-help-cta">
           <div className="site-help-cta-copy">
             <h2>Nie wiesz, czego potrzebujesz?</h2>
-            <p>Zacznij od krótkiej rozmowy - wspólnie wybierzemy najlepszą opcję.</p>
+            <p>Zacznij od krĂłtkiej rozmowy - wspĂłlnie wybierzemy najlepszÄ… opcjÄ™.</p>
             <div className="pricing-2026-help-actions site-help-cta-actions">
               <Link href={bookHref} prefetch={false} className="pricing-2026-btn pricing-2026-btn-primary">
-                Pomóż mi dobrać usługę
+                PomĂłĹĽ mi dobraÄ‡ usĹ‚ugÄ™
               </Link>
               <Link href="/blog" prefetch={false} className="pricing-2026-btn pricing-2026-btn-secondary">
-                Zobacz przykładowe sytuacje
+                Zobacz przykĹ‚adowe sytuacje
               </Link>
             </div>
           </div>
@@ -254,7 +254,7 @@ export default function PricingPage() {
 
         <section className="pricing-2026-faq-contact">
           <div className="pricing-2026-faq">
-            <h2>Najczęstsze pytania</h2>
+            <h2>NajczÄ™stsze pytania</h2>
             <div className="pricing-2026-faq-list">
               {pricingFaqItems.map((item, index) => (
                 <details key={item.question} open={index === 0}>
@@ -267,7 +267,7 @@ export default function PricingPage() {
 
           <aside className="pricing-2026-question-card">
             <h2>Masz pytania?</h2>
-            <p>Sprawdź odpowiedzi na najczęstsze pytania o konsultacje i proces współpracy.</p>
+            <p>SprawdĹş odpowiedzi na najczÄ™stsze pytania o konsultacje i proces wspĂłĹ‚pracy.</p>
             <Link href="/faq" prefetch={false} className="pricing-2026-btn pricing-2026-btn-secondary">
               Zobacz FAQ
               <ArrowRight size={17} aria-hidden="true" />
@@ -275,7 +275,7 @@ export default function PricingPage() {
           </aside>
         </section>
 
-        <div className="pricing-2026-contact-strip" aria-label="Kontakt i bezpieczeństwo">
+        <div className="pricing-2026-contact-strip" aria-label="Kontakt i bezpieczeĹ„stwo">
           {contact.email ? (
             <a href={`mailto:${contact.email}`}>
               <Mail aria-hidden="true" />
@@ -284,7 +284,7 @@ export default function PricingPage() {
           ) : null}
           <span>
             <HelpCircle aria-hidden="true" />
-            Odpowiedź 1-2 dni robocze
+            OdpowiedĹş 1-2 dni robocze
           </span>
           <span>
             <ShieldCheck aria-hidden="true" />
@@ -295,3 +295,4 @@ export default function PricingPage() {
     </ReferencePageShell>
   )
 }
+

@@ -1,4 +1,4 @@
-import 'server-only'
+﻿import 'server-only'
 
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
@@ -130,145 +130,145 @@ const BLOG_COVER_HEIGHT = 400
 
 const BLOG_COVER_BY_SLUG: Record<string, BlogPostCover> = {
   'szczeniak-pierwsza-noc': {
-    src: '/blog-covers/blog-szczeniak-pierwsza-noc-photo.webp',
-    alt: 'Szczeniak śpiący na kanapie w spokojnym domowym wnętrzu.',
+    src: 'https://images.unsplash.com/photo-1583511655826-05700d52f4d9?auto=format&fit=crop&w=1600&q=82',
+    alt: 'Szczeniak Ĺ›piÄ…cy na kanapie w spokojnym domowym wnÄ™trzu.',
     width: BLOG_COVER_WIDTH,
     height: BLOG_COVER_HEIGHT,
   },
   'dlaczego-moj-pies-szczeka-na-inne-psy': {
-    src: '/blog-covers/blog-dlaczego-moj-pies-szczeka-na-inne-psy-photo.webp',
+    src: 'https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=1600&q=82',
     alt: 'Dwa psy na smyczach zatrzymane w dystansie podczas spokojnego mijania na spacerze.',
     width: BLOG_COVER_WIDTH,
     height: BLOG_COVER_HEIGHT,
   },
   'pies-wyje-kiedy-zostaje-sam': {
-    src: '/blog-covers/blog-pies-wyje-kiedy-zostaje-sam-photo.webp',
-    alt: 'Pies siedzący na kanapie i patrzący przez okno podczas zostawania samemu w domu.',
+    src: 'https://images.unsplash.com/photo-1558788353-f76d92427f16?auto=format&fit=crop&w=1600&q=82',
+    alt: 'Pies siedzÄ…cy na kanapie i patrzÄ…cy przez okno podczas zostawania samemu w domu.',
     width: BLOG_COVER_WIDTH,
     height: BLOG_COVER_HEIGHT,
   },
   'kot-zalatwia-sie-poza-kuweta': {
-    src: '/blog-covers/blog-kot-zalatwia-sie-poza-kuweta-photo.webp',
-    alt: 'Kot w spokojnym domowym wnętrzu wychodzący z kuwety ustawionej obok rośliny.',
+    src: 'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?auto=format&fit=crop&w=1600&q=82',
+    alt: 'Kot w spokojnym domowym wnÄ™trzu wychodzÄ…cy z kuwety ustawionej obok roĹ›liny.',
     width: BLOG_COVER_WIDTH,
     height: BLOG_COVER_HEIGHT,
   },
   'jak-wyglada-konsultacja-behawioralna-online': {
-    src: '/blog-covers/blog-jak-wyglada-konsultacja-behawioralna-online-photo.webp',
-    alt: 'Opiekun siedzący z psem przy laptopie w domowym wnętrzu podczas rozmowy online.',
+    src: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1600&q=82',
+    alt: 'Opiekun siedzÄ…cy z psem przy laptopie w domowym wnÄ™trzu podczas rozmowy online.',
     width: BLOG_COVER_WIDTH,
     height: BLOG_COVER_HEIGHT,
   },
   'pies-ciagnie-na-smyczy': {
-    src: '/blog-covers/blog-pies-ciagnie-na-smyczy-photo.webp',
-    alt: 'Pies na smyczy idący chodnikiem obok opiekuna podczas spaceru.',
+    src: 'https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=1600&q=82',
+    alt: 'Pies na smyczy idÄ…cy chodnikiem obok opiekuna podczas spaceru.',
     width: BLOG_COVER_WIDTH,
     height: BLOG_COVER_HEIGHT,
   },
   'kot-drapie-meble': {
-    src: '/blog-covers/blog-kot-drapie-meble-photo.webp',
-    alt: 'Kot przy kanapie i drapaku pokazujący wybór miejsca do drapania.',
+    src: 'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?auto=format&fit=crop&w=1600&q=82',
+    alt: 'Kot przy kanapie i drapaku pokazujÄ…cy wybĂłr miejsca do drapania.',
     width: BLOG_COVER_WIDTH,
     height: BLOG_COVER_HEIGHT,
   },
   'nowy-pies-pierwsze-72-godziny': {
-    src: '/blog-covers/blog-nowy-pies-pierwsze-72-godziny-photo.webp',
-    alt: 'Pies w nowym mieszkaniu obok opiekunów podczas spokojnej adaptacji.',
+    src: 'https://images.unsplash.com/photo-1583511655826-05700d52f4d9?auto=format&fit=crop&w=1600&q=82',
+    alt: 'Pies w nowym mieszkaniu obok opiekunĂłw podczas spokojnej adaptacji.',
     width: BLOG_COVER_WIDTH,
     height: BLOG_COVER_HEIGHT,
   },
   'kiedy-behawiorysta-kiedy-trener-psa': {
-    src: '/blog-covers/blog-kiedy-behawiorysta-kiedy-trener-psa-photo.webp',
+    src: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1600&q=82',
     alt: 'Specjalista robi notatki przy opiekunie i psie podczas spokojnej konsultacji.',
     width: BLOG_COVER_WIDTH,
     height: BLOG_COVER_HEIGHT,
   },
   'behawiorysta-zoopsycholog-trener-do-kogo-sie-zglosic': {
-    src: '/blog-covers/blog-behawiorysta-zoopsycholog-trener-do-kogo-sie-zglosic-photo.webp',
-    alt: 'Opiekun rozmawia przy notatkach z psem obok, wybierając odpowiednią formę pomocy.',
+    src: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1600&q=82',
+    alt: 'Opiekun rozmawia przy notatkach z psem obok, wybierajÄ…c odpowiedniÄ… formÄ™ pomocy.',
     width: BLOG_COVER_WIDTH,
     height: BLOG_COVER_HEIGHT,
   },
   'ile-kosztuje-konsultacja-behawioralna': {
-    src: '/blog-covers/blog-ile-kosztuje-konsultacja-behawioralna-photo.webp',
+    src: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1600&q=82',
     alt: 'Notatnik, laptop i pies przy stole podczas omawiania zakresu konsultacji.',
     width: BLOG_COVER_WIDTH,
     height: BLOG_COVER_HEIGHT,
   },
   'czym-jest-coape-behawiorysta-po-tej-szkole': {
-    src: '/blog-covers/blog-czym-jest-coape-behawiorysta-po-tej-szkole-photo.webp',
-    alt: 'Pies siedzący obok certyfikatu i nagrody, nawiązujący do kwalifikacji szkoleniowych.',
+    src: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1600&q=82',
+    alt: 'Pies siedzÄ…cy obok certyfikatu i nagrody, nawiÄ…zujÄ…cy do kwalifikacji szkoleniowych.',
     width: BLOG_COVER_WIDTH,
     height: BLOG_COVER_HEIGHT,
   },
   'jak-przygotowac-sie-do-konsultacji-behawioralnej-online': {
-    src: '/blog-covers/blog-jak-przygotowac-sie-do-konsultacji-behawioralnej-online-photo.webp',
+    src: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1600&q=82',
     alt: 'Opiekun z kotem przy laptopie w domu podczas przygotowania do konsultacji online.',
     width: BLOG_COVER_WIDTH,
     height: BLOG_COVER_HEIGHT,
   },
   'reaktywnosc-na-smyczy-cwiczenie-luznej-smyczy': {
-    src: '/blog-covers/blog-reaktywnosc-na-smyczy-cwiczenie-luznej-smyczy-photo.webp',
-    alt: 'Pies na smyczy skupiony na opiekunie podczas spokojnego ćwiczenia spacerowego.',
+    src: 'https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=1600&q=82',
+    alt: 'Pies na smyczy skupiony na opiekunie podczas spokojnego Ä‡wiczenia spacerowego.',
     width: BLOG_COVER_WIDTH,
     height: BLOG_COVER_HEIGHT,
   },
   'jak-nagrac-psa-zostawionego-samemu': {
-    src: '/blog-covers/blog-jak-nagrac-psa-zostawionego-samemu-photo.webp',
-    alt: 'Telefon ustawiony do nagrywania psa w mieszkaniu przed wyjściem opiekuna.',
+    src: 'https://images.unsplash.com/photo-1558788353-f76d92427f16?auto=format&fit=crop&w=1600&q=82',
+    alt: 'Telefon ustawiony do nagrywania psa w mieszkaniu przed wyjĹ›ciem opiekuna.',
     width: BLOG_COVER_WIDTH,
     height: BLOG_COVER_HEIGHT,
   },
   'rutyna-wyjscia-oswajanie-psa-z-samotnoscia': {
-    src: '/blog-covers/blog-rutyna-wyjscia-oswajanie-psa-z-samotnoscia-photo.webp',
-    alt: 'Pies obserwujący uchylone drzwi podczas ćwiczenia spokojnej rutyny wyjścia.',
+    src: 'https://images.unsplash.com/photo-1558788353-f76d92427f16?auto=format&fit=crop&w=1600&q=82',
+    alt: 'Pies obserwujÄ…cy uchylone drzwi podczas Ä‡wiczenia spokojnej rutyny wyjĹ›cia.',
     width: BLOG_COVER_WIDTH,
     height: BLOG_COVER_HEIGHT,
   },
   'jak-wybrac-kuwete-i-zwirek-dla-kota': {
-    src: '/blog-covers/blog-jak-wybrac-kuwete-i-zwirek-dla-kota-photo.webp',
-    alt: 'Kot przy krytej kuwecie w domowym wnętrzu, nawiązujący do wyboru kuwety i żwirku.',
+    src: 'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?auto=format&fit=crop&w=1600&q=82',
+    alt: 'Kot przy krytej kuwecie w domowym wnÄ™trzu, nawiÄ…zujÄ…cy do wyboru kuwety i ĹĽwirku.',
     width: BLOG_COVER_WIDTH,
     height: BLOG_COVER_HEIGHT,
   },
   'stres-kota-a-zachowania-toaletowe': {
-    src: '/blog-covers/blog-stres-kota-a-zachowania-toaletowe-photo.webp',
-    alt: 'Dwa koty przy kuwecie w łazience, pokazujące napięcie wokół miejsca toaletowego.',
+    src: 'https://images.unsplash.com/photo-1573865526739-10659fec78a5?auto=format&fit=crop&w=1600&q=82',
+    alt: 'Dwa koty przy kuwecie w Ĺ‚azience, pokazujÄ…ce napiÄ™cie wokĂłĹ‚ miejsca toaletowego.',
     width: BLOG_COVER_WIDTH,
     height: BLOG_COVER_HEIGHT,
   },
   'jak-wprowadzic-nowego-kota-do-domu': {
-    src: '/blog-covers/blog-jak-wprowadzic-nowego-kota-do-domu-photo.webp',
-    alt: 'Dwa koty rozdzielone przeszkodą podczas spokojnego wprowadzania nowego kota.',
+    src: 'https://images.unsplash.com/photo-1573865526739-10659fec78a5?auto=format&fit=crop&w=1600&q=82',
+    alt: 'Dwa koty rozdzielone przeszkodÄ… podczas spokojnego wprowadzania nowego kota.',
     width: BLOG_COVER_WIDTH,
     height: BLOG_COVER_HEIGHT,
   },
   'agresja-przekierowana-u-kota': {
-    src: '/blog-covers/blog-agresja-przekierowana-u-kota-photo.webp',
-    alt: 'Kot pobudzony przy oknie obserwujący bodziec na zewnątrz mieszkania.',
+    src: 'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?auto=format&fit=crop&w=1600&q=82',
+    alt: 'Kot pobudzony przy oknie obserwujÄ…cy bodziec na zewnÄ…trz mieszkania.',
     width: BLOG_COVER_WIDTH,
     height: BLOG_COVER_HEIGHT,
   },
   'pies-ciagnie-na-smyczy-od-czego-zaczac': {
-    src: '/blog-covers/blog-pies-ciagnie-na-smyczy-od-czego-zaczac-photo.webp',
-    alt: 'Pies na smyczy siedzący przy opiekunie na miejskim chodniku.',
+    src: 'https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=1600&q=82',
+    alt: 'Pies na smyczy siedzÄ…cy przy opiekunie na miejskim chodniku.',
     width: BLOG_COVER_WIDTH,
     height: BLOG_COVER_HEIGHT,
   },
   'jak-nauczyc-psa-zostawania-samemu': {
-    src: '/blog-covers/blog-jak-nauczyc-psa-zostawania-samemu-photo.webp',
-    alt: 'Pies patrzący przez okno w mieszkaniu podczas spokojnej nauki zostawania samemu.',
+    src: 'https://images.unsplash.com/photo-1558788353-f76d92427f16?auto=format&fit=crop&w=1600&q=82',
+    alt: 'Pies patrzÄ…cy przez okno w mieszkaniu podczas spokojnej nauki zostawania samemu.',
     width: BLOG_COVER_WIDTH,
     height: BLOG_COVER_HEIGHT,
   },
   'jak-ustawic-kuwete-dla-kota': {
-    src: '/blog-covers/blog-jak-ustawic-kuwete-dla-kota-photo.webp',
-    alt: 'Kuweta ustawiona w spokojnym miejscu przy oknie, z kotami w pobliżu.',
+    src: 'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?auto=format&fit=crop&w=1600&q=82',
+    alt: 'Kuweta ustawiona w spokojnym miejscu przy oknie, z kotami w pobliĹĽu.',
     width: BLOG_COVER_WIDTH,
     height: BLOG_COVER_HEIGHT,
   },
   'jak-zapoznac-dwa-koty': {
-    src: '/blog-covers/blog-jak-zapoznac-dwa-koty-photo.webp',
+    src: 'https://images.unsplash.com/photo-1573865526739-10659fec78a5?auto=format&fit=crop&w=1600&q=82',
     alt: 'Dwa koty po przeciwnych stronach przeszkody podczas stopniowego zapoznawania.',
     width: BLOG_COVER_WIDTH,
     height: BLOG_COVER_HEIGHT,
@@ -278,7 +278,7 @@ const BLOG_COVER_BY_SLUG: Record<string, BlogPostCover> = {
 function getFallbackBlogCover(categoryHref: string): BlogPostCover {
   if (categoryHref === '/koty') {
     return {
-      src: '/blog-covers/cat-general.jpg',
+      src: 'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?auto=format&fit=crop&w=1600&q=82',
       alt: 'Kot w domowym otoczeniu.',
       width: BLOG_COVER_WIDTH,
       height: BLOG_COVER_HEIGHT,
@@ -287,7 +287,7 @@ function getFallbackBlogCover(categoryHref: string): BlogPostCover {
 
   if (categoryHref === '/psy') {
     return {
-      src: '/blog-covers/dog-reactive.jpg',
+      src: 'https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=1600&q=82',
       alt: 'Pies podczas spaceru z opiekunem.',
       width: BLOG_COVER_WIDTH,
       height: BLOG_COVER_HEIGHT,
@@ -295,7 +295,7 @@ function getFallbackBlogCover(categoryHref: string): BlogPostCover {
   }
 
   return {
-    src: '/blog-covers/consultation.jpg',
+    src: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1600&q=82',
     alt: 'Notatki i laptop przygotowane do konsultacji online.',
     width: BLOG_COVER_WIDTH,
     height: BLOG_COVER_HEIGHT,
@@ -306,69 +306,69 @@ export function getBlogPostCover(post: Pick<BlogPost, 'slug' | 'categoryHref'>):
   return BLOG_COVER_BY_SLUG[post.slug] ?? getFallbackBlogCover(post.categoryHref)
 }
 const SERVICE_LANDING_LINK: BlogSupportLink = {
-  label: 'Behawiorysta psów i kotów online',
+  label: 'Behawiorysta psĂłw i kotĂłw online',
   href: '/behawiorysta-online-polska',
-  description: 'Główna strona usługi, jeśli chcesz przejść z treści edukacyjnej do pełniejszego opisu pomocy.',
+  description: 'GĹ‚Ăłwna strona usĹ‚ugi, jeĹ›li chcesz przejĹ›Ä‡ z treĹ›ci edukacyjnej do peĹ‚niejszego opisu pomocy.',
 }
 
 const CONSULTATION_PAGE_LINK: BlogSupportLink = {
   label: 'Konsultacja behawioralna online',
   href: '/konsultacja-behawioralna-online',
-    description: 'Opis pełnej konsultacji, przebiegu rozmowy i tego, kiedy warto wejść w szerszą konsultację.',
+    description: 'Opis peĹ‚nej konsultacji, przebiegu rozmowy i tego, kiedy warto wejĹ›Ä‡ w szerszÄ… konsultacjÄ™.',
 }
 
 const PREP_GUIDE_LINK: BlogSupportLink = {
-  label: 'Umów pierwszy krok',
+  label: 'UmĂłw pierwszy krok',
   href: '/',
-  description: 'Przejdź do strony głównej i wybierz pierwszy krok pomocy.',
+  description: 'PrzejdĹş do strony gĹ‚Ăłwnej i wybierz pierwszy krok pomocy.',
 }
 
 const REACTIVITY_LANDING_LINK: BlogSupportLink = {
-  label: 'Reaktywność na smyczy',
+  label: 'ReaktywnoĹ›Ä‡ na smyczy',
   href: '/psy/reaktywnosc-na-smyczy',
-  description: 'Główny landing problemowy dla spacerów, szczekania, napięcia i pracy poniżej progu.',
+  description: 'GĹ‚Ăłwny landing problemowy dla spacerĂłw, szczekania, napiÄ™cia i pracy poniĹĽej progu.',
 }
 
 const REACTIVITY_GUIDE_LINK: BlogSupportLink = {
-  label: 'Umów pierwszy krok',
+  label: 'UmĂłw pierwszy krok',
   href: '/',
-  description: 'Przejdź do strony głównej i wybierz pierwszy krok pomocy.',
+  description: 'PrzejdĹş do strony gĹ‚Ăłwnej i wybierz pierwszy krok pomocy.',
 }
 
 const SEPARATION_LANDING_LINK: BlogSupportLink = {
-  label: 'Lęk separacyjny u psa',
+  label: 'LÄ™k separacyjny u psa',
   href: '/psy/lek-separacyjny',
-  description: 'Główny landing problemowy o zostawaniu samemu, analizie zachowania i pierwszym bezpiecznym planie.',
+  description: 'GĹ‚Ăłwny landing problemowy o zostawaniu samemu, analizie zachowania i pierwszym bezpiecznym planie.',
 }
 
 const SEPARATION_GUIDE_LINK: BlogSupportLink = {
-  label: 'Umów pierwszy krok',
+  label: 'UmĂłw pierwszy krok',
   href: '/',
-  description: 'Przejdź do strony głównej i wybierz pierwszy krok pomocy.',
+  description: 'PrzejdĹş do strony gĹ‚Ăłwnej i wybierz pierwszy krok pomocy.',
 }
 
 const LITTER_LANDING_LINK: BlogSupportLink = {
-  label: 'Załatwianie poza kuwetą',
+  label: 'ZaĹ‚atwianie poza kuwetÄ…',
   href: '/koty/zalatwianie-poza-kuweta',
-  description: 'Główny landing problemowy o zdrowiu, kuwecie, stresie i kolejności sprawdzania przyczyn.',
+  description: 'GĹ‚Ăłwny landing problemowy o zdrowiu, kuwecie, stresie i kolejnoĹ›ci sprawdzania przyczyn.',
 }
 
 const LITTER_GUIDE_LINK: BlogSupportLink = {
-  label: 'Umów pierwszy krok',
+  label: 'UmĂłw pierwszy krok',
   href: '/',
-  description: 'Przejdź do strony głównej i wybierz pierwszy krok pomocy.',
+  description: 'PrzejdĹş do strony gĹ‚Ăłwnej i wybierz pierwszy krok pomocy.',
 }
 
 const CAT_CONFLICT_LANDING_LINK: BlogSupportLink = {
-  label: 'Konflikt między kotami',
+  label: 'Konflikt miÄ™dzy kotami',
   href: '/koty/konflikt-miedzy-kotami',
-  description: 'Główny landing problemowy dla napięcia, gonitw, blokowania zasobów i trudnych relacji w domu.',
+  description: 'GĹ‚Ăłwny landing problemowy dla napiÄ™cia, gonitw, blokowania zasobĂłw i trudnych relacji w domu.',
 }
 
 const CAT_CONFLICT_GUIDE_LINK: BlogSupportLink = {
-  label: 'Umów pierwszy krok',
+  label: 'UmĂłw pierwszy krok',
   href: '/',
-  description: 'Przejdź do strony głównej i wybierz pierwszy krok pomocy.',
+  description: 'PrzejdĹş do strony gĹ‚Ăłwnej i wybierz pierwszy krok pomocy.',
 }
 
 const BLOG_POST_CONFIGS: BlogPostConfig[] = [
@@ -382,24 +382,24 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     audioHref: buildBookHref(null, 'szybka-konsultacja-15-min', false, 'pies'),
     supportLinks: [
       {
-        label: 'Szczeniak / młody pies',
+        label: 'Szczeniak / mĹ‚ody pies',
         href: '/psy',
-        description: 'Hub tematów psich, jeśli pierwsza noc łączy się z gryzieniem, pobudzeniem albo separacją.',
+        description: 'Hub tematĂłw psich, jeĹ›li pierwsza noc Ĺ‚Ä…czy siÄ™ z gryzieniem, pobudzeniem albo separacjÄ….',
       },
       {
-        label: 'Umów pierwszy krok',
+        label: 'UmĂłw pierwszy krok',
         href: '/',
-        description: 'Przejdź do strony głównej i wybierz pierwszy krok pomocy.',
+        description: 'PrzejdĹş do strony gĹ‚Ăłwnej i wybierz pierwszy krok pomocy.',
       },
       {
         label: FUNNEL_CTA_LABELS.primary,
         href: buildBookHref(null, 'szybka-konsultacja-15-min', false, 'pies'),
-        description: 'Dobry start, jeśli chcesz omówić pierwsze noce i ustawić spokojniejszy rytm.',
+        description: 'Dobry start, jeĹ›li chcesz omĂłwiÄ‡ pierwsze noce i ustawiÄ‡ spokojniejszy rytm.',
       },
       {
         label: 'Quiz',
         href: '/quiz',
-        description: 'Quiz, jeśli wahasz się między Kwadransem a szerszą rozmową.',
+        description: 'Quiz, jeĹ›li wahasz siÄ™ miÄ™dzy Kwadransem a szerszÄ… rozmowÄ….',
       },
     ],
   },
@@ -413,24 +413,24 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     audioHref: buildBookHref(null, 'szybka-konsultacja-15-min', false, 'pies'),
     supportLinks: [
       {
-        label: 'Reaktywność na smyczy',
+        label: 'ReaktywnoĹ›Ä‡ na smyczy',
         href: '/psy/reaktywnosc-na-smyczy',
-        description: 'Pełniejsza strona problemowa o spacerach i napięciu na smyczy.',
+        description: 'PeĹ‚niejsza strona problemowa o spacerach i napiÄ™ciu na smyczy.',
       },
       {
         label: 'Psy',
         href: '/psy',
-        description: 'Więcej tematów związanych że spacerem, regulacją i codzienną pracą z psem.',
+        description: 'WiÄ™cej tematĂłw zwiÄ…zanych ĹĽe spacerem, regulacjÄ… i codziennÄ… pracÄ… z psem.',
       },
       {
         label: FUNNEL_CTA_LABELS.primary,
         href: buildBookHref(null, 'szybka-konsultacja-15-min', false, 'pies'),
-        description: 'Dobry start, jeśli chcesz odnieść ten temat do swojego psa.',
+        description: 'Dobry start, jeĹ›li chcesz odnieĹ›Ä‡ ten temat do swojego psa.',
       },
       {
-        label: 'Umów pierwszy krok',
+        label: 'UmĂłw pierwszy krok',
         href: '/',
-        description: 'Przejdź do strony głównej i wybierz pierwszy krok pomocy.',
+        description: 'PrzejdĹş do strony gĹ‚Ăłwnej i wybierz pierwszy krok pomocy.',
       },
     ],
   },
@@ -444,24 +444,24 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     audioHref: buildBookHref(null, 'szybka-konsultacja-15-min', false, 'pies'),
     supportLinks: [
       {
-        label: 'Lęk separacyjny u psa',
+        label: 'LÄ™k separacyjny u psa',
         href: '/psy/lek-separacyjny',
-        description: 'Pełniejszy przewodnik, jeśli problem powtarza się albo szybko narasta.',
+        description: 'PeĹ‚niejszy przewodnik, jeĹ›li problem powtarza siÄ™ albo szybko narasta.',
       },
       {
         label: 'Psy',
         href: '/psy',
-        description: 'Zobacz inne tematy związane z zachowaniem psa.',
+        description: 'Zobacz inne tematy zwiÄ…zane z zachowaniem psa.',
       },
       {
         label: FUNNEL_CTA_LABELS.primary,
         href: buildBookHref(null, 'szybka-konsultacja-15-min', false, 'pies'),
-        description: 'Jeśli chcesz ustalić pierwszy plan dla swojego psa.',
+        description: 'JeĹ›li chcesz ustaliÄ‡ pierwszy plan dla swojego psa.',
       },
       {
-        label: 'Umów pierwszy krok',
+        label: 'UmĂłw pierwszy krok',
         href: '/',
-        description: 'Przejdź do strony głównej i wybierz pierwszy krok pomocy.',
+        description: 'PrzejdĹş do strony gĹ‚Ăłwnej i wybierz pierwszy krok pomocy.',
       },
     ],
   },
@@ -475,24 +475,24 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     audioHref: buildBookHref(null, 'szybka-konsultacja-15-min', false, 'kot'),
     supportLinks: [
       {
-        label: 'Załatwianie poza kuwetą',
+        label: 'ZaĹ‚atwianie poza kuwetÄ…',
         href: '/koty/zalatwianie-poza-kuweta',
-        description: 'Pełniejsza strona problemowa o filtrach diagnostycznych i pierwszych decyzjach.',
+        description: 'PeĹ‚niejsza strona problemowa o filtrach diagnostycznych i pierwszych decyzjach.',
       },
       {
         label: 'Koty',
         href: '/koty',
-        description: 'Więcej tematów związanych z kuwetą, stresem i codziennym funkcjonowaniem kota.',
+        description: 'WiÄ™cej tematĂłw zwiÄ…zanych z kuwetÄ…, stresem i codziennym funkcjonowaniem kota.',
       },
       {
         label: FUNNEL_CTA_LABELS.primary,
         href: buildBookHref(null, 'szybka-konsultacja-15-min', false, 'kot'),
-        description: 'Jeśli chcesz ustalić, od czego zacząć w swojej sytuacji.',
+        description: 'JeĹ›li chcesz ustaliÄ‡, od czego zaczÄ…Ä‡ w swojej sytuacji.',
       },
       {
-        label: 'Umów pierwszy krok',
+        label: 'UmĂłw pierwszy krok',
         href: '/',
-        description: 'Przejdź do strony głównej i wybierz pierwszy krok pomocy.',
+        description: 'PrzejdĹş do strony gĹ‚Ăłwnej i wybierz pierwszy krok pomocy.',
       },
     ],
   },
@@ -508,22 +508,22 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
       {
         label: FUNNEL_CTA_LABELS.primary,
         href: buildBookHref(null, 'szybka-konsultacja-15-min'),
-        description: 'Najprostszy sposób, żeby spokojnie omówić swoją sytuację.',
+        description: 'Najprostszy sposĂłb, ĹĽeby spokojnie omĂłwiÄ‡ swojÄ… sytuacjÄ™.',
       },
       {
         label: 'O mnie',
         href: '/o-mnie',
-        description: 'Jeśli chcesz sprawdzić kwalifikacje, sposób pracy i publiczne punkty odniesienia.',
+        description: 'JeĹ›li chcesz sprawdziÄ‡ kwalifikacje, sposĂłb pracy i publiczne punkty odniesienia.',
       },
       {
         label: 'Psy',
         href: '/psy',
-        description: 'Przejdź do pomocy dla opiekunów psów.',
+        description: 'PrzejdĹş do pomocy dla opiekunĂłw psĂłw.',
       },
       {
         label: 'Koty',
         href: '/koty',
-        description: 'Przejdź do pomocy dla opiekunów kotów.',
+        description: 'PrzejdĹş do pomocy dla opiekunĂłw kotĂłw.',
       },
     ],
   },
@@ -537,24 +537,24 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     audioHref: buildBookHref(null, 'szybka-konsultacja-15-min', false, 'pies'),
     supportLinks: [
       {
-        label: 'Reaktywność na smyczy',
+        label: 'ReaktywnoĹ›Ä‡ na smyczy',
         href: '/psy/reaktywnosc-na-smyczy',
-        description: 'Pełniejsza strona problemowa, jeśli samo ciągnięcie jest częścią większego napięcia.',
+        description: 'PeĹ‚niejsza strona problemowa, jeĹ›li samo ciÄ…gniÄ™cie jest czÄ™Ĺ›ciÄ… wiÄ™kszego napiÄ™cia.',
       },
       {
         label: 'Szczekanie na inne psy',
         href: '/blog',
-        description: 'Powiązany wpis o trudnościach spacerowych.',
+        description: 'PowiÄ…zany wpis o trudnoĹ›ciach spacerowych.',
       },
       {
         label: 'Psy',
         href: '/psy',
-        description: 'Więcej tematów związanych że spacerem i regulacją psa.',
+        description: 'WiÄ™cej tematĂłw zwiÄ…zanych ĹĽe spacerem i regulacjÄ… psa.',
       },
       {
         label: FUNNEL_CTA_LABELS.primary,
         href: buildBookHref(null, 'szybka-konsultacja-15-min', false, 'pies'),
-        description: 'Jeśli chcesz ustalić, czy to nawyk, czy już szerszy problem.',
+        description: 'JeĹ›li chcesz ustaliÄ‡, czy to nawyk, czy juĹĽ szerszy problem.',
       },
     ],
   },
@@ -568,24 +568,24 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     audioHref: buildBookHref(null, 'szybka-konsultacja-15-min', false, 'kot'),
     supportLinks: [
       {
-        label: 'Załatwianie poza kuwetą',
+        label: 'ZaĹ‚atwianie poza kuwetÄ…',
         href: '/koty/zalatwianie-poza-kuweta',
-        description: 'Jeśli obok drapania widzisz też napięcie środowiskowe lub problem toaletowy.',
+        description: 'JeĹ›li obok drapania widzisz teĹĽ napiÄ™cie Ĺ›rodowiskowe lub problem toaletowy.',
       },
       {
         label: 'Koty',
         href: '/koty',
-        description: 'Więcej tematów o stresie, kuwecie i relacjach w domu.',
+        description: 'WiÄ™cej tematĂłw o stresie, kuwecie i relacjach w domu.',
       },
       {
         label: FUNNEL_CTA_LABELS.primary,
         href: buildBookHref(null, 'szybka-konsultacja-15-min', false, 'kot'),
-        description: 'Jeśli chcesz uporządkować, co stoi za zachowaniem kota.',
+        description: 'JeĹ›li chcesz uporzÄ…dkowaÄ‡, co stoi za zachowaniem kota.',
       },
       {
-        label: 'Umów pierwszy krok',
+        label: 'UmĂłw pierwszy krok',
         href: '/',
-        description: 'Przejdź do strony głównej i wybierz pierwszy krok pomocy.',
+        description: 'PrzejdĹş do strony gĹ‚Ăłwnej i wybierz pierwszy krok pomocy.',
       },
     ],
   },
@@ -601,22 +601,22 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
       {
         label: 'Psy',
         href: '/psy',
-        description: 'Przejdź do pomocy dla opiekunów psów i podobnych tematów.',
+        description: 'PrzejdĹş do pomocy dla opiekunĂłw psĂłw i podobnych tematĂłw.',
       },
       {
         label: 'Pierwsze dni po adopcji',
         href: '/',
-        description: 'Konkretny materiał, jeśli jesteś na starcie po adopcji.',
+        description: 'Konkretny materiaĹ‚, jeĹ›li jesteĹ› na starcie po adopcji.',
       },
       {
         label: FUNNEL_CTA_LABELS.primary,
         href: buildBookHref(null, 'szybka-konsultacja-15-min', false, 'pies'),
-        description: 'Dobry start, jeśli chcesz ustalić plan na pierwsze dni z psem.',
+        description: 'Dobry start, jeĹ›li chcesz ustaliÄ‡ plan na pierwsze dni z psem.',
       },
       {
-        label: 'Umów pierwszy krok',
+        label: 'UmĂłw pierwszy krok',
         href: '/',
-        description: 'Przejdź do strony głównej i wybierz pierwszy krok pomocy.',
+        description: 'PrzejdĹş do strony gĹ‚Ăłwnej i wybierz pierwszy krok pomocy.',
       },
     ],
   },
@@ -632,22 +632,22 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
       {
         label: 'O mnie',
         href: '/o-mnie',
-        description: 'Jak pracuję i skąd wynika moje podejście do takich tematów.',
+        description: 'Jak pracujÄ™ i skÄ…d wynika moje podejĹ›cie do takich tematĂłw.',
       },
       {
         label: FUNNEL_CTA_LABELS.primary,
         href: buildBookHref(null, 'szybka-konsultacja-15-min'),
-        description: 'Jeśli chcesz spokojnie sprawdzić, jaki rodzaj pomocy ma sens.',
+        description: 'JeĹ›li chcesz spokojnie sprawdziÄ‡, jaki rodzaj pomocy ma sens.',
       },
       {
         label: 'Opinie',
         href: '/opinie',
-        description: 'Krótkie głosy opiekunów po rozmowach i konsultacjach.',
+        description: 'KrĂłtkie gĹ‚osy opiekunĂłw po rozmowach i konsultacjach.',
       },
       {
         label: 'Psy',
         href: '/psy',
-        description: 'Przejdź do strony dla opiekunów psów.',
+        description: 'PrzejdĹş do strony dla opiekunĂłw psĂłw.',
       },
     ],
   },
@@ -663,22 +663,22 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
       {
         label: 'O mnie',
         href: '/o-mnie',
-        description: 'Jeśli chcesz sprawdzić kwalifikacje i sposób pracy.',
+        description: 'JeĹ›li chcesz sprawdziÄ‡ kwalifikacje i sposĂłb pracy.',
       },
       {
         label: FUNNEL_CTA_LABELS.primary,
         href: buildBookHref(null, 'szybka-konsultacja-15-min'),
-        description: 'Dobry start, jeśli chcesz ustalić, do kogo zgłosić się z własnym tematem.',
+        description: 'Dobry start, jeĹ›li chcesz ustaliÄ‡, do kogo zgĹ‚osiÄ‡ siÄ™ z wĹ‚asnym tematem.',
       },
       {
         label: 'Psy',
         href: '/psy',
-        description: 'Pomoc dla opiekunów psów.',
+        description: 'Pomoc dla opiekunĂłw psĂłw.',
       },
       {
         label: 'Koty',
         href: '/koty',
-        description: 'Pomoc dla opiekunów kotów.',
+        description: 'Pomoc dla opiekunĂłw kotĂłw.',
       },
     ],
   },
@@ -699,17 +699,17 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
       {
         label: 'Konsultacja online',
         href: '/konsultacja-behawioralna-online',
-        description: 'Szczegóły dłuższej konsultacji online.',
+        description: 'SzczegĂłĹ‚y dĹ‚uĹĽszej konsultacji online.',
       },
       {
         label: FUNNEL_CTA_LABELS.primary,
         href: buildBookHref(null, 'szybka-konsultacja-15-min'),
-        description: 'Najprostszy pierwszy krok, jeśli chcesz zacząć bez dużego progu.',
+        description: 'Najprostszy pierwszy krok, jeĹ›li chcesz zaczÄ…Ä‡ bez duĹĽego progu.',
       },
       {
         label: 'O mnie',
         href: '/o-mnie',
-        description: 'Jeśli chcesz sprawdzić, jak pracuję.',
+        description: 'JeĹ›li chcesz sprawdziÄ‡, jak pracujÄ™.',
       },
     ],
   },
@@ -725,22 +725,22 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
       {
         label: 'O mnie',
         href: '/o-mnie',
-        description: 'Kwalifikacje, afiliacje i sposób pracy opisane w jednym miejscu.',
+        description: 'Kwalifikacje, afiliacje i sposĂłb pracy opisane w jednym miejscu.',
       },
       {
         label: 'Behawiorysta czy trener',
         href: '/blog',
-        description: 'Powiązany wpis o wyborze odpowiedniej pomocy.',
+        description: 'PowiÄ…zany wpis o wyborze odpowiedniej pomocy.',
       },
       {
         label: FUNNEL_CTA_LABELS.primary,
         href: buildBookHref(null, 'szybka-konsultacja-15-min'),
-        description: 'Jeśli chcesz omówić swój temat po lekturze.',
+        description: 'JeĹ›li chcesz omĂłwiÄ‡ swĂłj temat po lekturze.',
       },
       {
         label: 'Psy',
         href: '/psy',
-        description: 'Przejdź do strony dla opiekunów psów.',
+        description: 'PrzejdĹş do strony dla opiekunĂłw psĂłw.',
       },
     ],
   },
@@ -758,7 +758,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
       {
         label: 'Cennik',
         href: '/cennik',
-        description: 'Jeśli po przygotowaniu chcesz od razu porównać dostępne formaty przed rezerwacją.',
+        description: 'JeĹ›li po przygotowaniu chcesz od razu porĂłwnaÄ‡ dostÄ™pne formaty przed rezerwacjÄ….',
       },
       SERVICE_LANDING_LINK,
     ],
@@ -776,7 +776,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
       {
         label: 'Pies szczeka na inne psy',
         href: '/blog',
-        description: 'Warto to przeczytac razem z praktyka luznej smyczy, żeby lepiej nazwać emocje i wyzwalacze na spacerze.',
+        description: 'Warto to przeczytac razem z praktyka luznej smyczy, ĹĽeby lepiej nazwaÄ‡ emocje i wyzwalacze na spacerze.',
       },
       REACTIVITY_GUIDE_LINK,
       SERVICE_LANDING_LINK,
@@ -793,9 +793,9 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     supportLinks: [
       SEPARATION_LANDING_LINK,
       {
-      label: 'Pies wyje, kiedy zostaje sam: co nagrać i sprawdzić',
+      label: 'Pies wyje, kiedy zostaje sam: co nagraÄ‡ i sprawdziÄ‡',
         href: '/blog',
-        description: 'Najbliższy artykuł, jeśli chcesz najpierw odróżnić lęk separacyjny od innych scenariuszy.',
+        description: 'NajbliĹĽszy artykuĹ‚, jeĹ›li chcesz najpierw odrĂłĹĽniÄ‡ lÄ™k separacyjny od innych scenariuszy.',
       },
       SEPARATION_GUIDE_LINK,
       SERVICE_LANDING_LINK,
@@ -812,9 +812,9 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     supportLinks: [
       SEPARATION_LANDING_LINK,
       {
-        label: 'Jak nagrać psa zostawionego samemu',
+        label: 'Jak nagraÄ‡ psa zostawionego samemu',
         href: '/blog',
-        description: 'Daje materiał do oceny, jeśli po pracy nad rutyną potrzebujesz lepiej zobaczyć, co napędza problem.',
+        description: 'Daje materiaĹ‚ do oceny, jeĹ›li po pracy nad rutynÄ… potrzebujesz lepiej zobaczyÄ‡, co napÄ™dza problem.',
       },
       SEPARATION_GUIDE_LINK,
       SERVICE_LANDING_LINK,
@@ -831,9 +831,9 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     supportLinks: [
       LITTER_LANDING_LINK,
       {
-        label: 'Jak ustawić kuwetę dla kota',
+        label: 'Jak ustawiÄ‡ kuwetÄ™ dla kota',
         href: '/blog',
-        description: 'Najbliższy tekst, jeśli po wyborze kuwety chcesz od razu dopiąć jej lokalizację i liczbę.',
+        description: 'NajbliĹĽszy tekst, jeĹ›li po wyborze kuwety chcesz od razu dopiÄ…Ä‡ jej lokalizacjÄ™ i liczbÄ™.',
       },
       LITTER_GUIDE_LINK,
       SERVICE_LANDING_LINK,
@@ -850,9 +850,9 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     supportLinks: [
       LITTER_LANDING_LINK,
       {
-      label: 'Kot załatwia się poza kuwetą: co sprawdzić',
+      label: 'Kot zaĹ‚atwia siÄ™ poza kuwetÄ…: co sprawdziÄ‡',
         href: '/blog',
-        description: 'Najszerszy wpis startowy, jeśli chcesz zobaczyć całą sekwencję filtrów przed dalszą pracą.',
+        description: 'Najszerszy wpis startowy, jeĹ›li chcesz zobaczyÄ‡ caĹ‚Ä… sekwencjÄ™ filtrĂłw przed dalszÄ… pracÄ….',
       },
       LITTER_GUIDE_LINK,
       SERVICE_LANDING_LINK,
@@ -871,7 +871,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
       {
         label: 'Jak zapoznac dwa koty',
         href: '/blog',
-        description: 'Rozpisuje szerzej sam proces zapoznania, jeśli ten etap w domu dopiero przed toba.',
+        description: 'Rozpisuje szerzej sam proces zapoznania, jeĹ›li ten etap w domu dopiero przed toba.',
       },
       CAT_CONFLICT_GUIDE_LINK,
       SERVICE_LANDING_LINK,
@@ -890,7 +890,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
       {
         label: 'Jak zapoznac dwa koty',
         href: '/blog',
-        description: 'Dobry kolejny tekst, jeśli konflikt jest zwiazany z granicami, dystansem i powolnym wprowadzaniem kontaktu.',
+        description: 'Dobry kolejny tekst, jeĹ›li konflikt jest zwiazany z granicami, dystansem i powolnym wprowadzaniem kontaktu.',
       },
       CAT_CONFLICT_GUIDE_LINK,
       SERVICE_LANDING_LINK,
@@ -907,9 +907,9 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     supportLinks: [
       REACTIVITY_LANDING_LINK,
       {
-        label: 'Luźna smycz z reaktywnym psem',
+        label: 'LuĹşna smycz z reaktywnym psem',
         href: '/blog',
-        description: 'Przechodzi z pojedynczej zasady w bardziej uporządkowaną procedurę spacerową.',
+        description: 'Przechodzi z pojedynczej zasady w bardziej uporzÄ…dkowanÄ… procedurÄ™ spacerowÄ….',
       },
       REACTIVITY_GUIDE_LINK,
       SERVICE_LANDING_LINK,
@@ -926,9 +926,9 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     supportLinks: [
       SEPARATION_LANDING_LINK,
       {
-        label: 'Rutyna wyjścia i oswajanie z samotnością',
+        label: 'Rutyna wyjĹ›cia i oswajanie z samotnoĹ›ciÄ…',
         href: '/blog',
-        description: 'Dalej porządkuje pracę krok po kroku, jeśli chcesz utrzymać plan bez przeskakiwania etapów.',
+        description: 'Dalej porzÄ…dkuje pracÄ™ krok po kroku, jeĹ›li chcesz utrzymaÄ‡ plan bez przeskakiwania etapĂłw.',
       },
       SEPARATION_GUIDE_LINK,
       SERVICE_LANDING_LINK,
@@ -945,9 +945,9 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     supportLinks: [
       LITTER_LANDING_LINK,
       {
-        label: 'Jak wybrać kuwetę i żwirek',
+        label: 'Jak wybraÄ‡ kuwetÄ™ i ĹĽwirek',
         href: '/blog',
-        description: 'Najbliższy tekst, jeśli po ustawieniu kuwety chcesz jeszcze sprawdzić rozmiar, zwirek i typowe bledy wyboru.',
+        description: 'NajbliĹĽszy tekst, jeĹ›li po ustawieniu kuwety chcesz jeszcze sprawdziÄ‡ rozmiar, zwirek i typowe bledy wyboru.',
       },
       LITTER_GUIDE_LINK,
       SERVICE_LANDING_LINK,
@@ -966,7 +966,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
       {
         label: 'Jak wprowadzic nowego kota do domu',
         href: '/blog',
-        description: 'Dobry tekst siostrzany, jeśli chcesz zacząć jeszcze krok wcześniej od całego procesu wdrożenia nowego kota.',
+        description: 'Dobry tekst siostrzany, jeĹ›li chcesz zaczÄ…Ä‡ jeszcze krok wczeĹ›niej od caĹ‚ego procesu wdroĹĽenia nowego kota.',
       },
       CAT_CONFLICT_GUIDE_LINK,
       SERVICE_LANDING_LINK,
@@ -1001,13 +1001,13 @@ publishedAt: ${config.publishedAt}
 
 ## O czym jest ten wpis
 
-Ten wpis korzysta z bezpiecznego fallbacku treści, gdy plik markdown nie jest obecny w repozytorium.
+Ten wpis korzysta z bezpiecznego fallbacku treĹ›ci, gdy plik markdown nie jest obecny w repozytorium.
 
-## Co sprawdzić dalej
+## Co sprawdziÄ‡ dalej
 
-- Zobacz kategorię: [${config.categoryLabel}](${config.categoryHref})
-- Przejdź do pierwszego kroku: [umów konsultację](${config.audioHref})
-- Wróć do bloga: [blog](${BLOG_ROUTE_BASE})
+- Zobacz kategoriÄ™: [${config.categoryLabel}](${config.categoryHref})
+- PrzejdĹş do pierwszego kroku: [umĂłw konsultacjÄ™](${config.audioHref})
+- WrĂłÄ‡ do bloga: [blog](${BLOG_ROUTE_BASE})
 `
 }
 
@@ -1083,7 +1083,7 @@ function normalizeWhitespace(value: string): string {
 function normalizeForComparison(value: string): string {
   return normalizeWhitespace(value)
     .toLowerCase()
-    .replace(/[„”"]/g, '')
+    .replace(/[â€žâ€ť"]/g, '')
     .replace(/\u00a0/g, ' ')
 }
 
@@ -1189,7 +1189,7 @@ function parseMarkdownBlocks(source: string): BlogMarkdownBlock[] {
       const quoteLines: string[] = []
 
       while (index < lines.length && (lines[index]?.trim() ?? '').startsWith('>')) {
-        quoteLines.push((lines[index] ?? '').replace(/^>\są/, ''))
+        quoteLines.push((lines[index] ?? '').replace(/^>\sÄ…/, ''))
         index += 1
       }
 
@@ -1272,7 +1272,7 @@ function parseMarkdownBlocks(source: string): BlogMarkdownBlock[] {
 function isSkipSectionHeading(text: string): boolean {
   const normalized = normalizeForComparison(text)
 
-  return normalized === 'linkowanie' || normalized === 'linkowanie wewnętrzne'
+  return normalized === 'linkowanie' || normalized === 'linkowanie wewnÄ™trzne'
 }
 
 function classifySectionHeading(text: string): 'intro' | 'faq' | 'cta' | 'default' {
@@ -1286,7 +1286,7 @@ function classifySectionHeading(text: string): 'intro' | 'faq' | 'cta' | 'defaul
     return 'faq'
   }
 
-  if (/^(chcesz|jeśli chcesz|jeżeli chcesz|jeśli dotarł|jeżeli dotarł)/i.test(normalized)) {
+  if (/^(chcesz|jeĹ›li chcesz|jeĹĽeli chcesz|jeĹ›li dotarĹ‚|jeĹĽeli dotarĹ‚)/i.test(normalized)) {
     return 'cta'
   }
 
@@ -1294,7 +1294,7 @@ function classifySectionHeading(text: string): 'intro' | 'faq' | 'cta' | 'defaul
 }
 
 function countWords(source: string): number {
-  const matches = source.match(/\p{L}[\p{L}\p{M}\p{N}'’-]*/gu)
+  const matches = source.match(/\p{L}[\p{L}\p{M}\p{N}'â€™-]*/gu)
 
   return matches?.length ?? 0
 }
@@ -1374,8 +1374,8 @@ function isLegacyCtaLinkBlock(block: BlogMarkdownBlock): boolean {
   return (
     /\]\(/.test(text) &&
     (lowerText.includes('kategoria:') ||
-      lowerText.includes('zamów') ||
-      lowerText.includes('umów kwadrans') ||
+      lowerText.includes('zamĂłw') ||
+      lowerText.includes('umĂłw kwadrans') ||
       lowerText.includes('/book') ||
       lowerText.includes('/call') ||
       lowerText.includes(legacyMaterialPath) ||
@@ -1428,7 +1428,7 @@ function renderBlogSection(
       React.createElement(
         'div',
         { key: `${section.key}-primary-cta`, className: 'blog-content-cta-actions' },
-        React.createElement('a', { className: 'blog-content-primary-cta', href: '/' }, 'Umów pierwszy krok'),
+        React.createElement('a', { className: 'blog-content-primary-cta', href: '/' }, 'UmĂłw pierwszy krok'),
       ),
     )
   }
@@ -1525,7 +1525,7 @@ function buildBlogPostFromConfig(config: BlogPostConfig): BlogPost {
   const author = repairCopy(frontmatter.author ?? BLOG_AUTHOR_NAME)
   const bodyWordCount = countWords(
     repairedBody
-      .replace(/^##\s+Linkowanie wewnętrzne[\s\S]*$/im, '')
+      .replace(/^##\s+Linkowanie wewnÄ™trzne[\s\S]*$/im, '')
       .replace(/^#\s+.*$/m, '')
       .replace(/^---[\s\S]*?---\s*/m, ''),
   )
@@ -1694,3 +1694,4 @@ export function renderBlogPostContent(post: BlogPost): ReactNode[] {
 }
 
 export const BLOG_POSTS_SITE_WIDE = BLOG_POSTS
+

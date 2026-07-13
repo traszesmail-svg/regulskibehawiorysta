@@ -125,6 +125,34 @@ export async function sendAccountPasswordReset(email: string, redirectTo: string
   }
 }
 
+/** Creates a one-time link used in the payment-confirmation email. */
+export async function createRoomPasswordSetupLink(email: string, redirectTo: string) {
+  const supabase = getSupabaseAuthClient()
+  const normalizedEmail = email.trim().toLowerCase()
+  const invite = await supabase.auth.admin.generateLink({
+    type: 'invite',
+    email: normalizedEmail,
+    options: { redirectTo },
+  })
+
+  if (!invite.error && invite.data.properties.action_link) {
+    return invite.data.properties.action_link
+  }
+
+  // Existing accounts need a recovery link rather than a new invitation.
+  const recovery = await supabase.auth.admin.generateLink({
+    type: 'recovery',
+    email: normalizedEmail,
+    options: { redirectTo },
+  })
+
+  if (recovery.error || !recovery.data.properties.action_link) {
+    throw new ConfigurationError(recovery.error?.message ?? invite.error?.message ?? 'Nie udało się przygotować linku do pokoju.')
+  }
+
+  return recovery.data.properties.action_link
+}
+
 export async function refreshAccountSession(request: Request) {
   const refreshToken = readRefreshToken(request)
   if (!refreshToken) return null

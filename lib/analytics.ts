@@ -55,7 +55,7 @@ export function persistAnalyticsConsent(consent: Exclude<AnalyticsConsentState, 
     window.localStorage.setItem(ANALYTICS_CONSENT_STORAGE_KEY, consent)
   } catch {}
 
-  document.cookie = `${ANALYTICS_CONSENT_COOKIE}=${consent}; Max-Age=31536000; Path=/; SameSite=Lax`
+  document.cookie = `${ANALYTICS_CONSENT_COOKIE}=${consent}; Max-Age=31536000; Path=/; SameSite=Lax; Secure`
 }
 
 const PUBLIC_EVENT_NAME_ALIASES: Record<string, string> = {

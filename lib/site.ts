@@ -35,6 +35,8 @@ export const SITE_HEADER_SUBTITLE = 'Krzysztof Regulski - behawiorysta zwierzęc
 export const SITE_URL_FALLBACK = 'http://localhost:3000'
 export const SITE_PRODUCTION_URL = 'https://regulskibehawiorysta.pl'
 export const PUBLIC_CONTACT_EMAIL_FALLBACK = 'kontakt@regulskibehawiorysta.pl'
+export const PUBLIC_CONTACT_PHONE_DISPLAY = '+48 22 230 42 45'
+export const PUBLIC_CONTACT_PHONE_HREF = 'tel:+48222304245'
 export const SITE_TAGLINE = 'Konsultacje behawioralne psów i kotów'
 export const SITE_DESCRIPTION =
   'Krótkie konsultacje behawioralne dla opiekunów psów i kotów. Rozmowa z Krzysztofem Regulskim, behawiorystą zwierzęcym i trenerem COAPE.'
@@ -408,8 +410,8 @@ export function getContactDetails() {
 
   return {
     email: emailCandidate,
-    phoneDisplay: null,
-    phoneHref: null,
+    phoneDisplay: PUBLIC_CONTACT_PHONE_DISPLAY,
+    phoneHref: PUBLIC_CONTACT_PHONE_HREF,
   }
 }
 
@@ -418,13 +420,13 @@ export function getPublicContactDetails() {
 
   return {
     email: contact.email,
-    phoneDisplay: null,
-    phoneHref: null,
+    phoneDisplay: contact.phoneDisplay,
+    phoneHref: contact.phoneHref,
   }
 }
 
 export function getPublicContactEmailNote() {
-  return 'Kontakt prowadzę przez formularz i e-mail.'
+  return 'Kontakt prowadzę przez formularz, e-mail i telefon.'
 }
 
 export function buildMailtoHref(email: string, subject: string, body?: string) {

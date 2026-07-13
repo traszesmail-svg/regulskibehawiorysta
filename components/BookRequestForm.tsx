@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import Link from 'next/link'
 import { useMemo, useState, type FormEvent } from 'react'
@@ -34,15 +34,15 @@ type BookingRequestPayload = {
 }
 
 const PRIMARY_SERVICE_OPTIONS: Array<{ value: Exclude<BookingServiceType, 'kwadrans-na-juz'>; label: string; price: string }> = [
-  { value: 'szybka-konsultacja-15-min', label: '15-minutowa konsultacja behawioralna', price: '69 zł' },
-  { value: 'konsultacja-30-min', label: 'Dwa kwadranse', price: '169 zł' },
-  { value: 'konsultacja-behawioralna-online', label: 'Pełna konsultacja', price: '470 zł' },
+  { value: 'szybka-konsultacja-15-min', label: '15-minutowa konsultacja behawioralna', price: '69 zĹ‚' },
+  { value: 'konsultacja-30-min', label: 'Dwa kwadranse', price: '169 zĹ‚' },
+  { value: 'konsultacja-behawioralna-online', label: 'PeĹ‚na konsultacja', price: '470 zĹ‚' },
 ]
 
 const URGENT_SERVICE_OPTION = {
   value: 'kwadrans-na-juz' as const,
-  label: 'Kwadrans na już',
-  price: '99 zł',
+  label: 'Kwadrans na juĹĽ',
+  price: '99 zĹ‚',
 }
 
 function getServiceOption(service: BookingServiceType) {
@@ -87,23 +87,23 @@ function getSelectedServiceIntro(service: BookingServiceType) {
     case 'konsultacja-30-min':
       return {
         title: `Wybrana rozmowa: ${option.label} / ${option.price}.`,
-        copy: '30 min online, gdy temat ma kilka wątków. Masz więcej czasu na kontekst, spokojniejsze zalecenia i decyzję, czy potrzebna jest pełna konsultacja.',
+        copy: '30 min online, gdy temat ma kilka wÄ…tkĂłw. Masz wiÄ™cej czasu na kontekst, spokojniejsze zalecenia i decyzjÄ™, czy potrzebna jest peĹ‚na konsultacja.',
       }
     case 'konsultacja-behawioralna-online':
       return {
         title: `Wybrana rozmowa: ${option.label} / ${option.price}.`,
-        copy: 'Około 2h online dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 7 dni wsparcia przez WhatsApp przy wdrażaniu zaleceń.',
+        copy: 'OkoĹ‚o 2h online dla spraw zĹ‚oĹĽonych: analiza zachowania, prawdopodobna przyczyna problemu, plan dziaĹ‚ania i 14 dni komunikacji w pokoju klienta przy wdraĹĽaniu zaleceĹ„.',
       }
     case 'kwadrans-na-juz':
       return {
         title: `Wybrana rozmowa: ${option.label} / ${option.price}.`,
-        copy: 'To ten sam zakres co Kwadrans, ale z priorytetową odpowiedzią i najbliższym realnym terminem. Dla spraw pilnych, które nie wymagają dłuższej analizy.',
+        copy: 'To ten sam zakres co Kwadrans, ale z priorytetowÄ… odpowiedziÄ… i najbliĹĽszym realnym terminem. Dla spraw pilnych, ktĂłre nie wymagajÄ… dĹ‚uĹĽszej analizy.',
       }
     case 'szybka-konsultacja-15-min':
     default:
       return {
         title: `Wybrana rozmowa: ${option.label} / ${option.price}.`,
-        copy: 'Kwadrans to 15 min audio bez kamery na jedno główne pytanie. Szybko porządkujesz sytuację i dostajesz pierwszy kierunek działania.',
+        copy: 'Kwadrans to 15 min audio bez kamery na jedno gĹ‚Ăłwne pytanie. Szybko porzÄ…dkujesz sytuacjÄ™ i dostajesz pierwszy kierunek dziaĹ‚ania.',
       }
   }
 }
@@ -142,7 +142,7 @@ export function BookRequestForm({ initialService, initialSpecies, entryService }
     const preferredSlots = normalizeLongText(form.preferredSlots)
 
     if (!name) {
-      return 'Podaj imię.'
+      return 'Podaj imiÄ™.'
     }
 
     if (!email || !isEmailValid(email)) {
@@ -150,7 +150,7 @@ export function BookRequestForm({ initialService, initialSpecies, entryService }
     }
 
     if (description.length < 20 || description.length > 1000) {
-      return 'Opis sytuacji powinien mieć od 20 do 1000 znaków.'
+      return 'Opis sytuacji powinien mieÄ‡ od 20 do 1000 znakĂłw.'
     }
 
     if (!isUrgentNow && !preferredSlots) {
@@ -191,7 +191,7 @@ export function BookRequestForm({ initialService, initialSpecies, entryService }
           species: form.species,
           description: normalizeLongText(form.description),
           preferredSlots: isUrgentNow
-            ? 'Chcę termin jak najszybciej - proszę o priorytetową odpowiedź z realną propozycją terminu.'
+            ? 'ChcÄ™ termin jak najszybciej - proszÄ™ o priorytetowÄ… odpowiedĹş z realnÄ… propozycjÄ… terminu.'
             : normalizeLongText(form.preferredSlots),
           consentRodo: form.consentRodo,
           consentRegulamin: form.consentRegulamin,
@@ -203,11 +203,11 @@ export function BookRequestForm({ initialService, initialSpecies, entryService }
       const payload = (await response.json()) as { ok?: boolean; error?: string; message?: string }
 
       if (!response.ok || !payload.ok) {
-        throw new Error(payload.error ?? 'Nie udało się wysłać prośby o rezerwację.')
+        throw new Error(payload.error ?? 'Nie udaĹ‚o siÄ™ wysĹ‚aÄ‡ proĹ›by o rezerwacjÄ™.')
       }
 
       setStatus('success')
-      setFeedback(payload.message ?? 'Dostałem Twoją rezerwację. Sprawdź skrzynkę - wysłałem kopię.')
+      setFeedback(payload.message ?? 'DostaĹ‚em TwojÄ… rezerwacjÄ™. SprawdĹş skrzynkÄ™ - wysĹ‚aĹ‚em kopiÄ™.')
       trackAnalyticsEvent('booking_form_submitted', {
         service_key: form.service,
         species: form.species,
@@ -215,24 +215,24 @@ export function BookRequestForm({ initialService, initialSpecies, entryService }
       setForm(createInitialForm(form.service, form.species))
     } catch (error) {
       setStatus('error')
-      setFeedback(error instanceof Error ? error.message : 'Nie udało się wysłać prośby o rezerwację.')
+      setFeedback(error instanceof Error ? error.message : 'Nie udaĹ‚o siÄ™ wysĹ‚aÄ‡ proĹ›by o rezerwacjÄ™.')
     }
   }
 
   if (status === 'success') {
     return (
       <div className="contact-form-card top-gap" role="status">
-        <div className="notatnik-mono notatnik-kicker-spaced">Rezerwacja przyjęta</div>
-        <h2>{isUrgentNow ? 'Dostałem Twoją prośbę o Kwadrans na już.' : 'Dostałem Twoją rezerwację.'}</h2>
+        <div className="notatnik-mono notatnik-kicker-spaced">Rezerwacja przyjÄ™ta</div>
+        <h2>{isUrgentNow ? 'DostaĹ‚em TwojÄ… proĹ›bÄ™ o Kwadrans na juĹĽ.' : 'DostaĹ‚em TwojÄ… rezerwacjÄ™.'}</h2>
         <p>
           {isUrgentNow
-            ? 'Twoja prośba o Kwadrans na już dotarła. Odpowiem priorytetowo z realną propozycją terminu i dalszym krokiem płatności. Sprawdź skrzynkę - wysłałem Ci kopię.'
-            : 'W ciągu kilku godzin, między 9 a 21, odezwę się z potwierdzeniem terminu i dalszym krokiem płatności. Sprawdź skrzynkę - wysłałem Ci kopię.'}
+            ? 'Twoja proĹ›ba o Kwadrans na juĹĽ dotarĹ‚a. Odpowiem priorytetowo z realnÄ… propozycjÄ… terminu i dalszym krokiem pĹ‚atnoĹ›ci. SprawdĹş skrzynkÄ™ - wysĹ‚aĹ‚em Ci kopiÄ™.'
+            : 'W ciÄ…gu kilku godzin, miÄ™dzy 9 a 21, odezwÄ™ siÄ™ z potwierdzeniem terminu i dalszym krokiem pĹ‚atnoĹ›ci. SprawdĹş skrzynkÄ™ - wysĹ‚aĹ‚em Ci kopiÄ™.'}
         </p>
         <div className="notatnik-steps top-gap-small">
           <article className="notatnik-step">
             <div className="notatnik-step-number">01</div>
-            <p>{isUrgentNow ? 'Wracam z szybką odpowiedzią i pierwszą wolną chwilą na dziś.' : 'Potwierdzam jeden z terminów albo odsyłam najbliższą alternatywę.'}</p>
+            <p>{isUrgentNow ? 'Wracam z szybkÄ… odpowiedziÄ… i pierwszÄ… wolnÄ… chwilÄ… na dziĹ›.' : 'Potwierdzam jeden z terminĂłw albo odsyĹ‚am najbliĹĽszÄ… alternatywÄ™.'}</p>
           </article>
           <article className="notatnik-step">
             <div className="notatnik-step-number">02</div>
@@ -240,15 +240,15 @@ export function BookRequestForm({ initialService, initialSpecies, entryService }
           </article>
           <article className="notatnik-step">
             <div className="notatnik-step-number">03</div>
-            <p>Po wpłacie potwierdzam rezerwację i odsyłam link do rozmowy.</p>
+            <p>Po wpĹ‚acie potwierdzam rezerwacjÄ™ i odsyĹ‚am link do rozmowy.</p>
           </article>
         </div>
         <div className="notatnik-subhero-actions top-gap-small">
           <Link href="/" prefetch={false} className="notatnik-btn">
-            Wróć na stronę główną
+            WrĂłÄ‡ na stronÄ™ gĹ‚ĂłwnÄ…
           </Link>
           <button type="button" className="notatnik-btn notatnik-btn-ghost" onClick={() => setStatus('idle')}>
-            Wyślij kolejną prośbę
+            WyĹ›lij kolejnÄ… proĹ›bÄ™
           </button>
         </div>
       </div>
@@ -271,7 +271,7 @@ export function BookRequestForm({ initialService, initialSpecies, entryService }
 
       {showEntryServiceBox && entryServiceOption ? (
         <div className="info-box full-width">
-          <strong>Ten formularz otworzył się z usługą: {entryServiceOption.label}.</strong> Niżej wybrałeś już inną rozmowę, więc po wysłaniu prośby zapisze się aktualny wybór.
+          <strong>Ten formularz otworzyĹ‚ siÄ™ z usĹ‚ugÄ…: {entryServiceOption.label}.</strong> NiĹĽej wybraĹ‚eĹ› juĹĽ innÄ… rozmowÄ™, wiÄ™c po wysĹ‚aniu proĹ›by zapisze siÄ™ aktualny wybĂłr.
         </div>
       ) : null}
 
@@ -280,20 +280,20 @@ export function BookRequestForm({ initialService, initialSpecies, entryService }
           <strong>
             Wybrany tryb: {URGENT_SERVICE_OPTION.label} / {URGENT_SERVICE_OPTION.price}.
           </strong>{' '}
-          To ten sam 15-minutowy format co zwykły Kwadrans, ale z priorytetem i szybszym terminem.{' '}
+          To ten sam 15-minutowy format co zwykĹ‚y Kwadrans, ale z priorytetem i szybszym terminem.{' '}
           <button
             type="button"
             className="notatnik-inline-link"
             onClick={() => updateField('service', 'szybka-konsultacja-15-min')}
           >
-            Wróć do zwykłego Kwadransu
+            WrĂłÄ‡ do zwykĹ‚ego Kwadransu
           </button>
         </div>
       ) : null}
 
       <fieldset className="full-width form-field consent-stack">
         <legend className="field-legend">
-          {showServiceChangeLegend ? 'Zmień usługę, jeśli potrzebujesz innej rozmowy' : 'Wybierz usługę'}
+          {showServiceChangeLegend ? 'ZmieĹ„ usĹ‚ugÄ™, jeĹ›li potrzebujesz innej rozmowy' : 'Wybierz usĹ‚ugÄ™'}
         </legend>
         {PRIMARY_SERVICE_OPTIONS.map((option) => (
           <label key={option.value} className="checkbox-card" htmlFor={`service-${option.value}`}>
@@ -311,7 +311,7 @@ export function BookRequestForm({ initialService, initialSpecies, entryService }
         ))}
         <Link className="checkbox-card" href="/kwadrans-na-juz" prefetch={false}>
           <span>
-            ⚡ {URGENT_SERVICE_OPTION.label} / {URGENT_SERVICE_OPTION.price} — termin na dziś, sytuacje kryzysowe
+            âšˇ {URGENT_SERVICE_OPTION.label} / {URGENT_SERVICE_OPTION.price} â€” termin na dziĹ›, sytuacje kryzysowe
           </span>
         </Link>
       </fieldset>
@@ -320,14 +320,14 @@ export function BookRequestForm({ initialService, initialSpecies, entryService }
         <div className="info-box full-width">
           <strong>Chcesz szybciej?</strong> {PUBLIC_OFFER_BOOKING_PRIORITY_PROMPT}{' '}
           <Link href="/kwadrans-na-juz" prefetch={false} className="notatnik-inline-link">
-            Przejdź do Kwadransu na już
+            PrzejdĹş do Kwadransu na juĹĽ
           </Link>
           <div className="field-help top-gap-small">{PUBLIC_OFFER_BOOKING_PRIORITY_NOTE}</div>
         </div>
       ) : null}
 
       <div className="form-field full-width">
-        <label htmlFor="book-name">Imię</label>
+        <label htmlFor="book-name">ImiÄ™</label>
         <input
           id="book-name"
           name="name"
@@ -377,22 +377,22 @@ export function BookRequestForm({ initialService, initialSpecies, entryService }
       </fieldset>
 
       <div className="full-width form-field">
-        <label htmlFor="book-description">Krótki opis sytuacji</label>
+        <label htmlFor="book-description">KrĂłtki opis sytuacji</label>
         <textarea
           id="book-description"
           name="description"
           rows={5}
           value={form.description}
           onChange={(event) => updateField('description', event.target.value.slice(0, 1000))}
-          placeholder="Napisz, co dzieje się teraz, od kiedy trwa problem i co najbardziej chcesz uporządkować."
+          placeholder="Napisz, co dzieje siÄ™ teraz, od kiedy trwa problem i co najbardziej chcesz uporzÄ…dkowaÄ‡."
         />
-        <div className="field-help">{form.description.length}/1000 znaków</div>
+        <div className="field-help">{form.description.length}/1000 znakĂłw</div>
       </div>
 
       <div className="full-width form-field">
         <label htmlFor="book-preferred-slots">Preferowane terminy</label>
         {isUrgentNow ? (
-          <div className="info-box">Chcę termin jak najszybciej - proszę o priorytetową odpowiedź z realną propozycją terminu.</div>
+          <div className="info-box">ChcÄ™ termin jak najszybciej - proszÄ™ o priorytetowÄ… odpowiedĹş z realnÄ… propozycjÄ… terminu.</div>
         ) : (
           <>
             <SlotPicker
@@ -404,7 +404,7 @@ export function BookRequestForm({ initialService, initialSpecies, entryService }
               <input type="hidden" name="preferredSlots" value={form.preferredSlots} />
             ) : null}
           <div className="field-help" style={{ marginTop: '8px' }}>
-            Kliknij dzień i wybierz godzinę. Dodaj 2-3 opcje na wszelki wypadek.
+            Kliknij dzieĹ„ i wybierz godzinÄ™. Dodaj 2-3 opcje na wszelki wypadek.
           </div>
         </>
       )}
@@ -420,7 +420,7 @@ export function BookRequestForm({ initialService, initialSpecies, entryService }
             onChange={(event) => updateField('consentRodo', event.target.checked)}
             required
           />
-          <span>Wyrażam zgodę na przetwarzanie danych osobowych w celu obsługi rezerwacji.</span>
+          <span>WyraĹĽam zgodÄ™ na przetwarzanie danych osobowych w celu obsĹ‚ugi rezerwacji.</span>
         </label>
 
         <label className="checkbox-card" htmlFor="book-consent-regulamin">
@@ -432,15 +432,15 @@ export function BookRequestForm({ initialService, initialSpecies, entryService }
             required
           />
           <span>
-            Zapoznałem/am się z{' '}
+            ZapoznaĹ‚em/am siÄ™ z{' '}
             <Link href="/regulamin" prefetch={false}>
               regulaminem
             </Link>{' '}
             oraz{' '}
             <Link href="/regulamin-pelna-konsultacja" prefetch={false}>
-              regulaminem Pełnej konsultacji
+              regulaminem PeĹ‚nej konsultacji
             </Link>{' '}
-            i akceptuję warunki.
+            i akceptujÄ™ warunki.
           </span>
         </label>
 
@@ -453,8 +453,8 @@ export function BookRequestForm({ initialService, initialSpecies, entryService }
             required
           />
           <span>
-            Wyrażam zgodę na rozpoczęcie świadczenia usługi przed upływem 14 dni i przyjmuję do wiadomości, że po
-            wykonaniu konsultacji tracę prawo odstąpienia od umowy.
+            WyraĹĽam zgodÄ™ na rozpoczÄ™cie Ĺ›wiadczenia usĹ‚ugi przed upĹ‚ywem 14 dni i przyjmujÄ™ do wiadomoĹ›ci, ĹĽe po
+            wykonaniu konsultacji tracÄ™ prawo odstÄ…pienia od umowy.
           </span>
         </label>
       </fieldset>
@@ -479,9 +479,10 @@ export function BookRequestForm({ initialService, initialSpecies, entryService }
 
       <div className="full-width">
         <button type="submit" className="button button-primary big-button" disabled={status === 'loading'}>
-          {status === 'loading' ? `Wysyłam prośbę o ${selectedService.label.toLowerCase()}...` : 'Wyślij prośbę o rezerwację'}
+          {status === 'loading' ? `WysyĹ‚am proĹ›bÄ™ o ${selectedService.label.toLowerCase()}...` : 'WyĹ›lij proĹ›bÄ™ o rezerwacjÄ™'}
         </button>
       </div>
     </form>
   )
 }
+

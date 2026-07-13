@@ -1,71 +1,47 @@
-// Manualna lista opinii — fallback gdy brak Google API + źródło danych dla Schema.org
-// Edytuj tę listę dodając/usuwając opinie
+import { opinionReviews } from '@/lib/opinion-reviews'
 
+// Jedno źródło opinii dla strony /opinie, sekcji zaufania i danych Schema.org.
+// Wpisy są dodawane ręcznie po akceptacji, dlatego nie pobieramy ich z zewnętrznego API.
 export interface Review {
-  id: string;
-  author: string;
-  location?: string;
-  petName?: string;
-  petType: 'dog' | 'cat' | 'other';
-  problem: string;
-  rating: 1 | 2 | 3 | 4 | 5;
-  date: string;
-  text: string;
-  source: 'file' | 'google' | 'direct' | 'email';
-  consultationType?: 'kwadrans' | 'standardowa' | 'wyjazdowa';
-  highlight?: boolean;
+  id: string
+  author: string
+  location?: string
+  petName?: string
+  petType: 'dog' | 'cat' | 'other'
+  problem: string
+  rating: 1 | 2 | 3 | 4 | 5
+  date?: string
+  text: string
+  source: 'file' | 'google' | 'direct' | 'email'
+  consultationType?: 'kwadrans' | 'standardowa' | 'wyjazdowa'
+  highlight?: boolean
 }
 
-export const reviews: Review[] = [
-  {
-    id: 'rev-001',
-    author: 'Anna',
-    petName: 'Borys',
-    petType: 'dog',
-    problem: 'reakcje na spacerze',
-    rating: 5,
-    date: '2026-03-22',
-    text: 'Przed rozmową o Borysie mieliśmy w głowie chaos: spacer, szczekanie, emocje. Po konsultacji wiedzieliśmy, co robimy najpierw i czego na razie nie dokładać.',
-    source: 'file',
-    consultationType: 'kwadrans',
-    highlight: true,
-  },
-  {
-    id: 'rev-002',
-    author: 'Marta',
-    petName: 'Luna',
-    petType: 'dog',
-    problem: 'praca w domu',
-    rating: 5,
-    date: '2026-04-14',
-    text: 'Najbardziej pomogło mi to, że nikt nie oceniał mnie ani Luny. Zamiast listy zakazów dostałam prosty plan, który dało się wdrożyć w naszym domu.',
-    source: 'file',
-    consultationType: 'kwadrans',
-    highlight: true,
-  },
-  {
-    id: 'rev-003',
-    author: 'Kasia',
-    petName: 'Mila',
-    petType: 'cat',
-    problem: 'kuweta i napięcie',
-    rating: 5,
-    date: '2026-05-12',
-    text: 'Myśleliśmy, że Mila jest złośliwa. Po rozmowie zobaczyliśmy, że to raczej napięcie i środowisko. Wreszcie wiedzieliśmy, co sprawdzić po kolei.',
-    source: 'file',
-    consultationType: 'kwadrans',
-    highlight: true,
-  },
-];
+function getPetType(categories: readonly string[]): Review['petType'] {
+  if (categories.includes('Pies')) return 'dog'
+  if (categories.includes('Kot')) return 'cat'
+  return 'other'
+}
+
+export const reviews: Review[] = opinionReviews.map((review, index) => ({
+  id: `opinia-${index + 1}`,
+  author: review.name,
+  petType: getPetType(review.categories),
+  problem: review.service.trim() || review.categories[0] || 'opinia',
+  rating: 5,
+  text: review.text,
+  source: 'direct',
+  highlight: index < 6,
+}))
 
 export const aggregateRating = {
-  ratingValue: reviews.reduce((s, r) => s + r.rating, 0) / reviews.length,
+  ratingValue: reviews.length > 0 ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length : 0,
   reviewCount: reviews.length,
   bestRating: 5,
   worstRating: 1,
-};
+}
 
-export const highlightedReviews = reviews.filter(r => r.highlight);
-export const dogReviews = reviews.filter(r => r.petType === 'dog');
-export const catReviews = reviews.filter(r => r.petType === 'cat');
-export const fiveStarReviews = reviews.filter(r => r.rating === 5);
+export const highlightedReviews = reviews.filter((review) => review.highlight)
+export const dogReviews = reviews.filter((review) => review.petType === 'dog')
+export const catReviews = reviews.filter((review) => review.petType === 'cat')
+export const fiveStarReviews = reviews.filter((review) => review.rating === 5)

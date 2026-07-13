@@ -1,4 +1,4 @@
-export const dynamic = 'force-dynamic'
+﻿export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 import { NextResponse } from 'next/server'
@@ -24,16 +24,16 @@ type ValidatedBookPayload = {
 }
 
 const SERVICES: Record<BookingServiceId, { label: string; price: string }> = {
-  'kwadrans-na-juz': { label: 'Kwadrans na już', price: '99 zł' },
-  'szybka-konsultacja-15-min': { label: '15-minutowa konsultacja behawioralna', price: '69 zł' },
-  'konsultacja-30-min': { label: 'Dwa kwadranse', price: '169 zł' },
-  'konsultacja-behawioralna-online': { label: 'Pełna konsultacja', price: '470 zł' },
+  'kwadrans-na-juz': { label: 'Kwadrans na juĹĽ', price: '99 zĹ‚' },
+  'szybka-konsultacja-15-min': { label: '15-minutowa konsultacja behawioralna', price: '69 zĹ‚' },
+  'konsultacja-30-min': { label: 'Dwa kwadranse', price: '169 zĹ‚' },
+  'konsultacja-behawioralna-online': { label: 'PeĹ‚na konsultacja', price: '470 zĹ‚' },
 }
 
-const SUCCESS_MESSAGE = 'Dostałem Twoją rezerwację. Wysłałem też kopię na podany adres e-mail.'
-const URGENT_SUCCESS_MESSAGE = 'Twoja prośba o Kwadrans na już dotarła. Wysłałem też kopię na podany adres e-mail.'
-const GENERIC_ERROR_MESSAGE = 'Nie udało się wysłać prośby o rezerwację. Spróbuj ponownie później.'
-const UNAVAILABLE_MESSAGE = 'Rezerwacja mailowa jest chwilowo niedostępna. Spróbuj później albo napisz przez formularz kontaktowy.'
+const SUCCESS_MESSAGE = 'DostaĹ‚em TwojÄ… rezerwacjÄ™. WysĹ‚aĹ‚em teĹĽ kopiÄ™ na podany adres e-mail.'
+const URGENT_SUCCESS_MESSAGE = 'Twoja proĹ›ba o Kwadrans na juĹĽ dotarĹ‚a. WysĹ‚aĹ‚em teĹĽ kopiÄ™ na podany adres e-mail.'
+const GENERIC_ERROR_MESSAGE = 'Nie udaĹ‚o siÄ™ wysĹ‚aÄ‡ proĹ›by o rezerwacjÄ™. SprĂłbuj ponownie pĂłĹşniej.'
+const UNAVAILABLE_MESSAGE = 'Rezerwacja mailowa jest chwilowo niedostÄ™pna. SprĂłbuj pĂłĹşniej albo napisz przez formularz kontaktowy.'
 
 function normalizeSingleLine(value: unknown, maxLength: number) {
   if (typeof value !== 'string') {
@@ -72,11 +72,11 @@ function validatePayload(body: Record<string, unknown>): { payload?: ValidatedBo
   const species = speciesValue === 'pies' || speciesValue === 'kot' ? speciesValue : null
 
   if (service === 'kwadrans-na-juz') {
-    return { error: 'Kwadrans na już ma osobny formularz z wyborem godzin na dziś.' }
+    return { error: 'Kwadrans na juĹĽ ma osobny formularz z wyborem godzin na dziĹ›.' }
   }
 
   if (!serviceConfig || !name || !email || !species || !description || !preferredSlots) {
-    return { error: 'Uzupełnij usługę, imię, e-mail, gatunek, opis sytuacji i preferowane terminy.' }
+    return { error: 'UzupeĹ‚nij usĹ‚ugÄ™, imiÄ™, e-mail, gatunek, opis sytuacji i preferowane terminy.' }
   }
 
   if (!isEmailValid(email)) {
@@ -84,7 +84,7 @@ function validatePayload(body: Record<string, unknown>): { payload?: ValidatedBo
   }
 
   if (description.length < 20) {
-    return { error: 'Opis sytuacji powinien mieć co najmniej 20 znaków.' }
+    return { error: 'Opis sytuacji powinien mieÄ‡ co najmniej 20 znakĂłw.' }
   }
 
   if (!consentRodo || !consentRegulamin || !consentEarlyStart) {
@@ -100,7 +100,7 @@ function validatePayload(body: Record<string, unknown>): { payload?: ValidatedBo
       email,
       species,
       description,
-      preferredSlots: preferredSlots ?? 'Chcę termin jak najszybciej - proszę o priorytetową odpowiedź z realną propozycją terminu.',
+      preferredSlots: preferredSlots ?? 'ChcÄ™ termin jak najszybciej - proszÄ™ o priorytetowÄ… odpowiedĹş z realnÄ… propozycjÄ… terminu.',
       consentRodo,
       consentRegulamin,
       consentEarlyStart,
@@ -116,7 +116,7 @@ export async function POST(request: Request) {
     try {
       body = (await request.json()) as Record<string, unknown>
     } catch {
-      return NextResponse.json({ error: 'Nie udało się odczytać formularza rezerwacji.' }, { status: 400 })
+      return NextResponse.json({ error: 'Nie udaĹ‚o siÄ™ odczytaÄ‡ formularza rezerwacji.' }, { status: 400 })
     }
 
     const { payload, error } = validatePayload(body)
@@ -196,3 +196,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: GENERIC_ERROR_MESSAGE }, { status: 500 })
   }
 }
+

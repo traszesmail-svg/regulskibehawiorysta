@@ -88,7 +88,7 @@ export default function MaterialyLandingPage() {
       tag="Materiały / PDF"
       navItems={PUBLIC_SITE_NAV_ITEMS}
       ctaHref={quickHref}
-      ctaLabel="Kwadrans / 69 zł"
+      ctaLabel="Kwadrans / 74 zł"
       footerPrimaryHref={quickHref}
       footerPrimaryLabel="Kwadrans z behawiorystą"
       sideVisualVariant="materials"
@@ -186,7 +186,7 @@ export default function MaterialyLandingPage() {
         title="Jeśli materiał nie wystarczy, <em>Kwadrans porządkuje temat w 15 minut.</em>"
         copy="PDF jest dobry jako spokojny start. Gdy objaw wraca albo łączy się z innymi wątkami, rozmowa szybciej ustawia priorytet."
         primaryHref={quickHref}
-        primaryLabel="Umów spokojny pierwszy krok / 69 zł"
+        primaryLabel="Umów spokojny pierwszy krok / 74 zł"
       />
     </NotatnikPageShell>
   )

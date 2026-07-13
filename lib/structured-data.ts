@@ -1,5 +1,5 @@
-// handoff-6/lib/structured-data.ts
-// Generatory JSON-LD dla różnych typów stron
+﻿// handoff-6/lib/structured-data.ts
+// Generatory JSON-LD dla rĂłĹĽnych typĂłw stron
 // Wstaw przez <Script type="application/ld+json"> w odpowiednich page.tsx
 
 import { SITE } from './seo.config';
@@ -24,11 +24,11 @@ export function localBusinessSchema() {
       itemListElement: [
         { '@type': 'Offer', name: 'Kwadrans', price: '69', priceCurrency: 'PLN' },
         { '@type': 'Offer', name: 'Dwa kwadranse', price: '169', priceCurrency: 'PLN' },
-        { '@type': 'Offer', name: 'Pełna konsultacja', price: '470', priceCurrency: 'PLN' },
+        { '@type': 'Offer', name: 'PeĹ‚na konsultacja', price: '470', priceCurrency: 'PLN' },
       ],
     },
     sameAs: [
-      // dodaj jeśli ma:
+      // dodaj jeĹ›li ma:
       // 'https://www.facebook.com/...',
       // 'https://www.instagram.com/...',
       // 'https://www.linkedin.com/in/...',
@@ -51,28 +51,28 @@ export function serviceSchema() {
         {
           '@type': 'Offer',
           name: 'Kwadrans',
-          description: '15 min audio bez kamery na jedno główne pytanie',
+          description: '15 min audio bez kamery na jedno gĹ‚Ăłwne pytanie',
           price: '69',
           priceCurrency: 'PLN',
         },
         {
           '@type': 'Offer',
-          name: 'Kwadrans na już',
-          description: 'Ten sam zakres co Kwadrans, ale z priorytetem i najbliższym realnym terminem',
+          name: 'Kwadrans na juĹĽ',
+          description: 'Ten sam zakres co Kwadrans, ale z priorytetem i najbliĹĽszym realnym terminem',
           price: '99',
           priceCurrency: 'PLN',
         },
         {
           '@type': 'Offer',
           name: 'Dwa kwadranse',
-          description: '30 min online, gdy temat ma kilka wątków',
+          description: '30 min online, gdy temat ma kilka wÄ…tkĂłw',
           price: '169',
           priceCurrency: 'PLN',
         },
         {
           '@type': 'Offer',
-          name: 'Pełna konsultacja',
-          description: 'Około 2h online, analiza zachowania, plan działania i 7 dni wsparcia przez WhatsApp',
+          name: 'PeĹ‚na konsultacja',
+          description: 'OkoĹ‚o 2h online, analiza zachowania, plan dziaĹ‚ania i 14 dni komunikacji w pokoju klienta',
           price: '470',
           priceCurrency: 'PLN',
         },
@@ -171,12 +171,12 @@ export function personSchema() {
     url: `${SITE.url}/o-mnie`,
     image: `${SITE.url}/about-photo.jpg`,
     knowsAbout: [
-      'Behawiorystyka zwierząt',
+      'Behawiorystyka zwierzÄ…t',
       'Psy',
       'Koty',
-      'Lęk separacyjny',
-      'Reaktywność',
-      'Konflikt między kotami',
+      'LÄ™k separacyjny',
+      'ReaktywnoĹ›Ä‡',
+      'Konflikt miÄ™dzy kotami',
     ],
     hasCredential: [
       { '@type': 'EducationalOccupationalCredential', name: 'Certyfikat COAPE' },
@@ -190,3 +190,4 @@ export function personSchema() {
 export function jsonLdScript(data: object) {
   return JSON.stringify(data, null, 0);
 }
+

@@ -339,6 +339,10 @@ function bookingToSummary(booking: BookingRecord): AccountBookingSummary {
     callStatus: booking.callStatus ?? null,
     startedAt: booking.startedAt ?? null,
     questionsRemaining: booking.questionsRemaining ?? null,
+    serviceType: booking.serviceType ?? null,
+    supportEndsAt: booking.serviceType === 'konsultacja-behawioralna-online'
+      ? new Date(new Date(`${booking.bookingDate}T${booking.bookingTime}:00`).getTime() + 14 * 86400000).toISOString()
+      : null,
   }
 }
 
@@ -370,6 +374,10 @@ function leadBookingToSummary(booking: LeadBookingRecord): AccountBookingSummary
     callStatus: booking.callStatus ?? null,
     startedAt: booking.startedAt ?? null,
     questionsRemaining: booking.questionsRemaining ?? null,
+    serviceType: booking.service,
+    supportEndsAt: booking.service === 'konsultacja-behawioralna-online' && booking.confirmedDate
+      ? new Date(new Date(`${booking.confirmedDate}T${booking.confirmedTime ?? '12:00'}:00`).getTime() + 14 * 86400000).toISOString()
+      : null,
   }
 }
 
@@ -755,11 +763,14 @@ export async function createAccountMessage(user: User, input: CreateAccountMessa
     const userLeadBookingsAll = allLeadBookings.filter(b => b.email?.trim().toLowerCase() === userEmail && (b.status === 'paid' || b.status === 'confirmed'))
 
     const mappedAll = [
-      ...userBookingsAll.map(b => ({ id: b.id, createdAt: b.createdAt, serviceType: b.serviceType, questionsRemaining: b.questionsRemaining ?? null, isLead: false })),
-      ...userLeadBookingsAll.map(b => ({ id: b.id, createdAt: b.createdAt, serviceType: b.service || null, questionsRemaining: b.questionsRemaining ?? null, isLead: true })),
+      ...userBookingsAll.map(b => ({ id: b.id, createdAt: b.createdAt, serviceType: b.serviceType, questionsRemaining: b.questionsRemaining ?? null, isLead: false, supportEndsAt: b.serviceType === 'konsultacja-behawioralna-online' ? new Date(new Date(`${b.bookingDate}T${b.bookingTime}:00`).getTime() + 14 * 86400000).getTime() : null })),
+      ...userLeadBookingsAll.map(b => ({ id: b.id, createdAt: b.createdAt, serviceType: b.service || null, questionsRemaining: b.questionsRemaining ?? null, isLead: true, supportEndsAt: b.service === 'konsultacja-behawioralna-online' && b.confirmedDate ? new Date(new Date(`${b.confirmedDate}T${b.confirmedTime ?? '12:00'}:00`).getTime() + 14 * 86400000).getTime() : null })),
     ].sort((a, b) => b.createdAt.localeCompare(a.createdAt))
 
     const latestBooking = mappedAll[0]
+    if (latestBooking?.serviceType === 'konsultacja-behawioralna-online' && latestBooking.supportEndsAt !== null && Date.now() > latestBooking.supportEndsAt) {
+      throw new Error('14-dniowy okres komunikacji w pokoju po pełnej konsultacji już się zakończył.')
+    }
     if (latestBooking && (latestBooking.serviceType === 'szybka-konsultacja-15-min' || latestBooking.serviceType === 'kwadrans-na-juz' || latestBooking.serviceType === 'konsultacja-30-min')) {
       if (latestBooking.questionsRemaining !== null) {
         if (latestBooking.questionsRemaining <= 0) {

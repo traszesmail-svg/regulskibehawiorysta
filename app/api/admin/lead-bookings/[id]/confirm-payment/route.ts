@@ -5,6 +5,7 @@ import { NextResponse } from 'next/server'
 import { getLeadBookingById, updateLeadBooking } from '@/lib/server/lead-bookings'
 import { verifyConfirmToken } from '@/lib/admin-confirm-token'
 import { sendLeadBookingConfirmedEmail } from '@/lib/server/notifications'
+import { createRoomPasswordSetupLink } from '@/lib/server/account-auth'
 
 const SERVICE_DURATION_MINUTES: Record<string, number> = {
   'kwadrans-na-juz': 15,
@@ -63,11 +64,12 @@ export async function POST(request: Request, { params }: { params: { id: string 
   const startIso = `${date}T${time}:00+02:00`
   const startDate = new Date(startIso)
   const endDate = new Date(startDate.getTime() + durationMin * 60 * 1000)
-  const callRoomUrl = booking.callRoomUrl ?? `https://meet.jit.si/regulski-${booking.id.substring(0, 8)}`
+  const isFullConsultation = booking.service === 'konsultacja-behawioralna-online'
+  const callRoomUrl = isFullConsultation ? booking.callRoomUrl ?? `https://meet.jit.si/regulski-${booking.id.substring(0, 8)}` : null
   const calendarUrl = buildCalendarUrl({
     title: `Konsultacja: ${booking.serviceLabel}`,
     details: `Konsultacja behawioralna z ${booking.name}.\n\nGatunek: ${booking.species === 'kot' ? 'Kot' : 'Pies'}\n\nOpis:\n${booking.description}`,
-    location: callRoomUrl,
+    location: callRoomUrl ?? 'Rozmowa telefoniczna (Zadarma)',
     startsAt: startDate,
     endsAt: endDate,
   })
@@ -82,6 +84,13 @@ export async function POST(request: Request, { params }: { params: { id: string 
     calendarUrl,
   })
 
+  let roomSetupUrl: string | null = null
+  try {
+    roomSetupUrl = await createRoomPasswordSetupLink(booking.email, `${new URL(request.url).origin}/login`)
+  } catch (error) {
+    console.error('[confirm-payment] room setup link failed', { id: params.id, error })
+  }
+
   // Wyślij email do klienta
   const emailResult = await sendLeadBookingConfirmedEmail({
     name: booking.name,
@@ -91,6 +100,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
     confirmedTime: time,
     callRoomUrl,
     calendarUrl,
+    roomSetupUrl,
   })
 
   console.info('[confirm-payment] booking confirmed', { id: params.id, emailStatus: emailResult.status })

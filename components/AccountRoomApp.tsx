@@ -428,6 +428,9 @@ export function AccountRoomApp({ initialView = 'start' }: AccountRoomAppProps) {
         const isLimited = latestBooking && (latestBooking.serviceType === 'szybka-konsultacja-15-min' || latestBooking.serviceType === 'kwadrans-na-juz' || latestBooking.serviceType === 'konsultacja-30-min')
         const questionsRemaining = isLimited ? latestBooking.questionsRemaining : null
         const isChatBlocked = isLimited && questionsRemaining !== null && questionsRemaining <= 0
+        const fullSupportEndsAt = latestBooking?.serviceType === 'konsultacja-behawioralna-online' ? latestBooking.supportEndsAt : null
+        const isFullSupportExpired = Boolean(fullSupportEndsAt && Date.now() > Date.parse(fullSupportEndsAt))
+        const isMessageBlocked = isChatBlocked || isFullSupportExpired
 
         return (
           <div className="account-split">
@@ -449,6 +452,13 @@ export function AccountRoomApp({ initialView = 'start' }: AccountRoomAppProps) {
                   )}
                 </div>
               ) : null}
+              {fullSupportEndsAt ? (
+                <div className="account-room-notice">
+                  {isFullSupportExpired
+                    ? '14-dniowy okres komunikacji w pokoju po pełnej konsultacji zakończył się.'
+                    : `Komunikacja w pokoju jest aktywna do ${new Intl.DateTimeFormat('pl-PL', { dateStyle: 'long', timeStyle: 'short' }).format(new Date(fullSupportEndsAt))}.`}
+                </div>
+              ) : null}
               <form className="materialy-form account-form" onSubmit={sendMessage}>
                 <label>
                   Wiadomość
@@ -456,8 +466,8 @@ export function AccountRoomApp({ initialView = 'start' }: AccountRoomAppProps) {
                     value={messageBody}
                     onChange={(event) => setMessageBody(event.target.value)}
                     rows={6}
-                    disabled={isChatBlocked}
-                    placeholder={isChatBlocked ? "Czat zablokowany - wyczerpano limit pytań." : "Napisz wiadomość..."}
+                    disabled={isMessageBlocked}
+                    placeholder={isMessageBlocked ? "Wysyłka wiadomości jest obecnie niedostępna." : "Napisz wiadomość..."}
                   />
                 </label>
                 <label>
@@ -466,10 +476,10 @@ export function AccountRoomApp({ initialView = 'start' }: AccountRoomAppProps) {
                     type="file"
                     accept="image/jpeg,image/png,image/webp,application/pdf,video/mp4,video/quicktime"
                     onChange={(event) => setMessageFile(event.target.files?.[0] ?? null)}
-                    disabled={isChatBlocked}
+                    disabled={isMessageBlocked}
                   />
                 </label>
-                <button type="submit" className="button button-primary big-button" disabled={busy || isChatBlocked}>
+                <button type="submit" className="button button-primary big-button" disabled={busy || isMessageBlocked}>
                   <Upload size={17} aria-hidden="true" />
                   {busy ? 'Wysyłam...' : 'Dodaj do rozmowy'}
                 </button>

@@ -1,5 +1,5 @@
-export const DEFAULT_PRICE_PLN = 69
-export const MIN_CONSULTATION_PRICE_PLN = 69
+export const DEFAULT_PRICE_PLN = 74
+export const MIN_CONSULTATION_PRICE_PLN = 74
 export const PRE_TOPIC_PRICE_CONFIRMATION_COPY = 'Dokładną kwotę poznasz po wyborze tematu konsultacji.'
 
 export type ActiveConsultationPrice = {
@@ -57,6 +57,13 @@ export function buildPublicPricingDisclosureMessage(amount: number | null | unde
 
   return `Od ${formatPricePln(amount)}. ${PRE_TOPIC_PRICE_CONFIRMATION_COPY}`
 }
+
+/**
+ * This is a validity notice, not a promotion claim.  The amount is the actual
+ * price in force and can be changed in the admin panel; if it is not changed,
+ * the same amount simply remains in force in the following week.
+ */
+export const WEEKLY_PRICE_VALIDITY_COPY = 'Aktualna cena obowiązuje do niedzieli, 23:59.'
 
 export function parseConsultationPriceInput(rawValue: string | number): number {
   const raw = typeof rawValue === 'number' ? String(rawValue) : rawValue.trim()

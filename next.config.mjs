@@ -76,6 +76,7 @@ const REMOVED_LEAD_MAGNET_SLUGS = [
 const nextConfig = {
   ...(customDistDir ? { distDir: customDistDir } : {}),
   images: {
+    formats: ['image/avif', 'image/webp'],
     remotePatterns: [
       { protocol: 'https', hostname: 'upload.wikimedia.org' },
       { protocol: 'https', hostname: 'images.unsplash.com' },

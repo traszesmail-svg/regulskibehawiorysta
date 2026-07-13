@@ -55,11 +55,11 @@ export const QUIZ_PROBLEM_CONTEXTS: Record<string, QuizProblemContext> = {
     species: 'pies',
     mainTopic: 'walks',
     heroTitle: 'Quiz: pies szczeka na inne psy',
-    heroCopy: 'Zaczynamy od spaceru i reakcji na psy. PominÄ…Ĺ‚em wybĂłr gatunku, ĹĽeby szybciej dojĹ›Ä‡ do ryzyka, zdrowia i skali problemu.',
+    heroCopy: 'Zaczynamy od spaceru i reakcji na psy. Pominąłem wybór gatunku, żeby szybciej dojść do ryzyka, zdrowia i skali problemu.',
     resultTitle: 'Pies reaguje na spacerze',
-    resultSummary: 'Wynik odnosi siÄ™ do szczekania, napiÄ™cia i mijanek na spacerze.',
-    firstStep: 'SprawdĹş dystans, przy ktĂłrym pies jeszcze moĹĽe wÄ™szyÄ‡, jeĹ›Ä‡ albo wrĂłciÄ‡ do kontaktu.',
-    avoid: 'Nie zaczynaj od korekt w najtrudniejszym miejscu i nie skracaj dystansu na siĹ‚Ä™.',
+    resultSummary: 'Wynik odnosi się do szczekania, napięcia i mijanek na spacerze.',
+    firstStep: 'Sprawdź dystans, przy którym pies jeszcze może węszyć, jeść albo wrócić do kontaktu.',
+    avoid: 'Nie zaczynaj od korekt w najtrudniejszym miejscu i nie skracaj dystansu na siłę.',
     articleHref: '/blog/dlaczego-moj-pies-szczeka-na-inne-psy',
     articleLabel: 'Dlaczego pies szczeka na inne psy?',
     problemHref: '/problemy/pies-szczeka-na-psy',
@@ -69,14 +69,14 @@ export const QUIZ_PROBLEM_CONTEXTS: Record<string, QuizProblemContext> = {
     problemKey: 'pies-ciagnie-na-smyczy',
     species: 'pies',
     mainTopic: 'walks',
-    heroTitle: 'Quiz: pies ciÄ…gnie na smyczy',
-    heroCopy: 'Zaczynamy od spaceru, pobudzenia i tempa. Quiz pomoĹĽe odrĂłĹĽniÄ‡ prostÄ… korektÄ™ spaceru od szerszego problemu emocji.',
-    resultTitle: 'Pies i spacer pod napiÄ™ciem',
-    resultSummary: 'Wynik odnosi siÄ™ do ciÄ…gniÄ™cia, pobudzenia i trudnoĹ›ci z kontaktem na smyczy.',
-    firstStep: 'Wybierz jeden krĂłtki odcinek spaceru, na ktĂłrym celem jest wolniejsze tempo i kontakt, nie przejĹ›cie jak najdalej.',
-    avoid: 'Nie traktuj zmiany sprzÄ™tu jako jedynego rozwiÄ…zania i nie Ä‡wicz dĹ‚ugo, gdy pies jest juĹĽ ponad progiem.',
+    heroTitle: 'Quiz: pies ciągnie na smyczy',
+    heroCopy: 'Zaczynamy od spaceru, pobudzenia i tempa. Quiz pomoże odróżnić prostą korektę spaceru od szerszego problemu emocji.',
+    resultTitle: 'Pies i spacer pod napięciem',
+    resultSummary: 'Wynik odnosi się do ciągnięcia, pobudzenia i trudności z kontaktem na smyczy.',
+    firstStep: 'Wybierz jeden krótki odcinek spaceru, na którym celem jest wolniejsze tempo i kontakt, nie przejście jak najdalej.',
+    avoid: 'Nie traktuj zmiany sprzętu jako jedynego rozwiązania i nie ćwicz długo, gdy pies jest już ponad progiem.',
     articleHref: '/blog/pies-ciagnie-na-smyczy',
-    articleLabel: 'Pies ciÄ…gnie na smyczy',
+    articleLabel: 'Pies ciągnie na smyczy',
     problemHref: '/problemy/pies-ciagnie-na-smyczy',
     problemLabel: 'Strona problemowa: smycz',
   },
@@ -85,15 +85,15 @@ export const QUIZ_PROBLEM_CONTEXTS: Record<string, QuizProblemContext> = {
     species: 'pies',
     mainTopic: 'fear_stress',
     heroTitle: 'Quiz: pies nie zostaje sam',
-    heroCopy: 'Zaczynamy od rozĹ‚Ä…ki, nagrania i emocji po wyjĹ›ciu opiekuna. To waĹĽne, ĹĽeby nie pomyliÄ‡ nudy z panikÄ….',
+    heroCopy: 'Zaczynamy od rozłąki, nagrania i emocji po wyjściu opiekuna. To ważne, żeby nie pomylić nudy z paniką.',
     resultTitle: 'Pies zostawiany sam',
-    resultSummary: 'Wynik odnosi siÄ™ do samotnoĹ›ci, wycia, niszczenia albo napiÄ™cia po wyjĹ›ciu opiekuna.',
-    firstStep: 'Nagraj 20-30 minut po wyjĹ›ciu i sprawdĹş, kiedy pojawia siÄ™ pierwszy objaw.',
-    avoid: 'Nie zostawiaj psa, ĹĽeby siÄ™ wypĹ‚akaĹ‚, jeĹ›li na nagraniu widaÄ‡ panikÄ™.',
+    resultSummary: 'Wynik odnosi się do samotności, wycia, niszczenia albo napięcia po wyjściu opiekuna.',
+    firstStep: 'Nagraj 20-30 minut po wyjściu i sprawdź, kiedy pojawia się pierwszy objaw.',
+    avoid: 'Nie zostawiaj psa, żeby się wypłakał, jeśli na nagraniu widać panikę.',
     articleHref: '/blog/pies-wyje-kiedy-zostaje-sam',
     articleLabel: 'Pies wyje, kiedy zostaje sam',
     problemHref: '/problemy/pies-nie-zostaje-sam',
-    problemLabel: 'Strona problemowa: samotnoĹ›Ä‡ psa',
+    problemLabel: 'Strona problemowa: samotność psa',
   },
   'wakacje-opieka-zmiana-rytmu': {
     problemKey: 'wakacje-opieka-zmiana-rytmu',
@@ -101,28 +101,28 @@ export const QUIZ_PROBLEM_CONTEXTS: Record<string, QuizProblemContext> = {
     mainTopic: 'fear_stress',
     heroTitle: 'Quiz: wakacje, opieka i zmiana rytmu',
     heroCopy:
-      'Zaczynamy od tego, co zmieni siÄ™ podczas wyjazdu: opiekun, rytm dnia, zostawanie samemu, miejsce odpoczynku i poziom bodĹşcĂłw.',
+      'Zaczynamy od tego, co zmieni się podczas wyjazdu: opiekun, rytm dnia, zostawanie samemu, miejsce odpoczynku i poziom bodźców.',
     resultTitle: 'Wakacyjna zmiana rytmu',
-    resultSummary: 'Wynik odnosi siÄ™ do wyjazdu, opieki innej osoby i ryzyka nasilenia samotnoĹ›ci albo napiÄ™cia.',
-    firstStep: 'Spisz, co dokĹ‚adnie zmieni siÄ™ w opiece: godziny wyjĹ›Ä‡, miejsce snu, spacery, karmienie i osoby w domu.',
-    avoid: 'Nie zostawiaj pierwszej dĹ‚ugiej rozĹ‚Ä…ki na dzieĹ„ wyjazdu i nie zakĹ‚adaj, ĹĽe pies sam dopasuje siÄ™ do nowego rytmu.',
+    resultSummary: 'Wynik odnosi się do wyjazdu, opieki innej osoby i ryzyka nasilenia samotności albo napięcia.',
+    firstStep: 'Spisz, co dokładnie zmieni się w opiece: godziny wyjść, miejsce snu, spacery, karmienie i osoby w domu.',
+    avoid: 'Nie zostawiaj pierwszej długiej rozłąki na dzień wyjazdu i nie zakładaj, że pies sam dopasuje się do nowego rytmu.',
     articleHref: '/blog/pies-wyje-kiedy-zostaje-sam',
     articleLabel: 'Pies wyje, kiedy zostaje sam',
     problemHref: '/problemy/pies-nie-zostaje-sam',
-    problemLabel: 'Strona problemowa: samotnoĹ›Ä‡ psa',
+    problemLabel: 'Strona problemowa: samotność psa',
   },
   'kot-sika-poza-kuweta': {
     problemKey: 'kot-sika-poza-kuweta',
     species: 'kot',
     mainTopic: 'home_behavior',
-    heroTitle: 'Quiz: kot sika poza kuwetÄ…',
-    heroCopy: 'Zaczynamy od kuwety, zdrowia i stresu. Przy nagĹ‚ej zmianie rĂłwnolegle warto braÄ‡ pod uwagÄ™ lekarza weterynarii.',
+    heroTitle: 'Quiz: kot sika poza kuwetą',
+    heroCopy: 'Zaczynamy od kuwety, zdrowia i stresu. Przy nagłej zmianie równolegle warto brać pod uwagę lekarza weterynarii.',
     resultTitle: 'Kot i kuweta',
-    resultSummary: 'Wynik odnosi siÄ™ do zachowaĹ„ toaletowych, zasobĂłw, stresu i moĹĽliwego tĹ‚a zdrowotnego.',
-    firstStep: 'Zacznij od kontroli zdrowia i spisu: liczba kuwet, miejsca zdarzeĹ„, ĹĽwirek, zmiany w domu.',
-    avoid: 'Nie karz kota i nie zakĹ‚adaj zĹ‚oĹ›liwoĹ›ci. To moĹĽe byÄ‡ sygnaĹ‚ bĂłlu albo stresu.',
+    resultSummary: 'Wynik odnosi się do zachowań toaletowych, zasobów, stresu i możliwego tła zdrowotnego.',
+    firstStep: 'Zacznij od kontroli zdrowia i spisu: liczba kuwet, miejsca zdarzeń, żwirek, zmiany w domu.',
+    avoid: 'Nie karz kota i nie zakładaj złośliwości. To może być sygnał bólu albo stresu.',
     articleHref: '/blog/kot-zalatwia-sie-poza-kuweta',
-    articleLabel: 'Kot zaĹ‚atwia siÄ™ poza kuwetÄ…',
+    articleLabel: 'Kot załatwia się poza kuwetą',
     problemHref: '/problemy/kot-sika-poza-kuweta',
     problemLabel: 'Strona problemowa: kuweta',
   },
@@ -130,52 +130,52 @@ export const QUIZ_PROBLEM_CONTEXTS: Record<string, QuizProblemContext> = {
     problemKey: 'kot-gryzie-przy-glaskaniu',
     species: 'kot',
     mainTopic: 'relationships',
-    heroTitle: 'Quiz: kot gryzie przy gĹ‚askaniu',
-    heroCopy: 'Zaczynamy od kontaktu, sygnaĹ‚Ăłw napiÄ™cia i moĹĽliwego bĂłlu. Quiz pomoĹĽe ustaliÄ‡, czy wystarczy protokĂłĹ‚ dotyku, czy trzeba szerzej sprawdziÄ‡ tĹ‚o.',
-    resultTitle: 'Kot i kontakt z czĹ‚owiekiem',
-    resultSummary: 'Wynik odnosi siÄ™ do gryzienia przy gĹ‚askaniu, przestymulowania i sygnaĹ‚Ăłw ostrzegawczych.',
-    firstStep: 'SkrĂłÄ‡ gĹ‚askanie do kilku sekund i koĹ„cz kontakt zanim kot napnie ogon, uszy albo skĂłrÄ™ grzbietu.',
-    avoid: 'Nie przytrzymuj kota i nie testuj granic, gdy juĹĽ pokazaĹ‚ napiÄ™cie.',
+    heroTitle: 'Quiz: kot gryzie przy głaskaniu',
+    heroCopy: 'Zaczynamy od kontaktu, sygnałów napięcia i możliwego bólu. Quiz pomoże ustalić, czy wystarczy protokół dotyku, czy trzeba szerzej sprawdzić tło.',
+    resultTitle: 'Kot i kontakt z człowiekiem',
+    resultSummary: 'Wynik odnosi się do gryzienia przy głaskaniu, przestymulowania i sygnałów ostrzegawczych.',
+    firstStep: 'Skróć głaskanie do kilku sekund i kończ kontakt zanim kot napnie ogon, uszy albo skórę grzbietu.',
+    avoid: 'Nie przytrzymuj kota i nie testuj granic, gdy już pokazał napięcie.',
     articleHref: '/blog/stres-kota-a-zachowania-toaletowe',
     articleLabel: 'Stres kota i zachowanie',
     problemHref: '/problemy/kot-gryzie-przy-glaskaniu',
-    problemLabel: 'Strona problemowa: gryzienie przy gĹ‚askaniu',
+    problemLabel: 'Strona problemowa: gryzienie przy głaskaniu',
   },
   'konflikt-miedzy-kotami': {
     problemKey: 'konflikt-miedzy-kotami',
     species: 'kot',
     mainTopic: 'relationships',
-    heroTitle: 'Quiz: koty ĹĽyjÄ… w napiÄ™ciu',
-    heroCopy: 'Zaczynamy od relacji, zasobĂłw i cichego blokowania przestrzeni. Konflikt nie zawsze wyglÄ…da jak otwarta bĂłjka.',
-    resultTitle: 'Koty i napiÄ™cie w domu',
-    resultSummary: 'Wynik odnosi siÄ™ do relacji miÄ™dzy kotami, zasobĂłw, unikania i konfliktu.',
-    firstStep: 'Zmapuj kuwety, miski, wodÄ™, kryjĂłwki i przejĹ›cia. SprawdĹş, czy jeden kot nie blokuje drugiego.',
-    avoid: 'Nie zostawiaj kotĂłw, ĹĽeby same ustaliĹ‚y hierarchiÄ™, jeĹ›li napiÄ™cie narasta.',
+    heroTitle: 'Quiz: koty żyją w napięciu',
+    heroCopy: 'Zaczynamy od relacji, zasobów i cichego blokowania przestrzeni. Konflikt nie zawsze wygląda jak otwarta bójka.',
+    resultTitle: 'Koty i napięcie w domu',
+    resultSummary: 'Wynik odnosi się do relacji między kotami, zasobów, unikania i konfliktu.',
+    firstStep: 'Zmapuj kuwety, miski, wodę, kryjówki i przejścia. Sprawdź, czy jeden kot nie blokuje drugiego.',
+    avoid: 'Nie zostawiaj kotów, żeby same ustaliły hierarchię, jeśli napięcie narasta.',
     articleHref: '/blog/jak-zapoznac-dwa-koty',
-    articleLabel: 'Jak zapoznaÄ‡ dwa koty',
+    articleLabel: 'Jak zapoznać dwa koty',
     problemHref: '/problemy/konflikt-miedzy-kotami',
-    problemLabel: 'Strona problemowa: konflikt kotĂłw',
+    problemLabel: 'Strona problemowa: konflikt kotów',
   },
   'nagla-zmiana-zachowania': {
     problemKey: 'nagla-zmiana-zachowania',
     mainTopic: 'other',
-    heroTitle: 'Quiz: nagĹ‚a zmiana zachowania',
-    heroCopy: 'Zaczynamy od czerwonych flag. Przy nagĹ‚ej zmianie zachowania zdrowie i bĂłl trzeba traktowaÄ‡ powaĹĽnie.',
-    resultTitle: 'NagĹ‚a zmiana zachowania',
-    resultSummary: 'Wynik odnosi siÄ™ do sytuacji, w ktĂłrej najpierw trzeba uporzÄ…dkowaÄ‡ bezpieczeĹ„stwo i moĹĽliwe tĹ‚o zdrowotne.',
-    firstStep: 'Spisz, co zmieniĹ‚o siÄ™ nagle: jedzenie, sen, ruch, kuweta, agresja, chowanie siÄ™ albo wokalizacja.',
-    avoid: 'Nie zaczynaj od treningu, jeĹ›li pojawiĹ‚ siÄ™ bĂłl, apatia, nagĹ‚a agresja albo szybkie pogorszenie.',
-    note: 'Przy czerwonych flagach zacznij rĂłwnolegle od lekarza weterynarii.',
+    heroTitle: 'Quiz: nagła zmiana zachowania',
+    heroCopy: 'Zaczynamy od czerwonych flag. Przy nagłej zmianie zachowania zdrowie i ból trzeba traktować poważnie.',
+    resultTitle: 'Nagła zmiana zachowania',
+    resultSummary: 'Wynik odnosi się do sytuacji, w której najpierw trzeba uporządkować bezpieczeństwo i możliwe tło zdrowotne.',
+    firstStep: 'Spisz, co zmieniło się nagle: jedzenie, sen, ruch, kuweta, agresja, chowanie się albo wokalizacja.',
+    avoid: 'Nie zaczynaj od treningu, jeśli pojawił się ból, apatia, nagła agresja albo szybkie pogorszenie.',
+    note: 'Przy czerwonych flagach zacznij równolegle od lekarza weterynarii.',
   },
   'halas-burza-fajerwerki': {
     problemKey: 'halas-burza-fajerwerki',
     mainTopic: 'fear_stress',
-    heroTitle: 'Quiz: haĹ‚as, burza, fajerwerki',
-    heroCopy: 'Zaczynamy od bezpieczeĹ„stwa i skali lÄ™ku. Plan robi siÄ™ przed sezonem, ale pierwszy krok moĹĽna uporzÄ…dkowaÄ‡ juĹĽ teraz.',
-    resultTitle: 'HaĹ‚as i panika',
-    resultSummary: 'Wynik odnosi siÄ™ do reakcji na dĹşwiÄ™ki, burze, fajerwerki i silny stres.',
-    firstStep: 'Zabezpiecz miejsce odpoczynku, ogranicz presjÄ™ i zanotuj, kiedy zaczyna siÄ™ reakcja.',
-    avoid: 'Nie wystawiaj zwierzÄ™cia na haĹ‚as, ĹĽeby siÄ™ przyzwyczaiĹ‚o, jeĹ›li juĹĽ widaÄ‡ panikÄ™.',
+    heroTitle: 'Quiz: hałas, burza, fajerwerki',
+    heroCopy: 'Zaczynamy od bezpieczeństwa i skali lęku. Plan robi się przed sezonem, ale pierwszy krok można uporządkować już teraz.',
+    resultTitle: 'Hałas i panika',
+    resultSummary: 'Wynik odnosi się do reakcji na dźwięki, burze, fajerwerki i silny stres.',
+    firstStep: 'Zabezpiecz miejsce odpoczynku, ogranicz presję i zanotuj, kiedy zaczyna się reakcja.',
+    avoid: 'Nie wystawiaj zwierzęcia na hałas, żeby się przyzwyczaiło, jeśli już widać panikę.',
   },
 }
 
@@ -214,168 +214,168 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
   {
     id: 'species',
     title: 'Kogo dotyczy sytuacja?',
-    helper: 'Wybierz zwierzÄ™, od ktĂłrego zaczynamy.',
+    helper: 'Wybierz zwierzę, od którego zaczynamy.',
     options: [
-      { id: 'pies', label: 'Pies', helper: 'Spacery, zostawanie samemu, pobudzenie, napiÄ™cie, szczeniak.' },
-      { id: 'kot', label: 'Kot', helper: 'Kuweta, stres, relacje miÄ™dzy kotami, nocna aktywnoĹ›Ä‡.' },
+      { id: 'pies', label: 'Pies', helper: 'Spacery, zostawanie samemu, pobudzenie, napięcie, szczeniak.' },
+      { id: 'kot', label: 'Kot', helper: 'Kuweta, stres, relacje między kotami, nocna aktywność.' },
     ],
     condition: (_, context) => !context?.species,
   },
   {
     id: 'main_topic',
-    title: 'Jaki problem chcesz rozwiÄ…zaÄ‡?',
-    helper: 'Wybierz obszar, ktĂłry najlepiej opisuje TwojÄ… sytuacjÄ™.',
+    title: 'Jaki problem chcesz rozwiązać?',
+    helper: 'Wybierz obszar, który najlepiej opisuje Twoją sytuację.',
     options: [
-      { id: 'home_behavior', label: 'Zachowanie w domu', helper: 'Niszczenie, szczekanie, trudnoĹ›Ä‡ z odpoczynkiem, kuweta.' },
-      { id: 'walks', label: 'Spacery i pobudzenie', helper: 'Reakcje na psy lub ludzi, ciÄ…gniÄ™cie, trudnoĹ›Ä‡ z wyciszeniem.' },
-      { id: 'fear_stress', label: 'LÄ™k i stres', helper: 'Zostawanie samemu, dĹşwiÄ™ki, goĹ›cie, nowe sytuacje.' },
-      { id: 'relationships', label: 'Relacje i konflikty', helper: 'NapiÄ™cie z ludĹşmi, zwierzÄ™tami albo wokĂłĹ‚ zasobĂłw.' },
-      { id: 'other', label: 'Inny problem', helper: 'Nie musisz trafnie nazwaÄ‡ tematu. Doprecyzujemy go po drodze.' },
+      { id: 'home_behavior', label: 'Zachowanie w domu', helper: 'Niszczenie, szczekanie, trudność z odpoczynkiem, kuweta.' },
+      { id: 'walks', label: 'Spacery i pobudzenie', helper: 'Reakcje na psy lub ludzi, ciągnięcie, trudność z wyciszeniem.' },
+      { id: 'fear_stress', label: 'Lęk i stres', helper: 'Zostawanie samemu, dźwięki, goście, nowe sytuacje.' },
+      { id: 'relationships', label: 'Relacje i konflikty', helper: 'Napięcie z ludźmi, zwierzętami albo wokół zasobów.' },
+      { id: 'other', label: 'Inny problem', helper: 'Nie musisz trafnie nazwać tematu. Doprecyzujemy go po drodze.' },
     ],
     condition: (_, context) => !context?.mainTopic,
   },
   {
     id: 'litter_medical',
-    title: 'Czy kot miaĹ‚ badany mocz/krew w ciÄ…gu ostatniego miesiÄ…ca?',
-    helper: 'To krytyczne przy problemach z kuwetÄ…, by wykluczyÄ‡ bĂłl lub zapalenie pÄ™cherza.',
+    title: 'Czy kot miał badany mocz/krew w ciągu ostatniego miesiąca?',
+    helper: 'To krytyczne przy problemach z kuwetą, by wykluczyć ból lub zapalenie pęcherza.',
     options: [
       { id: 'yes_good', label: 'Tak, wyniki w normie', helper: 'Znamy aktualny stan zdrowotny.' },
-      { id: 'yes_bad', label: 'Tak, wyniki wskazaĹ‚y na chorobÄ™', helper: 'Wprowadzane jest leczenie medyczne.' },
-      { id: 'no', label: 'Nie, nie byĹ‚ ostatnio badany', helper: 'Brak Ĺ›wieĹĽych wynikĂłw badaĹ„.' },
+      { id: 'yes_bad', label: 'Tak, wyniki wskazały na chorobę', helper: 'Wprowadzane jest leczenie medyczne.' },
+      { id: 'no', label: 'Nie, nie był ostatnio badany', helper: 'Brak świeżych wyników badań.' },
     ],
     condition: (answers, context) => 
       context?.problemKey === 'kot-sika-poza-kuweta' || (answers.species === 'kot' && answers.main_topic === 'home_behavior'),
   },
   {
     id: 'separation_symptoms',
-    title: 'Jak pies zachowuje siÄ™ pod TwojÄ… nieobecnoĹ›Ä‡?',
-    helper: 'Wybierz objaw, ktĂłry wystÄ™puje najsilniej.',
+    title: 'Jak pies zachowuje się pod Twoją nieobecność?',
+    helper: 'Wybierz objaw, który występuje najsilniej.',
     options: [
-      { id: 'vocalization', label: 'Wyje lub szczeka', helper: 'Bardzo gĹ‚oĹ›no wokalizuje, sĹ‚ychaÄ‡ go na zewnÄ…trz.' },
+      { id: 'vocalization', label: 'Wyje lub szczeka', helper: 'Bardzo głośno wokalizuje, słychać go na zewnątrz.' },
       { id: 'destruction', label: 'Niszczy rzeczy', helper: 'Gryzie framugi, niszczy meble lub buty.' },
-      { id: 'elimination', label: 'ZaĹ‚atwia siÄ™ w domu', helper: 'Popuszcza mocz lub kaĹ‚ ze stresu.' },
-      { id: 'pacing', label: 'KrÄ…ĹĽy i ziaje', helper: 'Nie potrafi usiedzieÄ‡ w miejscu i zasnÄ…Ä‡.' },
+      { id: 'elimination', label: 'Załatwia się w domu', helper: 'Popuszcza mocz lub kał ze stresu.' },
+      { id: 'pacing', label: 'Krąży i ziaje', helper: 'Nie potrafi usiedzieć w miejscu i zasnąć.' },
     ],
     condition: (answers, context) => 
       context?.problemKey === 'pies-nie-zostaje-sam' || (answers.species === 'pies' && answers.main_topic === 'fear_stress'),
   },
   {
     id: 'reactivity_trigger',
-    title: 'Kiedy najczÄ™Ĺ›ciej pies zaczyna reagowaÄ‡ na spacerze?',
-    helper: 'To pomoĹĽe oceniÄ‡ prĂłg pobudzenia.',
+    title: 'Kiedy najczęściej pies zaczyna reagować na spacerze?',
+    helper: 'To pomoże ocenić próg pobudzenia.',
     options: [
-      { id: 'far', label: 'Gdy tylko zobaczy psa/czĹ‚owieka z duĹĽej odlegĹ‚oĹ›ci', helper: 'Reakcja zaczyna siÄ™ bardzo wczeĹ›nie.' },
-      { id: 'close', label: 'Dopiero przy mijaniu blisko', helper: 'Traci kontrolÄ™ dopiero przy maĹ‚ym dystansie.' },
-      { id: 'surprise', label: 'Tylko przy nagĹ‚ym zaskoczeniu', helper: 'Gdy ktoĹ› wyjdzie zza rogu lub z klatki.' },
-      { id: 'frustration', label: 'Gdy nie moĹĽe podejĹ›Ä‡', helper: 'CiÄ…gnie, piszczy i szczeka, bo smycz go blokuje.' }
+      { id: 'far', label: 'Gdy tylko zobaczy psa/człowieka z dużej odległości', helper: 'Reakcja zaczyna się bardzo wcześnie.' },
+      { id: 'close', label: 'Dopiero przy mijaniu blisko', helper: 'Traci kontrolę dopiero przy małym dystansie.' },
+      { id: 'surprise', label: 'Tylko przy nagłym zaskoczeniu', helper: 'Gdy ktoś wyjdzie zza rogu lub z klatki.' },
+      { id: 'frustration', label: 'Gdy nie może podejść', helper: 'Ciągnie, piszczy i szczeka, bo smycz go blokuje.' }
     ],
     condition: (answers, context) =>
       context?.problemKey === 'pies-szczeka-na-psy' || (answers.species === 'pies' && answers.main_topic === 'walks'),
   },
   {
     id: 'resource_guarding',
-    title: 'Wobec czego pies wykazuje najwiÄ™ksze napiÄ™cie lub broni dostÄ™pu?',
-    helper: 'Wybierz najwaĹĽniejszy zasĂłb.',
+    title: 'Wobec czego pies wykazuje największe napięcie lub broni dostępu?',
+    helper: 'Wybierz najważniejszy zasób.',
     options: [
       { id: 'food', label: 'Miska, jedzenie lub gryzaki', helper: 'Warzy, zastyga lub ucieka z jedzeniem.' },
-      { id: 'space', label: 'Kanapa, legowisko lub przestrzeĹ„', helper: 'Broni miejsca, w ktĂłrym odpoczywa.' },
-      { id: 'person', label: 'Opiekun', helper: 'Odgania inne zwierzÄ™ta lub ludzi od Ciebie.' },
-      { id: 'stolen', label: 'Kradzione przedmioty', helper: 'Skarpetki, chusteczki, Ĺ›mieci.' }
+      { id: 'space', label: 'Kanapa, legowisko lub przestrzeń', helper: 'Broni miejsca, w którym odpoczywa.' },
+      { id: 'person', label: 'Opiekun', helper: 'Odgania inne zwierzęta lub ludzi od Ciebie.' },
+      { id: 'stolen', label: 'Kradzione przedmioty', helper: 'Skarpetki, chusteczki, śmieci.' }
     ],
     condition: (answers, context) =>
       context?.problemKey === 'pies-obrona-zasobow' || (answers.species === 'pies' && answers.main_topic === 'home_behavior'),
   },
   {
     id: 'cat_conflict_victim',
-    title: 'Jak w tej sytuacji zachowuje siÄ™ kot wycofany (ofiara konfliktu)?',
-    helper: 'To pomoĹĽe oceniÄ‡, jak bardzo stres wpĹ‚ywa na jego ĹĽycie.',
+    title: 'Jak w tej sytuacji zachowuje się kot wycofany (ofiara konfliktu)?',
+    helper: 'To pomoże ocenić, jak bardzo stres wpływa na jego życie.',
     options: [
-      { id: 'hiding_always', label: 'Chowa siÄ™ niemal caĹ‚y czas', helper: 'Wychodzi tylko w nocy lub gdy jest bezpiecznie.' },
-      { id: 'avoiding_litter', label: 'Ma problemy z kuwetÄ… lub jedzeniem', helper: 'Konflikt wpĹ‚ywa na podstawowe potrzeby.' },
-      { id: 'normal_but_tense', label: 'Funkcjonuje normalnie, ale ucieka przy spotkaniu', helper: 'Stres pojawia siÄ™ tylko przy bezpoĹ›rednim kontakcie.' }
+      { id: 'hiding_always', label: 'Chowa się niemal cały czas', helper: 'Wychodzi tylko w nocy lub gdy jest bezpiecznie.' },
+      { id: 'avoiding_litter', label: 'Ma problemy z kuwetą lub jedzeniem', helper: 'Konflikt wpływa na podstawowe potrzeby.' },
+      { id: 'normal_but_tense', label: 'Funkcjonuje normalnie, ale ucieka przy spotkaniu', helper: 'Stres pojawia się tylko przy bezpośrednim kontakcie.' }
     ],
     condition: (answers, context) =>
       context?.problemKey === 'konflikt-miedzy-kotami' || (answers.species === 'kot' && answers.main_topic === 'relationships'),
   },
   {
     id: 'safety',
-    title: 'Czy ktoĹ› moĹĽe ucierpieÄ‡?',
-    helper: 'To pomaga dobraÄ‡ bezpieczny zakres rozmowy.',
+    title: 'Czy ktoś może ucierpieć?',
+    helper: 'To pomaga dobrać bezpieczny zakres rozmowy.',
     options: [
-      { id: 'none', label: 'Nie widzÄ™ takiego ryzyka', helper: 'Problem przeszkadza, ale nie wyglÄ…da groĹşnie.' },
-      { id: 'tension', label: 'Jest napiÄ™cie, ale do opanowania', helper: 'Pojawia siÄ™ warczenie, ucieczka, szczekanie albo silne pobudzenie.' },
-      { id: 'danger', label: 'ByĹ‚ atak lub realne zagroĹĽenie', helper: 'CzĹ‚owiek albo zwierzÄ™ mogĹ‚o ucierpieÄ‡.' },
+      { id: 'none', label: 'Nie widzę takiego ryzyka', helper: 'Problem przeszkadza, ale nie wygląda groźnie.' },
+      { id: 'tension', label: 'Jest napięcie, ale do opanowania', helper: 'Pojawia się warczenie, ucieczka, szczekanie albo silne pobudzenie.' },
+      { id: 'danger', label: 'Był atak lub realne zagrożenie', helper: 'Człowiek albo zwierzę mogło ucierpieć.' },
     ],
   },
   {
     id: 'medical_change',
-    title: 'Czy coĹ› zmieniĹ‚o siÄ™ nagle?',
-    helper: 'NagĹ‚a zmiana zachowania bywa zwiÄ…zana ze zdrowiem.',
+    title: 'Czy coś zmieniło się nagle?',
+    helper: 'Nagła zmiana zachowania bywa związana ze zdrowiem.',
     options: [
-      { id: 'no', label: 'Nie, to raczej staĹ‚y obraz', helper: 'Nie widzÄ™ nagĹ‚ej zmiany apetytu, ruchu, snu ani kuwety.' },
-      { id: 'unclear', label: 'Nie mam pewnoĹ›ci', helper: 'CoĹ› siÄ™ zmieniĹ‚o, ale trudno powiedzieÄ‡, z czego to wynika.' },
-      { id: 'yes', label: 'Tak, sÄ… czerwone flagi', helper: 'BĂłl, apatia, nagĹ‚a agresja, kuweta, senior albo szybkie pogorszenie.' },
+      { id: 'no', label: 'Nie, to raczej stały obraz', helper: 'Nie widzę nagłej zmiany apetytu, ruchu, snu ani kuwety.' },
+      { id: 'unclear', label: 'Nie mam pewności', helper: 'Coś się zmieniło, ale trudno powiedzieć, z czego to wynika.' },
+      { id: 'yes', label: 'Tak, są czerwone flagi', helper: 'Ból, apatia, nagła agresja, kuweta, senior albo szybkie pogorszenie.' },
     ],
   },
   {
     id: 'duration',
     title: 'Od kiedy to trwa?',
-    helper: 'Im dĹ‚uĹĽej trwa problem, tym wiÄ™cej kontekstu warto spokojnie zebraÄ‡.',
+    helper: 'Im dłużej trwa problem, tym więcej kontekstu warto spokojnie zebrać.',
     options: [
-      { id: 'fresh', label: 'Od niedawna', helper: 'ChcÄ™ szybko sprawdziÄ‡, od czego zaczÄ…Ä‡.' },
-      { id: 'returning', label: 'Wraca od kilku tygodni', helper: 'SÄ… lepsze i gorsze momenty, temat siÄ™ powtarza.' },
-      { id: 'long', label: 'DĹ‚ugo albo coraz mocniej', helper: 'WpĹ‚ywa na codziennoĹ›Ä‡ domu, spacery, sen albo relacje.' },
+      { id: 'fresh', label: 'Od niedawna', helper: 'Chcę szybko sprawdzić, od czego zacząć.' },
+      { id: 'returning', label: 'Wraca od kilku tygodni', helper: 'Są lepsze i gorsze momenty, temat się powtarza.' },
+      { id: 'long', label: 'Długo albo coraz mocniej', helper: 'Wpływa na codzienność domu, spacery, sen albo relacje.' },
     ],
   },
   {
     id: 'frequency',
-    title: 'Jak czÄ™sto to wraca?',
-    helper: 'CzÄ™stotliwoĹ›Ä‡ pokazuje, czy wystarczy krĂłtka rozmowa, czy potrzebny jest szerszy plan.',
+    title: 'Jak często to wraca?',
+    helper: 'Częstotliwość pokazuje, czy wystarczy krótka rozmowa, czy potrzebny jest szerszy plan.',
     options: [
-      { id: 'rare', label: 'Sporadycznie', helper: 'Raz na jakiĹ› czas albo w jednej konkretnej sytuacji.' },
-      { id: 'weekly', label: 'Kilka razy w tygodniu', helper: 'Wraca regularnie, ale nie dominuje caĹ‚ego dnia.' },
-      { id: 'daily', label: 'Codziennie lub prawie codziennie', helper: 'Mocno wpĹ‚ywa na rytm domu albo spacery.' },
+      { id: 'rare', label: 'Sporadycznie', helper: 'Raz na jakiś czas albo w jednej konkretnej sytuacji.' },
+      { id: 'weekly', label: 'Kilka razy w tygodniu', helper: 'Wraca regularnie, ale nie dominuje całego dnia.' },
+      { id: 'daily', label: 'Codziennie lub prawie codziennie', helper: 'Mocno wpływa na rytm domu albo spacery.' },
     ],
   },
   {
     id: 'predictability',
     title: 'Czy wiesz, co to uruchamia?',
-    helper: 'Nie trzeba mieÄ‡ pewnoĹ›ci. Chodzi o to, czy widaÄ‡ jakiĹ› schemat.',
+    helper: 'Nie trzeba mieć pewności. Chodzi o to, czy widać jakiś schemat.',
     options: [
-      { id: 'clear', label: 'Tak, wyzwalacz jest jasny', helper: 'Wiem, kiedy zachowanie zwykle siÄ™ zaczyna.' },
-      { id: 'partial', label: 'TrochÄ™ tak, trochÄ™ nie', helper: 'WidzÄ™ czÄ™Ĺ›Ä‡ schematu, ale nie wszystko pasuje.' },
-      { id: 'unclear', label: 'Nie, wyglÄ…da to chaotycznie', helper: 'Trudno poĹ‚Ä…czyÄ‡ fakty i przewidzieÄ‡ reakcjÄ™.' },
+      { id: 'clear', label: 'Tak, wyzwalacz jest jasny', helper: 'Wiem, kiedy zachowanie zwykle się zaczyna.' },
+      { id: 'partial', label: 'Trochę tak, trochę nie', helper: 'Widzę część schematu, ale nie wszystko pasuje.' },
+      { id: 'unclear', label: 'Nie, wygląda to chaotycznie', helper: 'Trudno połączyć fakty i przewidzieć reakcję.' },
     ],
   },
   {
     id: 'resources',
-    title: 'Ile rzeczy miesza siÄ™ w tle?',
-    helper: 'PomyĹ›l o rutynie, przestrzeni, spacerach, jedzeniu, nudzie i relacjach.',
+    title: 'Ile rzeczy miesza się w tle?',
+    helper: 'Pomyśl o rutynie, przestrzeni, spacerach, jedzeniu, nudzie i relacjach.',
     options: [
       { id: 'simple', label: 'Raczej jeden element', helper: 'Np. smycz, kuweta, jedna pora dnia, jeden bodziec.' },
-      { id: 'several', label: 'Kilka elementĂłw naraz', helper: 'Rutyna, emocje, reakcje ludzi i Ĺ›rodowisko siÄ™ Ĺ‚Ä…czÄ….' },
-      { id: 'multi_pet', label: 'Kilka zwierzÄ…t lub domownikĂłw', helper: 'Potrzebna jest analiza relacji i zarzÄ…dzania sytuacjÄ….' },
+      { id: 'several', label: 'Kilka elementów naraz', helper: 'Rutyna, emocje, reakcje ludzi i środowisko się łączą.' },
+      { id: 'multi_pet', label: 'Kilka zwierząt lub domowników', helper: 'Potrzebna jest analiza relacji i zarządzania sytuacją.' },
     ],
   },
   {
     id: 'previous_attempts',
-    title: 'Co juĹĽ prĂłbowaliĹ›cie?',
-    helper: 'To pomaga nie powtarzaÄ‡ porad, ktĂłre juĹĽ nie zadziaĹ‚aĹ‚y.',
+    title: 'Co już próbowaliście?',
+    helper: 'To pomaga nie powtarzać porad, które już nie zadziałały.',
     options: [
-      { id: 'none', label: 'Jeszcze nic systematycznie', helper: 'ChcÄ™ zaczÄ…Ä‡ spokojnie i bez zgadywania.' },
-      { id: 'some', label: 'Kilka prostych zmian', helper: 'ByĹ‚y prĂłby, ale bez jasnego planu.' },
-      { id: 'many', label: 'DuĹĽo prĂłb i nadal brak poprawy', helper: 'Problem wraca mimo porad, treningu albo zmian w domu.' },
+      { id: 'none', label: 'Jeszcze nic systematycznie', helper: 'Chcę zacząć spokojnie i bez zgadywania.' },
+      { id: 'some', label: 'Kilka prostych zmian', helper: 'Były próby, ale bez jasnego planu.' },
+      { id: 'many', label: 'Dużo prób i nadal brak poprawy', helper: 'Problem wraca mimo porad, treningu albo zmian w domu.' },
     ],
   },
   {
     id: 'goal',
     title: 'Czego potrzebujesz po quizie?',
-    helper: 'Wynik ma dobraÄ‡ pierwszy krok, a nie zamykaÄ‡ caĹ‚Ä… sprawÄ™.',
+    helper: 'Wynik ma dobrać pierwszy krok, a nie zamykać całą sprawę.',
     options: [
-      { id: 'priority', label: 'Pierwszy priorytet', helper: 'ChcÄ™ wiedzieÄ‡, co zrobiÄ‡ jako pierwsze.' },
-      { id: 'check', label: 'Sprawdzenie zakresu', helper: 'ChcÄ™ wiedzieÄ‡, czy wystarczy krĂłtka konsultacja.' },
-      { id: 'plan', label: 'Plan na kilka krokĂłw', helper: 'PotrzebujÄ™ wiÄ™cej kontekstu i konkretnego kierunku.' },
-      { id: 'diagnosis', label: 'PeĹ‚niejsza analiza', helper: 'Sprawa jest zĹ‚oĹĽona, utrwalona albo dotyczy bezpieczeĹ„stwa.' },
+      { id: 'priority', label: 'Pierwszy priorytet', helper: 'Chcę wiedzieć, co zrobić jako pierwsze.' },
+      { id: 'check', label: 'Sprawdzenie zakresu', helper: 'Chcę wiedzieć, czy wystarczy krótka konsultacja.' },
+      { id: 'plan', label: 'Plan na kilka kroków', helper: 'Potrzebuję więcej kontekstu i konkretnego kierunku.' },
+      { id: 'diagnosis', label: 'Pełniejsza analiza', helper: 'Sprawa jest złożona, utrwalona albo dotyczy bezpieczeństwa.' },
     ],
   },
 ]
@@ -383,17 +383,17 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
 export const QUIZ_SERVICE_LABELS: Record<QuizServiceKey, { label: string; price: string; duration: string }> = {
   kwadrans: {
     label: 'Kwadrans',
-    price: '69 zĹ‚',
+    price: '69 zł',
     duration: '15 min audio',
   },
   'dwa-kwadranse': {
     label: 'Konsultacja 30 min',
-    price: '169 zĹ‚',
+    price: '169 zł',
     duration: '30 min online',
   },
   'pelna-konsultacja': {
-    label: 'PeĹ‚na konsultacja',
-    price: '470 zĹ‚',
+    label: 'Pełna konsultacja',
+    price: '470 zł',
     duration: 'ok. 2h online',
   },
 }
@@ -442,34 +442,34 @@ export function resolveQuizResult(answers: QuizAnswers): QuizResult {
   if (catConflictVictim === 'hiding_always' || catConflictVictim === 'avoiding_litter') score += 3
 
   if (safety === 'danger') {
-    reasons.push('pojawia siÄ™ realne ryzyko bezpieczeĹ„stwa')
+    reasons.push('pojawia się realne ryzyko bezpieczeństwa')
   }
   if (medicalChange === 'yes' || medicalChange === 'unclear') {
-    reasons.push('warto rĂłwnolegle sprawdziÄ‡ moĹĽliwe tĹ‚o zdrowotne')
+    reasons.push('warto równolegle sprawdzić możliwe tło zdrowotne')
   }
   if (mainTopic === 'relationships' || resources === 'several' || resources === 'multi_pet') {
-    reasons.push('sytuacja Ĺ‚Ä…czy kilka obszarĂłw, nie jednÄ… prostÄ… wskazĂłwkÄ™')
+    reasons.push('sytuacja łączy kilka obszarów, nie jedną prostą wskazówkę')
   }
   if (duration === 'long' || frequency === 'daily') {
-    reasons.push('problem jest utrwalony albo czÄ™sto wraca')
+    reasons.push('problem jest utrwalony albo często wraca')
   }
   if (predictability === 'unclear' || previousAttempts === 'many') {
-    reasons.push('najpierw trzeba uporzÄ…dkowaÄ‡ fakty i dotychczasowe prĂłby')
+    reasons.push('najpierw trzeba uporządkować fakty i dotychczasowe próby')
   }
   if (litterMedical === 'no') {
-    reasons.push('warto pilnie wykonaÄ‡ profilaktyczne badanie moczu u lekarza weterynarii')
+    reasons.push('warto pilnie wykonać profilaktyczne badanie moczu u lekarza weterynarii')
   }
   if (separationSymptoms) {
-    reasons.push('na spotkaniu przeanalizujemy nagrania z nieobecnoĹ›ci')
+    reasons.push('na spotkaniu przeanalizujemy nagrania z nieobecności')
   }
   if (reactivityTrigger === 'far') {
-    reasons.push('prĂłg pobudzenia na spacerze wydaje siÄ™ bardzo niski')
+    reasons.push('próg pobudzenia na spacerze wydaje się bardzo niski')
   }
   if (resourceGuarding) {
-    reasons.push('widaÄ‡ obronÄ™ zasobĂłw, co wymaga ostroĹĽnego zarzÄ…dzania przestrzeniÄ…')
+    reasons.push('widać obronę zasobów, co wymaga ostrożnego zarządzania przestrzenią')
   }
   if (catConflictVictim === 'hiding_always' || catConflictVictim === 'avoiding_litter') {
-    reasons.push('konflikt miÄ™dzy kotami wpĹ‚ywa juĹĽ na podstawowe poczucie bezpieczeĹ„stwa')
+    reasons.push('konflikt między kotami wpływa już na podstawowe poczucie bezpieczeństwa')
   }
 
   let result: QuizResult
@@ -477,39 +477,39 @@ export function resolveQuizResult(answers: QuizAnswers): QuizResult {
   if (score >= 8) {
     result = {
       serviceKey: 'pelna-konsultacja',
-      title: 'Najlepszy pierwszy krok: peĹ‚na konsultacja',
+      title: 'Najlepszy pierwszy krok: pełna konsultacja',
       summary:
-        'Ta Ĺ›cieĹĽka pasuje, gdy temat jest zĹ‚oĹĽony, trwa dĹ‚ugo albo dotyczy bezpieczeĹ„stwa. Najpierw spokojnie zbieramy kontekst, a dopiero potem ukĹ‚adamy plan dziaĹ‚ania.',
+        'Ta ścieżka pasuje, gdy temat jest złożony, trwa długo albo dotyczy bezpieczeństwa. Najpierw spokojnie zbieramy kontekst, a dopiero potem układamy plan działania.',
       reasons: reasons.length > 0 ? reasons.slice(0, 4) : ['sprawa wymaga spokojnego zebrania szerszego kontekstu'],
       note:
         medicalChange === 'yes'
-          ? 'Przy nagĹ‚ej zmianie zachowania, bĂłlu albo objawach zdrowotnych zacznij rĂłwnolegle od lekarza weterynarii.'
-          : 'Przed rozmowÄ… przydadzÄ… siÄ™ krĂłtkie nagrania, opis rutyny i lista rzeczy, ktĂłre byĹ‚y juĹĽ prĂłbowane.',
+          ? 'Przy nagłej zmianie zachowania, bólu albo objawach zdrowotnych zacznij równolegle od lekarza weterynarii.'
+          : 'Przed rozmową przydadzą się krótkie nagrania, opis rutyny i lista rzeczy, które były już próbowane.',
     }
   } else if (score >= 4) {
     result = {
       serviceKey: 'dwa-kwadranse',
       title: 'Najlepszy pierwszy krok: konsultacja 30 min',
       summary:
-        'To dobry wybĂłr, gdy jest kilka wÄ…tkĂłw i 15 minut moĹĽe byÄ‡ za krĂłtkie. Wystarczy czasu, ĹĽeby dopytaÄ‡ o tĹ‚o sytuacji i ustaliÄ‡ najbliĹĽszy kierunek.',
+        'To dobry wybór, gdy jest kilka wątków i 15 minut może być za krótkie. Wystarczy czasu, żeby dopytać o tło sytuacji i ustalić najbliższy kierunek.',
       reasons:
         reasons.length > 0
           ? reasons.slice(0, 4)
-          : ['jest kilka rzeczy do poĹ‚Ä…czenia', 'warto dopytaÄ‡ o rytm dnia, emocje i Ĺ›rodowisko'],
-      note: 'JeĹ›li w trakcie rozmowy okaĹĽe siÄ™, ĹĽe temat jest szerszy, Ĺ‚atwiej bÄ™dzie zdecydowaÄ‡ o dalszym kroku.',
+          : ['jest kilka rzeczy do połączenia', 'warto dopytać o rytm dnia, emocje i środowisko'],
+      note: 'Jeśli w trakcie rozmowy okaże się, że temat jest szerszy, łatwiej będzie zdecydować o dalszym kroku.',
     }
   } else {
     result = {
       serviceKey: 'kwadrans',
       title: 'Najlepszy pierwszy krok: Kwadrans',
       summary:
-        'To spokojny start, gdy chcesz ustaliÄ‡ pierwszy priorytet bez wchodzenia od razu w duĹĽÄ… konsultacjÄ™. Kwadrans pomaga sprawdziÄ‡, co zrobiÄ‡ najpierw.',
+        'To spokojny start, gdy chcesz ustalić pierwszy priorytet bez wchodzenia od razu w dużą konsultację. Kwadrans pomaga sprawdzić, co zrobić najpierw.',
       reasons: [
-        duration === 'fresh' ? 'sytuacja wyglÄ…da na Ĺ›wieĹĽÄ…' : 'nie trzeba od razu zaczynaÄ‡ od peĹ‚nej analizy',
-        predictability === 'clear' ? 'wyzwalacz jest doĹ›Ä‡ czytelny' : 'najwaĹĽniejsze jest wybranie pierwszego priorytetu',
-        'moĹĽna zaczÄ…Ä‡ od krĂłtkiej rozmowy audio bez kamery',
+        duration === 'fresh' ? 'sytuacja wygląda na świeżą' : 'nie trzeba od razu zaczynać od pełnej analizy',
+        predictability === 'clear' ? 'wyzwalacz jest dość czytelny' : 'najważniejsze jest wybranie pierwszego priorytetu',
+        'można zacząć od krótkiej rozmowy audio bez kamery',
       ],
-      note: 'Kwadrans nie musi zamykaÄ‡ sprawy. Ma pomĂłc wybraÄ‡ najprostszy nastÄ™pny krok.',
+      note: 'Kwadrans nie musi zamykać sprawy. Ma pomóc wybrać najprostszy następny krok.',
     }
   }
 

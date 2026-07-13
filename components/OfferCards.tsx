@@ -18,37 +18,37 @@ const offers: Offer[] = [
     slug: 'kwadrans',
     icon: 'timer',
     title: 'Kwadrans',
-    price: '69 zĹ‚',
-    desc: '15 min audio bez kamery na jedno gĹ‚Ăłwne pytanie. Po rozmowie masz prawo do 2 dopytaĹ„ na czacie w swoim pokoju konsultacji.',
-    features: ['jedno gĹ‚Ăłwne pytanie', '15 min audio', 'do 2 pytaĹ„ w pokoju po rozmowie'],
+    price: '69 zł',
+    desc: '15 min audio bez kamery na jedno główne pytanie. Po rozmowie masz prawo do 2 dopytań na czacie w swoim pokoju konsultacji.',
+    features: ['jedno główne pytanie', '15 min audio', 'do 2 pytań w pokoju po rozmowie'],
     highlight: true,
     bookUrl: '/book',
   },
   {
     slug: 'kwadrans-na-juz',
     icon: 'zap',
-    title: 'Kwadrans na juĹĽ',
-    price: '99 zĹ‚',
-    desc: 'Ten sam zakres co Kwadrans (w tym prawo do 2 dopytaĹ„ na czacie w pokoju), ale z priorytetem i najbliĹĽszym realnym terminem.',
-    features: ['wariant priorytetowy', 'najbliĹĽszy realny termin', 'do 2 pytaĹ„ w pokoju po rozmowie'],
+    title: 'Kwadrans na już',
+    price: '99 zł',
+    desc: 'Ten sam zakres co Kwadrans (w tym prawo do 2 dopytań na czacie w pokoju), ale z priorytetem i najbliższym realnym terminem.',
+    features: ['wariant priorytetowy', 'najbliższy realny termin', 'do 2 pytań w pokoju po rozmowie'],
     bookUrl: '/book?service=kwadrans-na-juz',
   },
   {
     slug: 'dwa-kwadranse',
     icon: 'search',
     title: 'Dwa kwadranse',
-    price: '169 zĹ‚',
-    desc: '30 min online, gdy temat ma kilka wÄ…tkĂłw. Po rozmowie masz prawo do 4 dopytaĹ„ na czacie w swoim pokoju konsultacji.',
-    features: ['30 min online', 'wiÄ™cej kontekstu', 'do 4 pytaĹ„ w pokoju po rozmowie'],
+    price: '169 zł',
+    desc: '30 min online, gdy temat ma kilka wątków. Po rozmowie masz prawo do 4 dopytań na czacie w swoim pokoju konsultacji.',
+    features: ['30 min online', 'więcej kontekstu', 'do 4 pytań w pokoju po rozmowie'],
     bookUrl: '/book?service=konsultacja-30-min',
   },
   {
     slug: 'pelna-konsultacja',
     icon: 'clipboard-list',
-    title: 'PeĹ‚na konsultacja',
-    price: '470 zĹ‚',
-    desc: 'OkoĹ‚o 2h online dla spraw zĹ‚oĹĽonych: analiza zachowania, plan dziaĹ‚ania i czat w pokoju po rozmowie (tylko w miarÄ™ dostÄ™pnoĹ›ci czasu).',
-    features: ['ok. 2h online', 'plan dziaĹ‚ania', 'czat w pokoju (w miarÄ™ czasu)'],
+    title: 'Pełna konsultacja',
+    price: '470 zł',
+    desc: 'Około 2h online dla spraw złożonych: analiza zachowania, plan działania i czat w pokoju po rozmowie (tylko w miarę dostępności czasu).',
+    features: ['ok. 2h online', 'plan działania', 'czat w pokoju (w miarę czasu)'],
     bookUrl: '/book?service=konsultacja-behawioralna-online',
   },
 ]
@@ -81,7 +81,7 @@ export function OfferCards() {
           </ul>
 
           <Link href={offer.bookUrl} prefetch={false} className="offer-format-link">
-            UmĂłw spokojny pierwszy krok
+            Umów spokojny pierwszy krok
             <Icon name="arrow-right" size={16} />
           </Link>
         </article>

@@ -1,5 +1,5 @@
 ﻿// handoff/components/FAQSection.tsx
-// Sekcja FAQ â€” kaĹĽde pytanie z dopasowanÄ… ikonÄ… Lucide
+// Sekcja FAQ — każde pytanie z dopasowaną ikoną Lucide
 // Strony: /, /faq
 
 import { Icon, type IconName } from '@/components/icons-config';
@@ -13,23 +13,23 @@ interface FAQ {
 const defaultFAQs: FAQ[] = [
   {
     icon: 'help-circle',
-    question: 'Czym rĂłĹĽni siÄ™ Kwadrans 69 zĹ‚ od Kwadransu na juĹĽ 99 zĹ‚?',
-    answer: 'Forma rozmowy jest taka sama. Przy 99 zĹ‚ otrzymujesz priorytet i moĹĽliwie szybki termin.',
+    question: 'Czym różni się Kwadrans 69 zł od Kwadransu na już 99 zł?',
+    answer: 'Forma rozmowy jest taka sama. Przy 99 zł otrzymujesz priorytet i możliwie szybki termin.',
   },
   {
     icon: 'clock',
-    question: 'Kiedy wybraÄ‡ Dwa kwadranse?',
-    answer: 'Gdy 15 minut to za maĹ‚o, temat ma kilka wÄ…tkĂłw lub chcesz spokojnie uporzÄ…dkowaÄ‡ sytuacjÄ™.',
+    question: 'Kiedy wybrać Dwa kwadranse?',
+    answer: 'Gdy 15 minut to za mało, temat ma kilka wątków lub chcesz spokojnie uporządkować sytuację.',
   },
   {
     icon: 'clipboard-list',
-    question: 'Co obejmuje PeĹ‚na konsultacja 470 zĹ‚?',
-    answer: 'OkoĹ‚o 2h online, analizÄ™ zachowania, prawdopodobnÄ… przyczynÄ™ problemu, plan dziaĹ‚ania i 14 dni komunikacji w pokoju klienta.',
+    question: 'Co obejmuje Pełna konsultacja 470 zł?',
+    answer: 'Około 2h online, analizę zachowania, prawdopodobną przyczynę problemu, plan działania i 14 dni komunikacji w pokoju klienta.',
   },
   {
     icon: 'lightbulb',
-    question: 'Co jeĹ›li nie wiem, od czego zaczÄ…Ä‡?',
-    answer: 'Najprostszy start to Kwadrans 69 zĹ‚ albo materiaĹ‚ PDF. Po krĂłtkim opisie sytuacji wybierzemy najrozsÄ…dniejszy krok na ten moment.',
+    question: 'Co jeśli nie wiem, od czego zacząć?',
+    answer: 'Najprostszy start to Kwadrans 69 zł albo materiał PDF. Po krótkim opisie sytuacji wybierzemy najrozsądniejszy krok na ten moment.',
   },
 ];
 

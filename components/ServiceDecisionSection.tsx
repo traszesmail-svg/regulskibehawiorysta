@@ -29,7 +29,7 @@ export function ServiceDecisionSection({
   serviceLead,
   quickBullets,
   consultationBullets,
-  serviceLinkLabel = 'strony usĹ‚ugi online',
+  serviceLinkLabel = 'strony usługi online',
 }: ServiceDecisionSectionProps) {
   return (
     <section className="notatnik-service-section">
@@ -59,10 +59,10 @@ export function ServiceDecisionSection({
         </article>
 
         <article className="notatnik-service-card">
-          <div className="notatnik-mono">PeĹ‚na konsultacja</div>
+          <div className="notatnik-mono">Pełna konsultacja</div>
           <h3>{PUBLIC_OFFER_DECISION_COPY.premium}</h3>
           <p>{PUBLIC_OFFER_FULL_CONSULTATION_VALUE}</p>
-          <div className="notatnik-service-meta" aria-label="Parametry peĹ‚nej konsultacji">
+          <div className="notatnik-service-meta" aria-label="Parametry pełnej konsultacji">
             <span>ok. 2h online</span>
             <span>{getPublicServicePriceLabel('konsultacja-behawioralna-online')}</span>
             <span>plan + 14 dni w pokoju klienta</span>
@@ -73,7 +73,7 @@ export function ServiceDecisionSection({
             ))}
           </ul>
           <p className="notatnik-service-note">
-            Po rozmowie masz 14 dni komunikacji w pokoju klienta przy wdraĹĽaniu zaleceĹ„. MoĹĽesz dopytywaÄ‡, wysyĹ‚aÄ‡ filmy i konsultowaÄ‡ kolejne kroki planu.
+            Po rozmowie masz 14 dni komunikacji w pokoju klienta przy wdrażaniu zaleceń. Możesz dopytywać, wysyłać filmy i konsultować kolejne kroki planu.
           </p>
           <div className="notatnik-service-actions">
             <Link href={consultationHref} prefetch={false} className="notatnik-btn notatnik-btn-ghost">
@@ -84,7 +84,7 @@ export function ServiceDecisionSection({
       </div>
 
       <p className="notatnik-service-note">
-        JeĹ›li chcesz najpierw zobaczyÄ‡ peĹ‚ny opis szerokiej usĹ‚ugi online dla caĹ‚ej Polski, przejdĹş do{' '}
+        Jeśli chcesz najpierw zobaczyć pełny opis szerokiej usługi online dla całej Polski, przejdź do{' '}
         <Link href={serviceHref} prefetch={false} className="notatnik-inline-link">
           {serviceLinkLabel}
         </Link>

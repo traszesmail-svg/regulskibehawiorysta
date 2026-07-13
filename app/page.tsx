@@ -27,15 +27,15 @@ const processIcons = [MessageSquareText, Headphones, CalendarCheck] as const
 const HOME_PROBLEM_VISUALS: Record<string, { src: string; alt: string }> = {
   'pies-szczeka-na-psy': {
     src: '/branding/topic-cards/border-collie-running.jpg',
-    alt: 'Pies reagujÄ…cy na innego psa podczas spaceru',
+    alt: 'Pies reagujący na innego psa podczas spaceru',
   },
   'pies-ciagnie-na-smyczy': {
     src: '/branding/topic-cards/french-bulldog-leash.jpg',
-    alt: 'Pies ciÄ…gnÄ…cy na smyczy',
+    alt: 'Pies ciągnący na smyczy',
   },
   'pies-nie-zostaje-sam': {
     src: '/branding/topic-cards/dog-window-alone.jpg',
-    alt: 'Pies czekajÄ…cy przy oknie w domu',
+    alt: 'Pies czekający przy oknie w domu',
   },
   'kot-sika-poza-kuweta': {
     src: '/branding/topic-cards/cats/cat-litter-box.jpg',
@@ -52,39 +52,39 @@ function getHomeProblemVisual(problemId: string) {
 
 const routerFaqItems = [
   {
-    question: 'Czy jeĹ›li nie wiem, co wybraÄ‡, mogÄ™ zaczÄ…Ä‡ od quizu?',
-    answer: 'Tak. Quiz jest po to, ĹĽeby spokojnie wybraÄ‡ pierwszy krok bez znajomoĹ›ci fachowych nazw.',
+    question: 'Czy jeśli nie wiem, co wybrać, mogę zacząć od quizu?',
+    answer: 'Tak. Quiz jest po to, żeby spokojnie wybrać pierwszy krok bez znajomości fachowych nazw.',
   },
   {
-    question: 'Czy konsultacja jest dla psĂłw i kotĂłw?',
-    answer: 'Tak. Pierwszy wybĂłr prowadzi osobno przez tematy psie i kocie.',
+    question: 'Czy konsultacja jest dla psów i kotów?',
+    answer: 'Tak. Pierwszy wybór prowadzi osobno przez tematy psie i kocie.',
   },
   {
-    question: 'Czy muszÄ™ juĹĽ wiedzieÄ‡, co jest przyczynÄ…?',
-    answer: 'Nie. Wystarczy opis codziennej sytuacji. Na tej podstawie ukĹ‚adamy dane i szukamy najrozsÄ…dniejszego pierwszego kroku.',
+    question: 'Czy muszę już wiedzieć, co jest przyczyną?',
+    answer: 'Nie. Wystarczy opis codziennej sytuacji. Na tej podstawie układamy dane i szukamy najrozsądniejszego pierwszego kroku.',
   },
   {
-    question: 'Co jeĹ›li sytuacja ma kilka warstw?',
-    answer: 'Wtedy lepiej zebraÄ‡ wiÄ™cej kontekstu: formularz, historiÄ™ zachowania, rutynÄ™ domu lub spacerĂłw i nagrania, jeĹ›li sÄ….',
+    question: 'Co jeśli sytuacja ma kilka warstw?',
+    answer: 'Wtedy lepiej zebrać więcej kontekstu: formularz, historię zachowania, rutynę domu lub spacerów i nagrania, jeśli są.',
   },
 ] as const
 
 export default function HomePage() {
   const seasonalTrendRadar = getSeasonalTrendRadar()
   const structuredData = [
-    getBreadcrumbJsonLd([{ name: 'Strona gĹ‚Ăłwna', path: '/' }]),
+    getBreadcrumbJsonLd([{ name: 'Strona główna', path: '/' }]),
     getServiceJsonLd({
-      name: 'Behawiorysta psĂłw i kotĂłw online',
+      name: 'Behawiorysta psów i kotów online',
       description:
-        'Konsultacje behawioralne online dla opiekunĂłw psĂłw i kotĂłw. W kaĹĽdej usĹ‚udze punktem wyjĹ›cia jest analiza zachowania oparta na informacjach przekazanych przez opiekuna.',
+        'Konsultacje behawioralne online dla opiekunów psów i kotów. W każdej usłudze punktem wyjścia jest analiza zachowania oparta na informacjach przekazanych przez opiekuna.',
       serviceUrl: serviceLandingHref,
       offerCatalog: [
-        { name: 'Kwadrans', description: '15 min audio bez kamery na jedno gĹ‚Ăłwne pytanie. Szybko porzÄ…dkujesz sytuacjÄ™ i dostajesz pierwszy kierunek dziaĹ‚ania.', url: '/book?service=szybka-konsultacja-15-min', price: 69 },
-        { name: 'Kwadrans na juĹĽ', description: 'Ten sam zakres co Kwadrans, ale z priorytetowÄ… odpowiedziÄ… i najbliĹĽszym realnym terminem.', url: '/kwadrans-na-juz', price: 99 },
-        { name: 'Dwa kwadranse', description: '30 min online, gdy temat ma kilka wÄ…tkĂłw. WiÄ™cej czasu na kontekst, spokojniejsze zalecenia i decyzjÄ™, czy potrzebna jest peĹ‚na konsultacja.', url: '/book?service=konsultacja-30-min', price: 169 },
+        { name: 'Kwadrans', description: '15 min audio bez kamery na jedno główne pytanie. Szybko porządkujesz sytuację i dostajesz pierwszy kierunek działania.', url: '/book?service=szybka-konsultacja-15-min', price: 69 },
+        { name: 'Kwadrans na już', description: 'Ten sam zakres co Kwadrans, ale z priorytetową odpowiedzią i najbliższym realnym terminem.', url: '/kwadrans-na-juz', price: 99 },
+        { name: 'Dwa kwadranse', description: '30 min online, gdy temat ma kilka wątków. Więcej czasu na kontekst, spokojniejsze zalecenia i decyzję, czy potrzebna jest pełna konsultacja.', url: '/book?service=konsultacja-30-min', price: 169 },
         {
-          name: 'PeĹ‚na konsultacja',
-          description: 'OkoĹ‚o 2h online dla spraw zĹ‚oĹĽonych: analiza zachowania, prawdopodobna przyczyna problemu, plan dziaĹ‚ania i 14 dni komunikacji w pokoju klienta.',
+          name: 'Pełna konsultacja',
+          description: 'Około 2h online dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni komunikacji w pokoju klienta.',
           url: '/book?service=konsultacja-behawioralna-online',
           price: 470,
         },
@@ -106,10 +106,10 @@ export default function HomePage() {
 
         <section className="compact-home-section home-trend-problems-section home-problem-story-section" id="najczestsze-problemy">
           <div className="home-problem-story-heading">
-            <span className="home-trend-problems-kicker">NajczÄ™Ĺ›ciej szukane teraz</span>
-            <h2>Wybierz problem, ktĂłry najbardziej przypomina TwojÄ… sytuacjÄ™</h2>
+            <span className="home-trend-problems-kicker">Najczęściej szukane teraz</span>
+            <h2>Wybierz problem, który najbardziej przypomina Twoją sytuację</h2>
             <p>
-              Nie musisz znaÄ‡ przyczyny. Zacznij od tego, co widzisz na co dzieĹ„, a potem przejdĹş do artykuĹ‚u,
+              Nie musisz znać przyczyny. Zacznij od tego, co widzisz na co dzień, a potem przejdź do artykułu,
               pierwszego kroku albo quizu.
             </p>
             <Link
@@ -118,10 +118,10 @@ export default function HomePage() {
               className="home-trend-problems-all"
               data-analytics-event="cta_click"
               data-analytics-location="home-trend-problems"
-              data-analytics-cta-label="Zobacz mapÄ™ problemĂłw"
+              data-analytics-cta-label="Zobacz mapę problemów"
               data-analytics-item-type="problem_hub"
             >
-              Zobacz mapÄ™ problemĂłw
+              Zobacz mapę problemów
               <ArrowRight size={17} strokeWidth={1.9} aria-hidden="true" />
             </Link>
           </div>
@@ -163,12 +163,12 @@ export default function HomePage() {
                           data-analytics-location="home-trend-problems-secondary"
                           data-analytics-problem={problem.id}
                           data-analytics-species={problem.group === 'bezpieczenstwo' ? undefined : problem.group}
-                          data-analytics-cta-label={problem.secondaryLabel ?? 'Czytaj artykuĹ‚'}
+                          data-analytics-cta-label={problem.secondaryLabel ?? 'Czytaj artykuł'}
                           data-analytics-item-type="problem_card_secondary"
                           data-analytics-item-slug={problem.id}
                           data-analytics-target-href={problem.secondaryHref}
                         >
-                          {problem.secondaryLabel ?? 'Czytaj artykuĹ‚'}
+                          {problem.secondaryLabel ?? 'Czytaj artykuł'}
                         </Link>
                       ) : null}
                     </div>
@@ -179,9 +179,9 @@ export default function HomePage() {
           </div>
 
           <div className="home-problem-story-more">
-            <span>PrzesuĹ„ niĹĽej, ĹĽeby zobaczyÄ‡ wiÄ™cej tematĂłw</span>
+            <span>Przesuń niżej, żeby zobaczyć więcej tematów</span>
             <Link href="/problemy" prefetch={false}>
-              Zobacz wiÄ™cej problemĂłw
+              Zobacz więcej problemów
               <ArrowRight size={16} strokeWidth={1.9} aria-hidden="true" />
             </Link>
           </div>
@@ -190,9 +190,9 @@ export default function HomePage() {
           <div className="home-seasonal-trend-panel">
             <div className="home-seasonal-trend-copy">
               <span className="home-trend-problems-kicker">Trend radar sezonowy</span>
-              <h2 id="home-seasonal-trend-title">Teraz warto sprawdziÄ‡ tematy, ktĂłre zwykle nasilajÄ… siÄ™ w sezonie</h2>
+              <h2 id="home-seasonal-trend-title">Teraz warto sprawdzić tematy, które zwykle nasilają się w sezonie</h2>
               <p>
-                To nie sÄ… osobne usĹ‚ugi. To szybkie wejĹ›cia do istniejÄ…cej Ĺ›cieĹĽki: problem, pierwszy kontekst i quiz, gdy trzeba wybraÄ‡ zakres pomocy.
+                To nie są osobne usługi. To szybkie wejścia do istniejącej ścieżki: problem, pierwszy kontekst i quiz, gdy trzeba wybrać zakres pomocy.
               </p>
             </div>
             <div className="home-seasonal-trend-grid">
@@ -224,9 +224,9 @@ export default function HomePage() {
             </div>
           </div>
         </section>
-        <section className="compact-home-section home-process-section" id="jak-to-dziaĹ‚a">
+        <section className="compact-home-section home-process-section" id="jak-to-działa">
           <div className="home-section-title">
-            <h2>Jak wyglÄ…da wspĂłĹ‚praca?</h2>
+            <h2>Jak wygląda współpraca?</h2>
           </div>
           <div className="process-grid process-grid-compact top-gap-small">
             {homepageProcessSteps.map((step, index) => {
@@ -254,9 +254,9 @@ export default function HomePage() {
 
         <section className="compact-home-section home-diagnosis-section">
           <div className="home-diagnosis-layout">
-            <p className="home-diagnosis-kicker">POMOC BEHAWIORALNA DLA PSĂ“W I KOTĂ“W</p>
+            <p className="home-diagnosis-kicker">POMOC BEHAWIORALNA DLA PSÓW I KOTÓW</p>
             <div className="home-section-title home-diagnosis-title">
-              <h2>Jestem tu, ĹĽeby pomĂłc Tobie i Twojemu zwierzÄ™ciu</h2>
+              <h2>Jestem tu, żeby pomóc Tobie i Twojemu zwierzęciu</h2>
             </div>
             <div className="home-diagnosis-separator" aria-hidden="true" />
             <div className="home-diagnosis-photo-stack">
@@ -283,16 +283,16 @@ export default function HomePage() {
                 <p className="home-diagnosis-caption">
                   <span className="home-diagnosis-caption-name">Krzysztof Regulski</span>
                   <span>tech. wet. behawiorysta i trener</span>
-                  <span>zwierzÄ…t towarzyszÄ…cych COAPE</span>
+                  <span>zwierząt towarzyszących COAPE</span>
                 </p>
               </div>
             </div>
             <div className="home-diagnosis-copy">
               <p className="notatnik-service-description">
-                Ja ukĹ‚adam fakty i sprawdzam, co moĹĽe staÄ‡ za zachowaniem: emocje, zdrowie, bĂłl, dietÄ™, Ĺ›rodowisko, historiÄ™ uczenia siÄ™ i codziennÄ… rutynÄ™. Dopiero potem wybieramy pierwszy krok.
+                Ja układam fakty i sprawdzam, co może stać za zachowaniem: emocje, zdrowie, ból, dietę, środowisko, historię uczenia się i codzienną rutynę. Dopiero potem wybieramy pierwszy krok.
               </p>
               <p className="notatnik-service-description">
-                To konsultacja behawioralna dla opiekuna, nie porada weterynaryjna ani diagnoza medyczna. JeĹ›li opis wskazuje na bĂłl, chorobÄ™ albo nagĹ‚Ä… zmianÄ™ stanu, pierwszym krokiem jest lekarz weterynarii.
+                To konsultacja behawioralna dla opiekuna, nie porada weterynaryjna ani diagnoza medyczna. Jeśli opis wskazuje na ból, chorobę albo nagłą zmianę stanu, pierwszym krokiem jest lekarz weterynarii.
               </p>
             </div>
             <div className="home-diagnosis-separator home-diagnosis-separator-bottom" aria-hidden="true" />
@@ -303,7 +303,7 @@ export default function HomePage() {
           <div className="home-section-title">
             <h2>
               <Link href="/faq" prefetch={false} className="home-faq-title-link">
-                NajczÄ™Ĺ›ciej zadawane pytania
+                Najczęściej zadawane pytania
               </Link>
             </h2>
           </div>

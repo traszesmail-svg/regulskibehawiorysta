@@ -24,49 +24,49 @@ export const pricingCards: Array<{
     badge: 'najprostszy start',
     title: 'Kwadrans - gdy potrzebujesz pierwszego kierunku',
     summaryTitle: 'Kwadrans  gdy potrzebujesz pierwszego kierunku',
-    price: '69 zĹ‚',
-    copy: '15 min audio bez kamery na jedno gĹ‚Ăłwne pytanie. Szybko porzÄ…dkujesz sytuacjÄ™ i dostajesz pierwszy kierunek dziaĹ‚ania.',
+    price: '69 zł',
+    copy: '15 min audio bez kamery na jedno główne pytanie. Szybko porządkujesz sytuację i dostajesz pierwszy kierunek działania.',
     supportCopy:
-      'Dostajesz wstÄ™pnÄ… analizÄ™ zachowania na podstawie przekazanych informacji: co moĹĽe byÄ‡ gĹ‚Ăłwnym mechanizmem zachowania, co warto sprawdziÄ‡ i czego nie robiÄ‡ na Ĺ›lepo.',
-    features: ['jedno gĹ‚Ăłwne pytanie', 'audio bez kamery', 'pierwszy kierunek dziaĹ‚ania', 'decyzja, czy potrzebny jest szerszy format'],
-    cta: 'ChcÄ™ zaczÄ…Ä‡ od Kwadransa',
+      'Dostajesz wstępną analizę zachowania na podstawie przekazanych informacji: co może być głównym mechanizmem zachowania, co warto sprawdzić i czego nie robić na ślepo.',
+    features: ['jedno główne pytanie', 'audio bez kamery', 'pierwszy kierunek działania', 'decyzja, czy potrzebny jest szerszy format'],
+    cta: 'Chcę zacząć od Kwadransa',
     featured: true,
   },
   {
     service: 'kwadrans-na-juz',
     badge: 'priorytet',
-    title: 'Kwadrans na juĹĽ - gdy nie chcesz czekaÄ‡',
-    summaryTitle: 'Kwadrans na juĹĽ  gdy nie chcesz czekaÄ‡',
-    price: '99 zĹ‚',
-    copy: 'Ten sam zakres co Kwadrans, ale z priorytetowÄ… odpowiedziÄ… i najbliĹĽszym realnym terminem. Dla spraw pilnych, ktĂłre nie wymagajÄ… dĹ‚uĹĽszej analizy.',
+    title: 'Kwadrans na już - gdy nie chcesz czekać',
+    summaryTitle: 'Kwadrans na już  gdy nie chcesz czekać',
+    price: '99 zł',
+    copy: 'Ten sam zakres co Kwadrans, ale z priorytetową odpowiedzią i najbliższym realnym terminem. Dla spraw pilnych, które nie wymagają dłuższej analizy.',
     supportCopy:
-      'Nie kupujesz dĹ‚uĹĽszej analizy, tylko priorytet terminu. Zakres rozmowy zostaje taki sam jak w zwykĹ‚ym Kwadransie.',
-    features: ['ten sam zakres co Kwadrans', 'priorytetowa odpowiedĹş', 'pierwszy kierunek dziaĹ‚ania', 'dla tematĂłw pilnych, ale krĂłtkich'],
-    cta: 'ChcÄ™ szybszy termin',
+      'Nie kupujesz dłuższej analizy, tylko priorytet terminu. Zakres rozmowy zostaje taki sam jak w zwykłym Kwadransie.',
+    features: ['ten sam zakres co Kwadrans', 'priorytetowa odpowiedź', 'pierwszy kierunek działania', 'dla tematów pilnych, ale krótkich'],
+    cta: 'Chcę szybszy termin',
   },
   {
     service: 'konsultacja-30-min',
-    badge: 'wiÄ™cej czasu',
-    title: 'Dwa kwadranse - gdy z jednego pytania robi siÄ™ kilka',
-    summaryTitle: 'Dwa kwadranse  gdy z jednego pytania robi siÄ™ kilka',
-    price: '169 zĹ‚',
-    copy: '30 min online, gdy temat ma kilka wÄ…tkĂłw. WiÄ™cej czasu na kontekst, spokojniejsze zalecenia i decyzjÄ™, czy potrzebna jest peĹ‚na konsultacja.',
+    badge: 'więcej czasu',
+    title: 'Dwa kwadranse - gdy z jednego pytania robi się kilka',
+    summaryTitle: 'Dwa kwadranse  gdy z jednego pytania robi się kilka',
+    price: '169 zł',
+    copy: '30 min online, gdy temat ma kilka wątków. Więcej czasu na kontekst, spokojniejsze zalecenia i decyzję, czy potrzebna jest pełna konsultacja.',
     supportCopy:
-      'WspĂłlnie ukĹ‚adamy fakty, szukamy najbardziej prawdopodobnej przyczyny zachowania i tworzÄ™ analizÄ™ behawioralnÄ… opartÄ… na Twoim opisie, formularzu i kontekĹ›cie domu, spacerĂłw albo relacji miÄ™dzy zwierzÄ™tami.',
-    features: ['wiÄ™cej czasu na kontekst', 'spokojniejsze zalecenia', 'dwa-trzy wÄ…tki naraz', 'bez 14-dniowej komunikacji w pokoju klienta'],
-    cta: 'ChcÄ™ spokojniej omĂłwiÄ‡ temat',
+      'Wspólnie układamy fakty, szukamy najbardziej prawdopodobnej przyczyny zachowania i tworzę analizę behawioralną opartą na Twoim opisie, formularzu i kontekście domu, spacerów albo relacji między zwierzętami.',
+    features: ['więcej czasu na kontekst', 'spokojniejsze zalecenia', 'dwa-trzy wątki naraz', 'bez 14-dniowej komunikacji w pokoju klienta'],
+    cta: 'Chcę spokojniej omówić temat',
   },
   {
     service: 'konsultacja-behawioralna-online',
     badge: 'ok. 2h online',
-    title: 'PeĹ‚na konsultacja - gdy potrzebny jest plan i wsparcie wdroĹĽenia',
-    summaryTitle: 'PeĹ‚na konsultacja  gdy potrzebny jest plan, nie tylko podpowiedĹş',
-    price: '470 zĹ‚',
-    copy: 'OkoĹ‚o 2h online dla spraw zĹ‚oĹĽonych: analiza zachowania, prawdopodobna przyczyna problemu, plan dziaĹ‚ania i 14 dni komunikacji w pokoju klienta przy wdraĹĽaniu zaleceĹ„.',
+    title: 'Pełna konsultacja - gdy potrzebny jest plan i wsparcie wdrożenia',
+    summaryTitle: 'Pełna konsultacja  gdy potrzebny jest plan, nie tylko podpowiedź',
+    price: '470 zł',
+    copy: 'Około 2h online dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni komunikacji w pokoju klienta przy wdrażaniu zaleceń.',
     supportCopy:
-      'To najlepszy wybĂłr, gdy zachowanie trwa dĹ‚ugo, ma kilka warstw albo wpĹ‚ywa na ĹĽycie caĹ‚ego domu. Analiza powstaje na podstawie formularza, rozmowy, historii zachowania, kontekstu zdrowia, diety, Ĺ›rodowiska, nagraĹ„ i danych, ktĂłre przekaĹĽesz przed konsultacjÄ….',
-    features: ['sprawy zĹ‚oĹĽone albo trwajÄ…ce dĹ‚ugo', 'prawdopodobna przyczyna problemu', 'plan dziaĹ‚ania', '14 dni komunikacji w pokoju klienta'],
-    cta: 'ChcÄ™ peĹ‚nÄ… konsultacjÄ™',
+      'To najlepszy wybór, gdy zachowanie trwa długo, ma kilka warstw albo wpływa na życie całego domu. Analiza powstaje na podstawie formularza, rozmowy, historii zachowania, kontekstu zdrowia, diety, środowiska, nagrań i danych, które przekażesz przed konsultacją.',
+    features: ['sprawy złożone albo trwające długo', 'prawdopodobna przyczyna problemu', 'plan działania', '14 dni komunikacji w pokoju klienta'],
+    cta: 'Chcę pełną konsultację',
   },
 ]
 
@@ -76,24 +76,24 @@ export function getDirectBookingHref(service: PublicBookingServiceType) {
 
 export const pricingFaqItems = [
   {
-    question: 'Czy w Kwadransie teĹĽ dostanÄ™ analizÄ™ behawioralnÄ…?',
+    question: 'Czy w Kwadransie też dostanę analizę behawioralną?',
     answer:
-      'Tak, ale zakres analizy zaleĹĽy od iloĹ›ci informacji. W Kwadransie dostajesz wstÄ™pnÄ… analizÄ™ zachowania i pierwszy kierunek dziaĹ‚ania. Przy sprawach zĹ‚oĹĽonych peĹ‚niejsza analiza wymaga dĹ‚uĹĽszej rozmowy, formularza, historii zachowania i czasem nagraĹ„.',
+      'Tak, ale zakres analizy zależy od ilości informacji. W Kwadransie dostajesz wstępną analizę zachowania i pierwszy kierunek działania. Przy sprawach złożonych pełniejsza analiza wymaga dłuższej rozmowy, formularza, historii zachowania i czasem nagrań.',
   },
   {
-    question: 'Kiedy wybraÄ‡ Dwa kwadranse?',
+    question: 'Kiedy wybrać Dwa kwadranse?',
     answer:
-      'Gdy jedno pytanie zaczyna Ĺ‚Ä…czyÄ‡ siÄ™ z kilkoma rzeczami: spacerem, emocjami, domem, relacjÄ…, dietÄ… albo zdrowiem. 30 minut daje wiÄ™cej miejsca na uporzÄ…dkowanie faktĂłw i spokojniejszÄ… analizÄ™ zachowania opartÄ… na danych.',
+      'Gdy jedno pytanie zaczyna łączyć się z kilkoma rzeczami: spacerem, emocjami, domem, relacją, dietą albo zdrowiem. 30 minut daje więcej miejsca na uporządkowanie faktów i spokojniejszą analizę zachowania opartą na danych.',
   },
   {
-    question: 'Kiedy od razu peĹ‚na konsultacja?',
+    question: 'Kiedy od razu pełna konsultacja?',
     answer:
-      'Gdy zachowanie trwa dĹ‚ugo, wraca mimo prĂłb, wpĹ‚ywa na ĹĽycie domownikĂłw albo dotyczy kilku obszarĂłw naraz. PeĹ‚na konsultacja trwa okoĹ‚o 2h online i ma sens wtedy, gdy potrzebujesz analizy, planu oraz 14 dni komunikacji w pokoju klienta przy wdraĹĽaniu zaleceĹ„.',
+      'Gdy zachowanie trwa długo, wraca mimo prób, wpływa na życie domowników albo dotyczy kilku obszarów naraz. Pełna konsultacja trwa około 2h online i ma sens wtedy, gdy potrzebujesz analizy, planu oraz 14 dni komunikacji w pokoju klienta przy wdrażaniu zaleceń.',
   },
   {
-    question: 'Czy analiza zachowania zastÄ™puje wizytÄ™ u lekarza weterynarii?',
+    question: 'Czy analiza zachowania zastępuje wizytę u lekarza weterynarii?',
     answer:
-      'Nie. Analiza zachowania opiera siÄ™ na informacjach o zachowaniu, Ĺ›rodowisku, rutynie, diecie i historii zwierzÄ™cia. JeĹ›li coĹ› moĹĽe mieÄ‡ tĹ‚o zdrowotne, warto rĂłwnolegle skonsultowaÄ‡ siÄ™ z lekarzem weterynarii.',
+      'Nie. Analiza zachowania opiera się na informacjach o zachowaniu, środowisku, rutynie, diecie i historii zwierzęcia. Jeśli coś może mieć tło zdrowotne, warto równolegle skonsultować się z lekarzem weterynarii.',
   },
 ]
 
@@ -112,10 +112,10 @@ export function getPricingOfferCatalog() {
 
 export function PricingSummaryCard() {
   return (
-    <div className="reference-pricing-summary" aria-label="SkrĂłt cennika">
+    <div className="reference-pricing-summary" aria-label="Skrót cennika">
       <div className="reference-pricing-badge">
         <WalletCards size={24} strokeWidth={1.7} aria-hidden="true" />
-        <span>od 69 zĹ‚</span>
+        <span>od 69 zł</span>
       </div>
       <div className="reference-price-ladder">
         {pricingCards.map((card) => (
@@ -127,7 +127,7 @@ export function PricingSummaryCard() {
       </div>
       <div className="reference-pricing-summary-action">
         <Link href={fullPricingHref} prefetch={false} className="reference-btn reference-btn-secondary">
-          Zobacz peĹ‚ny cennik
+          Zobacz pełny cennik
         </Link>
       </div>
     </div>
@@ -137,7 +137,7 @@ export function PricingSummaryCard() {
 export function PricingCardsSection({ className = '' }: { className?: string }) {
   return (
     <section className={`reference-section-card ${className}`.trim()}>
-      <h2>Wybierz konkretnÄ… rozmowÄ™</h2>
+      <h2>Wybierz konkretną rozmowę</h2>
       <div className="reference-pricing-grid">
         {pricingCards.map((card) => (
           <article key={card.service} className={`reference-price-card${card.featured ? ' is-featured' : ''}`}>
@@ -165,7 +165,7 @@ export function PricingCardsSection({ className = '' }: { className?: string }) 
                 {card.cta}
               </Link>
               <Link href={bookHref} prefetch={false} className="reference-price-helper-link">
-                Nie wiem, pomĂłĹĽ dobraÄ‡
+                Nie wiem, pomóż dobrać
               </Link>
             </div>
           </article>

@@ -24476,8 +24476,9 @@ a.reference-info-row,
 .notatnik-topbar .notatnik-brand-mark {
   width: auto !important;
   min-width: 0 !important;
-  max-width: 7.9em !important;
+  max-width: 100% !important;
   overflow: visible !important;
+  overflow-wrap: anywhere !important;
   color: #173222 !important;
   font-family: var(--font-display), Georgia, serif !important;
   font-size: clamp(30px, 7.2vw, 42px) !important;
@@ -24491,8 +24492,10 @@ a.reference-info-row,
 
 .notatnik-topbar .notatnik-brand-tag {
   display: grid !important;
-  max-width: none !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
   overflow: visible !important;
+  overflow-wrap: anywhere !important;
   color: #173222 !important;
   font-family: var(--font-body), system-ui, sans-serif !important;
   font-size: clamp(11px, 2.55vw, 14px) !important;

@@ -149,7 +149,7 @@ export async function buildBookMetadata(serviceType: BookingServiceType = DEFAUL
     title: isQuick ? 'Rezerwacja Kwadransa behawioralnego' : `Rezerwacja: ${serviceTitle}`,
     path: '/book',
     description: isQuick
-      ? 'Umów Kwadrans behawioralny: spokojny pierwszy krok w formie 15-minutowej konsultacji behawioralnej audio bez kamery, analiza zachowania na podstawie informacji i uporządkowanie tematu.'
+      ? 'Umów Kwadrans behawioralny: spokojny pierwszy krok w formie 15-minutowego połączenia telefonicznego, analiza zachowania na podstawie informacji i uporządkowanie tematu.'
       : `${serviceSummary} Wybierz gatunek i temat konsultacji, a potem przejdź do terminów i kolejnego kroku rezerwacji że specjalistą ${SPECIALIST_NAME}.`,
   })
 }

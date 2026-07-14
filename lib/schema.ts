@@ -15,6 +15,7 @@ import {
   SPECIALIST_PUBLIC_STATUS,
   getPublicContactDetails,
 } from '@/lib/site'
+import { PUBLIC_SERVICE_PRICE_AMOUNTS } from '@/lib/funnel'
 
 type BreadcrumbInput = {
   name: string
@@ -139,8 +140,8 @@ export function getConsultationServiceJsonLd() {
     availableLanguage: ['pl-PL'],
     offers: {
       '@type': 'AggregateOffer',
-      lowPrice: '69',
-      highPrice: '470',
+      lowPrice: String(Math.min(...Object.values(PUBLIC_SERVICE_PRICE_AMOUNTS))),
+      highPrice: String(Math.max(...Object.values(PUBLIC_SERVICE_PRICE_AMOUNTS))),
       priceCurrency: 'PLN',
     },
     sameAs,

@@ -8,6 +8,7 @@ import { Schema } from '@/components/schema'
 import { getBreadcrumbJsonLd } from '@/lib/schema'
 import { buildMarketingMetadata } from '@/lib/seo'
 import { buildMailtoHref, getPublicContactDetails } from '@/lib/site'
+import { PUBLIC_OFFER_PRICE_LABELS } from '@/lib/public-offer-copy'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -60,13 +61,13 @@ export default function KwadransNaJuzPage({
             <p>
               Jeśli sprawa jest pilna i nie wymaga pełnej konsultacji, wypełnij poniższy formularz. 
               Dostanę powiadomienie e-mail i skontaktuję się z Tobą najszybciej jak to możliwe (często tego samego dnia), 
-              proponując najbliższy dogodny termin rozmowy telefonicznej lub wideo.
+              proponując najbliższy dogodny termin połączenia telefonicznego.
             </p>
             <MobileFirstStepCta
               eyebrow="Pilny pierwszy krok"
               title="Wyślij zgłoszenie Kwadransa na już"
               copy="To ten sam 15-minutowy format co Kwadrans, ale z priorytetem terminu."
-              meta="99 zł po ustaleniu realnej godziny."
+              meta={`${PUBLIC_OFFER_PRICE_LABELS.urgent} po ustaleniu realnej godziny.`}
               primaryHref="#formularz"
               primaryLabel="Wyślij zgłoszenie"
               secondaryHref="/cennik"

@@ -21,8 +21,9 @@ export function BookingServiceInfoCard({
   const service = FUNNEL_SERVICE_CONFIG[serviceType]
   const priceLabel = getBookingServicePriceLabel(serviceType, quickConsultationPrice ?? service.priceAmount)
   const cancellationPolicy = PUBLIC_OFFER_CANCELLATION_COPY
-  const serviceLabel = service.mode === 'audio' ? COPY_SERVICE_NAMES.primary : service.title
-  const formatLabel = service.mode === 'audio' ? COPY_SERVICE_NAMES.primaryDescriptor : 'rozmowa online'
+  const isPhoneService = service.mode === 'phone'
+  const serviceLabel = service.title
+  const formatLabel = isPhoneService ? 'połączenie telefoniczne' : 'Jitsi (audio lub wideo)'
 
   return (
     <aside className="booking-stage-sidecard booking-service-info-card tree-backed-card" aria-label={title}>
@@ -51,8 +52,8 @@ export function BookingServiceInfoCard({
         </div>
       </div>
       <div className="booking-stage-sidecard-pills" aria-label="Najważniejsze informacje">
-        <span className="hero-proof-pill">{service.mode === 'audio' ? COPY_SERVICE_NAMES.primaryShort : service.slotBadge}</span>
-        <span className="hero-proof-pill">{service.mode === 'audio' ? 'bez kamery' : getBookingServiceDurationLabel(serviceType)}</span>
+        <span className="hero-proof-pill">{service.slotBadge}</span>
+        <span className="hero-proof-pill">{isPhoneService ? 'rozmowa telefoniczna' : 'pokój Jitsi'}</span>
       </div>
       <p className="booking-service-info-note">{emphasis ?? service.publicSummary}</p>
     </aside>

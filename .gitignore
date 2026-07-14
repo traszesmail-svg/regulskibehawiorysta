@@ -71,6 +71,7 @@ qa-reports/**/*.xml
 qa-reports/*.md
 qa-reports/js-off-smoke/
 qa-reports/lighthouse/
+qa-reports/stage9-performance-audit/
 qa-reports/remaining-pages-*/
 
 .DS_Store

@@ -15,13 +15,7 @@ import { getBreadcrumbJsonLd } from '@/lib/schema'
 import { buildMarketingMetadata } from '@/lib/seo'
 import { opinionReviews } from '@/lib/opinion-reviews'
 import { getCanonicalBaseUrl } from '@/lib/server/env'
-import {
-  PUBLIC_CONTACT_EMAIL_FALLBACK,
-  SITE_NAME,
-  SITE_TAGLINE,
-  SPECIALIST_NAME,
-  getPublicContactDetails,
-} from '@/lib/site'
+import { SITE_NAME, SITE_TAGLINE } from '@/lib/site'
 
 export const dynamic = 'force-dynamic'
 
@@ -63,32 +57,24 @@ const proofItems = [
 
 export default function OpinionsPage() {
   const baseUrl = getCanonicalBaseUrl()
-  const contact = getPublicContactDetails()
-  const email = contact.email ?? PUBLIC_CONTACT_EMAIL_FALLBACK
   const structuredData = [
     {
       '@context': 'https://schema.org',
-      '@type': 'Service',
+      '@type': 'CollectionPage',
+      '@id': new URL('/opinie#page', baseUrl).toString(),
       name: SITE_NAME,
       description: `${SITE_TAGLINE}. Opinie po konsultacjach behawioralnych online.`,
       url: new URL('/opinie', baseUrl).toString(),
-      serviceType: 'Konsultacja behawioralna online',
-      provider: {
-        '@type': 'Person',
-        name: SPECIALIST_NAME,
-      },
-      areaServed: [{ '@type': 'Country', name: 'Polska' }],
-      aggregateRating: {
-        '@type': 'AggregateRating',
-        ratingValue: '5.0',
-        reviewCount: String(opinionReviews.length),
-        bestRating: '5',
-      },
-      contactPoint: {
-        '@type': 'ContactPoint',
-        contactType: 'customer support',
-        email,
-        areaServed: [{ '@type': 'Country', name: 'Polska' }],
+      inLanguage: 'pl-PL',
+      mainEntity: {
+        '@type': 'ItemList',
+        numberOfItems: opinionReviews.length,
+        itemListElement: opinionReviews.map((review, index) => ({
+          '@type': 'ListItem',
+          position: index + 1,
+          name: `${review.name} — ${review.service}`,
+          description: review.text,
+        })),
       },
     },
     getBreadcrumbJsonLd([

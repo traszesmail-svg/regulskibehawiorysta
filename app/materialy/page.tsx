@@ -5,6 +5,7 @@ import { NotatnikFinalCta, NotatnikPageShell, NotatnikSectionHead, PUBLIC_SITE_N
 import { RegulskiWebHero } from '@/components/RegulskiWebHero'
 import { buildBookHref } from '@/lib/booking-routing'
 import { buildMarketingMetadata } from '@/lib/seo'
+import { PUBLIC_OFFER_PRICE_LABELS } from '@/lib/public-offer-copy'
 import {
   PRICE_LABEL,
   categoryLabel,
@@ -22,6 +23,7 @@ export const metadata: Metadata = buildMarketingMetadata({
 })
 
 const quickHref = buildBookHref(null, 'szybka-konsultacja-15-min', false)
+const quickPriceLabel = PUBLIC_OFFER_PRICE_LABELS.quick
 
 function MaterialyGuideCard({ guide }: { guide: MaterialyGuide }) {
   const coverSrc = getMaterialyGuideCoverSrc(guide)
@@ -88,7 +90,7 @@ export default function MaterialyLandingPage() {
       tag="Materiały / PDF"
       navItems={PUBLIC_SITE_NAV_ITEMS}
       ctaHref={quickHref}
-      ctaLabel="Kwadrans / 74 zł"
+      ctaLabel={`Kwadrans / ${quickPriceLabel}`}
       footerPrimaryHref={quickHref}
       footerPrimaryLabel="Kwadrans z behawiorystą"
       sideVisualVariant="materials"
@@ -186,7 +188,7 @@ export default function MaterialyLandingPage() {
         title="Jeśli materiał nie wystarczy, <em>Kwadrans porządkuje temat w 15 minut.</em>"
         copy="PDF jest dobry jako spokojny start. Gdy objaw wraca albo łączy się z innymi wątkami, rozmowa szybciej ustawia priorytet."
         primaryHref={quickHref}
-        primaryLabel="Umów spokojny pierwszy krok / 74 zł"
+        primaryLabel={`Umów spokojny pierwszy krok / ${quickPriceLabel}`}
       />
     </NotatnikPageShell>
   )

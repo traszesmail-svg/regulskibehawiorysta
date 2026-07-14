@@ -69,7 +69,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
   const calendarUrl = buildCalendarUrl({
     title: `Konsultacja: ${booking.serviceLabel}`,
     details: `Konsultacja behawioralna z ${booking.name}.\n\nGatunek: ${booking.species === 'kot' ? 'Kot' : 'Pies'}\n\nOpis:\n${booking.description}`,
-    location: callRoomUrl ?? 'Rozmowa telefoniczna (Zadarma)',
+    location: callRoomUrl ?? 'Rozmowa telefoniczna',
     startsAt: startDate,
     endsAt: endDate,
   })

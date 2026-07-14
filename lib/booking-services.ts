@@ -182,7 +182,7 @@ export function getBookingServiceRoomDurationMinutes(serviceType: BookingService
 }
 
 export function isAudioOnlyBookingService(serviceType: BookingServiceType) {
-  return FUNNEL_SERVICE_CONFIG[serviceType].mode === 'audio'
+  return FUNNEL_SERVICE_CONFIG[serviceType].mode === 'phone'
 }
 
 function parseTimeToMinutes(value: string) {

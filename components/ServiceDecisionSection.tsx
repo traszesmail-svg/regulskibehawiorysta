@@ -63,7 +63,7 @@ export function ServiceDecisionSection({
           <h3>{PUBLIC_OFFER_DECISION_COPY.premium}</h3>
           <p>{PUBLIC_OFFER_FULL_CONSULTATION_VALUE}</p>
           <div className="notatnik-service-meta" aria-label="Parametry pełnej konsultacji">
-            <span>ok. 2h online</span>
+            <span>ok. 2h przez Jitsi</span>
             <span>{getPublicServicePriceLabel('konsultacja-behawioralna-online')}</span>
             <span>plan + 14 dni w pokoju klienta</span>
           </div>

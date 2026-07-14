@@ -1,20 +1,22 @@
 ﻿import type { TrustFaqItem } from '@/lib/trust-layer'
 
+import { PUBLIC_OFFER_PRICE_LABELS } from '@/lib/public-offer-copy'
+
 export const PUBLIC_OFFER_FAQ_ITEMS: TrustFaqItem[] = [
   {
-    question: 'Czym rozni się Kwadrans za 69 zł od Kwadransu na już za 99 zł?',
+    question: `Czym różni się Kwadrans za ${PUBLIC_OFFER_PRICE_LABELS.quick} od Kwadransu na już za ${PUBLIC_OFFER_PRICE_LABELS.urgent}?`,
     answer:
-      'Forma rozmowy jest ta sama: 15 minut audio bez kamery. Przy 99 zł placisz za priorytet i możliwie szybki termin, a nie za dłuższa konsultacje.',
+      'Forma połączenia telefonicznego jest ta sama. Przy wyższej cenie płacisz za priorytet i możliwie szybki termin, a nie za dłuższą konsultację.',
   },
   {
-    question: 'Kiedy wybrać Dwa kwadranse za 169 zł?',
+    question: `Kiedy wybrać Dwa kwadranse za ${PUBLIC_OFFER_PRICE_LABELS.bridge}?`,
     answer:
       'Wtedy, gdy 15 minut to za mało, temat ma 2-3 wątki albo chcesz spokojniej uporządkować sytuację przed decyzja o Pełnej konsultacji.',
   },
   {
-    question: 'Co obejmuje Pełna konsultacja 470 zł?',
+    question: `Co obejmuje Pełna konsultacja ${PUBLIC_OFFER_PRICE_LABELS.premium}?`,
     answer:
-      'Około 2h online audio albo audio/video, analizę zachowania, prawdopodobną przyczynę problemu, plan działania i 14 dni komunikacji w pokoju klienta przy wdrażaniu zaleceń. W tym czasie można zadawać pytania, wysyłać filmy i konsultować kolejne kroki.',
+      'Około 2h przez Jitsi, analizę zachowania, prawdopodobną przyczynę problemu, plan działania i 14 dni komunikacji w pokoju klienta przy wdrażaniu zaleceń. W tym czasie można zadawać pytania, wysyłać filmy i konsultować kolejne kroki.',
   },
   {
     question: 'Kiedy nie warto zaczynac od Kwadransu?',
@@ -34,7 +36,7 @@ export const PUBLIC_OFFER_FAQ_ITEMS: TrustFaqItem[] = [
   {
     question: 'Co jeśli nie wiem, od czego zacząć?',
     answer:
-      'Najprostszy start to zwykły Kwadrans za 69 zł. Jeśli potrzebujesz tego samego formatu szybciej, wybierz Kwadrans na już. Jeśli temat jest szerszy, wejdź w Dwa kwadranse. Jeśli sprawa jest złożona albo przewlekła, wybierz Pełną konsultację.',
+      `Najprostszy start to zwykły Kwadrans za ${PUBLIC_OFFER_PRICE_LABELS.quick}. Jeśli potrzebujesz tego samego formatu szybciej, wybierz Kwadrans na już. Jeśli temat jest szerszy, wejdź w Dwa kwadranse. Jeśli sprawa jest złożona albo przewlekła, wybierz Pełną konsultację.`,
   },
 ]
 

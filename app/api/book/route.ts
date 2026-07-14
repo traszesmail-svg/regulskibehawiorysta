@@ -5,6 +5,7 @@ import { NextResponse } from 'next/server'
 import { sendBookRequestAutoReplyEmail, sendBookRequestEmail } from '@/lib/server/notifications'
 import { createLeadBooking } from '@/lib/server/lead-bookings'
 import type { BookingSpecies } from '@/lib/booking-routing'
+import { PUBLIC_OFFER_PRICE_LABELS } from '@/lib/public-offer-copy'
 
 type BookingServiceId = 'kwadrans-na-juz' | 'szybka-konsultacja-15-min' | 'konsultacja-30-min' | 'konsultacja-behawioralna-online'
 
@@ -24,10 +25,10 @@ type ValidatedBookPayload = {
 }
 
 const SERVICES: Record<BookingServiceId, { label: string; price: string }> = {
-  'kwadrans-na-juz': { label: 'Kwadrans na już', price: '99 zł' },
-  'szybka-konsultacja-15-min': { label: '15-minutowa konsultacja behawioralna', price: '69 zł' },
-  'konsultacja-30-min': { label: 'Dwa kwadranse', price: '169 zł' },
-  'konsultacja-behawioralna-online': { label: 'Pełna konsultacja', price: '470 zł' },
+  'kwadrans-na-juz': { label: 'Kwadrans na już', price: PUBLIC_OFFER_PRICE_LABELS.urgent },
+  'szybka-konsultacja-15-min': { label: '15-minutowa konsultacja behawioralna', price: PUBLIC_OFFER_PRICE_LABELS.quick },
+  'konsultacja-30-min': { label: 'Dwa kwadranse', price: PUBLIC_OFFER_PRICE_LABELS.bridge },
+  'konsultacja-behawioralna-online': { label: 'Pełna konsultacja', price: PUBLIC_OFFER_PRICE_LABELS.premium },
 }
 
 const SUCCESS_MESSAGE = 'Dostałem Twoją rezerwację. Wysłałem też kopię na podany adres e-mail.'

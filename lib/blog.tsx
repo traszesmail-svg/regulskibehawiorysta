@@ -8,6 +8,7 @@ import { buildBookHref } from '@/lib/booking-routing'
 import { repairCopy } from '@/lib/copy'
 import { FUNNEL_CTA_LABELS } from '@/lib/funnel'
 import { buildLimitedMetadataTitle } from '@/lib/seo'
+import { getCanonicalPublicHref } from '@/lib/public-routes'
 import { SITE_NAME, SITE_OG_IMAGE, SITE_SHORT_NAME, SPECIALIST_NAME } from '@/lib/site'
 
 export type BlogTopic = 'pies' | 'koty' | 'konsultacja'
@@ -307,13 +308,13 @@ export function getBlogPostCover(post: Pick<BlogPost, 'slug' | 'categoryHref'>):
 }
 const SERVICE_LANDING_LINK: BlogSupportLink = {
   label: 'Behawiorysta psów i kotów online',
-  href: '/behawiorysta-online-polska',
+  href: '/',
   description: 'Główna strona usługi, jeśli chcesz przejść z treści edukacyjnej do pełniejszego opisu pomocy.',
 }
 
 const CONSULTATION_PAGE_LINK: BlogSupportLink = {
   label: 'Konsultacja behawioralna online',
-  href: '/konsultacja-behawioralna-online',
+  href: '/cennik/pelny',
     description: 'Opis pełnej konsultacji, przebiegu rozmowy i tego, kiedy warto wejść w szerszą konsultację.',
 }
 
@@ -325,7 +326,7 @@ const PREP_GUIDE_LINK: BlogSupportLink = {
 
 const REACTIVITY_LANDING_LINK: BlogSupportLink = {
   label: 'Reaktywność na smyczy',
-  href: '/psy/reaktywnosc-na-smyczy',
+  href: '/problemy/pies-szczeka-na-psy',
   description: 'Główny landing problemowy dla spacerów, szczekania, napięcia i pracy poniżej progu.',
 }
 
@@ -337,7 +338,7 @@ const REACTIVITY_GUIDE_LINK: BlogSupportLink = {
 
 const SEPARATION_LANDING_LINK: BlogSupportLink = {
   label: 'Lęk separacyjny u psa',
-  href: '/psy/lek-separacyjny',
+  href: '/problemy/pies-nie-zostaje-sam',
   description: 'Główny landing problemowy o zostawaniu samemu, analizie zachowania i pierwszym bezpiecznym planie.',
 }
 
@@ -349,7 +350,7 @@ const SEPARATION_GUIDE_LINK: BlogSupportLink = {
 
 const LITTER_LANDING_LINK: BlogSupportLink = {
   label: 'Załatwianie poza kuwetą',
-  href: '/koty/zalatwianie-poza-kuweta',
+  href: '/problemy/kot-sika-poza-kuweta',
   description: 'Główny landing problemowy o zdrowiu, kuwecie, stresie i kolejności sprawdzania przyczyn.',
 }
 
@@ -361,7 +362,7 @@ const LITTER_GUIDE_LINK: BlogSupportLink = {
 
 const CAT_CONFLICT_LANDING_LINK: BlogSupportLink = {
   label: 'Konflikt między kotami',
-  href: '/koty/konflikt-miedzy-kotami',
+  href: '/problemy/konflikt-miedzy-kotami',
   description: 'Główny landing problemowy dla napięcia, gonitw, blokowania zasobów i trudnych relacji w domu.',
 }
 
@@ -543,7 +544,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
       },
       {
         label: 'Szczekanie na inne psy',
-        href: '/blog',
+        href: '/blog/dlaczego-moj-pies-szczeka-na-inne-psy',
         description: 'Powiązany wpis o trudnościach spacerowych.',
       },
       {
@@ -729,7 +730,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
       },
       {
         label: 'Behawiorysta czy trener',
-        href: '/blog',
+        href: '/blog/kiedy-behawiorysta-kiedy-trener-psa',
         description: 'Powiązany wpis o wyborze odpowiedniej pomocy.',
       },
       {
@@ -775,7 +776,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
       REACTIVITY_LANDING_LINK,
       {
         label: 'Pies szczeka na inne psy',
-        href: '/blog',
+        href: '/blog/dlaczego-moj-pies-szczeka-na-inne-psy',
         description: 'Warto to przeczytac razem z praktyka luznej smyczy, żeby lepiej nazwać emocje i wyzwalacze na spacerze.',
       },
       REACTIVITY_GUIDE_LINK,
@@ -794,7 +795,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
       SEPARATION_LANDING_LINK,
       {
       label: 'Pies wyje, kiedy zostaje sam: co nagrać i sprawdzić',
-        href: '/blog',
+        href: '/blog/pies-wyje-kiedy-zostaje-sam',
         description: 'Najbliższy artykuł, jeśli chcesz najpierw odróżnić lęk separacyjny od innych scenariuszy.',
       },
       SEPARATION_GUIDE_LINK,
@@ -813,7 +814,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
       SEPARATION_LANDING_LINK,
       {
         label: 'Jak nagrać psa zostawionego samemu',
-        href: '/blog',
+        href: '/blog/jak-nagrac-psa-zostawionego-samemu',
         description: 'Daje materiał do oceny, jeśli po pracy nad rutyną potrzebujesz lepiej zobaczyć, co napędza problem.',
       },
       SEPARATION_GUIDE_LINK,
@@ -832,7 +833,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
       LITTER_LANDING_LINK,
       {
         label: 'Jak ustawić kuwetę dla kota',
-        href: '/blog',
+        href: '/blog/jak-ustawic-kuwete-dla-kota',
         description: 'Najbliższy tekst, jeśli po wyborze kuwety chcesz od razu dopiąć jej lokalizację i liczbę.',
       },
       LITTER_GUIDE_LINK,
@@ -851,7 +852,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
       LITTER_LANDING_LINK,
       {
       label: 'Kot załatwia się poza kuwetą: co sprawdzić',
-        href: '/blog',
+        href: '/blog/kot-zalatwia-sie-poza-kuweta',
         description: 'Najszerszy wpis startowy, jeśli chcesz zobaczyć całą sekwencję filtrów przed dalszą pracą.',
       },
       LITTER_GUIDE_LINK,
@@ -870,7 +871,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
       CAT_CONFLICT_LANDING_LINK,
       {
         label: 'Jak zapoznac dwa koty',
-        href: '/blog',
+        href: '/blog/jak-zapoznac-dwa-koty',
         description: 'Rozpisuje szerzej sam proces zapoznania, jeśli ten etap w domu dopiero przed toba.',
       },
       CAT_CONFLICT_GUIDE_LINK,
@@ -889,7 +890,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
       CAT_CONFLICT_LANDING_LINK,
       {
         label: 'Jak zapoznac dwa koty',
-        href: '/blog',
+        href: '/blog/jak-zapoznac-dwa-koty',
         description: 'Dobry kolejny tekst, jeśli konflikt jest zwiazany z granicami, dystansem i powolnym wprowadzaniem kontaktu.',
       },
       CAT_CONFLICT_GUIDE_LINK,
@@ -908,7 +909,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
       REACTIVITY_LANDING_LINK,
       {
         label: 'Luźna smycz z reaktywnym psem',
-        href: '/blog',
+        href: '/blog/reaktywnosc-na-smyczy-cwiczenie-luznej-smyczy',
         description: 'Przechodzi z pojedynczej zasady w bardziej uporządkowaną procedurę spacerową.',
       },
       REACTIVITY_GUIDE_LINK,
@@ -927,7 +928,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
       SEPARATION_LANDING_LINK,
       {
         label: 'Rutyna wyjścia i oswajanie z samotnością',
-        href: '/blog',
+        href: '/blog/rutyna-wyjscia-oswajanie-psa-z-samotnoscia',
         description: 'Dalej porządkuje pracę krok po kroku, jeśli chcesz utrzymać plan bez przeskakiwania etapów.',
       },
       SEPARATION_GUIDE_LINK,
@@ -946,7 +947,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
       LITTER_LANDING_LINK,
       {
         label: 'Jak wybrać kuwetę i żwirek',
-        href: '/blog',
+        href: '/blog/jak-wybrac-kuwete-i-zwirek-dla-kota',
         description: 'Najbliższy tekst, jeśli po ustawieniu kuwety chcesz jeszcze sprawdzić rozmiar, zwirek i typowe bledy wyboru.',
       },
       LITTER_GUIDE_LINK,
@@ -965,7 +966,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
       CAT_CONFLICT_LANDING_LINK,
       {
         label: 'Jak wprowadzic nowego kota do domu',
-        href: '/blog',
+        href: '/blog/jak-wprowadzic-nowego-kota-do-domu',
         description: 'Dobry tekst siostrzany, jeśli chcesz zacząć jeszcze krok wcześniej od całego procesu wdrożenia nowego kota.',
       },
       CAT_CONFLICT_GUIDE_LINK,
@@ -1005,7 +1006,7 @@ Ten wpis korzysta z bezpiecznego fallbacku treści, gdy plik markdown nie jest o
 
 ## Co sprawdzić dalej
 
-- Zobacz kategorię: [${config.categoryLabel}](${config.categoryHref})
+- Zobacz kategorię: [${config.categoryLabel}](${getCanonicalPublicHref(config.categoryHref)})
 - Przejdź do pierwszego kroku: [umów konsultację](${config.audioHref})
 - Wróć do bloga: [blog](${BLOG_ROUTE_BASE})
 `
@@ -1121,7 +1122,7 @@ function normalizeBlogHref(href: string, audioHref: string): string | null {
   }
 
   if (isSafeHref(trimmed)) {
-    return trimmed
+    return trimmed.startsWith('/') ? getCanonicalPublicHref(trimmed) : trimmed
   }
 
   return null
@@ -1548,6 +1549,7 @@ function buildBlogPostFromConfig(config: BlogPostConfig): BlogPost {
     audioHref: config.audioHref,
     supportLinks: config.supportLinks.map((link) => ({
       ...link,
+      href: getCanonicalPublicHref(link.href),
       label: repairCopy(link.label),
       description: repairCopy(link.description),
     })),

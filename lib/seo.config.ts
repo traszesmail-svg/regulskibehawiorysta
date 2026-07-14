@@ -2,6 +2,8 @@
 // Centralna konfiguracja SEO — edytuj wszystko tutaj
 // Pojedyncze źródło prawdy dla meta, OG, structured data
 
+import { PUBLIC_OFFER_PRICE_LABELS } from './public-offer-copy'
+
 export const SITE = {
   name: 'Regulski Behawiorysta',
   fullName: 'Krzysztof Regulski — Behawiorysta zwierzęcy',
@@ -18,7 +20,7 @@ export const SITE = {
   },
   business: {
     type: 'Person',
-    priceRange: '69–470 PLN',
+    priceRange: `${PUBLIC_OFFER_PRICE_LABELS.quick}–${PUBLIC_OFFER_PRICE_LABELS.premium}`,
     services: ['Konsultacje behawioralne', 'Konsultacje online', 'Praca z reaktywnością', 'Lęk separacyjny', 'Behawiorystyka kotów'],
   },
 } as const;
@@ -35,7 +37,7 @@ export interface PageSeo {
 
 export const pageSeo: Record<string, PageSeo> = {
   '/': {
-    title: 'Behawiorysta psów i kotów online — konsultacje od 69 zł',
+    title: `Behawiorysta psów i kotów online — konsultacje od ${PUBLIC_OFFER_PRICE_LABELS.quick}`,
     description: 'Krzysztof Regulski — behawiorysta COAPE/CAPBT. Pomagam opiekunom rozwiązać problemy z zachowaniem psów i kotów. Bez kar, bez przymusu. Konsultacje online od 15 minut.',
     keywords: ['behawiorysta online', 'behawiorysta psów', 'behawiorysta kotów', 'konsultacja behawioralna', 'COAPE'],
     priority: 1.0,
@@ -43,7 +45,7 @@ export const pageSeo: Record<string, PageSeo> = {
   },
   '/psy': {
     title: 'Behawiorysta psów — pomoc online | Regulski',
-    description: 'Reaktywność, lęk separacyjny, agresja, szczeniak — pomoc behawiorystyczna online. Bez kar i przymusu. Pierwszy konkretny krok od 69 zł.',
+    description: `Reaktywność, lęk separacyjny, agresja, szczeniak — pomoc behawiorystyczna online. Bez kar i przymusu. Pierwszy konkretny krok od ${PUBLIC_OFFER_PRICE_LABELS.quick}.`,
     keywords: ['behawiorysta psów', 'pies reaktywny', 'lęk separacyjny pies', 'agresja u psa', 'szczeniak'],
     priority: 0.9,
     changefreq: 'monthly',
@@ -92,14 +94,14 @@ export const pageSeo: Record<string, PageSeo> = {
   },
   '/cennik': {
     title: 'Cennik konsultacji behawioralnych | Regulski',
-    description: 'Kwadrans 69 zł, Dwa kwadranse 169 zł, Pełna konsultacja 470 zł. Pomóż mi dobrać rozmowę dopasowaną do sytuacji. Płatność po potwierdzeniu terminu.',
+    description: `Kwadrans ${PUBLIC_OFFER_PRICE_LABELS.quick}, Dwa kwadranse ${PUBLIC_OFFER_PRICE_LABELS.bridge}, Pełna konsultacja ${PUBLIC_OFFER_PRICE_LABELS.premium}. Pomóż mi dobrać rozmowę dopasowaną do sytuacji. Płatność po potwierdzeniu terminu.`,
     keywords: ['cennik behawiorysta', 'cena konsultacji behawioralnej', 'konsultacja online cena'],
     priority: 0.9,
     changefreq: 'monthly',
   },
   '/cennik/pelny': {
     title: 'Pełny cennik konsultacji behawioralnych | Regulski',
-    description: 'Pełna tabela rozmów: Kwadrans 69 zł, Kwadrans na już 99 zł, Dwa kwadranse 169 zł i Pełna konsultacja 470 zł.',
+    description: `Pełna tabela rozmów: Kwadrans ${PUBLIC_OFFER_PRICE_LABELS.quick}, Kwadrans na już ${PUBLIC_OFFER_PRICE_LABELS.urgent}, Dwa kwadranse ${PUBLIC_OFFER_PRICE_LABELS.bridge} i Pełna konsultacja ${PUBLIC_OFFER_PRICE_LABELS.premium}.`,
     keywords: ['pełny cennik behawiorysta', 'cena konsultacji behawioralnej', 'kwadrans behawiorysta cena'],
     priority: 0.8,
     changefreq: 'monthly',

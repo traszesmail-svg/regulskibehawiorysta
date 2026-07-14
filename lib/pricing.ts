@@ -64,13 +64,14 @@ export function buildPublicPricingDisclosureMessage(amount: number | null | unde
  * the same amount simply remains in force in the following week.
  */
 export const WEEKLY_PRICE_VALIDITY_COPY = 'Aktualna cena obowiązuje do niedzieli, 23:59.'
+export const PRICE_PROMOTION_LABEL = 'Cena promocyjna'
 
 export function parseConsultationPriceInput(rawValue: string | number): number {
   const raw = typeof rawValue === 'number' ? String(rawValue) : rawValue.trim()
   const normalized = raw.replace(',', '.')
 
   if (!normalized || !/^\d+(\.\d{1,2})?$/.test(normalized)) {
-    throw new Error('Podaj poprawną kwotę konsultacji w PLN, np. 69 albo 69.50.')
+    throw new Error(`Podaj poprawną kwotę konsultacji w PLN, np. ${DEFAULT_PRICE_PLN} albo ${DEFAULT_PRICE_PLN}.50.`)
   }
 
   const amount = Number(normalized)

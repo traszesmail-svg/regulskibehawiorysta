@@ -115,6 +115,10 @@ type BookingRow = {
   prep_link_url: string | null
   prep_notes: string | null
   prep_uploaded_at: string | null
+  call_id?: string | null
+  call_status?: string | null
+  started_at?: string | null
+  questions_remaining?: number | null
 }
 
 type FunnelEventRow = {

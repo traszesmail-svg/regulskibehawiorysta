@@ -53,16 +53,17 @@ export async function POST(
 
     const bookingResult = await createPendingBooking({
       ownerName: urgentRequest.name,
-      serviceType: 'szybka-konsultacja-15-min',
+      serviceType: 'kwadrans-na-juz',
       problemType: urgentRequest.topicId,
       animalType: urgentRequest.species === 'kot' ? 'Kot' : 'Pies',
       petAge: 'Nie podano w prośbie o Kwadrans na już.',
       durationNotes: 'Pilny termin wybrany przez opiekuna i potwierdzony przez admina.',
       description: stripUrgentRequestedSlotsFromMessage(urgentRequest.message),
+      phone: urgentRequest.phone ?? null,
       email: urgentRequest.email,
       slotId: slot.id,
     })
-    const bookingHref = buildPaymentHref(bookingResult.booking.id, bookingResult.accessToken, 'szybka-konsultacja-15-min')
+    const bookingHref = buildPaymentHref(bookingResult.booking.id, bookingResult.accessToken, 'kwadrans-na-juz')
     const absoluteBookingHref = new URL(bookingHref, getBaseUrl()).toString()
 
     const updatedRequest = await respondUrgentNowRequest({

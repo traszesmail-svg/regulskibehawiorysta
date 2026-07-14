@@ -1,6 +1,6 @@
 ﻿import type { Metadata } from 'next'
 import { LegalPageLayout, type LegalSection, type LegalSummaryItem } from '@/components/LegalPageLayout'
-import { PUBLIC_OFFER_PAYMENT_METHODS } from '@/lib/public-offer-copy'
+import { PUBLIC_OFFER_PAYMENT_METHODS, PUBLIC_OFFER_PRICE_LABELS } from '@/lib/public-offer-copy'
 import { getBreadcrumbJsonLd } from '@/lib/schema'
 import { buildLegalMetadata } from '@/lib/seo'
 
@@ -13,7 +13,7 @@ export const metadata: Metadata = buildLegalMetadata(
 const summaryItems: LegalSummaryItem[] = [
   {
     label: 'Produkt objęty dokumentem',
-    value: 'Pełna konsultacja behawioralna online: 470 zł, około 2h online, analiza zachowania, plan działania i 14 dni komunikacji w pokoju klienta.',
+    value: `Pełna konsultacja behawioralna przez Jitsi: ${PUBLIC_OFFER_PRICE_LABELS.premium}, około 2h, analiza zachowania, plan działania i 14 dni komunikacji w pokoju klienta.`,
   },
   {
     label: 'Płatność',
@@ -42,11 +42,11 @@ const sections: LegalSection[] = [
     body: (
       <>
         <ul className="premium-bullet-list">
-          <li>Konsultacja trwa około 2h i odbywa się online w formie rozmowy audio lub audio/video.</li>
+          <li>Konsultacja trwa około 2h i odbywa się przez Jitsi w formie rozmowy audio lub audio/wideo.</li>
           <li>W ramach konsultacji usługodawca analizuje opisaną sytuację psa lub kota, porządkuje priorytety i przekazuje analizę zachowania opartą na danych od klienta.</li>
           <li>Po konsultacji klient otrzymuje analizę zachowania opartą na danych od klienta i indywidualny plan działania.</li>
-          <li>Przez 7 dni od konsultacji klient może w pokoju klienta zadawać pytania, wysyłać wiadomości tekstowe i filmy oraz konsultować wdrażanie planu.</li>
-          <li>Jeśli po 7 dniach brak postępu albo nie ma poczucia, że to skuteczna droga do rozwiązania, usługodawca może wskazać zasadność wizyty domowej i terapii ustalanej indywidualnie.</li>
+          <li>Przez 14 dni od konsultacji klient może w pokoju klienta zadawać pytania, wysyłać wiadomości tekstowe i filmy oraz konsultować wdrażanie planu.</li>
+          <li>Jeśli po 14 dniach brak postępu albo nie ma poczucia, że to skuteczna droga do rozwiązania, usługodawca może wskazać zasadność wizyty domowej i terapii ustalanej indywidualnie.</li>
           <li>Konsultacja nie obejmuje diagnostyki weterynaryjnej, zaleceń farmakologicznych ani interwencji w stanach nagłych.</li>
         </ul>
         <p>
@@ -60,7 +60,7 @@ const sections: LegalSection[] = [
     title: '3. Cena i płatność',
     body: (
       <>
-        <p>Cena konsultacji: 470 zł brutto.</p>
+        <p>Cena konsultacji: {PUBLIC_OFFER_PRICE_LABELS.premium} brutto.</p>
         <p>Metody płatności: {PUBLIC_OFFER_PAYMENT_METHODS}. Jeżeli aktywna jest płatność online, klient przechodzi do niej bezpośrednio po utworzeniu rezerwacji. Jeżeli aktywna jest płatność ręczna, klient otrzymuje dalszą instrukcję dla wybranej metody.</p>
         <p>Termin jest wstępnie blokowany na czas płatności. Standardowe okno blokady wynosi 15 minut.</p>
         <p>Termin zostaje ostatecznie zablokowany dopiero po potwierdzeniu płatności. Przy płatności ręcznej potwierdzenie może wymagać obsługi przez usługodawcę w godzinach 9:00-21:00, poza dniami ustawowo wolnymi od pracy.</p>
@@ -90,7 +90,7 @@ const sections: LegalSection[] = [
           <p>Po wysłaniu danych w formularzu wybrany slot jest wstępnie blokowany na czas płatności. Standardowe okno blokady wynosi 15 minut.</p>
           <p>Konsultacja jest zarezerwowana dopiero po potwierdzeniu płatności.</p>
           <p>Na 24 godziny przed konsultacją klient otrzymuje e-mail z linkiem do rozmowy i listą materiałów do przygotowania, jeżeli są potrzebne.</p>
-          <p>Po zakończeniu konsultacji dalszy 7-dniowy kontakt tekstowy odbywa się w pokoju klienta, chyba że strony ustalą inny kanał pisemny.</p>
+          <p>Po zakończeniu konsultacji dalszy 14-dniowy kontakt tekstowy odbywa się w pokoju klienta, chyba że strony ustalą inny kanał pisemny.</p>
         </>
       ),
   },

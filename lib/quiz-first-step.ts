@@ -1,5 +1,7 @@
 ﻿export type QuizSpecies = 'pies' | 'kot'
 
+import { PUBLIC_OFFER_PRICE_LABELS } from './public-offer-copy'
+
 export type QuizTopic =
   | 'dog_walks'
   | 'dog_alone'
@@ -49,23 +51,27 @@ export type QuizResult = {
   reasons: string[]
   note: string
   serviceKey?: QuizServiceKey
+  articleHref?: string
+  articleLabel?: string
+  problemHref?: string
+  problemLabel?: string
 }
 
 export const QUIZ_SERVICE_LABELS: Record<QuizServiceKey, { label: string; price: string; duration: string }> = {
   kwadrans: {
     label: 'Kwadrans',
-    price: '69 zł',
-    duration: '15 min audio',
+    price: PUBLIC_OFFER_PRICE_LABELS.quick,
+    duration: '15 min telefonicznie',
   },
   'dwa-kwadranse': {
     label: 'Konsultacja 30 min',
-    price: '169 zł',
-    duration: '30 min online',
+    price: PUBLIC_OFFER_PRICE_LABELS.bridge,
+    duration: '30 min telefonicznie',
   },
   'pelna-konsultacja': {
     label: 'Pełna konsultacja',
-    price: '470 zł',
-    duration: 'ok. 2h online',
+    price: PUBLIC_OFFER_PRICE_LABELS.premium,
+    duration: 'ok. 2h przez Jitsi',
   },
 }
 
@@ -378,6 +384,80 @@ const topicGuidance: Record<QuizTopic, Pick<QuizResult, 'firstStep' | 'avoid' | 
   },
 }
 
+type QuizResource = Pick<QuizResult, 'articleHref' | 'articleLabel' | 'problemHref' | 'problemLabel'>
+
+const QUIZ_RESOURCES_BY_PROBLEM: Record<string, QuizResource> = {
+  'pies-szczeka-na-psy': {
+    articleHref: '/blog/dlaczego-moj-pies-szczeka-na-inne-psy',
+    articleLabel: 'Dlaczego pies szczeka na inne psy?',
+    problemHref: '/problemy/pies-szczeka-na-psy',
+    problemLabel: 'Zobacz ścieżkę: reakcje na psy',
+  },
+  'pies-ciagnie-na-smyczy': {
+    articleHref: '/blog/pies-ciagnie-na-smyczy',
+    articleLabel: 'Pies ciągnie na smyczy — od czego zacząć',
+    problemHref: '/problemy/pies-ciagnie-na-smyczy',
+    problemLabel: 'Zobacz ścieżkę: ciągnięcie na smyczy',
+  },
+  'pies-nie-zostaje-sam': {
+    articleHref: '/blog/pies-wyje-kiedy-zostaje-sam',
+    articleLabel: 'Pies wyje, kiedy zostaje sam',
+    problemHref: '/problemy/pies-nie-zostaje-sam',
+    problemLabel: 'Zobacz ścieżkę: zostawanie samemu',
+  },
+  'wakacje-opieka-zmiana-rytmu': {
+    articleHref: '/blog/nowy-pies-pierwsze-72-godziny',
+    articleLabel: 'Nowy rytm i pierwsze dni z psem',
+    problemHref: '/problemy/pies-nie-zostaje-sam',
+    problemLabel: 'Zobacz ścieżkę: rozłąka i zmiana rytmu',
+  },
+  'kot-sika-poza-kuweta': {
+    articleHref: '/blog/kot-zalatwia-sie-poza-kuweta',
+    articleLabel: 'Kot załatwia się poza kuwetą',
+    problemHref: '/problemy/kot-sika-poza-kuweta',
+    problemLabel: 'Zobacz ścieżkę: kuweta',
+  },
+  'kot-gryzie-przy-glaskaniu': {
+    articleHref: '/blog/kot-drapie-meble',
+    articleLabel: 'Sygnały napięcia i potrzeby kota',
+    problemHref: '/problemy/kot-gryzie-przy-glaskaniu',
+    problemLabel: 'Zobacz ścieżkę: dotyk i gryzienie',
+  },
+  'konflikt-miedzy-kotami': {
+    articleHref: '/blog/jak-zapoznac-dwa-koty',
+    articleLabel: 'Jak zapoznać dwa koty',
+    problemHref: '/problemy/konflikt-miedzy-kotami',
+    problemLabel: 'Zobacz ścieżkę: konflikt kotów',
+  },
+}
+
+const QUIZ_RESOURCES_BY_TOPIC: Partial<Record<QuizTopic, QuizResource>> = {
+  dog_walks: {
+    articleHref: '/blog/dlaczego-moj-pies-szczeka-na-inne-psy',
+    articleLabel: 'Reakcje psa na spacerze — co je napędza',
+  },
+  dog_alone: {
+    articleHref: '/blog/pies-wyje-kiedy-zostaje-sam',
+    articleLabel: 'Pies wyje, kiedy zostaje sam',
+  },
+  dog_change: {
+    articleHref: '/blog/nowy-pies-pierwsze-72-godziny',
+    articleLabel: 'Pierwsze dni i zmiana rytmu psa',
+  },
+  cat_litter: {
+    articleHref: '/blog/kot-zalatwia-sie-poza-kuweta',
+    articleLabel: 'Kuweta: co sprawdzić po kolei',
+  },
+  cat_conflict: {
+    articleHref: '/blog/jak-zapoznac-dwa-koty',
+    articleLabel: 'Jak zapoznać dwa koty bez dokładania napięcia',
+  },
+  cat_change: {
+    articleHref: '/blog/jak-wprowadzic-nowego-kota-do-domu',
+    articleLabel: 'Zmiany w domu a spokój kota',
+  },
+}
+
 export function getQuizProblemContext(problemKey: string | null | undefined): QuizProblemContext | null {
   const normalizedKey = problemKey?.trim().toLowerCase()
   if (!normalizedKey) return null
@@ -563,9 +643,14 @@ export function resolveQuizResult(answers: QuizAnswers, context: QuizProblemCont
 
   const topic = getTopic(answers, context)
 
-  if (isSafetyRoute(answers)) return resultForSafety(topic)
-  if (isVetRoute(answers, topic)) return resultForVet(topic)
-  return resultForService(topic, answers.impact)
+  const result = isSafetyRoute(answers)
+    ? resultForSafety(topic)
+    : isVetRoute(answers, topic)
+      ? resultForVet(topic)
+      : resultForService(topic, answers.impact)
+  const resources = (context && QUIZ_RESOURCES_BY_PROBLEM[context.problemKey]) ?? (topic ? QUIZ_RESOURCES_BY_TOPIC[topic] : null)
+
+  return resources ? { ...result, ...resources } : result
 }
 
 export function getQuizTopicLabel(topic: QuizTopic | null) {

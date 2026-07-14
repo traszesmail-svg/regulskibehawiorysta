@@ -171,13 +171,14 @@ test.skip('home and opinions pages surface real social proof and local SEO', asy
 
 test('opinions page keeps dog cat depth, expandable reviews and upload form hooks', () => {
   const opinionsSource = readSource('app', 'opinie', 'page.tsx')
+  const reviewsDataSource = readSource('lib', 'opinion-reviews.ts')
   const gridSource = readSource('components', 'OpinionsReviewGrid.tsx')
   const carouselSource = readSource('components', 'FinalReviewsQuoteCarousel.tsx')
   const footerSource = readSource('components', 'Footer.tsx')
   const addOpinionSource = readSource('app', 'opinie', 'dodaj', 'page.tsx')
   const cssSource = readSource('app', 'globals.css')
-  const dogReviewCount = countMatches(opinionsSource, /categories:\s*\[[^\]]*'Pies'/g)
-  const catReviewCount = countMatches(opinionsSource, /categories:\s*\[[^\]]*'Kot'/g)
+  const dogReviewCount = countMatches(reviewsDataSource, /categories:\s*\[[^\]]*'Pies'/g)
+  const catReviewCount = countMatches(reviewsDataSource, /categories:\s*\[[^\]]*'Kot'/g)
 
   assert.equal(dogReviewCount >= 10, true)
   assert.equal(catReviewCount >= 10, true)
@@ -348,9 +349,9 @@ test('service-page architecture keeps one broad online landing and redirects hel
   const nextConfigSource = readSource('next.config.mjs')
   const uiSmokeSource = readSource('scripts', 'ui-smoke.ts')
 
-  assert.match(growthLayerSource, /path: '\/behawiorysta-online-polska'/)
+  assert.match(growthLayerSource, /path: '\/'/)
   assert.match(growthLayerSource, /title: 'Behawiorysta psów i kotów online - cała Polska'/)
-  assert.match(growthLayerSource, /href: '\/konsultacja-behawioralna-online'/)
+  assert.match(growthLayerSource, /href: '\/'/)
 
   assert.match(nextConfigSource, /source: '\/behawiorysta-psow'/)
   assert.match(nextConfigSource, /source: '\/behawiorysta-kotow'/)
@@ -371,21 +372,21 @@ test('copy governance keeps Kwadrans as the primary service name and format as s
   const seoSource = readSource('lib', 'seo.ts')
 
   assert.match(copyGovernanceSource, /primary: '15-minutowa konsultacja behawioralna'/)
-  assert.match(copyGovernanceSource, /primaryDescriptor: '15 min audio bez kamery'/)
-  assert.match(copyGovernanceSource, /primaryLead: '15-minutowa konsultacja behawioralna to 15 min audio bez kamery\.'/)
+  assert.match(copyGovernanceSource, /primaryDescriptor: '15 min połączenia telefonicznego'/)
+  assert.match(copyGovernanceSource, /primaryLead: '15-minutowa konsultacja behawioralna to połączenie telefoniczne/)
 
   assert.match(offerEntrySource, /COPY_SERVICE_NAMES\.primaryDescriptor/)
   assert.match(offerEntrySource, /Kwadrans zostaje nazwą usługi/)
 
-  assert.match(bookingServiceInfoCardSource, /const serviceLabel = service\.mode === 'audio' \? COPY_SERVICE_NAMES\.primary : service\.title/)
-  assert.match(bookingServiceInfoCardSource, /const formatLabel = service\.mode === 'audio' \? COPY_SERVICE_NAMES\.primaryDescriptor : 'rozmowa online'/)
-  assert.match(bookingServiceInfoCardSource, /COPY_SERVICE_NAMES\.primaryShort/)
+  assert.match(bookingServiceInfoCardSource, /const isPhoneService = service\.mode === 'phone'/)
+  assert.match(bookingServiceInfoCardSource, /połączenie telefoniczne/)
+  assert.match(bookingServiceInfoCardSource, /Jitsi/)
 
   assert.match(contactSource, /Napisz krótko, co się dzieje/)
   assert.doesNotMatch(contactSource, /<h3>Kwadrans z behawiorysta<\/h3>/)
   assert.doesNotMatch(contactSource, /contact-booking-panel/)
   assert.match(bookSource, /BookingSlotCalendar/)
-  assert.match(seoSource, /15-minutowej konsultacji behawioralnej/)
+  assert.match(seoSource, /15-minutowego połączenia telefonicznego/)
 })
 
 test('book page keeps a distinct jump-to-form CTA for explicit services', () => {
@@ -407,8 +408,8 @@ test('booking form intro follows the selected service instead of a generic booki
 
   assert.match(bookingFormSource, /function getSelectedServiceIntro/)
   assert.match(bookingFormSource, /Wybrana rozmowa: \$\{option\.label\} \/ \$\{option\.price\}\./)
-  assert.match(bookingFormSource, /30 min online, gdy temat ma kilka wątków/)
-  assert.match(bookingFormSource, /Około 2h online dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 7 dni wsparcia przez WhatsApp/)
+  assert.match(bookingFormSource, /30 min połączenia telefonicznego, gdy temat ma kilka wątków/)
+  assert.match(bookingFormSource, /Około 2h przez Jitsi.*14 dni komunikacji/)
   assert.doesNotMatch(bookingFormSource, /PUBLIC_OFFER_BOOKING_LEAD/)
   assert.doesNotMatch(bookingFormSource, /PUBLIC_OFFER_BOOKING_REASSURANCE/)
 })
@@ -746,6 +747,15 @@ test('booking form shows normalized slot conflict copy instead of raw api errors
   assert.doesNotMatch(bookingFormSource, /phone:\s*['"]/)
   assert.doesNotMatch(bookingRouteSource, /body\.phone/)
   assert.doesNotMatch(bookingRouteSource, /numer telefonu/)
+})
+
+test('urgent request response keeps the urgent service, price and callback phone', () => {
+  const responseSource = readSource('app', 'api', 'admin', 'urgent-requests', '[id]', 'respond', 'route.ts')
+
+  assert.match(responseSource, /serviceType: 'kwadrans-na-juz'/)
+  assert.match(responseSource, /phone: urgentRequest\.phone \?\? null/)
+  assert.match(responseSource, /buildPaymentHref\(bookingResult\.booking\.id, bookingResult\.accessToken, 'kwadrans-na-juz'\)/)
+  assert.doesNotMatch(responseSource, /serviceType: 'szybka-konsultacja-15-min'/)
 })
 
 test('cat topic images exist in the dedicated catalog', () => {

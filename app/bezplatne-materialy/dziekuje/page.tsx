@@ -4,6 +4,7 @@ import { TrustSignalSection } from '@/components/TrustSignalSection'
 import { NotatnikPageShell, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
 import { buildBookHref } from '@/lib/booking-routing'
 import { getLeadMagnetBySlug } from '@/lib/active-lead-magnets'
+import { getCanonicalPublicHref } from '@/lib/public-routes'
 import { buildTechnicalMetadata } from '@/lib/seo'
 import { TRUST_SIGNAL_SETS } from '@/lib/trust-layer'
 
@@ -28,7 +29,7 @@ export default function LeadMagnetThankYouPage({
       tag="Materiał pobrany"
       navItems={PUBLIC_SITE_NAV_ITEMS}
       ctaHref={audioHref}
-      ctaLabel="Kwadrans / 69 zł"
+      ctaLabel="Kwadrans"
       footerPrimaryHref={audioHref}
       footerPrimaryLabel="15-minutowa konsultacja behawioralna"
       sideVisualVariant="materials"
@@ -57,7 +58,7 @@ export default function LeadMagnetThankYouPage({
               {magnet ? (
                 <p className="muted top-gap-small">
                   {magnet.nextStepCopy}{' '}
-                  <Link href={magnet.nextStepHref} prefetch={false} className="prep-inline-link">
+                  <Link href={getCanonicalPublicHref(magnet.nextStepHref)} prefetch={false} className="prep-inline-link">
                     Przejdź dalej
                   </Link>
                   .
@@ -80,7 +81,7 @@ export default function LeadMagnetThankYouPage({
               {
                 title: 'Wróć do właściwej strony tematycznej',
                 copy: `Jeśli chcesz przejść szerzej przez temat, wróć do strony ${magnet.categoryLabel.toLowerCase()} albo do powiązanego landingu.`,
-                href: magnet.categoryHref,
+                href: getCanonicalPublicHref(magnet.categoryHref),
                 cta: `Przejdź do: ${magnet.categoryLabel}`,
               },
               {

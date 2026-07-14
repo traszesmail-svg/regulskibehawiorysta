@@ -1,8 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { getCanonicalBaseUrl } from '@/lib/server/env'
-import { listBlogRoutePaths } from '@/lib/blog'
+import { getBlogPostBySlug, listBlogRoutePaths } from '@/lib/blog'
 import { listProblemPagePaths } from '@/lib/problem-pages'
-import { listProblemLandingPaths } from '@/lib/problem-landings'
 
 const STATIC_ROUTES: Array<{ path: string; priority: number; changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency'] }> = [
   { path: '/', priority: 1, changeFrequency: 'weekly' },
@@ -30,15 +29,30 @@ function buildAbsoluteUrl(baseUrl: string, path: string) {
   return new URL(path, baseUrl).toString()
 }
 
+const SITEMAP_FALLBACK_LAST_MODIFIED = new Date('2026-07-13T00:00:00.000Z')
+
+function getStableLastModified(path: string): Date {
+  if (path.startsWith('/blog/')) {
+    const post = getBlogPostBySlug(path.slice('/blog/'.length))
+    if (post?.publishedAt) {
+      const publishedAt = new Date(`${post.publishedAt}T00:00:00.000Z`)
+      if (!Number.isNaN(publishedAt.getTime())) {
+        return publishedAt
+      }
+    }
+  }
+
+  return SITEMAP_FALLBACK_LAST_MODIFIED
+}
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = getCanonicalBaseUrl()
-  const lastModified = new Date()
   const routeMap = new Map<string, MetadataRoute.Sitemap[number]>()
 
   for (const route of STATIC_ROUTES) {
     routeMap.set(route.path, {
       url: buildAbsoluteUrl(baseUrl, route.path),
-      lastModified,
+      lastModified: getStableLastModified(route.path),
       changeFrequency: route.changeFrequency,
       priority: route.priority,
     })
@@ -50,7 +64,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       if (path && path !== '/blog') {
         routeMap.set(path, {
           url: buildAbsoluteUrl(baseUrl, path),
-          lastModified,
+          lastModified: getStableLastModified(path),
           changeFrequency: 'weekly',
           priority: 0.75,
         })
@@ -65,7 +79,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     for (const path of problemPagePaths) {
       routeMap.set(path, {
         url: buildAbsoluteUrl(baseUrl, path),
-        lastModified,
+        lastModified: getStableLastModified(path),
         changeFrequency: 'weekly',
         priority: 0.8,
       })
@@ -73,19 +87,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
   } catch (err) {
     console.error('[sitemap] Failed to add detailed problem page paths', err)
   }
-  try {
-    const problemPaths = listProblemLandingPaths()
-    for (const path of problemPaths) {
-      routeMap.set(path, {
-        url: buildAbsoluteUrl(baseUrl, path),
-        lastModified,
-        changeFrequency: 'weekly',
-        priority: 0.78,
-      })
-    }
-  } catch (err) {
-    console.error('[sitemap] Failed to add problem landing paths', err)
-  }
-
   return [...routeMap.values()]
 }

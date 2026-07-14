@@ -1,4 +1,5 @@
 import { mkdir, rm } from 'fs/promises'
+import { tmpdir } from 'os'
 import path from 'path'
 import { getLocalStoreDataDir } from '../../lib/server/local-store-path'
 
@@ -9,11 +10,11 @@ type LocalDataSandbox = {
 
 export async function createLocalDataSandbox(scriptName: string, rootDir = process.cwd()): Promise<LocalDataSandbox> {
   const previousValue = process.env.APP_LOCAL_DATA_DIR
-  const relativeSandboxDir = path.join(
-    '.tmp-local-data',
+  const absoluteSandboxDir = path.join(
+    tmpdir(),
+    'regulski-behawiorysta-tests',
     `${scriptName}-${process.pid}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
   )
-  const absoluteSandboxDir = path.join(rootDir, relativeSandboxDir)
 
   process.env.APP_LOCAL_DATA_DIR = absoluteSandboxDir
 

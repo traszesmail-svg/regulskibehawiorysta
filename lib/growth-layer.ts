@@ -73,23 +73,23 @@ const TOPICAL_CLUSTERS: TopicalCluster[] = [
   {
     routePath: '/blog/reaktywnosc-na-smyczy-cwiczenie-luznej-smyczy',
     serviceLink: {
-      href: '/behawiorysta-online-polska',
+      href: '/',
       label: 'Behawiorysta psów i kotów online',
       copy: 'Kanoniczna strona usługi, jeśli chcesz przejść z treści problemowej do głównego opisu pomocy.',
     },
     blogLinks: [
       {
-        href: '/blog',
+        href: '/blog/dlaczego-moj-pies-szczeka-na-inne-psy',
         label: 'Blog: dlaczego mój pies szczeka na inne psy',
         copy: 'Pomaga szybciej nazwać wzorzec spacerowy i zobaczyć, co realnie napędza reakcje psa.',
       },
       {
-        href: '/blog',
+        href: '/blog/pies-ciagnie-na-smyczy',
         label: 'Blog: pies ciągnie na smyczy',
         copy: 'Praktyczny wpis o tym, dlaczego pies ciągnie i jak zacząć to zmieniać na spacerze.',
       },
       {
-        href: '/blog',
+        href: '/blog/reaktywnosc-na-smyczy-cwiczenie-luznej-smyczy',
         label: 'Blog: luzna smycz z reaktywnym psem',
         copy: 'Przechodzi z rozumienia problemu do pierwszej praktyki spacerowej bez szarpania.',
       },
@@ -98,23 +98,23 @@ const TOPICAL_CLUSTERS: TopicalCluster[] = [
   {
     routePath: '/blog/pies-wyje-kiedy-zostaje-sam',
     serviceLink: {
-      href: '/behawiorysta-online-polska',
+      href: '/',
       label: 'Behawiorysta psów i kotów online',
       copy: 'Główna strona usługi, jeśli chcesz przejść od materiałów o samotności do rozmowy o swoim psie.',
     },
     blogLinks: [
       {
-        href: '/blog',
+        href: '/blog/pies-wyje-kiedy-zostaje-sam',
         label: 'Blog: pies wyje, kiedy zostaje sam',
         copy: 'Pomaga odróżnić lęk separacyjny od frustracji, nudy i innych scenariuszy zostawania samemu.',
       },
       {
-        href: '/blog',
+        href: '/blog/jak-nagrac-psa-zostawionego-samemu',
         label: 'Blog: jak nagrać psa zostawionego samemu',
         copy: 'Pokazuje, jak zebrać materiał, który realnie skraca drogę do dobrej analizy zachowania.',
       },
       {
-        href: '/blog',
+        href: '/blog/rutyna-wyjscia-oswajanie-psa-z-samotnoscia',
         label: 'Blog: rutyna wyjścia i oswajanie z samotnością',
         copy: 'Rozwija temat pierwszego planu treningowego bez skokow i bez przypadkowego przyspieszania.',
       },
@@ -123,23 +123,23 @@ const TOPICAL_CLUSTERS: TopicalCluster[] = [
   {
     routePath: '/blog/kot-zalatwia-sie-poza-kuweta',
     serviceLink: {
-      href: '/behawiorysta-online-polska',
+      href: '/',
       label: 'Behawiorysta psów i kotów online',
       copy: 'Główna strona usługi, jeśli po treściach o kuwecie chcesz przejść do spokojnego omówienia swojego przypadku.',
     },
     blogLinks: [
       {
-        href: '/blog',
+        href: '/blog/kot-zalatwia-sie-poza-kuweta',
         label: 'Blog: kot załatwia się poza kuwetą',
         copy: 'Najszerszy punkt startu przed rozpisaniem zdrowia, kuwety i napięcia środowiskowego.',
       },
       {
-        href: '/blog',
+        href: '/blog/jak-wybrac-kuwete-i-zwirek-dla-kota',
         label: 'Blog: jak wybrać kuwetę i żwirek',
         copy: 'Porządkuje wybór kuwety i żwirku, zanim zaczniesz zmieniać cały dom naraz.',
       },
       {
-        href: '/blog',
+        href: '/blog/stres-kota-a-zachowania-toaletowe',
         label: 'Blog: stres kota a zachowania toaletowe',
         copy: 'Dopina warstwę środowiskową, kiedy zdrowie i sama kuweta nie tłumaczą już problemu.',
       },
@@ -148,23 +148,23 @@ const TOPICAL_CLUSTERS: TopicalCluster[] = [
   {
     routePath: '/blog/jak-zapoznac-dwa-koty',
     serviceLink: {
-      href: '/behawiorysta-online-polska',
+      href: '/',
       label: 'Behawiorysta psów i kotów online',
       copy: 'Główna strona usługi, jeśli konflikt w domu wymaga już ułożenia pierwszego planu zewnętrznego wsparcia.',
     },
     blogLinks: [
       {
-        href: '/blog',
+        href: '/blog/jak-wprowadzic-nowego-kota-do-domu',
         label: 'Blog: jak wprowadzic nowego kota',
         copy: 'Pomaga nie zepsuć relacji już na starcie, zanim napięcie zamieni się w stały konflikt.',
       },
       {
-        href: '/blog',
+        href: '/blog/agresja-przekierowana-u-kota',
         label: 'Blog: agresja przekierowana u kota',
         copy: 'Ważny kontekst, gdy napięcie eksploduje nagle i wydaje się nieadekwatne do sytuacji.',
       },
       {
-        href: '/blog',
+        href: '/blog/jak-zapoznac-dwa-koty',
         label: 'Blog: jak zapoznac dwa koty',
         copy: 'Przechodzi krok po kroku przez spokojny proces zapoznania, zanim koty zaczną mieszkać razem.',
       },
@@ -175,9 +175,9 @@ const TOPICAL_CLUSTERS: TopicalCluster[] = [
 
 export const LOCAL_SEO_PAGES: LocalSeoPage[] = [
   {
-    path: '/behawiorysta-online-polska',
+    path: '/',
     title: 'Behawiorysta psów i kotów online - cała Polska',
-    description: 'Behawiorysta psów i kotów online dla opiekunów z całej Polski. 15 min audio na start, pełna konsultacja około 2h przy sprawach szerszych.',
+    description: 'Behawiorysta psów i kotów online dla opiekunów z całej Polski. 15 min połączenia telefonicznego na start, pełna konsultacja przez Jitsi około 2h przy sprawach szerszych.',
     h1: 'Behawiorysta psów i kotów online',
     intro: [
       'Pracuję online z opiekunami psów i kotów z całej Polski.',
@@ -185,34 +185,34 @@ export const LOCAL_SEO_PAGES: LocalSeoPage[] = [
       'Ta strona jest głównym punktem wejścia dla usługi. Jeśli temat dotyczy konkretnego problemu psa albo kota, niżej znajdziesz przejście do odpowiedniej kategorii.',
     ],
     problemCards: [
-      { title: 'Problem dotyczy psa', copy: 'Spacery, reaktywność, rozłąka, pobudzenie albo trudne zachowania w domu.', href: '/psy' },
-      { title: 'Problem dotyczy kota', copy: 'Kuweta, stres, wycofanie, napięcie w domu albo relacje między kotami.', href: '/koty' },
+      { title: 'Problem dotyczy psa', copy: 'Spacery, reaktywność, rozłąka, pobudzenie albo trudne zachowania w domu.', href: '/problemy#pies' },
+      { title: 'Problem dotyczy kota', copy: 'Kuweta, stres, wycofanie, napięcie w domu albo relacje między kotami.', href: '/problemy#kot' },
       { title: 'Chcesz ustalić pierwszy krok', copy: 'Masz jedno pytanie albo potrzebujesz spokojnie uporządkować temat przed dalszym działaniem.' },
       { title: 'Sprawa jest szersza', copy: 'Problem trwa dłużej, wraca albo obejmuje kilka wątków naraz i wymaga dłuższej rozmowy.' },
     ],
     supportTitle: 'Jak wygląda taka pomoc online',
     supportBody: [
       'W pracy behawioralnej najważniejsze są kontekst, historia problemu, środowisko i codzienne sytuacje, w których zachowanie wraca. To właśnie porządkujemy na rozmowie.',
-      'Do startu wystarczy krótki opis. Nagrania bywają pomocne, ale nie są warunkiem, a kamera nie jest potrzebna przy 15 min audio.',
-      'Opis procesu pełnej konsultacji znajduje się na osobnej stronie usługi. Tutaj najpierw ustalasz, czy pracujemy o psie, o kocie, czy od razu potrzebujesz szerszej rozmowy online.',
+      'Do startu wystarczy krótki opis. Nagrania bywają pomocne, ale nie są warunkiem; Kwadrans odbywa się telefonicznie.',
+      'Opis procesu pełnej konsultacji znajduje się na osobnej stronie usługi. Tutaj najpierw ustalasz, czy pracujemy o psie, o kocie, czy od razu potrzebujesz szerszej rozmowy przez Jitsi.',
     ],
     firstStepCards: [
-      { title: '15 min audio', copy: 'Krótka rozmowa głosowa bez kamery. Dobra na jedno pytanie, pierwszy ogląd sytuacji i ustalenie priorytetu.' },
+      { title: '15 min telefonicznie', copy: 'Krótka rozmowa telefoniczna. Dobra na jedno pytanie, pierwszy ogląd sytuacji i ustalenie priorytetu.' },
       { title: 'Materiały PDF', copy: 'Materiały startowe, jeśli chcesz najpierw coś spokojnie przeczytać i uporządkować obserwacje.' },
       { title: 'Pełna konsultacja', copy: 'Około 2h online, analiza zachowania, plan działania i 14 dni komunikacji w pokoju klienta przy sprawach złożonych.' },
     ],
     faq: [
       { question: 'Czy konsultacja online jest dostępna dla całej Polski?', answer: 'Tak. Pracuję online z opiekunami z całej Polski, w tej samej formule niezależnie od miejsca.' },
-      { question: 'Czy potrzebuję kamery albo specjalnego sprzętu?', answer: 'Nie. Przy 15 min audio wystarcza rozmowa głosowa. Przy pełnej konsultacji wideo może pomóc, ale nie jest obowiązkowe.' },
+      { question: 'Czy potrzebuję kamery albo specjalnego sprzętu?', answer: 'Nie przy krótkich formatach — wystarczy telefon. Pełna konsultacja odbywa się przez Jitsi; wideo może pomóc, ale nie jest obowiązkowe.' },
       { question: 'Czy mogę zgłosić temat przed adopcją albo przed zmianą w domu?', answer: 'Tak. Możesz omówić przygotowanie domu, plan działania i rzeczy, które warto sprawdzić wcześniej.' },
-      { question: 'Od czego najlepiej zacząć?', answer: 'Jeśli nie wiesz jeszcze, jak duży jest temat, zacznij od 15 min audio. Jeśli problem jest złożony i trwa od dawna, wybierz pełną konsultację.' },
+      { question: 'Od czego najlepiej zacząć?', answer: 'Jeśli nie wiesz jeszcze, jak duży jest temat, zacznij od 15-minutowego połączenia telefonicznego. Jeśli problem jest złożony i trwa od dawna, wybierz pełną konsultację przez Jitsi.' },
       { question: 'Gdzie sprawdzić dostępne terminy?', answer: 'Aktualną dostępność najłatwiej sprawdzić w kalendarzu przy rezerwacji.' },
     ],
     relatedLinks: [
-      { href: '/psy', label: 'Pomoc dla opiekunów psów', copy: 'Jeśli problem dotyczy psa, tutaj znajdziesz szerszy opis najczęstszych tematów i problemów.' },
-      { href: '/koty', label: 'Pomoc dla opiekunów kotów', copy: 'Jeśli problem dotyczy kota, tutaj znajdziesz szerszy opis najczęstszych tematów i problemów.' },
-      { href: '/konsultacja-behawioralna-online', label: 'Jak wygląda pełna konsultacja', copy: 'Osobna strona procesu i przebiegu dłuższej konsultacji online.' },
-      { href: '/cennik', label: 'Cennik', copy: 'Porownanie 15 min audio i pełnej konsultacji.' },
+      { href: '/problemy#pies', label: 'Pomoc dla opiekunów psów', copy: 'Jeśli problem dotyczy psa, tutaj znajdziesz szerszy opis najczęstszych tematów i problemów.' },
+      { href: '/problemy#kot', label: 'Pomoc dla opiekunów kotów', copy: 'Jeśli problem dotyczy kota, tutaj znajdziesz szerszy opis najczęstszych tematów i problemów.' },
+      { href: '/cennik/pelny', label: 'Jak wygląda pełna konsultacja', copy: 'Osobna strona procesu i przebiegu dłuższej konsultacji przez Jitsi.' },
+      { href: '/cennik', label: 'Cennik', copy: 'Porównanie krótkiego połączenia telefonicznego i pełnej konsultacji.' },
       { href: '/kontakt', label: 'Kontakt', copy: 'Krótka wiadomość, jeśli chcesz coś doprecyzować przed rezerwacja.' },
     ],
   },

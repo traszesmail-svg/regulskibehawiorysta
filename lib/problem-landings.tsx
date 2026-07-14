@@ -14,6 +14,7 @@ import { NewsletterSignup } from '@/components/NewsletterSignup'
 import { TrustSignalSection } from '@/components/TrustSignalSection'
 import { buildBookHref } from '@/lib/booking-routing'
 import { FUNNEL_CTA_LABELS } from '@/lib/funnel'
+import { PUBLIC_OFFER_PRICE_LABELS } from '@/lib/public-offer-copy'
 import { getLeadMagnetBySlug, getProblemLandingLeadMagnetSlug } from '@/lib/active-lead-magnets'
 import { getTopicalClusterByRoutePath } from '@/lib/growth-layer'
 import { REAL_CASE_STUDIES } from '@/lib/real-case-studies'
@@ -37,7 +38,7 @@ type ProblemLandingConfig = {
   routePath: string
   fileName: string
   species: LandingSpecies
-  categoryHref: '/psy' | '/koty'
+  categoryHref: '/problemy#pies' | '/problemy#kot'
   categoryLabel: 'Psy' | 'Koty'
   eyebrow: string
   visualSrc: string
@@ -94,7 +95,7 @@ type ProblemLanding = {
   metaDescription: string
   h1: string
   species: LandingSpecies
-  categoryHref: '/psy' | '/koty'
+  categoryHref: '/problemy#pies' | '/problemy#kot'
   categoryLabel: 'Psy' | 'Koty'
   eyebrow: string
   fileName: string
@@ -123,7 +124,7 @@ const PROBLEM_LANDING_CONFIGS: ProblemLandingConfig[] = [
     routePath: '/psy/reaktywnosc-na-smyczy',
     fileName: '01-landing-reaktywnosc-na-smyczy.md',
     species: 'pies',
-    categoryHref: '/psy',
+    categoryHref: '/problemy#pies',
     categoryLabel: 'Psy',
     eyebrow: 'Problem',
     visualSrc: TOPIC_VISUALS.spacer.src,
@@ -134,7 +135,7 @@ const PROBLEM_LANDING_CONFIGS: ProblemLandingConfig[] = [
     toolkitLabel: 'Bezpłatny materiał: pies i poziom ruchu',
     crossLinks: [
       {
-        href: '/psy/lek-separacyjny',
+        href: '/problemy/pies-nie-zostaje-sam',
         label: 'Lęk separacyjny u psa',
         copy: 'Jeśli obok spacerów widzisz też trudność z rozłąką albo z wyciszeniem po wyjściu opiekuna, sprawdź też ten temat.',
       },
@@ -150,7 +151,7 @@ const PROBLEM_LANDING_CONFIGS: ProblemLandingConfig[] = [
     routePath: '/psy/lek-separacyjny',
     fileName: '02-landing-lek-separacyjny.md',
     species: 'pies',
-    categoryHref: '/psy',
+    categoryHref: '/problemy#pies',
     categoryLabel: 'Psy',
     eyebrow: 'Problem',
     visualSrc: TOPIC_VISUALS.separacja.src,
@@ -161,7 +162,7 @@ const PROBLEM_LANDING_CONFIGS: ProblemLandingConfig[] = [
     toolkitLabel: 'PDF: pies zostaje sam',
     crossLinks: [
       {
-        href: '/psy/reaktywnosc-na-smyczy',
+        href: '/problemy/pies-szczeka-na-psy',
         label: 'Reaktywność na smyczy',
         copy: 'Jeśli obok trudności z samotnością pojawia się też wysokie napięcie na spacerach, zobacz również tę stronę problemową.',
       },
@@ -177,7 +178,7 @@ const PROBLEM_LANDING_CONFIGS: ProblemLandingConfig[] = [
     routePath: '/koty/zalatwianie-poza-kuweta',
     fileName: '03-landing-zalatwianie-poza-kuweta.md',
     species: 'kot',
-    categoryHref: '/koty',
+    categoryHref: '/problemy#kot',
     categoryLabel: 'Koty',
     eyebrow: 'Problem',
     visualSrc: TOPIC_VISUALS['kot-kuweta'].src,
@@ -188,7 +189,7 @@ const PROBLEM_LANDING_CONFIGS: ProblemLandingConfig[] = [
     toolkitLabel: 'Bezpłatny materiał: kot żyje w napięciu',
     crossLinks: [
       {
-        href: '/koty/konflikt-miedzy-kotami',
+        href: '/problemy/konflikt-miedzy-kotami',
         label: 'Konflikt między kotami',
         copy: 'Jeśli obok problemu z kuwetą widzisz też napięcie w domu, sprawdź również stronę o relacjach między kotami.',
       },
@@ -199,7 +200,7 @@ const PROBLEM_LANDING_CONFIGS: ProblemLandingConfig[] = [
     routePath: '/koty/konflikt-miedzy-kotami',
     fileName: '04-landing-konflikt-miedzy-kotami.md',
     species: 'kot',
-    categoryHref: '/koty',
+    categoryHref: '/problemy#kot',
     categoryLabel: 'Koty',
     eyebrow: 'Problem',
     visualSrc: TOPIC_VISUALS['kot-konflikt'].src,
@@ -210,7 +211,7 @@ const PROBLEM_LANDING_CONFIGS: ProblemLandingConfig[] = [
     toolkitLabel: 'PDF: kot żyje w napięciu',
     crossLinks: [
       {
-        href: '/koty/zalatwianie-poza-kuweta',
+        href: '/problemy/kot-sika-poza-kuweta',
         label: 'Załatwianie poza kuwetą',
         copy: 'Jeśli obok konfliktu pojawiły się problemy toaletowe, zajrzyj też do strony o kuwecie.',
       },
@@ -714,14 +715,14 @@ export function ProblemLandingPage({ routePath }: { routePath: string }) {
   return (
     <main className="page-wrap editorial-home-page premium-home-page problem-landing-page">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
-      <NotatnikSideVisuals variant={landing.categoryHref === '/koty' ? 'cat' : 'dog'} />
+      <NotatnikSideVisuals variant={landing.categoryHref === '/problemy#kot' ? 'cat' : 'dog'} />
 
       <div className="container editorial-stack">
         <NotatnikTopbar
           tag={`${landing.categoryLabel} / problem`}
           navItems={PUBLIC_SITE_NAV_ITEMS}
           ctaHref={landing.audioHref}
-          ctaLabel="Kwadrans / 69 zł"
+          ctaLabel={`Kwadrans / ${PUBLIC_OFFER_PRICE_LABELS.quick}`}
         />
         <Breadcrumbs items={[
           { name: landing.categoryLabel, url: landing.categoryHref },

@@ -15,6 +15,7 @@ import { buildHomeMetadata } from '@/lib/seo'
 import { COAPE_POLSKA_LOGO, HOME_HERO_PHOTO } from '@/lib/site'
 import { getSeasonalTrendRadar } from '@/lib/seasonal-trend-radar'
 import { HOME_TREND_PROBLEM_CARDS } from '@/lib/trend-problems'
+import { PUBLIC_OFFER_PRICES } from '@/lib/public-offer-copy'
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildHomeMetadata()
@@ -79,14 +80,14 @@ export default function HomePage() {
         'Konsultacje behawioralne online dla opiekunów psów i kotów. W każdej usłudze punktem wyjścia jest analiza zachowania oparta na informacjach przekazanych przez opiekuna.',
       serviceUrl: serviceLandingHref,
       offerCatalog: [
-        { name: 'Kwadrans', description: '15 min audio bez kamery na jedno główne pytanie. Szybko porządkujesz sytuację i dostajesz pierwszy kierunek działania.', url: '/book?service=szybka-konsultacja-15-min', price: 69 },
-        { name: 'Kwadrans na już', description: 'Ten sam zakres co Kwadrans, ale z priorytetową odpowiedzią i najbliższym realnym terminem.', url: '/kwadrans-na-juz', price: 99 },
-        { name: 'Dwa kwadranse', description: '30 min online, gdy temat ma kilka wątków. Więcej czasu na kontekst, spokojniejsze zalecenia i decyzję, czy potrzebna jest pełna konsultacja.', url: '/book?service=konsultacja-30-min', price: 169 },
+        { name: 'Kwadrans', description: '15 min połączenia telefonicznego na jedno główne pytanie. Szybko porządkujesz sytuację i dostajesz pierwszy kierunek działania.', url: '/book?service=szybka-konsultacja-15-min', price: PUBLIC_OFFER_PRICES.quick },
+        { name: 'Kwadrans na już', description: 'Ten sam zakres co Kwadrans, ale z priorytetową odpowiedzią i najbliższym realnym terminem telefonicznym.', url: '/kwadrans-na-juz', price: PUBLIC_OFFER_PRICES.urgent },
+        { name: 'Dwa kwadranse', description: '30 min połączenia telefonicznego, gdy temat ma kilka wątków. Więcej czasu na kontekst, spokojniejsze zalecenia i decyzję, czy potrzebna jest pełna konsultacja.', url: '/book?service=konsultacja-30-min', price: PUBLIC_OFFER_PRICES.bridge },
         {
           name: 'Pełna konsultacja',
-          description: 'Około 2h online dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni komunikacji w pokoju klienta.',
+          description: 'Około 2h przez Jitsi dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni komunikacji w pokoju klienta.',
           url: '/book?service=konsultacja-behawioralna-online',
-          price: 470,
+          price: PUBLIC_OFFER_PRICES.premium,
         },
       ],
     }),

@@ -190,7 +190,7 @@ export const PROBLEM_PAGE_CONFIGS: ProblemPageConfig[] = [
     ],
     relatedLinks: [
       {
-        href: '/psy/lek-separacyjny',
+        href: '/problemy/pies-nie-zostaje-sam',
         label: 'Szerszy landing: lęk separacyjny',
         copy: 'Jeśli chcesz pełniejszy kontekst problemu, przejdź do rozbudowanej strony.',
       },

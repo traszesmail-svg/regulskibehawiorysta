@@ -3,6 +3,7 @@
 // Strony: /, /faq
 
 import { Icon, type IconName } from '@/components/icons-config';
+import { PUBLIC_OFFER_PRICE_LABELS } from '@/lib/public-offer-copy';
 
 interface FAQ {
   icon: IconName;
@@ -13,8 +14,8 @@ interface FAQ {
 const defaultFAQs: FAQ[] = [
   {
     icon: 'help-circle',
-    question: 'Czym różni się Kwadrans 69 zł od Kwadransu na już 99 zł?',
-    answer: 'Forma rozmowy jest taka sama. Przy 99 zł otrzymujesz priorytet i możliwie szybki termin.',
+    question: `Czym różni się Kwadrans ${PUBLIC_OFFER_PRICE_LABELS.quick} od Kwadransu na już ${PUBLIC_OFFER_PRICE_LABELS.urgent}?`,
+    answer: 'Forma połączenia telefonicznego jest taka sama. Przy wyższej cenie otrzymujesz priorytet i możliwie szybki termin.',
   },
   {
     icon: 'clock',
@@ -23,13 +24,13 @@ const defaultFAQs: FAQ[] = [
   },
   {
     icon: 'clipboard-list',
-    question: 'Co obejmuje Pełna konsultacja 470 zł?',
-    answer: 'Około 2h online, analizę zachowania, prawdopodobną przyczynę problemu, plan działania i 14 dni komunikacji w pokoju klienta.',
+    question: `Co obejmuje Pełna konsultacja ${PUBLIC_OFFER_PRICE_LABELS.premium}?`,
+    answer: 'Około 2h przez Jitsi, analizę zachowania, prawdopodobną przyczynę problemu, plan działania i 14 dni komunikacji w pokoju klienta.',
   },
   {
     icon: 'lightbulb',
     question: 'Co jeśli nie wiem, od czego zacząć?',
-    answer: 'Najprostszy start to Kwadrans 69 zł albo materiał PDF. Po krótkim opisie sytuacji wybierzemy najrozsądniejszy krok na ten moment.',
+    answer: `Najprostszy start to Kwadrans ${PUBLIC_OFFER_PRICE_LABELS.quick} albo materiał PDF. Po krótkim opisie sytuacji wybierzemy najrozsądniejszy krok na ten moment.`,
   },
 ];
 

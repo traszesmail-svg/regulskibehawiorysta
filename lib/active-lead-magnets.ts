@@ -27,13 +27,13 @@ export const LEAD_MAGNETS: LeadMagnet[] = [
     followUpTitle: 'Jak wygląda rytm dnia psa po obserwacji?',
     followUpBody: 'Jeśli po materiale nadal nie wiesz, czy problemem jest ruch, pobudzenie czy odpoczynek, Kwadrans pomoże ustalić priorytet.',
     nextStepCopy: 'Najbliższy kolejny krok prowadzi do strony o psach albo do krótkiej rozmowy.',
-    nextStepHref: '/psy',
-    categoryHref: '/psy',
+    nextStepHref: '/problemy#pies',
+    categoryHref: '/problemy#pies',
     categoryLabel: 'Psy',
     relatedLinks: [
       { href: '/materialy#psy', label: 'Reaktywność na smyczy' },
       { href: '/materialy#psy', label: 'PDF: Pies sam w domu: co sprawdzić, zanim zaczniesz trening zostawania' },
-      { href: '/behawiorysta-online-polska', label: 'Behawiorysta psów i kotów online' },
+      { href: '/', label: 'Behawiorysta psów i kotów online' },
     ],
     asset: {
       kind: 'pdf',
@@ -68,13 +68,13 @@ export const LEAD_MAGNETS: LeadMagnet[] = [
     followUpTitle: 'Co wyszło z obserwacji napięcia kota?',
     followUpBody: 'Jeśli po materiale nadal nie wiesz, co napędza zachowanie kota, Kwadrans pomoże ustalić kolejność zmian.',
     nextStepCopy: 'Najbliższy kolejny krok prowadzi do strony o kotach albo do krótkiej rozmowy.',
-    nextStepHref: '/koty',
-    categoryHref: '/koty',
+    nextStepHref: '/problemy#kot',
+    categoryHref: '/problemy#kot',
     categoryLabel: 'Koty',
     relatedLinks: [
       { href: '/materialy#koty', label: 'Załatwianie poza kuwetą' },
       { href: '/materialy#koty', label: 'Konflikt między kotami' },
-      { href: '/behawiorysta-online-polska', label: 'Behawiorysta psów i kotów online' },
+      { href: '/', label: 'Behawiorysta psów i kotów online' },
     ],
     asset: {
       kind: 'pdf',
@@ -114,8 +114,8 @@ export const LEAD_MAGNETS: LeadMagnet[] = [
     categoryLabel: 'Materiały PDF',
     relatedLinks: [
       { href: '/materialy', label: 'Wszystkie aktualne materiały PDF' },
-      { href: '/psy', label: 'Materiały dla psa' },
-      { href: '/koty', label: 'Materiały dla kota' },
+      { href: '/problemy#pies', label: 'Materiały dla psa' },
+      { href: '/problemy#kot', label: 'Materiały dla kota' },
     ],
     asset: {
       kind: 'pdf',
@@ -150,13 +150,13 @@ export const LEAD_MAGNETS: LeadMagnet[] = [
     followUpTitle: 'Jak wygląda pierwszy tydzień kota?',
     followUpBody: 'Jeśli adaptacja utknęła albo kot wycofuje się mocniej, Kwadrans pomoże ustalić bezpieczny kolejny krok.',
     nextStepCopy: 'Najbliższy kolejny krok prowadzi do strony o kotach albo do krótkiej rozmowy.',
-    nextStepHref: '/koty',
-    categoryHref: '/koty',
+    nextStepHref: '/problemy#kot',
+    categoryHref: '/problemy#kot',
     categoryLabel: 'Koty',
     relatedLinks: [
       { href: '/materialy#koty', label: 'PDF: Czy Twój kot żyje w napięciu? Ciche sygnały, które łatwo przegapić' },
-      { href: '/koty', label: 'Pomoc dla kotów' },
-      { href: '/behawiorysta-online-polska', label: 'Behawiorysta psów i kotów online' },
+      { href: '/problemy#kot', label: 'Pomoc dla kotów' },
+      { href: '/', label: 'Behawiorysta psów i kotów online' },
     ],
     asset: {
       kind: 'pdf',
@@ -192,12 +192,12 @@ export const LEAD_MAGNETS: LeadMagnet[] = [
     followUpBody: 'Jeśli po materiale nadal nie wiesz, czy to panika, frustracja czy przeciążenie, Kwadrans pomoże ustalić pierwszy bezpieczny krok.',
     nextStepCopy: 'Najbliższy kolejny krok prowadzi do strony o lęku separacyjnym albo do krótkiej rozmowy.',
     nextStepHref: '/materialy#psy',
-    categoryHref: '/psy',
+    categoryHref: '/problemy#pies',
     categoryLabel: 'Psy',
     relatedLinks: [
       { href: '/materialy#psy', label: 'Lęk separacyjny u psa' },
       { href: '/materialy#psy', label: 'PDF: Czy Twój pies potrzebuje więcej ruchu - czy mniej pobudzenia?' },
-      { href: '/behawiorysta-online-polska', label: 'Behawiorysta psów i kotów online' },
+      { href: '/', label: 'Behawiorysta psów i kotów online' },
     ],
     asset: {
       kind: 'pdf',

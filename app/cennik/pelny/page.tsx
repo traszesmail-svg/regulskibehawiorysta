@@ -3,6 +3,7 @@ import { ReferencePageShell } from '@/components/ReferencePageShell'
 import { Schema } from '@/components/schema'
 import { getBreadcrumbJsonLd, getServiceJsonLd } from '@/lib/schema'
 import { buildMarketingMetadata } from '@/lib/seo'
+import { PUBLIC_OFFER_PRICE_LABELS } from '@/lib/public-offer-copy'
 import {
   PricingCardsSection,
   bookHref,
@@ -13,7 +14,7 @@ export const metadata: Metadata = buildMarketingMetadata({
   title: 'Pełny cennik rozmów behawioralnych',
   path: '/cennik/pelny',
   description:
-    'Pełna tabela rozmów: Kwadrans 69 zł, Kwadrans na już 99 zł, Dwa kwadranse 169 zł i Pełna konsultacja 470 zł.',
+    `Pełna tabela rozmów: Kwadrans ${PUBLIC_OFFER_PRICE_LABELS.quick}, Kwadrans na już ${PUBLIC_OFFER_PRICE_LABELS.urgent}, Dwa kwadranse ${PUBLIC_OFFER_PRICE_LABELS.bridge} i Pełna konsultacja ${PUBLIC_OFFER_PRICE_LABELS.premium}.`,
 })
 
 export default function FullPricingPage() {

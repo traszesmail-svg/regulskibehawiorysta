@@ -9,6 +9,7 @@ import {
   PUBLIC_OFFER_PAYMENT_EMAIL_STEP,
   PUBLIC_OFFER_BOOKING_PRIORITY_NOTE,
   PUBLIC_OFFER_BOOKING_PRIORITY_PROMPT,
+  PUBLIC_OFFER_PRICE_LABELS,
 } from '@/lib/public-offer-copy'
 import { SlotPicker, type SlotPickerMode } from '@/components/SlotPicker'
 
@@ -34,15 +35,15 @@ type BookingRequestPayload = {
 }
 
 const PRIMARY_SERVICE_OPTIONS: Array<{ value: Exclude<BookingServiceType, 'kwadrans-na-juz'>; label: string; price: string }> = [
-  { value: 'szybka-konsultacja-15-min', label: '15-minutowa konsultacja behawioralna', price: '69 zł' },
-  { value: 'konsultacja-30-min', label: 'Dwa kwadranse', price: '169 zł' },
-  { value: 'konsultacja-behawioralna-online', label: 'Pełna konsultacja', price: '470 zł' },
+  { value: 'szybka-konsultacja-15-min', label: '15-minutowa konsultacja behawioralna', price: PUBLIC_OFFER_PRICE_LABELS.quick },
+  { value: 'konsultacja-30-min', label: 'Dwa kwadranse', price: PUBLIC_OFFER_PRICE_LABELS.bridge },
+  { value: 'konsultacja-behawioralna-online', label: 'Pełna konsultacja', price: PUBLIC_OFFER_PRICE_LABELS.premium },
 ]
 
 const URGENT_SERVICE_OPTION = {
   value: 'kwadrans-na-juz' as const,
   label: 'Kwadrans na już',
-  price: '99 zł',
+  price: PUBLIC_OFFER_PRICE_LABELS.urgent,
 }
 
 function getServiceOption(service: BookingServiceType) {
@@ -87,12 +88,12 @@ function getSelectedServiceIntro(service: BookingServiceType) {
     case 'konsultacja-30-min':
       return {
         title: `Wybrana rozmowa: ${option.label} / ${option.price}.`,
-        copy: '30 min online, gdy temat ma kilka wątków. Masz więcej czasu na kontekst, spokojniejsze zalecenia i decyzję, czy potrzebna jest pełna konsultacja.',
+        copy: '30 min połączenia telefonicznego, gdy temat ma kilka wątków. Masz więcej czasu na kontekst, spokojniejsze zalecenia i decyzję, czy potrzebna jest pełna konsultacja.',
       }
     case 'konsultacja-behawioralna-online':
       return {
         title: `Wybrana rozmowa: ${option.label} / ${option.price}.`,
-        copy: 'Około 2h online dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni komunikacji w pokoju klienta przy wdrażaniu zaleceń.',
+        copy: 'Około 2h przez Jitsi dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni komunikacji w pokoju klienta przy wdrażaniu zaleceń.',
       }
     case 'kwadrans-na-juz':
       return {
@@ -103,7 +104,7 @@ function getSelectedServiceIntro(service: BookingServiceType) {
     default:
       return {
         title: `Wybrana rozmowa: ${option.label} / ${option.price}.`,
-        copy: 'Kwadrans to 15 min audio bez kamery na jedno główne pytanie. Szybko porządkujesz sytuację i dostajesz pierwszy kierunek działania.',
+        copy: 'Kwadrans to 15 min połączenia telefonicznego na jedno główne pytanie. Szybko porządkujesz sytuację i dostajesz pierwszy kierunek działania.',
       }
   }
 }

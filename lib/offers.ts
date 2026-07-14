@@ -1,8 +1,8 @@
 ﻿import { buildBookHref } from './booking-routing'
 import { FUNNEL_CTA_LABELS } from './funnel'
-import { DEFAULT_PRICE_PLN, formatPricePln } from './pricing'
+import { DEFAULT_PRICE_PLN } from './pricing'
 import { CAT_HOME_PHOTO, SPECIALIST_ONLINE_PHOTO, SPECIALIST_WIDE_PHOTO } from './site'
-import { PUBLIC_OFFER_FULL_CONSULTATION_VALUE } from './public-offer-copy'
+import { PUBLIC_OFFER_FULL_CONSULTATION_VALUE, PUBLIC_OFFER_PRICES, PUBLIC_OFFER_PRICE_LABELS } from './public-offer-copy'
 
 export type OfferKind = 'booking' | 'resource'
 
@@ -43,7 +43,7 @@ export type PdfTopic = {
   summary: string
 }
 
-const quickStartPriceLabel = formatPricePln(DEFAULT_PRICE_PLN)
+const quickStartPriceLabel = PUBLIC_OFFER_PRICE_LABELS.quick
 
 export const FUNNEL_PRIMARY_HREF = buildBookHref()
 export const FUNNEL_PRIMARY_LABEL = FUNNEL_CTA_LABELS.primary
@@ -66,8 +66,8 @@ export const OFFERS: Offer[] = [
     forWho: 'Dla psa albo kota, gdy chcesz szybko uporządkować temat i wybrać właściwy pierwszy krok.',
     whenToChoose: 'Gdy masz jedno pytanie, potrzebujesz orientacji w temacie albo chcesz zacząć bez kamery i bez długiego przygotowania.',
     nextStep: 'Wybierasz temat, termin i płatność. To szybki pierwszy krok, który porządkuje sytuację i pokazuje, czy potrzebny jest szerszy format.',
-    cardSummary: '15 min audio bez kamery na jedno główne pytanie. Szybko porządkujesz sytuację i dostajesz pierwszy kierunek działania.',
-    heroSummary: '15 min audio bez kamery na jedno główne pytanie. Szybko porządkujesz sytuację i dostajesz pierwszy kierunek działania.',
+    cardSummary: '15 min połączenia telefonicznego na jedno główne pytanie. Szybko porządkujesz sytuację i dostajesz pierwszy kierunek działania.',
+    heroSummary: '15 min połączenia telefonicznego na jedno główne pytanie. Szybko porządkujesz sytuację i dostajesz pierwszy kierunek działania.',
     descriptions: [
       'To dobry wybór, gdy temat jest świeży, wąski albo chcesz szybko sprawdzić, czy potrzebujesz szerszego formatu.',
       'Po rozmowie masz analizę zachowania opartą na zebranych informacjach i wiesz, czy wystarczy ten pierwszy krok, czy lepiej przejść do Dwóch kwadransów albo Pełnej konsultacji.',
@@ -82,7 +82,7 @@ export const OFFERS: Offer[] = [
     imageAlt: SPECIALIST_WIDE_PHOTO.alt,
     imageWidth: SPECIALIST_WIDE_PHOTO.width,
     imageHeight: SPECIALIST_WIDE_PHOTO.height,
-    note: 'Kwadrans to 15 min audio bez kamery na jedno główne pytanie. Służy do szybkiego uporządkowania sytuacji i wybrania pierwszego kierunku działania.',
+    note: 'Kwadrans to 15 min połączenia telefonicznego na jedno główne pytanie. Służy do szybkiego uporządkowania sytuacji i wybrania pierwszego kierunku działania.',
   },
   {
     slug: 'kwadrans-na-juz',
@@ -91,15 +91,15 @@ export const OFFERS: Offer[] = [
     shortTitle: 'Kwadrans na już',
     eyebrow: 'Szybki termin',
     kind: 'booking',
-    priceLabel: formatPricePln(99),
-    priceAmount: 99,
+    priceLabel: PUBLIC_OFFER_PRICE_LABELS.urgent,
+    priceAmount: PUBLIC_OFFER_PRICES.urgent,
     forWho: 'Dla psa albo kota, gdy potrzebujesz tego samego 15-minutowego formatu co Kwadrans, ale z priorytetem i szybszym terminem.',
     whenToChoose: 'Gdy sprawa jest pilna, chcesz rozmawiać jeszcze dziś albo zależy Ci na możliwie szybkim terminie.',
     nextStep: 'Wybierasz ten sam format 15 minut audio. Termin blokuje się w formularzu, a rezerwacja staje się pewna po potwierdzeniu płatności.',
     cardSummary: 'Ten sam zakres co Kwadrans, ale z priorytetem i najbliższym realnym terminem. Dla spraw pilnych, które nie wymagają dłuższej analizy.',
     heroSummary: 'Ten sam zakres co Kwadrans, ale z priorytetem i najbliższym realnym terminem. Dla spraw pilnych, które nie wymagają dłuższej analizy.',
     descriptions: [
-      'To ta sama forma co Kwadrans za 69 zł: 15 minut audio bez kamery, tylko realizowana priorytetowo.',
+      `To ta sama forma co Kwadrans za ${PUBLIC_OFFER_PRICE_LABELS.quick}: 15 minut połączenia telefonicznego, tylko realizowana priorytetowo.`,
       'Zakres rozmowy jest taki sam jak w zwykłym Kwadransie. Różnica dotyczy tylko tempa wejścia i priorytetu obsługi.',
     ],
     bestFor: ['pilna rozmowa', 'szybki dostęp', 'ten sam zakres co w Kwadransie'],
@@ -113,7 +113,7 @@ export const OFFERS: Offer[] = [
     imageAlt: SPECIALIST_WIDE_PHOTO.alt,
     imageWidth: SPECIALIST_WIDE_PHOTO.width,
     imageHeight: SPECIALIST_WIDE_PHOTO.height,
-    note: 'To ten sam zakres co Kwadrans za 69 zł. Różnica dotyczy priorytetu i najbliższego realnego terminu, nie dłuższej analizy.',
+    note: `To ten sam zakres co Kwadrans za ${PUBLIC_OFFER_PRICE_LABELS.quick}. Różnica dotyczy priorytetu i najbliższego realnego terminu, nie dłuższej analizy.`,
   },
   {
     slug: 'konsultacja-30-min',
@@ -121,13 +121,13 @@ export const OFFERS: Offer[] = [
     shortTitle: 'Dwa kwadranse',
     eyebrow: 'Szerszy zakres',
     kind: 'booking',
-    priceLabel: formatPricePln(169),
-    priceAmount: 169,
+    priceLabel: PUBLIC_OFFER_PRICE_LABELS.bridge,
+    priceAmount: PUBLIC_OFFER_PRICES.bridge,
     forWho: 'Dla spraw, które potrzebują więcej czasu niż sam Kwadrans, ale nie wymagają od razu pełnej konsultacji.',
     whenToChoose: 'Gdy temat jest szerszy niż jedno pytanie, chcesz spokojniej wejść w rozmowę online albo potrzebujesz 30 minut na uporządkowanie dwóch-trzech wątków.',
     nextStep: 'Od razu rezerwujesz 30-minutowy termin online i przechodzisz do formularza oraz płatności.',
-    cardSummary: '30 min online, gdy temat ma kilka wątków. Więcej czasu na kontekst, spokojniejsze zalecenia i decyzję, czy potrzebna jest pełna konsultacja.',
-    heroSummary: '30 min online, gdy temat ma kilka wątków. Więcej czasu na kontekst, spokojniejsze zalecenia i decyzję, czy potrzebna jest pełna konsultacja.',
+    cardSummary: '30 min połączenia telefonicznego, gdy temat ma kilka wątków. Więcej czasu na kontekst, spokojniejsze zalecenia i decyzję, czy potrzebna jest pełna konsultacja.',
+    heroSummary: '30 min połączenia telefonicznego, gdy temat ma kilka wątków. Więcej czasu na kontekst, spokojniejsze zalecenia i decyzję, czy potrzebna jest pełna konsultacja.',
     descriptions: [
       'To format dla sytuacji, w których potrzebujesz chwili więcej na kontekst i pytania, ale nadal zależy Ci na prostym starcie.',
       'Po rozmowie masz jaśniejszy kierunek, pierwsze zalecenia, krótką notatkę i decyzję, czy kolejny krok to już pełna konsultacja behawioralna.',
@@ -151,8 +151,8 @@ export const OFFERS: Offer[] = [
     shortTitle: 'Pełna konsultacja',
     eyebrow: 'Pełna analiza',
     kind: 'booking',
-    priceLabel: formatPricePln(470),
-    priceAmount: 470,
+    priceLabel: PUBLIC_OFFER_PRICE_LABELS.premium,
+    priceAmount: PUBLIC_OFFER_PRICES.premium,
     forWho: 'Dla spraw złożonych, utrwalonych albo wielowątkowych, gdy od razu potrzebujesz szerokiego wejścia w temat.',
     whenToChoose: 'Gdy problem trwa dłużej, wraca albo obejmuje kilka obszarów naraz i potrzebuje pełniejszej analizy.',
     nextStep: 'Umawiasz pełną konsultację online. Po rozmowie dostajesz analizę zachowania, prawdopodobną przyczynę problemu, plan działania i 14 dni komunikacji w pokoju klienta przy wdrażaniu zaleceń.',

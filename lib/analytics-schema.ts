@@ -1,13 +1,14 @@
 import { DEFAULT_BOOKING_SERVICE, getBookingServicePrice, getBookingServiceRoomDurationMinutes, getBookingServiceTitle, type BookingServiceType } from '@/lib/booking-services'
 import type { AnimalType, ProblemType } from '@/lib/types'
 import { FUNNEL_CTA_LABELS } from '@/lib/funnel'
+import { DEFAULT_PRICE_PLN } from '@/lib/pricing'
 import type { FunnelEventProperties } from '@/lib/types'
 
 export function getServiceAnalyticsParams(
   serviceType: BookingServiceType = DEFAULT_BOOKING_SERVICE,
   quickConsultationPrice?: number,
 ): FunnelEventProperties {
-  const fallbackQuickPrice = quickConsultationPrice ?? 69
+  const fallbackQuickPrice = quickConsultationPrice ?? DEFAULT_PRICE_PLN
 
   return {
     service_key: serviceType,

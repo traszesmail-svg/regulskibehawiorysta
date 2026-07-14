@@ -2,6 +2,8 @@
 import { CheckCircle2, WalletCards } from 'lucide-react'
 import { buildBookHref } from '@/lib/booking-routing'
 import { FUNNEL_SERVICE_CONFIG, type PublicBookingServiceType } from '@/lib/funnel'
+import { PUBLIC_OFFER_PRICE_LABELS } from '@/lib/public-offer-copy'
+import { PRICE_PROMOTION_LABEL, WEEKLY_PRICE_VALIDITY_COPY } from '@/lib/pricing'
 
 export const bookHref = '/'
 export const contactHref = '/kontakt#formularz'
@@ -24,11 +26,11 @@ export const pricingCards: Array<{
     badge: 'najprostszy start',
     title: 'Kwadrans - gdy potrzebujesz pierwszego kierunku',
     summaryTitle: 'Kwadrans  gdy potrzebujesz pierwszego kierunku',
-    price: '69 zł',
-    copy: '15 min audio bez kamery na jedno główne pytanie. Szybko porządkujesz sytuację i dostajesz pierwszy kierunek działania.',
+    price: PUBLIC_OFFER_PRICE_LABELS.quick,
+    copy: '15 min połączenia telefonicznego na jedno główne pytanie. Szybko porządkujesz sytuację i dostajesz pierwszy kierunek działania.',
     supportCopy:
       'Dostajesz wstępną analizę zachowania na podstawie przekazanych informacji: co może być głównym mechanizmem zachowania, co warto sprawdzić i czego nie robić na ślepo.',
-    features: ['jedno główne pytanie', 'audio bez kamery', 'pierwszy kierunek działania', 'decyzja, czy potrzebny jest szerszy format'],
+    features: ['jedno główne pytanie', 'połączenie telefoniczne', 'pierwszy kierunek działania', 'decyzja, czy potrzebny jest szerszy format'],
     cta: 'Chcę zacząć od Kwadransa',
     featured: true,
   },
@@ -37,7 +39,7 @@ export const pricingCards: Array<{
     badge: 'priorytet',
     title: 'Kwadrans na już - gdy nie chcesz czekać',
     summaryTitle: 'Kwadrans na już  gdy nie chcesz czekać',
-    price: '99 zł',
+    price: PUBLIC_OFFER_PRICE_LABELS.urgent,
     copy: 'Ten sam zakres co Kwadrans, ale z priorytetową odpowiedzią i najbliższym realnym terminem. Dla spraw pilnych, które nie wymagają dłuższej analizy.',
     supportCopy:
       'Nie kupujesz dłuższej analizy, tylko priorytet terminu. Zakres rozmowy zostaje taki sam jak w zwykłym Kwadransie.',
@@ -49,8 +51,8 @@ export const pricingCards: Array<{
     badge: 'więcej czasu',
     title: 'Dwa kwadranse - gdy z jednego pytania robi się kilka',
     summaryTitle: 'Dwa kwadranse  gdy z jednego pytania robi się kilka',
-    price: '169 zł',
-    copy: '30 min online, gdy temat ma kilka wątków. Więcej czasu na kontekst, spokojniejsze zalecenia i decyzję, czy potrzebna jest pełna konsultacja.',
+    price: PUBLIC_OFFER_PRICE_LABELS.bridge,
+    copy: '30 min połączenia telefonicznego, gdy temat ma kilka wątków. Więcej czasu na kontekst, spokojniejsze zalecenia i decyzję, czy potrzebna jest pełna konsultacja.',
     supportCopy:
       'Wspólnie układamy fakty, szukamy najbardziej prawdopodobnej przyczyny zachowania i tworzę analizę behawioralną opartą na Twoim opisie, formularzu i kontekście domu, spacerów albo relacji między zwierzętami.',
     features: ['więcej czasu na kontekst', 'spokojniejsze zalecenia', 'dwa-trzy wątki naraz', 'bez 14-dniowej komunikacji w pokoju klienta'],
@@ -58,11 +60,11 @@ export const pricingCards: Array<{
   },
   {
     service: 'konsultacja-behawioralna-online',
-    badge: 'ok. 2h online',
+    badge: 'ok. 2h przez Jitsi',
     title: 'Pełna konsultacja - gdy potrzebny jest plan i wsparcie wdrożenia',
     summaryTitle: 'Pełna konsultacja  gdy potrzebny jest plan, nie tylko podpowiedź',
-    price: '470 zł',
-    copy: 'Około 2h online dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni komunikacji w pokoju klienta przy wdrażaniu zaleceń.',
+    price: PUBLIC_OFFER_PRICE_LABELS.premium,
+    copy: 'Około 2h przez Jitsi dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni komunikacji w pokoju klienta przy wdrażaniu zaleceń.',
     supportCopy:
       'To najlepszy wybór, gdy zachowanie trwa długo, ma kilka warstw albo wpływa na życie całego domu. Analiza powstaje na podstawie formularza, rozmowy, historii zachowania, kontekstu zdrowia, diety, środowiska, nagrań i danych, które przekażesz przed konsultacją.',
     features: ['sprawy złożone albo trwające długo', 'prawdopodobna przyczyna problemu', 'plan działania', '14 dni komunikacji w pokoju klienta'],
@@ -88,7 +90,7 @@ export const pricingFaqItems = [
   {
     question: 'Kiedy od razu pełna konsultacja?',
     answer:
-      'Gdy zachowanie trwa długo, wraca mimo prób, wpływa na życie domowników albo dotyczy kilku obszarów naraz. Pełna konsultacja trwa około 2h online i ma sens wtedy, gdy potrzebujesz analizy, planu oraz 14 dni komunikacji w pokoju klienta przy wdrażaniu zaleceń.',
+      'Gdy zachowanie trwa długo, wraca mimo prób, wpływa na życie domowników albo dotyczy kilku obszarów naraz. Pełna konsultacja trwa około 2h przez Jitsi i ma sens wtedy, gdy potrzebujesz analizy, planu oraz 14 dni komunikacji w pokoju klienta przy wdrażaniu zaleceń.',
   },
   {
     question: 'Czy analiza zachowania zastępuje wizytę u lekarza weterynarii?',
@@ -115,8 +117,11 @@ export function PricingSummaryCard() {
     <div className="reference-pricing-summary" aria-label="Skrót cennika">
       <div className="reference-pricing-badge">
         <WalletCards size={24} strokeWidth={1.7} aria-hidden="true" />
-        <span>od 69 zł</span>
+        <span>od {PUBLIC_OFFER_PRICE_LABELS.quick}</span>
       </div>
+      <p className="reference-price-validity">
+        {PRICE_PROMOTION_LABEL}. {WEEKLY_PRICE_VALIDITY_COPY}
+      </p>
       <div className="reference-price-ladder">
         {pricingCards.map((card) => (
           <Link key={card.service} href={getDirectBookingHref(card.service)} prefetch={false} className="reference-price-ladder-row">
@@ -144,7 +149,11 @@ export function PricingCardsSection({ className = '' }: { className?: string }) 
             <span className="reference-price-badge">{card.badge}</span>
             <div className="reference-price-heading">
               <h3>{card.title}</h3>
-              <strong>{card.price}</strong>
+              <div className="reference-price-value">
+                <span className="reference-price-promo-label">{PRICE_PROMOTION_LABEL}</span>
+                <strong>{card.price}</strong>
+                <small className="reference-price-validity">{WEEKLY_PRICE_VALIDITY_COPY}</small>
+              </div>
             </div>
             <p>{card.copy}</p>
             <p>{card.supportCopy}</p>

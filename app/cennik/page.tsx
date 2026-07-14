@@ -22,6 +22,8 @@ import { getBreadcrumbJsonLd, getServiceJsonLd } from '@/lib/schema'
 import { buildMarketingMetadata } from '@/lib/seo'
 import { getPublicContactDetails } from '@/lib/site'
 import type { PublicBookingServiceType } from '@/lib/funnel'
+import { PUBLIC_OFFER_PRICE_LABELS } from '@/lib/public-offer-copy'
+import { PRICE_PROMOTION_LABEL, WEEKLY_PRICE_VALIDITY_COPY } from '@/lib/pricing'
 import {
   bookHref,
   getDirectBookingHref,
@@ -34,7 +36,7 @@ export const metadata: Metadata = buildMarketingMetadata({
   title: 'Cennik konsultacji behawioralnych',
   path: '/cennik',
   description:
-    'Kwadrans 69 zł, Kwadrans na już 99 zł, Dwa kwadranse 169 zł i Pełna konsultacja 470 zł. W każdej usłudze analiza zachowania oparta na danych od opiekuna.',
+    `Kwadrans ${PUBLIC_OFFER_PRICE_LABELS.quick}, Kwadrans na już ${PUBLIC_OFFER_PRICE_LABELS.urgent}, Dwa kwadranse ${PUBLIC_OFFER_PRICE_LABELS.bridge} i Pełna konsultacja ${PUBLIC_OFFER_PRICE_LABELS.premium}. W każdej usłudze analiza zachowania oparta na danych od opiekuna.`,
 })
 
 type PricingVisual = {
@@ -47,23 +49,23 @@ type PricingVisual = {
 const offerVisuals: Partial<Record<PublicBookingServiceType, PricingVisual>> = {
   'szybka-konsultacja-15-min': {
     title: 'Kwadrans',
-    copy: '15 min audio bez kamery na jedno główne pytanie. Szybko porządkujesz sytuację i dostajesz pierwszy kierunek działania.',
+    copy: '15 min połączenia telefonicznego na jedno główne pytanie. Szybko porządkujesz sytuację i dostajesz pierwszy kierunek działania.',
     icon: Clock,
   },
   'kwadrans-na-juz': {
     title: 'Kwadrans na już',
-    copy: 'Ten sam zakres co Kwadrans, ale z priorytetową odpowiedzią i najbliższym realnym terminem. Dla spraw pilnych, które nie wymagają dłuższej analizy.',
+    copy: 'Ten sam zakres co Kwadrans, ale z priorytetową odpowiedzią i najbliższym realnym terminem telefonicznym. Dla spraw pilnych, które nie wymagają dłuższej analizy.',
     icon: Clock,
     featured: true,
   },
   'konsultacja-30-min': {
     title: 'Dwa kwadranse',
-    copy: '30 min online, gdy temat ma kilka wątków. Więcej czasu na kontekst, spokojniejsze zalecenia i decyzję, czy potrzebna jest pełna konsultacja.',
+    copy: '30 min połączenia telefonicznego, gdy temat ma kilka wątków. Więcej czasu na kontekst, spokojniejsze zalecenia i decyzję, czy potrzebna jest pełna konsultacja.',
     icon: Clock,
   },
   'konsultacja-behawioralna-online': {
     title: 'Pełna konsultacja',
-    copy: 'Około 2h online dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni komunikacji w pokoju klienta.',
+    copy: 'Około 2h przez Jitsi dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni komunikacji w pokoju klienta.',
     icon: Leaf,
   },
 }
@@ -120,7 +122,7 @@ export default function PricingPage() {
               </span>
               <span>
                 <Clock aria-hidden="true" />
-                Online - wygodnie - skutecznie
+                Telefonicznie lub przez Jitsi - wygodnie - konkretnie
               </span>
               <span>
                 <Mail aria-hidden="true" />
@@ -133,9 +135,9 @@ export default function PricingPage() {
             </div>
             <MobileFirstStepCta
               eyebrow="Najprostszy start"
-              title="Kwadrans / 69 zł"
-              copy="Jeśli chcesz szybko uporządkować jedno pytanie, zacznij od 15 minut audio bez kamery."
-              meta="Dla psa i kota. Online."
+              title={`Kwadrans / ${PUBLIC_OFFER_PRICE_LABELS.quick}`}
+              copy="Jeśli chcesz szybko uporządkować jedno pytanie, zacznij od 15-minutowego połączenia telefonicznego."
+              meta="Dla psa i kota. Połączenie telefoniczne."
               primaryHref={getDirectBookingHref('szybka-konsultacja-15-min')}
               primaryLabel="Wybieram Kwadrans"
               secondaryHref="/quiz"
@@ -183,7 +185,9 @@ export default function PricingPage() {
                   <p>{visual.copy}</p>
                 </div>
                 <div className="pricing-2026-offer-action">
+                  <span className="pricing-2026-promo-label">{PRICE_PROMOTION_LABEL}</span>
                   <strong className="pricing-2026-price">{card.price}</strong>
+                  <small className="pricing-2026-validity">{WEEKLY_PRICE_VALIDITY_COPY}</small>
                   <Link
                     href={getDirectBookingHref(card.service)}
                     prefetch={false}
@@ -200,7 +204,7 @@ export default function PricingPage() {
           })}
           <p className="pricing-2026-online-note">
             <CheckCircle2 aria-hidden="true" />
-            Wszystkie rozmowy odbywają się online.
+            Kwadrans i Dwa kwadranse odbywają się telefonicznie. Pełna konsultacja odbywa się przez Jitsi.
           </p>
         </section>
 

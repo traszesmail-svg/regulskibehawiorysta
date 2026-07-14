@@ -17,7 +17,7 @@ export const FAQ_SHORTLISTS = {
     {
       question: 'Czym jest 15-minutowa konsultacja behawioralna?',
       answer:
-        'To 15 minut rozmowy audio bez kamery. Mówisz, co naprawdę się dzieje, ustalamy priorytet i wybieramy pierwszy konkretny krok.',
+        'To 15 minut połączenia telefonicznego. Mówisz, co naprawdę się dzieje, ustalamy priorytet i wybieramy pierwszy konkretny krok.',
     },
     {
       question: 'Czy Kwadrans wystarczy?',
@@ -126,7 +126,7 @@ export const FAQ_SHORTLISTS = {
     },
     {
       question: 'Czy 15-minutowa konsultacja behawioralna wymaga kamery?',
-      answer: 'Nie. To rozmowa audio bez kamery, przeznaczona do krótkiego omówienia sprawy przed dalszą decyzją.',
+      answer: 'Nie. To połączenie telefoniczne przeznaczone do krótkiego omówienia sprawy przed dalszą decyzją.',
     },
     {
       question: 'Czy mogę ustalić inny format, jeśli rozmowa głosowa jest dla mnie trudna?',
@@ -138,7 +138,7 @@ export const FAQ_SHORTLISTS = {
     {
       question: 'Czym jest 15-minutowa konsultacja behawioralna?',
       answer:
-        'To samodzielny format: 15 min audio bez kamery na jedno główne pytanie. Szybko porządkujesz sytuację i dostajesz pierwszy kierunek działania.',
+        'To samodzielny format: 15 min połączenia telefonicznego na jedno główne pytanie. Szybko porządkujesz sytuację i dostajesz pierwszy kierunek działania.',
     },
     {
       question: 'Czy Kwadrans to próbna konsultacja?',

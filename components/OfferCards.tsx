@@ -1,6 +1,7 @@
 ﻿import Link from 'next/link'
 import { Icon, type IconName } from '@/components/icons-config'
-import { WEEKLY_PRICE_VALIDITY_COPY } from '@/lib/pricing'
+import { PUBLIC_OFFER_PRICE_LABELS } from '@/lib/public-offer-copy'
+import { PRICE_PROMOTION_LABEL, WEEKLY_PRICE_VALIDITY_COPY } from '@/lib/pricing'
 
 interface Offer {
   slug: string
@@ -18,9 +19,9 @@ const offers: Offer[] = [
     slug: 'kwadrans',
     icon: 'timer',
     title: 'Kwadrans',
-    price: '69 zł',
-    desc: '15 min audio bez kamery na jedno główne pytanie. Po rozmowie masz prawo do 2 dopytań na czacie w swoim pokoju konsultacji.',
-    features: ['jedno główne pytanie', '15 min audio', 'do 2 pytań w pokoju po rozmowie'],
+    price: PUBLIC_OFFER_PRICE_LABELS.quick,
+    desc: '15 min połączenia telefonicznego na jedno główne pytanie. Po rozmowie masz prawo do 2 dopytań w swoim pokoju konsultacji.',
+    features: ['jedno główne pytanie', '15 min telefonicznie', 'do 2 pytań w pokoju po rozmowie'],
     highlight: true,
     bookUrl: '/book',
   },
@@ -28,7 +29,7 @@ const offers: Offer[] = [
     slug: 'kwadrans-na-juz',
     icon: 'zap',
     title: 'Kwadrans na już',
-    price: '99 zł',
+    price: PUBLIC_OFFER_PRICE_LABELS.urgent,
     desc: 'Ten sam zakres co Kwadrans (w tym prawo do 2 dopytań na czacie w pokoju), ale z priorytetem i najbliższym realnym terminem.',
     features: ['wariant priorytetowy', 'najbliższy realny termin', 'do 2 pytań w pokoju po rozmowie'],
     bookUrl: '/book?service=kwadrans-na-juz',
@@ -37,18 +38,18 @@ const offers: Offer[] = [
     slug: 'dwa-kwadranse',
     icon: 'search',
     title: 'Dwa kwadranse',
-    price: '169 zł',
-    desc: '30 min online, gdy temat ma kilka wątków. Po rozmowie masz prawo do 4 dopytań na czacie w swoim pokoju konsultacji.',
-    features: ['30 min online', 'więcej kontekstu', 'do 4 pytań w pokoju po rozmowie'],
+    price: PUBLIC_OFFER_PRICE_LABELS.bridge,
+    desc: '30 min połączenia telefonicznego, gdy temat ma kilka wątków. Po rozmowie masz prawo do 4 dopytań w swoim pokoju konsultacji.',
+    features: ['30 min telefonicznie', 'więcej kontekstu', 'do 4 pytań w pokoju po rozmowie'],
     bookUrl: '/book?service=konsultacja-30-min',
   },
   {
     slug: 'pelna-konsultacja',
     icon: 'clipboard-list',
     title: 'Pełna konsultacja',
-    price: '470 zł',
-    desc: 'Około 2h online dla spraw złożonych: analiza zachowania, plan działania i czat w pokoju po rozmowie (tylko w miarę dostępności czasu).',
-    features: ['ok. 2h online', 'plan działania', 'czat w pokoju (w miarę czasu)'],
+    price: PUBLIC_OFFER_PRICE_LABELS.premium,
+    desc: 'Około 2h przez Jitsi dla spraw złożonych: analiza zachowania, plan działania i 14 dni komunikacji w pokoju klienta.',
+    features: ['ok. 2h przez Jitsi', 'plan działania', '14 dni w pokoju klienta'],
     bookUrl: '/book?service=konsultacja-behawioralna-online',
   },
 ]
@@ -65,6 +66,7 @@ export function OfferCards() {
           <div className="offer-format-head">
             <h3>{offer.title}</h3>
             <div>
+              <span className="offer-format-promo-label">{PRICE_PROMOTION_LABEL}</span>
               <div className="offer-format-price">{offer.price}</div>
               <small className="offer-format-validity">{WEEKLY_PRICE_VALIDITY_COPY}</small>
             </div>

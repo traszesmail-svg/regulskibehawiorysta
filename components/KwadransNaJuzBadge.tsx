@@ -3,6 +3,7 @@
 // Strony: /, /book, /cennik, /psy, /koty
 
 import { Icon } from '@/components/icons-config';
+import { PUBLIC_OFFER_PRICE_LABELS } from '@/lib/public-offer-copy';
 
 interface KwadransNaJuzBadgeProps {
   variant?: 'inline' | 'box';
@@ -14,7 +15,7 @@ export function KwadransNaJuzBadge({ variant = 'box', showPrice = true }: Kwadra
     return (
       <span className="inline-flex items-center gap-1.5 text-accent-dark font-semibold">
         <Icon name="zap" size={16} className="text-accent" strokeWidth={3} />
-        Kwadrans na już{showPrice && ' Â· 99 zł'}
+        Kwadrans na już{showPrice && ` · ${PUBLIC_OFFER_PRICE_LABELS.urgent}`}
       </span>
     );
   }
@@ -24,7 +25,7 @@ export function KwadransNaJuzBadge({ variant = 'box', showPrice = true }: Kwadra
       <Icon name="zap" size={20} className="text-accent shrink-0" strokeWidth={3} />
       <span className="text-sm text-accent-dark">
         <strong>Kwadrans na już</strong> — priorytet i najbliższy realny termin
-        {showPrice && <span className="opacity-80"> Â· 99 zł</span>}
+        {showPrice && <span className="opacity-80"> · {PUBLIC_OFFER_PRICE_LABELS.urgent}</span>}
       </span>
     </div>
   );

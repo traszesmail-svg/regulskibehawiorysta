@@ -20,17 +20,17 @@ const homeNavItems: NavItem[] = [
 ]
 
 const dogNavItems: NavItem[] = [
-  { href: '/psy#jak-pomagam', label: 'Jak pomagam', sectionId: 'jak-pomagam' },
-  { href: '/psy#konsultacja', label: 'Konsultacja', sectionId: 'konsultacja' },
-  { href: '/psy#opinie', label: 'Opinie', sectionId: 'opinie' },
-  { href: '/psy#faq', label: 'FAQ', sectionId: 'faq' },
+  { href: '/problemy#pies', label: 'Problemy psa' },
+  { href: '/cennik/pelny', label: 'Konsultacja' },
+  { href: '/opinie', label: 'Opinie' },
+  { href: '/faq', label: 'FAQ' },
 ]
 
 const catNavItems: NavItem[] = [
-  { href: '/koty#jak-pomagam', label: 'Jak pomagam', sectionId: 'jak-pomagam' },
-  { href: '/koty#konsultacja', label: 'Konsultacja', sectionId: 'konsultacja' },
-  { href: '/koty#opinie', label: 'Opinie', sectionId: 'opinie' },
-  { href: '/koty#faq', label: 'FAQ', sectionId: 'faq' },
+  { href: '/problemy#kot', label: 'Problemy kota' },
+  { href: '/cennik/pelny', label: 'Konsultacja' },
+  { href: '/opinie', label: 'Opinie' },
+  { href: '/faq', label: 'FAQ' },
 ]
 
 const opinionNavItems: NavItem[] = [
@@ -53,7 +53,7 @@ const materialNavItems: NavItem[] = [
 ]
 
 const faqNavItems: NavItem[] = [
-  { href: '/konsultacja-behawioralna-online#faq', label: 'Konsultacja' },
+  { href: '/cennik/pelny', label: 'Konsultacja' },
   { href: '/o-mnie#faq', label: 'Podejście' },
   { href: '/faq#kontakt', label: 'Kontakt', sectionId: 'kontakt' },
 ]

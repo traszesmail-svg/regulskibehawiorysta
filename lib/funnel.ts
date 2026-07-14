@@ -10,6 +10,14 @@ export type PublicBookingServiceType =
 export type LegacyBookingServiceType = 'konsultacja-30-min'
 export type AnyBookingServiceType = PublicBookingServiceType | LegacyBookingServiceType
 
+/** Public prices used by all customer-facing offer surfaces. */
+export const PUBLIC_SERVICE_PRICE_AMOUNTS: Record<PublicBookingServiceType, number> = {
+  'szybka-konsultacja-15-min': DEFAULT_PRICE_PLN,
+  'kwadrans-na-juz': 104,
+  'konsultacja-30-min': 174,
+  'konsultacja-behawioralna-online': 475,
+} as const
+
 export const FUNNEL_CTA_LABELS = {
   primary: 'Umów spokojny pierwszy krok',
   bridge: 'Chcę spokojniej omówić temat',
@@ -27,7 +35,7 @@ export type FunnelServiceConfig = {
   durationLabel: string
   priceAmount: number
   pricePrefix: 'Od' | null
-  mode: 'audio' | 'online'
+  mode: 'phone' | 'online'
   slotSpan: number
   slotSummary: string
   slotBadge: string
@@ -46,15 +54,15 @@ export const FUNNEL_SERVICE_CONFIG: Record<AnyBookingServiceType, FunnelServiceC
     title: '15-minutowa konsultacja behawioralna',
     shortTitle: '15-minutowa konsultacja behawioralna',
     durationMinutes: 15,
-    durationLabel: '15 min audio',
-    priceAmount: DEFAULT_PRICE_PLN,
+    durationLabel: '15 min telefonicznie',
+    priceAmount: PUBLIC_SERVICE_PRICE_AMOUNTS['szybka-konsultacja-15-min'],
     pricePrefix: null,
-    mode: 'audio',
+    mode: 'phone',
     slotSpan: 1,
-    slotSummary: 'Kwadrans: 15 min audio bez kamery na jedno główne pytanie. Szybko porządkujesz sytuację i dostajesz pierwszy kierunek działania.',
-    slotBadge: '15 min audio',
-    roomSummary: 'Kwadrans: 15 min audio bez kamery na jedno główne pytanie. Szybko porządkujesz sytuację i dostajesz pierwszy kierunek działania.',
-    publicSummary: '15 min audio bez kamery na jedno główne pytanie. Szybko porządkujesz sytuację i dostajesz pierwszy kierunek działania.',
+    slotSummary: 'Kwadrans: 15 min połączenia telefonicznego na jedno główne pytanie. Szybko porządkujesz sytuację i dostajesz pierwszy kierunek działania.',
+    slotBadge: '15 min telefonicznie',
+    roomSummary: 'Kwadrans: 15 min połączenia telefonicznego na jedno główne pytanie. Szybko porządkujesz sytuację i dostajesz pierwszy kierunek działania.',
+    publicSummary: '15 min połączenia telefonicznego na jedno główne pytanie. Szybko porządkujesz sytuację i dostajesz pierwszy kierunek działania.',
     bookingLead: 'Wybierz gatunek i temat. Potem zobaczysz dostępne terminy 15-minutowej konsultacji.',
     availabilityLabel: 'Terminy pokażą się po wyborze tematu.',
     noAvailabilityMessage: 'Jeśli dziś nie ma terminu, sprawdź później albo napisz wiadomość.',
@@ -66,17 +74,17 @@ export const FUNNEL_SERVICE_CONFIG: Record<AnyBookingServiceType, FunnelServiceC
     title: 'Kwadrans na już',
     shortTitle: 'Kwadrans na już',
     durationMinutes: 15,
-    durationLabel: '15 min audio',
-    priceAmount: 104,
+    durationLabel: '15 min telefonicznie',
+    priceAmount: PUBLIC_SERVICE_PRICE_AMOUNTS['kwadrans-na-juz'],
     pricePrefix: null,
-    mode: 'audio',
+    mode: 'phone',
     slotSpan: 1,
-    slotSummary: 'Kwadrans na już: ten sam zakres co Kwadrans, ale z priorytetem i najbliższym realnym terminem. Dla spraw pilnych, które nie wymagają dłuższej analizy.',
-    slotBadge: 'teraz / 15 min',
-    roomSummary: 'Kwadrans na już: ten sam zakres co Kwadrans, ale z priorytetem i najbliższym realnym terminem. Dla spraw pilnych, które nie wymagają dłuższej analizy.',
-    publicSummary: 'Ten sam zakres co Kwadrans, ale z priorytetem i najbliższym realnym terminem. Dla spraw pilnych, które nie wymagają dłuższej analizy.',
+    slotSummary: 'Kwadrans na już: ten sam zakres co Kwadrans, ale z priorytetem i najbliższym realnym terminem telefonicznym. Dla spraw pilnych, które nie wymagają dłuższej analizy.',
+    slotBadge: 'teraz / 15 min telefonicznie',
+    roomSummary: 'Kwadrans na już: ten sam zakres co Kwadrans, ale z priorytetem i najbliższym realnym terminem telefonicznym. Dla spraw pilnych, które nie wymagają dłuższej analizy.',
+    publicSummary: 'Ten sam zakres co Kwadrans, ale z priorytetem i najbliższym realnym terminem telefonicznym. Dla spraw pilnych, które nie wymagają dłuższej analizy.',
     bookingLead: 'Wybierz najbliższy pasujący termin. Slot blokuje się w formularzu, a rezerwacja jest pewna po potwierdzeniu płatności.',
-    availabilityLabel: 'Dostępność zależy od bieżącej okazji - odpiszemy priorytetowo w godzinach dyżuru.',
+    availabilityLabel: 'Terminy telefoniczne pokażą się po wyborze tematu.',
     noAvailabilityMessage: 'Jeśli w tej chwili nie mam wolnego okienka, pokażę Ci najbliższy wolny Kwadrans.',
     limitedAvailabilityNote: 'Priorytetowa odpowiedź i najbliższy realny termin w godzinach dyżuru.',
   },
@@ -86,15 +94,15 @@ export const FUNNEL_SERVICE_CONFIG: Record<AnyBookingServiceType, FunnelServiceC
     title: 'Dwa kwadranse z behawiorystą',
     shortTitle: 'Dwa kwadranse',
     durationMinutes: 30,
-    durationLabel: '30 min online',
-    priceAmount: 174,
+    durationLabel: '30 min telefonicznie',
+    priceAmount: PUBLIC_SERVICE_PRICE_AMOUNTS['konsultacja-30-min'],
     pricePrefix: null,
-    mode: 'online',
+    mode: 'phone',
     slotSpan: 2,
-    slotSummary: 'Dwa kwadranse: 30 min online, gdy temat ma kilka wątków. Więcej czasu na kontekst, spokojniejsze zalecenia i decyzję, czy potrzebna jest pełna konsultacja.',
-    slotBadge: '30 min online',
-    roomSummary: 'Dwa kwadranse: 30 min online, gdy temat ma kilka wątków. Więcej czasu na kontekst, spokojniejsze zalecenia i decyzję, czy potrzebna jest pełna konsultacja.',
-    publicSummary: '30 min online, gdy temat ma kilka wątków. Więcej czasu na kontekst, spokojniejsze zalecenia i decyzję, czy potrzebna jest pełna konsultacja.',
+    slotSummary: 'Dwa kwadranse: 30 min połączenia telefonicznego, gdy temat ma kilka wątków. Więcej czasu na kontekst, spokojniejsze zalecenia i decyzję, czy potrzebna jest pełna konsultacja.',
+    slotBadge: '30 min telefonicznie',
+    roomSummary: 'Dwa kwadranse: 30 min połączenia telefonicznego, gdy temat ma kilka wątków. Więcej czasu na kontekst, spokojniejsze zalecenia i decyzję, czy potrzebna jest pełna konsultacja.',
+    publicSummary: '30 min połączenia telefonicznego, gdy temat ma kilka wątków. Więcej czasu na kontekst, spokojniejsze zalecenia i decyzję, czy potrzebna jest pełna konsultacja.',
     bookingLead: 'Najpierw wybierz gatunek i temat. Potem zobaczysz dostępne terminy Dwóch kwadransów z behawiorystą.',
     availabilityLabel: 'Terminy pokażą się po wyborze tematu.',
     noAvailabilityMessage: 'Jeśli teraz nie ma terminu Dwóch kwadransów, wróć później albo napisz wiadomość.',
@@ -106,13 +114,13 @@ export const FUNNEL_SERVICE_CONFIG: Record<AnyBookingServiceType, FunnelServiceC
     title: 'Pełna konsultacja behawioralna',
     shortTitle: 'Pełna konsultacja',
     durationMinutes: 120,
-    durationLabel: 'ok. 2h online',
-    priceAmount: 475,
+    durationLabel: 'ok. 2h przez Jitsi',
+    priceAmount: PUBLIC_SERVICE_PRICE_AMOUNTS['konsultacja-behawioralna-online'],
     pricePrefix: null,
     mode: 'online',
     slotSpan: 6,
     slotSummary: 'Pełna konsultacja: około 2h przez Jitsi, analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni komunikacji w pokoju klienta.',
-    slotBadge: 'ok. 2h online',
+    slotBadge: 'ok. 2h przez Jitsi',
     roomSummary: 'Pełna konsultacja: około 2h przez Jitsi, analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni komunikacji w pokoju klienta.',
     publicSummary:
       'Około 2h przez Jitsi dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni komunikacji w pokoju klienta przy wdrażaniu zaleceń.',

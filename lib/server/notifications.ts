@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer'
 import type { LeadMagnet } from '@/lib/growth-layer'
+import { getCanonicalPublicHref } from '@/lib/public-routes'
 import { getBookingServiceTitle, resolveBookingServiceType } from '@/lib/booking-services'
 import { repairCopy } from '@/lib/copy'
 import { formatDateTimeLabel, getProblemLabel } from '@/lib/data'
@@ -7,6 +8,7 @@ import { formatPricePln } from '@/lib/pricing'
 import { getContactDetails, getPublicContactDetails } from '@/lib/site'
 import { getBaseUrl } from '@/lib/server/env'
 import { generateConfirmToken } from '@/lib/admin-confirm-token'
+import { createRoomPasswordSetupLink } from '@/lib/server/account-auth'
 import { getManualPaymentConfig } from '@/lib/server/payment-options'
 import { buildGoogleCalendarIcs, buildGoogleCalendarUrl } from '@/lib/server/google-calendar'
 import { getPrepGuideUrl } from '@/lib/server/prep-guide'
@@ -1631,7 +1633,7 @@ export async function sendLeadMagnetFollowUpThreeEmail(email: string, magnet: Le
   }
 
   const subject = `${magnet.followUpTitle} - Regulski`
-  const nextStepHref = `https://regulskibehawiorysta.pl${magnet.nextStepHref}`
+  const nextStepHref = `https://regulskibehawiorysta.pl${getCanonicalPublicHref(magnet.nextStepHref)}`
   const html = renderEmailShell(
     magnet.followUpTitle,
     magnet.followUpBody,
@@ -1770,13 +1772,31 @@ export async function sendUrgentNowResponseEmail(payload: UrgentNowResponseEmail
 export async function sendBookingConfirmationEmail(booking: BookingRecord): Promise<DeliveryResult> {
   const summary = buildBookingSummary(booking)
   const subject = `Potwierdzenie konsultacji - ${EMAIL_BRAND_NAME} - ${summary}`
+  const serviceType = resolveBookingServiceType(booking.serviceType, booking.amount)
+  const isFullConsultation = serviceType === 'konsultacja-behawioralna-online'
   const prepGuideUrl = getPrepGuideUrl(booking)
   const calendarUrl = buildGoogleCalendarUrl(booking)
+  let roomSetupUrl: string | null = null
+
+  if (isFullConsultation) {
+    try {
+      roomSetupUrl = await createRoomPasswordSetupLink(booking.email, `${getBaseUrl()}/login`)
+    } catch (error) {
+      console.error('[regulski-behawiorysta][confirmation-email] room setup link failed', {
+        bookingId: booking.id,
+        error,
+      })
+    }
+  }
+
   const prepGuideBlock = prepGuideUrl
     ? renderEmailActionButton({ href: prepGuideUrl, label: 'Przeczytaj krótki poradnik', tone: 'secondary' })
     : ''
   const prepGuideText = prepGuideUrl
     ? `Jak się przygotować: ${prepGuideUrl}`
+    : ''
+  const roomSetupBlock = roomSetupUrl
+    ? renderEmailActionButton({ href: roomSetupUrl, label: 'Ustaw hasło do pokoju klienta' })
     : ''
 
   const html = renderEmailShell(
@@ -1801,9 +1821,10 @@ export async function sendBookingConfirmationEmail(booking: BookingRecord): Prom
         'confirmation',
       )}
       ${renderEmailActionButton({ href: booking.meetingUrl, label: 'Wejdź do pokoju rozmowy' })}
+      ${roomSetupBlock}
       ${renderEmailActionButton({ href: calendarUrl, label: 'Dodaj do Google Calendar', tone: 'secondary' })}
       ${prepGuideBlock}
-      <p><strong>Co dalej:</strong> wejdź 3–5 minut przed czasem. Plik kalendarza ma przypomnienie 15 minut przed rozmową.</p>
+      <p><strong>Co dalej:</strong> wejdź 3–5 minut przed czasem.${isFullConsultation ? ' Po pełnej konsultacji pokój klienta pozostaje aktywny przez 14 dni.' : ''} Plik kalendarza ma przypomnienie 15 minut przed rozmową.</p>
       ${renderContactBlockHtml()}
     `,
     'Jeśli będzie potrzebny kolejny krok po rozmowie, dostaniesz jasną rekomendację zamiast ogólnych porad.',
@@ -1813,9 +1834,10 @@ export async function sendBookingConfirmationEmail(booking: BookingRecord): Prom
     `Termin: ${formatDateTimeLabel(booking.bookingDate, booking.bookingTime)}`,
     `Temat: ${getProblemLabel(booking.problemType)}`,
     `Link do rozmowy: ${booking.meetingUrl}`,
+    roomSetupUrl ? `Ustaw hasło do pokoju klienta: ${roomSetupUrl}` : '',
     `Dodaj do Google Calendar: ${calendarUrl}`,
     prepGuideText,
-    'Co dalej: wejdź 3–5 minut przed czasem. Plik kalendarza ma przypomnienie 15 minut przed rozmową.',
+    `Co dalej: wejdź 3–5 minut przed czasem.${isFullConsultation ? ' Po pełnej konsultacji pokój klienta pozostaje aktywny przez 14 dni.' : ''} Plik kalendarza ma przypomnienie 15 minut przed rozmową.`,
     renderContactBlockText(),
   ].filter(Boolean).join('\n')
 
@@ -2979,7 +3001,7 @@ export async function sendLeadBookingConfirmedEmail(payload: LeadBookingConfirme
         ],
         'lead-booking-confirmed',
       )}
-      ${payload.callRoomUrl ? '<p>Pełna konsultacja odbywa się przez Jitsi. Wejdź na link o ustalonej porze.</p>' : '<p>Krótka konsultacja odbywa się telefonicznie przez Zadarmę.</p>'}
+      ${payload.callRoomUrl ? '<p>Pełna konsultacja odbywa się przez Jitsi. Wejdź na link o ustalonej porze.</p>' : '<p>Krótka konsultacja odbywa się telefonicznie. O ustalonej porze połączymy się na numer podany w zgłoszeniu.</p>'}
       ${roomSetupBlock}
       ${calendarBlock}
     `,

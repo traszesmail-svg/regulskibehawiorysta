@@ -17,6 +17,7 @@ import {
 import { repairCopy } from '@/lib/copy'
 import { getBreadcrumbJsonLd } from '@/lib/schema'
 import { getCanonicalBaseUrl } from '@/lib/server/env'
+import { getCanonicalPublicHref } from '@/lib/public-routes'
 
 type BlogArticlePageProps = {
   params: {
@@ -146,7 +147,7 @@ export default function BlogArticlePage({ params }: BlogArticlePageProps) {
               <section className="blog-article-support-card">
                 <h2>Co dalej?</h2>
                 {post.supportLinks.slice(0, 3).map((link) => (
-                  <Link key={link.href + link.label} href={link.href} prefetch={false}>
+                  <Link key={link.href + link.label} href={getCanonicalPublicHref(link.href)} prefetch={false}>
                     <strong>{repairCopy(link.label)}</strong>
                     <span>{repairCopy(link.description)}</span>
                     <ArrowRight size={15} strokeWidth={1.9} aria-hidden="true" />
@@ -161,7 +162,7 @@ export default function BlogArticlePage({ params }: BlogArticlePageProps) {
                 {relatedPosts.map((relatedPost) => (
                   <Link key={relatedPost.slug} href={relatedPost.path} prefetch={false}>
                     <span className="blog-article-related-thumb">
-                      <Image src={relatedPost.cover.src} alt="" fill loading="eager" sizes="72px" />
+                      <Image src={relatedPost.cover.src} alt="" fill loading="lazy" sizes="72px" />
                     </span>
                     <span>
                       <strong>{repairCopy(relatedPost.title)}</strong>

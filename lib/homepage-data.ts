@@ -1,4 +1,6 @@
 ﻿export type HomepageSelectorQuestionId = 'animal' | 'problem' | 'urgency'
+import { PUBLIC_OFFER_PRICE_LABELS } from './public-offer-copy'
+
 export type HomepageSelectorAnimal = 'dog' | 'cat'
 export type HomepageSelectorRecommendationKey = 'quarter' | 'double' | 'full'
 
@@ -84,24 +86,24 @@ export const homepageSelectorRecommendations: Record<
     summary: 'Szybki pierwszy krok: na podstawie przekazanych informacji dostajesz wstępną analizę zachowania i kierunek działania.',
     ctaLabel: 'Chcę zacząć od Kwadransa',
     service: 'szybka-konsultacja-15-min',
-    price: '69 zł',
-    duration: '15 min audio',
+    price: PUBLIC_OFFER_PRICE_LABELS.quick,
+    duration: '15 min telefonicznie',
   },
   double: {
     title: 'Dwa kwadranse',
     summary: 'Dobry wybór, gdy temat ma kilka wątków i potrzebuje szerszej analizy opartej na większej ilości danych.',
     ctaLabel: 'Chcę spokojniej omówić temat',
     service: 'konsultacja-30-min',
-    price: '169 zł',
-    duration: '30 min online',
+    price: PUBLIC_OFFER_PRICE_LABELS.bridge,
+    duration: '30 min telefonicznie',
   },
   full: {
     title: 'Pełna konsultacja',
-    summary: 'Około 2h online dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni komunikacji w pokoju klienta.',
+    summary: 'Około 2h przez Jitsi dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni komunikacji w pokoju klienta.',
     ctaLabel: 'Chcę pełną konsultację',
     service: 'konsultacja-behawioralna-online',
-    price: '470 zł',
-    duration: 'ok. 2h online',
+    price: PUBLIC_OFFER_PRICE_LABELS.premium,
+    duration: 'ok. 2h przez Jitsi',
   },
 }
 

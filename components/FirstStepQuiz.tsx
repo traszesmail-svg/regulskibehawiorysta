@@ -245,6 +245,27 @@ export function FirstStepQuiz({ initialProblemKey, marketingParams }: FirstStepQ
               </ul>
             </div>
 
+            {result.articleHref || result.problemHref ? (
+              <div className={styles.resourceBlock} aria-label="Materiały do dalszego uporządkowania tematu">
+                <strong>Chcesz najpierw doczytać?</strong>
+                <p>Przejrzyj krótki materiał albo stronę problemową, zanim zdecydujesz, czy potrzebujesz rozmowy.</p>
+                <div className={styles.resourceLinks}>
+                  {result.articleHref && result.articleLabel ? (
+                    <Link href={result.articleHref} prefetch={false} className={styles.resourceLink}>
+                      {result.articleLabel}
+                      <ArrowRight size={16} aria-hidden="true" />
+                    </Link>
+                  ) : null}
+                  {result.problemHref && result.problemLabel ? (
+                    <Link href={result.problemHref} prefetch={false} className={styles.resourceLink}>
+                      {result.problemLabel}
+                      <ArrowRight size={16} aria-hidden="true" />
+                    </Link>
+                  ) : null}
+                </div>
+              </div>
+            ) : null}
+
             {service && bookingHref && bookingHandoff ? (
               <aside className={styles.serviceSuggestion} aria-label="Proponowany kolejny krok">
                 <div>

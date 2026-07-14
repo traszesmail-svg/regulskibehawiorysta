@@ -9,8 +9,6 @@ import { ThemeProvider } from '@/components/ThemeProvider'
 import { PwaRegister } from '@/components/PwaRegister'
 import { APP_THEME_ATTRIBUTE, THEME_STORAGE_KEY } from '@/lib/theme'
 import { getRootSchemaGraphJsonLd } from '@/lib/schema'
-import { generateReviewsSchema } from '@/lib/reviewsSchema'
-import { reviews, aggregateRating } from '@/lib/reviews.config'
 import { getCanonicalBaseUrl, shouldBlockSearchIndexing } from '@/lib/server/env'
 import { SITE_DESCRIPTION, SITE_NAME, SITE_OG_IMAGE, SITE_SHORT_NAME, SITE_TAGLINE } from '@/lib/site'
 import './globals.css'
@@ -109,14 +107,12 @@ const themeBootstrapScript = `
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const rootJsonLd = getRootSchemaGraphJsonLd()
-  const reviewsJsonLd = generateReviewsSchema(reviews, aggregateRating)
 
   return (
     <html lang="pl" suppressHydrationWarning>
       <body className={`${manrope.variable} ${inter.variable} ${fraunces.variable} ${jetbrainsMono.variable}`} data-release-id={RELEASE_ID}>
         <script dangerouslySetInnerHTML={{ __html: themeBootstrapScript }} />
         <Schema data={rootJsonLd} />
-        <Schema data={reviewsJsonLd} />
         <ThemeProvider>
           <ScrollProgress />
           <ClickSound />

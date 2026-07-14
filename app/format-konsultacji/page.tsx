@@ -23,6 +23,7 @@ import { getBreadcrumbJsonLd } from '@/lib/schema'
 import { buildTechnicalMetadata } from '@/lib/seo'
 import type { ProblemType } from '@/lib/types'
 import styles from '../wybor/wybor.module.css'
+import { PUBLIC_OFFER_PRICE_LABELS } from '@/lib/public-offer-copy'
 
 export const metadata: Metadata = buildTechnicalMetadata({
   title: 'Wybierz format konsultacji',
@@ -99,8 +100,8 @@ const formatChoices: FormatChoice[] = [
     id: 'kwadrans',
     title: 'Kwadrans',
     badge: '15 min',
-    price: '69 zł',
-    desc: '15 min audio bez kamery na jedno główne pytanie. Po rozmowie masz prawo do 2 dopytań na czacie w swoim pokoju konsultacji.',
+    price: PUBLIC_OFFER_PRICE_LABELS.quick,
+    desc: '15 min połączenia telefonicznego na jedno główne pytanie. Po rozmowie masz prawo do 2 dopytań w swoim pokoju konsultacji.',
     checks: ['Jedno główne pytanie', 'Do 2 pytań w pokoju po rozmowie'],
     icon: Clock3,
     service: null,
@@ -109,7 +110,7 @@ const formatChoices: FormatChoice[] = [
     id: 'kwadrans-na-juz',
     title: 'Kwadrans na już',
     badge: '15 min',
-    price: '99 zł',
+    price: PUBLIC_OFFER_PRICE_LABELS.urgent,
     desc: 'Ten sam zakres co Kwadrans (w tym prawo do 2 dopytań w pokoju), ale z priorytetem i najbliższym realnym terminem.',
     checks: ['Wariant priorytetowy', 'Do 2 pytań w pokoju po rozmowie'],
     icon: Zap,
@@ -120,8 +121,8 @@ const formatChoices: FormatChoice[] = [
     id: 'dwa-kwadranse',
     title: 'Dwa kwadranse',
     badge: '30 min',
-    price: '169 zł',
-    desc: '30 min online, gdy temat ma kilka wątków. Po rozmowie masz prawo do 4 dopytań na czacie w swoim pokoju konsultacji.',
+    price: PUBLIC_OFFER_PRICE_LABELS.bridge,
+    desc: '30 min połączenia telefonicznego, gdy temat ma kilka wątków. Po rozmowie masz prawo do 4 dopytań w swoim pokoju konsultacji.',
     checks: ['Więcej czasu na kontekst', 'Do 4 pytań w pokoju po rozmowie'],
     icon: Hourglass,
     service: 'konsultacja-30-min',
@@ -129,9 +130,9 @@ const formatChoices: FormatChoice[] = [
   {
     id: 'pelna-konsultacja',
     title: 'Pełna konsultacja',
-    badge: 'ok. 2h online',
-    price: '470 zł',
-    desc: 'Około 2h online dla spraw złożonych: analiza zachowania, plan działania i czat w pokoju po rozmowie (tylko w miarę dostępności czasu).',
+    badge: 'ok. 2h przez Jitsi',
+    price: PUBLIC_OFFER_PRICE_LABELS.premium,
+    desc: 'Około 2h przez Jitsi dla spraw złożonych: analiza zachowania, plan działania i 14 dni komunikacji w pokoju klienta.',
     checks: ['Analiza i plan działania', 'Czat w pokoju (w miarę czasu)'],
     icon: Star,
     service: 'konsultacja-behawioralna-online',

@@ -1,4 +1,6 @@
 ﻿export type QuizAnswerValue = string
+import { PUBLIC_OFFER_PRICE_LABELS } from './public-offer-copy'
+
 export type QuizAnswers = Record<string, QuizAnswerValue>
 export type QuizSpecies = 'pies' | 'kot'
 export type QuizServiceKey = 'kwadrans' | 'dwa-kwadranse' | 'pelna-konsultacja'
@@ -383,18 +385,18 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
 export const QUIZ_SERVICE_LABELS: Record<QuizServiceKey, { label: string; price: string; duration: string }> = {
   kwadrans: {
     label: 'Kwadrans',
-    price: '69 zł',
-    duration: '15 min audio',
+    price: PUBLIC_OFFER_PRICE_LABELS.quick,
+    duration: '15 min telefonicznie',
   },
   'dwa-kwadranse': {
     label: 'Konsultacja 30 min',
-    price: '169 zł',
-    duration: '30 min online',
+    price: PUBLIC_OFFER_PRICE_LABELS.bridge,
+    duration: '30 min telefonicznie',
   },
   'pelna-konsultacja': {
     label: 'Pełna konsultacja',
-    price: '470 zł',
-    duration: 'ok. 2h online',
+    price: PUBLIC_OFFER_PRICE_LABELS.premium,
+    duration: 'ok. 2h przez Jitsi',
   },
 }
 
@@ -507,7 +509,7 @@ export function resolveQuizResult(answers: QuizAnswers): QuizResult {
       reasons: [
         duration === 'fresh' ? 'sytuacja wygląda na świeżą' : 'nie trzeba od razu zaczynać od pełnej analizy',
         predictability === 'clear' ? 'wyzwalacz jest dość czytelny' : 'najważniejsze jest wybranie pierwszego priorytetu',
-        'można zacząć od krótkiej rozmowy audio bez kamery',
+        'można zacząć od krótkiego połączenia telefonicznego',
       ],
       note: 'Kwadrans nie musi zamykać sprawy. Ma pomóc wybrać najprostszy następny krok.',
     }

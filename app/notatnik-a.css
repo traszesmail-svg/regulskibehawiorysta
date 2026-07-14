@@ -3381,6 +3381,29 @@ html[data-theme='dark'] .notatnik-theme-toggle-thumb {
   line-height: 1;
 }
 
+.offer-format-promo-label,
+.pricing-2026-promo-label,
+.reference-price-promo-label {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--accent-warm);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.offer-format-validity,
+.pricing-2026-validity,
+.reference-price-validity {
+  display: block;
+  margin-top: 5px;
+  color: var(--ink-soft);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
 .offer-format-desc {
   margin: 0;
   color: var(--ink-soft);
@@ -17526,6 +17549,22 @@ a.reference-info-row,
   font-size: 23px;
 }
 
+.reference-pricing-summary > .reference-price-validity {
+  margin: 12px 0 0;
+}
+
+.reference-price-value {
+  display: grid;
+  justify-items: end;
+  gap: 0;
+  min-width: 118px;
+}
+
+.reference-price-value .reference-price-promo-label,
+.reference-price-value .reference-price-validity {
+  text-align: right;
+}
+
 .reference-price-actions {
   display: grid;
   gap: 10px;
@@ -21520,6 +21559,17 @@ a.reference-info-row,
   font-size: clamp(34px, 5vw, 50px);
   font-weight: 800;
   white-space: nowrap;
+}
+
+.pricing-2026-offer-action {
+  display: grid;
+  justify-items: end;
+  gap: 0;
+}
+
+.pricing-2026-offer-action .pricing-2026-promo-label,
+.pricing-2026-offer-action .pricing-2026-validity {
+  text-align: right;
 }
 
 .pricing-2026-btn,

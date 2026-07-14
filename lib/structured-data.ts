@@ -3,6 +3,7 @@
 // Wstaw przez <Script type="application/ld+json"> w odpowiednich page.tsx
 
 import { SITE } from './seo.config';
+import { PUBLIC_SERVICE_PRICE_AMOUNTS } from './funnel';
 
 // ============ PERSON (globalnie w layout) ============
 export function localBusinessSchema() {
@@ -22,9 +23,9 @@ export function localBusinessSchema() {
       '@type': 'OfferCatalog',
       name: 'Konsultacje behawioralne',
       itemListElement: [
-        { '@type': 'Offer', name: 'Kwadrans', price: '69', priceCurrency: 'PLN' },
-        { '@type': 'Offer', name: 'Dwa kwadranse', price: '169', priceCurrency: 'PLN' },
-        { '@type': 'Offer', name: 'Pełna konsultacja', price: '470', priceCurrency: 'PLN' },
+        { '@type': 'Offer', name: 'Kwadrans', price: String(PUBLIC_SERVICE_PRICE_AMOUNTS['szybka-konsultacja-15-min']), priceCurrency: 'PLN' },
+        { '@type': 'Offer', name: 'Dwa kwadranse', price: String(PUBLIC_SERVICE_PRICE_AMOUNTS['konsultacja-30-min']), priceCurrency: 'PLN' },
+        { '@type': 'Offer', name: 'Pełna konsultacja', price: String(PUBLIC_SERVICE_PRICE_AMOUNTS['konsultacja-behawioralna-online']), priceCurrency: 'PLN' },
       ],
     },
     sameAs: [
@@ -51,29 +52,29 @@ export function serviceSchema() {
         {
           '@type': 'Offer',
           name: 'Kwadrans',
-          description: '15 min audio bez kamery na jedno główne pytanie',
-          price: '69',
+          description: '15 min połączenia telefonicznego na jedno główne pytanie',
+          price: String(PUBLIC_SERVICE_PRICE_AMOUNTS['szybka-konsultacja-15-min']),
           priceCurrency: 'PLN',
         },
         {
           '@type': 'Offer',
           name: 'Kwadrans na już',
           description: 'Ten sam zakres co Kwadrans, ale z priorytetem i najbliższym realnym terminem',
-          price: '99',
+          price: String(PUBLIC_SERVICE_PRICE_AMOUNTS['kwadrans-na-juz']),
           priceCurrency: 'PLN',
         },
         {
           '@type': 'Offer',
           name: 'Dwa kwadranse',
-          description: '30 min online, gdy temat ma kilka wątków',
-          price: '169',
+          description: '30 min połączenia telefonicznego, gdy temat ma kilka wątków',
+          price: String(PUBLIC_SERVICE_PRICE_AMOUNTS['konsultacja-30-min']),
           priceCurrency: 'PLN',
         },
         {
           '@type': 'Offer',
           name: 'Pełna konsultacja',
-          description: 'Około 2h online, analiza zachowania, plan działania i 14 dni komunikacji w pokoju klienta',
-          price: '470',
+          description: 'Około 2h przez Jitsi, analiza zachowania, plan działania i 14 dni komunikacji w pokoju klienta',
+          price: String(PUBLIC_SERVICE_PRICE_AMOUNTS['konsultacja-behawioralna-online']),
           priceCurrency: 'PLN',
         },
       ],

@@ -95,7 +95,7 @@ export function OfferEntrySection({
             {/* Kwadrans zostaje nazwą usługi, a format idzie w descriptorze. */}
             <span>{COPY_SERVICE_NAMES.primaryDescriptor}</span>
             <span>{formatPricePln(PUBLIC_OFFER_PRICES.quick)}</span>
-            <span>69 zł / 15 min</span>
+            <span>{formatPricePln(PUBLIC_OFFER_PRICES.quick)} / 15 min</span>
           </div>
           <p className="muted">Dla {speciesLabel}, gdy temat jest jeden albo chcesz spokojnie ustalić kierunek bez przechodzenia od razu do dłuższej konsultacji.</p>
           <p className="muted">{PUBLIC_OFFER_PRIORITY_VARIANT_NOTE}</p>
@@ -111,7 +111,7 @@ export function OfferEntrySection({
           <h3>{COPY_SERVICE_NAMES.bridge}</h3>
           <p>Format dla tematów szerszych, gdy 15 minut to za mało, ale pełna konsultacja byłaby jeszcze zbyt szerokim startem.</p>
           <div className="editorial-hero-meta" aria-label="Parametry usługi pośredniej">
-            <span>30 min online</span>
+            <span>30 min telefonicznie</span>
             <span>{formatPricePln(PUBLIC_OFFER_PRICES.bridge)}</span>
             <span>szerszy zakres</span>
           </div>
@@ -128,7 +128,7 @@ export function OfferEntrySection({
           <h3>Pełna konsultacja behawioralna</h3>
           <p>{getFullConsultationDescription(species)} Dostajesz analizę zachowania, prawdopodobną przyczynę problemu, plan działania i 14 dni komunikacji w pokoju klienta przy wdrażaniu zaleceń.</p>
           <div className="editorial-hero-meta" aria-label="Parametry usługi">
-            <span>ok. 2h online</span>
+            <span>ok. 2h przez Jitsi</span>
             <span>{formatPricePln(PUBLIC_OFFER_PRICES.premium)}</span>
             <span>plan + 14 dni w pokoju klienta</span>
           </div>

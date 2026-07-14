@@ -469,7 +469,7 @@ export default function BlogPage({ searchParams }: { searchParams?: BlogSearchPa
             <aside className="blog-magazine-sidebar" aria-label="Pomocnicze informacje bloga">
               <section className="blog-author-card">
                 <h2>O autorze</h2>
-                <Image src={BLOG_AUTHOR_IMAGE} alt="Krzysztof Regulski" width={132} height={132} loading="eager" />
+                <Image src={BLOG_AUTHOR_IMAGE} alt="Krzysztof Regulski" width={132} height={132} loading="lazy" />
                 <strong>Krzysztof Regulski</strong>
                 <span>Behawiorysta psów i kotów</span>
                 <p>Pomagam opiekunom lepiej zrozumieć zachowanie zwierząt i dobrać spokojny, praktyczny pierwszy krok.</p>

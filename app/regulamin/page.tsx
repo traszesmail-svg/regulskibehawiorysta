@@ -48,9 +48,9 @@ const sections: LegalSection[] = [
     body: (
       <>
         <ul className="premium-bullet-list">
-          <li>Kwadrans to 15 min audio bez kamery na jedno główne pytanie.</li>
+          <li>Kwadrans to 15 min połączenia telefonicznego na jedno główne pytanie.</li>
           <li>Kwadrans na już ma ten sam zakres co Kwadrans, ale z priorytetem i najbliższym realnym terminem.</li>
-          <li>Dwa kwadranse to 30 min online dla tematów szerszych niż sam Kwadrans.</li>
+          <li>Dwa kwadranse to 30 min połączenia telefonicznego dla tematów szerszych niż sam Kwadrans.</li>
           <li>Pełna konsultacja ma osobny regulamin i osobną stronę warunków.</li>
         </ul>
         <p>

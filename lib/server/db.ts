@@ -207,7 +207,7 @@ export async function markBookingReminderSent(bookingId: string) {
 
 export async function updateBookingQuiz(
   bookingId: string,
-  patch: { petAge?: string; durationNotes?: string; description?: string },
+  patch: { petAge?: string; durationNotes?: string; description?: string; questionsRemaining?: number | null },
 ): Promise<BookingRecord | null> {
   const b = await getBookingById(bookingId)
   if (b) {
@@ -221,6 +221,9 @@ export async function updateBookingQuiz(
     }
     if (patch.description !== undefined) {
       updatePayload.description = patch.description
+    }
+    if (patch.questionsRemaining !== undefined) {
+      updatePayload.questionsRemaining = patch.questionsRemaining
     }
     const updatedLb = await updateLeadBooking({ id: bookingId, ...updatePayload })
     if (updatedLb) {

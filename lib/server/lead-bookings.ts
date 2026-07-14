@@ -8,6 +8,7 @@ export type LeadBookingStatus =
   | 'pending'
   | 'awaiting_payment'
   | 'paid'
+  | 'confirmed'
   | 'cancelled'
 
 export type LeadBookingService =
@@ -28,6 +29,7 @@ export type LeadBookingRecord = {
   name: string
   email: string
   species: 'pies' | 'kot'
+  phone: string | null
   description: string
   preferredSlots: string
   confirmedDate: string | null

@@ -112,6 +112,24 @@ test('one clear, low-risk context recommends a short directional conversation', 
   assert.equal(result.serviceKey, 'kwadrans')
 })
 
+test('completed quiz teaches before it sells a service', () => {
+  const result = resolveQuizResult(
+    {
+      species: 'pies',
+      topic: 'dog_walks',
+      safety: 'no',
+      health: 'no',
+      detail: 'distance',
+      impact: 'single',
+    },
+    getQuizProblemContext('pies-szczeka-na-psy'),
+  )
+
+  assert.equal(result.route, 'short_consultation')
+  assert.equal(result.articleHref, '/blog/dlaczego-moj-pies-szczeka-na-inne-psy')
+  assert.equal(result.problemHref, '/problemy/pies-szczeka-na-psy')
+})
+
 test('a recurring issue recommends enough time to connect the observations', () => {
   const result = resolveQuizResult({
     species: 'kot',

@@ -47,11 +47,14 @@ import type { AvailabilitySlot, ProblemType } from '@/lib/types'
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
-export const metadata: Metadata = buildMarketingMetadata({
-  title: 'Wybierz termin konsultacji',
-  path: '/termin',
-  description: 'Prosty widok wyboru terminu po krótkim wyborze tematu psa albo kota.',
-})
+export const metadata: Metadata = {
+  ...buildMarketingMetadata({
+    title: 'Wybierz termin konsultacji',
+    path: '/termin',
+    description: 'Prosty widok wyboru terminu po krótkim wyborze tematu psa albo kota.',
+  }),
+  robots: { index: false, follow: true },
+}
 
 const terminSteps = ['Termin', 'Godzina', 'Dane', 'Płatność'] as const
 const urgentTerminSteps = ['Najbliższe terminy', 'Dane', 'Płatność'] as const
@@ -60,7 +63,7 @@ const bookingFaqItems = [
   {
     question: 'Jak wygląda konsultacja online?',
     answer:
-      'Kwadrans odbywa się jako rozmowa audio bez kamery. Dwa kwadranse i Pełna konsultacja są online; przy pełnej konsultacji forma audio albo video zależy od potrzeb sprawy.',
+      'Kwadrans i Dwa kwadranse odbywają się jako połączenie telefoniczne. Pełna konsultacja odbywa się przez Jitsi; kamera nie jest obowiązkowa.',
   },
   {
     question: 'Czy muszę instalować jakąś aplikację?',
@@ -274,12 +277,7 @@ export async function BookingSlotCalendar({
   const contactHref = `/kontakt?species=${problemSpecies}#formularz`
   const pageClassName = isUrgentBooking ? 'termin-page termin-urgent-page' : `termin-page termin-${problemSpecies}-page`
   const sideVisualVariant = 'booking'
-  const modeLabel =
-    serviceType === 'konsultacja-behawioralna-online'
-      ? 'Audio lub video online'
-      : serviceConfig.mode === 'audio'
-        ? 'Online (audio)'
-        : 'Online'
+  const modeLabel = serviceConfig.mode === 'phone' ? 'Połączenie telefoniczne' : 'Jitsi (audio lub wideo)'
   const processOutcomeCopy =
     serviceType === 'konsultacja-behawioralna-online'
       ? 'W pełnej konsultacji dostajesz analizę zachowania, prawdopodobną przyczynę problemu, plan działania i 14 dni komunikacji w pokoju klienta.'
@@ -474,7 +472,7 @@ export async function BookingSlotCalendar({
                 <article>
                   <Headphones size={30} strokeWidth={1.7} aria-hidden="true" />
                   <strong>2. Wejdź w konsultację</strong>
-                  <span>Połączymy się online w formie audio lub wideo.</span>
+                  <span>Przy krótkich formatach otrzymasz połączenie telefoniczne. Pełna konsultacja odbywa się przez Jitsi.</span>
                 </article>
                 <article>
                   <Check size={30} strokeWidth={1.7} aria-hidden="true" />

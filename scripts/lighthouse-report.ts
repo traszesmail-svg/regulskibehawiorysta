@@ -91,8 +91,8 @@ async function runLighthouse(baseUrl: string, route: string, mode: RunResult['mo
     result.status !== 0 &&
     hasReports &&
     typeof result.stderr === 'string' &&
-    result.stderr.includes('Runtime error encountered: EPERM') &&
-    result.stderr.includes('chrome-launcher')
+    result.stderr.includes('chrome-launcher') &&
+    (result.stderr.includes('Runtime error encountered: EPERM') || result.stderr.includes('Error: EPERM, Permission denied'))
 
   if (result.stdout) {
     process.stdout.write(result.stdout)

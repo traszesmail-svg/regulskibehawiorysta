@@ -5,6 +5,7 @@ import { NotatnikFooter, NotatnikTopbar, PUBLIC_SITE_NAV_ITEMS } from '@/compone
 import { ReferenceHeroLeaf } from '@/components/ReferencePageShell'
 import { Schema } from '@/components/schema'
 import { buildBookHref } from '@/lib/booking-routing'
+import { buildCaseMapHref, type CaseMapSearchParams } from '@/lib/case-map-routing'
 import { getBreadcrumbJsonLd, getItemListJsonLd } from '@/lib/schema'
 import { buildMarketingMetadata } from '@/lib/seo'
 import { getCanonicalBaseUrl } from '@/lib/server/env'
@@ -391,8 +392,8 @@ function getSpeciesLabel(species: ProblemPageSpecies) {
   return species === 'kot' ? 'Kot' : 'Pies'
 }
 
-function getQuizHref(page: ProblemPageConfig) {
-  return `/quiz?problem=${encodeURIComponent(page.quizProblem)}`
+function getCaseMapHref(page: ProblemPageConfig, searchParams?: CaseMapSearchParams) {
+  return buildCaseMapHref({ ...searchParams, problem: page.quizProblem })
 }
 
 function getAudioHref(page: ProblemPageConfig) {
@@ -424,7 +425,7 @@ function analyticsAttrs(page: ProblemPageConfig, location: string, ctaLabel: str
   }
 }
 
-export function ProblemDetailPage({ slug }: { slug: string }) {
+export function ProblemDetailPage({ slug, searchParams }: { slug: string; searchParams?: CaseMapSearchParams }) {
   const page = getProblemPageBySlug(slug)
 
   if (!page) {
@@ -432,7 +433,7 @@ export function ProblemDetailPage({ slug }: { slug: string }) {
   }
 
   const baseUrl = getCanonicalBaseUrl()
-  const quizHref = getQuizHref(page)
+  const quizHref = getCaseMapHref(page, searchParams)
   const audioHref = getAudioHref(page)
   const structuredData = [
     {
@@ -465,7 +466,7 @@ export function ProblemDetailPage({ slug }: { slug: string }) {
     <main className="notatnik-page blog-page blog-index-page blog-redesign-page problem-detail-page">
       <Schema data={structuredData} />
       <div className="notatnik-shell blog-index-shell blog-redesign-shell problem-detail-shell">
-        <NotatnikTopbar tag="Regulski" navItems={PUBLIC_SITE_NAV_ITEMS} showUtilityLinks={false} ctaHref={quizHref} ctaLabel="Quiz" />
+        <NotatnikTopbar tag="Regulski" navItems={PUBLIC_SITE_NAV_ITEMS} showUtilityLinks={false} ctaHref={quizHref} ctaLabel="Mapa zachowania" />
         <ReferenceHeroLeaf />
 
         <div className="blog-redesign-content problem-detail-content">
@@ -482,9 +483,9 @@ export function ProblemDetailPage({ slug }: { slug: string }) {
                   href={quizHref}
                   prefetch={false}
                   className="button button-primary big-button"
-                  {...analyticsAttrs(page, `${page.slug}-hero-quiz`, 'Przejdź przez quiz')}
+                  {...analyticsAttrs(page, `${page.slug}-hero-quiz`, 'Przejdź przez Mapę zachowania')}
                 >
-                  Przejdź przez quiz
+                  Przejdź przez Mapę zachowania
                   <ArrowRight size={18} strokeWidth={1.9} aria-hidden="true" />
                 </Link>
                 <Link
@@ -578,18 +579,18 @@ export function ProblemDetailPage({ slug }: { slug: string }) {
               <span className="blog-redesign-kicker">Domknięcie</span>
               <h2>Nie musisz od razu wybierać usługi</h2>
               <p>
-                Jeśli nie wiesz, czy wystarczy krótka rozmowa, czy potrzebna jest pełna konsultacja, przejdź przez quiz.
+                Jeśli nie wiesz, czy wystarczy krótka rozmowa, czy potrzebna jest pełna konsultacja, przejdź przez Mapę zachowania.
                 Wynik pokaże pierwszy krok, czego nie dokładać i gdzie pogłębić temat.
               </p>
             </div>
-            <Link href={quizHref} prefetch={false} {...analyticsAttrs(page, `${page.slug}-final-quiz`, 'Sprawdź w quizie')}>
-              Sprawdź w quizie
+            <Link href={quizHref} prefetch={false} {...analyticsAttrs(page, `${page.slug}-final-quiz`, 'Otwórz Mapę zachowania')}>
+              Otwórz Mapę zachowania
               <ArrowRight size={17} strokeWidth={1.9} aria-hidden="true" />
             </Link>
           </section>
         </div>
 
-        <NotatnikFooter showReviews={false} primaryHref={quizHref} primaryLabel="Quiz" />
+        <NotatnikFooter showReviews={false} primaryHref={quizHref} primaryLabel="Mapa zachowania" />
       </div>
     </main>
   )

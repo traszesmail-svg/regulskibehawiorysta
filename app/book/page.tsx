@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { BookingSlotCalendar } from '@/app/termin/page'
+import { BookingSlotCalendar } from '@/components/BookingSlotCalendar'
 import { normalizeBookingServiceType } from '@/lib/booking-services'
 import { readBookingServiceSearchParam } from '@/lib/booking-routing'
 import { buildBookMetadata } from '@/lib/seo'

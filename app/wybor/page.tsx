@@ -209,8 +209,8 @@ export default function ChoicePage({
     <NotatnikPageShell
       tag="Regulski"
       navItems={PUBLIC_SITE_NAV_ITEMS}
-      ctaHref="/quiz"
-      ctaLabel="Quiz"
+      ctaHref="/mapa-sprawy"
+      ctaLabel="Mapa zachowania"
       footerPrimaryHref="/"
       footerPrimaryLabel="Wróć do strony głównej"
       sideVisualVariant={animal === 'cat' ? 'cat' : 'dog'}

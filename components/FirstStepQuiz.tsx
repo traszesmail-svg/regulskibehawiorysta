@@ -107,6 +107,8 @@ export function FirstStepQuiz({ initialProblemKey, marketingParams }: FirstStepQ
         marketingParams,
       )
     : null
+  const caseMapHref = context?.problemKey ? '/mapa-sprawy?problem=' + encodeURIComponent(context.problemKey) : '/mapa-sprawy'
+  const canStartCaseMap = result.route !== 'safety_first' && result.route !== 'vet_first'
   const progressValue = showResult ? questions.length : Math.min(stepIndex + 1, questions.length)
 
   useEffect(() => {
@@ -245,11 +247,17 @@ export function FirstStepQuiz({ initialProblemKey, marketingParams }: FirstStepQ
               </ul>
             </div>
 
-            {result.articleHref || result.problemHref ? (
+            {result.articleHref || result.problemHref || canStartCaseMap ? (
               <div className={styles.resourceBlock} aria-label="Materiały do dalszego uporządkowania tematu">
                 <strong>Chcesz najpierw doczytać?</strong>
                 <p>Przejrzyj krótki materiał albo stronę problemową, zanim zdecydujesz, czy potrzebujesz rozmowy.</p>
                 <div className={styles.resourceLinks}>
+                  {canStartCaseMap ? (
+                    <Link href={caseMapHref} prefetch={false} className={styles.resourceLink}>
+                      Ułóż mapę tej sprawy
+                      <ArrowRight size={16} aria-hidden="true" />
+                    </Link>
+                  ) : null}
                   {result.articleHref && result.articleLabel ? (
                     <Link href={result.articleHref} prefetch={false} className={styles.resourceLink}>
                       {result.articleLabel}

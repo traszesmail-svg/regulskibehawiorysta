@@ -105,7 +105,7 @@ export function HomepageIntroPopup() {
             <Link href="/wybor?animal=cat" prefetch={false} onClick={() => dismiss('cat')}>
               Mam problem z kotem
             </Link>
-            <Link href="/quiz" prefetch={false} className="is-secondary" onClick={() => dismiss('quiz')}>
+            <Link href="/mapa-sprawy" prefetch={false} className="is-secondary" onClick={() => dismiss('quiz')}>
               Nie wiem, od czego zacząć
             </Link>
           </div>

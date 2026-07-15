@@ -14,7 +14,7 @@ const STATIC_ROUTES: Array<{ path: string; priority: number; changeFrequency: Me
   { path: '/blog', priority: 0.8, changeFrequency: 'weekly' },
   { path: '/problemy', priority: 0.82, changeFrequency: 'weekly' },
   { path: '/kwadrans-na-juz', priority: 0.82, changeFrequency: 'weekly' },
-  { path: '/quiz', priority: 0.76, changeFrequency: 'monthly' },
+  { path: '/mapa-sprawy', priority: 0.74, changeFrequency: 'monthly' },
   { path: '/instagram', priority: 0.7, changeFrequency: 'weekly' },
   { path: '/regulamin', priority: 0.4, changeFrequency: 'yearly' },
   { path: '/regulamin-pelna-konsultacja', priority: 0.35, changeFrequency: 'yearly' },

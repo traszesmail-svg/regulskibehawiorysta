@@ -188,8 +188,8 @@ export default function ConsultationFormatPage({
     <NotatnikPageShell
       tag="Regulski"
       navItems={PUBLIC_SITE_NAV_ITEMS}
-      ctaHref="/quiz"
-      ctaLabel="Quiz"
+      ctaHref="/mapa-sprawy"
+      ctaLabel="Mapa zachowania"
       footerPrimaryHref={backHref}
       footerPrimaryLabel="Wróć do wyboru"
       sideVisualVariant={animal === 'cat' ? 'cat' : 'dog'}

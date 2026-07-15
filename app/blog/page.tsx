@@ -331,7 +331,7 @@ export default function BlogPage({ searchParams }: { searchParams?: BlogSearchPa
                 a potem wybierz pierwszy krok dla swojej sytuacji.
               </p>
               <div className="blog-magazine-hero-actions">
-                <Link href="/quiz" prefetch={false}>
+                <Link href="/mapa-sprawy" prefetch={false}>
                   Umów konsultację
                   <ArrowRight size={17} strokeWidth={1.9} aria-hidden="true" />
                 </Link>
@@ -511,7 +511,7 @@ export default function BlogPage({ searchParams }: { searchParams?: BlogSearchPa
               <h2>Potrzebujesz indywidualnej pomocy?</h2>
               <p>Każde zwierzę jest inne. Jeśli artykuł pomaga nazwać problem, konsultacja pomaga ułożyć pierwszy plan działania.</p>
             </div>
-            <Link href="/quiz" prefetch={false}>
+            <Link href="/mapa-sprawy" prefetch={false}>
               Umów konsultację
               <ArrowRight size={17} strokeWidth={1.9} aria-hidden="true" />
             </Link>

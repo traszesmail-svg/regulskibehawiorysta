@@ -27,11 +27,14 @@ type ReferenceFinalCtaProps = {
 export function ReferencePageShell({
   className,
   ctaHref,
-  ctaLabel = 'Quiz',
+  ctaLabel,
   showHeroLeaf = false,
   showFooterReviews = false,
   children,
 }: ReferencePageShellProps) {
+  const isCaseMapCta = ctaHref === '/mapa-sprawy' || ctaHref.startsWith('/mapa-sprawy?')
+  const resolvedCtaLabel = ctaLabel ?? (isCaseMapCta ? 'Mapa zachowania' : 'Umów konsultację')
+
   return (
     <main className={className ? `notatnik-page reference-page ${className}` : 'notatnik-page reference-page'}>
       <div className="notatnik-shell reference-shell">
@@ -39,7 +42,7 @@ export function ReferencePageShell({
           tag="Regulski"
           navItems={PUBLIC_SITE_NAV_ITEMS}
           ctaHref={ctaHref}
-          ctaLabel={ctaLabel}
+          ctaLabel={resolvedCtaLabel}
           showUtilityLinks={false}
         />
         {showHeroLeaf ? <ReferenceHeroLeaf /> : null}
@@ -145,7 +148,7 @@ export function ReferenceFooter() {
       </Link>
 
       <nav className="reference-footer-nav" aria-label="Nawigacja w stopce">
-        <Link href="/quiz" prefetch={false}>Quiz</Link>
+        <Link href="/mapa-sprawy" prefetch={false}>Mapa zachowania</Link>
         <Link href="/cennik" prefetch={false}>Cennik</Link>
         <Link href="/o-mnie" prefetch={false}>O mnie</Link>
         <Link href="/blog" prefetch={false}>Blog</Link>

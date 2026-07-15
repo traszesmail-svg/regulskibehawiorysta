@@ -73,8 +73,8 @@ export const INSTAGRAM_PROBLEM_ROUTES: InstagramProblemRoute[] = [
     id: 'ig-nie-wiem-od-czego-zaczac',
     postTopic: 'Post ogólny: nie wiem, od czego zacząć',
     problemKey: 'nie-wiem-od-czego-zaczac',
-    publicHref: '/quiz',
-    href: withInstagramUtm('/quiz', 'nie-wiem-od-czego-zaczac'),
-    label: 'Quiz pierwszego kroku',
+    publicHref: '/mapa-sprawy',
+    href: withInstagramUtm('/mapa-sprawy', 'nie-wiem-od-czego-zaczac'),
+    label: 'Mapa zachowania',
   },
 ]

@@ -90,7 +90,7 @@ const heroChoices = [
     id: 'unknown',
     title: 'Nie wiem, co wybrać',
     copy: 'Przeprowadź mnie przez kilka pytań i pokaż najrozsądniejszy pierwszy krok.',
-    href: '/quiz',
+    href: '/mapa-sprawy',
   },
 ] as const
 
@@ -148,7 +148,7 @@ function RouterChoiceIcon({ choiceId }: { choiceId: (typeof heroChoices)[number]
 type HomepageServiceSelectorProps = {
   mode?: 'home' | 'quiz'
   initialAnimal?: HomepageSelectorAnimal | null
-  animalHrefBase?: '/wybor' | '/quiz'
+  animalHrefBase?: '/wybor' | '/mapa-sprawy'
 }
 
 export function HomepageServiceSelector({ mode = 'home', initialAnimal = null, animalHrefBase = '/wybor' }: HomepageServiceSelectorProps) {
@@ -249,7 +249,7 @@ export function HomepageServiceSelector({ mode = 'home', initialAnimal = null, a
                     <RouterChoiceIcon choiceId={choice.id} />
                   </span>
                   <strong>{heroChoiceDisplay[choice.id].title}</strong>
-                  {choice.id === 'unknown' ? <em className="router-choice-quiz-label">Quiz</em> : null}
+                  {choice.id === 'unknown' ? <em className="router-choice-quiz-label">Mapa zachowania</em> : null}
                   <span className="router-choice-copy">
                     <span>{heroChoiceDisplay[choice.id].copy}</span>
                   </span>
@@ -280,7 +280,7 @@ export function HomepageServiceSelector({ mode = 'home', initialAnimal = null, a
       {!showHero ? (
         <section className="home-guided-selector" aria-labelledby="home-guided-selector-title">
           <div className="home-guided-copy">
-            <h2 id="home-guided-selector-title">Quiz</h2>
+            <h2 id="home-guided-selector-title">Mapa zachowania</h2>
           </div>
           <div className="home-guided-grid">
             <article className="home-guided-step">

@@ -6,11 +6,13 @@ import {
   getProblemPageMetadata,
   listProblemPages,
 } from '@/lib/problem-pages'
+import type { CaseMapSearchParams } from '@/lib/case-map-routing'
 
 type ProblemPageProps = {
   params: {
     slug: string
   }
+  searchParams?: CaseMapSearchParams
 }
 
 export function generateStaticParams() {
@@ -29,12 +31,12 @@ export function generateMetadata({ params }: ProblemPageProps): Metadata {
   return metadata
 }
 
-export default function ProblemPage({ params }: ProblemPageProps) {
+export default function ProblemPage({ params, searchParams }: ProblemPageProps) {
   const page = getProblemPageBySlug(params.slug)
 
   if (!page) {
     notFound()
   }
 
-  return <ProblemDetailPage slug={params.slug} />
+  return <ProblemDetailPage slug={params.slug} searchParams={searchParams} />
 }

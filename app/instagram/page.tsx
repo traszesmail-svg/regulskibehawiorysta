@@ -8,7 +8,7 @@ import { getSeasonalTrendRadar } from '@/lib/seasonal-trend-radar'
 import { buildMarketingMetadata } from '@/lib/seo'
 
 const INSTAGRAM_LINK_DESCRIPTION =
-  'Linki do tematów z Instagrama Regulski Behawiorysta: mapa problemów, quiz pierwszego kroku i sezonowe tematy dla opiekunów psów i kotów.'
+  'Linki do tematów z Instagrama Regulski Behawiorysta: mapa problemów i Mapa zachowania i sezonowe tematy dla opiekunów psów i kotów.'
 
 export const metadata: Metadata = buildMarketingMetadata({
   title: 'Instagram - linki do tematów',
@@ -34,10 +34,10 @@ export default function InstagramLinksPage() {
       id: 'bio-quiz',
       icon: Send,
       eyebrow: 'Start',
-      title: 'Quiz pierwszego kroku',
-      copy: 'Jeśli nie wiesz, od czego zacząć, quiz porządkuje problem i podpowiada zakres rozmowy.',
-      href: withInstagramBioUtm('/quiz', 'bio-quiz'),
-      ctaLabel: 'Przejdź do quizu',
+      title: 'Mapa zachowania',
+      copy: 'Jeśli nie wiesz, od czego zacząć, Mapa zachowania porządkuje problem i podpowiada zakres rozmowy.',
+      href: withInstagramBioUtm('/mapa-sprawy', 'bio-quiz'),
+      ctaLabel: 'Przejdź do Mapy zachowania',
       itemType: 'instagram_bio_primary',
     },
     {
@@ -55,7 +55,7 @@ export default function InstagramLinksPage() {
   return (
     <main className="notatnik-page blog-page blog-index-page blog-redesign-page instagram-link-page">
       <div className="notatnik-shell blog-index-shell blog-redesign-shell instagram-link-shell">
-        <NotatnikTopbar tag="Regulski" navItems={PUBLIC_SITE_NAV_ITEMS} showUtilityLinks={false} ctaHref="/quiz" ctaLabel="Quiz" />
+        <NotatnikTopbar tag="Regulski" navItems={PUBLIC_SITE_NAV_ITEMS} showUtilityLinks={false} ctaHref="/mapa-sprawy" ctaLabel="Mapa zachowania" />
         <ReferenceHeroLeaf />
 
         <div className="blog-redesign-content instagram-link-content">
@@ -64,7 +64,7 @@ export default function InstagramLinksPage() {
               <span className="blog-redesign-kicker">Regulski Behawiorysta / Instagram</span>
               <h1 id="instagram-link-title">Linki do tematów z postów i stories</h1>
               <p>
-              Wybierz temat, który pasuje do sytuacji. Link prowadzi do strony problemowej, artykułu albo quizu, żeby nie zgadywać
+              Wybierz temat, który pasuje do sytuacji. Link prowadzi do strony problemowej, artykułu albo Mapy zachowania, żeby nie zgadywać
               zakresu pomocy po samym poście.
               </p>
             </div>
@@ -186,7 +186,7 @@ export default function InstagramLinksPage() {
           </section>
         </div>
 
-        <NotatnikFooter showReviews={false} primaryHref="/quiz" primaryLabel="Quiz" />
+        <NotatnikFooter showReviews={false} primaryHref="/mapa-sprawy" primaryLabel="Mapa zachowania" />
       </div>
     </main>
   )

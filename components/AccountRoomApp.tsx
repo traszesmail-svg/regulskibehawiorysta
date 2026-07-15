@@ -14,6 +14,7 @@ import {
   Upload,
 } from 'lucide-react'
 import type { AccountHomePayload, AccountPet, AccountPetSpecies } from '@/lib/account'
+import type { CaseMapSummary } from '@/lib/case-map'
 
 type AccountView = 'start' | 'pupil' | 'rozmowa' | 'materialy' | 'historia'
 
@@ -138,6 +139,7 @@ export function AccountRoomApp({ initialView = 'start' }: AccountRoomAppProps) {
   const [petPhoto, setPetPhoto] = useState<File | null>(null)
   const [messageBody, setMessageBody] = useState('')
   const [messageFile, setMessageFile] = useState<File | null>(null)
+  const [caseMaps, setCaseMaps] = useState<CaseMapSummary[]>([])
 
   const activeConversationId = useMemo(() => pickFirstConversation(account), [account])
   const primaryPetId = account?.pets[0]?.id ?? ''
@@ -173,6 +175,31 @@ export function AccountRoomApp({ initialView = 'start' }: AccountRoomAppProps) {
   useEffect(() => {
     void loadAccount()
   }, [loadAccount])
+
+  useEffect(() => {
+    if (!authenticated) {
+      setCaseMaps([])
+      return
+    }
+
+    let active = true
+    void fetch('/api/account/case-maps')
+      .then(async (response) => {
+        const payload = (await response.json()) as { ok?: boolean; caseMaps?: CaseMapSummary[] }
+        if (!response.ok || !payload.caseMaps) throw new Error('Nie udało się pobrać Map sprawy.')
+        return payload.caseMaps
+      })
+      .then((nextCaseMaps) => {
+        if (active) setCaseMaps(nextCaseMaps)
+      })
+      .catch(() => {
+        if (active) setCaseMaps([])
+      })
+
+    return () => {
+      active = false
+    }
+  }, [authenticated])
 
   async function signOut() {
     await fetch('/api/account/auth/logout', { method: 'POST' })
@@ -360,6 +387,19 @@ export function AccountRoomApp({ initialView = 'start' }: AccountRoomAppProps) {
               <BookOpen size={17} aria-hidden="true" />
               Otwórz
             </button>
+          </article>
+
+          <article className="account-room-card">
+            <span className="account-card-kicker">Mapy zachowania</span>
+            <h2>{caseMaps.length === 0 ? 'Brak zapisanych Map zachowania' : caseMaps.length === 1 ? '1 zapisana Mapa zachowania' : caseMaps.length + ' zapisane Mapy zachowania'}</h2>
+            <p>To prywatne podsumowania, do których możesz wrócić przed rozmową.</p>
+            {caseMaps[0] ? (
+              <Link href={'/mapa-sprawy?resume=' + encodeURIComponent(caseMaps[0].id)} className="button button-ghost">
+                Otwórz ostatnią Mapę zachowania
+              </Link>
+            ) : (
+              <Link href="/mapa-sprawy" className="button button-ghost">Rozpocznij Mapę zachowania</Link>
+            )}
           </article>
 
           <article className="account-room-card">

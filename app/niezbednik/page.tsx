@@ -263,7 +263,7 @@ export default function EssentialsPage() {
             <div className="essentials-showcase-soft-card essentials-showcase-start-card">
               <h2>Nie wiesz, od czego zacząć?</h2>
               <p>Dobierz materiał do problemu, z którym się zmagasz.</p>
-              <Link href="/quiz" prefetch={false}>
+              <Link href="/mapa-sprawy" prefetch={false}>
                 Przejdź do przewodnika
                 <ArrowRight size={16} strokeWidth={1.8} aria-hidden="true" />
               </Link>

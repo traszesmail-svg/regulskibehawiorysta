@@ -69,7 +69,7 @@ export const SEASONAL_TREND_ENTRIES: SeasonalTrendEntry[] = [
     title: 'Burze i nagły hałas',
     copy:
       'Przy panice nie testujemy odwagi. Najpierw zabezpieczamy miejsce odpoczynku, dystans i przewidywalny plan na najbliższe dni.',
-    path: '/quiz?problem=halas-burza-fajerwerki',
+    path: '/mapa-sprawy?problem=halas-burza-fajerwerki',
     ctaLabel: 'Ustal pierwszy krok',
     problemKey: 'halas-burza-fajerwerki',
   }),
@@ -81,7 +81,7 @@ export const SEASONAL_TREND_ENTRIES: SeasonalTrendEntry[] = [
     title: 'Wakacje, opieka i zmiana rytmu',
     copy:
       'Wyjazd, inny opiekun albo nowy plan dnia potrafią nasilić samotność, napięcie i problemy z wyciszeniem. Tu liczy się przygotowanie przed zmianą.',
-    path: '/quiz?problem=wakacje-opieka-zmiana-rytmu',
+    path: '/mapa-sprawy?problem=wakacje-opieka-zmiana-rytmu',
     ctaLabel: 'Sprawdź przygotowanie',
     problemKey: 'wakacje-opieka-zmiana-rytmu',
     species: 'pies',
@@ -107,7 +107,7 @@ export const SEASONAL_TREND_ENTRIES: SeasonalTrendEntry[] = [
     title: 'Sylwester i fajerwerki',
     copy:
       'Najlepszy plan powstaje przed kulminacją hałasu. W kryzysie priorytetem jest bezpieczeństwo, nie trening na siłę.',
-    path: '/quiz?problem=halas-burza-fajerwerki',
+    path: '/mapa-sprawy?problem=halas-burza-fajerwerki',
     ctaLabel: 'Przygotuj bezpieczny plan',
     problemKey: 'halas-burza-fajerwerki',
   }),

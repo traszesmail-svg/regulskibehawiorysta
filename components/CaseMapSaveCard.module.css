@@ -1,0 +1,101 @@
+.root {
+  display: grid;
+  gap: 12px;
+  margin-top: 6px;
+  padding: 18px;
+  border: 1px solid rgba(28, 92, 57, 0.22);
+  border-radius: 18px;
+  background: rgba(250, 255, 248, 0.68);
+  color: #244936;
+}
+
+.root h3,
+.root p {
+  margin: 0;
+}
+
+.root h3 {
+  color: #18452d;
+  font-size: 18px;
+}
+
+.root p {
+  color: #536c5c;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.checkLabel {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  color: #3f5e4c;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.checkLabel input {
+  width: 17px;
+  height: 17px;
+  margin-top: 2px;
+  accent-color: #21663f;
+}
+
+.checkLabel a {
+  color: #1f603d;
+  font-weight: 700;
+}
+
+.primaryButton,
+.primaryLink,
+.secondaryLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  min-height: 42px;
+  gap: 8px;
+  padding: 10px 15px;
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.primaryButton,
+.primaryLink {
+  border: 1px solid #1f603d;
+  background: #20633f;
+  color: #fff;
+  cursor: pointer;
+}
+
+.primaryButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.secondaryLink {
+  border: 1px solid rgba(28, 92, 57, 0.23);
+  color: #245036;
+}
+
+.success {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #1d5d3a;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.pending {
+  margin: 0;
+  color: #5a7161;
+  font-size: 14px;
+}
+
+.error {
+  color: #8b3021 !important;
+  font-weight: 700;
+}

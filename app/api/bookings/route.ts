@@ -8,6 +8,8 @@ import { formatCommercePrice, getManualAmountForProduct } from '@/lib/commerce'
 import { getProblemSpecies, isProblemType } from '@/lib/data'
 import { formatPricePln } from '@/lib/pricing'
 import { createPendingBooking } from '@/lib/server/db'
+import { getAccountUser } from '@/lib/server/account-auth'
+import { linkCaseMapToBookingForUser } from '@/lib/server/case-map-store'
 import { getBookingApiErrorSnapshot } from '@/lib/server/booking-api-errors'
 import { getCustomerEmailDeliveryStatus } from '@/lib/server/notifications'
 import { getManualPaymentReference, getQaCheckoutEligibility } from '@/lib/server/payment-options'
@@ -93,6 +95,8 @@ export async function POST(request: Request) {
     const rawAnimalType = body.animalType
     const rawServiceType = typeof body.serviceType === 'string' ? body.serviceType : null
     const qaBooking = isTruthyFormValue(body.qaBooking)
+    const caseMapId = typeof body.caseMapId === 'string' ? body.caseMapId.trim() : ''
+    const shareCaseMap = isTruthyFormValue(body.shareCaseMap)
 
     if (
       typeof body.ownerName !== 'string' ||
@@ -184,6 +188,17 @@ export async function POST(request: Request) {
       slotId,
       qaBooking,
     })
+    let caseMapLinked = false
+    if (shareCaseMap && caseMapId) {
+      try {
+        const accountUser = await getAccountUser(request)
+        caseMapLinked = Boolean(await linkCaseMapToBookingForUser(accountUser, caseMapId, result.booking.id))
+      } catch (caseMapError) {
+        console.warn('[regulski-behawiorysta][booking-api] case map handoff was not linked', {
+          reason: caseMapError instanceof Error ? caseMapError.message : 'unknown',
+        })
+      }
+    }
 
     if (shouldRedirect) {
       return NextResponse.redirect(
@@ -201,6 +216,7 @@ export async function POST(request: Request) {
       manualAmountLabel: formatCommercePrice(getManualAmountForProduct('consultation', result.booking.amount)),
       customerEmailAvailable: getCustomerEmailDeliveryStatus(result.booking.email).state === 'ready',
       qaEligibility: getQaCheckoutEligibility(result.booking),
+      caseMapLinked,
     })
   } catch (error) {
     console.error('[regulski-behawiorysta][booking-api] create failed', error)

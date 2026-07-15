@@ -74,6 +74,11 @@ const REQUIRED_SCHEMA_MARKERS = [
       "payment_status text not null check (payment_status in ('unpaid', 'pending_manual_review', 'paid', 'failed', 'rejected', 'refunded'))",
     expectedCount: 1,
   },
+  {
+    label: 'case_maps',
+    needle: 'create table if not exists public.case_maps',
+    expectedCount: 1,
+  },
 ]
 
 const REQUIRED_FILES = [
@@ -81,6 +86,8 @@ const REQUIRED_FILES = [
   'supabase/migrations/20260406002_qa_checkout.sql',
   'supabase/migrations/20260601001_promo_codes.sql',
   'supabase/migrations/20260601005_push_subscriptions.sql',
+  'supabase/migrations/20260714001_case_maps.sql',
+  'supabase/migrations/20260714002_case_map_consultant_handoff.sql',
 ]
 
 function normalizeSchemaText(schemaText) {

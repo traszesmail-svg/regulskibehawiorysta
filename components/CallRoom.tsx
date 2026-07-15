@@ -487,7 +487,7 @@ export function CallRoom({
 
           {/* Edit Quiz Answers */}
           <div className="account-room-card" style={{ padding: '1.5rem', borderRadius: '12px' }}>
-            <h3>Edycja formularza zgłoszeniowego (Quiz)</h3>
+            <h3>Edycja formularza zgłoszeniowego</h3>
             <p style={{ margin: '0 0 1rem', fontSize: '0.9rem' }}>Możesz edytować i dopisać informacje przed rozpoczęciem rozmowy.</p>
             <form onSubmit={handleSaveQuiz} className="account-form" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <label style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
@@ -500,7 +500,7 @@ export function CallRoom({
                 />
               </label>
               <label style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                <span>Twoje notatki / tło sprawy (np. z quizu):</span>
+                <span>Twoje notatki / tło sprawy (np. z Mapy zachowania):</span>
                 <textarea
                   value={draftDurationNotes}
                   onChange={(e) => setDraftDurationNotes(e.target.value)}

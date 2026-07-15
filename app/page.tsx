@@ -53,8 +53,8 @@ function getHomeProblemVisual(problemId: string) {
 
 const routerFaqItems = [
   {
-    question: 'Czy jeśli nie wiem, co wybrać, mogę zacząć od quizu?',
-    answer: 'Tak. Quiz jest po to, żeby spokojnie wybrać pierwszy krok bez znajomości fachowych nazw.',
+    question: 'Czy jeśli nie wiem, co wybrać, mogę zacząć od Mapy zachowania?',
+    answer: 'Tak. Mapa zachowania pomaga spokojnie wybrać pierwszy krok bez znajomości fachowych nazw.',
   },
   {
     question: 'Czy konsultacja jest dla psów i kotów?',
@@ -111,7 +111,7 @@ export default function HomePage() {
             <h2>Wybierz problem, który najbardziej przypomina Twoją sytuację</h2>
             <p>
               Nie musisz znać przyczyny. Zacznij od tego, co widzisz na co dzień, a potem przejdź do artykułu,
-              pierwszego kroku albo quizu.
+              pierwszego kroku albo Mapy zachowania.
             </p>
             <Link
               href="/problemy"
@@ -193,7 +193,7 @@ export default function HomePage() {
               <span className="home-trend-problems-kicker">Trend radar sezonowy</span>
               <h2 id="home-seasonal-trend-title">Teraz warto sprawdzić tematy, które zwykle nasilają się w sezonie</h2>
               <p>
-                To nie są osobne usługi. To szybkie wejścia do istniejącej ścieżki: problem, pierwszy kontekst i quiz, gdy trzeba wybrać zakres pomocy.
+                To nie są osobne usługi. To szybkie wejścia do istniejącej ścieżki: problem, pierwszy kontekst i Mapa zachowania, gdy trzeba wybrać zakres pomocy.
               </p>
             </div>
             <div className="home-seasonal-trend-grid">
@@ -313,7 +313,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <NotatnikFooter variant="home" primaryHref="/quiz" primaryLabel="Quiz" />
+        <NotatnikFooter variant="home" primaryHref="/mapa-sprawy" primaryLabel="Mapa zachowania" />
       </div>
     </main>
   )

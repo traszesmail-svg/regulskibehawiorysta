@@ -11,9 +11,13 @@ function getBaseUrl(request: Request) {
   return process.env.NEXT_PUBLIC_APP_URL ?? new URL(request.url).origin
 }
 
+function getSafeReturnTo(value: unknown) {
+  return typeof value === 'string' && value.startsWith('/') && !value.startsWith('//') ? value : '/pokoj'
+}
+
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as { email?: string; password?: string }
+    const body = (await request.json()) as { email?: string; password?: string; returnTo?: string }
     const email = body.email?.trim().toLowerCase() ?? ''
     const password = body.password ?? ''
 
@@ -25,7 +29,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: 'Hasło musi mieć minimum 8 znaków.' }, { status: 400 })
     }
 
-    const session = await signUpAccount(email, password, `${getBaseUrl(request)}/login`)
+    const returnTo = getSafeReturnTo(body.returnTo)
+    const redirectTo = `${getBaseUrl(request)}/login?returnTo=${encodeURIComponent(returnTo)}`
+    const session = await signUpAccount(email, password, redirectTo)
     const response = NextResponse.json({ ok: true, hasSession: Boolean(session) })
     if (session) setAccountSessionCookies(response, session)
     return response

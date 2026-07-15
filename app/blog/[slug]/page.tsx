@@ -61,8 +61,8 @@ export default function BlogArticlePage({ params }: BlogArticlePageProps) {
     <NotatnikPageShell
       tag="Regulski"
       navItems={PUBLIC_SITE_NAV_ITEMS}
-      ctaHref="/quiz"
-      ctaLabel="Quiz"
+      ctaHref="/mapa-sprawy"
+      ctaLabel="Mapa zachowania"
       footerPrimaryHref="/blog"
       footerPrimaryLabel="Wróć do bloga"
       sideVisualVariant="blog"
@@ -134,7 +134,7 @@ export default function BlogArticlePage({ params }: BlogArticlePageProps) {
               <PawPrint size={24} strokeWidth={1.6} aria-hidden="true" />
               <strong>Potrzebujesz indywidualnej pomocy?</strong>
               <p>Umów konsultację i pracujmy razem nad rozwiązaniem problemu.</p>
-              <Link href="/quiz" prefetch={false}>
+              <Link href="/mapa-sprawy" prefetch={false}>
                 Umów konsultację
               </Link>
             </div>
@@ -178,9 +178,9 @@ export default function BlogArticlePage({ params }: BlogArticlePageProps) {
         <section className="blog-article-bottom-cta">
           <div>
             <h2>Nie wiesz, od czego zacząć?</h2>
-            <p>Przejdź przez quiz albo umów konsultację. Dobierzemy pierwszy krok do realnej sytuacji Twojego psa lub kota.</p>
+            <p>Przejdź przez Mapę sprawy albo umów konsultację. Dobierzemy pierwszy krok do realnej sytuacji Twojego psa lub kota.</p>
           </div>
-          <Link href="/quiz" prefetch={false}>
+          <Link href="/mapa-sprawy" prefetch={false}>
             Umów konsultację
             <ArrowRight size={17} strokeWidth={1.9} aria-hidden="true" />
           </Link>

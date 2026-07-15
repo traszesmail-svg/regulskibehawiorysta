@@ -114,10 +114,10 @@ function NotatnikBrandLockup() {
 
 export function NotatnikTopbar({
   navItems = PUBLIC_SITE_NAV_ITEMS,
+  ctaHref = '/mapa-sprawy',
+  ctaLabel = 'Mapa zachowania',
   showUtilityLinks = true,
 }: NotatnikTopbarProps) {
-  const ctaHref = '/quiz'
-  const ctaLabel = 'Quiz'
   const hasNavItems = navItems.length > 0
 
   return (

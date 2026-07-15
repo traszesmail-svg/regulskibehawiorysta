@@ -104,8 +104,8 @@ export const TREND_PROBLEM_CARDS: TrendProblemCard[] = [
     copy: 'Często wcześniej pokazuje drobne sygnały: napięcie ogona, skóry, uszu albo próbę odsunięcia się.',
     primaryHref: '/problemy/kot-gryzie-przy-glaskaniu',
     primaryLabel: 'Zobacz pierwszy krok',
-    secondaryHref: '/quiz?problem=kot-gryzie-przy-glaskaniu',
-    secondaryLabel: 'Dobierz w quizie',
+    secondaryHref: '/mapa-sprawy?problem=kot-gryzie-przy-glaskaniu',
+    secondaryLabel: 'Ułóż Mapę sprawy',
     featuredOnHome: true,
   },
   {
@@ -126,7 +126,7 @@ export const TREND_PROBLEM_CARDS: TrendProblemCard[] = [
     eyebrow: 'Pies lub kot / alarm',
     title: 'Nagła zmiana zachowania',
     copy: 'Jeśli zwierzę nagle sika, chowa się, warczy, gryzie albo traci rutynę, trzeba brać pod uwagę ból i zdrowie.',
-    primaryHref: '/quiz?problem=nagla-zmiana-zachowania',
+    primaryHref: '/mapa-sprawy?problem=nagla-zmiana-zachowania',
     primaryLabel: 'Sprawdź pierwszy krok',
     featuredOnHome: true,
   },
@@ -156,7 +156,7 @@ export const TREND_PROBLEM_CARDS: TrendProblemCard[] = [
     eyebrow: 'Sezon / hałas',
     title: 'Burza, fajerwerki i panika',
     copy: 'Przy silnym lęku plan robi się przed sezonem. W kryzysie najważniejsze są bezpieczeństwo, dystans i brak dokładania presji.',
-    primaryHref: '/quiz?problem=halas-burza-fajerwerki',
+    primaryHref: '/mapa-sprawy?problem=halas-burza-fajerwerki',
     primaryLabel: 'Dobierz pierwszy krok',
   },
 ]

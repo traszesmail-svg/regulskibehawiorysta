@@ -34,10 +34,10 @@ export default function NewsletterPage() {
     <NotatnikPageShell
       tag="Newsletter"
       navItems={PUBLIC_SITE_NAV_ITEMS}
-      ctaHref="/quiz"
-      ctaLabel="Quiz"
-      footerPrimaryHref="/quiz"
-      footerPrimaryLabel="Quiz"
+      ctaHref="/mapa-sprawy"
+      ctaLabel="Mapa zachowania"
+      footerPrimaryHref="/mapa-sprawy"
+      footerPrimaryLabel="Mapa zachowania"
       sideVisualVariant="blog"
       pageClassName="newsletter-page"
     >

@@ -104,7 +104,7 @@ const flowSteps = [
   },
   {
     icon: BookOpen,
-    title: '3. Artykuł albo quiz',
+    title: '3. Artykuł albo Mapa zachowania',
     copy: 'Przeczytaj kontekst lub dobierz format pomocy.',
   },
 ] as const
@@ -174,7 +174,7 @@ export default function ProblemyPage() {
     <main className="notatnik-page blog-page blog-index-page blog-redesign-page problem-hub-page problem-hub-redesign-page">
       <Schema data={structuredData} />
       <div className="notatnik-shell blog-index-shell blog-redesign-shell problem-hub-shell">
-        <NotatnikTopbar tag="Regulski" navItems={PUBLIC_SITE_NAV_ITEMS} showUtilityLinks={false} ctaHref="/quiz" ctaLabel="Quiz" />
+        <NotatnikTopbar tag="Regulski" navItems={PUBLIC_SITE_NAV_ITEMS} showUtilityLinks={false} ctaHref="/mapa-sprawy" ctaLabel="Mapa zachowania" />
         <ReferenceHeroLeaf />
 
         <div className="blog-redesign-content problem-hub-content">
@@ -183,18 +183,18 @@ export default function ProblemyPage() {
               <h1 id="problem-hub-title">Mapa problemów</h1>
               <p>
                 Zacznij od sytuacji, którą widzisz u swojego psa lub kota. Znajdziesz tu pierwszy krok,
-                artykuł albo quiz, które pomogą spokojnie ruszyć dalej.
+                artykuł albo Mapę sprawy, które pomogą spokojnie ruszyć dalej.
               </p>
               <div className="problem-hub-hero-actions">
                 <Link
-                  href="/quiz"
+                  href="/mapa-sprawy"
                   prefetch={false}
                   data-analytics-event="cta_click"
                   data-analytics-location="problem-hub-hero"
-                  data-analytics-cta-label="Przejdź przez quiz"
+                  data-analytics-cta-label="Przejdź przez Mapę sprawy"
                   data-analytics-item-type="problem_hub"
                 >
-                  Przejdź przez quiz
+                  Przejdź przez Mapę sprawy
                   <ArrowRight size={17} strokeWidth={1.9} aria-hidden="true" />
                 </Link>
                 <Link
@@ -402,7 +402,7 @@ export default function ProblemyPage() {
               </p>
             </div>
             <Link
-              href="/quiz?problem=nagla-zmiana-zachowania"
+              href="/mapa-sprawy?problem=nagla-zmiana-zachowania"
               prefetch={false}
               data-analytics-event="cta_click"
               data-analytics-location="problem-hub-safe-note"
@@ -420,7 +420,7 @@ export default function ProblemyPage() {
               <h2 id="problem-hub-ig-title">Szybkie ścieżki z Instagrama</h2>
               <p>
                 Jeśli trafiasz tu z posta albo stories, te linki prowadzą do tej samej logiki:
-                problem, krótki kontekst, quiz albo rezerwacja.
+                problem, krótki kontekst, Mapa zachowania albo rezerwacja.
               </p>
             </div>
             <div className="problem-hub-ig-grid">
@@ -447,7 +447,7 @@ export default function ProblemyPage() {
           </section>
         </div>
 
-        <NotatnikFooter showReviews={false} primaryHref="/quiz" primaryLabel="Quiz" />
+        <NotatnikFooter showReviews={false} primaryHref="/mapa-sprawy" primaryLabel="Mapa zachowania" />
       </div>
     </main>
   )

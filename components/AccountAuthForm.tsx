@@ -10,6 +10,12 @@ function readInitialEmail() {
   return new URLSearchParams(window.location.search).get('email') ?? ''
 }
 
+
+function readReturnHref() {
+  if (typeof window === 'undefined') return '/pokoj'
+  const value = new URLSearchParams(window.location.search).get('returnTo') ?? ''
+  return value.startsWith('/') && !value.startsWith('//') ? value : '/pokoj'
+}
 export function AccountAuthForm() {
   const [mode, setMode] = useState<AuthMode>('login')
   const [email, setEmail] = useState(readInitialEmail)
@@ -56,7 +62,7 @@ export function AccountAuthForm() {
         if (!response.ok || !payload.ok) {
           throw new Error(payload.error ?? 'Nie udało się zalogować.')
         }
-        window.location.assign('/pokoj')
+        window.location.assign(readReturnHref())
         return
       }
 
@@ -64,7 +70,7 @@ export function AccountAuthForm() {
         const response = await fetch('/api/account/auth/register', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ email, password }),
+          body: JSON.stringify({ email, password, returnTo: readReturnHref() }),
         })
         const payload = (await response.json()) as { ok?: boolean; hasSession?: boolean; error?: string }
 
@@ -73,7 +79,7 @@ export function AccountAuthForm() {
         }
 
         if (payload.hasSession) {
-          window.location.assign('/pokoj')
+          window.location.assign(readReturnHref())
           return
         }
 

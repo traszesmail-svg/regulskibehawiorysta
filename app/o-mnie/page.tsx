@@ -91,7 +91,7 @@ export default function AboutPage() {
   const faqItems = FAQ_SHORTLISTS.consultation.slice(0, 2)
 
   return (
-    <ReferencePageShell className="reference-about-page reference-about-redesign-page" ctaHref="/quiz">
+    <ReferencePageShell className="reference-about-page reference-about-redesign-page" ctaHref="/mapa-sprawy">
       <Schema
         data={[
           getPersonJsonLd(),

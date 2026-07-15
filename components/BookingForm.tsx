@@ -12,6 +12,7 @@ import {
 } from '@/lib/booking-services'
 import { appendSearchParams, buildPaymentHref, buildSlotHref } from '@/lib/booking-routing'
 import { isCatProblemType } from '@/lib/data'
+import { clearCaseMapBookingHandoff, readCaseMapBookingHandoff } from '@/lib/case-map-booking-handoff'
 import { clearQuizBookingHandoff, readQuizBookingHandoff } from '@/lib/quiz-booking-handoff'
 import { AnimalType, ProblemType, QaCheckoutEligibility } from '@/lib/types'
 
@@ -112,16 +113,25 @@ export function BookingForm({
   const [error, setError] = useState('')
   const [errorActionHref, setErrorActionHref] = useState<string | null>(null)
   const [quizBrief, setQuizBrief] = useState('')
+  const [caseMapId, setCaseMapId] = useState('')
+  const [shareCaseMap, setShareCaseMap] = useState(false)
   const animalType = formCopy.animalType
 
   useEffect(() => {
-    const handoff = readQuizBookingHandoff({
+    const mapHandoff = readCaseMapBookingHandoff({
+      problemType,
+      serviceType,
+      species: isCatProblemType(problemType) ? 'kot' : 'pies',
+    })
+    const handoff = mapHandoff ?? readQuizBookingHandoff({
       problemType,
       serviceType,
       species: isCatProblemType(problemType) ? 'kot' : 'pies',
     })
 
     setQuizBrief(handoff?.brief ?? '')
+    setCaseMapId(mapHandoff?.caseMapId ?? '')
+    setShareCaseMap(mapHandoff?.shareWithConsultant ?? false)
   }, [problemType, serviceType])
 
   useEffect(() => {
@@ -196,6 +206,8 @@ export function BookingForm({
           animalType,
           petAge: 'Nie podano w formularzu rezerwacji.',
           durationNotes: quizBrief || 'Nie podano w formularzu rezerwacji.',
+          caseMapId: caseMapId || undefined,
+          shareCaseMap,
           description: normalizedDescription,
           email,
           slotId,
@@ -241,6 +253,7 @@ export function BookingForm({
       })
 
       clearQuizBookingHandoff()
+      clearCaseMapBookingHandoff()
 
       if (onBookingCreated) {
         onBookingCreated({
@@ -298,6 +311,8 @@ export function BookingForm({
       <input type="hidden" name="slotLabel" value={slotLabel} />
       <input type="hidden" name="petAge" value="Nie podano w formularzu rezerwacji." />
       <input type="hidden" name="durationNotes" value={quizBrief || 'Nie podano w formularzu rezerwacji.'} />
+      {caseMapId ? <input type="hidden" name="caseMapId" value={caseMapId} /> : null}
+      {shareCaseMap ? <input type="hidden" name="shareCaseMap" value="true" /> : null}
       {qaBooking ? <input type="hidden" name="qaBooking" value="true" /> : null}
 
       <div className="booking-details-field">
@@ -328,7 +343,7 @@ export function BookingForm({
       <div className="booking-details-field booking-details-field-wide">
         {quizBrief ? (
           <div className="notatnik-callout">
-            <strong>Kontekst z Mapy pierwszego kroku</strong>
+            <strong>Kontekst z Mapy zachowania</strong>
             <p>{quizBrief}</p>
           </div>
         ) : null}

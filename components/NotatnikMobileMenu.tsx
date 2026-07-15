@@ -124,7 +124,7 @@ export function NotatnikMobileMenuAutoClose() {
   return null
 }
 
-export function NotatnikMobileMenu({ navItems, ctaHref = '/quiz', ctaLabel = 'Quiz' }: NotatnikMobileMenuProps) {
+export function NotatnikMobileMenu({ navItems, ctaHref = '/mapa-sprawy', ctaLabel = 'Mapa zachowania' }: NotatnikMobileMenuProps) {
   const detailsRef = useRef<HTMLDetailsElement>(null)
   const autoCloseTimerRef = useRef<number | null>(null)
 

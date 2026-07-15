@@ -87,8 +87,8 @@ export default function OpinionsPage() {
     <NotatnikPageShell
       tag="Opinie"
       navItems={PUBLIC_SITE_NAV_ITEMS}
-      ctaHref="/quiz"
-      ctaLabel="Quiz"
+      ctaHref="/mapa-sprawy"
+      ctaLabel="Mapa zachowania"
       footerPrimaryHref={bookingHref}
       footerPrimaryLabel="Umów spokojny pierwszy krok"
       showSideVisuals={false}

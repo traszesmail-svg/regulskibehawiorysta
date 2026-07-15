@@ -398,9 +398,9 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
         description: 'Dobry start, jeśli chcesz omówić pierwsze noce i ustawić spokojniejszy rytm.',
       },
       {
-        label: 'Quiz',
-        href: '/quiz',
-        description: 'Quiz, jeśli wahasz się między Kwadransem a szerszą rozmową.',
+        label: 'Mapa zachowania',
+        href: '/mapa-sprawy',
+        description: 'Mapa zachowania, jeśli wahasz się między Kwadransem a szerszą rozmową.',
       },
     ],
   },

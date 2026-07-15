@@ -140,8 +140,8 @@ export default function PricingPage() {
               meta="Dla psa i kota. Połączenie telefoniczne."
               primaryHref={getDirectBookingHref('szybka-konsultacja-15-min')}
               primaryLabel="Wybieram Kwadrans"
-              secondaryHref="/quiz"
-              secondaryLabel="Nie wiem, quiz"
+              secondaryHref="/mapa-sprawy"
+              secondaryLabel="Nie wiem — Mapa zachowania"
             />
           </div>
           <div className="pricing-2026-hero-media" aria-hidden="true">

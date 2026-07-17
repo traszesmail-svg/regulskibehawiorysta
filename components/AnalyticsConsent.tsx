@@ -59,7 +59,7 @@ export function AnalyticsConsent({ measurementId, cookiebotDomainGroupId }: Anal
   const isAccountPrivacyPath = pathname === '/login' || pathname === '/pokoj' || pathname.startsWith('/konto')
   const isGenericAnalyticsDisabledPath = isInternalPath || isCaseMapPath || isAccountPrivacyPath
   const shouldShowFallbackBanner =
-    !isInternalPath && !isAccountPrivacyPath && !hasCookiebot && Boolean(measurementId) && consent === 'unset'
+    !isInternalPath && !isCaseMapPath && !isAccountPrivacyPath && !hasCookiebot && Boolean(measurementId) && consent === 'unset'
 
   useEffect(() => {
     if (!measurementId || isInternalPath || isAccountPrivacyPath) {

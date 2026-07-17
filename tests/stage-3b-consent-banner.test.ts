@@ -15,7 +15,10 @@ test('stage 3b keeps the fallback analytics banner delayed on desktop and scroll
   assert.match(consentSource, /const FALLBACK_BANNER_SCROLL_OFFSET = 64/)
   assert.match(consentSource, /const FALLBACK_BANNER_COMPACT_SCROLL_OFFSET = 200/)
   assert.match(consentSource, /const FALLBACK_BANNER_COMPACT_VIEWPORT_QUERY = '\(max-width: 540px\)'/)
-  assert.match(consentSource, /const shouldShowFallbackBanner = !hasCookiebot && Boolean\(measurementId\) && consent === 'unset'/)
+  assert.match(
+    consentSource,
+    /const shouldShowFallbackBanner =\s*!isInternalPath && !isCaseMapPath && !isAccountPrivacyPath && !hasCookiebot && Boolean\(measurementId\) && consent === 'unset'/,
+  )
   assert.match(consentSource, /window\.matchMedia\(FALLBACK_BANNER_COMPACT_VIEWPORT_QUERY\)\.matches/)
   assert.match(consentSource, /const scrollOffset = isCompactViewport\s+\? FALLBACK_BANNER_COMPACT_SCROLL_OFFSET\s+\: FALLBACK_BANNER_SCROLL_OFFSET/)
   assert.match(consentSource, /const timeoutId = isCompactViewport \? null : window\.setTimeout\(revealBanner, FALLBACK_BANNER_DELAY_MS\)/)

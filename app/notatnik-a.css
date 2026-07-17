@@ -24468,8 +24468,8 @@ a.reference-info-row,
 
 .notatnik-topbar .notatnik-brand-copy {
   display: grid !important;
-  width: clamp(166px, 43vw, 214px) !important;
-  max-width: clamp(166px, 43vw, 214px) !important;
+  width: clamp(214px, 43vw, 292px) !important;
+  max-width: clamp(214px, 43vw, 292px) !important;
   gap: clamp(3px, 0.9vw, 6px) !important;
 }
 
@@ -24478,10 +24478,11 @@ a.reference-info-row,
   min-width: 0 !important;
   max-width: 100% !important;
   overflow: visible !important;
-  overflow-wrap: anywhere !important;
+  overflow-wrap: normal !important;
+  word-break: normal !important;
   color: #173222 !important;
   font-family: var(--font-display), Georgia, serif !important;
-  font-size: clamp(30px, 7.2vw, 42px) !important;
+  font-size: clamp(30px, 5.2vw, 42px) !important;
   font-style: normal !important;
   font-weight: 600 !important;
   letter-spacing: 0 !important;

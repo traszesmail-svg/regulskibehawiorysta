@@ -487,6 +487,7 @@ test('Mapa zachowania speaks to the owner instead of exposing internal funnel la
   assert.match(analyticsRouteSource, /normalizeCaseMapPrivateAnalyticsEvent/)
   assert.match(analyticsRouteSource, /const location = privateCaseMapEvent\s*\? null/)
   assert.match(analyticsConsentSource, /isCaseMapPath/)
+  assert.match(analyticsConsentSource, /shouldShowFallbackBanner =\s*!isInternalPath && !isCaseMapPath/)
   assert.match(analyticsConsentSource, /ga-disable-\$\{measurementId\}/)
   assert.match(analyticsConsentSource, /!isGenericAnalyticsDisabledPath/)
   assert.match(analyticsConsentSource, /keepCaseMapOutOfSpaHistoryTracking/)

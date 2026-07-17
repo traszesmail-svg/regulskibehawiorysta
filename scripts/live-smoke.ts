@@ -3,6 +3,7 @@ import { execFileSync } from 'node:child_process'
 import { loadEnvConfig } from '@next/env'
 import {
   buildExpectedMarker,
+  evaluateReleaseSmokeRedirect,
   evaluateReleaseSmokePage,
   getDefaultReleaseSmokeRules,
 } from '../lib/release-smoke'
@@ -60,9 +61,10 @@ function getCliOptions(): CliOptions {
   }
 }
 
-async function fetchHtml(url: string) {
+async function fetchHtml(url: string, redirect: RequestRedirect = 'follow') {
   const response = await fetch(url, {
     cache: 'no-store',
+    redirect,
     headers: {
       'cache-control': 'no-cache',
       pragma: 'no-cache',
@@ -71,9 +73,7 @@ async function fetchHtml(url: string) {
 
   const html = await response.text()
 
-  assert.equal(response.ok, true, `Smoke check failed for ${url}: HTTP ${response.status}`)
-
-  return html
+  return { response, html }
 }
 
 async function main() {
@@ -96,7 +96,27 @@ async function main() {
 
   for (const rule of rules) {
     const url = new URL(rule.path, baseUrl).toString()
-    const html = await fetchHtml(`${url}${url.includes('?') ? '&' : '?'}__release_smoke=${Date.now()}`)
+    const smokeUrl = `${url}${url.includes('?') ? '&' : '?'}__release_smoke=${Date.now()}`
+    const { response, html } = await fetchHtml(
+      smokeUrl,
+      rule.expectedRedirectTo ? 'manual' : 'follow',
+    )
+
+    if (rule.expectedRedirectTo) {
+      const redirectResult = evaluateReleaseSmokeRedirect(
+        smokeUrl,
+        rule,
+        response.status,
+        response.headers.get('location'),
+      )
+      assert.equal(redirectResult.ok, true, `Smoke redirect check failed for ${url}: ${redirectResult.issues.join(' | ')}`)
+      console.log(`\nURL: ${url}`)
+      console.log(`status: redirect ${redirectResult.actualStatus}`)
+      console.log(`redirect-target: ${redirectResult.target}`)
+      continue
+    }
+
+    assert.equal(response.ok, true, `Smoke check failed for ${url}: HTTP ${response.status}`)
     const result = evaluateReleaseSmokePage(html, baseUrl, rule)
 
     console.log(`\nURL: ${result.url}`)

@@ -2,6 +2,8 @@ import { BUILD_MARKER_KEY } from '@/lib/build-marker'
 
 export type ReleaseSmokeRule = {
   path: string
+  expectedRedirectTo?: string
+  expectedRedirectStatus?: number
   required?: string[]
   forbidden?: string[]
   forbiddenRaw?: string[]
@@ -19,6 +21,14 @@ export type ReleaseSmokeResult = {
   forbiddenFound: string[]
   forbiddenRawFound: string[]
   orderFailures: string[]
+}
+
+export type ReleaseSmokeRedirectResult = {
+  ok: boolean
+  expectedStatus: number
+  actualStatus: number
+  target: string | null
+  issues: string[]
 }
 
 function decodeHtmlEntities(input: string) {
@@ -66,6 +76,63 @@ function findRawPhraseIndex(text: string, phrase: string): number {
 
 export function buildExpectedMarker(branch: string, commit: string) {
   return `${BUILD_MARKER_KEY}:${branch}:${commit}`
+}
+
+export function evaluateReleaseSmokeRedirect(
+  sourceUrl: string,
+  rule: ReleaseSmokeRule,
+  status: number,
+  location: string | null,
+): ReleaseSmokeRedirectResult {
+  const expectedStatus = rule.expectedRedirectStatus ?? 301
+  const issues: string[] = []
+
+  if (!rule.expectedRedirectTo) {
+    issues.push('missing expected redirect destination')
+    return { ok: false, expectedStatus, actualStatus: status, target: null, issues }
+  }
+
+  if (status !== expectedStatus) {
+    issues.push(`HTTP ${status}, expected redirect ${expectedStatus}`)
+  }
+
+  if (!location) {
+    issues.push('redirect Location missing')
+    return { ok: false, expectedStatus, actualStatus: status, target: null, issues }
+  }
+
+  let source: URL
+  let target: URL
+  let expected: URL
+
+  try {
+    source = new URL(sourceUrl)
+    target = new URL(location, source)
+    expected = new URL(rule.expectedRedirectTo, source)
+  } catch {
+    issues.push(`invalid redirect Location: ${location}`)
+    return { ok: false, expectedStatus, actualStatus: status, target: null, issues }
+  }
+
+  if (target.origin !== source.origin) {
+    issues.push(`redirect origin ${target.origin}, expected ${source.origin}`)
+  }
+
+  if (target.pathname !== expected.pathname) {
+    issues.push(`redirect target ${target.pathname}${target.search}, expected ${expected.pathname}${expected.search}`)
+  }
+
+  if (expected.search && target.search !== expected.search) {
+    issues.push(`redirect query ${target.search || '(empty)'}, expected ${expected.search}`)
+  }
+
+  return {
+    ok: issues.length === 0,
+    expectedStatus,
+    actualStatus: status,
+    target: `${target.pathname}${target.search}`,
+    issues,
+  }
 }
 
 export function evaluateReleaseSmokePage(html: string, baseUrl: string, rule: ReleaseSmokeRule): ReleaseSmokeResult {
@@ -136,6 +203,8 @@ export function getDefaultReleaseSmokeRules(): ReleaseSmokeRule[] {
     },
     {
       path: '/behawiorysta-online-polska',
+      expectedRedirectTo: '/',
+      expectedRedirectStatus: 301,
       required: [
         'Behawiorysta psów i kotów online',
         'Mam psa',

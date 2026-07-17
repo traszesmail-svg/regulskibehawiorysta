@@ -13,7 +13,7 @@ import { SocialSection } from '@/components/SocialSection'
 import { SocialProofSection } from '@/components/SocialProofSection'
 import { buildBookHref, buildFormHref, buildPaymentHref, buildSlotHref, readQaBookingSearchParam } from '@/lib/booking-routing'
 import { BUILD_MARKER_KEY } from '@/lib/build-marker'
-import { getDefaultReleaseSmokeRules } from '@/lib/release-smoke'
+import { evaluateReleaseSmokeRedirect, getDefaultReleaseSmokeRules } from '@/lib/release-smoke'
 import { getOrganizationJsonLd } from '@/lib/schema'
 import { CAPBT_ORG_URL, INSTAGRAM_PROFILE_URL, SITE_PRODUCTION_URL } from '@/lib/site'
 import { buildBookMetadata, buildHomeMetadata } from '@/lib/seo'
@@ -224,6 +224,52 @@ test('book metadata is indexable and keeps the canonical booking path', async ()
   assert.equal(metadata.alternates?.canonical, '/book')
   assert.equal(robots, null)
   assert.match(String(metadata.title ?? ''), /Rezerwacja Kwadransa behawioralnego/)
+})
+
+test('case map metadata keeps its own canonical public path', () => {
+  const mapSource = readSource('app', 'mapa-sprawy', 'page.tsx')
+
+  assert.match(mapSource, /alternates:\s*\{\s*canonical:\s*'\/mapa-sprawy'/)
+})
+
+test('release smoke validates the intentional legacy online-page redirect without following it', () => {
+  const rule = getDefaultReleaseSmokeRules().find((item) => item.path === '/behawiorysta-online-polska')
+
+  assert.equal(rule?.expectedRedirectTo, '/')
+  assert.equal(rule?.expectedRedirectStatus, 301)
+})
+
+test('release redirect evaluator accepts a same-origin cache-busted redirect and rejects unsafe targets', () => {
+  const rule = getDefaultReleaseSmokeRules().find((item) => item.path === '/behawiorysta-online-polska')
+  assert.ok(rule)
+
+  const passed = evaluateReleaseSmokeRedirect(
+    'https://regulskibehawiorysta.pl/behawiorysta-online-polska?__release_smoke=1',
+    rule,
+    301,
+    '/?__release_smoke=1',
+  )
+  assert.equal(passed.ok, true)
+  assert.deepEqual(passed.issues, [])
+  assert.equal(passed.target, '/?__release_smoke=1')
+
+  const external = evaluateReleaseSmokeRedirect(
+    'https://regulskibehawiorysta.pl/behawiorysta-online-polska',
+    rule,
+    301,
+    'https://example.test/',
+  )
+  assert.equal(external.ok, false)
+  assert.match(external.issues.join(' | '), /redirect origin/)
+
+  const wrongStatus = evaluateReleaseSmokeRedirect(
+    'https://regulskibehawiorysta.pl/behawiorysta-online-polska',
+    rule,
+    302,
+    '/',
+  )
+  assert.equal(wrongStatus.ok, false)
+  assert.match(wrongStatus.issues.join(' | '), /HTTP 302/)
 })
 
 test('home keeps animal category choices problem-first without price badges', () => {
@@ -1602,6 +1648,8 @@ test('stage 10 funnel aliases, drop tracking, and release checklist are wired', 
   assert.match(waitingStatusSource, /trackAnalyticsEvent\('payment_confirmed'/)
   assert.match(adminSource, /window\.stageCounts\.booking_drop/)
   assert.match(releaseChecklistSource, /latest-release-checklist\.md/)
+  assert.match(releaseChecklistSource, /tests\/case-map-analytics\.test\.ts/)
+  assert.match(releaseChecklistSource, /evaluateReleaseSmokeRedirect/)
   assert.match(releaseChecklistSource, /stage9-performance-audit/)
   assert.match(releaseChecklistSource, /full-public-crawl/)
   assert.match(fullPublicCrawlSource, /source === 'crawl' && resolved\.search/)

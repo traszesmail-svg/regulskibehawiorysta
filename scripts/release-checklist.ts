@@ -1,6 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import {
+  evaluateReleaseSmokeRedirect,
   evaluateReleaseSmokePage,
   getDefaultReleaseSmokeRules,
   type ReleaseSmokeResult,
@@ -19,7 +20,7 @@ const latestReportPath = path.join(reportDir, 'latest-release-checklist.md')
 
 const REQUIRED_PACKAGE_SCRIPTS: Record<string, string> = {
   lint: 'next lint --no-cache',
-  test: 'node --import tsx --test tests/runtime-config.test.ts tests/customer-emails.test.ts tests/funnel-metrics.test.ts tests/booking-api-errors.test.ts tests/scheduling-rules.test.ts tests/promo-codes.test.ts tests/voip-chat-limits.test.ts tests/quiz-first-step.test.ts tests/quiz-booking-handoff.test.ts tests/case-map.test.ts tests/case-map-questions.test.ts tests/case-map-handoff.test.ts',
+  test: 'node --import tsx --test tests/runtime-config.test.ts tests/customer-emails.test.ts tests/funnel-metrics.test.ts tests/booking-api-errors.test.ts tests/scheduling-rules.test.ts tests/promo-codes.test.ts tests/voip-chat-limits.test.ts tests/quiz-first-step.test.ts tests/quiz-booking-handoff.test.ts tests/case-map.test.ts tests/case-map-questions.test.ts tests/case-map-handoff.test.ts tests/case-map-analytics.test.ts',
   build: 'next lint --no-cache && next build --no-lint',
   'schema-audit': 'node scripts/schema-audit.js',
   'live-smoke': 'node --import tsx scripts/live-smoke.ts',
@@ -58,8 +59,9 @@ function resolveBaseUrl() {
   return (readArg('--base-url') ?? process.env.RELEASE_BASE_URL ?? SITE_PRODUCTION_URL).replace(/\/+$/, '')
 }
 
-async function fetchText(url: string) {
+async function fetchText(url: string, redirect: RequestRedirect = 'follow') {
   const response = await fetch(url, {
+    redirect,
     headers: {
       'user-agent': 'regulski-release-checklist/1.0',
     },
@@ -70,6 +72,7 @@ async function fetchText(url: string) {
     ok: response.ok,
     status: response.status,
     text,
+    location: response.headers.get('location'),
   }
 }
 
@@ -142,7 +145,25 @@ async function checkReleaseSmokeRules(baseUrl: string) {
 
   for (const rule of getDefaultReleaseSmokeRules()) {
     const url = new URL(rule.path, `${baseUrl}/`).toString()
-    const response = await fetchText(url)
+    const response = await fetchText(url, rule.expectedRedirectTo ? 'manual' : 'follow')
+
+    if (rule.expectedRedirectTo) {
+      const redirectResult = evaluateReleaseSmokeRedirect(url, rule, response.status, response.location)
+
+      results.push({
+        rule,
+        url,
+        ok: redirectResult.ok,
+        visibleText: '',
+        buildMarker: null,
+        missing: redirectResult.issues,
+        forbiddenFound: [],
+        forbiddenRawFound: [],
+        orderFailures: [],
+      })
+      continue
+    }
+
     if (!response.ok) {
       results.push({
         rule,
@@ -190,7 +211,11 @@ function renderReport(baseUrl: string, checks: CheckResult[], smokeResults: Rele
         ...result.orderFailures,
       ]
 
-      return `- ${result.ok ? 'PASS' : 'FAIL'} ${result.rule.path}: ${issues.join(' | ') || 'ok'}`
+      const redirectSummary = result.rule.expectedRedirectTo
+        ? `redirect ${result.rule.expectedRedirectStatus ?? 301} -> ${result.rule.expectedRedirectTo}`
+        : 'ok'
+
+      return `- ${result.ok ? 'PASS' : 'FAIL'} ${result.rule.path}: ${issues.join(' | ') || redirectSummary}`
     }),
     '',
     '## Browser And Crawl Gate',

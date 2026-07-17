@@ -1,6 +1,6 @@
 import { spawnSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
-import { mkdir, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { SITE_PRODUCTION_URL } from '@/lib/site'
 import { resolveBrowserExecutablePath } from './lib/browser-path'
@@ -10,6 +10,12 @@ type RunResult = {
   mode: 'mobile' | 'desktop'
   status: 'PASS' | 'FAIL'
   outputBase: string
+  failure?: string
+}
+
+type LighthouseReport = {
+  runtimeError?: { code?: string; message?: string } | null
+  categories?: Record<string, { score?: number | null } | undefined>
 }
 
 const rootDir = process.cwd()
@@ -52,6 +58,24 @@ function getLighthouseCli() {
 
 function buildUrl(baseUrl: string, route: string) {
   return new URL(route, `${baseUrl}/`).toString()
+}
+
+async function getReportFailure(outputBase: string): Promise<string | null> {
+  try {
+    const report = JSON.parse(await readFile(`${outputBase}.report.json`, 'utf8')) as LighthouseReport
+
+    if (report.runtimeError) {
+      return `runtime error ${report.runtimeError.code ?? 'unknown'}: ${report.runtimeError.message ?? 'no message'}`
+    }
+
+    const missingCategories = ['performance', 'accessibility', 'best-practices', 'seo'].filter(
+      (category) => typeof report.categories?.[category]?.score !== 'number',
+    )
+
+    return missingCategories.length > 0 ? `missing Lighthouse categories: ${missingCategories.join(', ')}` : null
+  } catch (error) {
+    return `cannot validate Lighthouse JSON: ${error instanceof Error ? error.message : String(error)}`
+  }
 }
 
 async function runLighthouse(baseUrl: string, route: string, mode: RunResult['mode'], chromePath: string): Promise<RunResult> {
@@ -108,11 +132,19 @@ async function runLighthouse(baseUrl: string, route: string, mode: RunResult['mo
     console.warn(`Lighthouse generated reports for ${mode} ${route}; ignored Windows Chrome cleanup EPERM.`)
   }
 
+  const reportFailure = hasReports ? await getReportFailure(outputBase) : 'Lighthouse reports were not generated'
+  const passed = !result.error && (result.status === 0 || cleanupOnlyError) && !reportFailure
+
+  if (reportFailure) {
+    console.error(`Lighthouse ${mode} ${route} is not valid: ${reportFailure}`)
+  }
+
   return {
     route,
     mode,
-    status: !result.error && (result.status === 0 || cleanupOnlyError) ? 'PASS' : 'FAIL',
+    status: passed ? 'PASS' : 'FAIL',
     outputBase: path.relative(rootDir, outputBase).replace(/\\/g, '/'),
+    ...(reportFailure ? { failure: reportFailure } : {}),
   }
 }
 
@@ -126,7 +158,7 @@ function renderReport(baseUrl: string, results: RunResult[]) {
     `Status: ${failures.length === 0 ? 'PASS' : 'FAIL'}`,
     '',
     '## Routes',
-    ...results.map((result) => `- ${result.status} ${result.mode} ${result.route}: ${result.outputBase}.report.html / ${result.outputBase}.report.json`),
+    ...results.map((result) => `- ${result.status} ${result.mode} ${result.route}: ${result.outputBase}.report.html / ${result.outputBase}.report.json${result.failure ? ` — ${result.failure}` : ''}`),
   ]
 
   return `${lines.join('\n')}\n`

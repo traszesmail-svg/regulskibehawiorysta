@@ -20,6 +20,9 @@ export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
   title: 'Mapa zachowania — spokojny następny krok',
   description: 'Krótka, spokojna mapa zachowania psa lub kota. Uporządkuj obserwacje i wybierz następny krok lub rozmowę na już.',
+  alternates: {
+    canonical: '/mapa-sprawy',
+  },
 }
 
 type SearchParams = CaseMapSearchParams & {

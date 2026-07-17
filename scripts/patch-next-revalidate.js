@@ -12,7 +12,12 @@ const targetPath = path.join(
   'index.js',
 )
 
-const patchMarker = '__regulskiBehawiorystaPatchedRevalidateTag'
+const patchMarkers = [
+  '__regulskiBehawiorystaPatchedRevalidateTag',
+  // Earlier project builds used this marker. Recognizing it keeps the prebuild
+  // guard idempotent after `npm ci` restores a previously patched Next runtime.
+  '__behawior15PatchedRevalidateTag',
+]
 
 function patchIncrementalCacheRuntime(filePath) {
   if (!fs.existsSync(filePath)) {
@@ -22,7 +27,7 @@ function patchIncrementalCacheRuntime(filePath) {
 
   const source = fs.readFileSync(filePath, 'utf8')
 
-  if (source.includes(patchMarker)) {
+  if (patchMarkers.some((marker) => source.includes(marker))) {
     return
   }
 
@@ -60,7 +65,7 @@ function patchIncrementalCacheRuntime(filePath) {
                 ]
             });
         }
-        this.${patchMarker} = true;
+        this.${patchMarkers[0]} = true;
         return (_this_cacheHandler = this.cacheHandler) == null ? void 0 : (_this_cacheHandler_revalidateTag = _this_cacheHandler.revalidateTag) == null ? void 0 : _this_cacheHandler_revalidateTag.call(_this_cacheHandler, tags);
     }`
 

@@ -176,6 +176,7 @@ test('opinions page keeps dog cat depth, expandable reviews and upload form hook
   const carouselSource = readSource('components', 'FinalReviewsQuoteCarousel.tsx')
   const footerSource = readSource('components', 'Footer.tsx')
   const addOpinionSource = readSource('app', 'opinie', 'dodaj', 'page.tsx')
+  const uiSmokeSource = readSource('scripts', 'ui-smoke.ts')
   const cssSource = readSource('app', 'globals.css')
   const dogReviewCount = countMatches(reviewsDataSource, /categories:\s*\[[^\]]*'Pies'/g)
   const catReviewCount = countMatches(reviewsDataSource, /categories:\s*\[[^\]]*'Kot'/g)
@@ -187,6 +188,8 @@ test('opinions page keeps dog cat depth, expandable reviews and upload form hook
   assert.match(gridSource, /data-opinion-review/)
   assert.match(gridSource, /data-review-species/)
   assert.match(gridSource, /aria-expanded=\{isExpanded\}/)
+  assert.match(gridSource, /Historie, które pokazują, jak zaczyna się spokojniejsza codzienność/)
+  assert.match(uiSmokeSource, /Historie, które pokazują, jak zaczyna się spokojniejsza codzienność/)
   assert.match(carouselSource, /href="\/opinie"/)
   assert.match(carouselSource, /Math\.random\(\)/)
   assert.match(footerSource, /intervalMs=\{6000\}/)
@@ -197,6 +200,17 @@ test('opinions page keeps dog cat depth, expandable reviews and upload form hook
   assert.match(addOpinionSource, /data-opinion-photo-input="true"/)
   assert.match(addOpinionSource, /formData\.append\('photo', photoFile\)/)
   assert.doesNotMatch(addOpinionSource, /photoUrl/)
+})
+
+test('UI smoke keeps current public opinions and blog headings', () => {
+  const uiSmokeSource = readSource('scripts', 'ui-smoke.ts')
+  const blogSource = readSource('app', 'blog', 'page.tsx')
+  const opinionsGridSource = readSource('components', 'OpinionsReviewGrid.tsx')
+
+  assert.match(blogSource, /Wiedza, która pomaga spokojniej żyć z psem i kotem/)
+  assert.match(opinionsGridSource, /Historie, które pokazują, jak zaczyna się spokojniejsza codzienność/)
+  assert.match(uiSmokeSource, /Wiedza, która pomaga spokojniej żyć z psem i kotem/)
+  assert.match(uiSmokeSource, /Historie, które pokazują, jak zaczyna się spokojniejsza codzienność/)
 })
 
 test('root layout metadata base is derived from the canonical runtime base url helper', () => {
@@ -423,6 +437,9 @@ test('service-page architecture keeps one broad online landing and redirects hel
 
   assert.match(uiSmokeSource, /path: '\/behawiorysta-psow'/)
   assert.match(uiSmokeSource, /path: '\/behawiorysta-kotow'/)
+  assert.match(uiSmokeSource, /verifyRedirectRoute\(page, '\/koty', '\/problemy', \/Mapa problemów\/i\)/)
+  assert.match(uiSmokeSource, /verifyRedirectRoute\(page, '\/psy', '\/problemy', \/Mapa problemów\/i\)/)
+  assert.match(uiSmokeSource, /if \(!hasExpectedDestination\(page\.url\(\)\)\)/)
 })
 
 test('copy governance keeps Kwadrans as the primary service name and format as supporting detail', () => {
@@ -677,7 +694,7 @@ test.skip('contact, header, footer and legal pages stay aligned with the public 
   const legalLayoutSource = readSource('components', 'LegalPageLayout.tsx')
   const privacySource = readSource('app', 'polityka-prywatnosci', 'page.tsx')
   const termsSource = readSource('app', 'regulamin', 'page.tsx')
-  const contactMarkup = renderToStaticMarkup(createElement(ContactPage, { searchParams: {} }))
+  const contactMarkup = renderToStaticMarkup(createElement(ContactPage, { searchParams: Promise.resolve({}) }))
   const footerMarkup = renderToStaticMarkup(createElement(Footer))
 
   assert.match(contactSource, /Najprostszy start to 15 min audio\./)
@@ -1548,7 +1565,7 @@ test('funnel loading shell stays lightweight without duplicating header or foote
 })
 
 test.skip('contact page keeps the compact identity block next to the action panel', () => {
-  const markup = renderToStaticMarkup(createElement(ContactPage, { searchParams: {} }))
+  const markup = renderToStaticMarkup(createElement(ContactPage, { searchParams: Promise.resolve({}) }))
 
   assert.match(markup, /Piszesz do mnie/)
   assert.match(markup, /Krzysztof Regulski/)
@@ -1578,9 +1595,12 @@ test('admin page renders explicit go-live status cards', () => {
 test('build script keeps explicit no-cache lint before next build', () => {
   const packageJson = JSON.parse(readSource('package.json')) as {
     scripts?: Record<string, string>
+    dependencies?: Record<string, string>
+    devDependencies?: Record<string, string>
   }
 
-  assert.equal(packageJson.scripts?.build, 'next lint --no-cache && next build --no-lint')
+  assert.equal(packageJson.scripts?.build, 'npm run lint && next build --no-lint')
+  assert.equal(packageJson.scripts?.lint, 'eslint . --no-cache')
   assert.equal(packageJson.scripts?.['funnel-metrics'], 'node --import tsx scripts/funnel-metrics.ts')
   assert.equal(packageJson.scripts?.['live-booking-matrix'], 'node --import tsx scripts/live-booking-matrix.ts')
   assert.equal(packageJson.scripts?.['live-readiness'], 'node --import tsx scripts/live-readiness.ts')
@@ -1591,6 +1611,39 @@ test('build script keeps explicit no-cache lint before next build', () => {
   assert.equal(packageJson.scripts?.['lighthouse:report'], 'node --import tsx scripts/lighthouse-report.ts')
   assert.equal(packageJson.scripts?.['full-public-crawl'], 'node --import tsx scripts/full-public-crawl.ts')
   assert.equal(packageJson.scripts?.['release-checklist'], 'node --import tsx scripts/release-checklist.ts')
+  assert.equal(packageJson.dependencies?.next, '^15.5.18')
+  assert.equal(packageJson.dependencies?.nodemailer, '^9.0.3')
+  assert.equal(packageJson.devDependencies?.['eslint-config-next'], '^15.5.18')
+  assert.equal(packageJson.devDependencies?.lighthouse, '^13.4.0')
+})
+
+test('Next 15 request APIs await dynamic request data', () => {
+  const caseMapReviewSource = readSource('app', 'api', 'admin', 'case-maps', '[id]', 'review', 'route.ts')
+  const leadBookingsSource = readSource('app', 'api', 'admin', 'lead-bookings', 'route.ts')
+  const leadBookingSource = readSource('app', 'api', 'admin', 'lead-bookings', '[id]', 'route.ts')
+  const callSource = readSource('app', 'call', '[id]', 'page.tsx')
+  const checkoutSource = readSource('app', 'checkout', 'page.tsx')
+  const confirmationSource = readSource('app', 'confirmation', 'page.tsx')
+  const accountSource = readSource('app', 'konto', 'page.tsx')
+  const waitingSource = readSource('app', 'oczekiwanie', '[orderNumber]', 'page.tsx')
+  const paymentSource = readSource('app', 'payment', 'page.tsx')
+  const roomSource = readSource('app', 'pokoj', 'page.tsx')
+
+  for (const source of [caseMapReviewSource, leadBookingsSource, leadBookingSource, callSource, checkoutSource, confirmationSource, waitingSource, paymentSource]) {
+    assert.match(source, /await headers\(\)/)
+  }
+  assert.match(accountSource, /await cookies\(\)/)
+  assert.match(roomSource, /await cookies\(\)/)
+  assert.match(leadBookingSource, /async function checkAuth\(\)/)
+  assert.match(waitingSource, /async function buildRequestReviewUrl/)
+})
+
+test('local JSON store gives concurrent writes unique atomic temp paths', () => {
+  const localStoreSource = readSource('lib', 'server', 'local-store.ts')
+
+  assert.match(localStoreSource, /import \{ randomUUID \} from 'node:crypto'/)
+  assert.match(localStoreSource, /const tempFilePath = `\$\{filePath\}\.\$\{process\.pid\}\.\$\{randomUUID\(\)\}\.tmp`/)
+  assert.match(localStoreSource, /if \(JSON\.stringify\(normalized\) !== JSON\.stringify\(source\)\) \{\s+await persistStore\(normalized\)/)
 })
 
 test('stage 9 performance guardrails keep priority images, lazy media, layout checks, and screenshots wired', () => {
@@ -1703,6 +1756,7 @@ test('booking and contact flows keep resilient fallback selectors', () => {
   const calendarSource = readSource('components', 'TerminCalendarPicker.tsx')
   const bookingFormSource = readSource('components', 'BookingForm.tsx')
   const jsOffSmokeSource = readSource('scripts', 'js-off-smoke.ts')
+  const uiSmokeSource = readSource('scripts', 'ui-smoke.ts')
   const cssSource = readSource('app', 'notatnik-a.css')
   const liveClickthroughSource = readSource('scripts', 'live-clickthrough-report.ts')
   const liveBookingMatrixSource = readSource('scripts', 'live-booking-matrix.ts')
@@ -1722,6 +1776,7 @@ test('booking and contact flows keep resilient fallback selectors', () => {
   assert.match(bookingRouteSource, /NextResponse\.redirect/)
   assert.match(jsOffSmokeSource, /javaScriptEnabled: false/)
   assert.match(jsOffSmokeSource, /waitUntil: 'networkidle'/)
+  assert.match(jsOffSmokeSource, /resolveBrowserExecutablePath\(\{ preferSystem: true \}\)/)
   assert.match(jsOffSmokeSource, /form\[action="\/api\/bookings"\]\[method="post"\]/)
 
   assert.match(calendarSource, /data-nearest-slot-link="true"/)
@@ -1735,6 +1790,26 @@ test('booking and contact flows keep resilient fallback selectors', () => {
   assert.match(bookingFormSource, /booking-details-error-link/)
   assert.match(liveClickthroughSource, /data-selected-slot-link/)
   assert.match(liveBookingMatrixSource, /buildAttemptStartPath/)
+  assert.match(uiSmokeSource, /await slotLink\.click\(\)/)
+  assert.match(uiSmokeSource, /new URL\(publicPage\.url\(\)\)\.pathname, '\/book'/)
+  assert.match(uiSmokeSource, /bookingForm\.locator\('input\[name="slotId"\]'\)/)
+  assert.match(uiSmokeSource, /room-stage-live/)
+  assert.match(uiSmokeSource, /room-stage-locked/)
+  assert.match(uiSmokeSource, /Telefoniczny pokój konsultacji/)
+  assert.match(uiSmokeSource, /phoneRoomMode, 'phone'/)
+  assert.match(uiSmokeSource, /videoRoomLockedFlowVerified/)
+  assert.match(uiSmokeSource, /videoRoomLiveFlowVerified/)
+  assert.match(uiSmokeSource, /clock\.install/)
+  assert.match(uiSmokeSource, /clock\.runFor\(2200\)/)
+  assert.match(uiSmokeSource, /buildScheduleAvailabilitySeed/)
+  assert.match(uiSmokeSource, /entry\.time === '08:15'/)
+  assert.match(uiSmokeSource, /getBookingServiceRoomDurationMinutes\('konsultacja-behawioralna-online'\)/)
+  assert.match(uiSmokeSource, /getByText\(\/Pok\[óo\]j aktywny\|Rozmowa zakończona\/i\)\.first\(\)/)
+  assert.doesNotMatch(uiSmokeSource, /return\s*\n\s*await startRoomTimerWithRetry/)
+  assert.match(uiSmokeSource, /Call room did not expose a live or locked access state/)
+  assert.match(uiSmokeSource, /page\.goto: Timeout/)
+  assert.match(uiSmokeSource, /taskkill\.exe/)
+  assert.match(uiSmokeSource, /\['\/pid', String\(pid\), '\/T', '\/F'\]/)
 })
 
 test('payu smoke script supports a production checkout target without sandbox defaults', () => {

@@ -7,12 +7,13 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 type LeadMagnetFileRouteProps = {
-  params: {
+  params: Promise<{
     slug: string
-  }
+  }>
 }
 
-export async function GET(_request: Request, { params }: LeadMagnetFileRouteProps) {
+export async function GET(_request: Request, props: LeadMagnetFileRouteProps) {
+  const params = await props.params;
   const magnet = getLeadMagnetBySlug(params.slug)
 
   if (!magnet) {

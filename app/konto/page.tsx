@@ -18,8 +18,8 @@ export function generateMetadata(): Metadata {
   })
 }
 
-export default function AccountPage() {
-  const cookieStore = cookies()
+export default async function AccountPage() {
+  const cookieStore = await cookies()
   const initialSessionHint = Boolean(
     cookieStore.get(ACCOUNT_ACCESS_COOKIE)?.value || cookieStore.get(ACCOUNT_REFRESH_COOKIE)?.value,
   )

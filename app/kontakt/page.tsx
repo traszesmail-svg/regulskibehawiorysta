@@ -44,11 +44,12 @@ const contactFaqItems = [
   },
 ]
 
-export default function ContactPage({
-  searchParams,
-}: {
-  searchParams?: Record<string, string | string[] | undefined>
-}) {
+export default async function ContactPage(
+  props: {
+    searchParams?: Promise<Record<string, string | string[] | undefined>>
+  }
+) {
+  const searchParams = await props.searchParams;
   const contact = getPublicContactDetails()
   const email = contact.email ?? 'kontakt@regulskibehawiorysta.pl'
   const fallbackMailHref = buildMailtoHref(

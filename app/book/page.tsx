@@ -7,11 +7,12 @@ import { buildBookMetadata } from '@/lib/seo'
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
-export async function generateMetadata({
-  searchParams,
-}: {
-  searchParams?: Record<string, string | string[] | undefined>
-}): Promise<Metadata> {
+export async function generateMetadata(
+  props: {
+    searchParams?: Promise<Record<string, string | string[] | undefined>>
+  }
+): Promise<Metadata> {
+  const searchParams = await props.searchParams;
   const serviceType = normalizeBookingServiceType(readBookingServiceSearchParam(searchParams?.service))
   const metadata = await buildBookMetadata(serviceType)
   const hasQueryState = Boolean(searchParams && Object.keys(searchParams).length > 0)
@@ -33,10 +34,11 @@ export async function generateMetadata({
   }
 }
 
-export default function BookPage({
-  searchParams,
-}: {
-  searchParams?: Record<string, string | string[] | undefined>
-}) {
+export default async function BookPage(
+  props: {
+    searchParams?: Promise<Record<string, string | string[] | undefined>>
+  }
+) {
+  const searchParams = await props.searchParams;
   return <BookingSlotCalendar searchParams={searchParams} />
 }

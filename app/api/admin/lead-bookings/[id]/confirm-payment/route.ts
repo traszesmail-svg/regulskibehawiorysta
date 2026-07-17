@@ -15,7 +15,7 @@ const SERVICE_DURATION_MINUTES: Record<string, number> = {
 }
 
 function toGoogleCalendarDate(date: Date): string {
-  return date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')
+  return date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
 }
 
 function buildCalendarUrl(input: { title: string; details: string; location: string; startsAt: Date; endsAt: Date }): string {
@@ -29,7 +29,8 @@ function buildCalendarUrl(input: { title: string; details: string; location: str
   return `https://calendar.google.com/calendar/render?${params.toString()}`
 }
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   let body: { token?: string; date?: string; time?: string }
   try {
     body = (await request.json()) as typeof body

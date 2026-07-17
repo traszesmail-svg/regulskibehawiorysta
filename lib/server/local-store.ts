@@ -1,4 +1,5 @@
 import { mkdir, readFile, rename, rm, writeFile } from 'fs/promises'
+import { randomUUID } from 'node:crypto'
 import path from 'path'
 import {
   getBookableServiceAvailabilityWindow,
@@ -150,7 +151,7 @@ async function readJson<T>(filePath: string): Promise<T> {
 
 async function writeJson(filePath: string, value: unknown) {
   await mkdir(path.dirname(filePath), { recursive: true })
-  const tempFilePath = `${filePath}.${process.pid}.${Date.now()}.tmp`
+  const tempFilePath = `${filePath}.${process.pid}.${randomUUID()}.tmp`
 
   await writeFile(tempFilePath, JSON.stringify(value, null, 2), 'utf8')
 
@@ -300,17 +301,12 @@ async function readStore(): Promise<LocalStoreData> {
     readJson<UserRecord[]>(usersFile),
   ])
 
-  const normalized = ensureFutureLocalAvailability(
-    normalizeExpiredReservations({ availability, bookings, funnelEvents, pricingSettings, users }),
-  )
+  const source = { availability, bookings, funnelEvents, pricingSettings, users }
+  const normalized = ensureFutureLocalAvailability(normalizeExpiredReservations(source))
 
-  await Promise.all([
-    writeJson(availabilityFile, normalized.availability),
-    writeJson(bookingsFile, normalized.bookings),
-    writeJson(funnelEventsFile, normalized.funnelEvents),
-    writeJson(pricingSettingsFile, normalized.pricingSettings),
-    writeJson(usersFile, normalized.users),
-  ])
+  if (JSON.stringify(normalized) !== JSON.stringify(source)) {
+    await persistStore(normalized)
+  }
 
   return normalized
 }

@@ -18,11 +18,12 @@ export const metadata: Metadata = buildTechnicalMetadata({
   follow: false,
 })
 
-export default function LegacyProblemPage({
-  searchParams,
-}: {
-  searchParams?: Record<string, string | string[] | undefined>
-}) {
+export default async function LegacyProblemPage(
+  props: {
+    searchParams?: Promise<Record<string, string | string[] | undefined>>
+  }
+) {
+  const searchParams = await props.searchParams;
   const problem = readProblemTypeSearchParam(searchParams?.problem)
   const serviceType = readBookingServiceSearchParam(searchParams?.service)
   const qaBooking = readQaBookingSearchParam(searchParams?.qa)

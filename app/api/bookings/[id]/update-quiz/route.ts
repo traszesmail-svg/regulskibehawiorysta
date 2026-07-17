@@ -10,10 +10,8 @@ function resolveAccessToken(request: Request): string | null {
   return new URL(request.url).searchParams.get('access')
 }
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } },
-) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const accessToken = resolveAccessToken(request)
     const booking = await getBookingForViewer(params.id, accessToken, request.headers.get('authorization'))

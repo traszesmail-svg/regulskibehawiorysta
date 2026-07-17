@@ -6,8 +6,9 @@ export const revalidate = 0
 
 export async function POST(
   request: Request,
-  { params }: { params: { userId: string; conversationId: string } },
+  props: { params: Promise<{ userId: string; conversationId: string }> }
 ) {
+  const params = await props.params;
   try {
     const body = (await request.json()) as { message?: string; closeConversation?: boolean }
     const result = await replyToAccountConversationFromAdmin({

@@ -34,13 +34,14 @@ function parseFirstSlot(preferredSlots: string): { date: string; time: string } 
   return null
 }
 
-export default async function QuickConfirmPage({
-  params,
-  searchParams,
-}: {
-  params: { id: string }
-  searchParams?: Record<string, string | undefined>
-}) {
+export default async function QuickConfirmPage(
+  props: {
+    params: Promise<{ id: string }>
+    searchParams?: Promise<Record<string, string | undefined>>
+  }
+) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const token = searchParams?.token ?? ''
   const valid = verifyConfirmToken(params.id, token)
 

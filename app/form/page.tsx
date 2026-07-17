@@ -48,11 +48,12 @@ export function generateMetadata(): Metadata {
   })
 }
 
-export default async function FormPage({
-  searchParams,
-}: {
-  searchParams?: Record<string, string | string[] | undefined>
-}) {
+export default async function FormPage(
+  props: {
+    searchParams?: Promise<Record<string, string | string[] | undefined>>
+  }
+) {
+  const searchParams = await props.searchParams;
   noStore()
   const problem = readProblemTypeSearchParam(searchParams?.problem)
   const serviceType = normalizeBookingServiceType(readBookingServiceSearchParam(searchParams?.service))

@@ -2,7 +2,7 @@
 
 Cel: potwierdzić gotowość obecnego wydania produkcyjnego przed publikacją. Każdy punkt zostaje oznaczony jako wykonany wyłącznie po zapisaniu dowodu (komenda, wynik, adres lub raport).
 
-Wydanie kontrolowane: `8147cbc fix: wait for no-js booking fallback`.
+Wydanie kontrolowane: `c210a6a fix: stabilize public lighthouse gate`.
 
 ## Plan podstawowy
 
@@ -72,34 +72,69 @@ _Wyniki będą dopisywane pod odpowiednimi punktami. Każdy nowy problem lub bra
 - Checklist zsynchronizowano z aktualnym `npm test` (w tym `tests/case-map-analytics.test.ts`) i przełączono na tę samą ręczną walidację redirectu co live smoke.
 - `npm.cmd run release-checklist -- --base-url https://regulskibehawiorysta.pl` — PASS: 18 kontroli, 6 tras smoke, 0 błędów; raport jawnie pokazuje `PASS /behawiorysta-online-polska: redirect 301 -> /`.
 
-### Końcowa bramka publiczna — PASS
+### Publiczna bramka poprzedniego wydania — PASS (`c210a6a`)
 
-- Promocja Vercel: `dpl_xzACazpv2fv29g6yds9pAdJtfNtQ` (`8147cbc`) jest przypięta do `https://regulskibehawiorysta.pl`; publiczny marker to `CLEAN_START_REPO_V1:main:8147cbc`.
+- Wdrożenie Vercel: `dpl_E2n1URmpdDjczXk9dM7AWJuyUPtn` (`c210a6a`) jest przypięte do `https://regulskibehawiorysta.pl`; publiczny marker to `CLEAN_START_REPO_V1:main:c210a6a`.
 - Produkcyjny `live-smoke` — PASS: 6 tras, w tym `/mapa-sprawy`, `/cennik`, legalne redirecty i wymagane treści. `release-checklist` — PASS: 18/18, 6 smoke, 0 błędów. Fallback bez JavaScriptu — PASS: 13/13.
 - Pełny crawl finalnego kandydata — PASS: 97 odkrytych tras, `200=97`, `crawlFailures=0`, 0 błędów konsoli, 0 blockerów/High/Medium; 37 historycznych redirectów kończy się `200`.
 - Audyt desktop/mobile — PASS: 10 kontroli na `/`, `/cennik`, `/opinie`, `/book`, `/termin?problem=szczeniak`; 0 overflow, 0 błędów konsoli/page errors, 0 uszkodzonych obrazów. Branding na `/cennik` i `/book` ma dwie poprawne linie bez łamania słowa „Behawiorysta”.
 - Prywatność Mapy w świeżej publicznej sesji — PASS: `200`, canonical `https://regulskibehawiorysta.pl/mapa-sprawy`, brak bannera zgód, brak Google/GA/Meta, 0 cookies przed i po, 0 błędów konsoli/page errors.
 - Technicznie — PASS: `301 /behawiorysta-online-polska -> /`, `301 /termin?problem=szczeniak -> /book?problem=szczeniak`, robots i sitemap `200`, canonical Mapy poprawny; HSTS, `frame-ancestors 'self'`, `SAMEORIGIN`, `nosniff` i polityka referrera są obecne.
 - Bezpieczny runtime Supabase — PASS: odczytowy probe z celowo błędnym bearerem zwraca oczekiwane `401` z odpowiedzią sesji, co wykonuje ścieżkę konfiguracji serwera bez odczytu lub zapisu danych klienta.
-- Lighthouse publiczny — PASS na pełnym systemowym Chrome po kontrolowanym jednym retry niepełnego mobilnego artefaktu: mobile P `0.83`, A `0.96`, BP `1`, SEO `1` (LCP `4.4 s`); desktop P `0.98`, A `1`, BP `1`, SEO `1`. Lokalny harness QA usuwa raporty przed każdą próbą i nie ukrywa błędu: raport nadal kończy się FAIL, jeśli drugi przebieg nie ma kompletu kategorii albo wystąpi błąd runtime.
+- Lighthouse publiczny — PASS na pełnym systemowym Chrome i Lighthouse `13.4.0`: mobile P `0.81`, A `0.96`, BP `1`, SEO `1` (LCP `4.5 s`); desktop P `0.98`, A `1`, BP `1`, SEO `1` (LCP `1.0 s`). Lokalny harness QA usuwa raporty przed każdą próbą i nie ukrywa błędu: raport nadal kończy się FAIL, jeśli drugi przebieg nie ma kompletu kategorii albo wystąpi błąd runtime.
 - Monitoring: `vercel logs ... --level error --since 1h` po kontrolach nie zwrócił błędów. Rollback: `npx.cmd vercel rollback https://coapebehawiorysta-bha1vtayf-coapebehawiorysta-6608s-projects.vercel.app --yes --scope coapebehawiorysta-6608s-projects`.
 
 ## Dodatkowe zadania wykryte w trakcie
 
 - [x] 10. **SEO — canonical Mapy:** publiczna domena zwraca canonical `https://regulskibehawiorysta.pl/mapa-sprawy`.
 - [x] 11. **SEO/redirect — `behawiorysta-online-polska`:** potwierdzono publicznie status `301` i `Location: /`, bez podążania smoke za przekierowaniem.
-- [x] 12. **Wiarygodność Lighthouse:** desktop i mobile mają komplet kategorii na publicznej domenie; fail-closed pozostaje aktywny, a mobilny artefakt `NO_LCP` został obsłużony kontrolowanym retry z zadania 25.
+- [x] 12. **Wiarygodność Lighthouse:** desktop i mobile mają komplet kategorii na publicznej domenie; fail-closed pozostaje aktywny, a mobilny artefakt `NO_LCP` został obsłużony kontrolowanym retry i aktualizacją kompatybilności z zadania 28.
 - [x] 13. **Higiena sandboxów QA:** dwa dokładnie zweryfikowane katalogi `case-map-booking-smoke-*` zostały bezpiecznie usunięte; nie pozostał żaden taki katalog.
 - [x] 14. **Migracje produkcyjne:** odczytowo potwierdzono skutki `20260717001` i `20260717002` w zdalnym schemacie (tabela claimów i obowiązkowa kolumna hash tokenu). Wewnętrzna historia migracji nie jest publicznie wystawiona przez PostgREST.
 - [x] 15. **Guard Next revalidate:** rozpoznano odziedziczony znacznik runtime i potwierdzono bezostrzeżeniowy build.
 - [x] 16. **Akceptacja modalu startowego strony głównej:** zweryfikowano zamykanie, trwałość wyboru, desktop/mobile oraz obraz.
 - [x] 17. **Odświeżenie lokalnego cache środowiska Vercel:** cache odświeżono; ograniczenie eksportu sensitive jest opisane, a konfiguracja została ponownie ustawiona.
-- [x] 18. **Runtime Vercel dla klucza Supabase:** nowe wdrożenie `8147cbc` przeszło odczytowy probe ścieżki serwera; oczekiwane `401` nieprawidłowej sesji potwierdza działającą konfigurację runtime bez danych klienta.
+- [x] 18. **Runtime Vercel dla klucza Supabase:** nowe wdrożenie `c210a6a` przeszło odczytowy probe ścieżki serwera; oczekiwane `401` nieprawidłowej sesji potwierdza działającą konfigurację runtime bez danych klienta.
 - [x] 19. **Smoke redirect z cache-busterem:** uruchomiono publicznie; redirect `301` zachował techniczny parametr wyłącznie w smoke, a walidacja potwierdziła docelową ścieżkę `/`.
 - [x] 20. **Release checklist — aktualność i redirect:** zsynchronizowany checklist przeszedł publicznie 18/18 i 6/6 reguł smoke.
 - [x] 21. **Desktop logo — jakość składu:** audyt desktopowy `/cennik` i `/book` potwierdził dwie linie logo oraz brak dzielenia „Behawiorysta”.
 - [x] 22. **Banner zgód na Mapie — kolizja UX:** świeża sesja publiczna ma 0 elementów `.consent-banner`; CTA Mapy nie jest zasłonięte na desktop/mobile.
 - [x] 23. **`/pokoj` — anonimowy 401 w konsoli:** źródłem był automatyczny `fetch('/api/account/me')` bez sesji. Serwer przekazuje do klienta wyłącznie hint obecności ciasteczka sesji; nowy użytkownik nie wywołuje chronionego API, a zalogowany nadal ładuje konto. Świeży Chrome potwierdził dla `/pokoj` i `/konto`: HTTP 200, widoczne „Zaloguj się”, 0 żądań `/api/account/me` i `/api/account/case-maps`, 0 błędów konsoli/page errors.
 - [x] 24. **Rezerwacja bez JavaScriptu — brak linku do terminu:** przyczyną był zbyt wczesny odczyt testu po `domcontentloaded` dla strumieniowanego widoku `/book`, a nie brak terminu ani regresja strony. Smoke czeka teraz na `networkidle`; kandydat `532bcf3` przeszedł pełny fallback 13/13 (kontakt, link terminu i formularz rezerwacji) bez JavaScriptu.
-- [x] 25. **Publiczny Lighthouse mobile — niepełny pomiar LCP:** anomalia `NO_LCP` jest niestabilnym artefaktem mobilnego Chrome/Lighthouse, nie akceptowanym wynikiem strony. Lokalny harness QA usuwa artefakty przed każdą próbą i wykonuje maksymalnie jeden retry wyłącznie po braku kategorii; jeśli drugi pomiar też jest niepełny, nadal zwraca FAIL. Końcowe publiczne potwierdzenie po retry: P `0.83`, A `0.96`, BP `1`, SEO `1`, LCP `4.4 s`.
-- [x] 26. **Powtórka Lighthouse po błędzie ładowania Chrome:** `chrome-headless-shell 147` dwukrotnie zwrócił `FAILED_DOCUMENT_REQUEST / net::ERR_ABORTED`, lecz niezależna świeża nawigacja systemowym Chrome oraz publiczny smoke miały `200` i 0 błędów konsoli. Ten błąd runtime pozostał blokujący; rozdzielono go od strony przez identyczny końcowy pomiar na pełnym Chrome `150.0.7871.127`, który przeszedł po jednym retry `NO_LCP` (mobile P `0.83`, A `0.96`, BP `1`, SEO `1`; desktop P `0.98`, A `1`, BP `1`, SEO `1`). Lighthouse preferuje teraz pełny systemowy Chromium, gdy jest dostępny, z bezpiecznym fallbackiem do Playwright.
+- [x] 25. **Publiczny Lighthouse mobile — niepełny pomiar LCP:** anomalia `NO_LCP` jest nieakceptowanym wynikiem strony. Lokalny harness QA usuwa artefakty przed każdą próbą i wykonuje maksymalnie jeden retry wyłącznie po braku kategorii; jeśli drugi pomiar też jest niepełny, nadal zwraca FAIL. Końcowe publiczne potwierdzenie po aktualizacji kompatybilności: P `0.81`, A `0.96`, BP `1`, SEO `1`, LCP `4.5 s`.
+- [x] 26. **Powtórka Lighthouse po błędzie ładowania Chrome:** `chrome-headless-shell 147` dwukrotnie zwrócił `FAILED_DOCUMENT_REQUEST / net::ERR_ABORTED`, lecz niezależna świeża nawigacja systemowym Chrome oraz publiczny smoke miały `200` i 0 błędów konsoli. Ten błąd runtime pozostał blokujący; Lighthouse preferuje teraz pełny systemowy Chromium, gdy jest dostępny, z bezpiecznym fallbackiem do Playwright.
+- [x] 27. **Post-deploy fallback rezerwacji bez JavaScriptu:** po wdrożeniu `c210a6a` `chrome-headless-shell 147` zwrócił 7 fałszywych braków formularza `POST /api/bookings` (kontakt 5/5 i link do terminu były poprawne). Niezależny publiczny HTML zawiera formularz i wszystkie pola, a ten sam smoke na pełnym Chrome przeszedł `13/13`. Smoke bez JavaScriptu preferuje teraz pełny systemowy Chromium, gdy jest dostępny, z fallbackiem do Playwright; wynik końcowy `13/13` bez ręcznej zmiennej środowiskowej jest wymaganym dowodem.
+- [x] 28. **Końcowy Lighthouse mobile — powtarzalny `NO_LCP`:** niezależny `PerformanceObserver` w pełnym Chrome wykazał prawidłowe LCP H1 około `0.87 s`, więc nie był to brak realnego renderu strony. Przyczyną była kompatybilność Lighthouse `13.1.0` z Chrome `150`; izolowany i repozytoryjny test na Lighthouse `13.4.0` zwrócił pełne kategorie bez zwiększania retry (mobile P `0.81`, A `0.96`, BP `1`, SEO `1`, LCP `4.5 s`; desktop P `0.98`, A `1`, BP `1`, SEO `1`, LCP `1.0 s`). Zależność QA została zaktualizowana do `^13.4.0`.
+- [x] 29. **Audyt zależności runtime:** zaktualizowano `next` do `15.5.20`, `nodemailer` do `9.0.3` oraz przechodni `postcss` do `8.5.12`; końcowy `npm audit --omit=dev --json` ma `0` wszystkich podatności.
+- [x] 30. **Migracja linta przed Next 16:** `npx eslint . --no-cache` przeszedł bez błędów. Skrypty `lint` i `build` używają teraz natywnego ESLint CLI z trybem bez cache, więc bramka nie wywołuje zdeprecjonowanego `next lint`.
+- [x] 31. **Migracja API requestu Next 15:** wszystkie wskazane `headers()`/`cookies()` są awaitowane; końcowe TypeScript i build przeszły.
+- [x] 32. **Pełny audyt zależności deweloperskich:** bezpieczne aktualizacje usunęły wszystkie high/critical (`0`); pozostało `17 moderate` i `1 low` wyłącznie tranzytywnie pod `lighthouse@13.4.0` (QA/dev). NPM proponuje wyłącznie łamiący downgrade do `lighthouse@12.6.1`, więc nie cofnięto wymaganej kompatybilności z Chrome; runtime ma `0`.
+- [x] 33. **Migracja dynamicznych `params` Next 15:** oficjalny codemod `next-async-request-api` przeprowadził 46 plików, a TypeScript i build potwierdziły awaitowane `params`/`searchParams`.
+- [x] 34. **Konfiguracja Next 15:** `typedRoutes` oraz `outputFileTracingIncludes` przeniesiono na wspierany poziom konfiguracji; build nie zgłasza już ostrzeżenia konfiguracji.
+- [x] 35. **Guard patcha runtime Next:** patch dla Next 14 był martwy po aktualizacji i został usunięty wraz z `prebuild`; build nie zgłasza już ostrzeżenia celu patcha.
+- [x] 36. **Stabilność lokalnego UI smoke dla redirectów:** cele `/koty` i `/psy` oraz kolejność oczekiwania URL są aktualne; pełny E2E przeszedł.
+- [x] 37. **Aktualność selektora opinii w UI smoke:** selector używa bieżącego H1, a regresja testowa jest zielona.
+- [x] 38. **Aktualność selektora blogu w UI smoke:** selector używa bieżącego H1, a regresja testowa jest zielona.
+- [x] 39. **Aktualność przejścia terminu w UI smoke:** E2E sprawdza formularz inline `/book` i ukryty `slotId`; pełny flow przeszedł.
+- [x] 40. **Aktualność oczekiwania pokoju rozmowy w UI smoke:** zdiagnozowano prawdziwy wariant telefoniczny i rozdzielono go od stanów wideo; kontrola dostępu pozostała pełna.
+- [x] 41. **Retry lokalnego startu UI smoke:** kontrolowany timeout `page.goto` jest retryable tylko w ramach dwóch prób.
+- [x] 42. **Higiena procesów lokalnego UI smoke:** harness zamyka teraz całe drzewo własnego serwera; po końcowym E2E nie ma osieroconych procesów repo.
+- [x] 43. **Diagnostyka stanu pokoju w UI smoke:** źródłem rozjazdu był poprawny panel telefoniczny bez `.room-stage`; test weryfikuje jego komunikat, status i brak iframe.
+- [x] 44. **Pełne pokrycie wariantów pokoju konsultacji w UI smoke:** telefon, zablokowane wideo i aktywne wideo są sprawdzane wraz z Jitsi, licznikiem, zakończeniem i ponownym wejściem.
+- [x] 45. **Zgodny z terminarzem slot pełnej konsultacji w UI smoke:** używany jest przyszły slot `08:15` z kanonicznego seeda harmonogramu.
+- [x] 46. **Czas pokoju pełnej konsultacji w UI smoke:** długość jest pobierana z `getBookingServiceRoomDurationMinutes`; E2E potwierdził ruch licznika `120:00 → 119:57`.
+- [x] 47. **Jednoznaczny selektor stanu zakończonego pokoju:** asercja obsługuje równoległy przycisk i status końcowy bez strict-mode.
+- [x] 48. **Atomowy zapis lokalnego sandboxu:** tymczasowe ścieżki używają `randomUUID`, z regresją w testach.
+- [x] 49. **Odczyt lokalnego sandboxu bez zbędnego zapisu:** `readStore()` zapisuje wyłącznie po rzeczywistej zmianie normalizacyjnej; powtórzony sandbox Mapy przeszedł `CASE_MAP_BOOKING_SMOKE_OK` bez `EPERM`.
+- [x] 50. **Ostrzeżenie builda Edge:** porównanie z `HEAD` potwierdza, że dotyczy wyłącznie dziewięciu istniejących generatorów Open Graph z `runtime = 'edge'`; nie jest regresją tej migracji, a build produkcyjny jest poprawny.
+- [x] 51. **Lokalny smoke produkcyjny:** serwer `next start` potwierdził trasy `/`, `/mapa-sprawy`, `/book`, redirect i fallback bez JS `13/13`; release smoke przeszedł na celowym lokalnym markerze `CLEAN_START_REPO_V1:local:local`.
+- [ ] 52. **Runtime Supabase Auth po deployu:** lokalny sandbox celowo nie ma Supabase Auth, więc potwierdzenie pełnej konsultacji loguje kontrolowany fallback tworzenia linku hasła do konta. Po wdrożeniu wykonać odczytowy probe auth z błędnym bearerem i sprawdzić logi Vercel, bez tworzenia rezerwacji ani wysyłki e-maila.
+- [x] 53. **Celowe wyłączenie linta wewnątrz `next build`:** komunikat `Linting is disabled` pochodzi z zamierzonego `next build --no-lint`; natywny `npm run lint` zawsze wykonuje się wcześniej i końcowo przeszedł bez błędów.
+
+### Bramka lokalnego kandydata — PASS
+
+- `npx tsc --noEmit` — PASS.
+- `npm run test` — PASS: 122 zaliczonych, 0 niezaliczonych, 13 pominiętych.
+- `npm run lint`, `npm run schema-audit`, `npm run case-map-smoke`, `npm run ui-smoke`, `npm run build` — PASS.
+- UI E2E potwierdził flow płatności ręcznej, oba warianty pokoju i końcowe sprzątanie procesów.
+- `npm audit --omit=dev --json` — 0/0; pełny audit ma wyłącznie opisany w zadaniu 32 dev-only pozostały poziom moderate/low, bez high/critical.

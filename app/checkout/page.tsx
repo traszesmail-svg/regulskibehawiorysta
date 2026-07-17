@@ -41,15 +41,16 @@ function readParam(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] ?? null : value ?? null
 }
 
-export default async function CheckoutPage({
-  searchParams,
-}: {
-  searchParams?: Record<string, string | string[] | undefined>
-}) {
+export default async function CheckoutPage(
+  props: {
+    searchParams?: Promise<Record<string, string | string[] | undefined>>
+  }
+) {
+  const searchParams = await props.searchParams;
   const orderNumber = readParam(searchParams?.orderNumber)
   const bookingId = readParam(searchParams?.bookingId)
   const access = readParam(searchParams?.access)
-  const authorizationHeader = headers().get('authorization')
+  const authorizationHeader = (await headers()).get('authorization')
 
   if (!orderNumber && bookingId) {
     const order = await createOrReuseConsultationCommerceOrder(bookingId, access, authorizationHeader)

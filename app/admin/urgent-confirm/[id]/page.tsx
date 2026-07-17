@@ -8,7 +8,8 @@ import { parseUrgentRequestedSlotsFromMessage, stripUrgentRequestedSlotsFromMess
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
-export default async function UrgentConfirmPage({ params }: { params: { id: string } }) {
+export default async function UrgentConfirmPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   noStore()
   const requests = await listUrgentNowRequests()
   const request = requests.find((item) => item.id === params.id)

@@ -219,7 +219,7 @@ function buildCategories(posts: BlogPost[]): BlogCategory[] {
       group: 'trend',
       predicate: (post) => /lek|lęk|boi|stres|panik|dzwiek|halas/i.test(post.slug),
     },
-  ]
+  ];
 }
 
 function filterBlogPosts(posts: BlogPost[], category: BlogCategory | undefined, query: string) {
@@ -279,7 +279,8 @@ function pickPostsBySlugs(posts: BlogPost[], slugs: readonly string[]) {
   return slugs.map((slug) => bySlug.get(slug)).filter((post): post is BlogPost => Boolean(post))
 }
 
-export default function BlogPage({ searchParams }: { searchParams?: BlogSearchParams }) {
+export default async function BlogPage(props: { searchParams?: Promise<BlogSearchParams> }) {
+  const searchParams = await props.searchParams;
   const posts = listBlogPosts()
   const categories = buildCategories(posts)
   const coreCategories = categories.filter((category) => category.group !== 'trend')

@@ -165,11 +165,12 @@ async function finalizeLegacyCheckoutSession(
   return
 }
 
-export default async function ConfirmationPage({
-  searchParams,
-}: {
-  searchParams?: Record<string, string | string[] | undefined>
-}) {
+export default async function ConfirmationPage(
+  props: {
+    searchParams?: Promise<Record<string, string | string[] | undefined>>
+  }
+) {
+  const searchParams = await props.searchParams;
   noStore()
   const bookingId = readSearchParam(searchParams?.bookingId)
   const accessToken = readSearchParam(searchParams?.access)
@@ -203,7 +204,7 @@ export default async function ConfirmationPage({
 
   if (!flowError && bookingId) {
     try {
-      booking = await getBookingForViewer(bookingId, accessToken, headers().get('authorization'))
+      booking = await getBookingForViewer(bookingId, accessToken, (await headers()).get('authorization'))
     } catch (error) {
       console.warn('[regulski-behawiorysta][confirmation] failed to load booking', {
         bookingId,

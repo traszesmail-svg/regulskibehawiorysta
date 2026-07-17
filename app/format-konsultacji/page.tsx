@@ -168,11 +168,12 @@ function buildFormatHref(problem: ProblemType, species: BookingSpecies, service:
   return buildBookHref(problem, service, false, species)
 }
 
-export default function ConsultationFormatPage({
-  searchParams,
-}: {
-  searchParams?: { animal?: string | string[]; problem?: string | string[] }
-}) {
+export default async function ConsultationFormatPage(
+  props: {
+    searchParams?: Promise<{ animal?: string | string[]; problem?: string | string[] }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const animal = readAnimal(searchParams?.animal)
   const problem = readProblemTypeSearchParam(searchParams?.problem)
   const topicTitle = problem ? topicTitles[animal][problem] : null

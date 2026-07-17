@@ -84,19 +84,19 @@ const nextConfig = {
       { protocol: 'https', hostname: 'magwet.pl' },
     ],
   },
+  typedRoutes: false,
+  outputFileTracingIncludes: {
+    '/*': [
+      './qa-reports/latest-report.md',
+      './supabase/schema.sql',
+      './supabase/migrations/**/*.sql',
+    ],
+  },
   experimental: {
-    typedRoutes: false,
     workerThreads: false,
     cpus: 1,
     webpackBuildWorker: false,
     optimizeCss: true,
-    outputFileTracingIncludes: {
-      '/*': [
-        './qa-reports/latest-report.md',
-        './supabase/schema.sql',
-        './supabase/migrations/**/*.sql',
-      ],
-    },
   },
   typescript: {
     ignoreBuildErrors: false,

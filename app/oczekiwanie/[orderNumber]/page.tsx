@@ -21,8 +21,8 @@ export function generateMetadata(): Metadata {
   })
 }
 
-function buildRequestReviewUrl(token: string, action: 'approve' | 'reject') {
-  const incomingHeaders = headers()
+async function buildRequestReviewUrl(token: string, action: 'approve' | 'reject') {
+  const incomingHeaders = await headers()
   const host = incomingHeaders.get('x-forwarded-host') ?? incomingHeaders.get('host') ?? 'localhost:3000'
   const proto = incomingHeaders.get('x-forwarded-proto') ?? 'https'
   const url = new URL(`/api/admin/confirm-payment/${encodeURIComponent(token)}`, `${proto}://${host}`)
@@ -30,7 +30,8 @@ function buildRequestReviewUrl(token: string, action: 'approve' | 'reject') {
   return url.toString()
 }
 
-export default async function WaitingPage({ params }: { params: { orderNumber: string } }) {
+export default async function WaitingPage(props: { params: Promise<{ orderNumber: string }> }) {
+  const params = await props.params;
   const order = await getCommerceOrder(params.orderNumber)
   const accessReady = order ? canUseCommerceAccess(order) : false
   const consultationReady = Boolean(order?.productType === 'consultation' && order.status === 'paid' && order.meta.bookingId)
@@ -67,7 +68,7 @@ export default async function WaitingPage({ params }: { params: { orderNumber: s
     order.status === 'payment_reported' &&
     order.adminConfirmationToken &&
     !order.adminConfirmationTokenUsedAt
-      ? buildRequestReviewUrl(order.adminConfirmationToken, 'approve')
+      ? await buildRequestReviewUrl(order.adminConfirmationToken, 'approve')
       : null
 
   return (

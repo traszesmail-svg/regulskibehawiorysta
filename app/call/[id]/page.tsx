@@ -20,11 +20,12 @@ import { buildTechnicalMetadata } from '@/lib/seo'
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
-export function generateMetadata({
-  params,
-}: {
-  params: { id: string }
-}): Metadata {
+export async function generateMetadata(
+  props: {
+    params: Promise<{ id: string }>
+  }
+): Promise<Metadata> {
+  const params = await props.params;
   return buildTechnicalMetadata({
     title: 'Pokój rozmowy',
     path: `/call/${params.id}`,
@@ -69,16 +70,18 @@ function CallRoomHeader() {
   )
 }
 
-export default async function CallPage({
-  params,
-  searchParams,
-}: {
-  params: { id: string }
-  searchParams?: Record<string, string | string[] | undefined>
-}) {
+export default async function CallPage(
+  props: {
+    params: Promise<{ id: string }>
+    searchParams?: Promise<Record<string, string | string[] | undefined>>
+  }
+) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   noStore()
   const accessToken = readSearchParam(searchParams?.access)
   const dataMode = getDataModeStatus()
+  const authorizationHeader = (await headers()).get('authorization')
   let booking: Awaited<ReturnType<typeof getBookingForViewer>> = null
   let flowError: string | null = null
 
@@ -86,7 +89,7 @@ export default async function CallPage({
     flowError = 'Pokój rozmowy chwilowo nie jest dostępny. Spróbuj ponownie za kilka minut.'
   } else {
     try {
-      booking = await getBookingForViewer(params.id, accessToken, headers().get('authorization'))
+      booking = await getBookingForViewer(params.id, accessToken, authorizationHeader)
     } catch (error) {
       console.warn('[regulski-behawiorysta][call] failed to load booking', {
         bookingId: params.id,

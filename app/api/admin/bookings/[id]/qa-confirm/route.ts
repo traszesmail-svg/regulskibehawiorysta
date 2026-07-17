@@ -5,10 +5,8 @@ import { NextResponse } from 'next/server'
 import { getBookingById, markBookingPaid } from '@/lib/server/db'
 import { getQaCheckoutPaymentReference } from '@/lib/server/payment-options'
 
-export async function POST(
-  request: Request,
-  { params }: { params: { id: string } },
-) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const booking = await getBookingById(params.id)
 

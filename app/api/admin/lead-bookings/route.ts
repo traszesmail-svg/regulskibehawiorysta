@@ -12,7 +12,7 @@ export async function GET() {
     return NextResponse.json({ error: 'Admin secret not configured.' }, { status: 503 })
   }
 
-  const authHeader = headers().get('authorization')
+  const authHeader = (await headers()).get('authorization')
   if (!hasValidAdminAuthorization(authHeader, secret)) {
     return NextResponse.json({ error: 'Unauthorized' }, {
       status: 401,

@@ -6,11 +6,13 @@ import { markCaseMapReviewed } from '@/lib/server/case-map-store'
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
-export async function POST(_request: Request, { params }: { params: { id: string } }) {
+export async function POST(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const secret = getAdminAccessSecret()
   if (!secret) return NextResponse.json({ ok: false, error: 'Brak konfiguracji dostępu administratora.' }, { status: 503 })
 
-  if (!hasValidAdminAuthorization(headers().get('authorization'), secret)) {
+  const requestHeaders = await headers()
+  if (!hasValidAdminAuthorization(requestHeaders.get('authorization'), secret)) {
     return NextResponse.json({ ok: false, error: 'Brak autoryzacji.' }, { status: 401, headers: getAdminAuthChallengeHeaders() })
   }
 

@@ -29,7 +29,8 @@ type SearchParams = CaseMapSearchParams & {
   resume?: string | string[]
 }
 
-export default function BehaviorMapPage({ searchParams }: { searchParams?: SearchParams }) {
+export default async function BehaviorMapPage(props: { searchParams?: Promise<SearchParams> }) {
+  const searchParams = await props.searchParams;
   const buildMarker = getBuildMarkerSnapshot()
   const problemKey = getSingleCaseMapSearchParam(searchParams?.problem)
   const context = getQuizProblemContext(problemKey)

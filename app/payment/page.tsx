@@ -65,18 +65,19 @@ function PaymentDetailsDisclosure({
   )
 }
 
-export default async function PaymentPage({
-  searchParams,
-}: {
-  searchParams?: Record<string, string | string[] | undefined>
-}) {
+export default async function PaymentPage(
+  props: {
+    searchParams?: Promise<Record<string, string | string[] | undefined>>
+  }
+) {
+  const searchParams = await props.searchParams;
   noStore()
   const bookingId = readSearchParam(searchParams?.bookingId)
   const accessToken = readSearchParam(searchParams?.access)
   const cancelled = readSearchParam(searchParams?.cancelled)
   const qaBookingHint = readQaBookingSearchParam(searchParams?.qa)
   const dataMode = getDataModeStatus()
-  const authorizationHeader = headers().get('authorization')
+  const authorizationHeader = (await headers()).get('authorization')
   const manualPayment = getPublicManualPaymentConfig()
   const manualPaymentCopy = getManualPaymentDisplayCopy({
     phoneDisplay: manualPayment.phoneDisplay,

@@ -11,7 +11,8 @@ function buildRequestReviewUrl(request: Request, token: string, action: 'approve
   return url.toString()
 }
 
-export async function GET(request: Request, { params }: { params: { orderNumber: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ orderNumber: string }> }) {
+  const params = await props.params;
   const order = await getCommerceOrder(params.orderNumber)
 
   if (!order) {

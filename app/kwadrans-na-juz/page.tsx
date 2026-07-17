@@ -19,11 +19,12 @@ export const metadata: Metadata = buildMarketingMetadata({
   description: 'Pilny Kwadrans na już: wyślij zgłoszenie, a ja skontaktuję się w celu szybkiego ustalenia terminu.',
 })
 
-export default function KwadransNaJuzPage({
-  searchParams,
-}: {
-  searchParams?: Record<string, string | string[] | undefined>
-}) {
+export default async function KwadransNaJuzPage(
+  props: {
+    searchParams?: Promise<Record<string, string | string[] | undefined>>
+  }
+) {
+  const searchParams = await props.searchParams;
   const contact = getPublicContactDetails()
   const email = contact.email ?? 'kontakt@regulskibehawiorysta.pl'
   const fallbackMailHref = buildMailtoHref(
@@ -31,7 +32,7 @@ export default function KwadransNaJuzPage({
     'Prośba o pilny Kwadrans na już',
     'Imię:\nTelefon:\nGatunek (Pies/Kot):\nOpis sytuacji:\n',
   )
-  
+
   const structuredData = [
     getBreadcrumbJsonLd([
       { name: 'Strona główna', path: '/' },

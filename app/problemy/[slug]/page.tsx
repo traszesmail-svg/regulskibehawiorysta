@@ -9,10 +9,10 @@ import {
 import type { CaseMapSearchParams } from '@/lib/case-map-routing'
 
 type ProblemPageProps = {
-  params: {
+  params: Promise<{
     slug: string
-  }
-  searchParams?: CaseMapSearchParams
+  }>
+  searchParams?: Promise<CaseMapSearchParams>
 }
 
 export function generateStaticParams() {
@@ -21,7 +21,8 @@ export function generateStaticParams() {
   }))
 }
 
-export function generateMetadata({ params }: ProblemPageProps): Metadata {
+export async function generateMetadata(props: ProblemPageProps): Promise<Metadata> {
+  const params = await props.params;
   const metadata = getProblemPageMetadata(params.slug)
 
   if (!metadata) {
@@ -31,7 +32,9 @@ export function generateMetadata({ params }: ProblemPageProps): Metadata {
   return metadata
 }
 
-export default function ProblemPage({ params, searchParams }: ProblemPageProps) {
+export default async function ProblemPage(props: ProblemPageProps) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const page = getProblemPageBySlug(params.slug)
 
   if (!page) {

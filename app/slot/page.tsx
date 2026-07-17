@@ -22,11 +22,12 @@ export const metadata: Metadata = buildTechnicalMetadata({
   follow: false,
 })
 
-export default function SlotPage({
-  searchParams,
-}: {
-  searchParams?: Record<string, string | string[] | undefined>
-}) {
+export default async function SlotPage(
+  props: {
+    searchParams?: Promise<Record<string, string | string[] | undefined>>
+  }
+) {
+  const searchParams = await props.searchParams;
   const problem = readProblemTypeSearchParam(searchParams?.problem)
   const serviceType = normalizeBookingServiceType(readBookingServiceSearchParam(searchParams?.service))
   const serviceQuery = serviceType === DEFAULT_BOOKING_SERVICE ? null : serviceType

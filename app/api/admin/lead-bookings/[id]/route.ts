@@ -11,7 +11,7 @@ import {
 } from '@/lib/server/lead-bookings'
 
 function toGoogleCalendarDate(date: Date): string {
-  return date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')
+  return date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
 }
 
 function buildLeadCalendarUrl(input: {
@@ -31,12 +31,12 @@ function buildLeadCalendarUrl(input: {
   return `https://calendar.google.com/calendar/render?${params.toString()}`
 }
 
-function checkAuth() {
+async function checkAuth() {
   const secret = getAdminAccessSecret()
   if (!secret) {
     return { ok: false as const, response: NextResponse.json({ error: 'Admin secret not configured.' }, { status: 503 }) }
   }
-  const authHeader = headers().get('authorization')
+  const authHeader = (await headers()).get('authorization')
   if (!hasValidAdminAuthorization(authHeader, secret)) {
     return {
       ok: false as const,
@@ -49,8 +49,9 @@ function checkAuth() {
   return { ok: true as const }
 }
 
-export async function GET(_: Request, { params }: { params: { id: string } }) {
-  const auth = checkAuth()
+export async function GET(_: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+  const auth = await checkAuth()
   if (!auth.ok) return auth.response
 
   const booking = await getLeadBookingById(params.id)
@@ -69,8 +70,9 @@ const SERVICE_DURATION_MINUTES: Record<string, number> = {
   'konsultacja-behawioralna-online': 120,
 }
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
-  const auth = checkAuth()
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+  const auth = await checkAuth()
   if (!auth.ok) return auth.response
 
   let body: Record<string, unknown>

@@ -5,9 +5,9 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 type RouteContext = {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 function readAccessToken(request: Request) {
@@ -15,7 +15,8 @@ function readAccessToken(request: Request) {
   return searchParams.get('access')
 }
 
-export async function GET(request: Request, { params }: RouteContext) {
+export async function GET(request: Request, props: RouteContext) {
+  const params = await props.params;
   try {
     const booking = await getBookingForViewer(params.id, readAccessToken(request), request.headers.get('authorization'))
 

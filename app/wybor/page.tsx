@@ -197,11 +197,12 @@ function buildChoiceHref(choice: Choice, animal: Animal) {
   return `/format-konsultacji?animal=${animal}&problem=${choice.problem}`
 }
 
-export default function ChoicePage({
-  searchParams,
-}: {
-  searchParams?: { animal?: string | string[] }
-}) {
+export default async function ChoicePage(
+  props: {
+    searchParams?: Promise<{ animal?: string | string[] }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const animal = getAnimal(searchParams)
   const copy = animalCopy[animal]
   const choices = animal === 'cat' ? catChoices : dogChoices

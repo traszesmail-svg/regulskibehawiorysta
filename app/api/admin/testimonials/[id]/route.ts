@@ -3,9 +3,10 @@ export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server'
 import { updatePendingTestimonialStatus } from '@/lib/server/testimonial-store'
 
-type Params = { params: { id: string } }
+type Params = { params: Promise<{ id: string }> }
 
-export async function POST(request: Request, { params }: Params) {
+export async function POST(request: Request, props: Params) {
+  const params = await props.params;
   const { id } = params
 
   try {
@@ -26,7 +27,8 @@ export async function POST(request: Request, { params }: Params) {
   }
 }
 
-export async function GET(request: Request, { params }: Params) {
+export async function GET(request: Request, props: Params) {
+  const params = await props.params;
   const { id } = params
   const url = new URL(request.url)
   const action = url.searchParams.get('action')

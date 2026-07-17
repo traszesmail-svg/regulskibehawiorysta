@@ -20,7 +20,8 @@ export function generateMetadata(): Metadata {
   })
 }
 
-export default async function BlikPaymentPage({ params }: { params: { orderNumber: string } }) {
+export default async function BlikPaymentPage(props: { params: Promise<{ orderNumber: string }> }) {
+  const params = await props.params;
   const order = await prepareCommerceManualPayment(params.orderNumber)
   const manual = getManualPaymentConfig()
 

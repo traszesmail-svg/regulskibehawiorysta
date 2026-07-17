@@ -17,7 +17,7 @@ function escapeHtml(value: string) {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;')
+    .replace(/'/g, '&#39;');
 }
 
 function html(title: string, body: string, status: 200 | 400 = 200) {
@@ -132,11 +132,13 @@ async function renderCurrentTokenState(request: Request, token: string) {
   return decisionHtml(request, action, order.orderNumber)
 }
 
-export async function GET(request: Request, { params }: { params: { token: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ token: string }> }) {
+  const params = await props.params;
   return renderCurrentTokenState(request, params.token)
 }
 
-export async function POST(request: Request, { params }: { params: { token: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ token: string }> }) {
+  const params = await props.params;
   const action = readDecision(request)
   const order = await getCommerceOrderByConfirmationToken(params.token)
 

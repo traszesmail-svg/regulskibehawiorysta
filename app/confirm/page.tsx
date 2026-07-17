@@ -9,11 +9,12 @@ function readSearchParam(value: string | string[] | undefined): string | null {
   return value ?? null
 }
 
-export default function LegacyConfirmPage({
-  searchParams,
-}: {
-  searchParams?: Record<string, string | string[] | undefined>
-}) {
+export default async function LegacyConfirmPage(
+  props: {
+    searchParams?: Promise<Record<string, string | string[] | undefined>>
+  }
+) {
+  const searchParams = await props.searchParams;
   const id = readSearchParam(searchParams?.id)
 
   if (id) {

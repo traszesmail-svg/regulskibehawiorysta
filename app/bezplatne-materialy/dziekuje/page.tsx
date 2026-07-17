@@ -14,11 +14,12 @@ export const metadata: Metadata = buildTechnicalMetadata({
   description: 'Techniczna strona potwierdzenia po zapisie na bezpłatny materiał.',
 })
 
-export default function LeadMagnetThankYouPage({
-  searchParams,
-}: {
-  searchParams?: Record<string, string | string[] | undefined>
-}) {
+export default async function LeadMagnetThankYouPage(
+  props: {
+    searchParams?: Promise<Record<string, string | string[] | undefined>>
+  }
+) {
+  const searchParams = await props.searchParams;
   const rawSlug = searchParams?.leadMagnet
   const slug = Array.isArray(rawSlug) ? rawSlug[0] : rawSlug
   const magnet = slug ? getLeadMagnetBySlug(slug) : null

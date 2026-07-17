@@ -25,10 +25,8 @@ function getErrorMessage(error: unknown): string {
   return 'Nie udało się anulować rezerwacji.'
 }
 
-export async function POST(
-  request: Request,
-  { params }: { params: { id: string } },
-) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const booking = await getBookingForViewer(params.id, resolveAccessToken(request), request.headers.get('authorization'))
 

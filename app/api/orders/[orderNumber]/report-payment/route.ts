@@ -16,7 +16,8 @@ function buildRequestReviewUrl(request: Request, token: string, action: 'approve
   return url.toString()
 }
 
-export async function POST(request: Request, { params }: { params: { orderNumber: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ orderNumber: string }> }) {
+  const params = await props.params;
   try {
     const order = await reportCommerceManualPayment(params.orderNumber)
 

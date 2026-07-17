@@ -32,12 +32,13 @@ function readParam(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] ?? null : value ?? null
 }
 
-export default async function RoomAccessPage({
-  searchParams,
-}: {
-  searchParams?: Record<string, string | string[] | undefined>
-}) {
-  const cookieStore = cookies()
+export default async function RoomAccessPage(
+  props: {
+    searchParams?: Promise<Record<string, string | string[] | undefined>>
+  }
+) {
+  const searchParams = await props.searchParams;
+  const cookieStore = await cookies()
   const initialSessionHint = Boolean(
     cookieStore.get(ACCOUNT_ACCESS_COOKIE)?.value || cookieStore.get(ACCOUNT_REFRESH_COOKIE)?.value,
   )

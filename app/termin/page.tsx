@@ -15,10 +15,11 @@ export const metadata: Metadata = {
   robots: { index: false, follow: true },
 }
 
-export default function TerminRedirectPage({
-  searchParams,
-}: {
-  searchParams?: Record<string, string | string[] | undefined>
-}) {
+export default async function TerminRedirectPage(
+  props: {
+    searchParams?: Promise<Record<string, string | string[] | undefined>>
+  }
+) {
+  const searchParams = await props.searchParams;
   redirect(appendSearchParams('/book', searchParams))
 }

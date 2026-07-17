@@ -15,7 +15,8 @@ const STATUS_LABELS: Record<string, string> = {
   cancelled: 'Anulowana',
 }
 
-export default async function AdminLeadBookingDetailPage({ params }: { params: { id: string } }) {
+export default async function AdminLeadBookingDetailPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   noStore()
   const booking = await getLeadBookingById(params.id)
 

@@ -4,10 +4,8 @@ export const revalidate = 0
 import { NextResponse } from 'next/server'
 import { approveManualPayment, rejectManualPayment } from '@/lib/server/manual-payments'
 
-export async function POST(
-  request: Request,
-  { params }: { params: { id: string } },
-) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const body = (await request.json()) as { action?: 'approve' | 'reject'; reason?: string }
 

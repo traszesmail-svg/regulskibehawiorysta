@@ -17,10 +17,8 @@ function normalizeSingleLine(value: unknown, maxLength: number) {
   return normalized.length > 0 ? normalized.slice(0, maxLength) : null
 }
 
-export async function POST(
-  request: Request,
-  { params }: { params: { id: string } },
-) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const body = (await request.json()) as {
       proposedDate?: string

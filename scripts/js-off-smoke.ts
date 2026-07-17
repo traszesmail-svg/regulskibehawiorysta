@@ -94,7 +94,7 @@ function renderReport(baseUrl: string, checks: CheckResult[]) {
 
 async function main() {
   const baseUrl = resolveBaseUrl()
-  const executablePath = await resolveBrowserExecutablePath()
+  const executablePath = await resolveBrowserExecutablePath({ preferSystem: true })
   const browser = await chromium.launch({ executablePath, headless: true })
   const checks: CheckResult[] = []
 

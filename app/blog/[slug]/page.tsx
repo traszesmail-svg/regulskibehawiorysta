@@ -20,16 +20,17 @@ import { getCanonicalBaseUrl } from '@/lib/server/env'
 import { getCanonicalPublicHref } from '@/lib/public-routes'
 
 type BlogArticlePageProps = {
-  params: {
+  params: Promise<{
     slug: string
-  }
+  }>
 }
 
 export function generateStaticParams() {
   return listBlogPosts().map((post) => ({ slug: post.slug }))
 }
 
-export function generateMetadata({ params }: BlogArticlePageProps): Metadata {
+export async function generateMetadata(props: BlogArticlePageProps): Promise<Metadata> {
+  const params = await props.params;
   const post = getBlogPostBySlug(params.slug)
 
   if (!post) {
@@ -43,10 +44,11 @@ function getArticleSummary(post: NonNullable<ReturnType<typeof getBlogPostBySlug
   return post.blocks
     .flatMap((block) => (block.type === 'heading' && block.depth === 2 ? [repairCopy(block.text)] : []))
     .filter((text) => text && !/linkowanie/i.test(text))
-    .slice(0, 7)
+    .slice(0, 7);
 }
 
-export default function BlogArticlePage({ params }: BlogArticlePageProps) {
+export default async function BlogArticlePage(props: BlogArticlePageProps) {
+  const params = await props.params;
   const post = getBlogPostBySlug(params.slug)
 
   if (!post) {

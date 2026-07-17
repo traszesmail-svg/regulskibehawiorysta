@@ -113,10 +113,8 @@ function buildLockedResponse() {
   )
 }
 
-export async function POST(
-  request: Request,
-  { params }: { params: { id: string } },
-) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const booking = await resolveViewerBooking(request, params.id)
 
@@ -228,10 +226,8 @@ export async function POST(
   }
 }
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } },
-) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const booking = await resolveViewerBooking(request, params.id)
 

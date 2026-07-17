@@ -16,9 +16,9 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 type RouteContext = {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 function errorResponse(error: unknown, fallback: string) {
@@ -39,7 +39,7 @@ function errorResponse(error: unknown, fallback: string) {
 export async function GET(request: Request, context: RouteContext) {
   try {
     const user = await getAccountUser(request)
-    const caseMap = await getCaseMapForUser(user, context.params.id)
+    const caseMap = await getCaseMapForUser(user, (await context.params).id)
 
     if (!caseMap) {
       return NextResponse.json({ ok: false, error: 'Nie znaleziono Mapy zachowania.' }, { status: 404 })
@@ -55,7 +55,7 @@ export async function PATCH(request: Request, context: RouteContext) {
   try {
     const user = await getAccountUser(request)
     const patch = normalizeCaseMapPatchInput(await request.json())
-    const caseMap = await patchCaseMapForUser(user, context.params.id, patch)
+    const caseMap = await patchCaseMapForUser(user, (await context.params).id, patch)
 
     if (!caseMap) {
       return NextResponse.json({ ok: false, error: 'Nie znaleziono Mapy zachowania.' }, { status: 404 })

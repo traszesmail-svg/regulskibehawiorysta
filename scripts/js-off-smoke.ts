@@ -37,7 +37,7 @@ async function requireSelector(page: Page, selector: string, name: string) {
 }
 
 async function checkContactFallback(page: Page, baseUrl: string) {
-  await page.goto(`${baseUrl}/kontakt`, { waitUntil: 'domcontentloaded', timeout: 45_000 })
+  await page.goto(`${baseUrl}/kontakt`, { waitUntil: 'networkidle', timeout: 45_000 })
 
   return [
     await requireSelector(page, 'form[action="/api/contact"][method="post"]', 'contact form posts without JS'),
@@ -49,7 +49,7 @@ async function checkContactFallback(page: Page, baseUrl: string) {
 }
 
 async function checkBookingFallback(page: Page, baseUrl: string) {
-  await page.goto(`${baseUrl}/book`, { waitUntil: 'domcontentloaded', timeout: 45_000 })
+  await page.goto(`${baseUrl}/book`, { waitUntil: 'networkidle', timeout: 45_000 })
 
   const firstSlotHref = await page
     .locator('a[data-nearest-slot-link="true"], a[data-selected-slot-link="true"]')
@@ -62,7 +62,7 @@ async function checkBookingFallback(page: Page, baseUrl: string) {
   }
 
   const formUrl = new URL(firstSlotHref, `${baseUrl}/`).toString()
-  await page.goto(formUrl, { waitUntil: 'domcontentloaded', timeout: 45_000 })
+  await page.goto(formUrl, { waitUntil: 'networkidle', timeout: 45_000 })
 
   return [
     pass('booking slot link without JS', firstSlotHref),

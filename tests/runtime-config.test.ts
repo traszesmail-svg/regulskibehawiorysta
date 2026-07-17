@@ -1711,6 +1711,7 @@ test('booking and contact flows keep resilient fallback selectors', () => {
   assert.match(bookingRouteSource, /buildPaymentHref/)
   assert.match(bookingRouteSource, /NextResponse\.redirect/)
   assert.match(jsOffSmokeSource, /javaScriptEnabled: false/)
+  assert.match(jsOffSmokeSource, /waitUntil: 'networkidle'/)
   assert.match(jsOffSmokeSource, /form\[action="\/api\/bookings"\]\[method="post"\]/)
 
   assert.match(calendarSource, /data-nearest-slot-link="true"/)

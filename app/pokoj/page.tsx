@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { cookies } from 'next/headers'
 import { AccountRoomApp } from '@/components/AccountRoomApp'
 import { NotatnikPageShell, PUBLIC_BOOKING_FLOW_NAV_ITEMS } from '@/components/NotatnikA'
 import {
@@ -11,6 +12,7 @@ import {
   canUseCommerceAccess,
   getCommerceOrderByAccessCode,
 } from '@/lib/server/commerce-store'
+import { ACCOUNT_ACCESS_COOKIE, ACCOUNT_REFRESH_COOKIE } from '@/lib/server/account-auth'
 import { buildTechnicalMetadata } from '@/lib/seo'
 
 export const dynamic = 'force-dynamic'
@@ -35,6 +37,10 @@ export default async function RoomAccessPage({
 }: {
   searchParams?: Record<string, string | string[] | undefined>
 }) {
+  const cookieStore = cookies()
+  const initialSessionHint = Boolean(
+    cookieStore.get(ACCOUNT_ACCESS_COOKIE)?.value || cookieStore.get(ACCOUNT_REFRESH_COOKIE)?.value,
+  )
   const code = readParam(searchParams?.code)?.trim().toUpperCase() ?? ''
   const email = readParam(searchParams?.email)?.trim().toLowerCase() ?? ''
   const shouldUseLegacyAccess = Boolean(code || email)
@@ -65,7 +71,7 @@ export default async function RoomAccessPage({
     >
       {!shouldUseLegacyAccess ? (
         <div className="container pokoj-shell-content">
-          <AccountRoomApp />
+          <AccountRoomApp initialSessionHint={initialSessionHint} />
         </div>
       ) : null}
 

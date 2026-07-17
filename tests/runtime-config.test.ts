@@ -232,6 +232,22 @@ test('case map metadata keeps its own canonical public path', () => {
   assert.match(mapSource, /alternates:\s*\{\s*canonical:\s*'\/mapa-sprawy'/)
 })
 
+test('anonymous account pages do not probe the protected account endpoint without a session cookie', () => {
+  const accountRoomSource = readSource('components', 'AccountRoomApp.tsx')
+  const roomPageSource = readSource('app', 'pokoj', 'page.tsx')
+  const accountPageSource = readSource('app', 'konto', 'page.tsx')
+
+  assert.match(accountRoomSource, /initialSessionHint\?: boolean/)
+  assert.match(accountRoomSource, /useState\(initialSessionHint\)/)
+  assert.match(accountRoomSource, /if \(!initialSessionHint\) \{\s*setLoading\(false\)\s*return/)
+  assert.match(roomPageSource, /cookies\(\)/)
+  assert.match(roomPageSource, /ACCOUNT_ACCESS_COOKIE/)
+  assert.match(roomPageSource, /<AccountRoomApp initialSessionHint=\{initialSessionHint\}/)
+  assert.match(accountPageSource, /cookies\(\)/)
+  assert.match(accountPageSource, /ACCOUNT_REFRESH_COOKIE/)
+  assert.match(accountPageSource, /initialSessionHint=\{initialSessionHint\}/)
+})
+
 test('release smoke validates the intentional legacy online-page redirect without following it', () => {
   const rule = getDefaultReleaseSmokeRules().find((item) => item.path === '/behawiorysta-online-polska')
 

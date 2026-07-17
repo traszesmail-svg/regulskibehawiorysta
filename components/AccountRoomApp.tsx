@@ -20,6 +20,7 @@ type AccountView = 'start' | 'pupil' | 'rozmowa' | 'materialy' | 'historia'
 
 type AccountRoomAppProps = {
   initialView?: AccountView
+  initialSessionHint?: boolean
 }
 
 type DeferredInstallPrompt = Event & {
@@ -127,11 +128,11 @@ function AccountInstallPrompt() {
   )
 }
 
-export function AccountRoomApp({ initialView = 'start' }: AccountRoomAppProps) {
+export function AccountRoomApp({ initialView = 'start', initialSessionHint = false }: AccountRoomAppProps) {
   const [authenticated, setAuthenticated] = useState(false)
   const [account, setAccount] = useState<AccountHomePayload | null>(null)
   const [activeView, setActiveView] = useState<AccountView>(initialView)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(initialSessionHint)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
@@ -173,8 +174,13 @@ export function AccountRoomApp({ initialView = 'start' }: AccountRoomAppProps) {
   }, [petDraft.id, petDraft.name])
 
   useEffect(() => {
+    if (!initialSessionHint) {
+      setLoading(false)
+      return
+    }
+
     void loadAccount()
-  }, [loadAccount])
+  }, [initialSessionHint, loadAccount])
 
   useEffect(() => {
     if (!authenticated) {

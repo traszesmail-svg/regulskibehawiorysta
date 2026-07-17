@@ -65,6 +65,7 @@ test('case map handoff keeps a short brief and only attaches a saved map after e
   assert.equal(privateHandoff?.caseMapId, null)
   assert.equal(privateHandoff?.shareWithConsultant, false)
   assert.equal(privateHandoff?.serviceType, 'szybka-konsultacja-15-min')
+  assert.equal(privateHandoff?.profileSnapshot?.answers.case_description, undefined)
 })
 
 test('case map handoff keeps the priority Kwadrans na już service when explicitly requested', () => {
@@ -119,6 +120,30 @@ test('case map handoff expires and the temporary login draft restores only norma
   assert.deepEqual(readCaseMapLoginDraft(storage)?.answers, { case_focus: 'one_animal' })
   assert.ok(storage.getItem(CASE_MAP_LOGIN_DRAFT_KEY))
   clearCaseMapBookingHandoff(storage)
+})
+
+test('case map handoff keeps a full profile snapshot only in the expiring browser handoff', () => {
+  const storage = new MemoryStorage()
+  const handoff = createCaseMapBookingHandoff({
+    species: 'pies',
+    topic: 'dog_walks',
+    path: 'long',
+    triageState: 'PROCEED',
+    source: 'instagram',
+    problemKey: 'pies-szczeka-na-psy',
+    answers: {
+      case_focus: 'one_animal',
+      intake_health_history: 'Ten prywatny szczegół nie trafia do briefu.',
+    },
+    now: 4_000,
+  })
+
+  assert.ok(handoff)
+  assert.doesNotMatch(handoff.brief, /Ten prywatny szczegół/)
+  assert.equal(handoff.profileSnapshot?.answers.intake_health_history, 'Ten prywatny szczegół nie trafia do briefu.')
+  assert.equal(writeCaseMapBookingHandoff(handoff, storage), true)
+  assert.equal(readCaseMapBookingHandoff({ storage, now: 4_001 })?.profileSnapshot?.source, 'instagram')
+  assert.equal(readCaseMapBookingHandoff({ storage, now: 4_000 + CASE_MAP_BOOKING_HANDOFF_TTL_MS + 1 }), null)
 })
 
 test('legacy and campaign links resolve to the canonical Map without carrying unrelated data', () => {

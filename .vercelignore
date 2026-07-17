@@ -3,6 +3,8 @@
 .next-codex-verify
 node_modules
 .vercel
+.env*
+!.env.example
 .tmp-local-data
 .codex-deploy-*
 qa-screenshots/**

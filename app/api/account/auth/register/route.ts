@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { ConfigurationError } from '@/lib/server/env'
-import { setAccountSessionCookies, signUpAccount } from '@/lib/server/account-auth'
+import { getAccountUserFromAccessToken, setAccountSessionCookies, signUpAccount } from '@/lib/server/account-auth'
+import { claimPendingCaseMapProfileClaimsForUser } from '@/lib/server/case-map-profile-claims'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -17,7 +18,12 @@ function getSafeReturnTo(value: unknown) {
 
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as { email?: string; password?: string; returnTo?: string }
+    const body = (await request.json()) as {
+      email?: string
+      password?: string
+      returnTo?: string
+      caseMapClaimToken?: string
+    }
     const email = body.email?.trim().toLowerCase() ?? ''
     const password = body.password ?? ''
 
@@ -32,7 +38,16 @@ export async function POST(request: Request) {
     const returnTo = getSafeReturnTo(body.returnTo)
     const redirectTo = `${getBaseUrl(request)}/login?returnTo=${encodeURIComponent(returnTo)}`
     const session = await signUpAccount(email, password, redirectTo)
-    const response = NextResponse.json({ ok: true, hasSession: Boolean(session) })
+    let caseMapProfileClaimed = false
+    if (session) {
+      try {
+        const user = await getAccountUserFromAccessToken(session.access_token)
+        caseMapProfileClaimed = (await claimPendingCaseMapProfileClaimsForUser(user, body.caseMapClaimToken)).length > 0
+      } catch (claimError) {
+        console.error('[regulski-behawiorysta][account-register] case map profile claim skipped', claimError)
+      }
+    }
+    const response = NextResponse.json({ ok: true, hasSession: Boolean(session), caseMapProfileClaimed })
     if (session) setAccountSessionCookies(response, session)
     return response
   } catch (error) {

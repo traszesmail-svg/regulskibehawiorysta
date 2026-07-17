@@ -7,11 +7,14 @@ import { buildPaymentHref } from '@/lib/booking-routing'
 import { formatCommercePrice, getManualAmountForProduct } from '@/lib/commerce'
 import { getProblemSpecies, isProblemType } from '@/lib/data'
 import { formatPricePln } from '@/lib/pricing'
+import { normalizeCaseMapProfileSnapshot, type CaseMapProfileSnapshot } from '@/lib/case-map'
+import { getCaseMapBookingProblemType } from '@/lib/case-map-booking-handoff'
 import { createPendingBooking } from '@/lib/server/db'
 import { getAccountUser } from '@/lib/server/account-auth'
 import { linkCaseMapToBookingForUser } from '@/lib/server/case-map-store'
+import { createPendingCaseMapProfileClaim } from '@/lib/server/case-map-profile-claims'
 import { getBookingApiErrorSnapshot } from '@/lib/server/booking-api-errors'
-import { getCustomerEmailDeliveryStatus } from '@/lib/server/notifications'
+import { getCustomerEmailDeliveryStatus, sendCaseMapProfileClaimEmail } from '@/lib/server/notifications'
 import { getManualPaymentReference, getQaCheckoutEligibility } from '@/lib/server/payment-options'
 import { AnimalType, ProblemType } from '@/lib/types'
 
@@ -97,6 +100,7 @@ export async function POST(request: Request) {
     const qaBooking = isTruthyFormValue(body.qaBooking)
     const caseMapId = typeof body.caseMapId === 'string' ? body.caseMapId.trim() : ''
     const shareCaseMap = isTruthyFormValue(body.shareCaseMap)
+    const saveCaseMapToProfile = isTruthyFormValue(body.saveCaseMapToProfile)
 
     if (
       typeof body.ownerName !== 'string' ||
@@ -127,6 +131,21 @@ export async function POST(request: Request) {
     const slotId = body.slotId
     const consentTerms = isTruthyFormValue(body.consentTerms)
     const consentEarlyStart = isTruthyFormValue(body.consentEarlyStart)
+    let caseMapProfileSnapshot: CaseMapProfileSnapshot | null = null
+
+    if (saveCaseMapToProfile) {
+      try {
+        caseMapProfileSnapshot = normalizeCaseMapProfileSnapshot(body.caseMapProfileSnapshot)
+      } catch (error) {
+        return bookingErrorResponse(
+          request,
+          body,
+          shouldRedirect,
+          error instanceof Error ? error.message : 'Nie udało się odczytać prywatnego zapisu Mapy.',
+          400,
+        )
+      }
+    }
 
     if (qaBooking) {
       const qaEligibility = getQaCheckoutEligibility({
@@ -176,6 +195,13 @@ export async function POST(request: Request) {
       return bookingErrorResponse(request, body, shouldRedirect, 'Gatunek i temat muszą wskazywać ten sam typ sprawy.', 400)
     }
 
+    if (
+      caseMapProfileSnapshot &&
+      getCaseMapBookingProblemType(caseMapProfileSnapshot.species, caseMapProfileSnapshot.topic) !== problemType
+    ) {
+      return bookingErrorResponse(request, body, shouldRedirect, 'Prywatna Mapa nie pasuje do wybranego tematu rezerwacji.', 400)
+    }
+
     const result = await createPendingBooking({
       ownerName,
       serviceType: serviceType ?? undefined,
@@ -200,6 +226,37 @@ export async function POST(request: Request) {
       }
     }
 
+    let caseMapProfilePending = false
+    if (caseMapProfileSnapshot) {
+      try {
+        const pendingClaim = await createPendingCaseMapProfileClaim({
+          bookingId: result.booking.id,
+          email,
+          snapshot: caseMapProfileSnapshot,
+        })
+        caseMapProfilePending = true
+
+        const emailResult = await sendCaseMapProfileClaimEmail({
+          email,
+          expiresAt: pendingClaim.expiresAt,
+          claimToken: pendingClaim.claimToken,
+        })
+        if (emailResult.status !== 'sent') {
+          console.warn('[regulski-behawiorysta][booking-api] case map profile email was not sent', {
+            status: emailResult.status,
+            reason: emailResult.reason ?? null,
+          })
+        }
+      } catch (caseMapProfileError) {
+        // A voluntary private save must never make a paid booking impossible.
+        // The response below reports that it was not prepared, rather than
+        // claiming the Map was attached when the durable write failed.
+        console.error('[regulski-behawiorysta][booking-api] case map private profile save was not prepared', {
+          reason: caseMapProfileError instanceof Error ? caseMapProfileError.message : 'unknown',
+        })
+      }
+    }
+
     if (shouldRedirect) {
       return NextResponse.redirect(
         new URL(buildPaymentHref(result.booking.id, result.accessToken, serviceType, qaBooking), request.url),
@@ -217,6 +274,7 @@ export async function POST(request: Request) {
       customerEmailAvailable: getCustomerEmailDeliveryStatus(result.booking.email).state === 'ready',
       qaEligibility: getQaCheckoutEligibility(result.booking),
       caseMapLinked,
+      caseMapProfilePending,
     })
   } catch (error) {
     console.error('[regulski-behawiorysta][booking-api] create failed', error)

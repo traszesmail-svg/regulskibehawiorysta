@@ -94,6 +94,11 @@ test('funnel metrics snapshot keeps QA out of production counts and renders the 
     makeEvent('payment_completed', '2026-04-06T09:07:00.000Z'),
     makeEvent('booking_confirmed', '2026-04-06T09:08:00.000Z'),
     makeEvent('booking_drop', '2026-04-06T09:09:00.000Z'),
+    makeEvent('case_map_started', '2026-04-06T09:10:00.000Z'),
+    makeEvent('case_map_completed', '2026-04-06T09:10:10.000Z'),
+    makeEvent('case_map_offer_viewed', '2026-04-06T09:10:20.000Z'),
+    makeEvent('case_map_service_clicked', '2026-04-06T09:10:30.000Z'),
+    makeEvent('case_map_booking_started', '2026-04-06T09:10:40.000Z'),
     makeEvent('reject_cancel', '2026-03-30T11:59:00.000Z'),
     makeEvent('view_page', '2026-04-06T09:10:00.000Z', true),
     makeEvent('payment_completed', '2026-04-06T09:11:00.000Z', true),
@@ -111,7 +116,7 @@ test('funnel metrics snapshot keeps QA out of production counts and renders the 
   const window7d = snapshot.windows.find((window) => window.window === '7d')
   const windowAll = snapshot.windows.find((window) => window.window === 'all')
 
-  assert.equal(snapshot.totalEvents, 12)
+  assert.equal(snapshot.totalEvents, 17)
   assert.equal(snapshot.totalQaEvents, 2)
   assert.equal(snapshot.bookingCounts.total, 4)
   assert.equal(snapshot.bookingCounts.production, 3)
@@ -122,7 +127,7 @@ test('funnel metrics snapshot keeps QA out of production counts and renders the 
   assert.equal(snapshot.bookingCounts.rejected, 1)
   assert.equal(snapshot.bookingCounts.failed, 1)
 
-  assert.equal(window24h?.eventCount, 11)
+  assert.equal(window24h?.eventCount, 16)
   assert.equal(window24h?.qaEventCount, 2)
   assert.equal(window24h?.stageCounts.view_page, 1)
   assert.equal(window24h?.stageCounts.booking_confirmed, 1)
@@ -130,13 +135,21 @@ test('funnel metrics snapshot keeps QA out of production counts and renders the 
   assert.equal(window24h?.conversions.viewToEntry15, '100.0%')
   assert.equal(window24h?.conversions.paymentToCompleted, '100.0%')
   assert.equal(window24h?.conversions.completedToConfirmed, '100.0%')
+  assert.equal(window24h?.caseMap.stageCounts.case_map_started, 1)
+  assert.equal(window24h?.caseMap.stageCounts.case_map_completed, 1)
+  assert.equal(window24h?.caseMap.stageCounts.case_map_offer_viewed, 1)
+  assert.equal(window24h?.caseMap.stageCounts.case_map_service_clicked, 1)
+  assert.equal(window24h?.caseMap.stageCounts.case_map_booking_started, 1)
+  assert.equal(window24h?.caseMap.conversions.startToCompleted, '100.0%')
+  assert.equal(window24h?.caseMap.conversions.serviceClickToBookingStart, '100.0%')
 
-  assert.equal(window7d?.eventCount, 11)
-  assert.equal(windowAll?.eventCount, 12)
+  assert.equal(window7d?.eventCount, 16)
+  assert.equal(windowAll?.eventCount, 17)
   assert.match(report, /Raport Funnel Metrics/)
-  assert.match(report, /Zdarzenia produkcyjne: 12/)
+  assert.match(report, /Zdarzenia produkcyjne: 17/)
   assert.match(report, /Bookingi QA: 1/)
   assert.match(report, /Ostatnie 24 h/)
   assert.match(report, /Completed -> confirmed: 100.0%/)
   assert.match(report, /Booking drop: 1/)
+  assert.match(report, /Mapa service click: 1/)
 })

@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import {
+  CASE_MAP_PROFILE_CLAIM_CONSENT_VERSION,
   CaseMapInputError,
   normalizeCaseMapCreateInput,
+  normalizeCaseMapProfileSnapshot,
   normalizeCaseMapPatchInput,
   normalizeCaseMapTriage,
   resolveCaseMapTriage,
@@ -107,6 +109,40 @@ test('case map keeps marketing consent independent from case consent', () => {
   assert.equal(input.marketingConsent, false)
   assert.equal(input.answers.case_urgent, 'yes')
   assert.equal(input.answers.case_description, 'Reakcja zaczyna się na widok psów z dystansu.')
+})
+
+test('profile claim snapshot enforces a separate private-save consent version and disables marketing', () => {
+  const snapshot = normalizeCaseMapProfileSnapshot({
+    species: 'pies',
+    topic: 'dog_walks',
+    path: 'fast',
+    source: 'direct',
+    problemKey: null,
+    triage: neutralTriage,
+    answers: { case_focus: 'one_animal' },
+    currentQuestionId: '__result__',
+    consentVersion: 'untrusted-value',
+    privacyConsent: false,
+    marketingConsent: true,
+  })
+
+  assert.equal(snapshot.consentVersion, CASE_MAP_PROFILE_CLAIM_CONSENT_VERSION)
+  assert.equal(snapshot.privacyConsent, true)
+  assert.equal(snapshot.marketingConsent, false)
+})
+
+test('profile claim snapshot rejects a malformed full Map before a booking is created', () => {
+  assert.throws(
+    () => normalizeCaseMapProfileSnapshot({
+      species: 'kot',
+      topic: 'dog_walks',
+      path: 'fast',
+      source: 'direct',
+      triage: neutralTriage,
+      answers: { nested: { private: 'data' } },
+    }),
+    CaseMapInputError,
+  )
 })
 
 test('case map rejects unknown fields and nested payloads', () => {

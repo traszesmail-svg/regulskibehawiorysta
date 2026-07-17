@@ -55,10 +55,14 @@ export function AnalyticsConsent({ measurementId, cookiebotDomainGroupId }: Anal
   const searchParams = useSearchParams()
   const hasCookiebot = Boolean(cookiebotDomainGroupId)
   const isInternalPath = pathname.startsWith('/admin') || pathname.startsWith('/__internal') || pathname.startsWith('/api')
-  const shouldShowFallbackBanner = !isInternalPath && !hasCookiebot && Boolean(measurementId) && consent === 'unset'
+  const isCaseMapPath = pathname === '/mapa-sprawy'
+  const isAccountPrivacyPath = pathname === '/login' || pathname === '/pokoj' || pathname.startsWith('/konto')
+  const isGenericAnalyticsDisabledPath = isInternalPath || isCaseMapPath || isAccountPrivacyPath
+  const shouldShowFallbackBanner =
+    !isInternalPath && !isAccountPrivacyPath && !hasCookiebot && Boolean(measurementId) && consent === 'unset'
 
   useEffect(() => {
-    if (!measurementId || isInternalPath) {
+    if (!measurementId || isInternalPath || isAccountPrivacyPath) {
       return
     }
 
@@ -86,10 +90,74 @@ export function AnalyticsConsent({ measurementId, cookiebotDomainGroupId }: Anal
     }
 
     setConsent(readAnalyticsConsent())
-  }, [hasCookiebot, isInternalPath, measurementId])
+  }, [hasCookiebot, isAccountPrivacyPath, isInternalPath, measurementId])
 
   useEffect(() => {
-    if (!measurementId || isInternalPath) {
+    if (!measurementId || typeof window === 'undefined') {
+      return
+    }
+
+    const key = `ga-disable-${measurementId}`
+    Reflect.set(window, key, isCaseMapPath || isAccountPrivacyPath)
+  }, [isAccountPrivacyPath, isCaseMapPath, measurementId])
+
+  useEffect(() => {
+    if (!measurementId || typeof window === 'undefined') {
+      return
+    }
+
+    const keepCaseMapOutOfSpaHistoryTracking = (event: MouseEvent) => {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+        return
+      }
+
+      const link = (event.target as HTMLElement | null)?.closest<HTMLAnchorElement>('a[href]')
+      if (!link || (link.target && link.target !== '_self') || link.hasAttribute('download')) {
+        return
+      }
+
+      const destination = new URL(link.href, window.location.href)
+      if (destination.origin !== window.location.origin || destination.pathname !== '/mapa-sprawy') {
+        return
+      }
+
+      // GA enhanced measurement can observe History API changes before React
+      // effects on the destination route run. A document navigation lets the
+      // Map boot with GA absent from the first byte instead.
+      event.preventDefault()
+      event.stopPropagation()
+      window.location.assign(destination.href)
+    }
+
+    document.addEventListener('click', keepCaseMapOutOfSpaHistoryTracking, true)
+    return () => document.removeEventListener('click', keepCaseMapOutOfSpaHistoryTracking, true)
+  }, [measurementId])
+
+  useEffect(() => {
+    if (!measurementId || typeof window === 'undefined') {
+      return
+    }
+
+    const blockPrivacyRouteBeforeAnalyticsHistoryListeners = () => {
+      const privateRoute = window.location.pathname === '/mapa-sprawy' ||
+        window.location.pathname === '/login' ||
+        window.location.pathname === '/pokoj' ||
+        window.location.pathname.startsWith('/konto')
+
+      if (privateRoute) {
+        Reflect.set(window, `ga-disable-${measurementId}`, true)
+      }
+    }
+
+    // This listener is installed before the afterInteractive GA tag. It also
+    // protects browser Back/Forward navigation, which does not pass through an
+    // anchor click handler.
+    window.addEventListener('popstate', blockPrivacyRouteBeforeAnalyticsHistoryListeners)
+    return () => window.removeEventListener('popstate', blockPrivacyRouteBeforeAnalyticsHistoryListeners)
+  }, [measurementId])
+
+  useEffect(() => {
+    if (!measurementId || isGenericAnalyticsDisabledPath) {
       return
     }
 
@@ -156,20 +224,20 @@ export function AnalyticsConsent({ measurementId, cookiebotDomainGroupId }: Anal
       document.removeEventListener('click', handleTrackedClick)
       document.removeEventListener('focusin', handleTrackedFormStart)
     }
-  }, [isInternalPath, measurementId, pathname])
+  }, [isGenericAnalyticsDisabledPath, measurementId, pathname])
 
   useEffect(() => {
-    if (!measurementId || consent !== 'granted' || isInternalPath) {
+    if (!measurementId || consent !== 'granted' || isGenericAnalyticsDisabledPath) {
       return
     }
 
-    const query = searchParams?.toString()
+    const query = pathname === '/mapa-sprawy' ? '' : searchParams?.toString()
 
     trackAnalyticsEvent('view_page', {
       source_page: pathname,
       page_path: query ? `${pathname}?${query}` : pathname,
     })
-  }, [consent, isInternalPath, measurementId, pathname, searchParams])
+  }, [consent, isGenericAnalyticsDisabledPath, measurementId, pathname, searchParams])
 
   useEffect(() => {
     if (!shouldShowFallbackBanner) {
@@ -228,7 +296,7 @@ export function AnalyticsConsent({ measurementId, cookiebotDomainGroupId }: Anal
     document.body.removeAttribute('data-consent-banner-visible')
   }, [isFallbackBannerReady, shouldShowFallbackBanner])
 
-  if (isInternalPath || (!measurementId && !hasCookiebot)) {
+  if (isInternalPath || isAccountPrivacyPath || (!measurementId && !hasCookiebot)) {
     return null
   }
 
@@ -249,7 +317,7 @@ export function AnalyticsConsent({ measurementId, cookiebotDomainGroupId }: Anal
         />
       ) : null}
 
-      {measurementId && consent === 'granted' ? (
+      {measurementId && consent === 'granted' && !isGenericAnalyticsDisabledPath ? (
         <>
           <Script
             id="ga4-script"

@@ -105,6 +105,13 @@ function getPagePath() {
     return null
   }
 
+  // A saved Map can be resumed with an opaque id. The id is not useful for
+  // public analytics, so never include it (or any other query/hash data) in
+  // the generic page-view event.
+  if (window.location.pathname === '/mapa-sprawy' || window.location.pathname === '/login') {
+    return window.location.pathname
+  }
+
   return `${window.location.pathname}${window.location.search}${window.location.hash}`
 }
 
@@ -159,6 +166,44 @@ function postInternalAnalyticsEvent(payload: Record<string, unknown>) {
     keepalive: true,
     credentials: 'same-origin',
   }).catch(() => {})
+}
+
+/**
+ * Sends a consent-gated, first-party-only event. This intentionally does not
+ * forward data to GA4 and accepts an explicit canonical path instead of the
+ * browser URL.
+ */
+export function trackPrivateAnalyticsEvent(
+  name: string,
+  pagePath: string,
+  params: Record<string, string | number | boolean | null | undefined> = {},
+) {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  if (readAnalyticsConsent() !== 'granted' || isAnalyticsDisabledPage()) {
+    return
+  }
+
+  const payload = Object.fromEntries(
+    Object.entries(params).filter(([, value]) => value !== undefined && value !== null && value !== ''),
+  ) as AnalyticsPayload
+
+  postInternalAnalyticsEvent({
+    eventType: name,
+    qaBooking: isQaBookingPage(),
+    pagePath,
+    properties: payload,
+    consent: 'granted',
+  })
+
+  pushDebugAnalyticsEvent({
+    eventType: name,
+    pagePath,
+    properties: payload,
+    createdAt: new Date().toISOString(),
+  })
 }
 
 function readStoredBookingProgress(): StoredBookingProgress | null {

@@ -18,6 +18,7 @@ import {
 } from '@/lib/case-map-questions'
 import { getBookingServiceConfig } from '@/lib/booking-services'
 import { appendSearchParams, buildBookHref } from '@/lib/booking-routing'
+import { trackCaseMapPrivateAnalyticsEvent } from '@/lib/case-map-analytics'
 import { createCaseMapBookingHandoff, writeCaseMapBookingHandoff, type CaseMapBookingServiceType } from '@/lib/case-map-booking-handoff'
 import { clearCaseMapLoginDraft, readCaseMapLoginDraft, writeCaseMapLoginDraft } from '@/lib/case-map-login-draft'
 import { buildCaseMapReport } from '@/lib/case-map-report'
@@ -155,62 +156,62 @@ function ImageGenIcon({ index, className = '' }: { index: number; className?: st
 function getStepInsight(sceneId: string, selection: string): StepInsight {
   if (sceneId === 'scope') {
     return {
-      observation: `Wybrano zakres: ${selection}.`,
-      bridge: 'Na końcu Mapa dopasuje usługę i przekaże jej krótki brief do formularza zakupu.',
+      observation: `Na dziś wybierasz: ${selection}.`,
+      bridge: 'Na końcu podpowiemy konsultację, od której warto zacząć.',
     }
   }
 
   if (sceneId === 'species') {
     return {
-      observation: `Dodaliśmy właściwy kontekst dla: ${selection.toLowerCase()}.`,
+      observation: `Dotyczy: ${selection.toLowerCase()}.`,
       bridge: 'Dzięki temu konsultacja nie zacznie się od ogólników, tylko od właściwej codzienności zwierzęcia.',
     }
   }
 
   if (sceneId === 'topic') {
     return {
-      observation: `Nazwaliśmy obszar: ${selection.toLowerCase()}.`,
+      observation: `Najbliższy temat: ${selection.toLowerCase()}.`,
       bridge: 'To zawęża rozmowę, ale nie przykleja zwierzęciu etykiety — w konsultacji sprawdzimy, co naprawdę się powtarza.',
     }
   }
 
   if (sceneId === 'case_focus') {
     return {
-      observation: `Wybraliśmy punkt widzenia tej sytuacji: ${selection.toLowerCase()}.`,
-      bridge: 'W konsultacji odniesiemy go do domu, rytmu i relacji, których sam formularz nie pokaże.',
+      observation: `Sprawa dotyczy: ${selection.toLowerCase()}.`,
+      bridge: 'W konsultacji odniesiemy to do domu, rytmu i relacji, których nie da się opisać jednym wyborem.',
     }
   }
 
   if (sceneId === 'fast_onset') {
     return {
-      observation: `Zapisaliśmy początek trudności: ${selection.toLowerCase()}.`,
+      observation: `Początek sytuacji: ${selection.toLowerCase()}.`,
       bridge: 'Czas pomaga ułożyć kolejność pytań; w konsultacji nie będziemy tracić czasu na nietrafione tropy.',
     }
   }
 
   if (sceneId === 'fast_frequency') {
     return {
-      observation: `Zapisaliśmy rytm sytuacji: ${selection.toLowerCase()}.`,
+      observation: `Rytm sytuacji: ${selection.toLowerCase()}.`,
       bridge: 'W konsultacji przełożymy tę powtarzalność na konkretne momenty dnia i warunki.',
     }
   }
 
   if (sceneId === 'fast_impact') {
     return {
-      observation: `Zaznaczony wpływ na codzienność: ${selection}.`,
+      observation: `Wpływ na codzienność: ${selection}.`,
       bridge: 'To pomaga ustalić priorytet rozmowy, zamiast dokładać kolejne ogólne rady.',
     }
   }
 
   if (sceneId === 'fast_goal') {
     return {
-      observation: `Cel po Mapie: ${selection.toLowerCase()}.`,
-      bridge: 'Dzięki temu pokażemy właściwy formularz zakupu zamiast kazać wybierać usługę w ciemno.',
+      observation: `Dziś potrzebujesz: ${selection.toLowerCase()}.`,
+      bridge: 'Dzięki temu łatwiej będzie wybrać konsultację odpowiednią do tej sytuacji.',
     }
   }
 
   return {
-    observation: `Ten szczegół doprecyzowuje Mapę: ${selection.toLowerCase()}.`,
+    observation: `Ważna wskazówka: ${selection.toLowerCase()}.`,
     bridge: 'W konsultacji zaczniemy od tego fragmentu zamiast od opowiadania całej historii od początku.',
   }
 }
@@ -233,6 +234,9 @@ export function ShortBehaviorMapFlow({
   const [savedCaseMap, setSavedCaseMap] = useState<StoredCaseMap | null>(null)
   const [showSave, setShowSave] = useState(false)
   const restoredLoginDraftRef = useRef(false)
+  const startedTrackingRef = useRef(false)
+  const completedTrackingRef = useRef(false)
+  const offerTrackingRef = useRef(false)
 
   const shortQuestions = useMemo(() => topic ? getCaseMapShortFlowQuestions(topic) : [], [topic])
   const questionScenes = useMemo<QuestionScene[]>(() => {
@@ -247,8 +251,8 @@ export function ShortBehaviorMapFlow({
     {
       id: 'scope',
       eyebrow: 'Mapa zachowania',
-      title: 'Ile chcesz dziś uporządkować?',
-      helper: 'Wybierz zakres, który najlepiej pasuje do Twojej sytuacji. Obie wersje przygotują gotowy brief do formularza zakupu.',
+      title: 'Jak chcesz dziś zacząć?',
+      helper: 'Wybierz krótszą drogę na start albo pełniejszą mapę sytuacji. Na końcu pokażemy konsultację dopasowaną do tego, czego dziś potrzebujesz.',
       kind: 'scope',
     },
     {
@@ -323,6 +327,10 @@ export function ShortBehaviorMapFlow({
     serviceType: recommendedServiceType,
     caseMapId: savedCaseMap?.id ?? null,
     shareWithConsultant: false,
+    source,
+    problemKey: initialProblemKey ?? null,
+    triage: UNASSESSED_TRIAGE,
+    currentQuestionId,
   })
   const bookingHref = appendSearchParams(
     bookingHandoff ? buildBookHref(bookingHandoff.problemType, bookingHandoff.serviceType, false, bookingHandoff.species) : '/book',
@@ -341,6 +349,10 @@ export function ShortBehaviorMapFlow({
     serviceType: alternateServiceType,
     caseMapId: savedCaseMap?.id ?? null,
     shareWithConsultant: false,
+    source,
+    problemKey: initialProblemKey ?? null,
+    triage: UNASSESSED_TRIAGE,
+    currentQuestionId,
   })
   const alternateBookingHref = appendSearchParams(
     alternateBookingHandoff ? buildBookHref(alternateBookingHandoff.problemType, alternateBookingHandoff.serviceType, false, alternateBookingHandoff.species) : '/book',
@@ -429,11 +441,28 @@ export function ShortBehaviorMapFlow({
     setResumeQuestionId(null)
   }, [answers, path, resumeQuestionId, scenes, species, topic])
 
+  useEffect(() => {
+    if (mode !== 'result' || !path || offerTrackingRef.current) return
+
+    offerTrackingRef.current = true
+    trackCaseMapPrivateAnalyticsEvent('case_map_offer_viewed', {
+      map_path: path,
+      service_key: recommendedServiceType,
+    })
+  }, [mode, path, recommendedServiceType])
+
   function setAnswer(question: CaseMapQuestion, value: string | number) {
     setAnswers((current) => ({ ...current, [question.id]: value }))
   }
 
   function choosePath(nextPath: CaseMapPath) {
+    if (!startedTrackingRef.current) {
+      startedTrackingRef.current = true
+      trackCaseMapPrivateAnalyticsEvent('case_map_started', {
+        map_path: nextPath,
+        entry_source: source,
+      })
+    }
     setPath(nextPath)
     setAnswers({ case_path: nextPath })
     setSceneIndex(1)
@@ -453,6 +482,13 @@ export function ShortBehaviorMapFlow({
   function goNext() {
     if (!currentComplete) return
     if (sceneIndex >= scenes.length - 1) {
+      if (path && !completedTrackingRef.current) {
+        completedTrackingRef.current = true
+        trackCaseMapPrivateAnalyticsEvent('case_map_completed', {
+          map_path: path,
+          service_key: recommendedServiceType,
+        })
+      }
       setMode('result')
       return
     }
@@ -479,6 +515,9 @@ export function ShortBehaviorMapFlow({
     setSavedCaseMap(null)
     setShowSave(false)
     setResumeError('')
+    startedTrackingRef.current = false
+    completedTrackingRef.current = false
+    offerTrackingRef.current = false
   }
 
   function preserveDraftForSignIn() {
@@ -500,8 +539,14 @@ export function ShortBehaviorMapFlow({
     setSavedCaseMap(caseMap)
   }
 
-  function prepareBookingHandoff(handoff = bookingHandoff) {
-    if (handoff) writeCaseMapBookingHandoff(handoff)
+  function prepareBookingHandoff(handoff = bookingHandoff, ctaVariant: 'primary' | 'alternate' = 'primary') {
+    if (!handoff || !path) return
+    writeCaseMapBookingHandoff(handoff)
+    trackCaseMapPrivateAnalyticsEvent('case_map_service_clicked', {
+      map_path: path,
+      service_key: handoff.serviceType,
+      cta_variant: ctaVariant,
+    })
   }
 
   const topicLabel = species && topic ? TOPICS[species].find((item) => item.id === topic)?.label ?? 'wybrana sytuacja' : 'wybrana sytuacja'
@@ -518,23 +563,23 @@ export function ShortBehaviorMapFlow({
   const resultLead = priorityConversation
     ? 'Mapa wskazuje, że najważniejsze jest teraz szybkie uporządkowanie sytuacji. Nie musisz dalej zbierać odpowiedzi samodzielnie.'
     : extendedConversation
-      ? 'Zebrany materiał pokazuje więcej niż jeden wątek. Dłuższa konsultacja pozwoli połączyć je w spokojną kolejność działań.'
-      : 'Mapa zebrała najważniejsze obserwacje. Nie zastępuje indywidualnej konsultacji — sprawia, że wchodzimy w nią od właściwego miejsca.'
+      ? 'Twoje odpowiedzi pokazują więcej niż jeden wątek. Dłuższa konsultacja pozwoli połączyć je w spokojną kolejność działań.'
+      : 'Twoje odpowiedzi pokazują, od czego warto zacząć. Podczas konsultacji wspólnie przełożymy je na pierwszy sensowny krok.'
   const resultSignals = [
     { label: 'Co już widać', value: patternLabel ? `${topicLabel}: ${patternLabel}.` : `Wybrany obszar: ${topicLabel}.` },
-    { label: 'Co doprecyzujemy', value: `${impactLabel ? `Wpływ na codzienność: ${impactLabel}. ` : ''}${longOnsetLabel ? `Opis początku: ${longOnsetLabel}.` : onsetLabel ? `Kontekst i to, dlaczego sytuacja ${onsetLabel.toLowerCase()}.` : 'Kontekst domu, rytmu i warunków, których formularz nie pokaże.'}` },
+    { label: 'Co doprecyzujemy', value: `${impactLabel ? `Wpływ na codzienność: ${impactLabel}. ` : ''}${longOnsetLabel ? `Opis początku: ${longOnsetLabel}.` : onsetLabel ? `Kontekst i to, dlaczego sytuacja ${onsetLabel.toLowerCase()}.` : 'Kontekst domu, rytmu i warunków, których nie widać po jednej odpowiedzi.'}` },
     { label: 'Cel rozmowy', value: goalLabel ?? (extendedConversation ? 'Ułożenie pełniejszego planu.' : 'Wybranie pierwszego sensownego kierunku.') },
   ]
   const offerBenefits = priorityConversation
-    ? ['Gotowy brief skraca wejście w temat.', 'Zaczynamy od najważniejszego fragmentu sytuacji.', 'Wychodzisz z uporządkowanym następnym krokiem.']
+    ? ['Nie zaczynamy od całej historii od zera.', 'Zaczynamy od najważniejszego fragmentu sytuacji.', 'Wychodzisz z uporządkowanym następnym krokiem.']
     : extendedConversation
       ? ['Łączymy obserwacje z różnych momentów dnia.', 'Ustalamy, co jest tłem, a co priorytetem.', 'Budujemy kierunek dalszego planu, nie pojedynczą poradę.']
       : ['Nie zaczynamy od zera — Mapa jest punktem startu.', 'Porządkujemy, co w tej sytuacji jest najważniejsze.', 'Wybieramy pierwszy kierunek działania dla jednego tematu.']
   const purchaseLabel = priorityConversation
-    ? 'Przejdź do formularza zakupu · Kwadrans na już'
+    ? 'Wybierz termin · Kwadrans na już'
     : extendedConversation
-      ? 'Przejdź do formularza zakupu · Dwa kwadranse'
-      : 'Przejdź do formularza zakupu · Konsultacja 15 min'
+      ? 'Wybierz termin · Dwa kwadranse'
+      : 'Wybierz termin · Konsultacja 15 min'
   const alternateLabel = alternateServiceType === 'konsultacja-30-min'
     ? `Potrzebuję więcej czasu · ${alternateService.shortTitle}`
     : `Wolę zwykłą konsultację · ${alternateService.shortTitle}`
@@ -546,8 +591,8 @@ export function ShortBehaviorMapFlow({
     <section className={styles.root} aria-labelledby="short-behavior-map-title">
       <header className={styles.flowHeader}>
         <Link href="/" className={styles.flowIdentity}><span className={styles.directionGlyph} aria-hidden="true">←</span><span>{path === 'long' ? 'Pełniejsza mapa' : path === 'fast' ? 'Szybka mapa' : 'Mapa zachowania'}</span></Link>
-        <div className={styles.flowProgress} aria-label={path && totalSteps ? `Krok ${activeStep} z ${totalSteps}` : path ? 'Początek wybranej Mapy zachowania' : 'Wybór zakresu Mapy zachowania'}>
-          <strong>{path && totalSteps ? <>{activeStep} <span>/ {totalSteps}</span></> : path ? 'Start' : 'Wybierz zakres'}</strong>
+        <div className={styles.flowProgress} aria-label={path && totalSteps ? `Krok ${activeStep} z ${totalSteps}` : path ? 'Początek wybranej Mapy zachowania' : 'Wybór wersji Mapy zachowania'}>
+          <strong>{path && totalSteps ? <>{activeStep} <span>/ {totalSteps}</span></> : path ? 'Start' : 'Wybierz wersję'}</strong>
           <div className={styles.progressTrack} style={{ gridTemplateColumns: `repeat(${progressSegmentCount}, minmax(0, 1fr))` }} aria-hidden="true">
             {Array.from({ length: progressSegmentCount }, (_, index) => <span key={index} className={mode === 'result' || index < completedSegments ? styles.progressDone : path && index === completedSegments ? styles.progressCurrent : undefined} />)}
           </div>
@@ -560,10 +605,10 @@ export function ShortBehaviorMapFlow({
         <article className={styles.scene}>
           <div className={styles.visual} style={{ backgroundImage: `url(${heroImage})` }} aria-hidden="true">
             <div className={styles.visualShade} />
-            <div className={styles.visualBadge}><ImageGenIcon index={2} className={styles.visualBadgeIcon} /><span>Spójrz i odpowiedz</span></div>
+            <div className={styles.visualBadge}><ImageGenIcon index={2} className={styles.visualBadgeIcon} /><span>Spokojnie, krok po kroku</span></div>
             <div className={styles.visualCaption}>
               <span>{species === 'kot' ? 'Kot i dom' : species === 'pies' ? 'Pies i codzienność' : 'Mapa zachowania'}</span>
-              <strong>Jedna decyzja<br />na ekran.</strong>
+              <strong>{species ? <>Przyjrzyjmy się<br />tej sytuacji.</> : <>Zobaczmy,<br />co dziś jest ważne.</>}</strong>
             </div>
           </div>
 
@@ -580,9 +625,9 @@ export function ShortBehaviorMapFlow({
 
             {path ? (
               <div className={styles.briefStatus}>
-                <span>Mapa do zakupu konsultacji</span>
-                <strong>{collectedObservations} / {questionScenes.length || 1} obserwacji</strong>
-                <small>Gotowy brief zostanie dołączony do formularza zakupu.</small>
+                <span>Przygotowanie do rozmowy</span>
+                <strong>{collectedObservations} z {questionScenes.length || 1} kroków</strong>
+                <small>Twoje odpowiedzi pozwolą nam od razu skupić się na sytuacji, którą opisujesz.</small>
               </div>
             ) : null}
 
@@ -591,12 +636,12 @@ export function ShortBehaviorMapFlow({
                 <div className={styles.answerGrid}>
                   <button type="button" className={styles.answer} onClick={() => choosePath('fast')}>
                     <ImageGenIcon index={1} className={styles.answerIcon} />
-                    <span className={styles.answerCopy}><strong>Szybka mapa</strong><small>Krótka droga przez najważniejsze obserwacje i dopasowanie pierwszej usługi.</small></span>
+                    <span className={styles.answerCopy}><strong>Szybka mapa</strong><small>Kilka krótkich pytań i jasny kierunek rozmowy.</small></span>
                     <span className={styles.rowArrow} aria-hidden="true">›</span>
                   </button>
                   <button type="button" className={styles.answer} onClick={() => choosePath('long')}>
                     <ImageGenIcon index={6} className={styles.answerIcon} />
-                    <span className={styles.answerCopy}><strong>Pełniejsza mapa</strong><small>Więcej kontekstu przed zakupem dłuższej konsultacji i ułożeniem kolejności tematów.</small></span>
+                    <span className={styles.answerCopy}><strong>Pełniejsza mapa</strong><small>Więcej miejsca na opis sytuacji, gdy chcesz poruszyć kilka wątków.</small></span>
                     <span className={styles.rowArrow} aria-hidden="true">›</span>
                   </button>
                 </div>
@@ -674,7 +719,7 @@ export function ShortBehaviorMapFlow({
               <aside className={styles.stepInsight} aria-live="polite">
                 <ImageGenIcon index={path === 'long' ? 6 : 2} className={styles.stepInsightIcon} />
                 <div>
-                  <span>Co ta odpowiedź wnosi do Mapy</span>
+                  <span>Co to mówi o sytuacji</span>
                   <strong>{currentInsight.observation}</strong>
                   <p>{currentInsight.bridge}</p>
                 </div>
@@ -694,14 +739,14 @@ export function ShortBehaviorMapFlow({
           <div className={styles.resultVisual} style={{ backgroundImage: `url(${resultVisual})` }} aria-hidden="true">
             <div className={styles.visualShade} />
             <div className={styles.resultSeal}><ImageGenIcon index={priorityConversation ? 4 : 6} className={styles.resultSealIcon} /></div>
-            <div className={styles.resultVisualCaption}>{priorityConversation ? 'Mapa → zakup → najbliższy krok' : 'Mapa → zakup → pierwszy plan'}</div>
+            <div className={styles.resultVisualCaption}>{priorityConversation ? 'Twoja sytuacja. Rozmowa. Najbliższy krok.' : 'Twoja sytuacja. Rozmowa. Pierwszy krok.'}</div>
           </div>
           <div className={styles.resultContent}>
-            <div className={styles.resultKicker}><ImageGenIcon index={priorityConversation ? 4 : extendedConversation ? 1 : 6} className={styles.kickerIcon} />Mapa gotowa do zakupu konsultacji</div>
+            <div className={styles.resultKicker}><ImageGenIcon index={priorityConversation ? 4 : extendedConversation ? 1 : 6} className={styles.kickerIcon} />Masz punkt startu do rozmowy</div>
             <h2>{resultTitle}</h2>
             <p className={styles.resultLead}>{resultLead}</p>
 
-            <div className={styles.resultInsights} aria-label="Co Mapa przygotowała do konsultacji">
+            <div className={styles.resultInsights} aria-label="Najważniejsze punkty do rozmowy">
               {resultSignals.map((signal) => <div key={signal.label}><span>{signal.label}</span><strong>{signal.value}</strong></div>)}
             </div>
 
@@ -709,16 +754,16 @@ export function ShortBehaviorMapFlow({
               <div className={styles.purchaseCardHeading}>
                 <ImageGenIcon index={priorityConversation ? 4 : extendedConversation ? 1 : 6} className={styles.purchaseIcon} />
                 <div>
-                  <span>Dobieramy następny krok</span>
+                  <span>Proponowana konsultacja</span>
                   <strong>{recommendedService.title}</strong>
                 </div>
               </div>
-              <p>{priorityConversation ? 'Twoja Mapa prowadzi prosto do priorytetowego formularza zakupu — wybierzesz najbliższy realny termin dla tej sytuacji.' : extendedConversation ? 'Ta wersja daje więcej miejsca na połączenie wątków, które Mapa już uporządkowała.' : 'W formularzu zakupu wybierzesz usługę z gotową Mapą jako punktem startu.'}</p>
+              <p>{priorityConversation ? 'Ta sytuacja zasługuje na szybszą rozmowę. Wybierz najbliższy termin — najważniejsze odpowiedzi dołączymy do tej rezerwacji.' : extendedConversation ? 'Wybierz termin dłuższej konsultacji. Najważniejsze odpowiedzi dołączymy do rezerwacji, aby rozmowa zaczęła się od Twojej sytuacji.' : 'Wybierz termin konsultacji. Najważniejsze odpowiedzi dołączymy do rezerwacji, aby rozmowa zaczęła się od Twojej sytuacji.'}</p>
               <ul>
                 {offerBenefits.map((benefit) => <li key={benefit}><span aria-hidden="true">✓</span>{benefit}</li>)}
               </ul>
-              <Link href={bookingHref} className={priorityConversation ? styles.priorityButton : styles.purchaseButton} onClick={() => prepareBookingHandoff(bookingHandoff)}>{purchaseLabel} <span className={styles.directionGlyph} aria-hidden="true">→</span></Link>
-              <small>Po wyborze terminu formularz otrzyma krótki brief z tej Mapy.</small>
+              <Link href={bookingHref} className={priorityConversation ? styles.priorityButton : styles.purchaseButton} onClick={() => prepareBookingHandoff(bookingHandoff, 'primary')}>{purchaseLabel} <span className={styles.directionGlyph} aria-hidden="true">→</span></Link>
+              <small>Przy wyborze terminu wpiszesz e-mail. Najważniejsze odpowiedzi dołączymy do rezerwacji. Jeśli chcesz, Pełną Mapę możesz zapisać prywatnie w swoim Pokoju.</small>
             </div>
 
             <div className={styles.beforePurchaseCard}>
@@ -730,7 +775,7 @@ export function ShortBehaviorMapFlow({
             </div>
 
             <div className={styles.alternativeActions}>
-              <Link href={alternateBookingHref} className={styles.alternativeButton} onClick={() => prepareBookingHandoff(alternateBookingHandoff)}>{alternateLabel}</Link>
+              <Link href={alternateBookingHref} className={styles.alternativeButton} onClick={() => prepareBookingHandoff(alternateBookingHandoff, 'alternate')}>{alternateLabel}</Link>
               <Link href={contactHref} className={styles.contactButton}>Nie wiesz, co wybrać? Kontakt</Link>
             </div>
 

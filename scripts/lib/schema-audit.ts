@@ -105,6 +105,21 @@ const REQUIRED_SCHEMA_MARKERS: SchemaMarker[] = [
     needle: 'create table if not exists public.case_maps',
     expectedCount: 1,
   },
+  {
+    label: 'case_map_profile_claims',
+    needle: 'create table if not exists public.case_map_profile_claims',
+    expectedCount: 1,
+  },
+  {
+    label: 'case_map_profile_claim_cleanup',
+    needle: 'create or replace function public.regulski_delete_expired_case_map_profile_claims()',
+    expectedCount: 1,
+  },
+  {
+    label: 'case_map_profile_claim_token',
+    needle: 'claim_token_hash text not null',
+    expectedCount: 1,
+  },
 ]
 
 const REQUIRED_FILES = [
@@ -114,6 +129,8 @@ const REQUIRED_FILES = [
   'supabase/migrations/20260601005_push_subscriptions.sql',
   'supabase/migrations/20260714001_case_maps.sql',
   'supabase/migrations/20260714002_case_map_consultant_handoff.sql',
+  'supabase/migrations/20260717001_case_map_analytics_and_profile_claims.sql',
+  'supabase/migrations/20260717002_case_map_profile_claim_tokens.sql',
 ]
 
 function normalizeSchemaText(schemaText: string) {

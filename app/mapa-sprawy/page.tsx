@@ -11,6 +11,7 @@ import {
 } from '@/lib/case-map-routing'
 import { getQuizProblemContext } from '@/lib/quiz-first-step'
 import { getBreadcrumbJsonLd } from '@/lib/schema'
+import { getBuildMarkerSnapshot } from '@/lib/build-marker'
 import { REGULSKI_WEB_BADGE_LOGO } from '@/lib/regulski-web-assets'
 import styles from './page.module.css'
 
@@ -26,6 +27,7 @@ type SearchParams = CaseMapSearchParams & {
 }
 
 export default function BehaviorMapPage({ searchParams }: { searchParams?: SearchParams }) {
+  const buildMarker = getBuildMarkerSnapshot()
   const problemKey = getSingleCaseMapSearchParam(searchParams?.problem)
   const context = getQuizProblemContext(problemKey)
   const initialCaseMapId = getSingleCaseMapSearchParam(searchParams?.resume)
@@ -33,7 +35,7 @@ export default function BehaviorMapPage({ searchParams }: { searchParams?: Searc
   const source = getCaseMapSource(marketingParams, Boolean(context))
 
   return (
-    <main className={styles.page}>
+    <main className={styles.page} data-build-marker={buildMarker.value}>
       <Schema
         data={getBreadcrumbJsonLd([
           { name: 'Strona główna', path: '/' },

@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { unstable_noStore as noStore } from 'next/cache'
 import { CalendarDays, Cat, Check, ChevronDown, Dog, Headphones, PawPrint } from 'lucide-react'
 import { AnalyticsEventOnMount } from '@/components/AnalyticsEventOnMount'
+import { CaseMapBookingAnalytics } from '@/components/CaseMapBookingAnalytics'
 import { MobileFirstStepCta } from '@/components/MobileFirstStepCta'
 import { NotatnikPageShell, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
 import { TerminCalendarPicker, type TerminCalendarDay as PickerCalendarDay } from '@/components/TerminCalendarPicker'
@@ -422,6 +423,11 @@ export async function BookingSlotCalendar({
                 species: problemSpecies,
                 qa_booking: qaBooking,
               }}
+            />
+            <CaseMapBookingAnalytics
+              problemType={problem}
+              serviceType={serviceType}
+              species={problemSpecies}
             />
             <TerminCalendarPicker
               monthLabel={calendar.label}

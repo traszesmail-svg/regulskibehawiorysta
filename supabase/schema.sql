@@ -128,7 +128,12 @@ create table if not exists public.funnel_events (
       'room_entered',
       'quiz_completed',
       'notification_optin_submitted',
-      'notification_optout_submitted'
+      'notification_optout_submitted',
+      'case_map_started',
+      'case_map_completed',
+      'case_map_offer_viewed',
+      'case_map_service_clicked',
+      'case_map_booking_started'
     )
   ),
   booking_id uuid references public.bookings(id) on delete set null,
@@ -392,4 +397,57 @@ drop policy if exists "service role full access case_maps" on public.case_maps;
 create policy "service role full access case_maps" on public.case_maps
   for all
   to service_role
-  using (true)
+  using (true);
+
+create table if not exists public.case_map_profile_claims (
+  id uuid primary key default gen_random_uuid(),
+  booking_id uuid not null unique references public.bookings(id) on delete cascade,
+  email_hash text not null,
+  claim_token_hash text not null,
+  snapshot jsonb not null,
+  consent_version text not null,
+  consented_at timestamptz not null,
+  expires_at timestamptz not null,
+  claimed_at timestamptz,
+  claimed_by_user_id uuid references auth.users(id) on delete set null,
+  claimed_case_map_id uuid references public.case_maps(id) on delete set null,
+  created_at timestamptz not null default timezone('utc', now())
+);
+
+create index if not exists case_map_profile_claims_email_expires_idx
+  on public.case_map_profile_claims(email_hash, expires_at);
+
+create unique index if not exists case_map_profile_claims_token_idx
+  on public.case_map_profile_claims(claim_token_hash);
+
+create index if not exists case_map_profile_claims_expires_idx
+  on public.case_map_profile_claims(expires_at);
+
+alter table public.case_map_profile_claims enable row level security;
+revoke all on table public.case_map_profile_claims from anon, authenticated;
+grant all on table public.case_map_profile_claims to service_role;
+
+drop policy if exists "service role full access case_map_profile_claims" on public.case_map_profile_claims;
+create policy "service role full access case_map_profile_claims" on public.case_map_profile_claims
+  for all
+  to service_role
+  using (true);
+
+create or replace function public.regulski_delete_expired_case_map_profile_claims()
+returns integer
+language plpgsql
+security definer
+set search_path = pg_catalog, public
+as $$
+declare
+  deleted_count integer;
+begin
+  delete from public.case_map_profile_claims
+  where expires_at <= now();
+
+  get diagnostics deleted_count = row_count;
+  return deleted_count;
+end;
+$$;
+
+revoke all on function public.regulski_delete_expired_case_map_profile_claims() from public;

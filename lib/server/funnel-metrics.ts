@@ -29,6 +29,17 @@ export const FUNNEL_STAGE_EVENT_TYPES = [
 export type FunnelStageEventType = (typeof FUNNEL_STAGE_EVENT_TYPES)[number]
 export type FunnelStageCounts = Record<FunnelStageEventType, number>
 
+export const CASE_MAP_STAGE_EVENT_TYPES = [
+  'case_map_started',
+  'case_map_completed',
+  'case_map_offer_viewed',
+  'case_map_service_clicked',
+  'case_map_booking_started',
+] as const satisfies readonly FunnelEventType[]
+
+export type CaseMapStageEventType = (typeof CASE_MAP_STAGE_EVENT_TYPES)[number]
+export type CaseMapStageCounts = Record<CaseMapStageEventType, number>
+
 export type FunnelBookingCounts = {
   total: number
   production: number
@@ -48,6 +59,15 @@ export type FunnelWindowSnapshot = {
   eventCount: number
   qaEventCount: number
   stageCounts: FunnelStageCounts
+  caseMap: {
+    stageCounts: CaseMapStageCounts
+    conversions: {
+      startToCompleted: string
+      completedToOffer: string
+      offerToServiceClick: string
+      serviceClickToBookingStart: string
+    }
+  }
   conversions: {
     viewToEntry15: string
     entry15ToBookingStart: string
@@ -90,6 +110,16 @@ function createZeroStageCounts(): FunnelStageCounts {
     contact_form_started: 0,
     contact_form_submitted: 0,
     reject_cancel: 0,
+  }
+}
+
+function createZeroCaseMapStageCounts(): CaseMapStageCounts {
+  return {
+    case_map_started: 0,
+    case_map_completed: 0,
+    case_map_offer_viewed: 0,
+    case_map_service_clicked: 0,
+    case_map_booking_started: 0,
   }
 }
 
@@ -178,6 +208,15 @@ function buildConversions(stageCounts: FunnelStageCounts) {
   }
 }
 
+function buildCaseMapConversions(stageCounts: CaseMapStageCounts) {
+  return {
+    startToCompleted: formatPercentage(stageCounts.case_map_completed, stageCounts.case_map_started),
+    completedToOffer: formatPercentage(stageCounts.case_map_offer_viewed, stageCounts.case_map_completed),
+    offerToServiceClick: formatPercentage(stageCounts.case_map_service_clicked, stageCounts.case_map_offer_viewed),
+    serviceClickToBookingStart: formatPercentage(stageCounts.case_map_booking_started, stageCounts.case_map_service_clicked),
+  }
+}
+
 export function buildFunnelMetricsSnapshot({
   events,
   bookings,
@@ -190,6 +229,7 @@ export function buildFunnelMetricsSnapshot({
   const windows = FUNNEL_METRIC_WINDOWS.map((window) => {
     const windowStart = getWindowStart(now, window)
     const stageCounts = createZeroStageCounts()
+    const caseMapStageCounts = createZeroCaseMapStageCounts()
     let eventCount = 0
     let qaEventCount = 0
     let lastEventAt: string | null = null
@@ -211,6 +251,9 @@ export function buildFunnelMetricsSnapshot({
       if (normalizedType && normalizedType in stageCounts) {
         stageCounts[normalizedType as FunnelStageEventType] += 1
       }
+      if (normalizedType && normalizedType in caseMapStageCounts) {
+        caseMapStageCounts[normalizedType as CaseMapStageEventType] += 1
+      }
     }
 
     return {
@@ -221,6 +264,10 @@ export function buildFunnelMetricsSnapshot({
       eventCount,
       qaEventCount,
       stageCounts,
+      caseMap: {
+        stageCounts: caseMapStageCounts,
+        conversions: buildCaseMapConversions(caseMapStageCounts),
+      },
       conversions: buildConversions(stageCounts),
       lastEventAt,
     }
@@ -279,6 +326,15 @@ export function renderFunnelMetricsMarkdown(snapshot: FunnelMetricsSnapshot): st
     lines.push(formatLine('Payment -> completed', window.conversions.paymentToCompleted))
     lines.push(formatLine('Completed -> confirmed', window.conversions.completedToConfirmed))
     lines.push(formatLine('Booking drop', window.stageCounts.booking_drop))
+    lines.push(formatLine('Mapa start', window.caseMap.stageCounts.case_map_started))
+    lines.push(formatLine('Mapa completed', window.caseMap.stageCounts.case_map_completed))
+    lines.push(formatLine('Mapa offer viewed', window.caseMap.stageCounts.case_map_offer_viewed))
+    lines.push(formatLine('Mapa service click', window.caseMap.stageCounts.case_map_service_clicked))
+    lines.push(formatLine('Mapa booking started', window.caseMap.stageCounts.case_map_booking_started))
+    lines.push(formatLine('Mapa start -> completed', window.caseMap.conversions.startToCompleted))
+    lines.push(formatLine('Mapa completed -> offer', window.caseMap.conversions.completedToOffer))
+    lines.push(formatLine('Mapa offer -> service click', window.caseMap.conversions.offerToServiceClick))
+    lines.push(formatLine('Mapa service click -> booking start', window.caseMap.conversions.serviceClickToBookingStart))
     lines.push(formatLine('Ostatnie zdarzenie', window.lastEventAt ?? 'brak'))
     lines.push('')
   }

@@ -72,6 +72,11 @@ export type FunnelEventType =
   | 'quiz_completed'
   | 'notification_optin_submitted'
   | 'notification_optout_submitted'
+  | 'case_map_started'
+  | 'case_map_completed'
+  | 'case_map_offer_viewed'
+  | 'case_map_service_clicked'
+  | 'case_map_booking_started'
 
 export type FunnelEventSource = 'client' | 'server'
 

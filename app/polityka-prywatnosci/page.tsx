@@ -14,7 +14,7 @@ export const metadata: Metadata = buildLegalMetadata(
 const summaryItems: LegalSummaryItem[] = [
   {
     label: 'Punkty styku danych',
-    value: 'Formularz kontaktowy, rezerwacja, płatność, potwierdzenie, materiały przygotowawcze, materiały bezpłatne oraz newsletter.',
+    value: 'Formularz kontaktowy, Mapa zachowania, rezerwacja, płatność, prywatny Pokój, potwierdzenie, materiały przygotowawcze, materiały bezpłatne oraz newsletter.',
   },
   {
     label: 'Podstawowe narzędzia',
@@ -45,6 +45,7 @@ const sections: LegalSection[] = [
         <ul className="premium-bullet-list">
           <li>W formularzu kontaktowym: imię, e-mail, gatunek, temat i treść wiadomości.</li>
           <li>Przy rezerwacji: dane identyfikacyjne i kontaktowe, temat, termin, status rezerwacji oraz status płatności.</li>
+          <li>W Mapie zachowania: odpowiedzi wpisane lub wybrane przez użytkownika; pełna Mapa jest zapisywana w prywatnym Pokoju wyłącznie po osobnej, dobrowolnej zgodzie. Do oczekiwania na odbiór przechowujemy skrót e-maila i skrót jednorazowego potwierdzenia.</li>
           <li>Przy realizacji usługi: dane potrzebne do potwierdzenia rezerwacji, wysyłki wiadomości oraz dostępu do pokoju rozmowy.</li>
           <li>W materiałach przygotowawczych: notatki, linki i pliki dodane dobrowolnie przez klienta.</li>
           <li>W formularzach materiałów bezpłatnych i newslettera: adres e-mail, segment tematyczny oraz identyfikator materiału lub źródła zapisu.</li>
@@ -62,6 +63,7 @@ const sections: LegalSection[] = [
           <li>przyjęcia i obsługi rezerwacji usługi,</li>
           <li>potwierdzenia płatności i obsługi strony potwierdzenia,</li>
           <li>realizacji konsultacji oraz przygotowania się do rozmowy na podstawie przekazanych materiałów,</li>
+          <li>prywatnego zapisania pełnej Mapy zachowania w Pokoju po osobnej zgodzie i zalogowaniu na ten sam adres e-mail,</li>
           <li>obsługi formularzy materiałów bezpłatnych i newslettera,</li>
           <li>zapewnienia bezpieczeństwa serwisu, rozliczeń oraz dochodzenia lub obrony roszczeń.</li>
         </ul>
@@ -80,6 +82,10 @@ const sections: LegalSection[] = [
         <p>
           W zakresie analityki oraz w tych przypadkach, w których wymaga tego charakter formularza, przetwarzanie może
           odbywać się także na podstawie zgody użytkownika.
+        </p>
+        <p>
+          Dobrowolny zapis pełnej Mapy zachowania w prywatnym Pokoju jest niezależny od marketingu i od udostępnienia Mapy
+          specjaliście. Bez tej zgody do rezerwacji trafia wyłącznie krótki brief przygotowujący rozmowę.
         </p>
       </>
     ),
@@ -162,6 +168,11 @@ const sections: LegalSection[] = [
         <p>
           Dane przetwarzane na podstawie zgody są przechowywane do czasu jej cofnięcia albo utraty celu, dla którego były
           przetwarzane.
+        </p>
+        <p>
+          Jeżeli użytkownik zaznaczy dobrowolny zapis Mapy przy rezerwacji, ale nie zaloguje się ani nie utworzy Pokoju na
+          ten sam adres e-mail, oczekujący prywatny zapis jest przechowywany maksymalnie przez 30 dni, a następnie usuwany.
+          Odbiór wymaga jednorazowego potwierdzenia przekazanego w wiadomości e-mail.
         </p>
       </>
     ),

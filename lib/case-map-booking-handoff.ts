@@ -1,7 +1,15 @@
 import type { BookingServiceType } from '@/lib/booking-services'
 import { isBookingSpecies, type BookingSpecies } from '@/lib/booking-routing'
 import { isProblemType } from '@/lib/data'
-import type { CaseMapAnswers, CaseMapPath, CaseMapSpecies, CaseMapTopic, CaseMapTriageState } from '@/lib/case-map'
+import type {
+  CaseMapAnswers,
+  CaseMapPath,
+  CaseMapProfileSnapshot,
+  CaseMapSpecies,
+  CaseMapTopic,
+  CaseMapTriageAnswers,
+  CaseMapTriageState,
+} from '@/lib/case-map'
 import { getCaseMapFastQuestions } from '@/lib/case-map-questions'
 import type { ProblemType } from '@/lib/types'
 
@@ -29,6 +37,7 @@ export type CaseMapBookingHandoff = {
   brief: string
   caseMapId: string | null
   shareWithConsultant: boolean
+  profileSnapshot?: CaseMapProfileSnapshot | null
 }
 
 type StorageLike = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>
@@ -172,6 +181,19 @@ export function createCaseMapBookingHandoff({
   serviceType = DEFAULT_CASE_MAP_BOOKING_SERVICE,
   caseMapId = null,
   shareWithConsultant = false,
+  source = 'direct',
+  problemKey = null,
+  triage = {
+    assessed: false,
+    activeDanger: 'unknown',
+    injury: 'unknown',
+    emergencyHealth: 'unknown',
+    healthChange: 'unknown',
+    escapeSelfharm: 'unknown',
+    vulnerableContext: 'unknown',
+    vetStatus: 'unknown',
+  },
+  currentQuestionId = null,
   now = Date.now(),
 }: {
   species: CaseMapSpecies | null
@@ -182,6 +204,10 @@ export function createCaseMapBookingHandoff({
   serviceType?: CaseMapBookingServiceType
   caseMapId?: string | null
   shareWithConsultant?: boolean
+  source?: CaseMapProfileSnapshot['source']
+  problemKey?: string | null
+  triage?: CaseMapTriageAnswers
+  currentQuestionId?: string | null
   now?: number
 }): CaseMapBookingHandoff | null {
   const problemType = getCaseMapBookingProblemType(species, topic)
@@ -226,6 +252,16 @@ export function createCaseMapBookingHandoff({
     brief: briefParts,
     caseMapId: shareWithConsultant && isUuid(caseMapId) ? caseMapId : null,
     shareWithConsultant: shareWithConsultant && isUuid(caseMapId),
+    profileSnapshot: {
+      species,
+      topic,
+      path,
+      source,
+      problemKey,
+      triage,
+      answers,
+      currentQuestionId,
+    },
   }
 }
 
@@ -233,10 +269,29 @@ function isCaseMapBookingServiceType(value: unknown): value is CaseMapBookingSer
   return value === DEFAULT_CASE_MAP_BOOKING_SERVICE || value === 'kwadrans-na-juz' || value === 'konsultacja-30-min'
 }
 
+function isProfileSnapshot(value: unknown, handoff: Partial<CaseMapBookingHandoff>): value is CaseMapProfileSnapshot {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false
+  const candidate = value as Partial<CaseMapProfileSnapshot>
+
+  return (
+    candidate.species === handoff.species &&
+    (candidate.path === 'fast' || candidate.path === 'long') &&
+    (candidate.source === 'direct' || candidate.source === 'problem_page' || candidate.source === 'instagram') &&
+    (candidate.problemKey === null || typeof candidate.problemKey === 'string') &&
+    Boolean(candidate.triage && typeof candidate.triage === 'object' && !Array.isArray(candidate.triage)) &&
+    Boolean(candidate.answers && typeof candidate.answers === 'object' && !Array.isArray(candidate.answers)) &&
+    (candidate.currentQuestionId === null || typeof candidate.currentQuestionId === 'string')
+  )
+}
+
 function isCaseMapBookingHandoff(value: unknown, now: number): value is CaseMapBookingHandoff {
   if (!value || typeof value !== 'object') return false
   const candidate = value as Partial<CaseMapBookingHandoff>
   const validCaseMap = candidate.caseMapId === null || isUuid(candidate.caseMapId)
+  const validProfileSnapshot =
+    candidate.profileSnapshot === undefined ||
+    candidate.profileSnapshot === null ||
+    isProfileSnapshot(candidate.profileSnapshot, candidate)
 
   return (
     candidate.version === 1 &&
@@ -248,6 +303,7 @@ function isCaseMapBookingHandoff(value: unknown, now: number): value is CaseMapB
     candidate.brief.length <= 700 &&
     typeof candidate.shareWithConsultant === 'boolean' &&
     validCaseMap &&
+    validProfileSnapshot &&
     isBookingSpecies(candidate.species) &&
     isProblemType(candidate.problemType) &&
     isCaseMapBookingServiceType(candidate.serviceType)

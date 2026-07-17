@@ -150,6 +150,12 @@ export function getDefaultReleaseSmokeRules(): ReleaseSmokeRule[] {
       requireBuildMarker: true,
     },
     {
+      path: '/mapa-sprawy',
+      required: ['Jak chcesz dziś zacząć?', 'Szybka mapa', 'Pełniejsza mapa'],
+      forbidden: ['Jedna decyzja', 'Mapa do zakupu konsultacji', 'Mapa → zakup'],
+      requireBuildMarker: true,
+    },
+    {
       path: '/polityka-prywatnosci',
       required: ['Polityka prywatności', 'Publiczny kontakt', 'formularz i e-mail'],
       forbiddenRaw: ['href="tel:', "href='tel:"],

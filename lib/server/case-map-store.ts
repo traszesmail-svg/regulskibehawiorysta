@@ -202,6 +202,61 @@ export async function createCaseMap(user: User, input: CaseMapCreateInput): Prom
   return rowToRecord(data as CaseMapRow)
 }
 
+/**
+ * Stores a Map claimed by its authenticated owner after an explicit booking
+ * opt-in. `booking_id` is only a private relationship; consultant visibility
+ * remains gated by `shared_with_consultant_at` and is deliberately untouched.
+ */
+export async function createCompletedCaseMapForUser(
+  user: User,
+  input: CaseMapCreateInput,
+  bookingId: string,
+): Promise<CaseMapRecord> {
+  assertCaseMapId(bookingId)
+
+  const now = new Date().toISOString()
+  const answers = normalizeCaseMapAnswers({
+    ...input.answers,
+    ...triageAnswersToStoredAnswers(input.triage),
+    case_path: input.path,
+  })
+  const triageState = resolveCaseMapTriageWithAnswers(input.triage, answers)
+  const report = buildCaseMapReport({ species: input.species, topic: input.topic, path: input.path, triageState, answers })
+  const supabase = getSupabaseAdmin()
+  const { data, error } = await supabase
+    .from('case_maps')
+    .insert({
+      owner_user_id: user.id,
+      schema_version: CASE_MAP_SCHEMA_VERSION,
+      status: 'completed',
+      species: input.species,
+      topic: input.topic,
+      path: input.path,
+      source: input.source,
+      problem_key: input.problemKey,
+      triage_state: triageState,
+      answers,
+      result: report,
+      current_question_id: '__result__',
+      booking_id: bookingId,
+      consent_version: input.consentVersion,
+      consented_at: now,
+      marketing_consent: false,
+      revision: 1,
+      created_at: now,
+      updated_at: now,
+      completed_at: now,
+    })
+    .select('*')
+    .single()
+
+  if (error || !data) {
+    throw new Error(error?.message ?? 'Nie udało się zapisać prywatnej Mapy zachowania.')
+  }
+
+  return rowToRecord(data as CaseMapRow)
+}
+
 export async function listCaseMapsForUser(user: User): Promise<CaseMapSummary[]> {
   const supabase = getSupabaseAdmin()
   const { data, error } = await supabase

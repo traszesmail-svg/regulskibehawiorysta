@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { LogIn, Mail, UserPlus } from 'lucide-react'
 
 type AuthMode = 'login' | 'register' | 'reset' | 'new-password'
+const CASE_MAP_CLAIM_TOKEN_STORAGE_KEY = 'regulski-behawiorysta.case-map-profile-claim-token'
+const CASE_MAP_CLAIM_TOKEN_PATTERN = /^[A-Za-z0-9_-]{43}$/
 
 function readInitialEmail() {
   if (typeof window === 'undefined') return ''
@@ -16,6 +18,34 @@ function readReturnHref() {
   const value = new URLSearchParams(window.location.search).get('returnTo') ?? ''
   return value.startsWith('/') && !value.startsWith('//') ? value : '/pokoj'
 }
+
+function readCaseMapClaimToken() {
+  if (typeof window === 'undefined') return ''
+
+  const fromHash = new URLSearchParams(window.location.hash.replace(/^#/, '')).get('case-map-claim') ?? ''
+  const candidate = fromHash || (() => {
+    try {
+      return window.sessionStorage.getItem(CASE_MAP_CLAIM_TOKEN_STORAGE_KEY) ?? ''
+    } catch {
+      return ''
+    }
+  })()
+
+  return CASE_MAP_CLAIM_TOKEN_PATTERN.test(candidate) ? candidate : ''
+}
+
+function persistCaseMapClaimToken(token: string) {
+  try {
+    window.sessionStorage.setItem(CASE_MAP_CLAIM_TOKEN_STORAGE_KEY, token)
+  } catch {}
+}
+
+function clearCaseMapClaimToken() {
+  try {
+    window.sessionStorage.removeItem(CASE_MAP_CLAIM_TOKEN_STORAGE_KEY)
+  } catch {}
+}
+
 export function AccountAuthForm() {
   const [mode, setMode] = useState<AuthMode>('login')
   const [email, setEmail] = useState(readInitialEmail)
@@ -24,6 +54,7 @@ export function AccountAuthForm() {
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
   const [recoveryToken, setRecoveryToken] = useState('')
+  const [caseMapClaimToken, setCaseMapClaimToken] = useState(readCaseMapClaimToken)
 
   const title = useMemo(() => {
     if (mode === 'new-password') return 'Ustaw nowe hasło'
@@ -36,11 +67,25 @@ export function AccountAuthForm() {
     const hash = new URLSearchParams(window.location.hash.replace(/^#/, ''))
     const accessToken = hash.get('access_token')
     const type = hash.get('type')
+    const claimToken = hash.get('case-map-claim')
+    let shouldClearHash = false
+
+    if (claimToken) {
+      shouldClearHash = true
+      if (CASE_MAP_CLAIM_TOKEN_PATTERN.test(claimToken)) {
+        setCaseMapClaimToken(claimToken)
+        persistCaseMapClaimToken(claimToken)
+      }
+    }
 
     if (accessToken && (type === 'recovery' || type === 'invite')) {
       setRecoveryToken(accessToken)
       setMode('new-password')
-      window.history.replaceState(null, '', window.location.pathname)
+      shouldClearHash = true
+    }
+
+    if (shouldClearHash) {
+      window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`)
     }
   }, [])
 
@@ -55,12 +100,19 @@ export function AccountAuthForm() {
         const response = await fetch('/api/account/auth/login', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ email, password }),
+          body: JSON.stringify({ email, password, caseMapClaimToken: caseMapClaimToken || undefined }),
         })
-        const payload = (await response.json()) as { ok?: boolean; error?: string }
+        const payload = (await response.json()) as { ok?: boolean; error?: string; caseMapProfileClaimed?: boolean }
 
         if (!response.ok || !payload.ok) {
           throw new Error(payload.error ?? 'Nie udało się zalogować.')
+        }
+        if (caseMapClaimToken && !payload.caseMapProfileClaimed) {
+          throw new Error('Zalogowano, ale Mapa nie została jeszcze odebrana. Użyj tego samego, potwierdzonego adresu e-mail i otwórz link z wiadomości.')
+        }
+        if (caseMapClaimToken) {
+          clearCaseMapClaimToken()
+          setCaseMapClaimToken('')
         }
         window.location.assign(readReturnHref())
         return
@@ -70,15 +122,32 @@ export function AccountAuthForm() {
         const response = await fetch('/api/account/auth/register', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ email, password, returnTo: readReturnHref() }),
+          body: JSON.stringify({
+            email,
+            password,
+            returnTo: readReturnHref(),
+            caseMapClaimToken: caseMapClaimToken || undefined,
+          }),
         })
-        const payload = (await response.json()) as { ok?: boolean; hasSession?: boolean; error?: string }
+        const payload = (await response.json()) as {
+          ok?: boolean
+          hasSession?: boolean
+          error?: string
+          caseMapProfileClaimed?: boolean
+        }
 
         if (!response.ok || !payload.ok) {
           throw new Error(payload.error ?? 'Nie udało się utworzyć konta.')
         }
 
         if (payload.hasSession) {
+          if (caseMapClaimToken && !payload.caseMapProfileClaimed) {
+            throw new Error('Konto utworzono, ale Mapa nie została jeszcze odebrana. Otwórz link po potwierdzeniu tego samego adresu e-mail.')
+          }
+          if (caseMapClaimToken) {
+            clearCaseMapClaimToken()
+            setCaseMapClaimToken('')
+          }
           window.location.assign(readReturnHref())
           return
         }

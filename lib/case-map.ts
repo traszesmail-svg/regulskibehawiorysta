@@ -2,6 +2,7 @@ import type { QuizSpecies, QuizTopic } from '@/lib/quiz-first-step'
 
 export const CASE_MAP_SCHEMA_VERSION = '1'
 export const CASE_MAP_CONSENT_VERSION = '2026-07-14'
+export const CASE_MAP_PROFILE_CLAIM_CONSENT_VERSION = '2026-07-17'
 
 export type CaseMapPath = 'fast' | 'long'
 export type CaseMapStatus = 'draft' | 'completed' | 'archived'
@@ -47,6 +48,16 @@ export type CaseMapCreateInput = {
   privacyConsent: boolean
   marketingConsent: boolean
 }
+
+/**
+ * Full Map data may travel only in browser session storage until a person
+ * explicitly asks to save it alongside a booking. Consent fields are applied
+ * on the server, never trusted from this browser snapshot.
+ */
+export type CaseMapProfileSnapshot = Pick<
+  CaseMapCreateInput,
+  'species' | 'topic' | 'path' | 'source' | 'problemKey' | 'triage' | 'answers' | 'currentQuestionId'
+>
 
 export type CaseMapPatchInput = {
   revision: number
@@ -395,6 +406,19 @@ export function normalizeCaseMapCreateInput(value: unknown): CaseMapCreateInput 
     privacyConsent: true,
     marketingConsent: value.marketingConsent,
   }
+}
+
+export function normalizeCaseMapProfileSnapshot(value: unknown): CaseMapCreateInput {
+  if (!isRecord(value)) {
+    throw new CaseMapInputError('Nieprawidłowy prywatny zapis Mapy zachowania.')
+  }
+
+  return normalizeCaseMapCreateInput({
+    ...value,
+    consentVersion: CASE_MAP_PROFILE_CLAIM_CONSENT_VERSION,
+    privacyConsent: true,
+    marketingConsent: false,
+  })
 }
 
 export function normalizeCaseMapPatchInput(value: unknown): CaseMapPatchInput {

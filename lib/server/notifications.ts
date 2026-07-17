@@ -813,7 +813,7 @@ export async function sendBookingReservationCreatedEmail(
   const subject = `Rezerwacja przyjęta - ${EMAIL_BRAND_NAME} - ${summary}`
   const customerEmailStatus = getCustomerEmailDeliveryStatus(booking.email)
   const bookingPageUrl = buildBookingViewerUrl('/payment', booking.id, accessToken)
-  const accountUrl = buildAbsoluteUrl(`/login?email=${encodeURIComponent(booking.email)}`)
+  const accountUrl = buildAbsoluteUrl('/login?returnTo=%2Fpokoj')
   const emailDeliveryNote =
     customerEmailStatus.state === 'ready'
       ? 'Po potwierdzeniu klient automatycznie dostanie mail z linkiem do pokoju rozmowy, a przy braku wpłaty wróci do płatności.'
@@ -862,6 +862,45 @@ export async function sendBookingReservationCreatedEmail(
   ].join('\n')
 
   return deliverEmail({ to: booking.email, subject, html, text }, 'customer')
+}
+
+export async function sendCaseMapProfileClaimEmail({
+  email,
+  expiresAt,
+  claimToken,
+}: {
+  email: string
+  expiresAt: string
+  claimToken: string
+}): Promise<DeliveryResult> {
+  const accountUrl = `${buildAbsoluteUrl('/login?returnTo=%2Fpokoj')}#case-map-claim=${encodeURIComponent(claimToken)}`
+  const expiryDate = new Date(expiresAt)
+  const expiryLabel = Number.isFinite(expiryDate.getTime())
+    ? expiryDate.toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Warsaw' })
+    : 'w ciągu 30 dni'
+  const subject = `Zapisz Mapę zachowania w swoim Pokoju - ${EMAIL_BRAND_NAME}`
+  const intro = 'Na Twoją wyraźną prośbę przygotowaliśmy prywatny zapis pełnej Mapy zachowania. Nie przekazujemy jej w tej formie specjaliście.'
+  const html = renderEmailShell(
+    'Twoja Mapa czeka w prywatnym Pokoju',
+    intro,
+    `
+      <p>Otwórz ten link, a potem zaloguj się albo utwórz konto na <strong>tym samym adresie e-mail</strong>, którego użyto przy rezerwacji. Link zawiera jednorazowe potwierdzenie potrzebne do prywatnego odbioru Mapy.</p>
+      <p>Oczekujący zapis usuniemy, jeśli nie zostanie odebrany do ${escapeHtml(expiryLabel)}.</p>
+      ${renderEmailActionButton({ href: accountUrl, label: 'Otwórz prywatny Pokój' })}
+      ${renderContactBlockHtml()}
+    `,
+    'To osobny, dobrowolny zapis: nie jest marketingiem ani zgodą na udostępnienie pełnej Mapy specjaliście.',
+  )
+  const text = [
+    intro,
+    'Otwórz ten link, a potem zaloguj się albo utwórz konto na tym samym adresie e-mail, którego użyto przy rezerwacji. Link zawiera jednorazowe potwierdzenie potrzebne do prywatnego odbioru Mapy.',
+    `Oczekujący zapis usuniemy, jeśli nie zostanie odebrany do ${expiryLabel}.`,
+    `Prywatny Pokój: ${accountUrl}`,
+    'To osobny, dobrowolny zapis: nie jest marketingiem ani zgodą na udostępnienie pełnej Mapy specjaliście.',
+    renderContactBlockText(),
+  ].join('\n')
+
+  return deliverEmail({ to: email, subject, html, text }, 'customer')
 }
 
 export async function sendBookingOwnerNotificationEmail(booking: BookingRecord): Promise<DeliveryResult> {

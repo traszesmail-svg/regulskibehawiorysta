@@ -6,6 +6,7 @@ import {
   normalizeFunnelEventProperties,
   normalizeFunnelEventType,
 } from '@/lib/server/funnel-events'
+import { normalizeCaseMapPrivateAnalyticsEvent } from '@/lib/case-map-analytics'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -90,7 +91,26 @@ export async function POST(request: Request) {
       return new NextResponse(null, { status: 204 })
     }
 
-    const pagePath = typeof body.pagePath === 'string' ? body.pagePath : null
+    const rawProperties = typeof body.properties === 'object' && body.properties && !Array.isArray(body.properties)
+      ? (body.properties as Record<string, unknown>)
+      : null
+    const privateCaseMapEvent = normalizeCaseMapPrivateAnalyticsEvent(eventType, rawProperties)
+
+    if (eventType.startsWith('case_map_') && !privateCaseMapEvent) {
+      console.log(
+        JSON.stringify({
+          level: 'info',
+          msg: 'done',
+          route,
+          ms: Date.now() - start,
+          ignored: true,
+          reason: 'case_map_payload',
+        }),
+      )
+      return new NextResponse(null, { status: 204 })
+    }
+
+    const pagePath = privateCaseMapEvent?.pagePath ?? (typeof body.pagePath === 'string' ? body.pagePath : null)
 
     if (isInternalAnalyticsPagePath(pagePath)) {
       console.log(
@@ -107,13 +127,11 @@ export async function POST(request: Request) {
       return new NextResponse(null, { status: 204 })
     }
 
-    const properties = normalizeFunnelEventProperties(
-      typeof body.properties === 'object' && body.properties && !Array.isArray(body.properties)
-        ? (body.properties as Record<string, unknown>)
-        : null,
-    )
+    const properties = privateCaseMapEvent?.properties ?? normalizeFunnelEventProperties(rawProperties)
 
-    const bookingId =
+    const bookingId = privateCaseMapEvent
+      ? null
+      :
       typeof body.bookingId === 'string'
         ? body.bookingId
         : typeof body.booking_id === 'string'
@@ -124,9 +142,10 @@ export async function POST(request: Request) {
               ? properties.bookingId
               : null
 
-    const qaBooking = Boolean(body.qaBooking ?? properties.qaBooking ?? properties.qa_booking)
-    const location =
-      typeof body.location === 'string'
+    const qaBooking = privateCaseMapEvent ? false : Boolean(body.qaBooking ?? properties.qaBooking ?? properties.qa_booking)
+    const location = privateCaseMapEvent
+      ? null
+      : typeof body.location === 'string'
         ? body.location
         : typeof properties.location === 'string'
           ? properties.location

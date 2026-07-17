@@ -645,6 +645,12 @@ export default async function AdminPage() {
                         <span>
                           {window.conversions.viewToEntry15} view→entry 15 min · {window.conversions.entry15ToBookingStart} entry→booking start · {window.conversions.completedToConfirmed} completed→confirmed
                         </span>
+                        <span>
+                          Mapa: start {window.caseMap.stageCounts.case_map_started} · ukończona {window.caseMap.stageCounts.case_map_completed} · oferta {window.caseMap.stageCounts.case_map_offer_viewed} · klik usługi {window.caseMap.stageCounts.case_map_service_clicked} · rezerwacja {window.caseMap.stageCounts.case_map_booking_started}
+                        </span>
+                        <span>
+                          {window.caseMap.conversions.startToCompleted} start→ukończenie · {window.caseMap.conversions.completedToOffer} ukończenie→oferta · {window.caseMap.conversions.offerToServiceClick} oferta→klik · {window.caseMap.conversions.serviceClickToBookingStart} klik→rezerwacja
+                        </span>
                       </div>
                     ))}
                   </div>

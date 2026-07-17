@@ -403,6 +403,58 @@ test('book page keeps a distinct jump-to-form CTA for explicit services', () => 
   assert.match(funnelSource, /Pełna konsultacja/)
 })
 
+test('Mapa zachowania speaks to the owner instead of exposing internal funnel language', () => {
+  const mapSource = readSource('components', 'ShortBehaviorMapFlow.tsx')
+  const bookingFormSource = readSource('components', 'BookingForm.tsx')
+  const accountAuthFormSource = readSource('components', 'AccountAuthForm.tsx')
+  const analyticsConsentSource = readSource('components', 'AnalyticsConsent.tsx')
+  const analyticsSource = readSource('lib', 'case-map-analytics.ts')
+  const analyticsRouteSource = readSource('app', 'api', 'analytics', 'events', 'route.ts')
+  const profileClaimStoreSource = readSource('lib', 'server', 'case-map-profile-claims.ts')
+  const profileClaimMigrationSource = readSource(
+    'supabase',
+    'migrations',
+    '20260717001_case_map_analytics_and_profile_claims.sql',
+  )
+
+  assert.match(mapSource, /Jak chcesz dziś zacząć\?/)
+  assert.match(mapSource, /Zobaczmy,<br \/>co dziś jest ważne\./)
+  assert.match(mapSource, /Przygotowanie do rozmowy/)
+  assert.match(mapSource, /Twoje odpowiedzi pozwolą nam od razu skupić się na sytuacji/)
+  assert.match(mapSource, /Wybierz termin · Konsultacja 15 min/)
+  assert.match(mapSource, /Najważniejsze odpowiedzi dołączymy do rezerwacji/)
+  assert.match(mapSource, /Jeśli chcesz, Pełną Mapę możesz zapisać prywatnie w swoim Pokoju/)
+  assert.doesNotMatch(mapSource, /Jedna decyzja na ekran/)
+  assert.doesNotMatch(mapSource, /Mapa do zakupu konsultacji/)
+  assert.doesNotMatch(mapSource, /gotowy brief do formularza zakupu/)
+  assert.doesNotMatch(mapSource, /Gotowy brief zostanie dołączony do formularza zakupu/)
+  assert.doesNotMatch(mapSource, /Mapa gotowa do zakupu konsultacji/)
+  assert.doesNotMatch(mapSource, /Mapa → zakup/)
+  assert.doesNotMatch(mapSource, /Pełną Mapę zachowasz prywatnie w swoim Pokoju po zalogowaniu/)
+  assert.match(mapSource, /trackCaseMapPrivateAnalyticsEvent\('case_map_started'/)
+  assert.match(mapSource, /trackCaseMapPrivateAnalyticsEvent\('case_map_completed'/)
+  assert.match(mapSource, /trackCaseMapPrivateAnalyticsEvent\('case_map_offer_viewed'/)
+  assert.match(mapSource, /trackCaseMapPrivateAnalyticsEvent\('case_map_service_clicked'/)
+  assert.match(bookingFormSource, /saveCaseMapToProfile/)
+  assert.match(bookingFormSource, /zgoda marketingowa ani udostępnienie pełnej Mapy specjaliście/)
+  assert.match(analyticsSource, /case_map_booking_started/)
+  assert.match(analyticsRouteSource, /normalizeCaseMapPrivateAnalyticsEvent/)
+  assert.match(analyticsRouteSource, /const location = privateCaseMapEvent\s*\? null/)
+  assert.match(analyticsConsentSource, /isCaseMapPath/)
+  assert.match(analyticsConsentSource, /ga-disable-\$\{measurementId\}/)
+  assert.match(analyticsConsentSource, /!isGenericAnalyticsDisabledPath/)
+  assert.match(analyticsConsentSource, /keepCaseMapOutOfSpaHistoryTracking/)
+  assert.match(analyticsConsentSource, /addEventListener\('popstate'/)
+  assert.match(profileClaimStoreSource, /CASE_MAP_PROFILE_CLAIM_TTL_DAYS = 30/)
+  assert.match(profileClaimStoreSource, /user\.email_confirmed_at/)
+  assert.match(profileClaimStoreSource, /claim_token_hash/)
+  assert.match(accountAuthFormSource, /case-map-claim/)
+  assert.match(accountAuthFormSource, /caseMapClaimToken/)
+  assert.match(profileClaimMigrationSource, /regulski_delete_expired_case_map_profile_claims/)
+  assert.match(profileClaimMigrationSource, /regulski-case-map-profile-claims-cleanup/)
+  assert.match(profileClaimMigrationSource, /cron\.schedule/)
+})
+
 test('booking form intro follows the selected service instead of a generic booking lead', () => {
   const bookingFormSource = readSource('components', 'BookRequestForm.tsx')
 

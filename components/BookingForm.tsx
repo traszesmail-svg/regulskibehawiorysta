@@ -14,6 +14,7 @@ import { appendSearchParams, buildPaymentHref, buildSlotHref } from '@/lib/booki
 import { isCatProblemType } from '@/lib/data'
 import { clearCaseMapBookingHandoff, readCaseMapBookingHandoff } from '@/lib/case-map-booking-handoff'
 import { clearQuizBookingHandoff, readQuizBookingHandoff } from '@/lib/quiz-booking-handoff'
+import type { CaseMapProfileSnapshot } from '@/lib/case-map'
 import { AnimalType, ProblemType, QaCheckoutEligibility } from '@/lib/types'
 
 export type BookingCreatedPayload = {
@@ -115,6 +116,8 @@ export function BookingForm({
   const [quizBrief, setQuizBrief] = useState('')
   const [caseMapId, setCaseMapId] = useState('')
   const [shareCaseMap, setShareCaseMap] = useState(false)
+  const [caseMapProfileSnapshot, setCaseMapProfileSnapshot] = useState<CaseMapProfileSnapshot | null>(null)
+  const [saveCaseMapToProfile, setSaveCaseMapToProfile] = useState(false)
   const animalType = formCopy.animalType
 
   useEffect(() => {
@@ -132,6 +135,8 @@ export function BookingForm({
     setQuizBrief(handoff?.brief ?? '')
     setCaseMapId(mapHandoff?.caseMapId ?? '')
     setShareCaseMap(mapHandoff?.shareWithConsultant ?? false)
+    setCaseMapProfileSnapshot(mapHandoff?.profileSnapshot ?? null)
+    setSaveCaseMapToProfile(false)
   }, [problemType, serviceType])
 
   useEffect(() => {
@@ -208,6 +213,8 @@ export function BookingForm({
           durationNotes: quizBrief || 'Nie podano w formularzu rezerwacji.',
           caseMapId: caseMapId || undefined,
           shareCaseMap,
+          saveCaseMapToProfile: saveCaseMapToProfile && Boolean(caseMapProfileSnapshot),
+          caseMapProfileSnapshot: saveCaseMapToProfile ? caseMapProfileSnapshot : undefined,
           description: normalizedDescription,
           email,
           slotId,
@@ -361,6 +368,24 @@ export function BookingForm({
         />
         <small>{description.length} / 500</small>
       </div>
+
+      {caseMapProfileSnapshot ? (
+        <label className="booking-details-consent" htmlFor="booking-save-case-map">
+          <input
+            id="booking-save-case-map"
+            name="saveCaseMapToProfile"
+            type="checkbox"
+            value="true"
+            checked={saveCaseMapToProfile}
+            onChange={(event) => setSaveCaseMapToProfile(event.target.checked)}
+          />
+          <span>
+            Chcę dobrowolnie zapisać pełną Mapę zachowania w prywatnym Pokoju powiązanym z tym adresem e-mail. Po rezerwacji
+            dostanę instrukcję; Mapa trafi do Pokoju dopiero po zalogowaniu lub utworzeniu konta na ten sam e-mail. To nie jest
+            zgoda marketingowa ani udostępnienie pełnej Mapy specjaliście.
+          </span>
+        </label>
+      ) : null}
 
       <label className="booking-details-consent" htmlFor="booking-privacy">
         <input

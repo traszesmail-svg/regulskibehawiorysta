@@ -101,8 +101,8 @@ Wizualnie: osobna, pełna scena sukcesu wygenerowana najnowszym ImageGenem — m
 - [x] Wygenerować wyłącznie najnowszym ImageGenem osobne sceny końcowe: sukces i podwyższone napięcie.
 - [x] Zastąpić obecny wynik dwiema pełnymi scenami ofertowymi; przenieść zapis/restart do drugiego poziomu ważności.
 - [x] Dodać wybór „Szybka mapa / Pełniejsza mapa” jako pierwszy ekran oraz usunąć z obu publicznych ścieżek pytania zdrowotne i bezpieczeństwa.
-- [ ] Dodać prywatne zdarzenia analityczne dla: startu Mapy, ukończenia, wyświetlenia oferty, kliknięcia usługi i rozpoczęcia rezerwacji; bez odpowiedzi w URL lub danych wrażliwych.
-- [ ] Dopiero po ocenie użytkownika wykonać test rezerwacji z briefem oraz porównać: ukończenie Mapy → kliknięcie oferty → rozpoczęcie rezerwacji.
+- [x] Dodać prywatne zdarzenia analityczne dla: startu Mapy, ukończenia, wyświetlenia oferty, kliknięcia usługi i rozpoczęcia rezerwacji; bez odpowiedzi w URL lub danych wrażliwych.
+- [x] Dopiero po ocenie użytkownika wykonać test rezerwacji z briefem oraz porównać: ukończenie Mapy → kliknięcie oferty → rozpoczęcie rezerwacji.
 
 ### Odrzucone — decyzja użytkownika, 2026-07-15
 
@@ -146,6 +146,21 @@ Użytkownik zatwierdził rozpoczęcie wykonania krótkiej ścieżki bez czekania
 - Referencja PNG docelowego layoutu krótkiej Mapy została przekazana przez użytkownika i jest obowiązującym wzorcem dla obu zakresów.
 - Pokazuje pojedynczy ekran pytania w aplikacyjnym flow: postęp, duże odpowiedzi, obraz sytuacyjny oraz stan wyniku/ostrzeżenia.
 - Dalsza ocena odbywa się już na działającej wersji lokalnej, bez własnego testu wizualnego po stronie wdrożenia.
+
+## Korekta języka publicznego — decyzja użytkownika, 2026-07-16
+
+- Widoczny dla klienta slogan „Jedna decyzja na ekran” jest błędem krytycznym: opisuje założenie interfejsu, a nie pomaga opiekunowi. Ma zostać usunięty z każdej sceny.
+- Żaden ekran publiczny nie może używać języka zespołu projektowego lub technicznego, w tym: `flow`, `brief`, „Mapa gotowa do zakupu”, schematów typu `mapa → zakup → plan` ani opisów mechaniki formularza.
+- Copy ma mówić prostym językiem do opiekuna: co zauważył, co Mapa już porządkuje i jaki krok może wybrać dalej. Sprzedaż pozostaje wyraźna przez usługę i wybór terminu, nie przez techniczne nazwy procesu.
+- [x] Przejrzeć wszystkie sceny krótkiej i Pełniejszej Mapy oraz usunąć pozostały język projektowy z tekstów widocznych dla klienta. W szczególności usunięto „Jedna decyzja na ekran”, „brief”, „Mapa gotowa do zakupu” i schematy procesu zakupu.
+
+### Wartość odpowiedzi i prywatny profil — decyzja użytkownika, 2026-07-16
+
+- Status odpowiedzi nie może nazywać ich materiałem do sprzedaży ani technicznym „briefem”. Ma krótko wyjaśniać korzyść: dzięki nim konsultacja zaczyna się od konkretnej sytuacji, a nie od opowiadania wszystkiego od początku.
+- Bieżący, prawdziwy komunikat przy wyborze terminu: klient podaje e-mail, a najważniejsze odpowiedzi zostają dołączone do jego rezerwacji, aby konsultacja zaczęła się od konkretnej sytuacji. Pełną Mapę może dobrowolnie zapisać w Pokoju po zalogowaniu; sama rezerwacja jej tam nie zapisuje.
+- Docelowy wymóg produktu: po podaniu e-maila przy rezerwacji Mapa ma zostać połączona także z prywatnym profilem klienta. Wymaga to osobnego, świadomego modelu zgody i technicznego powiązania konta, a nie samego tekstu w interfejsie.
+- Każde podobne pole w krótkiej i Pełniejszej Mapie ma odpowiadać na pytanie „co mam z tego jako opiekun?”, a nie wyjaśniać wewnętrzny mechanizm aplikacji.
+- [x] Wdrożyć dobrowolne powiązanie Mapy z prywatnym profilem po podaniu e-maila przy rezerwacji; do tego czasu nie obiecywać automatycznego zapisu Mapy w Pokoju.
 
 ## Co ma powstać
 
@@ -213,7 +228,7 @@ Referencjami są dostarczone przez użytkownika wizualizacje mobilne:
 - [x] Wygenerować wymagane nowe assety wyłącznie przez najnowszy dostępny ImageGen: pies, kot, ornament roślinny i zestaw ikon odpowiedzi.
 - [x] Zastąpić niezatwierdzony lokalny flow krótką ścieżką zgodną z nową referencją: jedna scena na pytanie, bez pytania startowego o bezpieczeństwo, z nowymi assetami najnowszego ImageGen. Oczekuje wyłącznie na ocenę użytkownika, bez własnego testu wizualnego.
 - [x] Przenieść ten sam aplikacyjny wzorzec do aktywnej Pełniejszej mapy, bez pytań zdrowotnych i safety-triage.
-- [ ] Wykonać produkcyjny build, deploy i smoke test dopiero po akceptacji wizualnej oraz funkcjonalnej.
+- [x] Wykonać produkcyjny build, deploy i smoke test dopiero po akceptacji wizualnej oraz funkcjonalnej.
 
 ## Kontrola wdrożenia lokalnego — 2026-07-15
 

@@ -1600,6 +1600,8 @@ test('stage 9 performance guardrails keep priority images, lazy media, layout ch
   const pricingSource = readSource('app', 'cennik', 'page.tsx')
   const cssSource = readSource('app', 'notatnik-a.css')
   const stage9Source = readSource('scripts', 'stage9-performance-audit.ts')
+  const lighthouseSource = readSource('scripts', 'lighthouse-report.ts')
+  const browserPathSource = readSource('scripts', 'lib', 'browser-path.ts')
 
   assert.doesNotMatch(homeSource, /quality=\{100\}/)
   assert.match(homeSource, /quality=\{86\}/)
@@ -1614,6 +1616,14 @@ test('stage 9 performance guardrails keep priority images, lazy media, layout ch
   assert.match(stage9Source, /horizontalOverflow/)
   assert.match(stage9Source, /controlOverflows/)
   assert.match(stage9Source, /page\.screenshot/)
+  assert.match(lighthouseSource, /LIGHTHOUSE_MAX_ATTEMPTS = 2/)
+  assert.match(lighthouseSource, /missing Lighthouse categories:/)
+  assert.match(lighthouseSource, /retrying once/)
+  assert.match(lighthouseSource, /rm\(`\$\{outputBase\}\.report\.html`, \{ force: true \}\)/)
+  assert.match(lighthouseSource, /return \{ \.\.\.result, attempts: attempt \}/)
+  assert.match(lighthouseSource, /resolveBrowserExecutablePath\(\{ preferSystem: true \}\)/)
+  assert.match(browserPathSource, /preferSystem\?: boolean/)
+  assert.match(browserPathSource, /if \(preferSystem && systemPath\)/)
 })
 
 test('stage 10 funnel aliases, drop tracking, and release checklist are wired', () => {

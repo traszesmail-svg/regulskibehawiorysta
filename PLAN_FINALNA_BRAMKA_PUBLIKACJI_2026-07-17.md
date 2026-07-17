@@ -2,7 +2,7 @@
 
 Cel: potwierdzić gotowość obecnego wydania produkcyjnego przed publikacją. Każdy punkt zostaje oznaczony jako wykonany wyłącznie po zapisaniu dowodu (komenda, wynik, adres lub raport).
 
-Wydanie kontrolowane: `3fdf845 feat: add private Map analytics and profile claims`.
+Wydanie kontrolowane: `8147cbc fix: wait for no-js booking fallback`.
 
 ## Plan podstawowy
 
@@ -10,11 +10,11 @@ Wydanie kontrolowane: `3fdf845 feat: add private Map analytics and profile claim
 - [x] 2. Wykonać lokalną bramkę jakości kolejno: lint, testy, TypeScript, build oraz audyt schematu/migracji.
 - [x] 3. Zweryfikować migracje i konfigurację danych bez ingerencji w produkcyjne dane klientów.
 - [x] 4. Wykonać bezpieczny sandboxowy test flow: rezerwacja → płatność mock → potwierdzenie → konto → dobrowolne podpięcie Mapy.
-- [ ] 5. Wykonać produkcyjny test funkcjonalny publicznych tras, CTA i przejść Mapa → termin/rezerwacja.
-- [ ] 6. Zweryfikować prywatność i bezpieczeństwo: zgody analityczne, minimalizacja danych zdarzeń, token podpięcia profilu, brak danych w URL/logach.
-- [ ] 7. Zweryfikować widok desktop/mobile, dostępność, polskie znaki, brak overflow i działanie nawigacji.
-- [ ] 8. Zweryfikować SEO i technikalia: canonical, robots, sitemap, przekierowania, statusy HTTP i błędy runtime.
-- [ ] 9. Sprawdzić monitoring/logi, przygotować rollback i sporządzić końcowy raport PASS/BLOCKER.
+- [x] 5. Wykonać produkcyjny test funkcjonalny publicznych tras, CTA i przejść Mapa → termin/rezerwacja.
+- [x] 6. Zweryfikować prywatność i bezpieczeństwo: zgody analityczne, minimalizacja danych zdarzeń, token podpięcia profilu, brak danych w URL/logach.
+- [x] 7. Zweryfikować widok desktop/mobile, dostępność, polskie znaki, brak overflow i działanie nawigacji.
+- [x] 8. Zweryfikować SEO i technikalia: canonical, robots, sitemap, przekierowania, statusy HTTP i błędy runtime.
+- [x] 9. Sprawdzić monitoring/logi, przygotować rollback i sporządzić końcowy raport PASS/BLOCKER.
 
 ## Dowody i odkrycia
 
@@ -72,20 +72,34 @@ _Wyniki będą dopisywane pod odpowiednimi punktami. Każdy nowy problem lub bra
 - Checklist zsynchronizowano z aktualnym `npm test` (w tym `tests/case-map-analytics.test.ts`) i przełączono na tę samą ręczną walidację redirectu co live smoke.
 - `npm.cmd run release-checklist -- --base-url https://regulskibehawiorysta.pl` — PASS: 18 kontroli, 6 tras smoke, 0 błędów; raport jawnie pokazuje `PASS /behawiorysta-online-polska: redirect 301 -> /`.
 
+### Końcowa bramka publiczna — PASS
+
+- Promocja Vercel: `dpl_xzACazpv2fv29g6yds9pAdJtfNtQ` (`8147cbc`) jest przypięta do `https://regulskibehawiorysta.pl`; publiczny marker to `CLEAN_START_REPO_V1:main:8147cbc`.
+- Produkcyjny `live-smoke` — PASS: 6 tras, w tym `/mapa-sprawy`, `/cennik`, legalne redirecty i wymagane treści. `release-checklist` — PASS: 18/18, 6 smoke, 0 błędów. Fallback bez JavaScriptu — PASS: 13/13.
+- Pełny crawl finalnego kandydata — PASS: 97 odkrytych tras, `200=97`, `crawlFailures=0`, 0 błędów konsoli, 0 blockerów/High/Medium; 37 historycznych redirectów kończy się `200`.
+- Audyt desktop/mobile — PASS: 10 kontroli na `/`, `/cennik`, `/opinie`, `/book`, `/termin?problem=szczeniak`; 0 overflow, 0 błędów konsoli/page errors, 0 uszkodzonych obrazów. Branding na `/cennik` i `/book` ma dwie poprawne linie bez łamania słowa „Behawiorysta”.
+- Prywatność Mapy w świeżej publicznej sesji — PASS: `200`, canonical `https://regulskibehawiorysta.pl/mapa-sprawy`, brak bannera zgód, brak Google/GA/Meta, 0 cookies przed i po, 0 błędów konsoli/page errors.
+- Technicznie — PASS: `301 /behawiorysta-online-polska -> /`, `301 /termin?problem=szczeniak -> /book?problem=szczeniak`, robots i sitemap `200`, canonical Mapy poprawny; HSTS, `frame-ancestors 'self'`, `SAMEORIGIN`, `nosniff` i polityka referrera są obecne.
+- Bezpieczny runtime Supabase — PASS: odczytowy probe z celowo błędnym bearerem zwraca oczekiwane `401` z odpowiedzią sesji, co wykonuje ścieżkę konfiguracji serwera bez odczytu lub zapisu danych klienta.
+- Lighthouse publiczny — PASS na pełnym systemowym Chrome po kontrolowanym jednym retry niepełnego mobilnego artefaktu: mobile P `0.83`, A `0.96`, BP `1`, SEO `1` (LCP `4.4 s`); desktop P `0.98`, A `1`, BP `1`, SEO `1`. Lokalny harness QA usuwa raporty przed każdą próbą i nie ukrywa błędu: raport nadal kończy się FAIL, jeśli drugi przebieg nie ma kompletu kategorii albo wystąpi błąd runtime.
+- Monitoring: `vercel logs ... --level error --since 1h` po kontrolach nie zwrócił błędów. Rollback: `npx.cmd vercel rollback https://coapebehawiorysta-bha1vtayf-coapebehawiorysta-6608s-projects.vercel.app --yes --scope coapebehawiorysta-6608s-projects`.
+
 ## Dodatkowe zadania wykryte w trakcie
 
-- [ ] 10. **SEO — canonical Mapy:** poprawka self-canonical jest gotowa lokalnie; wdrożyć i zweryfikować canonical `https://regulskibehawiorysta.pl/mapa-sprawy` na docelowej domenie.
-- [ ] 11. **SEO/redirect — `behawiorysta-online-polska`:** zachowanie zostało jasno opisane w smoke jako celowy redirect `301 → /`; po wdrożeniu potwierdzić status i `Location`, bez podążania testu za przekierowaniem.
-- [ ] 12. **Wiarygodność Lighthouse:** harness naprawiono tak, aby błąd dokumentu lub brak kategorii kończył raport jako `FAIL`; po wdrożeniu wykonać niezależny audyt Playwright/Chrome desktop i mobile jako dowód widoku. Mobilny wynik Lighthouse z niekompletnymi kategoriami nie może zostać uznany za PASS.
-- [ ] 13. **Higiena sandboxów QA:** po zakończeniu dowodów bezpiecznie usunąć dwa stare katalogi `case-map-booking-smoke-*` z katalogu tymczasowego. Bieżący `case-map-smoke` nie stworzył nowych pozostałości.
+- [x] 10. **SEO — canonical Mapy:** publiczna domena zwraca canonical `https://regulskibehawiorysta.pl/mapa-sprawy`.
+- [x] 11. **SEO/redirect — `behawiorysta-online-polska`:** potwierdzono publicznie status `301` i `Location: /`, bez podążania smoke za przekierowaniem.
+- [x] 12. **Wiarygodność Lighthouse:** desktop i mobile mają komplet kategorii na publicznej domenie; fail-closed pozostaje aktywny, a mobilny artefakt `NO_LCP` został obsłużony kontrolowanym retry z zadania 25.
+- [x] 13. **Higiena sandboxów QA:** dwa dokładnie zweryfikowane katalogi `case-map-booking-smoke-*` zostały bezpiecznie usunięte; nie pozostał żaden taki katalog.
 - [x] 14. **Migracje produkcyjne:** odczytowo potwierdzono skutki `20260717001` i `20260717002` w zdalnym schemacie (tabela claimów i obowiązkowa kolumna hash tokenu). Wewnętrzna historia migracji nie jest publicznie wystawiona przez PostgREST.
 - [x] 15. **Guard Next revalidate:** rozpoznano odziedziczony znacznik runtime i potwierdzono bezostrzeżeniowy build.
 - [x] 16. **Akceptacja modalu startowego strony głównej:** zweryfikowano zamykanie, trwałość wyboru, desktop/mobile oraz obraz.
 - [x] 17. **Odświeżenie lokalnego cache środowiska Vercel:** cache odświeżono; ograniczenie eksportu sensitive jest opisane, a konfiguracja została ponownie ustawiona.
-- [ ] 18. **BLOKER — runtime Vercel dla klucza Supabase:** po ponownym ustawieniu zweryfikowanego `SUPABASE_SERVICE_ROLE_KEY` wykonać nowe wdrożenie i odczytowy test runtime. Dopiero ten dowód zamknie bramkę publikacji dla `APP_DATA_MODE=supabase`.
-- [ ] 19. **Smoke redirect z cache-busterem:** redirect `301` legalnie zachowuje parametr `__release_smoke`; smoke ma porównywać docelową ścieżkę, a nie cały URL z technicznym parametrem. Uruchomić go na produkcji po wdrożeniu.
-- [ ] 20. **Release checklist — aktualność i redirect:** checklist ma nieaktualną dosłowną definicję `npm test` oraz podąża za redirectem zamiast dowodzić jego statusu i `Location`. Zsynchronizować go z package script i regułami redirectów, a potem uruchomić jako element bramki.
-- [ ] 21. **Desktop logo — jakość składu:** na `/cennik` i `/book` nazwa `Behawiorysta` łamie się w środku mimo braku overflow. Ustabilizować skład logo we wspólnym nagłówku i zweryfikować desktop.
-- [ ] 22. **Banner zgód na Mapie — kolizja UX:** na desktopowej nowej sesji banner zgód zasłania fragment dolnej karty wyboru Mapy. Skorygować pozycjonowanie/odstęp bez blokowania CTA i zweryfikować desktop/mobile.
+- [x] 18. **Runtime Vercel dla klucza Supabase:** nowe wdrożenie `8147cbc` przeszło odczytowy probe ścieżki serwera; oczekiwane `401` nieprawidłowej sesji potwierdza działającą konfigurację runtime bez danych klienta.
+- [x] 19. **Smoke redirect z cache-busterem:** uruchomiono publicznie; redirect `301` zachował techniczny parametr wyłącznie w smoke, a walidacja potwierdziła docelową ścieżkę `/`.
+- [x] 20. **Release checklist — aktualność i redirect:** zsynchronizowany checklist przeszedł publicznie 18/18 i 6/6 reguł smoke.
+- [x] 21. **Desktop logo — jakość składu:** audyt desktopowy `/cennik` i `/book` potwierdził dwie linie logo oraz brak dzielenia „Behawiorysta”.
+- [x] 22. **Banner zgód na Mapie — kolizja UX:** świeża sesja publiczna ma 0 elementów `.consent-banner`; CTA Mapy nie jest zasłonięte na desktop/mobile.
 - [x] 23. **`/pokoj` — anonimowy 401 w konsoli:** źródłem był automatyczny `fetch('/api/account/me')` bez sesji. Serwer przekazuje do klienta wyłącznie hint obecności ciasteczka sesji; nowy użytkownik nie wywołuje chronionego API, a zalogowany nadal ładuje konto. Świeży Chrome potwierdził dla `/pokoj` i `/konto`: HTTP 200, widoczne „Zaloguj się”, 0 żądań `/api/account/me` i `/api/account/case-maps`, 0 błędów konsoli/page errors.
 - [x] 24. **Rezerwacja bez JavaScriptu — brak linku do terminu:** przyczyną był zbyt wczesny odczyt testu po `domcontentloaded` dla strumieniowanego widoku `/book`, a nie brak terminu ani regresja strony. Smoke czeka teraz na `networkidle`; kandydat `532bcf3` przeszedł pełny fallback 13/13 (kontakt, link terminu i formularz rezerwacji) bez JavaScriptu.
+- [x] 25. **Publiczny Lighthouse mobile — niepełny pomiar LCP:** anomalia `NO_LCP` jest niestabilnym artefaktem mobilnego Chrome/Lighthouse, nie akceptowanym wynikiem strony. Lokalny harness QA usuwa artefakty przed każdą próbą i wykonuje maksymalnie jeden retry wyłącznie po braku kategorii; jeśli drugi pomiar też jest niepełny, nadal zwraca FAIL. Końcowe publiczne potwierdzenie po retry: P `0.83`, A `0.96`, BP `1`, SEO `1`, LCP `4.4 s`.
+- [x] 26. **Powtórka Lighthouse po błędzie ładowania Chrome:** `chrome-headless-shell 147` dwukrotnie zwrócił `FAILED_DOCUMENT_REQUEST / net::ERR_ABORTED`, lecz niezależna świeża nawigacja systemowym Chrome oraz publiczny smoke miały `200` i 0 błędów konsoli. Ten błąd runtime pozostał blokujący; rozdzielono go od strony przez identyczny końcowy pomiar na pełnym Chrome `150.0.7871.127`, który przeszedł po jednym retry `NO_LCP` (mobile P `0.83`, A `0.96`, BP `1`, SEO `1`; desktop P `0.98`, A `1`, BP `1`, SEO `1`). Lighthouse preferuje teraz pełny systemowy Chromium, gdy jest dostępny, z bezpiecznym fallbackiem do Playwright.

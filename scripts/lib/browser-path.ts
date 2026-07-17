@@ -1,6 +1,10 @@
 import { access, readdir } from 'node:fs/promises'
 import path from 'node:path'
 
+type BrowserExecutableOptions = {
+  preferSystem?: boolean
+}
+
 async function firstExistingPath(candidates: Array<string | undefined | null>) {
   for (const candidate of candidates) {
     if (!candidate) {
@@ -57,7 +61,7 @@ async function getPlaywrightBrowserCandidates() {
   return candidates
 }
 
-export async function resolveBrowserExecutablePath() {
+export async function resolveBrowserExecutablePath({ preferSystem = false }: BrowserExecutableOptions = {}) {
   const envPath = await firstExistingPath([
     process.env.BROWSER_EXECUTABLE_PATH?.trim(),
     process.env.CHROME_EXECUTABLE_PATH?.trim(),
@@ -68,17 +72,21 @@ export async function resolveBrowserExecutablePath() {
     return envPath
   }
 
-  const playwrightPath = await firstExistingPath(await getPlaywrightBrowserCandidates())
-
-  if (playwrightPath) {
-    return playwrightPath
-  }
-
   const systemPath = await firstExistingPath([
     'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
     'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
     'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe',
   ])
+
+  if (preferSystem && systemPath) {
+    return systemPath
+  }
+
+  const playwrightPath = await firstExistingPath(await getPlaywrightBrowserCandidates())
+
+  if (playwrightPath) {
+    return playwrightPath
+  }
 
   if (systemPath) {
     return systemPath

@@ -1,6 +1,6 @@
 import { spawnSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
-import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { SITE_PRODUCTION_URL } from '@/lib/site'
 import { resolveBrowserExecutablePath } from './lib/browser-path'
@@ -10,8 +10,11 @@ type RunResult = {
   mode: 'mobile' | 'desktop'
   status: 'PASS' | 'FAIL'
   outputBase: string
+  attempts: number
   failure?: string
 }
+
+type LighthouseAttemptResult = Omit<RunResult, 'attempts'>
 
 type LighthouseReport = {
   runtimeError?: { code?: string; message?: string } | null
@@ -23,6 +26,7 @@ const reportRoot = path.join(rootDir, 'qa-reports', 'lighthouse')
 const latestDir = path.join(reportRoot, 'latest')
 const tempRoot = path.join(rootDir, '.tmp-lighthouse')
 const DEFAULT_ROUTES = ['/', '/cennik', '/kontakt', '/book']
+const LIGHTHOUSE_MAX_ATTEMPTS = 2
 
 function readArg(name: string) {
   const index = process.argv.indexOf(name)
@@ -78,9 +82,18 @@ async function getReportFailure(outputBase: string): Promise<string | null> {
   }
 }
 
-async function runLighthouse(baseUrl: string, route: string, mode: RunResult['mode'], chromePath: string): Promise<RunResult> {
+async function runLighthouseAttempt(
+  baseUrl: string,
+  route: string,
+  mode: RunResult['mode'],
+  chromePath: string,
+): Promise<LighthouseAttemptResult> {
   const slug = `${mode}-${safeSlug(route)}`
   const outputBase = path.join(latestDir, slug)
+  await Promise.all([
+    rm(`${outputBase}.report.html`, { force: true }),
+    rm(`${outputBase}.report.json`, { force: true }),
+  ])
   const args = [
     buildUrl(baseUrl, route),
     '--quiet',
@@ -148,6 +161,28 @@ async function runLighthouse(baseUrl: string, route: string, mode: RunResult['mo
   }
 }
 
+function shouldRetry(result: LighthouseAttemptResult) {
+  return result.status === 'FAIL' && Boolean(result.failure?.startsWith('missing Lighthouse categories:'))
+}
+
+async function runLighthouse(baseUrl: string, route: string, mode: RunResult['mode'], chromePath: string): Promise<RunResult> {
+  for (let attempt = 1; attempt <= LIGHTHOUSE_MAX_ATTEMPTS; attempt += 1) {
+    const result = await runLighthouseAttempt(baseUrl, route, mode, chromePath)
+    if (result.status === 'PASS') {
+      return { ...result, attempts: attempt }
+    }
+
+    if (attempt < LIGHTHOUSE_MAX_ATTEMPTS && shouldRetry(result)) {
+      console.warn(`Lighthouse ${mode} ${route} returned an incomplete category set; retrying once.`)
+      continue
+    }
+
+    return { ...result, attempts: attempt }
+  }
+
+  throw new Error('Lighthouse retry loop completed without a result.')
+}
+
 function renderReport(baseUrl: string, results: RunResult[]) {
   const failures = results.filter((result) => result.status === 'FAIL')
   const lines = [
@@ -167,7 +202,7 @@ function renderReport(baseUrl: string, results: RunResult[]) {
 async function main() {
   const baseUrl = resolveBaseUrl()
   const routes = resolveRoutes()
-  const chromePath = await resolveBrowserExecutablePath()
+  const chromePath = await resolveBrowserExecutablePath({ preferSystem: true })
   const results: RunResult[] = []
 
   await mkdir(latestDir, { recursive: true })

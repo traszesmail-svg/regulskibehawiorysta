@@ -139,16 +139,14 @@
   width: 44px;
   height: 44px;
   flex: 0 0 44px;
-  background-image: url('/images/mapa-zachowania/answer-icons-v2.png');
-  background-repeat: no-repeat;
-  background-size: 88px 176px;
+  object-fit: contain;
+  object-position: center;
 }
 
 .visualBadgeIcon {
   width: 18px;
   height: 18px;
   flex-basis: 18px;
-  background-size: 36px 72px;
 }
 
 .visualCaption {
@@ -319,7 +317,6 @@
   width: 34px;
   height: 34px;
   flex-basis: 34px;
-  background-size: 68px 136px;
 }
 
 .stepInsight > div {
@@ -633,7 +630,6 @@
   width: 48px;
   height: 48px;
   flex-basis: 48px;
-  background-size: 96px 192px;
 }
 
 .resultPriority .resultSeal,
@@ -662,7 +658,6 @@
   width: 22px;
   height: 22px;
   flex-basis: 22px;
-  background-size: 44px 88px;
 }
 
 .resultContent h2 {
@@ -733,7 +728,6 @@
   width: 45px;
   height: 45px;
   flex-basis: 45px;
-  background-size: 90px 180px;
 }
 
 .purchaseCardHeading div {
@@ -927,7 +921,6 @@
   width: 36px;
   height: 36px;
   flex-basis: 36px;
-  background-size: 72px 144px;
 }
 
 .adviceCard > div {
@@ -1085,7 +1078,6 @@
     width: 30px;
     height: 30px;
     flex-basis: 30px;
-    background-size: 60px 120px;
   }
 
   .answer,
@@ -1099,7 +1091,6 @@
     width: 39px;
     height: 39px;
     flex-basis: 39px;
-    background-size: 78px 156px;
   }
 
   .answerCopy strong {

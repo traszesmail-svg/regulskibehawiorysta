@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
@@ -16,6 +17,14 @@ import {
   getCaseMapShortFlowQuestions,
   type CaseMapQuestion,
 } from '@/lib/case-map-questions'
+import {
+  CASE_MAP_ICON_SOURCES,
+  CASE_MAP_PATH_ICONS,
+  CASE_MAP_SPECIES_ICONS,
+  CASE_MAP_TOPIC_ICONS,
+  getCaseMapQuestionOptionIcon,
+  type CaseMapIconName,
+} from '@/lib/case-map-icons'
 import { getBookingServiceConfig } from '@/lib/booking-services'
 import { appendSearchParams, buildBookHref } from '@/lib/booking-routing'
 import { trackCaseMapPrivateAnalyticsEvent } from '@/lib/case-map-analytics'
@@ -88,21 +97,6 @@ const TOPICS: Record<CaseMapSpecies, Topic[]> = {
   ],
 }
 
-const QUESTION_ICON_SETS: Record<string, number[]> = {
-  case_focus: [0, 5, 7],
-  fast_onset: [3, 3, 3, 7],
-  fast_frequency: [3, 3, 3, 7],
-  fast_goal: [4, 2, 1, 6, 7, 7],
-  walk_pattern: [2, 1, 1, 7],
-  alone_first_signal: [2, 3, 5, 7],
-  resource_signals: [4, 2, 1, 7],
-  noise_recovery: [3, 3, 5, 7],
-  change_symptoms: [5, 0, 3, 7],
-  litter_problem: [0, 2, 1, 7],
-  touch_context: [5, 0, 2, 7],
-  conflict_pattern: [5, 3, 2, 7],
-}
-
 function isAnswered(value: unknown) {
   return value !== undefined && value !== null && value !== ''
 }
@@ -129,28 +123,19 @@ function firstIncompleteScene(scenes: Scene[], answers: CaseMapAnswers, path: Ca
   })
 }
 
-function getQuestionIconIndex(questionId: string, index: number) {
-  return QUESTION_ICON_SETS[questionId]?.[index] ?? 7
-}
-
-function getTopicIconIndex(topic: CaseMapTopic) {
-  if (topic === 'dog_walks') return 1
-  if (topic === 'dog_alone') return 3
-  if (topic === 'dog_resources') return 4
-  if (topic === 'dog_noise' || topic === 'noise') return 2
-  if (topic === 'cat_conflict') return 5
-  if (topic === 'cat_litter') return 0
-  if (topic === 'cat_touch') return 2
-  if (topic === 'dog_change' || topic === 'cat_change') return 6
-  return 7
-}
-
-function ImageGenIcon({ index, className = '' }: { index: number; className?: string }) {
-  const column = index % 2
-  const row = Math.floor(index / 2)
-  const backgroundPosition = `${column === 0 ? '0%' : '100%'} ${(row / 3) * 100}%`
-
-  return <span aria-hidden="true" className={className ? `${styles.generatedIcon} ${className}` : styles.generatedIcon} style={{ backgroundPosition }} />
+function MapIcon({ name, className = '' }: { name: CaseMapIconName; className?: string }) {
+  return (
+    <Image
+      aria-hidden="true"
+      alt=""
+      className={className ? `${styles.generatedIcon} ${className}` : styles.generatedIcon}
+      draggable={false}
+      height={512}
+      sizes="(max-width: 700px) 39px, 48px"
+      src={CASE_MAP_ICON_SOURCES[name]}
+      width={512}
+    />
+  )
 }
 
 function getStepInsight(sceneId: string, selection: string): StepInsight {
@@ -605,7 +590,7 @@ export function ShortBehaviorMapFlow({
         <article className={styles.scene}>
           <div className={styles.visual} style={{ backgroundImage: `url(${heroImage})` }} aria-hidden="true">
             <div className={styles.visualShade} />
-            <div className={styles.visualBadge}><ImageGenIcon index={2} className={styles.visualBadgeIcon} /><span>Spokojnie, krok po kroku</span></div>
+            <div className={styles.visualBadge}><MapIcon name="observe-eye" className={styles.visualBadgeIcon} /><span>Spokojnie, krok po kroku</span></div>
             <div className={styles.visualCaption}>
               <span>{species === 'kot' ? 'Kot i dom' : species === 'pies' ? 'Pies i codzienność' : 'Mapa zachowania'}</span>
               <strong>{species ? <>Przyjrzyjmy się<br />tej sytuacji.</> : <>Zobaczmy,<br />co dziś jest ważne.</>}</strong>
@@ -635,12 +620,12 @@ export function ShortBehaviorMapFlow({
               {currentScene.kind === 'scope' ? (
                 <div className={styles.answerGrid}>
                   <button type="button" className={styles.answer} onClick={() => choosePath('fast')}>
-                    <ImageGenIcon index={1} className={styles.answerIcon} />
+                    <MapIcon name={CASE_MAP_PATH_ICONS.fast} className={styles.answerIcon} />
                     <span className={styles.answerCopy}><strong>Szybka mapa</strong><small>Kilka krótkich pytań i jasny kierunek rozmowy.</small></span>
                     <span className={styles.rowArrow} aria-hidden="true">›</span>
                   </button>
                   <button type="button" className={styles.answer} onClick={() => choosePath('long')}>
-                    <ImageGenIcon index={6} className={styles.answerIcon} />
+                    <MapIcon name={CASE_MAP_PATH_ICONS.long} className={styles.answerIcon} />
                     <span className={styles.answerCopy}><strong>Pełniejsza mapa</strong><small>Więcej miejsca na opis sytuacji, gdy chcesz poruszyć kilka wątków.</small></span>
                     <span className={styles.rowArrow} aria-hidden="true">›</span>
                   </button>
@@ -653,7 +638,7 @@ export function ShortBehaviorMapFlow({
                     const selected = species === option
                     return (
                       <button key={option} type="button" aria-pressed={selected} className={selected ? styles.answerSelected : styles.answer} onClick={() => chooseSpecies(option)}>
-                        <ImageGenIcon index={option === 'pies' ? 0 : 5} className={styles.answerIcon} />
+                        <MapIcon name={CASE_MAP_SPECIES_ICONS[option]} className={styles.answerIcon} />
                         <span className={styles.answerCopy}><strong>{option === 'pies' ? 'Pies' : 'Kot'}</strong><small>{option === 'pies' ? 'Spacer, dom, odpoczynek i relacje.' : 'Dom, zasoby, kontakt i codzienny rytm.'}</small></span>
                         <span className={selected ? styles.selectionMark : styles.rowArrow} aria-hidden="true">{selected ? '✓' : '›'}</span>
                       </button>
@@ -666,10 +651,10 @@ export function ShortBehaviorMapFlow({
                 <div className={styles.answerGrid}>
                   {TOPICS[species].map((option) => {
                     const selected = topic === option.id
-                    const iconIndex = getTopicIconIndex(option.id)
+                    const iconName = CASE_MAP_TOPIC_ICONS[option.id]
                     return (
                       <button key={option.id} type="button" aria-pressed={selected} className={selected ? styles.answerSelected : styles.answer} onClick={() => chooseTopic(option.id)}>
-                        <ImageGenIcon index={iconIndex} className={styles.answerIcon} />
+                        <MapIcon name={iconName} className={styles.answerIcon} />
                         <span className={styles.answerCopy}><strong>{option.label}</strong><small>{option.helper}</small></span>
                         <span className={selected ? styles.selectionMark : styles.rowArrow} aria-hidden="true">{selected ? '✓' : '›'}</span>
                       </button>
@@ -682,12 +667,12 @@ export function ShortBehaviorMapFlow({
                 <>
                   {currentQuestion?.kind === 'choice' ? (
                     <div className={styles.answerGrid}>
-                      {currentQuestion.options?.map((option, index) => {
+                      {currentQuestion.options?.map((option) => {
                         const selected = answers[currentQuestion.id] === option.id
-                        const iconIndex = getQuestionIconIndex(currentQuestion.id, index)
+                        const iconName = getCaseMapQuestionOptionIcon(currentQuestion.id, option.id)
                         return (
                           <button key={option.id} type="button" aria-pressed={selected} className={selected ? styles.answerSelected : styles.answer} onClick={() => setAnswer(currentQuestion, option.id)}>
-                            <ImageGenIcon index={iconIndex} className={styles.answerIcon} />
+                            <MapIcon name={iconName} className={styles.answerIcon} />
                             <span className={styles.answerCopy}><strong>{option.label}</strong>{option.helper ? <small>{option.helper}</small> : null}</span>
                             <span className={selected ? styles.selectionMark : styles.rowArrow} aria-hidden="true">{selected ? '✓' : '›'}</span>
                           </button>
@@ -717,7 +702,7 @@ export function ShortBehaviorMapFlow({
 
             {currentInsight ? (
               <aside className={styles.stepInsight} aria-live="polite">
-                <ImageGenIcon index={path === 'long' ? 6 : 2} className={styles.stepInsightIcon} />
+                <MapIcon name={path === 'long' ? 'map-full' : 'observe-eye'} className={styles.stepInsightIcon} />
                 <div>
                   <span>Co to mówi o sytuacji</span>
                   <strong>{currentInsight.observation}</strong>
@@ -738,11 +723,11 @@ export function ShortBehaviorMapFlow({
         <article className={`${styles.result} ${priorityConversation ? styles.resultPriority : ''}`}>
           <div className={styles.resultVisual} style={{ backgroundImage: `url(${resultVisual})` }} aria-hidden="true">
             <div className={styles.visualShade} />
-            <div className={styles.resultSeal}><ImageGenIcon index={priorityConversation ? 4 : 6} className={styles.resultSealIcon} /></div>
+            <div className={styles.resultSeal}><MapIcon name={priorityConversation ? 'safety-shield' : 'map-full'} className={styles.resultSealIcon} /></div>
             <div className={styles.resultVisualCaption}>{priorityConversation ? 'Twoja sytuacja. Rozmowa. Najbliższy krok.' : 'Twoja sytuacja. Rozmowa. Pierwszy krok.'}</div>
           </div>
           <div className={styles.resultContent}>
-            <div className={styles.resultKicker}><ImageGenIcon index={priorityConversation ? 4 : extendedConversation ? 1 : 6} className={styles.kickerIcon} />Masz punkt startu do rozmowy</div>
+            <div className={styles.resultKicker}><MapIcon name={priorityConversation ? 'safety-shield' : extendedConversation ? 'map-full' : 'route-plan'} className={styles.kickerIcon} />Masz punkt startu do rozmowy</div>
             <h2>{resultTitle}</h2>
             <p className={styles.resultLead}>{resultLead}</p>
 
@@ -752,7 +737,7 @@ export function ShortBehaviorMapFlow({
 
             <div className={`${styles.purchaseCard} ${priorityConversation ? styles.purchaseCardPriority : ''}`}>
               <div className={styles.purchaseCardHeading}>
-                <ImageGenIcon index={priorityConversation ? 4 : extendedConversation ? 1 : 6} className={styles.purchaseIcon} />
+                <MapIcon name={priorityConversation ? 'safety-shield' : extendedConversation ? 'map-full' : 'route-plan'} className={styles.purchaseIcon} />
                 <div>
                   <span>Proponowana konsultacja</span>
                   <strong>{recommendedService.title}</strong>
@@ -767,7 +752,7 @@ export function ShortBehaviorMapFlow({
             </div>
 
             <div className={styles.beforePurchaseCard}>
-              <ImageGenIcon index={2} className={styles.adviceIcon} />
+              <MapIcon name="observe-eye" className={styles.adviceIcon} />
               <div>
                 <strong>Do czasu terminu</strong>
                 <p>{report?.firstStep}</p>

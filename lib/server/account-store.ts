@@ -131,7 +131,7 @@ function userEmail(user: User) {
 }
 
 type AccountRoomBooking = Pick<BookingRecord, 'bookingStatus' | 'paymentStatus'>
-type AccountRoomLeadBooking = Pick<LeadBookingRecord, 'service' | 'status'>
+type AccountRoomLeadBooking = Pick<LeadBookingRecord, 'status'> & { service: string }
 
 export function hasEligibleAccountRoomBooking(
   bookings: AccountRoomBooking[],

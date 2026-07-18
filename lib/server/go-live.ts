@@ -25,6 +25,12 @@ type PublicUrlProbeResult = {
   details: string
 }
 
+type DataRuntimeProbeResult = {
+  ok: boolean
+  status: number | null
+  details: string
+}
+
 function getDataRuntimeGoLiveCheck(): GoLiveCheck {
   const data = getDataModeStatus()
 
@@ -149,8 +155,59 @@ async function probePublicAppUrl(baseUrl: string): Promise<PublicUrlProbeResult>
   }
 }
 
+async function probeProductionDataRuntime(baseUrl: string): Promise<DataRuntimeProbeResult> {
+  try {
+    const probeUrl = new URL('/api/account/me', baseUrl)
+    probeUrl.searchParams.set('__live_readiness', Date.now().toString())
+
+    const response = await fetch(probeUrl, {
+      method: 'GET',
+      cache: 'no-store',
+      headers: {
+        authorization: 'Bearer deliberately-invalid-live-readiness-token',
+        'user-agent': 'regulski-behawiorysta-live-readiness/1.0',
+      },
+    })
+    const payload = (await response.json().catch(() => null)) as { error?: unknown } | null
+    const message = typeof payload?.error === 'string' ? payload.error : ''
+    const invalidSession = /sesja konta opiekuna.*(wygas|niepoprawna)/i.test(message)
+
+    if (response.status === 401 && invalidSession) {
+      return {
+        ok: true,
+        status: response.status,
+        details: `HTTP ${response.status}, kontrolowana nieprawidłowa sesja została odrzucona przez Supabase Auth`,
+      }
+    }
+
+    return {
+      ok: false,
+      status: response.status,
+      details: message ? `HTTP ${response.status}: ${message}` : `HTTP ${response.status}`,
+    }
+  } catch (error) {
+    const details = error instanceof Error ? error.message : 'unknown fetch failure'
+
+    return {
+      ok: false,
+      status: null,
+      details,
+    }
+  }
+}
+
+function needsProductionDataRuntimeProbe(check: GoLiveCheck) {
+  return (
+    check.id === 'data-runtime' &&
+    check.state === 'blocked' &&
+    /APP_DATA_MODE=supabase/i.test(check.summary) &&
+    /SUPABASE_SERVICE_ROLE_KEY/i.test(check.summary)
+  )
+}
+
 export async function getVerifiedDeployReadinessChecks(): Promise<GoLiveCheck[]> {
   const checks = getDeployReadinessChecks()
+  const dataCheckIndex = checks.findIndex((check) => check.id === 'data-runtime')
   const urlCheckIndex = checks.findIndex((check) => check.id === 'app-url')
 
   if (urlCheckIndex === -1) {
@@ -158,32 +215,51 @@ export async function getVerifiedDeployReadinessChecks(): Promise<GoLiveCheck[]>
   }
 
   const currentUrlCheck = checks[urlCheckIndex]
-
-  if (currentUrlCheck.tone === 'attention') {
-    return checks
-  }
-
   const baseUrl = getBaseUrl()
-  const probe = await probePublicAppUrl(baseUrl)
 
-  if (probe.ok) {
-    checks[urlCheckIndex] = {
-      ...currentUrlCheck,
-      summary: `Publiczny URL aplikacji jest gotowy do linków zwrotnych i maili: ${baseUrl} (${probe.details}).`,
-      nextStep: 'Brak blokera po stronie publicznego URL i jego dostępności HTTP.',
+  if (currentUrlCheck.tone !== 'attention') {
+    const probe = await probePublicAppUrl(baseUrl)
+
+    if (probe.ok) {
+      checks[urlCheckIndex] = {
+        ...currentUrlCheck,
+        summary: `Publiczny URL aplikacji jest gotowy do linków zwrotnych i maili: ${baseUrl} (${probe.details}).`,
+        nextStep: 'Brak blokera po stronie publicznego URL i jego dostępności HTTP.',
+      }
+    } else {
+      checks[urlCheckIndex] = {
+        id: 'app-url',
+        label: 'Publiczny URL',
+        statusLabel: 'Bloker',
+        state: 'blocked',
+        tone: 'attention',
+        summary: `Publiczny URL nie odpowiada poprawnie dla ruchu zewnętrznego: ${baseUrl} (${probe.details}).`,
+        nextStep: 'Ustaw NEXT_PUBLIC_APP_URL na faktycznie publiczny adres HTTPS bez ochrony 401/SSO i potwierdź go przez npm run live-smoke.',
+      }
     }
-
-    return checks
   }
 
-  checks[urlCheckIndex] = {
-    id: 'app-url',
-    label: 'Publiczny URL',
-    statusLabel: 'Bloker',
-    state: 'blocked',
-    tone: 'attention',
-    summary: `Publiczny URL nie odpowiada poprawnie dla ruchu zewnętrznego: ${baseUrl} (${probe.details}).`,
-    nextStep: 'Ustaw NEXT_PUBLIC_APP_URL na faktycznie publiczny adres HTTPS bez ochrony 401/SSO i potwierdź go przez npm run live-smoke.',
+  const currentDataCheck = dataCheckIndex === -1 ? null : checks[dataCheckIndex]
+  if (currentDataCheck && needsProductionDataRuntimeProbe(currentDataCheck)) {
+    const probe = await probeProductionDataRuntime(baseUrl)
+
+    if (probe.ok) {
+      checks[dataCheckIndex] = {
+        id: 'data-runtime',
+        label: 'Warstwa danych',
+        statusLabel: 'Gotowe',
+        state: 'ready',
+        tone: 'ready',
+        summary:
+          `Lokalny snapshot Vercel nie ujawnia sekretu sensitive, ale runtime produkcyjny potwierdza Supabase Auth (${probe.details}).`,
+        nextStep: 'Brak blokera po stronie produkcyjnego runtime danych.',
+      }
+    } else {
+      checks[dataCheckIndex] = {
+        ...currentDataCheck,
+        summary: `${currentDataCheck.summary} Produkcyjny probe runtime nie potwierdził konfiguracji: ${probe.details}.`,
+      }
+    }
   }
 
   return checks

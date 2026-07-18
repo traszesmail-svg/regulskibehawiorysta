@@ -451,7 +451,7 @@ export function CallRoom({
           </p>
 
           <div className="waiting-room-copy" style={{ padding: '2rem', border: '1px solid var(--border)', borderRadius: '12px', background: 'var(--panel-bg-card)', marginBottom: '2rem' }}>
-            <h3 style={{ margin: '0 0 1rem' }}>How does it work?</h3>
+            <h3 style={{ margin: '0 0 1rem' }}>Jak to działa?</h3>
             <ul style={{ margin: 0, paddingLeft: '1.2rem', lineHeight: '1.6' }}>
               <li>O ustalonej godzinie ({bookingTime}) system automatycznie połączy Behawiorystę z Twoim numerem.</li>
               <li>Wykonujemy maksymalnie <strong>2 próby połączenia co minutę</strong>. Jeśli nie odbierzesz, konsultacja przepada.</li>

@@ -1597,6 +1597,48 @@ test('verified deploy readiness can block a syntactically valid URL when externa
   }
 })
 
+test('verified deploy readiness accepts a sensitive-secret snapshot when production Auth rejects a controlled invalid session', async () => {
+  const originalFetch = globalThis.fetch
+
+  globalThis.fetch = async (input) => {
+    const target = input instanceof URL ? input.href : typeof input === 'string' ? input : input.url
+    const url = new URL(target)
+
+    if (url.pathname === '/') {
+      return new Response('OK', { status: 200 })
+    }
+
+    if (url.pathname === '/api/account/me') {
+      return Response.json({ ok: false, error: 'Sesja konta opiekuna wygasla albo jest niepoprawna.' }, { status: 401 })
+    }
+
+    return new Response('Not found', { status: 404 })
+  }
+
+  try {
+    await withEnv(
+      {
+        APP_DATA_MODE: 'supabase',
+        NEXT_PUBLIC_SUPABASE_URL: 'https://example.supabase.co',
+        SUPABASE_SERVICE_ROLE_KEY: null,
+        NEXT_PUBLIC_APP_URL: SITE_PRODUCTION_URL,
+        CUSTOMER_EMAIL_MODE: 'disabled',
+        REGULSKI_CONTACT_EMAIL: 'kontakt@regulskibehawiorysta.pl',
+        PAYU_MODE: 'disabled',
+      },
+      async () => {
+        const checks = await getVerifiedDeployReadinessChecks()
+        const dataCheck = checks.find((check) => check.id === 'data-runtime')
+
+        assert.equal(dataCheck?.tone, 'ready')
+        assert.match(dataCheck?.summary ?? '', /runtime produkcyjny potwierdza Supabase Auth/i)
+      },
+    )
+  } finally {
+    globalThis.fetch = originalFetch
+  }
+})
+
 test('live clickthrough keeps legal pages inside public production QA', () => {
   const liveClickthroughSource = readSource('scripts', 'live-clickthrough-report.ts')
 
@@ -1906,6 +1948,13 @@ test('booking and contact flows keep resilient fallback selectors', () => {
   assert.match(uiSmokeSource, /page\.goto: Timeout/)
   assert.match(uiSmokeSource, /taskkill\.exe/)
   assert.match(uiSmokeSource, /\['\/pid', String\(pid\), '\/T', '\/F'\]/)
+})
+
+test('telephone room keeps its customer-facing preparation copy in Polish', () => {
+  const callRoomSource = readSource('components', 'CallRoom.tsx')
+
+  assert.match(callRoomSource, /Jak to działa\?/)
+  assert.doesNotMatch(callRoomSource, /How does it work\?/)
 })
 
 test('payu smoke script supports a production checkout target without sandbox defaults', () => {

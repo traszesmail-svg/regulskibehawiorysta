@@ -19684,6 +19684,40 @@ select:focus-visible {
   margin-top: 2px;
 }
 
+.payment-ref-loading {
+  min-height: 224px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 14px;
+  padding: 28px;
+  text-align: center;
+  border: 1px solid rgba(72, 64, 50, 0.12);
+  border-radius: 14px;
+  background: rgba(250, 247, 239, 0.72);
+}
+
+.payment-ref-loading .payment-ref-card-title {
+  max-width: 420px;
+}
+
+.payment-ref-loading .payment-ref-card-title h2 {
+  margin-bottom: 8px;
+}
+
+.payment-ref-loading-icon {
+  width: 28px;
+  height: 28px;
+  color: var(--ref-accent);
+  animation: payment-ref-loading-spin 1.1s linear infinite;
+}
+
+@keyframes payment-ref-loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .payment-ref-disclosure {
   border: 1px solid rgba(72, 64, 50, 0.12);
   border-radius: 12px;

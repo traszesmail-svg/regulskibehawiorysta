@@ -1,11 +1,12 @@
-import { FunnelLoadingPage } from '@/components/FunnelLoadingPage'
+import { PaymentReferenceLoading } from '@/components/PaymentReferenceLoading'
 
 export default function Loading() {
   return (
-    <FunnelLoadingPage
+    <PaymentReferenceLoading
       eyebrow="Potwierdzenie rezerwacji"
       title="Ładuję potwierdzenie"
       message="Sprawdzam aktualny status płatności i przygotowuję podsumowanie rezerwacji."
+      summaryTitle="Podsumowanie rezerwacji"
     />
   )
 }

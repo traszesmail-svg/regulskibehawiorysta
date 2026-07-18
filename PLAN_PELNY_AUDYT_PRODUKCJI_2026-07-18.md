@@ -25,21 +25,21 @@ widocznych ścieżek, kontroli wiadomości oraz dowodu z działającej produkcji
    powiązać je z istniejącym planem publicznych powierzchni.
 2. [GOTOWE] Sprawdzić anonimowe ścieżki: nawigację, strony usług, treści, blog,
    materiały, regulaminy, kontakt, błędy/404 i responsywne powłoki.
-3. [W TOKU] Sprawdzić rezerwację od wyboru terminu do płatności BLIK, w tym
+3. [GOTOWE] Sprawdzić rezerwację od wyboru terminu do płatności BLIK, w tym
    błędy formularza, terminy, odświeżanie statusu i bezpośrednie linki.
-4. [OCZEKUJE NA UŻYTKOWNIKA] Przygotować jedną prawdziwą rezerwację QA BLIK i zatrzymać się przed
+4. [GOTOWE] Przygotować jedną prawdziwą rezerwację QA BLIK i zatrzymać się przed
    operacją finansową do ręcznego potwierdzenia przez użytkownika.
-5. [OCZEKUJE NA BLIK] Po potwierdzeniu sprawdzić potwierdzenie, e-mail klienta i admina,
+5. [CZĘŚCIOWO GOTOWE — SKRZYNKA QA] Po potwierdzeniu sprawdzić potwierdzenie, e-mail klienta i admina,
    pokój rozmowy, materiały, zmianę/anulowanie terminu oraz odświeżenie sesji.
-6. [W TOKU] Przetestować konto: rejestrację, nowy e-mail aktywacyjny, logowanie,
+6. [CZĘŚCIOWO GOTOWE — SKRZYNKA QA] Przetestować konto: rejestrację, nowy e-mail aktywacyjny, logowanie,
    reset hasła, wylogowanie, `/konto`, `/pokoj` i ścieżki administratora.
 7. [GOTOWE LOKALNIE] Audytować wszystkie e-maile: treść, polszczyznę, kolejność, layout,
    wersję mobilną, błędy i brak języka projektowego.
 8. [GOTOWE — Z POZOSTAŁYMI DECYZJAMI] Zweryfikować Vercel, Supabase Auth/DB/Storage, Resend, domenę, DNS,
    TLS, nagłówki bezpieczeństwa, zmienne runtime i integracje płatności.
-9. [W TOKU] Naprawić potwierdzone usterki, uruchomić regresję, wdrożyć i sprawdzić
+9. [GOTOWE] Naprawić potwierdzone usterki, uruchomić regresję, wdrożyć i sprawdzić
    produkcję po wdrożeniu.
-10. [W TOKU] Zapisać raport końcowy: pokrycie, dowody, poprawki, ryzyka i elementy
+10. [GOTOWE Z OGRANICZENIEM SKRZYNKI QA] Zapisać raport końcowy: pokrycie, dowody, poprawki, ryzyka i elementy
     wymagające decyzji użytkownika.
 
 ## Dziennik dowodów
@@ -48,11 +48,32 @@ widocznych ścieżek, kontroli wiadomości oraz dowodu z działającej produkcji
 | --- | --- | --- |
 | Mapa tras | gotowe | 98 wykrytych tras, 98 kończy się HTTP 200; oczekiwane redirecty potwierdzone. |
 | Przejścia anonimowe | gotowe | Desktop i mobile, nawigacja, blog, materiały, regulaminy, kontakt oraz 404 sprawdzone w pełnym crawl. |
-| BLIK QA | oczekuje na przygotowanie | Lokalna pełna ścieżka przeszła; rzeczywista wpłata zostanie utworzona dopiero po wdrożeniu i zatrzymana przed zapłatą. |
-| Konto i aktywacja | w toku | Zweryfikowano produkcyjny URL/redirect Supabase; poprawiono bezpieczne powroty, limity i brak cache. Kliknięcie prawdziwego linku wymaga kontrolowanej skrzynki. |
-| E-maile | gotowe lokalnie | 7 renderowanych szablonów desktop/mobile, polszczyzna i prywatność tematów skorygowane; testy nie potwierdzają jeszcze dostawy do skrzynki. |
+| BLIK QA | gotowe z wyjątkiem odbioru e-maili | Ręcznie potwierdzona rezerwacja QA ma `paid`, `consultationReady=true` i `ready=true`; potwierdzenie, pokój, reload i rejoin sprawdzone na produkcji bez duplikowania zgłoszenia płatności. |
+| Konto i aktywacja | częściowo gotowe — skrzynka QA | Trasy konta i admina, no-store, limity, logout i ochrona pokoju sprawdzone; kliknięcie aktywacji, login i reset wymagają kontrolowanej skrzynki. |
+| E-maile | gotowe lokalnie — odbiór oczekuje | Renderowanie i scenariusze wysyłki są pokryte testami; stan produkcyjny potwierdza konfigurację Resend, lecz nie fizyczne doręczenie do skrzynki QA. |
 | Konfiguracja zewnętrzna | częściowo gotowe | Domena Resend/DKIM, TLS i Supabase Auth zweryfikowane; do zastosowania sekret crona i dwie migracje. Brak MX/DMARC pozostaje decyzją właściciela. |
-| Regresja i wdrożenie | w toku | 155 testów: 142 OK, 13 pominiętych; lint, build, schema audit, commerce smoke oraz pełny UI smoke OK. |
+| Regresja i wdrożenie | gotowe | 147 testów OK, 13 celowo pominiętych, lint, typecheck, build, schema audit, UI smoke, release checklist 18/18 oraz strict live-readiness 5/5 przeszły; commit `019ea6a` działa na produkcji. |
+
+## Stan po wznowieniu i wdrożeniu — 2026-07-18
+
+- [GOTOWE] Rezerwacja QA BLIK została ręcznie potwierdzona przez właściciela. API zwraca
+  `paid`, `consultationReady=true` i `ready=true`; potwierdzenie oraz bezpośredni link do
+  pokoju działają po odświeżeniu i w świeżej sesji. Nie zgłoszono płatności ponownie.
+- [GOTOWE] Lokalny UI smoke sprawdził akceptację administracyjną, odświeżenie potwierdzenia,
+  zapis materiałów, wejście ponowne do pokoju oraz wariant telefoniczny i wideo. Izolowane E2E
+  potwierdziło zmianę terminu, anulowanie ze zwrotem i zwolnieniem terminu oraz upload i chroniony
+  odczyt MP4; dane QA zostały usunięte.
+- [GOTOWE] Naprawiono angielski nagłówek w telefonicznym pokoju (`Jak to działa?`), błąd typów
+  dla historycznego wpisu commerce oraz fałszywy bloker readiness wynikający z maskowania sekretu
+  w lokalnym snapshotcie Vercel. Produkcyjny runtime potwierdza Supabase Auth przez kontrolowane
+  odrzucenie nieprawidłowej sesji.
+- [GOTOWE] Wdrożono commit `019ea6a` na `https://regulskibehawiorysta.pl`; marker wersji,
+  widoczny polski nagłówek pokoju, release checklist (18/18) i strict live-readiness (5/5)
+  zostały sprawdzone po wdrożeniu.
+- [OCZEKUJE NA SKRZYNKĘ QA] Nie ma kontrolowanej, dostępnej skrzynki ani konta QA. Bez niej nie
+  można uczciwie potwierdzić fizycznego odbioru maili, kliknięcia aktywacji, resetu hasła,
+  zalogowanego widoku klienta i powiązania konta z opłaconą konsultacją. Obecne adresy
+  `qa-live-blik-…@example.com` są celowo niedoręczalne.
 
 ## Potwierdzone poprawki przed wdrożeniem
 

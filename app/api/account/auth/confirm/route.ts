@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
-import { ConfigurationError } from '@/lib/server/env'
-import { confirmAccountSession, setAccountSessionCookies } from '@/lib/server/account-auth'
+import { confirmAccountSession, getPublicAccountAuthFailure, setAccountSessionCookies } from '@/lib/server/account-auth'
 import { PRIVATE_NO_STORE_HEADERS, consumeRequestRateLimit } from '@/lib/server/request-protection'
 
 export const dynamic = 'force-dynamic'
@@ -31,8 +30,7 @@ export async function POST(request: Request) {
     setAccountSessionCookies(response, session)
     return response
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Nie udało się potwierdzić konta.'
-    const status = error instanceof ConfigurationError ? 401 : 500
-    return NextResponse.json({ ok: false, error: message }, { status, headers: PRIVATE_NO_STORE_HEADERS })
+    const failure = getPublicAccountAuthFailure('confirm', error)
+    return NextResponse.json({ ok: false, error: failure.error }, { status: failure.status, headers: PRIVATE_NO_STORE_HEADERS })
   }
 }

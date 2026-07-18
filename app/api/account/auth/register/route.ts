@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getSafeInternalReturnPath } from '@/lib/safe-return-path'
-import { ConfigurationError } from '@/lib/server/env'
-import { getAccountLoginRedirectUrl, getAccountUserFromAccessToken, setAccountSessionCookies, signUpAccount } from '@/lib/server/account-auth'
+import { getAccountLoginRedirectUrl, getAccountUserFromAccessToken, getPublicAccountAuthFailure, setAccountSessionCookies, signUpAccount } from '@/lib/server/account-auth'
 import { PRIVATE_NO_STORE_HEADERS, consumeRequestRateLimit } from '@/lib/server/request-protection'
 import { claimPendingCaseMapProfileClaimsForUser } from '@/lib/server/case-map-profile-claims'
 
@@ -53,8 +52,7 @@ export async function POST(request: Request) {
     if (session) setAccountSessionCookies(response, session)
     return response
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Nie udało się utworzyć konta.'
-    const status = error instanceof ConfigurationError ? 400 : 500
-    return NextResponse.json({ ok: false, error: message }, { status, headers: PRIVATE_NO_STORE_HEADERS })
+    const failure = getPublicAccountAuthFailure('register', error)
+    return NextResponse.json({ ok: false, error: failure.error }, { status: failure.status, headers: PRIVATE_NO_STORE_HEADERS })
   }
 }

@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
-import { ConfigurationError } from '@/lib/server/env'
-import { getAccountLoginRedirectUrl, sendAccountPasswordReset } from '@/lib/server/account-auth'
+import { getAccountLoginRedirectUrl, getPublicAccountAuthFailure, sendAccountPasswordReset } from '@/lib/server/account-auth'
 import { PRIVATE_NO_STORE_HEADERS, consumeRequestRateLimit } from '@/lib/server/request-protection'
 
 export const dynamic = 'force-dynamic'
@@ -28,8 +27,7 @@ export async function POST(request: Request) {
     await sendAccountPasswordReset(email, getAccountLoginRedirectUrl())
     return NextResponse.json({ ok: true }, { headers: PRIVATE_NO_STORE_HEADERS })
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Nie udało się wysłać linku.'
-    const status = error instanceof ConfigurationError ? 400 : 500
-    return NextResponse.json({ ok: false, error: message }, { status, headers: PRIVATE_NO_STORE_HEADERS })
+    const failure = getPublicAccountAuthFailure('reset', error)
+    return NextResponse.json({ ok: false, error: failure.error }, { status: failure.status, headers: PRIVATE_NO_STORE_HEADERS })
   }
 }

@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
-import { ConfigurationError } from '@/lib/server/env'
-import { getAccountUserFromAccessToken, setAccountSessionCookies, signInAccount } from '@/lib/server/account-auth'
+import { getAccountUserFromAccessToken, getPublicAccountAuthFailure, setAccountSessionCookies, signInAccount } from '@/lib/server/account-auth'
 import { PRIVATE_NO_STORE_HEADERS, consumeRequestRateLimit } from '@/lib/server/request-protection'
 import { claimPendingCaseMapProfileClaimsForUser } from '@/lib/server/case-map-profile-claims'
 
@@ -41,8 +40,7 @@ export async function POST(request: Request) {
     setAccountSessionCookies(response, session)
     return response
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Nie udało się zalogować.'
-    const status = error instanceof ConfigurationError ? 401 : 500
-    return NextResponse.json({ ok: false, error: message }, { status, headers: PRIVATE_NO_STORE_HEADERS })
+    const failure = getPublicAccountAuthFailure('login', error)
+    return NextResponse.json({ ok: false, error: failure.error }, { status: failure.status, headers: PRIVATE_NO_STORE_HEADERS })
   }
 }

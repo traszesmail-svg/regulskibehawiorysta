@@ -7,6 +7,45 @@ export const ACCOUNT_ACCESS_COOKIE = 'regulski_account_access'
 export const ACCOUNT_REFRESH_COOKIE = 'regulski_account_refresh'
 
 const COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 30
+const ACCOUNT_RUNTIME_CONFIGURATION_PATTERN = /APP_DATA_MODE|NEXT_PUBLIC_SUPABASE_URL|SUPABASE_SERVICE_ROLE_KEY|local JSON fallback/i
+
+export type AccountAuthFailureAction = 'confirm' | 'login' | 'register' | 'reset' | 'update-password'
+
+export function getPublicAccountAuthFailure(action: AccountAuthFailureAction, error: unknown) {
+  const message = error instanceof Error ? error.message : ''
+
+  if (ACCOUNT_RUNTIME_CONFIGURATION_PATTERN.test(message)) {
+    return {
+      status: 503,
+      error: 'Konto jest chwilowo niedostępne. Spróbuj ponownie za kilka minut.',
+    }
+  }
+
+  const failures: Record<AccountAuthFailureAction, { status: number; error: string }> = {
+    confirm: {
+      status: 401,
+      error: 'Link potwierdzający jest nieprawidłowy albo wygasł. Otwórz najnowszą wiadomość lub poproś o nowy link.',
+    },
+    login: {
+      status: 401,
+      error: 'Nie udało się zalogować. Sprawdź email i hasło.',
+    },
+    register: {
+      status: 400,
+      error: 'Nie udało się utworzyć konta. Sprawdź dane albo zaloguj się, jeśli konto już istnieje.',
+    },
+    reset: {
+      status: 503,
+      error: 'Nie udało się wysłać linku. Spróbuj ponownie za kilka minut.',
+    },
+    'update-password': {
+      status: 401,
+      error: 'Link do zmiany hasła jest nieprawidłowy albo wygasł. Poproś o nowy link.',
+    },
+  }
+
+  return failures[action]
+}
 
 function getSupabaseAuthClient() {
   const config = getSupabaseServerConfig('konto opiekuna')

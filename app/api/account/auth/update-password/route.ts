@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { ConfigurationError, getSupabaseServerConfig } from '@/lib/server/env'
+import { getPublicAccountAuthFailure } from '@/lib/server/account-auth'
 import { PRIVATE_NO_STORE_HEADERS, consumeRequestRateLimit } from '@/lib/server/request-protection'
 
 export const dynamic = 'force-dynamic'
@@ -51,8 +52,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ok: true }, { headers: PRIVATE_NO_STORE_HEADERS })
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Nie udało się ustawić hasła.'
-    const status = error instanceof ConfigurationError ? 400 : 500
-    return NextResponse.json({ ok: false, error: message }, { status, headers: PRIVATE_NO_STORE_HEADERS })
+    const failure = getPublicAccountAuthFailure('update-password', error)
+    return NextResponse.json({ ok: false, error: failure.error }, { status: failure.status, headers: PRIVATE_NO_STORE_HEADERS })
   }
 }

@@ -7,7 +7,7 @@ import {
   normalizeBookingServiceType,
   resolveBookingServiceType,
 } from '@/lib/booking-services'
-import { getUnpaidBookingExpiryCutoff } from '@/lib/booking-expiry'
+import { getUnpaidBookingExpiryCutoff, isBookingAwaitingPayment } from '@/lib/booking-expiry'
 import { compareDateAndTime, formatDateLabel, isFutureAvailabilitySlot } from '@/lib/data'
 import { createActiveConsultationPrice, DEFAULT_PRICE_PLN, parseConsultationPriceInput } from '@/lib/pricing'
 import { normalizePolishPhone } from '@/lib/phone'
@@ -1702,6 +1702,8 @@ export async function markBookingManualPaymentPending(
         updated_at: nowIso,
       })
       .eq('id', bookingId)
+      .eq('booking_status', current.bookingStatus)
+      .eq('payment_status', current.paymentStatus)
       .select(BOOKING_SELECT_COLUMNS)
       .maybeSingle()
   } else {
@@ -1720,6 +1722,8 @@ export async function markBookingManualPaymentPending(
         updated_at: nowIso,
       })
       .eq('id', bookingId)
+      .eq('booking_status', current.bookingStatus)
+      .eq('payment_status', current.paymentStatus)
       .select(BOOKING_SELECT_COLUMNS)
       .maybeSingle()
 
@@ -1735,6 +1739,8 @@ export async function markBookingManualPaymentPending(
           updated_at: nowIso,
         })
         .eq('id', bookingId)
+        .eq('booking_status', current.bookingStatus)
+        .eq('payment_status', current.paymentStatus)
         .select(BOOKING_SELECT_COLUMNS)
         .maybeSingle()
     } else if (!bookingUpdate.error) {
@@ -1747,6 +1753,20 @@ export async function markBookingManualPaymentPending(
   }
 
   const updatedBooking = bookingUpdate.data ? mapBookingRow(bookingUpdate.data as unknown as BookingRow) : null
+
+  if (!updatedBooking) {
+    const latest = await getBookingById(bookingId)
+
+    if (latest?.bookingStatus === 'pending_manual_payment' && latest.paymentStatus === 'pending_manual_review') {
+      return latest
+    }
+
+    if (!latest || !isBookingAwaitingPayment(latest)) {
+      throw new Error('Ten termin rezerwacji nie jest już aktywny. Nie zgłaszaj wpłaty ponownie.')
+    }
+
+    throw new Error('Nie udało się bezpiecznie zaktualizować rezerwacji po zgłoszeniu wpłaty.')
+  }
 
   await updateBookingAvailabilityWindow(current, {
     isBooked: false,

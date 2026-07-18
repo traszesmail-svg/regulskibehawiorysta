@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 import { NextResponse } from 'next/server'
+import { isBookingAwaitingPayment } from '@/lib/booking-expiry'
 import {
   buildCommerceWaitingHref,
   readCommerceViewerToken,
@@ -18,19 +19,48 @@ import {
   reportCommerceManualPayment,
 } from '@/lib/server/commerce-store'
 import type { CommerceOrder } from '@/lib/commerce'
-import { markBookingManualPaymentPending } from '@/lib/server/db'
+import { getBookingById, markBookingManualPaymentPending } from '@/lib/server/db'
 import { sendCommerceManualPaymentReportedAdminEmail } from '@/lib/server/notifications'
 
 type ReconciledReport = {
   order: CommerceOrder
   adminNotification: 'sent' | 'already_reported' | 'failed'
   adminNotificationReason: string | null
+  failureKind: 'booking-unavailable' | 'admin-notification' | null
 }
+
+const INACTIVE_CONSULTATION_BOOKING_MESSAGE =
+  'Ten termin rezerwacji nie jest już aktywny. Nie wysyłaj wpłaty ponownie; wybierz nowy termin albo napisz przez formularz kontaktowy.'
 
 function buildRequestReviewUrl(request: Request, token: string, action: 'approve' | 'reject') {
   const url = new URL(`/api/admin/confirm-payment/${encodeURIComponent(token)}`, request.url)
   url.searchParams.set('action', action)
   return url.toString()
+}
+
+async function getConsultationBookingBlocker(order: CommerceOrder) {
+  if (order.productType !== 'consultation' || !order.meta.bookingId) {
+    return null
+  }
+
+  const booking = await getBookingById(order.meta.bookingId)
+
+  return booking && isBookingAwaitingPayment(booking) ? null : INACTIVE_CONSULTATION_BOOKING_MESSAGE
+}
+
+async function recordBookingUnavailableNotificationFailure(order: CommerceOrder, viewerToken: string) {
+  const claim = await claimCommerceManualPaymentAdminNotification(order.orderNumber, viewerToken)
+
+  if (!claim || !claim.shouldSend) {
+    return claim?.order ?? order
+  }
+
+  return (
+    (await completeCommerceManualPaymentAdminNotification(order.orderNumber, viewerToken, {
+      status: 'failed',
+      reason: INACTIVE_CONSULTATION_BOOKING_MESSAGE,
+    })) ?? claim.order
+  )
 }
 
 async function reconcileReportedManualPayment(
@@ -44,15 +74,45 @@ async function reconcileReportedManualPayment(
       order: current,
       adminNotification: 'already_reported',
       adminNotificationReason: null,
+      failureKind: null,
     }
   }
 
   if (current.productType === 'consultation' && current.meta.bookingId && !current.manualPaymentBookingPendingAt) {
-    const booking = await markBookingManualPaymentPending(current.meta.bookingId, {
-      paymentReference: current.orderNumber,
-      customerAccessToken: current.meta.bookingAccessToken ?? null,
-      suppressAdminEmail: true,
-    })
+    const bookingBlocker = await getConsultationBookingBlocker(current)
+
+    if (bookingBlocker) {
+      current = await recordBookingUnavailableNotificationFailure(current, viewerToken)
+      return {
+        order: current,
+        adminNotification: 'failed',
+        adminNotificationReason: bookingBlocker,
+        failureKind: 'booking-unavailable',
+      }
+    }
+
+    let booking
+    try {
+      booking = await markBookingManualPaymentPending(current.meta.bookingId, {
+        paymentReference: current.orderNumber,
+        customerAccessToken: current.meta.bookingAccessToken ?? null,
+        suppressAdminEmail: true,
+      })
+    } catch (error) {
+      const blockerAfterRace = await getConsultationBookingBlocker(current)
+
+      if (blockerAfterRace) {
+        current = await recordBookingUnavailableNotificationFailure(current, viewerToken)
+        return {
+          order: current,
+          adminNotification: 'failed',
+          adminNotificationReason: blockerAfterRace,
+          failureKind: 'booking-unavailable',
+        }
+      }
+
+      throw error
+    }
 
     if (!booking) {
       throw new Error('Nie udało się zaktualizować rezerwacji po zgłoszeniu wpłaty.')
@@ -81,6 +141,7 @@ async function reconcileReportedManualPayment(
         adminNotification: 'failed',
         adminNotificationReason:
           current.manualPaymentAdminNotificationFailure ?? 'Powiadomienie o zgłoszeniu wpłaty nie zostało wysłane.',
+        failureKind: 'admin-notification',
       }
     }
 
@@ -88,6 +149,7 @@ async function reconcileReportedManualPayment(
       order: current,
       adminNotification: 'already_reported',
       adminNotificationReason: null,
+      failureKind: null,
     }
   }
 
@@ -112,6 +174,7 @@ async function reconcileReportedManualPayment(
       order: current,
       adminNotification: 'failed',
       adminNotificationReason: emailResult.reason ?? null,
+      failureKind: 'admin-notification',
     }
   }
 
@@ -119,6 +182,7 @@ async function reconcileReportedManualPayment(
     order: current,
     adminNotification: 'sent',
     adminNotificationReason: null,
+    failureKind: null,
   }
 }
 
@@ -142,6 +206,14 @@ export async function POST(request: Request, props: { params: Promise<{ orderNum
       return NextResponse.json({ error: 'Nie znaleziono zamówienia.' }, { status: 404 })
     }
 
+    if (viewerOrder.status === 'created' || viewerOrder.status === 'waiting_manual_payment') {
+      const bookingBlocker = await getConsultationBookingBlocker(viewerOrder)
+
+      if (bookingBlocker) {
+        return NextResponse.json({ error: bookingBlocker }, { status: 409 })
+      }
+    }
+
     const report = await reportCommerceManualPayment(viewerOrder.orderNumber, viewerToken)
     if (!report) {
       return NextResponse.json({ error: 'Nie znaleziono zamówienia.' }, { status: 404 })
@@ -151,7 +223,8 @@ export async function POST(request: Request, props: { params: Promise<{ orderNum
     const order = reconciled.order
     const redirectTo = buildCommerceWaitingHref(order.orderNumber, viewerToken)
 
-    if (reconciled.adminNotification === 'failed') {
+    if (reconciled.failureKind) {
+      const bookingUnavailable = reconciled.failureKind === 'booking-unavailable'
       return NextResponse.json(
         {
           ok: false,
@@ -161,10 +234,11 @@ export async function POST(request: Request, props: { params: Promise<{ orderNum
           adminNotification: 'failed',
           adminNotificationReason: reconciled.adminNotificationReason,
           redirectTo,
-          error:
-            'Zgłoszenie wpłaty zostało zapisane, ale mail do behawiorysty nie wyszedł. Nie wysyłaj zgłoszenia ponownie; skontaktuj się przez formularz kontaktowy.',
+          error: bookingUnavailable
+            ? reconciled.adminNotificationReason ?? INACTIVE_CONSULTATION_BOOKING_MESSAGE
+            : 'Zgłoszenie wpłaty zostało zapisane, ale mail do behawiorysty nie wyszedł. Nie wysyłaj zgłoszenia ponownie; skontaktuj się przez formularz kontaktowy.',
         },
-        { status: 502 },
+        { status: bookingUnavailable ? 409 : 502 },
       )
     }
 

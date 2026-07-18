@@ -27,11 +27,6 @@ export function CommerceBlikActions({ orderNumber, viewerToken, phoneDisplay }: 
   async function reportPayment() {
     setLoading(true)
     setError('')
-    trackAnalyticsEvent('payment_reported', {
-      order_number: orderNumber,
-      source_page: '/platnosc/blik',
-      payment_method: 'manual_blik',
-    })
 
     try {
       const response = await fetch(`/api/orders/${encodeURIComponent(orderNumber)}/report-payment`, {
@@ -62,6 +57,11 @@ export function CommerceBlikActions({ orderNumber, viewerToken, phoneDisplay }: 
         )
       }
 
+      trackAnalyticsEvent('payment_reported', {
+        order_number: orderNumber,
+        source_page: '/platnosc/blik',
+        payment_method: 'manual_blik',
+      })
       window.location.assign(payload.redirectTo ?? buildCommerceWaitingHref(orderNumber, viewerToken))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Nie udało się zgłosić płatności.')

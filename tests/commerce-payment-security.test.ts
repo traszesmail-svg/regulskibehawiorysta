@@ -11,6 +11,7 @@ import {
   buildCommerceOrderStatusHref,
   buildCommerceWaitingHref,
 } from '@/lib/commerce'
+import { POST as postCommercePaymentReport } from '@/app/api/orders/[orderNumber]/report-payment/route'
 import {
   COMMERCE_MANUAL_NOTIFICATION_CLAIM_STALE_AFTER_MS,
   claimCommerceManualPaymentAdminNotification,
@@ -21,9 +22,12 @@ import {
   getCommerceOrderForViewer,
   hasCommerceOrderViewerAccess,
   markCommerceManualPaymentBookingPending,
+  prepareCommerceManualPayment,
   rejectCommerceManualPayment,
   reportCommerceManualPayment,
 } from '@/lib/server/commerce-store'
+import { createOrReuseConsultationCommerceOrder } from '@/lib/server/commerce-service'
+import { createAvailabilitySlot, createPendingBooking, markBookingExpired } from '@/lib/server/db'
 
 function readSource(...parts: string[]) {
   return readFileSync(path.join(process.cwd(), ...parts), 'utf8')
@@ -33,9 +37,11 @@ async function withLocalCommerceStore(run: () => Promise<void>) {
   const sandboxDir = await mkdtemp(path.join(os.tmpdir(), 'regulski-commerce-security-'))
   const previousDataMode = process.env.APP_DATA_MODE
   const previousDataDir = process.env.APP_LOCAL_DATA_DIR
+  const previousCustomerEmailMode = process.env.CUSTOMER_EMAIL_MODE
 
   process.env.APP_DATA_MODE = 'local'
   process.env.APP_LOCAL_DATA_DIR = sandboxDir
+  process.env.CUSTOMER_EMAIL_MODE = 'disabled'
 
   try {
     await run()
@@ -50,6 +56,12 @@ async function withLocalCommerceStore(run: () => Promise<void>) {
       process.env.APP_LOCAL_DATA_DIR = previousDataDir
     } else {
       delete process.env.APP_LOCAL_DATA_DIR
+    }
+
+    if (typeof previousCustomerEmailMode === 'string') {
+      process.env.CUSTOMER_EMAIL_MODE = previousCustomerEmailMode
+    } else {
+      delete process.env.CUSTOMER_EMAIL_MODE
     }
 
     await rm(sandboxDir, { recursive: true, force: true })
@@ -137,6 +149,56 @@ test('manual BLIK report is idempotent and cannot roll back terminal order state
     const afterCancelled = await reportCommerceManualPayment(cancelled.orderNumber, cancelled.viewerToken)
     assert.equal(afterCancelled?.reportedNow, false)
     assert.equal(afterCancelled?.order.status, 'cancelled')
+  })
+})
+
+test('expired consultation cannot be reported as a new or legacy manual BLIK payment', async () => {
+  await withLocalCommerceStore(async () => {
+    const bookingDate = '2030-01-15'
+    const scenarios = [
+      { bookingTime: '10:00', expectedStatus: 'created' as const },
+      { bookingTime: '10:30', expectedStatus: 'waiting_manual_payment' as const },
+    ]
+
+    for (const scenario of scenarios) {
+      await createAvailabilitySlot(bookingDate, scenario.bookingTime)
+      const created = await createPendingBooking({
+        ownerName: 'Kontrola wygasłego terminu',
+        serviceType: 'szybka-konsultacja-15-min',
+        problemType: 'separacja',
+        animalType: 'Pies',
+        petAge: '2 lata',
+        durationNotes: '',
+        description: 'Kontrola blokady zgłoszenia po wygaśnięciu terminu.',
+        phone: '579163241',
+        email: `expired-commerce-${scenario.bookingTime.replace(':', '')}-${Date.now()}@example.com`,
+        slotId: `${bookingDate}-${scenario.bookingTime}`,
+      })
+      const order = await createOrReuseConsultationCommerceOrder(created.booking.id, created.accessToken)
+
+      if (scenario.expectedStatus === 'waiting_manual_payment') {
+        assert.equal((await prepareCommerceManualPayment(order.orderNumber))?.status, 'waiting_manual_payment')
+      }
+
+      await markBookingExpired(created.booking.id)
+
+      const response = await postCommercePaymentReport(
+        new Request(`https://regulskibehawiorysta.pl/api/orders/${encodeURIComponent(order.orderNumber)}/report-payment`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ viewerToken: order.viewerToken }),
+        }),
+        { params: Promise.resolve({ orderNumber: order.orderNumber }) },
+      )
+      const payload = (await response.json()) as { error?: string }
+
+      assert.equal(response.status, 409, scenario.expectedStatus)
+      assert.match(payload.error ?? '', /Termin rezerwacji nie jest już aktywny/i)
+      const unchanged = await getCommerceOrderForViewer(order.orderNumber, order.viewerToken)
+      assert.equal(unchanged?.status, scenario.expectedStatus)
+      assert.equal(unchanged?.manualPaymentBookingPendingAt, null)
+      assert.equal(unchanged?.manualPaymentAdminNotificationState, null)
+    }
   })
 })
 

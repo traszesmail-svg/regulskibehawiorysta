@@ -870,9 +870,9 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     supportLinks: [
       CAT_CONFLICT_LANDING_LINK,
       {
-        label: 'Jak zapoznac dwa koty',
+        label: 'Jak zapoznać dwa koty',
         href: '/blog/jak-zapoznac-dwa-koty',
-        description: 'Rozpisuje szerzej sam proces zapoznania, jeśli ten etap w domu dopiero przed toba.',
+        description: 'Rozpisuje szerzej sam proces zapoznania, jeśli ten etap w domu dopiero przed tobą.',
       },
       CAT_CONFLICT_GUIDE_LINK,
       SERVICE_LANDING_LINK,
@@ -889,9 +889,9 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     supportLinks: [
       CAT_CONFLICT_LANDING_LINK,
       {
-        label: 'Jak zapoznac dwa koty',
+        label: 'Jak zapoznać dwa koty',
         href: '/blog/jak-zapoznac-dwa-koty',
-        description: 'Dobry kolejny tekst, jeśli konflikt jest zwiazany z granicami, dystansem i powolnym wprowadzaniem kontaktu.',
+        description: 'Dobry kolejny tekst, jeśli konflikt jest związany z granicami, dystansem i powolnym wprowadzaniem kontaktu.',
       },
       CAT_CONFLICT_GUIDE_LINK,
       SERVICE_LANDING_LINK,

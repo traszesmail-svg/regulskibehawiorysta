@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { trackAnalyticsEvent } from '@/lib/analytics'
+import { buildCommerceOrderStatusHref } from '@/lib/commerce'
 
 type StatusPayload = {
   status: string
@@ -19,6 +20,7 @@ type StatusPayload = {
 
 type Props = {
   orderNumber: string
+  viewerToken: string
   initialStatus: string
   initialAccessCode: string | null
   initialAccessUrl: string | null
@@ -57,6 +59,7 @@ function getStatusTitle(status: string) {
 
 export function CommerceWaitingStatus({
   orderNumber,
+  viewerToken,
   initialStatus,
   initialAccessCode,
   initialAccessUrl,
@@ -109,7 +112,7 @@ export function CommerceWaitingStatus({
 
     const timer = window.setInterval(async () => {
       try {
-        const response = await fetch(`/api/orders/${encodeURIComponent(orderNumber)}/status`, {
+        const response = await fetch(buildCommerceOrderStatusHref(orderNumber, viewerToken), {
           cache: 'no-store',
         })
         const payload = (await response.json()) as StatusPayload
@@ -131,7 +134,7 @@ export function CommerceWaitingStatus({
     }, 4000)
 
     return () => window.clearInterval(timer)
-  }, [orderNumber, ready, readyUrl])
+  }, [orderNumber, ready, readyUrl, viewerToken])
 
   if (ready && readyUrl) {
     return (

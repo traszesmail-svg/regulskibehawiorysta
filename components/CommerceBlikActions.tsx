@@ -2,13 +2,15 @@
 
 import { useState } from 'react'
 import { trackAnalyticsEvent } from '@/lib/analytics'
+import { buildCommerceWaitingHref } from '@/lib/commerce'
 
 type Props = {
   orderNumber: string
+  viewerToken: string
   phoneDisplay?: string | null
 }
 
-export function CommerceBlikActions({ orderNumber, phoneDisplay }: Props) {
+export function CommerceBlikActions({ orderNumber, viewerToken, phoneDisplay }: Props) {
   const [copied, setCopied] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -34,11 +36,13 @@ export function CommerceBlikActions({ orderNumber, phoneDisplay }: Props) {
     try {
       const response = await fetch(`/api/orders/${encodeURIComponent(orderNumber)}/report-payment`, {
         method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ viewerToken }),
       })
       const payload = (await response.json()) as {
         redirectTo?: string
         error?: string
-        adminNotification?: 'sent' | 'skipped' | 'failed'
+        adminNotification?: 'sent' | 'already_reported' | 'failed'
         adminNotificationReason?: string | null
       }
 
@@ -46,7 +50,11 @@ export function CommerceBlikActions({ orderNumber, phoneDisplay }: Props) {
         throw new Error(payload.error ?? 'Nie udało się zgłosić płatności.')
       }
 
-      if (payload.adminNotification && payload.adminNotification !== 'sent') {
+      if (
+        payload.adminNotification &&
+        payload.adminNotification !== 'sent' &&
+        payload.adminNotification !== 'already_reported'
+      ) {
         throw new Error(
           payload.adminNotificationReason
             ? `Zgłoszenie zapisane, ale mail do behawiorysty nie wyszedł: ${payload.adminNotificationReason}`
@@ -54,7 +62,7 @@ export function CommerceBlikActions({ orderNumber, phoneDisplay }: Props) {
         )
       }
 
-      window.location.assign(payload.redirectTo ?? `/oczekiwanie/${encodeURIComponent(orderNumber)}`)
+      window.location.assign(payload.redirectTo ?? buildCommerceWaitingHref(orderNumber, viewerToken))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Nie udało się zgłosić płatności.')
       setLoading(false)

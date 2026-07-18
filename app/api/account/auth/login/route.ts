@@ -1,19 +1,30 @@
 import { NextResponse } from 'next/server'
 import { ConfigurationError } from '@/lib/server/env'
 import { getAccountUserFromAccessToken, setAccountSessionCookies, signInAccount } from '@/lib/server/account-auth'
+import { PRIVATE_NO_STORE_HEADERS, consumeRequestRateLimit } from '@/lib/server/request-protection'
 import { claimPendingCaseMapProfileClaimsForUser } from '@/lib/server/case-map-profile-claims'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
+const ACCOUNT_LOGIN_RATE_LIMIT = { key: 'account-login', limit: 10, windowMs: 15 * 60 * 1000 } as const
+
 export async function POST(request: Request) {
   try {
+    const rateLimit = consumeRequestRateLimit(request, ACCOUNT_LOGIN_RATE_LIMIT)
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { ok: false, error: 'Za dużo prób logowania. Spróbuj ponownie później.' },
+        { status: 429, headers: { ...PRIVATE_NO_STORE_HEADERS, 'Retry-After': String(rateLimit.retryAfterSeconds) } },
+      )
+    }
+
     const body = (await request.json()) as { email?: string; password?: string; caseMapClaimToken?: string }
     const email = body.email?.trim().toLowerCase() ?? ''
     const password = body.password ?? ''
 
     if (!email || !password) {
-      return NextResponse.json({ ok: false, error: 'Podaj email i hasło.' }, { status: 400 })
+      return NextResponse.json({ ok: false, error: 'Podaj email i hasło.' }, { status: 400, headers: PRIVATE_NO_STORE_HEADERS })
     }
 
     const session = await signInAccount(email, password)
@@ -26,12 +37,12 @@ export async function POST(request: Request) {
       // pending until the next successful login within its retention window.
       console.error('[regulski-behawiorysta][account-login] case map profile claim skipped', claimError)
     }
-    const response = NextResponse.json({ ok: true, caseMapProfileClaimed })
+    const response = NextResponse.json({ ok: true, caseMapProfileClaimed }, { headers: PRIVATE_NO_STORE_HEADERS })
     setAccountSessionCookies(response, session)
     return response
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Nie udało się zalogować.'
     const status = error instanceof ConfigurationError ? 401 : 500
-    return NextResponse.json({ ok: false, error: message }, { status })
+    return NextResponse.json({ ok: false, error: message }, { status, headers: PRIVATE_NO_STORE_HEADERS })
   }
 }

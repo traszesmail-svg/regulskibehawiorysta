@@ -8,7 +8,11 @@ import {
   PaymentReferenceLayout,
   type PaymentReferenceSummaryRow,
 } from '@/components/PaymentReferenceLayout'
-import { formatCommercePrice } from '@/lib/commerce'
+import {
+  buildCommerceCheckoutHref,
+  formatCommercePrice,
+  readCommerceViewerToken,
+} from '@/lib/commerce'
 import {
   getBookingServiceDurationLabel,
   getBookingServiceRoomAccessLabel,
@@ -19,7 +23,7 @@ import {
   createOrReuseConsultationCommerceOrder,
   isCommerceTestModeAllowed,
 } from '@/lib/server/commerce-service'
-import { getCommerceOrder } from '@/lib/server/commerce-store'
+import { getCommerceOrderForViewer } from '@/lib/server/commerce-store'
 import { getBookingForViewer } from '@/lib/server/db'
 import { getOnlinePaymentRuntime } from '@/lib/server/online-payments'
 import { buildTechnicalMetadata } from '@/lib/seo'
@@ -48,16 +52,17 @@ export default async function CheckoutPage(
 ) {
   const searchParams = await props.searchParams;
   const orderNumber = readParam(searchParams?.orderNumber)
+  const viewerToken = readCommerceViewerToken(searchParams?.viewer)
   const bookingId = readParam(searchParams?.bookingId)
   const access = readParam(searchParams?.access)
   const authorizationHeader = (await headers()).get('authorization')
 
   if (!orderNumber && bookingId) {
     const order = await createOrReuseConsultationCommerceOrder(bookingId, access, authorizationHeader)
-    redirect(`/checkout?orderNumber=${encodeURIComponent(order.orderNumber)}`)
+    redirect(buildCommerceCheckoutHref(order.orderNumber, order.viewerToken))
   }
 
-  const order = orderNumber ? await getCommerceOrder(orderNumber) : null
+  const order = orderNumber ? await getCommerceOrderForViewer(orderNumber, viewerToken) : null
   const onlinePayment = getOnlinePaymentRuntime(order)
   const isConsultation = order?.productType === 'consultation'
   const consultationServiceType = resolveBookingServiceType(order?.meta.serviceType, order?.amount)
@@ -178,6 +183,7 @@ export default async function CheckoutPage(
             </PaymentReferenceCardTitle>
             <CommerceCheckoutActions
               orderNumber={order.orderNumber}
+              viewerToken={order.viewerToken}
               productName={order.productName}
               onlineAmount={order.onlineAmount}
               manualAmount={order.manualAmount}

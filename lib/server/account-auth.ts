@@ -1,5 +1,6 @@
 import { createClient, type Session, type User } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
+import { getSafeInternalReturnPath } from '@/lib/safe-return-path'
 import { ConfigurationError, getBaseUrl, getSupabaseServerConfig } from '@/lib/server/env'
 
 export const ACCOUNT_ACCESS_COOKIE = 'regulski_account_access'
@@ -87,7 +88,7 @@ export function getAccountLoginRedirectUrl(returnTo?: string) {
   const url = new URL('/login', getBaseUrl())
 
   if (returnTo) {
-    url.searchParams.set('returnTo', returnTo)
+    url.searchParams.set('returnTo', getSafeInternalReturnPath(returnTo))
   }
 
   return url.toString()

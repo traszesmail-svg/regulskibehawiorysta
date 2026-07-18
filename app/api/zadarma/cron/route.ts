@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { listLeadBookings, updateLeadBooking } from '@/lib/server/lead-bookings'
+import { ConfigurationError } from '@/lib/server/env'
+import { getReminderAuthorizationError } from '@/lib/server/reminder-runner'
 import { hangupZadarmaCall, sendZadarmaSms } from '@/lib/server/zadarma'
 
 export const dynamic = 'force-dynamic'
@@ -7,13 +9,10 @@ export const revalidate = 0
 
 export async function GET(req: NextRequest) {
   try {
-    // Secret token check to prevent abuse of the cron endpoint
-    const cronSecret = process.env.CRON_SECRET
-    const authHeader = req.headers.get('authorization')
-    const querySecret = req.nextUrl.searchParams.get('secret')
+    const authorizationError = getReminderAuthorizationError(req.headers.get('authorization'))
 
-    if (cronSecret && authHeader !== `Bearer ${cronSecret}` && querySecret !== cronSecret) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (authorizationError) {
+      return NextResponse.json({ error: authorizationError }, { status: 401 })
     }
 
     const bookings = await listLeadBookings()
@@ -43,7 +42,7 @@ export async function GET(req: NextRequest) {
       // 1. Send warning SMS 60 seconds before ending
       if (booking.callStatus === 'active' && elapsedSeconds >= (durationLimitSeconds - 60)) {
         if (booking.phone) {
-          const smsText = `Wykopane.pl: Pozostala 1 minuta Twojej konsultacji. Polaczenie zostanie przerwane automatycznie.`
+          const smsText = 'Regulski Behawiorysta: do końca konsultacji została 1 minuta. Połączenie zostanie zakończone automatycznie.'
           console.log(`[ZADARMA CRON] Sending warning SMS to ${booking.phone}`)
           await sendZadarmaSms(booking.phone, smsText)
         }
@@ -69,6 +68,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ ok: true, processed })
   } catch (error) {
     console.error('[ZADARMA CRON] Unexpected cron error:', error)
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+    const message = error instanceof Error ? error.message : 'Internal Server Error'
+    return NextResponse.json({ error: message }, { status: error instanceof ConfigurationError ? 503 : 500 })
   }
 }

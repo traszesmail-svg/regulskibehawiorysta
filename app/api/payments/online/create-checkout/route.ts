@@ -3,8 +3,13 @@ export const revalidate = 0
 
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
+import {
+  buildCommerceCheckoutHref,
+  buildCommerceWaitingHref,
+  readCommerceViewerToken,
+} from '@/lib/commerce'
 import { getBaseUrl } from '@/lib/server/env'
-import { attachCommerceStripeSession, getCommerceOrder } from '@/lib/server/commerce-store'
+import { attachCommerceStripeSession, getCommerceOrderForViewer } from '@/lib/server/commerce-store'
 import {
   fulfillCommerceOrderAndNotify,
   isCommerceTestModeAllowed,
@@ -25,13 +30,14 @@ export async function POST(request: Request) {
   }
 
   const orderNumber = typeof body.orderNumber === 'string' ? body.orderNumber.trim().toUpperCase() : ''
+  const viewerToken = readCommerceViewerToken(body.viewerToken as string | string[] | undefined)
   const mock = body.mock === true
 
   if (!orderNumber) {
     return NextResponse.json({ error: 'Brak numeru zamówienia.' }, { status: 400 })
   }
 
-  const order = await getCommerceOrder(orderNumber)
+  const order = await getCommerceOrderForViewer(orderNumber, viewerToken)
 
   if (!order) {
     return NextResponse.json({ error: 'Nie znaleziono zamówienia.' }, { status: 404 })
@@ -49,7 +55,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       ok: true,
       mock: true,
-      redirectTo: `/oczekiwanie/${encodeURIComponent(fulfilled.orderNumber)}?online=mock`,
+      redirectTo: `${buildCommerceWaitingHref(fulfilled.orderNumber, viewerToken)}&online=mock`,
     })
   }
 
@@ -81,6 +87,11 @@ export async function POST(request: Request) {
 
   const stripe = new Stripe(secretKey)
   const baseUrl = getBaseUrl()
+  const successUrl = new URL(buildCommerceWaitingHref(order.orderNumber, viewerToken), baseUrl)
+  successUrl.searchParams.set('online', '1')
+  successUrl.searchParams.set('session_id', '{CHECKOUT_SESSION_ID}')
+  const cancelUrl = new URL(buildCommerceCheckoutHref(order.orderNumber, viewerToken), baseUrl)
+  cancelUrl.searchParams.set('cancelled', '1')
 
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',
@@ -102,8 +113,8 @@ export async function POST(request: Request) {
         },
       },
     ],
-    success_url: `${baseUrl}/oczekiwanie/${encodeURIComponent(order.orderNumber)}?online=1&session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${baseUrl}/checkout?orderNumber=${encodeURIComponent(order.orderNumber)}&cancelled=1`,
+    success_url: successUrl.toString(),
+    cancel_url: cancelUrl.toString(),
   })
 
   if (!session.url || !session.id) {

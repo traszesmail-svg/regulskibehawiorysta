@@ -1,10 +1,11 @@
-import { randomBytes, randomUUID } from 'node:crypto'
+import { randomBytes, randomUUID, timingSafeEqual } from 'node:crypto'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { createClient } from '@supabase/supabase-js'
 import {
   type CommerceAccessStatus,
   type CommerceCreateOrderInput,
+  type CommerceManualPaymentNotificationState,
   type CommerceOrder,
   type CommerceOrderStatus,
   type CommercePaymentMethod,
@@ -16,6 +17,7 @@ import { getLocalStoreDataDir } from '@/lib/server/local-store-path'
 type LeadBookingCommerceMeta = {
   commerce: true
   status: CommerceOrderStatus
+  viewerToken?: string | null
   productType: CommerceOrder['productType']
   productId: string
   amount: number
@@ -35,6 +37,11 @@ type LeadBookingCommerceMeta = {
   paidAt: string | null
   accessSentAt: string | null
   paymentReportedAt: string | null
+  manualPaymentBookingPendingAt?: string | null
+  manualPaymentAdminNotificationState?: CommerceManualPaymentNotificationState | null
+  manualPaymentAdminNotificationAttemptedAt?: string | null
+  manualPaymentAdminNotificationSentAt?: string | null
+  manualPaymentAdminNotificationFailure?: string | null
   cancelledAt: string | null
   meta: CommerceOrder['meta']
 }
@@ -70,9 +77,11 @@ type CommerceStoreShape = {
 const STORE_FILE = 'payment-orders.json'
 const CONFIRM_TOKEN_PREFIX = 'commerce-confirm:'
 const ACCESS_CODE_PREFIX = 'commerce-code:'
+export const COMMERCE_MANUAL_NOTIFICATION_CLAIM_STALE_AFTER_MS = 10 * 60 * 1000
+const manualPaymentReportLocks = new Map<string, Promise<void>>()
 
-function nowIso() {
-  return new Date().toISOString()
+function nowIso(now = new Date()) {
+  return now.toISOString()
 }
 
 function makeOrderNumber() {
@@ -80,6 +89,10 @@ function makeOrderNumber() {
 }
 
 function makeConfirmationToken() {
+  return randomBytes(32).toString('base64url')
+}
+
+function makeViewerToken() {
   return randomBytes(32).toString('base64url')
 }
 
@@ -104,6 +117,27 @@ function usesAccessCode(order: Pick<CommerceOrder, 'productType'>) {
 
 function getStorePath() {
   return path.join(getLocalStoreDataDir(), STORE_FILE)
+}
+
+async function withManualPaymentReportLock<T>(orderNumber: string, run: () => Promise<T>) {
+  const previous = manualPaymentReportLocks.get(orderNumber) ?? Promise.resolve()
+  let releaseCurrent!: () => void
+  const current = new Promise<void>((resolve) => {
+    releaseCurrent = resolve
+  })
+  const queued = previous.then(() => current)
+  manualPaymentReportLocks.set(orderNumber, queued)
+
+  await previous
+
+  try {
+    return await run()
+  } finally {
+    releaseCurrent()
+    if (manualPaymentReportLocks.get(orderNumber) === queued) {
+      manualPaymentReportLocks.delete(orderNumber)
+    }
+  }
 }
 
 async function readLocalStore(): Promise<CommerceStoreShape> {
@@ -154,6 +188,10 @@ function leadRowToOrder(row: LeadBookingRow): CommerceOrder | null {
   return {
     id: row.id,
     orderNumber: row.preferred_slots,
+    // Orders created before viewer capabilities were introduced deliberately
+    // have no browser access. Do not turn a predictable order number into a
+    // migration credential by creating a token during an unauthenticated read.
+    viewerToken: typeof meta.viewerToken === 'string' ? meta.viewerToken : '',
     customerEmail: row.email,
     customerName: row.name,
     customerPhone: meta.customerPhone,
@@ -184,6 +222,11 @@ function leadRowToOrder(row: LeadBookingRow): CommerceOrder | null {
     paidAt: meta.paidAt ?? row.paid_at,
     accessSentAt: meta.accessSentAt,
     paymentReportedAt: meta.paymentReportedAt,
+    manualPaymentBookingPendingAt: meta.manualPaymentBookingPendingAt ?? null,
+    manualPaymentAdminNotificationState: meta.manualPaymentAdminNotificationState ?? null,
+    manualPaymentAdminNotificationAttemptedAt: meta.manualPaymentAdminNotificationAttemptedAt ?? null,
+    manualPaymentAdminNotificationSentAt: meta.manualPaymentAdminNotificationSentAt ?? null,
+    manualPaymentAdminNotificationFailure: meta.manualPaymentAdminNotificationFailure ?? null,
     cancelledAt: meta.cancelledAt,
     meta: meta.meta,
   }
@@ -193,6 +236,7 @@ function orderToLeadMeta(order: CommerceOrder): LeadBookingCommerceMeta {
   return {
     commerce: true,
     status: order.status,
+    viewerToken: order.viewerToken,
     productType: order.productType,
     productId: order.productId,
     amount: order.amount,
@@ -212,6 +256,11 @@ function orderToLeadMeta(order: CommerceOrder): LeadBookingCommerceMeta {
     paidAt: order.paidAt,
     accessSentAt: order.accessSentAt,
     paymentReportedAt: order.paymentReportedAt,
+    manualPaymentBookingPendingAt: order.manualPaymentBookingPendingAt,
+    manualPaymentAdminNotificationState: order.manualPaymentAdminNotificationState,
+    manualPaymentAdminNotificationAttemptedAt: order.manualPaymentAdminNotificationAttemptedAt,
+    manualPaymentAdminNotificationSentAt: order.manualPaymentAdminNotificationSentAt,
+    manualPaymentAdminNotificationFailure: order.manualPaymentAdminNotificationFailure,
     cancelledAt: order.cancelledAt,
     meta: order.meta,
   }
@@ -225,6 +274,7 @@ function createOrderRecord(input: CommerceCreateOrderInput): CommerceOrder {
   return {
     id: randomUUID(),
     orderNumber: makeOrderNumber(),
+    viewerToken: makeViewerToken(),
     customerEmail: normalizeCommerceEmail(input.customerEmail),
     customerName: input.customerName.trim(),
     customerPhone: input.customerPhone?.trim() || null,
@@ -253,6 +303,11 @@ function createOrderRecord(input: CommerceCreateOrderInput): CommerceOrder {
     paidAt: null,
     accessSentAt: null,
     paymentReportedAt: null,
+    manualPaymentBookingPendingAt: null,
+    manualPaymentAdminNotificationState: null,
+    manualPaymentAdminNotificationAttemptedAt: null,
+    manualPaymentAdminNotificationSentAt: null,
+    manualPaymentAdminNotificationFailure: null,
     cancelledAt: null,
     meta: input.meta ?? {},
   }
@@ -417,6 +472,39 @@ export async function getCommerceOrder(orderNumber: string): Promise<CommerceOrd
   return store.orders.find((order) => order.orderNumber === normalized) ?? null
 }
 
+/**
+ * Constant-time validation of the buyer capability. Order numbers are shown
+ * to customers as transfer references, so they must never authorize a view or
+ * a state change on their own.
+ */
+export function hasCommerceOrderViewerAccess(order: Pick<CommerceOrder, 'viewerToken'>, viewerToken: string | null | undefined) {
+  const expected = order.viewerToken
+  const received = typeof viewerToken === 'string' ? viewerToken.trim() : ''
+
+  if (!expected || !received) return false
+
+  const expectedBuffer = Buffer.from(expected)
+  const receivedBuffer = Buffer.from(received)
+
+  return expectedBuffer.length === receivedBuffer.length && timingSafeEqual(expectedBuffer, receivedBuffer)
+}
+
+export async function getCommerceOrderForViewer(orderNumber: string, viewerToken: string | null | undefined) {
+  const order = await getCommerceOrder(orderNumber)
+  return order && hasCommerceOrderViewerAccess(order, viewerToken) ? order : null
+}
+
+/**
+ * Used only after a separate authenticated owner check (for example a booking
+ * access token) has already happened. This gives an old consultation order a
+ * capability without accepting the visible order number as proof of ownership.
+ */
+export async function ensureCommerceOrderViewerToken(order: CommerceOrder) {
+  if (order.viewerToken) return order
+  order.viewerToken = makeViewerToken()
+  return saveOrder(order)
+}
+
 export async function listCommerceOrdersByEmail(email: string): Promise<CommerceOrder[]> {
   const normalized = normalizeCommerceEmail(email)
   const supabase = getSupabaseClient()
@@ -472,6 +560,10 @@ export async function prepareCommerceManualPayment(orderNumber: string): Promise
   const order = await getCommerceOrder(orderNumber)
   if (!order) return null
 
+  if (['paid', 'access_sent', 'cancelled', 'expired'].includes(order.status)) {
+    return order
+  }
+
   if (!order.adminConfirmationToken) {
     order.adminConfirmationToken = makeConfirmationToken()
   }
@@ -483,14 +575,124 @@ export async function prepareCommerceManualPayment(orderNumber: string): Promise
   return saveOrder(order)
 }
 
-export async function reportCommerceManualPayment(orderNumber: string): Promise<CommerceOrder | null> {
-  const order = await prepareCommerceManualPayment(orderNumber)
-  if (!order) return null
+export type CommerceManualPaymentReport = {
+  order: CommerceOrder
+  reportedNow: boolean
+}
 
-  order.status = 'payment_reported'
-  order.paymentReportedAt = nowIso()
+export async function reportCommerceManualPayment(
+  orderNumber: string,
+  viewerToken: string | null | undefined,
+): Promise<CommerceManualPaymentReport | null> {
+  return withManualPaymentReportLock(orderNumber, async () => {
+    const order = await getCommerceOrderForViewer(orderNumber, viewerToken)
+    if (!order) return null
 
-  return saveOrder(order)
+    // A second click must be a harmless read of the already-recorded state.
+    // In particular it must never move a confirmed, fulfilled or cancelled
+    // order back to manual review.
+    if (['payment_reported', 'paid', 'access_sent', 'cancelled', 'expired'].includes(order.status)) {
+      return { order, reportedNow: false }
+    }
+
+    if (!order.adminConfirmationToken) {
+      order.adminConfirmationToken = makeConfirmationToken()
+    }
+    order.paymentMethod = 'blik_phone'
+    order.status = 'payment_reported'
+    order.paymentReportedAt = nowIso()
+    order.manualPaymentBookingPendingAt = null
+    order.manualPaymentAdminNotificationState = 'pending'
+    order.manualPaymentAdminNotificationAttemptedAt = null
+    order.manualPaymentAdminNotificationSentAt = null
+    order.manualPaymentAdminNotificationFailure = null
+
+    return { order: await saveOrder(order), reportedNow: true }
+  })
+}
+
+export type CommerceManualPaymentNotificationClaim = {
+  order: CommerceOrder
+  shouldSend: boolean
+}
+
+export function isCommerceManualPaymentNotificationClaimStale(
+  attemptedAt: string | null | undefined,
+  now = new Date(),
+) {
+  const attemptedAtMs = attemptedAt ? Date.parse(attemptedAt) : Number.NaN
+  return !Number.isFinite(attemptedAtMs) || now.getTime() - attemptedAtMs >= COMMERCE_MANUAL_NOTIFICATION_CLAIM_STALE_AFTER_MS
+}
+
+/**
+ * Persist an email claim before the provider is called. This makes a second
+ * buyer click a reconciliation pass instead of a second notification send.
+ */
+export async function claimCommerceManualPaymentAdminNotification(
+  orderNumber: string,
+  viewerToken: string | null | undefined,
+  options?: { now?: Date },
+): Promise<CommerceManualPaymentNotificationClaim | null> {
+  return withManualPaymentReportLock(orderNumber, async () => {
+    const order = await getCommerceOrderForViewer(orderNumber, viewerToken)
+    if (!order) return null
+
+    const claimNow = options?.now ?? new Date()
+    const canClaim =
+      order.manualPaymentAdminNotificationState === 'pending' ||
+      (order.manualPaymentAdminNotificationState === 'sending' &&
+        isCommerceManualPaymentNotificationClaimStale(order.manualPaymentAdminNotificationAttemptedAt, claimNow))
+
+    if (order.status !== 'payment_reported' || !canClaim) {
+      return { order, shouldSend: false }
+    }
+
+    order.manualPaymentAdminNotificationState = 'sending'
+    order.manualPaymentAdminNotificationAttemptedAt = nowIso(claimNow)
+    return { order: await saveOrder(order), shouldSend: true }
+  })
+}
+
+export async function completeCommerceManualPaymentAdminNotification(
+  orderNumber: string,
+  viewerToken: string | null | undefined,
+  result: { status: 'sent' | 'failed' | 'skipped'; reason?: string | null },
+): Promise<CommerceOrder | null> {
+  return withManualPaymentReportLock(orderNumber, async () => {
+    const order = await getCommerceOrderForViewer(orderNumber, viewerToken)
+    if (!order) return null
+
+    if (order.manualPaymentAdminNotificationState !== 'sending') {
+      return order
+    }
+
+    order.manualPaymentAdminNotificationState = result.status
+    order.manualPaymentAdminNotificationSentAt = result.status === 'sent' ? nowIso() : null
+    order.manualPaymentAdminNotificationFailure = result.status === 'sent' ? null : result.reason ?? null
+    return saveOrder(order)
+  })
+}
+
+/**
+ * Called only after the booking provider has accepted the idempotent pending
+ * update. Recording it separately makes a later buyer retry repair a prior
+ * interrupted request without re-sending the admin email.
+ */
+export async function markCommerceManualPaymentBookingPending(
+  orderNumber: string,
+  viewerToken: string | null | undefined,
+): Promise<CommerceOrder | null> {
+  return withManualPaymentReportLock(orderNumber, async () => {
+    const order = await getCommerceOrderForViewer(orderNumber, viewerToken)
+    if (!order) return null
+
+    if (order.status !== 'payment_reported' || order.manualPaymentBookingPendingAt) {
+      return order
+    }
+
+    order.manualPaymentBookingPendingAt = nowIso()
+    return saveOrder(order)
+  })
 }
 
 export async function attachCommerceStripeSession(orderNumber: string, sessionId: string): Promise<CommerceOrder | null> {

@@ -9,6 +9,7 @@ type SmokeResult = {
   bookingId: string | null
   accessTokenPresent: boolean
   orderNumber: string | null
+  viewerTokenPresent: boolean
   slotLabel: string | null
   paymentMethods: string[]
   reportPaymentStatus: number | null
@@ -78,6 +79,7 @@ async function main() {
     bookingId: null,
     accessTokenPresent: false,
     orderNumber: null,
+    viewerTokenPresent: false,
     slotLabel: null,
     paymentMethods: [],
     reportPaymentStatus: null,
@@ -163,13 +165,16 @@ async function main() {
       timeout: 30000,
       waitUntil: 'domcontentloaded',
     })
-    result.orderNumber = new URL(page.url()).pathname.split('/').pop() ?? null
+    const blikUrl = new URL(page.url())
+    result.orderNumber = blikUrl.pathname.split('/').pop() ?? null
+    result.viewerTokenPresent = Boolean(blikUrl.searchParams.get('viewer'))
     assert.ok(result.orderNumber, 'BLIK payment URL did not include orderNumber.')
+    assert.equal(result.viewerTokenPresent, true, 'BLIK payment URL did not include the order viewer token.')
     await page.getByRole('heading', { name: /BLIK po instrukcji e-mail/i }).waitFor({ timeout: 30000 })
 
     const checkoutPage = await page.context().newPage()
     try {
-      await checkoutPage.goto(`${baseUrl}/checkout?orderNumber=${encodeURIComponent(result.orderNumber)}`, {
+      await checkoutPage.goto(`${baseUrl}/checkout?orderNumber=${encodeURIComponent(result.orderNumber)}&viewer=${encodeURIComponent(blikUrl.searchParams.get('viewer') ?? '')}`, {
         waitUntil: 'domcontentloaded',
       })
       await checkoutPage.getByRole('heading', { name: /Płatność za konsultację/i }).waitFor({ timeout: 30000 })
@@ -197,7 +202,7 @@ async function main() {
     result.testAdminConfirmUrlExposed = (await page.locator('a[href*="/api/admin/confirm-payment/"]').count()) > 0
     assert.equal(result.testAdminConfirmUrlExposed, false, 'Production waiting page exposed a test admin confirmation URL.')
 
-    const statusResponse = await page.request.get(`${baseUrl}/api/orders/${encodeURIComponent(result.orderNumber)}/status`)
+    const statusResponse = await page.request.get(`${baseUrl}/api/orders/${encodeURIComponent(result.orderNumber)}/status?viewer=${encodeURIComponent(blikUrl.searchParams.get('viewer') ?? '')}`)
     assert.equal(statusResponse.ok(), true, `Order status API returned ${statusResponse.status()}`)
     const statusPayload = (await statusResponse.json()) as {
       status?: string

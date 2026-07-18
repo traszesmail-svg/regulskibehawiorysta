@@ -29,8 +29,11 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
 
     const result = await sendRescheduleRequestEmail(booking, body.reason.trim())
 
-    if (result.status === 'failed') {
-      return NextResponse.json({ error: 'Nie udało się wysłać prośby do administratora.' }, { status: 500 })
+    if (result.status !== 'sent') {
+      return NextResponse.json(
+        { error: 'Nie możemy teraz przekazać prośby o zmianę terminu. Spróbuj ponownie za chwilę albo napisz przez formularz kontaktowy.' },
+        { status: result.status === 'skipped' ? 503 : 500 },
+      )
     }
 
     return NextResponse.json({ ok: true })

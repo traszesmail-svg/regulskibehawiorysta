@@ -2,7 +2,11 @@
 
 import { useState } from 'react'
 import { CreditCard, LockKeyhole, PlayCircle } from 'lucide-react'
-import { formatCommercePrice } from '@/lib/commerce'
+import {
+  buildCommerceBlikHref,
+  buildCommerceWaitingHref,
+  formatCommercePrice,
+} from '@/lib/commerce'
 
 type OnlinePaymentRuntime = {
   provider: 'naffy' | 'stripe' | 'none'
@@ -16,6 +20,7 @@ type OnlinePaymentRuntime = {
 
 type Props = {
   orderNumber: string
+  viewerToken: string
   productName: string
   onlineAmount: number
   manualAmount: number
@@ -25,6 +30,7 @@ type Props = {
 
 export function CommerceCheckoutActions({
   orderNumber,
+  viewerToken,
   productName,
   onlineAmount,
   manualAmount,
@@ -48,7 +54,7 @@ export function CommerceCheckoutActions({
       const response = await fetch('/api/payments/online/create-checkout', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ orderNumber, mock }),
+        body: JSON.stringify({ orderNumber, viewerToken, mock }),
       })
       const payload = (await response.json()) as { url?: string; redirectTo?: string; error?: string }
 
@@ -56,7 +62,7 @@ export function CommerceCheckoutActions({
         throw new Error(payload.error ?? 'Nie udało się uruchomić płatności online.')
       }
 
-      window.location.assign(payload.url ?? payload.redirectTo ?? `/oczekiwanie/${encodeURIComponent(orderNumber)}`)
+      window.location.assign(payload.url ?? payload.redirectTo ?? buildCommerceWaitingHref(orderNumber, viewerToken))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Nie udało się uruchomić płatności.')
       setLoading(null)
@@ -66,7 +72,7 @@ export function CommerceCheckoutActions({
   function startManual() {
     setError('')
     setLoading('manual')
-    window.location.assign(`/platnosc/blik/${encodeURIComponent(orderNumber)}`)
+    window.location.assign(buildCommerceBlikHref(orderNumber, viewerToken))
   }
 
   return (

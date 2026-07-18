@@ -16,6 +16,7 @@ import {
 } from '@/lib/commerce'
 import {
   createCommerceOrder,
+  ensureCommerceOrderViewerToken,
   findCommerceOrderByProduct,
   fulfillCommerceOrder,
   getCommerceOrder,
@@ -69,7 +70,7 @@ export async function createOrReuseConsultationCommerceOrder(
   const existing = await findCommerceOrderByProduct('consultation', productId)
 
   if (existing) {
-    return existing
+    return ensureCommerceOrderViewerToken(existing)
   }
 
   const serviceType = resolveBookingServiceType(booking.serviceType, booking.amount)

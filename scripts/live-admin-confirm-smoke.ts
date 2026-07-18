@@ -10,6 +10,7 @@ type SmokeResult = {
   baseUrl: string
   bookingId: string | null
   orderNumber: string | null
+  viewerTokenPresent: boolean
   adminConfirmGetStatus: number | null
   statusAfterAdminGet: string | null
   tokenUsedAfterAdminGet: boolean | null
@@ -76,6 +77,7 @@ async function main() {
     baseUrl,
     bookingId: null,
     orderNumber: null,
+    viewerTokenPresent: false,
     adminConfirmGetStatus: null,
     statusAfterAdminGet: null,
     tokenUsedAfterAdminGet: null,
@@ -149,8 +151,11 @@ async function main() {
       timeout: 30000,
       waitUntil: 'domcontentloaded',
     })
-    result.orderNumber = new URL(page.url()).pathname.split('/').pop() ?? null
+    const blikUrl = new URL(page.url())
+    result.orderNumber = blikUrl.pathname.split('/').pop() ?? null
+    result.viewerTokenPresent = Boolean(blikUrl.searchParams.get('viewer'))
     assert.ok(result.orderNumber, 'BLIK payment URL did not include orderNumber.')
+    assert.equal(result.viewerTokenPresent, true, 'BLIK payment URL did not include the order viewer token.')
 
     const reportResponsePromise = page.waitForResponse(
       (response) => result.orderNumber !== null && response.url().includes(`/api/orders/${result.orderNumber}/report-payment`) && response.request().method() === 'POST',
@@ -189,7 +194,7 @@ async function main() {
     const adminPostHtml = await adminPostResponse.text()
     assert.match(adminPostHtml, /Płatność potwierdzona/)
 
-    const statusResponse = await page.request.get(`${baseUrl}/api/orders/${encodeURIComponent(result.orderNumber)}/status`)
+    const statusResponse = await page.request.get(`${baseUrl}/api/orders/${encodeURIComponent(result.orderNumber)}/status?viewer=${encodeURIComponent(blikUrl.searchParams.get('viewer') ?? '')}`)
     assert.equal(statusResponse.ok(), true, `Order status API returned ${statusResponse.status()}`)
     const statusPayload = (await statusResponse.json()) as {
       status?: string

@@ -4,8 +4,9 @@ import Link from 'next/link'
 import { CommerceWaitingStatus } from '@/components/CommerceWaitingStatus'
 import { PreConsultationForm } from '@/components/PreConsultationForm'
 import { NotatnikPageShell, PUBLIC_BOOKING_FLOW_NAV_ITEMS } from '@/components/NotatnikA'
+import { readCommerceViewerToken } from '@/lib/commerce'
 import { isCommerceTestModeAllowed } from '@/lib/server/commerce-service'
-import { canUseCommerceAccess, getCommerceOrder } from '@/lib/server/commerce-store'
+import { canUseCommerceAccess, getCommerceOrderForViewer } from '@/lib/server/commerce-store'
 import { buildTechnicalMetadata } from '@/lib/seo'
 
 export const dynamic = 'force-dynamic'
@@ -30,9 +31,14 @@ async function buildRequestReviewUrl(token: string, action: 'approve' | 'reject'
   return url.toString()
 }
 
-export default async function WaitingPage(props: { params: Promise<{ orderNumber: string }> }) {
+export default async function WaitingPage(props: {
+  params: Promise<{ orderNumber: string }>
+  searchParams?: Promise<Record<string, string | string[] | undefined>>
+}) {
   const params = await props.params;
-  const order = await getCommerceOrder(params.orderNumber)
+  const searchParams = await props.searchParams
+  const viewerToken = readCommerceViewerToken(searchParams?.viewer)
+  const order = await getCommerceOrderForViewer(params.orderNumber, viewerToken)
   const accessReady = order ? canUseCommerceAccess(order) : false
   const consultationReady = Boolean(order?.productType === 'consultation' && order.status === 'paid' && order.meta.bookingId)
   const consultationUrl =
@@ -98,6 +104,7 @@ export default async function WaitingPage(props: { params: Promise<{ orderNumber
               <p className="hero-text small-width center-text">{statusLead}</p>
               <CommerceWaitingStatus
                 orderNumber={order.orderNumber}
+                viewerToken={viewerToken}
                 initialStatus={order.status}
                 initialAccessCode={accessReady ? order.accessCode : null}
                 initialAccessUrl={accessUrl}

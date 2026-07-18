@@ -7,6 +7,7 @@ import { recordFunnelEvent } from '@/lib/server/db'
 import { upsertGrowthSignup } from '@/lib/server/growth-signups'
 import { syncNewsletterSubscriber } from '@/lib/server/mailerlite'
 import { sendLeadMagnetDownloadEmail } from '@/lib/server/notifications'
+import { consumeRequestRateLimit } from '@/lib/server/request-protection'
 
 type SignupKind = 'newsletter' | 'lead_magnet'
 
@@ -24,6 +25,22 @@ function isValidEmail(value: string) {
 }
 
 export async function POST(request: Request) {
+  const rateLimit = consumeRequestRateLimit(request, {
+    key: 'growth-signup',
+    limit: 5,
+    windowMs: 60 * 60 * 1000,
+  })
+
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      { error: 'Zbyt wiele prób z tego połączenia. Spróbuj ponownie za chwilę.' },
+      {
+        status: 429,
+        headers: { 'Retry-After': String(rateLimit.retryAfterSeconds) },
+      },
+    )
+  }
+
   let body: Record<string, unknown>
 
   try {
@@ -38,6 +55,13 @@ export async function POST(request: Request) {
   const location = normalizeSingleLine(body.location, 120)
   const sourcePage = normalizeSingleLine(body.sourcePage, 160)
   const segment = normalizeSingleLine(body.segment, 16) ?? 'oba'
+  const marketingOptIn = body.marketingOptIn === true
+  const honeypot = normalizeSingleLine(body.website, 160) ?? ''
+
+  if (honeypot) {
+    // Nie ujawniamy automatom działania ochrony i nie tworzymy zapisu ani wysyłki.
+    return NextResponse.json({ ok: true, message: 'Zapis przyjęty.' })
+  }
 
   if (!kind || (kind !== 'newsletter' && kind !== 'lead_magnet')) {
     return NextResponse.json({ error: 'Nieprawidlowy typ zapisu.' }, { status: 400 })
@@ -67,6 +91,7 @@ export async function POST(request: Request) {
       location,
       sourcePage,
       segment,
+      marketingOptIn,
     })
     signupId = signup.id
   } catch (error) {
@@ -84,6 +109,7 @@ export async function POST(request: Request) {
         signup_kind: kind,
         segment,
         lead_magnet_slug: magnet?.slug ?? null,
+        marketing_opt_in: kind === 'lead_magnet' ? marketingOptIn : null,
       },
     })
   } catch (error) {
@@ -91,15 +117,26 @@ export async function POST(request: Request) {
   }
 
   if (kind === 'lead_magnet' && magnet) {
-    void sendLeadMagnetDownloadEmail(email, magnet).catch((error) => {
+    let emailDelivery: 'sent' | 'skipped' | 'failed' = 'failed'
+
+    try {
+      emailDelivery = (await sendLeadMagnetDownloadEmail(email, magnet)).status
+    } catch (error) {
       console.error('[regulski-behawiorysta][growth-signup] lead magnet email failed', error)
-    })
+    }
+
+    const message =
+      emailDelivery === 'sent'
+        ? 'Pobieranie rozpocznie się za chwilę. Wysłałem też dodatkowy link do materiału na podany e-mail.'
+        : 'Pobieranie rozpocznie się za chwilę. Materiał jest dostępny bezpośrednio na tej stronie; nie potwierdziliśmy wysłania dodatkowego linku e-mail.'
 
     return NextResponse.json({
       ok: true,
       signupId,
       downloadUrl: `/api/lead-magnet/${encodeURIComponent(magnet.slug)}`,
       redirectTo: `/bezplatne-materialy/dziekuje?leadMagnet=${encodeURIComponent(magnet.slug)}`,
+      emailDelivery,
+      message,
     })
   }
 
@@ -114,10 +151,15 @@ export async function POST(request: Request) {
     console.warn('[regulski-behawiorysta][growth-signup] mailerlite sync failed', provider.reason)
   }
 
+  const message =
+    provider.status === 'synced'
+      ? 'Zapis został przyjęty. O dalszych wiadomościach poinformujemy tylko przez aktywną listę newslettera.'
+      : 'Zapis został zapisany po stronie serwisu, ale nie potwierdziliśmy przekazania go do listy newslettera. Nie będziemy obiecywać wiadomości e-mail.'
+
   return NextResponse.json({
     ok: true,
     signupId,
     provider: provider.status,
-    message: 'Dziękuję. Zapis jest przyjęty. Będę pisać tylko wtedy, gdy będzie coś użytecznego.',
+    message,
   })
 }

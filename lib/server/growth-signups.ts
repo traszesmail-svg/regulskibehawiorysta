@@ -1,3 +1,4 @@
+import { randomBytes } from 'crypto'
 import { mkdir, readFile, rename, rm, writeFile } from 'fs/promises'
 import path from 'path'
 import { createClient } from '@supabase/supabase-js'
@@ -18,6 +19,10 @@ export type GrowthSignupRecord = {
   welcomeSentAt: string | null
   followUpThreeSentAt: string | null
   followUpSevenSentAt: string | null
+  marketingOptIn: boolean
+  marketingOptInAt: string | null
+  marketingUnsubscribedAt: string | null
+  unsubscribeToken: string | null
 }
 
 type GrowthSignupInput = {
@@ -27,6 +32,7 @@ type GrowthSignupInput = {
   location?: string | null
   sourcePage?: string | null
   segment?: string | null
+  marketingOptIn?: boolean
 }
 
 function getSignupId(input: GrowthSignupInput) {
@@ -53,6 +59,31 @@ function getStorePath() {
   return path.join(getLocalStoreDataDir(), 'growth-signups.json')
 }
 
+function createUnsubscribeToken() {
+  return randomBytes(32).toString('base64url')
+}
+
+function toGrowthSignupRecord(row: Partial<GrowthSignupRecord>): GrowthSignupRecord {
+  return {
+    id: row.id ?? '',
+    email: row.email ?? '',
+    kind: row.kind === 'newsletter' ? 'newsletter' : 'lead_magnet',
+    leadMagnetSlug: row.leadMagnetSlug ?? null,
+    location: row.location ?? null,
+    sourcePage: row.sourcePage ?? null,
+    segment: row.segment ?? null,
+    createdAt: row.createdAt ?? new Date(0).toISOString(),
+    welcomeSentAt: row.welcomeSentAt ?? null,
+    followUpThreeSentAt: row.followUpThreeSentAt ?? null,
+    followUpSevenSentAt: row.followUpSevenSentAt ?? null,
+    // Rekordy zapisane przed wdrożeniem zgody nie mogą uruchamiać follow-upów.
+    marketingOptIn: row.marketingOptIn === true,
+    marketingOptInAt: row.marketingOptInAt ?? null,
+    marketingUnsubscribedAt: row.marketingUnsubscribedAt ?? null,
+    unsubscribeToken: row.unsubscribeToken ?? null,
+  }
+}
+
 async function ensureLocalStore() {
   const filePath = getStorePath()
   await mkdir(path.dirname(filePath), { recursive: true })
@@ -67,7 +98,8 @@ async function ensureLocalStore() {
 
 async function readLocalRecords(): Promise<GrowthSignupRecord[]> {
   await ensureLocalStore()
-  return JSON.parse(await readFile(getStorePath(), 'utf8')) as GrowthSignupRecord[]
+  const records = JSON.parse(await readFile(getStorePath(), 'utf8')) as Array<Partial<GrowthSignupRecord>>
+  return records.map(toGrowthSignupRecord)
 }
 
 async function writeLocalRecords(records: GrowthSignupRecord[]) {
@@ -84,6 +116,7 @@ async function writeLocalRecords(records: GrowthSignupRecord[]) {
 
 export async function upsertGrowthSignup(input: GrowthSignupInput): Promise<GrowthSignupRecord> {
   const nowIso = new Date().toISOString()
+  const marketingOptIn = input.kind === 'lead_magnet' && input.marketingOptIn === true
   const record: GrowthSignupRecord = {
     id: getSignupId(input),
     email: input.email.trim().toLowerCase(),
@@ -96,6 +129,10 @@ export async function upsertGrowthSignup(input: GrowthSignupInput): Promise<Grow
     welcomeSentAt: null,
     followUpThreeSentAt: null,
     followUpSevenSentAt: null,
+    marketingOptIn,
+    marketingOptInAt: marketingOptIn ? nowIso : null,
+    marketingUnsubscribedAt: null,
+    unsubscribeToken: marketingOptIn ? createUnsubscribeToken() : null,
   }
 
   if (shouldUseSupabase()) {
@@ -112,6 +149,10 @@ export async function upsertGrowthSignup(input: GrowthSignupInput): Promise<Grow
           source_page: record.sourcePage,
           segment: record.segment,
           created_at: nowIso,
+          marketing_opt_in: record.marketingOptIn,
+          marketing_opt_in_at: record.marketingOptInAt,
+          marketing_unsubscribed_at: record.marketingUnsubscribedAt,
+          unsubscribe_token: record.unsubscribeToken,
         },
         { onConflict: 'id' },
       )
@@ -134,6 +175,10 @@ export async function upsertGrowthSignup(input: GrowthSignupInput): Promise<Grow
       welcomeSentAt: data.welcome_sent_at,
       followUpThreeSentAt: data.followup_three_sent_at,
       followUpSevenSentAt: data.followup_seven_sent_at,
+      marketingOptIn: data.marketing_opt_in === true,
+      marketingOptInAt: data.marketing_opt_in_at,
+      marketingUnsubscribedAt: data.marketing_unsubscribed_at,
+      unsubscribeToken: data.unsubscribe_token,
     }
   }
 
@@ -141,10 +186,11 @@ export async function upsertGrowthSignup(input: GrowthSignupInput): Promise<Grow
   const existingIndex = records.findIndex((item) => item.id === record.id)
 
   if (existingIndex >= 0) {
-    record.createdAt = records[existingIndex]!.createdAt
-    record.welcomeSentAt = records[existingIndex]!.welcomeSentAt
-    record.followUpThreeSentAt = records[existingIndex]!.followUpThreeSentAt
-    record.followUpSevenSentAt = records[existingIndex]!.followUpSevenSentAt
+    const existing = records[existingIndex]!
+    record.createdAt = existing.createdAt
+    record.welcomeSentAt = existing.welcomeSentAt
+    record.followUpThreeSentAt = existing.followUpThreeSentAt
+    record.followUpSevenSentAt = existing.followUpSevenSentAt
     records[existingIndex] = record
   } else {
     records.unshift(record)
@@ -175,10 +221,65 @@ export async function listGrowthSignups(): Promise<GrowthSignupRecord[]> {
       welcomeSentAt: row.welcome_sent_at,
       followUpThreeSentAt: row.followup_three_sent_at,
       followUpSevenSentAt: row.followup_seven_sent_at,
+      marketingOptIn: row.marketing_opt_in === true,
+      marketingOptInAt: row.marketing_opt_in_at,
+      marketingUnsubscribedAt: row.marketing_unsubscribed_at,
+      unsubscribeToken: row.unsubscribe_token,
     }))
   }
 
   return readLocalRecords()
+}
+
+export async function unsubscribeGrowthSignupByToken(token: string): Promise<boolean> {
+  const normalizedToken = token.trim()
+
+  if (normalizedToken.length < 32) {
+    return false
+  }
+
+  const nowIso = new Date().toISOString()
+
+  if (shouldUseSupabase()) {
+    const supabase = getSupabaseAdmin()
+    const { data, error } = await supabase
+      .from('growth_signups')
+      .update({
+        marketing_opt_in: false,
+        marketing_unsubscribed_at: nowIso,
+      })
+      .eq('unsubscribe_token', normalizedToken)
+      .is('marketing_unsubscribed_at', null)
+      .select('id')
+      .maybeSingle()
+
+    if (error) {
+      throw error
+    }
+
+    return Boolean(data)
+  }
+
+  const records = await readLocalRecords()
+  let unsubscribed = false
+  const updated = records.map((record) => {
+    if (record.unsubscribeToken !== normalizedToken || record.marketingUnsubscribedAt) {
+      return record
+    }
+
+    unsubscribed = true
+    return {
+      ...record,
+      marketingOptIn: false,
+      marketingUnsubscribedAt: nowIso,
+    }
+  })
+
+  if (unsubscribed) {
+    await writeLocalRecords(updated)
+  }
+
+  return unsubscribed
 }
 
 export async function markGrowthSignupStageSent(

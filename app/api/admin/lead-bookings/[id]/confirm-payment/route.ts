@@ -6,27 +6,13 @@ import { getLeadBookingById, updateLeadBooking } from '@/lib/server/lead-booking
 import { verifyConfirmToken } from '@/lib/admin-confirm-token'
 import { sendLeadBookingConfirmedEmail } from '@/lib/server/notifications'
 import { createRoomPasswordSetupLink, getAccountLoginRedirectUrl } from '@/lib/server/account-auth'
+import { buildGoogleCalendarUrlForEvent, parseWarsawDateTime } from '@/lib/server/google-calendar'
 
 const SERVICE_DURATION_MINUTES: Record<string, number> = {
   'kwadrans-na-juz': 15,
   'szybka-konsultacja-15-min': 15,
   'konsultacja-30-min': 30,
   'konsultacja-behawioralna-online': 120,
-}
-
-function toGoogleCalendarDate(date: Date): string {
-  return date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
-}
-
-function buildCalendarUrl(input: { title: string; details: string; location: string; startsAt: Date; endsAt: Date }): string {
-  const params = new URLSearchParams({
-    action: 'TEMPLATE',
-    text: input.title,
-    dates: `${toGoogleCalendarDate(input.startsAt)}/${toGoogleCalendarDate(input.endsAt)}`,
-    details: input.details,
-    location: input.location,
-  })
-  return `https://calendar.google.com/calendar/render?${params.toString()}`
 }
 
 export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
@@ -62,12 +48,11 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
   }
 
   const durationMin = SERVICE_DURATION_MINUTES[booking.service] ?? 30
-  const startIso = `${date}T${time}:00+02:00`
-  const startDate = new Date(startIso)
+  const startDate = parseWarsawDateTime(date, time)
   const endDate = new Date(startDate.getTime() + durationMin * 60 * 1000)
   const isFullConsultation = booking.service === 'konsultacja-behawioralna-online'
   const callRoomUrl = isFullConsultation ? booking.callRoomUrl ?? `https://meet.jit.si/regulski-${booking.id.substring(0, 8)}` : null
-  const calendarUrl = buildCalendarUrl({
+  const calendarUrl = buildGoogleCalendarUrlForEvent({
     title: `Konsultacja: ${booking.serviceLabel}`,
     details: `Konsultacja behawioralna z ${booking.name}.\n\nGatunek: ${booking.species === 'kot' ? 'Kot' : 'Pies'}\n\nOpis:\n${booking.description}`,
     location: callRoomUrl ?? 'Rozmowa telefoniczna',

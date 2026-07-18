@@ -5,7 +5,11 @@ import { CreditCard, LockKeyhole, TicketCheck } from 'lucide-react'
 import { trackAnalyticsEvent } from '@/lib/analytics'
 import type { AnimalType, BookingStatus, ProblemType, QaCheckoutEligibility } from '@/lib/types'
 import type { BookingServiceType } from '@/lib/booking-services'
-import { formatCommercePrice, getManualAmountForProduct } from '@/lib/commerce'
+import {
+  buildCommerceBlikHref,
+  formatCommercePrice,
+  getManualAmountForProduct,
+} from '@/lib/commerce'
 import { PROMO_CODE_SERVICE_TYPE } from '@/lib/promo-codes'
 
 interface PaymentActionsProps {
@@ -202,12 +206,16 @@ export function PaymentActions({
       })
       const payload = (await response.json()) as {
         orderNumber?: string
+        viewerToken?: string
         onlineCheckoutUrl?: string | null
         redirectTo?: string
         error?: string
       }
 
-      if (!response.ok || (!payload.onlineCheckoutUrl && !payload.redirectTo && !payload.orderNumber)) {
+      if (
+        !response.ok ||
+        (!payload.onlineCheckoutUrl && !payload.redirectTo && !(payload.orderNumber && payload.viewerToken))
+      ) {
         throw new Error(payload.error ?? 'Nie udało się przygotować płatności.')
       }
 
@@ -216,12 +224,17 @@ export function PaymentActions({
         return
       }
 
-      if (method === 'manual' && payload.orderNumber) {
-        window.location.assign(`/platnosc/blik/${encodeURIComponent(payload.orderNumber)}`)
+      if (method === 'manual' && payload.orderNumber && payload.viewerToken) {
+        window.location.assign(buildCommerceBlikHref(payload.orderNumber, payload.viewerToken))
         return
       }
 
-      window.location.assign(payload.redirectTo ?? `/checkout?orderNumber=${encodeURIComponent(payload.orderNumber ?? '')}`)
+      if (payload.redirectTo) {
+        window.location.assign(payload.redirectTo)
+        return
+      }
+
+      throw new Error(payload.error ?? 'Nie udało się bezpiecznie przejść do płatności.')
     } catch (paymentError) {
       console.error('[commerce][payment] checkout create failed', paymentError)
       setError(paymentError instanceof Error ? paymentError.message : 'Wystąpił błąd przygotowania płatności.')

@@ -8,7 +8,7 @@ import {
   sendLeadMagnetFollowUpThreeEmail,
   sendLeadMagnetFollowUpSevenEmail,
 } from '@/lib/server/notifications'
-import { ConfigurationError } from '@/lib/server/env'
+import { ConfigurationError, getBaseUrl } from '@/lib/server/env'
 import { getReminderAuthorizationError } from '@/lib/server/reminder-runner'
 
 export type GrowthRunResult = {
@@ -24,8 +24,20 @@ function isDue(createdAt: string, days: number, now: number) {
   return Date.parse(createdAt) + days * 24 * 60 * 60 * 1000 <= now
 }
 
-function isLeadMagnetSignup(record: GrowthSignupRecord) {
-  return record.kind === 'lead_magnet' && Boolean(record.leadMagnetSlug)
+export function isGrowthSignupEligibleForMarketingFollowups(record: GrowthSignupRecord) {
+  return (
+    record.kind === 'lead_magnet' &&
+    Boolean(record.leadMagnetSlug) &&
+    record.marketingOptIn === true &&
+    !record.marketingUnsubscribedAt &&
+    Boolean(record.unsubscribeToken)
+  )
+}
+
+function buildGrowthUnsubscribeUrl(token: string) {
+  const url = new URL('/api/growth/unsubscribe', getBaseUrl())
+  url.searchParams.set('token', token)
+  return url.toString()
 }
 
 export async function runGrowthFollowupSweep(): Promise<GrowthRunResult> {
@@ -38,7 +50,9 @@ export async function runGrowthFollowupSweep(): Promise<GrowthRunResult> {
   let dueSevenDay = 0
 
   for (const signup of signups) {
-    if (!isLeadMagnetSignup(signup)) {
+    // Follow-upy są marketingowe. Brak wyraźnej zgody (także w rekordach
+    // historycznych) oznacza brak harmonogramu i brak wysyłki.
+    if (!isGrowthSignupEligibleForMarketingFollowups(signup)) {
       continue
     }
 
@@ -50,7 +64,11 @@ export async function runGrowthFollowupSweep(): Promise<GrowthRunResult> {
 
     if (!signup.followUpThreeSentAt && isDue(signup.createdAt, 3, now)) {
       dueThreeDay += 1
-      const delivery = await sendLeadMagnetFollowUpThreeEmail(signup.email, magnet)
+      const delivery = await sendLeadMagnetFollowUpThreeEmail(
+        signup.email,
+        magnet,
+        buildGrowthUnsubscribeUrl(signup.unsubscribeToken!),
+      )
       if (delivery.status === 'sent') {
         sent += 1
         await markGrowthSignupStageSent(signup.id, 'followup_three')
@@ -63,7 +81,11 @@ export async function runGrowthFollowupSweep(): Promise<GrowthRunResult> {
 
     if (!signup.followUpSevenSentAt && isDue(signup.createdAt, 7, now)) {
       dueSevenDay += 1
-      const delivery = await sendLeadMagnetFollowUpSevenEmail(signup.email, magnet)
+      const delivery = await sendLeadMagnetFollowUpSevenEmail(
+        signup.email,
+        magnet,
+        buildGrowthUnsubscribeUrl(signup.unsubscribeToken!),
+      )
       if (delivery.status === 'sent') {
         sent += 1
         await markGrowthSignupStageSent(signup.id, 'followup_seven')

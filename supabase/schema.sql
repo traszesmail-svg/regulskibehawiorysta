@@ -145,6 +145,24 @@ create table if not exists public.funnel_events (
   created_at timestamptz not null default timezone('utc', now())
 );
 
+create table if not exists public.growth_signups (
+  id text primary key,
+  email text not null,
+  kind text not null check (kind in ('newsletter', 'lead_magnet')),
+  lead_magnet_slug text,
+  location text,
+  source_page text,
+  segment text,
+  created_at timestamptz not null default timezone('utc', now()),
+  welcome_sent_at timestamptz,
+  followup_three_sent_at timestamptz,
+  followup_seven_sent_at timestamptz,
+  marketing_opt_in boolean not null default false,
+  marketing_opt_in_at timestamptz,
+  marketing_unsubscribed_at timestamptz,
+  unsubscribe_token text
+);
+
 create table if not exists public.availability (
   id text primary key,
   booking_date date not null,
@@ -270,6 +288,11 @@ create index if not exists funnel_events_created_at_idx on public.funnel_events(
 create index if not exists funnel_events_event_type_idx on public.funnel_events(event_type);
 create index if not exists funnel_events_qa_booking_idx on public.funnel_events(qa_booking);
 create index if not exists funnel_events_booking_id_idx on public.funnel_events(booking_id);
+create unique index if not exists growth_signups_unsubscribe_token_idx
+  on public.growth_signups(unsubscribe_token)
+  where unsubscribe_token is not null;
+create index if not exists growth_signups_followup_queue_idx
+  on public.growth_signups(kind, marketing_opt_in, marketing_unsubscribed_at, created_at);
 create index if not exists availability_date_idx on public.availability(booking_date, booking_time);
 create index if not exists availability_booked_idx on public.availability(is_booked);
 create index if not exists promo_campaigns_created_at_idx on public.promo_campaigns(created_at desc);
@@ -293,16 +316,19 @@ alter table public.promo_campaigns enable row level security;
 alter table public.promo_codes enable row level security;
 alter table public.promo_redemptions enable row level security;
 alter table public.push_subscriptions enable row level security;
+alter table public.growth_signups enable row level security;
 
 revoke all on table public.promo_campaigns from anon, authenticated;
 revoke all on table public.promo_codes from anon, authenticated;
 revoke all on table public.promo_redemptions from anon, authenticated;
 revoke all on table public.push_subscriptions from anon, authenticated;
+revoke all on table public.growth_signups from anon, authenticated;
 
 grant all on table public.promo_campaigns to service_role;
 grant all on table public.promo_codes to service_role;
 grant all on table public.promo_redemptions to service_role;
 grant all on table public.push_subscriptions to service_role;
+grant all on table public.growth_signups to service_role;
 
 drop policy if exists "service role full access promo_campaigns" on public.promo_campaigns;
 create policy "service role full access promo_campaigns" on public.promo_campaigns
@@ -327,6 +353,13 @@ create policy "service role full access promo_redemptions" on public.promo_redem
 
 drop policy if exists "service role full access push_subscriptions" on public.push_subscriptions;
 create policy "service role full access push_subscriptions" on public.push_subscriptions
+  for all
+  to service_role
+  using (true)
+  with check (true);
+
+drop policy if exists "service role full access growth_signups" on public.growth_signups;
+create policy "service role full access growth_signups" on public.growth_signups
   for all
   to service_role
   using (true)

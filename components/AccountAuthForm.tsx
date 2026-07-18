@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { LogIn, Mail, UserPlus } from 'lucide-react'
+import { getSafeInternalReturnPath } from '@/lib/safe-return-path'
 
 type AuthMode = 'login' | 'register' | 'reset' | 'new-password'
 const CASE_MAP_CLAIM_TOKEN_STORAGE_KEY = 'regulski-behawiorysta.case-map-profile-claim-token'
@@ -16,7 +17,7 @@ function readInitialEmail() {
 function readReturnHref() {
   if (typeof window === 'undefined') return '/pokoj'
   const value = new URLSearchParams(window.location.search).get('returnTo') ?? ''
-  return value.startsWith('/') && !value.startsWith('//') ? value : '/pokoj'
+  return getSafeInternalReturnPath(value)
 }
 
 function readCaseMapClaimToken() {

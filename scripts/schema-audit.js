@@ -94,6 +94,21 @@ const REQUIRED_SCHEMA_MARKERS = [
     needle: 'claim_token_hash text not null',
     expectedCount: 1,
   },
+  {
+    label: 'growth_signups',
+    needle: 'create table if not exists public.growth_signups',
+    expectedCount: 1,
+  },
+  {
+    label: 'growth_signups.marketing_opt_in',
+    needle: 'marketing_opt_in boolean not null default false',
+    expectedCount: 1,
+  },
+  {
+    label: 'growth_signups.unsubscribe_token',
+    needle: 'unsubscribe_token text',
+    expectedCount: 1,
+  },
 ]
 
 const REQUIRED_FILES = [
@@ -105,6 +120,8 @@ const REQUIRED_FILES = [
   'supabase/migrations/20260714002_case_map_consultant_handoff.sql',
   'supabase/migrations/20260717001_case_map_analytics_and_profile_claims.sql',
   'supabase/migrations/20260717002_case_map_profile_claim_tokens.sql',
+  'supabase/migrations/20260718001_growth_signup_marketing_opt_in.sql',
+  'supabase/migrations/20260718002_repair_reminder_scheduler.sql',
 ]
 
 function normalizeSchemaText(schemaText) {

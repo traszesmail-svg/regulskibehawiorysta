@@ -53,8 +53,9 @@ async function main() {
   assert.ok(prepared?.adminConfirmationToken)
   assert.equal(prepared?.status, 'waiting_manual_payment')
 
-  const reported = await reportCommerceManualPayment(manual.orderNumber)
-  assert.equal(reported?.status, 'payment_reported')
+  const reported = await reportCommerceManualPayment(manual.orderNumber, manual.viewerToken)
+  assert.equal(reported?.order.status, 'payment_reported')
+  assert.equal(reported?.reportedNow, true)
 
   const manualPaid = await fulfillCommerceOrderAndNotify(manual.orderNumber, 'blik_phone', {
     adminTokenUsedAt: new Date().toISOString(),

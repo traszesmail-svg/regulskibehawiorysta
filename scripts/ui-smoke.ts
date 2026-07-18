@@ -7,6 +7,7 @@ import { chromium, type Locator, type Page } from 'playwright-core'
 import { createLocalDataSandbox } from './lib/local-data-sandbox'
 import { resolveBrowserExecutablePath } from './lib/browser-path'
 import { getBookingServiceRoomDurationMinutes } from '../lib/booking-services'
+import { parseWarsawDateTime } from '../lib/server/google-calendar'
 import { buildScheduleAvailabilitySeed, getNormalBookingMinDateKey } from '../lib/scheduling/rules'
 
 const rootDir = process.cwd()
@@ -419,7 +420,12 @@ async function approveManualPaymentWithRetry(page: Page, bookingId: string, book
   throw new Error(`Admin approval did not complete in time.${lastError ? ` Last issue: ${lastError}` : ''}`)
 }
 
-async function verifyCallRoomLoaded(page: Page, bookingId: string, ownerName: string): Promise<CallRoomMode> {
+async function verifyCallRoomLoaded(
+  page: Page,
+  bookingId: string,
+  ownerName: string,
+  expectedMode?: CallRoomMode,
+): Promise<CallRoomMode> {
   await page.waitForURL(new RegExp(`/call/${bookingId}`), { timeout: routeNavigationTimeoutMs })
   await page.locator('.room-panel').waitFor({ timeout: routeNavigationTimeoutMs })
   assert.equal(await page.getByText(new RegExp(ownerName, 'i')).isVisible(), true)
@@ -436,23 +442,41 @@ async function verifyCallRoomLoaded(page: Page, bookingId: string, ownerName: st
       await phoneStatus.innerText(),
       /Oczekiwanie na telefon|Łączenie telefoniczne|Laczenie telefoniczne|Połączenie aktywne|Polaczenie aktywne|Rozmowa zakończona/i,
     )
+    assert.equal(expectedMode ?? 'phone', 'phone')
     return 'phone'
   }
 
   const liveRoomStage = page.locator('.room-stage-live').first()
   const lockedRoomStage = page.locator('.room-stage-locked').first()
-  await waitForCondition(
-    async () => (await isVisible(liveRoomStage)) || (await isVisible(lockedRoomStage)),
-    10000,
-    'Call room did not expose a live or locked access state.',
-  )
+
+  if (expectedMode === 'video-live') {
+    // The server renders using its real clock, while this smoke test advances the
+    // browser clock. Wait for hydration to apply the browser-side countdown.
+    // Do not use Locator.waitFor here: Playwright's fake browser clock can also
+    // freeze its timeout. The helper keeps this timeout on the real Node clock.
+    await waitForCondition(
+      async () => await isVisible(liveRoomStage),
+      10000,
+      'Call room did not unlock after the simulated start time.',
+    )
+  } else if (expectedMode === 'video-locked') {
+    await lockedRoomStage.waitFor({ state: 'visible', timeout: 10000 })
+  } else {
+    await waitForCondition(
+      async () => (await isVisible(liveRoomStage)) || (await isVisible(lockedRoomStage)),
+      10000,
+      'Call room did not expose a live or locked access state.',
+    )
+  }
 
   if (await isVisible(liveRoomStage)) {
     assert.equal(await page.getByText(/Pok[óo]j aktywny|Rozmowa zakończona/i).first().isVisible(), true)
+    assert.ok(expectedMode === undefined || expectedMode === 'video-live')
     return 'video-live'
   }
 
   assert.equal(await page.getByText(/Wejście otworzy się za|Wejscie otworzy sie za/i).isVisible(), true)
+  assert.ok(expectedMode === undefined || expectedMode === 'video-locked')
   return 'video-locked'
 }
 
@@ -951,13 +975,16 @@ async function runUiSmokeOnce() {
 
     try {
       const videoPage = await videoContext.newPage()
-      const videoRoomStart = new Date(`${videoBookingResult.booking.bookingDate}T${videoBookingResult.booking.bookingTime}:00Z`)
+      const videoRoomStart = parseWarsawDateTime(
+        videoBookingResult.booking.bookingDate,
+        videoBookingResult.booking.bookingTime,
+      )
       await videoPage.clock.install({ time: new Date(videoRoomStart.getTime() + 60 * 1000) })
       await videoPage.goto(
         `${appUrl}/call/${videoBookingResult.booking.id}?access=${encodeURIComponent(videoBookingResult.accessToken)}`,
         { waitUntil: 'domcontentloaded' },
       )
-      assert.equal(await verifyCallRoomLoaded(videoPage, videoBookingResult.booking.id, 'UI Smoke Video'), 'video-live')
+      assert.equal(await verifyCallRoomLoaded(videoPage, videoBookingResult.booking.id, 'UI Smoke Video', 'video-live'), 'video-live')
       assert.equal((await videoPage.getByRole('link', { name: /nowej karcie/i }).getAttribute('href'))?.includes('meet.jit.si'), true)
 
       await startRoomTimerWithRetry(videoPage, videoRoomDurationMinutes)

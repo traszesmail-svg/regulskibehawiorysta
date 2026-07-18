@@ -2,8 +2,9 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 import { NextResponse } from 'next/server'
+import { readCommerceViewerToken } from '@/lib/commerce'
 import { isCommerceTestModeAllowed } from '@/lib/server/commerce-service'
-import { canUseCommerceAccess, getCommerceOrder } from '@/lib/server/commerce-store'
+import { canUseCommerceAccess, getCommerceOrderForViewer } from '@/lib/server/commerce-store'
 
 function buildRequestReviewUrl(request: Request, token: string, action: 'approve' | 'reject') {
   const url = new URL(`/api/admin/confirm-payment/${encodeURIComponent(token)}`, request.url)
@@ -13,7 +14,8 @@ function buildRequestReviewUrl(request: Request, token: string, action: 'approve
 
 export async function GET(request: Request, props: { params: Promise<{ orderNumber: string }> }) {
   const params = await props.params;
-  const order = await getCommerceOrder(params.orderNumber)
+  const viewerToken = readCommerceViewerToken(new URL(request.url).searchParams.get('viewer'))
+  const order = await getCommerceOrderForViewer(params.orderNumber, viewerToken)
 
   if (!order) {
     return NextResponse.json({ error: 'Nie znaleziono zamówienia.' }, { status: 404 })

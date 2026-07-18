@@ -809,8 +809,7 @@ export async function sendBookingReservationCreatedEmail(
   booking: BookingRecord,
   accessToken?: string | null,
 ): Promise<DeliveryResult> {
-  const summary = buildBookingSummary(booking)
-  const subject = `Rezerwacja przyjęta - ${EMAIL_BRAND_NAME} - ${summary}`
+  const subject = `Rezerwacja przyjęta - ${EMAIL_BRAND_NAME}`
   const customerEmailStatus = getCustomerEmailDeliveryStatus(booking.email)
   const bookingPageUrl = buildBookingViewerUrl('/payment', booking.id, accessToken)
   const accountUrl = buildAbsoluteUrl('/login?returnTo=%2Fpokoj')
@@ -1167,7 +1166,7 @@ export async function sendContactLeadAutoReplyEmail(submission: ContactLeadSubmi
   const subject = 'Dostałem Twoją wiadomość - Regulski'
   const quickStartHref = 'https://regulskibehawiorysta.pl/book?service=szybka-konsultacja-15-min'
   const html = renderEmailShell(
-    `Cześć ${escapeHtml(submission.name)}, dostałem Twoją wiadomość.`,
+    `Cześć ${submission.name}, dostałem Twoją wiadomość.`,
     'Odpowiem na podany adres e-mail w ciągu 1-2 dni roboczych.',
     `
       ${renderEmailDataTable(
@@ -1301,7 +1300,7 @@ export async function sendPdfOrderAutoReplyEmail(submission: PdfOrderSubmission)
   const hasPaypalButton = action.label === 'Przejdź do PayPal'
   const subject = `Dostałem zamówienie: ${submission.itemTitle}`
   const html = renderEmailShell(
-    `Cześć ${escapeHtml(submission.name)}, dostałem Twoje zamówienie.`,
+    `Cześć ${submission.name}, dostałem Twoje zamówienie.`,
     hasPaypalButton
       ? 'Zamówienie jest zapisane. Możesz od razu przejść do płatności przez PayPal BLIK po instrukcji e-mail zostaje dostępny jako opcja zapasowa bez publikowania numeru na stronie.'
       : 'Zamówienie jest zapisane. Odpowiem mailowo z dalszym krokiem płatności. BLIK po instrukcji e-mail zostaje dostępny bez publikowania numeru na stronie.',
@@ -1473,10 +1472,10 @@ export async function sendBookRequestAutoReplyEmail(submission: BookRequestSubmi
   }
 
   const faqHref = buildAbsoluteUrl('/faq')
-  const subject = `Dostałem Twoją rezerwację - ${submission.serviceLabel}`
+  const subject = `Dostałem Twoją rezerwację - ${EMAIL_BRAND_NAME}`
   const html = renderEmailShell(
-    `Cześć ${escapeHtml(submission.name)}, dostałem Twoją rezerwację.`,
-    `Prośba o ${escapeHtml(submission.serviceLabel)} (${escapeHtml(submission.servicePrice)}) trafiła do mnie poprawnie. Płatność zostaje w modelu BLIK po instrukcji e-mail, bez publikowania numeru na stronie.`,
+    `Cześć ${submission.name}, dostałem Twoją rezerwację.`,
+    `Prośba o ${submission.serviceLabel} (${submission.servicePrice}) trafiła do mnie poprawnie. Płatność zostaje w modelu BLIK po instrukcji e-mail, bez publikowania numeru na stronie.`,
     `
       ${renderEmailDataTable(
         [
@@ -1559,7 +1558,7 @@ export async function sendLeadMagnetDownloadEmail(email: string, magnet: LeadMag
   const thankYouHref = buildAbsoluteUrl(`/bezplatne-materialy/dziekuje?leadMagnet=${encodeURIComponent(magnet.slug)}`)
   const subject = `Twój PDF: ${magnet.shortTitle}`
   const html = renderEmailShell(
-    `Twój PDF jest gotowy: ${escapeHtml(magnet.title)}`,
+    `Twój PDF jest gotowy: ${magnet.title}`,
     'Poniżej masz bezpośredni link do pobrania. Zostawiam też stronę potwierdzenia, gdyby link z załącznikiem został zablokowany przez skrzynkę.',
     `
       ${renderEmailActionButton({ href: downloadHref, label: 'Pobierz PDF' })}
@@ -1663,11 +1662,40 @@ export async function sendLeadMagnetDirectDownloadEmail(
   )
 }
 
-export async function sendLeadMagnetFollowUpThreeEmail(email: string, magnet: LeadMagnet): Promise<DeliveryResult> {
+function isValidGrowthUnsubscribeUrl(value: string) {
+  try {
+    const url = new URL(value)
+    return (url.protocol === 'https:' || url.protocol === 'http:') && url.pathname === '/api/growth/unsubscribe' && Boolean(url.searchParams.get('token'))
+  } catch {
+    return false
+  }
+}
+
+function renderGrowthUnsubscribeHtml(unsubscribeUrl: string) {
+  const href = escapeHtml(unsubscribeUrl)
+  return `<p style="margin-top:24px;color:#7c7168;font-size:12px;line-height:1.5;">Nie chcesz kolejnych wskazówek do tego materiału? <a href="${href}">Wypisz się z tych wiadomości</a>.</p>`
+}
+
+function renderGrowthUnsubscribeText(unsubscribeUrl: string) {
+  return `Nie chcesz kolejnych wskazówek do tego materiału? Wypisz się: ${unsubscribeUrl}`
+}
+
+export async function sendLeadMagnetFollowUpThreeEmail(
+  email: string,
+  magnet: LeadMagnet,
+  unsubscribeUrl: string,
+): Promise<DeliveryResult> {
   if (!isValidPublicEmail(email)) {
     return {
       status: 'skipped',
       reason: 'customer contact email missing or invalid',
+    }
+  }
+
+  if (!isValidGrowthUnsubscribeUrl(unsubscribeUrl)) {
+    return {
+      status: 'skipped',
+      reason: 'marketing unsubscribe URL missing or invalid',
     }
   }
 
@@ -1679,6 +1707,7 @@ export async function sendLeadMagnetFollowUpThreeEmail(email: string, magnet: Le
     `
       ${renderEmailActionButton({ href: nextStepHref, label: 'Zobacz kolejny krok' })}
       <p>${escapeHtml(magnet.nextStepCopy)}</p>
+      ${renderGrowthUnsubscribeHtml(unsubscribeUrl)}
       ${renderContactBlockHtml()}
     `,
     'Jeśli chcesz doprecyzować swoją sytuację, odpowiedz na tego maila albo przejdź do rezerwacji.',
@@ -1690,6 +1719,8 @@ export async function sendLeadMagnetFollowUpThreeEmail(email: string, magnet: Le
     '',
     `Kolejny krok: ${nextStepHref}`,
     magnet.nextStepCopy,
+    '',
+    renderGrowthUnsubscribeText(unsubscribeUrl),
     '',
     'Jeśli chcesz doprecyzować swoją sytuację, odpowiedz na tego maila albo przejdź do rezerwacji.',
     renderContactBlockText(),
@@ -1707,11 +1738,22 @@ export async function sendLeadMagnetFollowUpThreeEmail(email: string, magnet: Le
   )
 }
 
-export async function sendLeadMagnetFollowUpSevenEmail(email: string, magnet: LeadMagnet): Promise<DeliveryResult> {
+export async function sendLeadMagnetFollowUpSevenEmail(
+  email: string,
+  magnet: LeadMagnet,
+  unsubscribeUrl: string,
+): Promise<DeliveryResult> {
   if (!isValidPublicEmail(email)) {
     return {
       status: 'skipped',
       reason: 'customer contact email missing or invalid',
+    }
+  }
+
+  if (!isValidGrowthUnsubscribeUrl(unsubscribeUrl)) {
+    return {
+      status: 'skipped',
+      reason: 'marketing unsubscribe URL missing or invalid',
     }
   }
 
@@ -1723,6 +1765,7 @@ export async function sendLeadMagnetFollowUpSevenEmail(email: string, magnet: Le
     `
       ${renderEmailActionButton({ href: bookingHref, label: 'Umów Kwadrans' })}
       <p>15-minutowa konsultacja behawioralna zostaje najlżejszym startem, gdy chcesz przejść od obserwacji do konkretnej decyzji.</p>
+      ${renderGrowthUnsubscribeHtml(unsubscribeUrl)}
       ${renderContactBlockHtml()}
     `,
     'Jeśli temat jest już dla Ciebie jasny, zachowaj materiał i wróć do niego wtedy, kiedy będzie potrzebny.',
@@ -1732,6 +1775,8 @@ export async function sendLeadMagnetFollowUpSevenEmail(email: string, magnet: Le
     '',
     `Najprostszy kolejny krok: ${bookingHref}`,
     '15-minutowa konsultacja behawioralna zostaje najlżejszym startem, gdy chcesz przejść od obserwacji do konkretnej decyzji.',
+    '',
+    renderGrowthUnsubscribeText(unsubscribeUrl),
     '',
     'Jeśli temat jest już dla Ciebie jasny, zachowaj materiał i wróć do niego wtedy, kiedy będzie potrzebny.',
     renderContactBlockText(),
@@ -1760,7 +1805,7 @@ type UrgentNowResponseEmailPayload = {
 }
 
 export async function sendUrgentNowResponseEmail(payload: UrgentNowResponseEmailPayload): Promise<DeliveryResult> {
-  const subject = `Kwadrans na już - proponowany termin ${payload.proposedDate} ${payload.proposedTime}`
+  const subject = `Kwadrans na już - propozycja terminu - ${EMAIL_BRAND_NAME}`
   const paymentHref = /^https?:\/\//i.test(payload.bookingHref) ? payload.bookingHref : buildAbsoluteUrl(payload.bookingHref)
   const html = renderEmailShell(
     'Mam dla Ciebie termin Kwadransu na już',
@@ -1809,8 +1854,7 @@ export async function sendUrgentNowResponseEmail(payload: UrgentNowResponseEmail
 }
 
 export async function sendBookingConfirmationEmail(booking: BookingRecord): Promise<DeliveryResult> {
-  const summary = buildBookingSummary(booking)
-  const subject = `Potwierdzenie konsultacji - ${EMAIL_BRAND_NAME} - ${summary}`
+  const subject = `Potwierdzenie konsultacji - ${EMAIL_BRAND_NAME}`
   const serviceType = resolveBookingServiceType(booking.serviceType, booking.amount)
   const isFullConsultation = serviceType === 'konsultacja-behawioralna-online'
   const prepGuideUrl = getPrepGuideUrl(booking)
@@ -2091,10 +2135,9 @@ export async function sendBookingManualPaymentPendingEmail(
   booking: BookingRecord,
   accessToken?: string | null,
 ): Promise<DeliveryResult> {
-  const summary = buildBookingSummary(booking)
   const paymentReference = booking.paymentReference ?? booking.id
   const confirmationUrl = buildBookingViewerUrl('/confirmation', booking.id, accessToken)
-  const subject = `Wpłata zgłoszona - czekamy na potwierdzenie - ${EMAIL_BRAND_NAME} - ${summary}`
+  const subject = `Wpłata zgłoszona - czekamy na potwierdzenie - ${EMAIL_BRAND_NAME}`
   const intro = 'Dostałem zgłoszenie wpłaty ręcznej. Sprawdzę je w godzinach obsługi.'
   const facts = [
     {
@@ -2138,40 +2181,43 @@ export async function sendBookingManualPaymentPendingEmail(
 }
 
 export async function sendBookingStatusOutcomeEmail(booking: BookingRecord): Promise<DeliveryResult> {
-  const summary = buildBookingSummary(booking)
   const outcome =
     booking.paymentStatus === 'refunded'
       ? {
-          subject: `Rezerwacja anulowana - ${EMAIL_BRAND_NAME} - ${summary}`,
+          subject: `Rezerwacja anulowana - ${EMAIL_BRAND_NAME}`,
           title: 'Rezerwacja została anulowana',
           intro: 'Zwrot został uruchomiony, a termin wrócił do kalendarza.',
           statusLabel: 'Zwrot',
+          statusValue: 'Zwrot płatności został uruchomiony.',
           reasonLabel: 'Powód',
           nextStep: 'Jeśli chcesz wrócić do konsultacji, wybierz nowy termin albo napisz wiadomość.',
         }
       : booking.paymentStatus === 'rejected'
         ? {
-            subject: `Wpłata nie została potwierdzona - ${EMAIL_BRAND_NAME} - ${summary}`,
+            subject: `Wpłata nie została potwierdzona - ${EMAIL_BRAND_NAME}`,
             title: 'Wpłata nie została potwierdzona',
             intro: 'Nie udało się potwierdzić wpłaty, więc termin wrócił do kalendarza.',
             statusLabel: 'Status',
+            statusValue: 'Wpłata nie została potwierdzona.',
             reasonLabel: 'Powód',
             nextStep: 'Jeśli chcesz wrócić do konsultacji, wybierz nowy termin albo napisz wiadomość.',
           }
         : booking.paymentStatus === 'failed'
           ? {
-              subject: `Płatność nie została dokończona - ${EMAIL_BRAND_NAME} - ${summary}`,
+              subject: `Płatność nie została dokończona - ${EMAIL_BRAND_NAME}`,
               title: 'Płatność nie została dokończona',
               intro: 'Płatność online nie została zakończona i termin wrócił do kalendarza.',
               statusLabel: 'Status',
+              statusValue: 'Płatność nie została dokończona.',
               reasonLabel: 'Powód',
               nextStep: 'Jeśli chcesz wrócić do konsultacji, wybierz nowy termin albo napisz wiadomość.',
             }
           : {
-              subject: `Rezerwacja wygasła - ${EMAIL_BRAND_NAME} - ${summary}`,
+              subject: `Rezerwacja wygasła - ${EMAIL_BRAND_NAME}`,
               title: 'Rezerwacja wygasła',
               intro: 'Czas na potwierdzenie minął, więc termin wrócił do kalendarza.',
               statusLabel: 'Status',
+              statusValue: 'Termin nie został potwierdzony w wymaganym czasie.',
               reasonLabel: 'Powód',
               nextStep: 'Jeśli chcesz wrócić do konsultacji, wybierz nowy termin albo napisz wiadomość.',
             }
@@ -2189,8 +2235,8 @@ export async function sendBookingStatusOutcomeEmail(booking: BookingRecord): Pro
     },
     {
       label: outcome.statusLabel,
-      htmlValue: escapeHtml(booking.paymentStatus),
-      textValue: booking.paymentStatus,
+      htmlValue: escapeHtml(outcome.statusValue),
+      textValue: outcome.statusValue,
     },
   ]
 
@@ -2223,10 +2269,15 @@ export async function sendRescheduleRequestEmail(booking: BookingRecord, reason:
   const title = 'Zgłoszono prośbę o zmianę terminu'
   const serviceTitle = getBookingServiceTitle(resolveBookingServiceType(booking.serviceType, booking.amount))
   const intro = `Opiekun ${booking.ownerName} zgłosił prośbę o zmianę terminu dla konsultacji ${serviceTitle}.`
+  const customerEmail = booking.email.trim()
+  const customerEmailHtml = escapeHtml(customerEmail)
+  const customerEmailValue = isValidPublicEmail(customerEmail)
+    ? `<a href="mailto:${customerEmailHtml}">${customerEmailHtml}</a>`
+    : customerEmailHtml
 
   const facts = [
     { label: 'Opiekun', htmlValue: escapeHtml(booking.ownerName), textValue: booking.ownerName },
-    { label: 'E-mail', htmlValue: `<a href="mailto:${booking.email}">${booking.email}</a>`, textValue: booking.email },
+    { label: 'E-mail', htmlValue: customerEmailValue, textValue: customerEmail },
     { label: 'Telefon', htmlValue: escapeHtml(booking.phone), textValue: booking.phone },
     { label: 'Usługa', htmlValue: escapeHtml(serviceTitle), textValue: serviceTitle },
     { label: 'Zaplanowany termin', htmlValue: `${booking.bookingDate}, ${booking.bookingTime}`, textValue: `${booking.bookingDate}, ${booking.bookingTime}` },
@@ -2574,7 +2625,7 @@ export async function sendUrgentNowCustomerAckEmail(submission: UrgentNowSubmiss
 
   const subject = 'Kwadrans na już - dostałem Twoją prośbę'
   const html = renderEmailShell(
-    `Cześć ${escapeHtml(submission.name.split(' ')[0])}, dostałem Twoją prośbę o Kwadrans na już.`,
+    `Cześć ${submission.name.split(' ')[0]}, dostałem Twoją prośbę o Kwadrans na już.`,
     'Odpiszę priorytetowo na ten adres e-mail z konkretną godziną albo najbliższym realnym terminem i linkiem do płatności.',
     `
       ${renderEmailDataTable(
@@ -2886,7 +2937,7 @@ export async function sendMaterialyOrderPendingCustomerEmail(payload: MaterialyO
 
   const subject = `Zamówienie ${payload.orderId}: jak opłacić i odebrać PDF`
   const html = renderEmailShell(
-    `Cześć ${escapeHtml(payload.customerName)}, dostałem Twoje zamówienie.`,
+    `Cześć ${payload.customerName}, dostałem Twoje zamówienie.`,
     'Wystarczy zrobić szybki BLIK i wyślę Ci kod do pobrania PDF. To proces ręczny - kod przychodzi do 60 minut w godzinach 8-18 (pon-pt). Poza tymi godzinami w następny dzień roboczy.',
     `
       ${renderEmailDataTable(
@@ -2947,8 +2998,8 @@ export async function sendMaterialyCodeCustomerEmail(payload: MaterialyOrderEmai
 
   const html = renderEmailShell(
     isFree
-      ? `Cześć ${escapeHtml(payload.customerName)}, oto Twój bezpłatny materiał.`
-      : `Cześć ${escapeHtml(payload.customerName)}, dostałem Twoją wpłatę. Oto kod.`,
+      ? `Cześć ${payload.customerName}, oto Twój bezpłatny materiał.`
+      : `Cześć ${payload.customerName}, dostałem Twoją wpłatę. Oto kod.`,
     isFree
       ? 'Materiał jest darmowy. Kod poniżej działa tak samo jak przy zamówieniach płatnych.'
       : 'Wpisz poniższy kod razem z e-mailem na stronie pobrania, żeby otworzyć PDF.',
@@ -3008,7 +3059,7 @@ export async function sendLeadBookingConfirmedEmail(payload: LeadBookingConfirme
     return { status: 'skipped', reason: 'customer email missing or invalid' }
   }
 
-  const subject = `Potwierdzona konsultacja: ${payload.serviceLabel} - ${payload.confirmedDate} ${payload.confirmedTime}`
+  const subject = `Konsultacja potwierdzona - ${EMAIL_BRAND_NAME}`
   const calendarBlock = payload.calendarUrl
     ? renderEmailActionButton({ href: payload.calendarUrl, label: 'Dodaj do kalendarza Google' })
     : ''
@@ -3020,7 +3071,7 @@ export async function sendLeadBookingConfirmedEmail(payload: LeadBookingConfirme
     : 'O ustalonej godzinie zadzwonię na numer podany w rezerwacji.'
 
   const html = renderEmailShell(
-    `Cześć ${escapeHtml(payload.name)}, konsultacja potwierdzona!`,
+    `Cześć ${payload.name}, konsultacja potwierdzona!`,
     'Płatność dotarła. Poniżej znajdziesz termin oraz dostęp do pokoju klienta.',
     `
       ${renderEmailDataTable(
@@ -3164,8 +3215,8 @@ export async function sendCommerceAccessCodeCustomerEmail(order: CommerceOrder):
 
   const html = renderEmailShell(
     isFreeAccess
-      ? `Cześć ${escapeHtml(order.customerName || '')}, dostęp do materiału jest aktywny.`
-      : `Cześć ${escapeHtml(order.customerName || '')}, płatność została potwierdzona.`,
+      ? `Cześć ${order.customerName || ''}, dostęp do materiału jest aktywny.`
+      : `Cześć ${order.customerName || ''}, płatność została potwierdzona.`,
     'Poniżej znajdziesz kod dostępu. Wpisz go na stronie dostępu razem z adresem e-mail użytym przy zamówieniu.',
     `
       ${renderEmailDataTable(

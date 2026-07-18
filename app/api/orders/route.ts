@@ -7,6 +7,7 @@ import {
   createOrReuseConsultationCommerceOrder,
   fulfillCommerceOrderAndNotify,
 } from '@/lib/server/commerce-service'
+import { buildCommerceCheckoutHref } from '@/lib/commerce'
 import { buildNaffyCheckoutUrl, getOnlinePaymentRuntime } from '@/lib/server/online-payments'
 
 export async function POST(request: Request) {
@@ -45,8 +46,9 @@ export async function POST(request: Request) {
       return NextResponse.json({
         ok: true,
         orderNumber: order.orderNumber,
+        viewerToken: order.viewerToken,
         onlineCheckoutUrl,
-        redirectTo: `/checkout?orderNumber=${encodeURIComponent(order.orderNumber)}`,
+        redirectTo: buildCommerceCheckoutHref(order.orderNumber, order.viewerToken),
       })
     }
 
@@ -74,6 +76,7 @@ export async function POST(request: Request) {
         return NextResponse.json({
           ok: true,
           orderNumber: fulfilled.orderNumber,
+          viewerToken: fulfilled.viewerToken,
           free: true,
           accessCode: fulfilled.accessCode,
           downloadUrl,
@@ -84,7 +87,8 @@ export async function POST(request: Request) {
       return NextResponse.json({
         ok: true,
         orderNumber: order.orderNumber,
-        redirectTo: `/checkout?orderNumber=${encodeURIComponent(order.orderNumber)}`,
+        viewerToken: order.viewerToken,
+        redirectTo: buildCommerceCheckoutHref(order.orderNumber, order.viewerToken),
       })
     }
 

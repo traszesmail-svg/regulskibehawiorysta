@@ -9,27 +9,7 @@ import {
   updateLeadBooking,
   type LeadBookingStatus,
 } from '@/lib/server/lead-bookings'
-
-function toGoogleCalendarDate(date: Date): string {
-  return date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
-}
-
-function buildLeadCalendarUrl(input: {
-  title: string
-  details: string
-  location: string
-  startsAt: Date
-  endsAt: Date
-}): string {
-  const params = new URLSearchParams({
-    action: 'TEMPLATE',
-    text: input.title,
-    dates: `${toGoogleCalendarDate(input.startsAt)}/${toGoogleCalendarDate(input.endsAt)}`,
-    details: input.details,
-    location: input.location,
-  })
-  return `https://calendar.google.com/calendar/render?${params.toString()}`
-}
+import { buildGoogleCalendarUrlForEvent, parseWarsawDateTime } from '@/lib/server/google-calendar'
 
 async function checkAuth() {
   const secret = getAdminAccessSecret()
@@ -113,11 +93,10 @@ export async function PATCH(request: Request, props: { params: Promise<{ id: str
 
     if (date && time) {
       const durationMin = SERVICE_DURATION_MINUTES[existing.service] ?? 30
-      const startIso = `${date}T${time}:00+02:00`
-      const startDate = new Date(startIso)
+      const startDate = parseWarsawDateTime(date, time)
       const endDate = new Date(startDate.getTime() + durationMin * 60 * 1000)
 
-      const calendarUrl = buildLeadCalendarUrl({
+      const calendarUrl = buildGoogleCalendarUrlForEvent({
         title: `Konsultacja: ${existing.serviceLabel}`,
         details: `Konsultacja behawioralna z ${existing.name}.\n\nGatunek: ${existing.species === 'kot' ? 'Kot' : 'Pies'}\n\nOpis sytuacji:\n${existing.description}`,
         location: update.callRoomUrl ?? existing.callRoomUrl ?? 'Online (Jitsi)',

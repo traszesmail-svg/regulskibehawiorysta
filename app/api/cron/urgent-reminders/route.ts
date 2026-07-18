@@ -4,24 +4,21 @@ export const revalidate = 0
 
 import { NextResponse } from 'next/server'
 import { listUrgentNowRequests } from '@/lib/server/db'
+import { ConfigurationError } from '@/lib/server/env'
+import { getReminderAuthorizationError } from '@/lib/server/reminder-runner'
 import { sendAdminUrgentReminderSms } from '@/lib/server/sms'
 
-const CRON_SECRET = process.env.CRON_SECRET?.trim() || null
 const URGENT_WINDOW_MS = 15 * 60 * 1000
 const REMINDER_AT_MS = 10 * 60 * 1000
 
-function isCronAuthorized(request: Request): boolean {
-  if (!CRON_SECRET) return true
-  const auth = request.headers.get('authorization')
-  return auth === `Bearer ${CRON_SECRET}`
-}
-
 export async function GET(request: Request) {
-  if (!isCronAuthorized(request)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
   try {
+    const authorizationError = getReminderAuthorizationError(request.headers.get('authorization'))
+
+    if (authorizationError) {
+      return NextResponse.json({ error: authorizationError }, { status: 401 })
+    }
+
     const now = Date.now()
     const requests = await listUrgentNowRequests()
 
@@ -43,7 +40,8 @@ export async function GET(request: Request) {
     })
   } catch (err) {
     console.error('[regulski-behawiorysta][cron][urgent-reminders] error', err)
-    return NextResponse.json({ error: 'Internal error' }, { status: 500 })
+    const message = err instanceof Error ? err.message : 'Internal error'
+    return NextResponse.json({ error: message }, { status: err instanceof ConfigurationError ? 503 : 500 })
   }
 }
 

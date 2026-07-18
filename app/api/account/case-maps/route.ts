@@ -6,6 +6,7 @@ import {
 import { getAccountUser } from '@/lib/server/account-auth'
 import { listCaseMapsForUser, createCaseMap } from '@/lib/server/case-map-store'
 import { ConfigurationError } from '@/lib/server/env'
+import { PRIVATE_NO_STORE_HEADERS } from '@/lib/server/request-protection'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -18,14 +19,14 @@ function errorResponse(error: unknown, fallback: string) {
       ? 400
       : 500
 
-  return NextResponse.json({ ok: false, error: message }, { status })
+  return NextResponse.json({ ok: false, error: message }, { status, headers: PRIVATE_NO_STORE_HEADERS })
 }
 
 export async function GET(request: Request) {
   try {
     const user = await getAccountUser(request)
     const caseMaps = await listCaseMapsForUser(user)
-    return NextResponse.json({ ok: true, caseMaps })
+    return NextResponse.json({ ok: true, caseMaps }, { headers: PRIVATE_NO_STORE_HEADERS })
   } catch (error) {
     return errorResponse(error, 'Nie udało się pobrać Map sprawy.')
   }
@@ -36,7 +37,7 @@ export async function POST(request: Request) {
     const user = await getAccountUser(request)
     const input = normalizeCaseMapCreateInput(await request.json())
     const caseMap = await createCaseMap(user, input)
-    return NextResponse.json({ ok: true, caseMap }, { status: 201 })
+    return NextResponse.json({ ok: true, caseMap }, { status: 201, headers: PRIVATE_NO_STORE_HEADERS })
   } catch (error) {
     return errorResponse(error, 'Nie udało się utworzyć Mapy zachowania.')
   }

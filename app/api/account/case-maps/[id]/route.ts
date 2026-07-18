@@ -11,6 +11,7 @@ import {
   patchCaseMapForUser,
 } from '@/lib/server/case-map-store'
 import { ConfigurationError } from '@/lib/server/env'
+import { PRIVATE_NO_STORE_HEADERS } from '@/lib/server/request-protection'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -33,7 +34,7 @@ function errorResponse(error: unknown, fallback: string) {
         ? 400
         : 500
 
-  return NextResponse.json({ ok: false, error: message }, { status })
+  return NextResponse.json({ ok: false, error: message }, { status, headers: PRIVATE_NO_STORE_HEADERS })
 }
 
 export async function GET(request: Request, context: RouteContext) {
@@ -42,10 +43,10 @@ export async function GET(request: Request, context: RouteContext) {
     const caseMap = await getCaseMapForUser(user, (await context.params).id)
 
     if (!caseMap) {
-      return NextResponse.json({ ok: false, error: 'Nie znaleziono Mapy zachowania.' }, { status: 404 })
+      return NextResponse.json({ ok: false, error: 'Nie znaleziono Mapy zachowania.' }, { status: 404, headers: PRIVATE_NO_STORE_HEADERS })
     }
 
-    return NextResponse.json({ ok: true, caseMap })
+    return NextResponse.json({ ok: true, caseMap }, { headers: PRIVATE_NO_STORE_HEADERS })
   } catch (error) {
     return errorResponse(error, 'Nie udało się pobrać Mapy zachowania.')
   }
@@ -58,10 +59,10 @@ export async function PATCH(request: Request, context: RouteContext) {
     const caseMap = await patchCaseMapForUser(user, (await context.params).id, patch)
 
     if (!caseMap) {
-      return NextResponse.json({ ok: false, error: 'Nie znaleziono Mapy zachowania.' }, { status: 404 })
+      return NextResponse.json({ ok: false, error: 'Nie znaleziono Mapy zachowania.' }, { status: 404, headers: PRIVATE_NO_STORE_HEADERS })
     }
 
-    return NextResponse.json({ ok: true, caseMap })
+    return NextResponse.json({ ok: true, caseMap }, { headers: PRIVATE_NO_STORE_HEADERS })
   } catch (error) {
     return errorResponse(error, 'Nie udało się zapisać Mapy zachowania.')
   }

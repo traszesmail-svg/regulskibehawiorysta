@@ -2,8 +2,12 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { CommerceBlikActions } from '@/components/CommerceBlikActions'
 import { NotatnikPageShell, PUBLIC_BOOKING_FLOW_NAV_ITEMS } from '@/components/NotatnikA'
-import { formatCommercePrice } from '@/lib/commerce'
-import { prepareCommerceManualPayment } from '@/lib/server/commerce-store'
+import {
+  buildCommerceCheckoutHref,
+  formatCommercePrice,
+  readCommerceViewerToken,
+} from '@/lib/commerce'
+import { getCommerceOrderForViewer } from '@/lib/server/commerce-store'
 import { getManualPaymentConfig } from '@/lib/server/payment-options'
 import { buildTechnicalMetadata } from '@/lib/seo'
 
@@ -20,9 +24,16 @@ export function generateMetadata(): Metadata {
   })
 }
 
-export default async function BlikPaymentPage(props: { params: Promise<{ orderNumber: string }> }) {
+export default async function BlikPaymentPage(props: {
+  params: Promise<{ orderNumber: string }>
+  searchParams?: Promise<Record<string, string | string[] | undefined>>
+}) {
   const params = await props.params;
-  const order = await prepareCommerceManualPayment(params.orderNumber)
+  const searchParams = await props.searchParams
+  const viewerToken = readCommerceViewerToken(searchParams?.viewer)
+  // Rendering this page must be a read-only operation. The manual-payment
+  // state is created only when the buyer explicitly reports a completed BLIK.
+  const order = await getCommerceOrderForViewer(params.orderNumber, viewerToken)
   const manual = getManualPaymentConfig()
 
   return (
@@ -49,7 +60,7 @@ export default async function BlikPaymentPage(props: { params: Promise<{ orderNu
             <div className="stack-gap">
               <h1>BLIK jest chwilowo niedostępny</h1>
               <div className="error-box">{manual.summary}</div>
-              <Link href={`/checkout?orderNumber=${encodeURIComponent(order.orderNumber)}`} className="button button-primary big-button">
+              <Link href={buildCommerceCheckoutHref(order.orderNumber, viewerToken)} className="button button-primary big-button">
                 Wróć do metod płatności
               </Link>
             </div>
@@ -63,6 +74,7 @@ export default async function BlikPaymentPage(props: { params: Promise<{ orderNu
               </p>
               <CommerceBlikActions
                 orderNumber={order.orderNumber}
+                viewerToken={viewerToken}
                 phoneDisplay={manual.phoneDisplay ?? manual.phone}
               />
               <div className="disclaimer">

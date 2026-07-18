@@ -1,6 +1,6 @@
--- 1. Zapisz aktualny URL aplikacji i ten sam secret, ktory masz w CRON_SECRET po stronie Vercel.
+-- 1. Zapisz aktualny URL aplikacji i ten sam secret, który masz w CRON_SECRET po stronie Vercel.
 select vault.create_secret(
-  'https://twoja-aplikacja.vercel.app',
+  'https://regulskibehawiorysta.pl',
   'regulski_app_url',
   'Publiczny URL aplikacji Regulski Behawiorysta do triggera remindera'
 );

@@ -130,6 +130,50 @@ function userEmail(user: User) {
   return normalizeEmail(email)
 }
 
+type AccountRoomBooking = Pick<BookingRecord, 'bookingStatus' | 'paymentStatus'>
+type AccountRoomLeadBooking = Pick<LeadBookingRecord, 'service' | 'status'>
+
+export function hasEligibleAccountRoomBooking(
+  bookings: AccountRoomBooking[],
+  leadBookings: AccountRoomLeadBooking[],
+) {
+  const hasPaidBooking = bookings.some(
+    (booking) =>
+      booking.paymentStatus === 'paid' &&
+      (booking.bookingStatus === 'confirmed' || booking.bookingStatus === 'done'),
+  )
+
+  const hasPaidLeadBooking = leadBookings.some(
+    (booking) =>
+      !booking.service.startsWith('commerce:') &&
+      (booking.status === 'paid' || booking.status === 'confirmed'),
+  )
+
+  return hasPaidBooking || hasPaidLeadBooking
+}
+
+async function getEligibleAccountRoomBookings(email: string) {
+  const [allBookings, allLeadBookings] = await Promise.all([listBookings(), listLeadBookings()])
+  const bookings = allBookings.filter(
+    (booking) =>
+      booking.email?.trim().toLowerCase() === email &&
+      booking.paymentStatus === 'paid' &&
+      (booking.bookingStatus === 'confirmed' || booking.bookingStatus === 'done'),
+  )
+  const leadBookings = allLeadBookings.filter(
+    (booking) =>
+      booking.email?.trim().toLowerCase() === email &&
+      !booking.service.startsWith('commerce:') &&
+      (booking.status === 'paid' || booking.status === 'confirmed'),
+  )
+
+  if (!hasEligibleAccountRoomBooking(bookings, leadBookings)) {
+    throw new Error('Pokój rozmowy i pliki są dostępne po potwierdzonej, opłaconej konsultacji.')
+  }
+
+  return { bookings, leadBookings }
+}
+
 function emptyState(): StoredAccountState {
   return {
     profile: null,
@@ -700,6 +744,7 @@ async function uploadCustomerFile(user: User, file: File, folder: string) {
 }
 
 export async function uploadPetPhoto(user: User, petId: string, file: File): Promise<AccountPet> {
+  await getEligibleAccountRoomBookings(userEmail(user))
   const state = await readAccountState(user)
   const pet = state.pets.find((item) => item.id === petId)
 
@@ -750,39 +795,58 @@ export async function createAccountMessage(user: User, input: CreateAccountMessa
     throw new Error('Wpisz wiadomosc albo dodaj plik.')
   }
 
+  const { bookings, leadBookings } = await getEligibleAccountRoomBookings(userEmail(user))
   const state = await readAccountState(user)
   await ensureProfile(user, state)
+  const mappedAll = [
+    ...bookings.map((booking) => ({
+      id: booking.id,
+      createdAt: booking.createdAt,
+      serviceType: booking.serviceType,
+      questionsRemaining: booking.questionsRemaining ?? null,
+      isLead: false,
+      supportEndsAt:
+        booking.serviceType === 'konsultacja-behawioralna-online'
+          ? new Date(new Date(`${booking.bookingDate}T${booking.bookingTime}:00`).getTime() + 14 * 86400000).getTime()
+          : null,
+    })),
+    ...leadBookings.map((booking) => ({
+      id: booking.id,
+      createdAt: booking.createdAt,
+      serviceType: booking.service || null,
+      questionsRemaining: booking.questionsRemaining ?? null,
+      isLead: true,
+      supportEndsAt:
+        booking.service === 'konsultacja-behawioralna-online' && booking.confirmedDate
+          ? new Date(new Date(`${booking.confirmedDate}T${booking.confirmedTime ?? '12:00'}:00`).getTime() + 14 * 86400000).getTime()
+          : null,
+    })),
+  ].sort((left, right) => right.createdAt.localeCompare(left.createdAt))
 
-  const userEmail = user.email?.trim().toLowerCase()
-  if (userEmail) {
-    const [allBookings, allLeadBookings] = await Promise.all([
-      listBookings(),
-      listLeadBookings(),
-    ])
-    const userBookingsAll = allBookings.filter(b => b.email?.trim().toLowerCase() === userEmail)
-    const userLeadBookingsAll = allLeadBookings.filter(b => b.email?.trim().toLowerCase() === userEmail && (b.status === 'paid' || b.status === 'confirmed'))
-
-    const mappedAll = [
-      ...userBookingsAll.map(b => ({ id: b.id, createdAt: b.createdAt, serviceType: b.serviceType, questionsRemaining: b.questionsRemaining ?? null, isLead: false, supportEndsAt: b.serviceType === 'konsultacja-behawioralna-online' ? new Date(new Date(`${b.bookingDate}T${b.bookingTime}:00`).getTime() + 14 * 86400000).getTime() : null })),
-      ...userLeadBookingsAll.map(b => ({ id: b.id, createdAt: b.createdAt, serviceType: b.service || null, questionsRemaining: b.questionsRemaining ?? null, isLead: true, supportEndsAt: b.service === 'konsultacja-behawioralna-online' && b.confirmedDate ? new Date(new Date(`${b.confirmedDate}T${b.confirmedTime ?? '12:00'}:00`).getTime() + 14 * 86400000).getTime() : null })),
-    ].sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-
-    const latestBooking = mappedAll[0]
-    if (latestBooking?.serviceType === 'konsultacja-behawioralna-online' && latestBooking.supportEndsAt !== null && Date.now() > latestBooking.supportEndsAt) {
-      throw new Error('14-dniowy okres komunikacji w pokoju po pełnej konsultacji już się zakończył.')
+  const latestBooking = mappedAll[0]
+  if (
+    latestBooking?.serviceType === 'konsultacja-behawioralna-online' &&
+    latestBooking.supportEndsAt !== null &&
+    Date.now() > latestBooking.supportEndsAt
+  ) {
+    throw new Error('14-dniowy okres komunikacji w pokoju po pełnej konsultacji już się zakończył.')
+  }
+  if (
+    latestBooking &&
+    (latestBooking.serviceType === 'szybka-konsultacja-15-min' ||
+      latestBooking.serviceType === 'kwadrans-na-juz' ||
+      latestBooking.serviceType === 'konsultacja-30-min') &&
+    latestBooking.questionsRemaining !== null
+  ) {
+    if (latestBooking.questionsRemaining <= 0) {
+      throw new Error('Wykorzystałeś już limit pytań na czacie po tej konsultacji. Jeśli potrzebujesz dalszej pomocy, wybierz kolejną usługę.')
     }
-    if (latestBooking && (latestBooking.serviceType === 'szybka-konsultacja-15-min' || latestBooking.serviceType === 'kwadrans-na-juz' || latestBooking.serviceType === 'konsultacja-30-min')) {
-      if (latestBooking.questionsRemaining !== null) {
-        if (latestBooking.questionsRemaining <= 0) {
-          throw new Error('Wykorzystałeś już limit pytań na czacie po tej konsultacji. Jeśli potrzebujesz dalszej pomocy, wybierz kolejną usługę.')
-        }
-        const nextVal = latestBooking.questionsRemaining - 1
-        if (latestBooking.isLead) {
-          await updateLeadBooking({ id: latestBooking.id, questionsRemaining: nextVal })
-        } else {
-          await updateBookingQuiz(latestBooking.id, { questionsRemaining: nextVal })
-        }
-      }
+
+    const nextValue = latestBooking.questionsRemaining - 1
+    if (latestBooking.isLead) {
+      await updateLeadBooking({ id: latestBooking.id, questionsRemaining: nextValue })
+    } else {
+      await updateBookingQuiz(latestBooking.id, { questionsRemaining: nextValue })
     }
   }
 

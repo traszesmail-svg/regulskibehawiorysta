@@ -13,8 +13,10 @@ import {
 import { reportManualPayment } from '@/lib/server/manual-payments'
 import {
   getCustomerEmailDeliveryStatus,
+  sendLeadBookingConfirmedEmail,
   sendMaterialyCodeCustomerEmail,
   sendMaterialyOrderPendingCustomerEmail,
+  sendUrgentNowResponseEmail,
   type MaterialyOrderEmailPayload,
 } from '@/lib/server/notifications'
 import { createLocalDataSandbox } from '@/scripts/lib/local-data-sandbox'
@@ -263,7 +265,11 @@ test('customer emails cover reservation, review, confirmation and cancel outcome
 
         for (const email of [sentEmails[0], sentEmails[1], sentEmails[3], sentEmails[5], sentEmails[6], sentEmails[7], sentEmails[8]]) {
           assertNoForbiddenCustomerEmailCopy(email)
+          assert.doesNotMatch(email.subject ?? '', /2030|10:00|stres|kot/i)
         }
+
+        assert.doesNotMatch(collectEmailCopy(sentEmails[6]), /\brejected\b/i)
+        assert.doesNotMatch(collectEmailCopy(sentEmails[8]), /\bfailed\b/i)
       },
     )
   } finally {
@@ -496,7 +502,7 @@ test('materialy customer emails use the shared shell and public-safe wording', a
         REGULSKI_CONTACT_EMAIL: 'kontakt@regulskibehawiorysta.pl',
       },
       async () => {
-        const order = makeMaterialyOrderEmailPayload()
+        const order = makeMaterialyOrderEmailPayload({ customerName: 'Anna & Ola <test>' })
 
         const pendingResult = await sendMaterialyOrderPendingCustomerEmail(order)
         const codeResult = await sendMaterialyCodeCustomerEmail(order, '123456', '2030-01-20T12:00:00.000Z')
@@ -508,6 +514,8 @@ test('materialy customer emails use the shared shell and public-safe wording', a
         assert.equal(sentEmails[0].to?.[0], 'klient@example.com')
         assert.match(sentEmails[0].html ?? '', /data-email-shell="regulski"/)
         assert.match(sentEmails[0].html ?? '', /data-email-facts="materialy-payment"/)
+        assert.match(sentEmails[0].html ?? '', /Cześć Anna &amp; Ola &lt;test&gt;, dostałem Twoje zamówienie\./)
+        assert.doesNotMatch(sentEmails[0].html ?? '', /Anna &amp;amp; Ola|&amp;lt;test&amp;gt;/)
         assert.match(sentEmails[0].text ?? '', /BLIK: instrukcja mailowa bez publicznego numeru\./)
 
         assert.equal(sentEmails[1].to?.[0], 'klient@example.com')
@@ -520,6 +528,60 @@ test('materialy customer emails use the shared shell and public-safe wording', a
         }
       },
     )
+  } finally {
+    ;(globalThis as typeof globalThis & { fetch: typeof fetch }).fetch = originalFetch
+  }
+})
+
+test('customer booking subjects keep the problem and exact appointment time out of the inbox preview', async () => {
+  const sentEmails: ResendEmailPayload[] = []
+  const originalFetch = globalThis.fetch
+
+  try {
+    const mockFetch = async (_input: RequestInfo | URL, init?: RequestInit) => {
+      const body = typeof init?.body === 'string' ? JSON.parse(init.body) : {}
+      sentEmails.push(body)
+      return new Response('{}', { status: 200, headers: { 'content-type': 'application/json' } })
+    }
+
+    ;(globalThis as typeof globalThis & { fetch: typeof fetch }).fetch = mockFetch as typeof fetch
+
+    await withEnv(
+      {
+        MAIL_PROVIDER: 'resend',
+        RESEND_API_KEY: 're_test_key',
+        RESEND_FROM_EMAIL: EXPECTED_RESEND_FROM,
+        CUSTOMER_EMAIL_MODE: 'auto',
+        REGULSKI_CONTACT_EMAIL: 'kontakt@regulskibehawiorysta.pl',
+      },
+      async () => {
+        await sendUrgentNowResponseEmail({
+          customerName: 'Anna',
+          customerEmail: 'klient@example.com',
+          topic: 'Agresja wobec ludzi',
+          proposedDate: '2030-07-15',
+          proposedTime: '10:00',
+          bookingHref: '/payment?bookingId=test-booking',
+        })
+        await sendLeadBookingConfirmedEmail({
+          name: 'Anna',
+          email: 'klient@example.com',
+          serviceLabel: 'Konsultacja dotycząca agresji',
+          confirmedDate: '2030-07-15',
+          confirmedTime: '10:00',
+          callRoomUrl: 'https://meet.jit.si/customer-subject-test',
+        })
+      },
+    )
+
+    assert.equal(sentEmails.length, 2)
+    for (const email of sentEmails) {
+      assert.doesNotMatch(email.subject ?? '', /Agresja|2030|10:00/i)
+    }
+    assert.match(sentEmails[0].text ?? '', /Agresja wobec ludzi/)
+    assert.match(sentEmails[0].text ?? '', /2030-07-15 10:00/)
+    assert.match(sentEmails[1].text ?? '', /Konsultacja dotycząca agresji/)
+    assert.match(sentEmails[1].text ?? '', /2030-07-15 o 10:00/)
   } finally {
     ;(globalThis as typeof globalThis & { fetch: typeof fetch }).fetch = originalFetch
   }

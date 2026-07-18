@@ -26,6 +26,8 @@ export function LeadMagnetSignup({
   className,
 }: LeadMagnetSignupProps) {
   const [email, setEmail] = useState('')
+  const [marketingOptIn, setMarketingOptIn] = useState(false)
+  const [website, setWebsite] = useState('')
   const [status, setStatus] = useState<FormState>('idle')
   const [feedback, setFeedback] = useState('')
 
@@ -63,6 +65,8 @@ export function LeadMagnetSignup({
           leadMagnetSlug: magnet.slug,
           location,
           sourcePage,
+          marketingOptIn,
+          website,
         }),
       })
 
@@ -70,6 +74,7 @@ export function LeadMagnetSignup({
         ok?: boolean
         downloadUrl?: string
         redirectTo?: string
+        emailDelivery?: 'sent' | 'skipped' | 'failed'
         error?: string
         message?: string
       }
@@ -87,8 +92,13 @@ export function LeadMagnetSignup({
       if (payload.downloadUrl) {
         startDownload(payload.downloadUrl)
         setStatus('success')
-        setFeedback('Pobieranie rozpoczęte. Link zapasowy wysłałem też na e-mail.')
+        setFeedback(
+          payload.message ??
+            'Pobieranie rozpocznie się za chwilę. Materiał możesz pobrać bezpośrednio z tej strony.',
+        )
         setEmail('')
+        setMarketingOptIn(false)
+        setWebsite('')
 
         if (payload.redirectTo) {
           window.setTimeout(() => {
@@ -106,6 +116,8 @@ export function LeadMagnetSignup({
       setStatus('success')
       setFeedback(payload.message ?? 'Zapis przyjęty.')
       setEmail('')
+      setMarketingOptIn(false)
+      setWebsite('')
     } catch (error) {
       setStatus('error')
       setFeedback(error instanceof Error ? error.message : 'Nie udało się zapisać do pobrania materiału.')
@@ -138,13 +150,42 @@ export function LeadMagnetSignup({
           />
         </div>
 
+        <div className="sr-only" aria-hidden="true">
+          <label htmlFor={`lead-magnet-website-${magnet.slug}-${location}`}>Strona internetowa</label>
+          <input
+            id={`lead-magnet-website-${magnet.slug}-${location}`}
+            name="website"
+            type="text"
+            value={website}
+            onChange={(event) => setWebsite(event.target.value)}
+            autoComplete="off"
+            tabIndex={-1}
+          />
+        </div>
+
         <div className="full-width hero-actions top-gap-small">
           <button type="submit" className="button button-primary" disabled={status === 'loading'}>
             {status === 'loading' ? 'Przygotowuję...' : magnet.ctaLabel}
           </button>
         </div>
 
-        <div className="full-width field-help">{magnet.note}</div>
+        <label className="full-width field-help" htmlFor={`lead-magnet-marketing-${magnet.slug}-${location}`}>
+          <input
+            id={`lead-magnet-marketing-${magnet.slug}-${location}`}
+            name="marketingOptIn"
+            type="checkbox"
+            checked={marketingOptIn}
+            onChange={(event) => setMarketingOptIn(event.target.checked)}
+          />{' '}
+          Opcjonalnie: zgadzam się na maksymalnie dwa dodatkowe e-maile z praktycznymi wskazówkami do tego materiału
+          (po około 3 i 7 dniach). Zgoda nie jest potrzebna do pobrania PDF; z każdej wiadomości można wypisać się
+          jednym kliknięciem.
+        </label>
+
+        <div className="full-width field-help">
+          Materiał będzie dostępny od razu na tej stronie. Dodatkowy link e-mail wysyłamy tylko wtedy, gdy wysyłka się
+          powiedzie.
+        </div>
 
         {feedback ? (
           <div className={`full-width info-box ${status === 'error' ? 'error-box' : ''}`}>

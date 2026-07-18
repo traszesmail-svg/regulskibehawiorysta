@@ -13,6 +13,8 @@ export type CommerceOrderStatus =
 
 export type CommerceAccessStatus = 'active' | 'used' | 'expired' | 'revoked'
 
+export type CommerceManualPaymentNotificationState = 'pending' | 'sending' | 'sent' | 'failed' | 'skipped'
+
 export type CommerceProductMeta = {
   bookingId?: string
   bookingAccessToken?: string | null
@@ -30,6 +32,12 @@ export type CommerceProductMeta = {
 export type CommerceOrder = {
   id: string
   orderNumber: string
+  /**
+   * High-entropy capability required to view or act on an individual order.
+   * The human-readable order number is a payment reference, never an access
+   * credential.
+   */
+  viewerToken: string
   customerEmail: string
   customerName: string
   customerPhone: string | null
@@ -58,8 +66,42 @@ export type CommerceOrder = {
   paidAt: string | null
   accessSentAt: string | null
   paymentReportedAt: string | null
+  manualPaymentBookingPendingAt: string | null
+  manualPaymentAdminNotificationState: CommerceManualPaymentNotificationState | null
+  manualPaymentAdminNotificationAttemptedAt: string | null
+  manualPaymentAdminNotificationSentAt: string | null
+  manualPaymentAdminNotificationFailure: string | null
   cancelledAt: string | null
   meta: CommerceProductMeta
+}
+
+const COMMERCE_VIEWER_QUERY_KEY = 'viewer'
+
+function withCommerceViewerToken(pathname: string, viewerToken: string) {
+  const url = new URL(pathname, 'https://commerce.local')
+  url.searchParams.set(COMMERCE_VIEWER_QUERY_KEY, viewerToken)
+  return `${url.pathname}${url.search}${url.hash}`
+}
+
+export function buildCommerceCheckoutHref(orderNumber: string, viewerToken: string) {
+  return withCommerceViewerToken(`/checkout?orderNumber=${encodeURIComponent(orderNumber)}`, viewerToken)
+}
+
+export function buildCommerceBlikHref(orderNumber: string, viewerToken: string) {
+  return withCommerceViewerToken(`/platnosc/blik/${encodeURIComponent(orderNumber)}`, viewerToken)
+}
+
+export function buildCommerceWaitingHref(orderNumber: string, viewerToken: string) {
+  return withCommerceViewerToken(`/oczekiwanie/${encodeURIComponent(orderNumber)}`, viewerToken)
+}
+
+export function buildCommerceOrderStatusHref(orderNumber: string, viewerToken: string) {
+  return withCommerceViewerToken(`/api/orders/${encodeURIComponent(orderNumber)}/status`, viewerToken)
+}
+
+export function readCommerceViewerToken(value: string | string[] | undefined | null) {
+  const token = Array.isArray(value) ? value[0] : value
+  return typeof token === 'string' ? token.trim() : ''
 }
 
 export type CommerceCreateOrderInput = {

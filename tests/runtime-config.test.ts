@@ -20,6 +20,8 @@ import { buildBookMetadata, buildHomeMetadata } from '@/lib/seo'
 import { getDeployReadinessChecks, getGoLiveChecks, getVerifiedDeployReadinessChecks } from '@/lib/server/go-live'
 import { getPaymentModeStatus } from '@/lib/server/env'
 import { getAccountLoginRedirectUrl } from '@/lib/server/account-auth'
+import { getSafeInternalReturnPath } from '@/lib/safe-return-path'
+import { createInMemoryRequestRateLimiter } from '@/lib/server/request-protection'
 import { isCommerceTestModeAllowed } from '@/lib/server/commerce-service'
 import { getQaCheckoutEligibility, getQaCheckoutPaymentReference, getPublicManualPaymentConfig } from '@/lib/server/payment-options'
 import { getOnlinePaymentRuntime, getOnlinePaymentRuntimeForConsultation } from '@/lib/server/online-payments'
@@ -292,6 +294,68 @@ test('account confirmation redirects use the canonical app URL and establish the
       assert.equal(getAccountLoginRedirectUrl('/pokoj'), 'https://regulskibehawiorysta.pl/login?returnTo=%2Fpokoj')
     },
   )
+})
+
+test('account return paths stay same-origin after query parsing and repeated URL decoding', () => {
+  assert.equal(getSafeInternalReturnPath('/pokoj'), '/pokoj')
+  assert.equal(getSafeInternalReturnPath('/mapa-sprawy?source=email'), '/mapa-sprawy?source=email')
+
+  for (const unsafePath of [
+    '//evil.example',
+    '/\\evil.example',
+    '/%5C%5Cevil.example',
+    '/%2F%2Fevil.example',
+    '/%252F%252Fevil.example',
+    'https://evil.example',
+    ' /pokoj',
+  ]) {
+    assert.equal(getSafeInternalReturnPath(unsafePath), '/pokoj')
+  }
+})
+
+test('account and access request limiter is isolated by endpoint and client fingerprint', () => {
+  const limiter = createInMemoryRequestRateLimiter()
+  const policy = { key: 'account-login', limit: 2, windowMs: 60_000 }
+  const firstClient = new Request('https://regulskibehawiorysta.pl/api/account/auth/login', {
+    headers: { 'x-forwarded-for': '203.0.113.10' },
+  })
+  const secondClient = new Request('https://regulskibehawiorysta.pl/api/account/auth/login', {
+    headers: { 'x-forwarded-for': '203.0.113.11' },
+  })
+
+  assert.deepEqual(limiter.consume(firstClient, policy, 1_000), { allowed: true })
+  assert.deepEqual(limiter.consume(firstClient, policy, 1_001), { allowed: true })
+  assert.deepEqual(limiter.consume(firstClient, policy, 1_002), { allowed: false, retryAfterSeconds: 60 })
+  assert.deepEqual(limiter.consume(secondClient, policy, 1_002), { allowed: true })
+  assert.deepEqual(limiter.consume(firstClient, policy, 61_001), { allowed: true })
+})
+
+test('account and access routes explicitly prevent private response storage', () => {
+  const accountAuthRoutes = [
+    readSource('app', 'api', 'account', 'auth', 'login', 'route.ts'),
+    readSource('app', 'api', 'account', 'auth', 'register', 'route.ts'),
+    readSource('app', 'api', 'account', 'auth', 'reset', 'route.ts'),
+    readSource('app', 'api', 'account', 'auth', 'confirm', 'route.ts'),
+    readSource('app', 'api', 'account', 'auth', 'update-password', 'route.ts'),
+  ]
+  const privateAccountRoutes = [
+    readSource('app', 'api', 'account', 'me', 'route.ts'),
+    readSource('app', 'api', 'account', 'messages', 'route.ts'),
+    readSource('app', 'api', 'account', 'pet', 'route.ts'),
+    readSource('app', 'api', 'account', 'case-maps', 'route.ts'),
+  ]
+  const accessRoutes = [
+    readSource('app', 'api', 'access', 'verify', 'route.ts'),
+    readSource('app', 'api', 'access', 'download', 'route.ts'),
+  ]
+
+  for (const routeSource of [...accountAuthRoutes, ...privateAccountRoutes, ...accessRoutes]) {
+    assert.match(routeSource, /PRIVATE_NO_STORE_HEADERS/)
+  }
+
+  for (const routeSource of [...accountAuthRoutes, ...accessRoutes]) {
+    assert.match(routeSource, /consumeRequestRateLimit/)
+  }
 })
 
 test('release smoke validates the intentional legacy online-page redirect without following it', () => {

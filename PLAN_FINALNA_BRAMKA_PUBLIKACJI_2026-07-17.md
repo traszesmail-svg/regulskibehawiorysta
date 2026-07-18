@@ -2,7 +2,7 @@
 
 Cel: potwierdzić gotowość obecnego wydania produkcyjnego przed publikacją. Każdy punkt zostaje oznaczony jako wykonany wyłącznie po zapisaniu dowodu (komenda, wynik, adres lub raport).
 
-Wydanie kontrolowane: `c210a6a fix: stabilize public lighthouse gate`.
+Wydanie kontrolowane: `119d958 fix: complete next 15 release hardening`.
 
 ## Plan podstawowy
 
@@ -25,6 +25,12 @@ _Wyniki będą dopisywane pod odpowiednimi punktami. Każdy nowy problem lub bra
 - Git: `main...origin/main`, commit `3fdf845ea4e4db2cf096712bc253dac684efb3b2` (`feat: add private Map analytics and profile claims`). Jedyną zmianą roboczą jest ten plik planu QA.
 - Produkcja: `dpl_2NLfKg9TMeCWpbPKNQn14eLqaXPB`, status `Ready`, adres wdrożenia `https://coapebehawiorysta-bha1vtayf-coapebehawiorysta-6608s-projects.vercel.app`.
 - Rollback: poprzednie gotowe wdrożenia produkcyjne są zachowane w Vercel; najbliższe poprzednie to `https://coapebehawiorysta-k6ceg8wad-coapebehawiorysta-6608s-projects.vercel.app`.
+
+### 1A. Stan produkcji po wznowieniu — 2026-07-18
+
+- Git: `main...origin/main` wskazuje `119d958` (`fix: complete next 15 release hardening`).
+- Produkcja: `dpl_AKPtCTwpK7KG3kifgYuZhgJC3hBr`, status `Ready`; aliasy obejmują `https://regulskibehawiorysta.pl` oraz `https://www.regulskibehawiorysta.pl`.
+- Publiczny marker z `/mapa-sprawy`: `CLEAN_START_REPO_V1:main:119d958`.
 
 ### 2. Lokalna bramka jakości — wykonano
 
@@ -128,7 +134,7 @@ _Wyniki będą dopisywane pod odpowiednimi punktami. Każdy nowy problem lub bra
 - [x] 49. **Odczyt lokalnego sandboxu bez zbędnego zapisu:** `readStore()` zapisuje wyłącznie po rzeczywistej zmianie normalizacyjnej; powtórzony sandbox Mapy przeszedł `CASE_MAP_BOOKING_SMOKE_OK` bez `EPERM`.
 - [x] 50. **Ostrzeżenie builda Edge:** porównanie z `HEAD` potwierdza, że dotyczy wyłącznie dziewięciu istniejących generatorów Open Graph z `runtime = 'edge'`; nie jest regresją tej migracji, a build produkcyjny jest poprawny.
 - [x] 51. **Lokalny smoke produkcyjny:** serwer `next start` potwierdził trasy `/`, `/mapa-sprawy`, `/book`, redirect i fallback bez JS `13/13`; release smoke przeszedł na celowym lokalnym markerze `CLEAN_START_REPO_V1:local:local`.
-- [ ] 52. **Runtime Supabase Auth po deployu:** lokalny sandbox celowo nie ma Supabase Auth, więc potwierdzenie pełnej konsultacji loguje kontrolowany fallback tworzenia linku hasła do konta. Po wdrożeniu wykonać odczytowy probe auth z błędnym bearerem i sprawdzić logi Vercel, bez tworzenia rezerwacji ani wysyłki e-maila.
+- [x] 52. **Runtime Supabase Auth po deployu:** dla produkcyjnego `119d958` odczytowy probe `GET /api/account/me` z celowo błędnym bearerem zwrócił oczekiwane `401` z komunikatem o niepoprawnej sesji, bez `500` ani błędu konfiguracji. `vercel logs --level error --since 1h` nie zwrócił błędów. Nie utworzono rezerwacji ani nie wysłano e-maila.
 - [x] 53. **Celowe wyłączenie linta wewnątrz `next build`:** komunikat `Linting is disabled` pochodzi z zamierzonego `next build --no-lint`; natywny `npm run lint` zawsze wykonuje się wcześniej i końcowo przeszedł bez błędów.
 
 ### Bramka lokalnego kandydata — PASS
@@ -138,3 +144,17 @@ _Wyniki będą dopisywane pod odpowiednimi punktami. Każdy nowy problem lub bra
 - `npm run lint`, `npm run schema-audit`, `npm run case-map-smoke`, `npm run ui-smoke`, `npm run build` — PASS.
 - UI E2E potwierdził flow płatności ręcznej, oba warianty pokoju i końcowe sprzątanie procesów.
 - `npm audit --omit=dev --json` — 0/0; pełny audit ma wyłącznie opisany w zadaniu 32 dev-only pozostały poziom moderate/low, bez high/critical.
+
+### Zadania wykryte w trakcie weryfikacji publicznej
+
+- [x] 54. **Aktualność kontraktu release checklist po migracji linta:** statyczne oczekiwania zsynchronizowano z `eslint . --no-cache` oraz `npm run lint && next build --no-lint`; publiczny checklist przeszedł ponownie 18/18 i smoke 6/6.
+- [x] 55. **Domknięcie pełnego crawla publicznego:** pełny przebieg z domyślnym oczekiwaniem `networkidle` po 15 s na każdy wariant strony przekroczył zewnętrzny limit 20 minut bez raportu. Crawl renderuje teraz desktop i mobile równolegle, wykonuje konfigurowalne krótkie oczekiwanie po `domcontentloaded` oraz screenshot viewportu (pełna strona pozostaje opcją QA). Końcowy publiczny raport przeszedł w 384 s: 98 tras, 200=98, 0 awarii, 0 błędów konsoli i 0 overflowu.
+- [x] 56. **Tytuł po redirectcie `/slot → /book`:** niezależny HTML i stabilna nawigacja Chrome potwierdziły poprawny tytuł `Rezerwacja Kwadransa behawioralnego | Regulski Behawiorysta`; crawler czeka teraz na ponowne ustawienie `document.title` wyłącznie, gdy redirect chwilowo je wyczyści. Końcowy crawl nie ma już medium findingów.
+- [x] 57. **Świeża sesja prywatności Mapy:** pierwsza asercja QA błędnie zakładała, że na ekranie startowym są naraz dwa CTA; zgodny z flow widok startowy ma widoczną `Szybką mapę`, a `Pełniejsza mapa` występuje później w ścieżce. Desktop i mobile potwierdziły: HTTP 200, widoczna Szybka mapa, 0 bannerów zgód, 0 żądań GA/GTM/Meta i 0 overflowu.
+- [x] 58. **Rzeczywista gotowość warstwy danych po deployu:** lokalny snapshot `live-readiness` był fałszywie negatywny, ponieważ Vercel nie eksportuje wartości sensitive. Produkcyjny endpoint Auth przechodzi przez `getSupabaseServerConfig()` i zwrócił domenowy `401` niepoprawnej sesji, a nie błąd brakującej konfiguracji; potwierdzono też nazwę `SUPABASE_SERVICE_ROLE_KEY` w środowisku Vercel oraz brak błędów runtime. Endpoint `/api/availability` nie był wywoływany, ponieważ jego jedyna metoda `POST` tworzy slot; zachowano brak zapisu danych klienta.
+
+### Bramka końcowa po wznowieniu — PASS techniczny
+
+- Lokalnie po wznowieniu: `npm run lint`, `npx tsc --noEmit`, `npm run test` (122/0/13), `npm run schema-audit` i `npm run build` — PASS.
+- Publicznie po wznowieniu: release checklist — PASS, 18 kontroli i 6 tras smoke; świeży pełny crawl — PASS w 369,7 s: 98 tras, `200=98`, 0 awarii, 0 blockerów/High/Medium i 0 overflowu.
+- Zakres PASS nie obejmuje celowej, rzeczywistej rezerwacji produkcyjnej ani wysyłki e-maila; takie działanie wymagałoby osobnej zgody i sprzątania danych QA.

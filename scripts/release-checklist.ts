@@ -19,9 +19,9 @@ const reportDir = path.join(rootDir, 'qa-reports')
 const latestReportPath = path.join(reportDir, 'latest-release-checklist.md')
 
 const REQUIRED_PACKAGE_SCRIPTS: Record<string, string> = {
-  lint: 'next lint --no-cache',
+  lint: 'eslint . --no-cache',
   test: 'node --import tsx --test tests/runtime-config.test.ts tests/customer-emails.test.ts tests/funnel-metrics.test.ts tests/booking-api-errors.test.ts tests/scheduling-rules.test.ts tests/promo-codes.test.ts tests/voip-chat-limits.test.ts tests/quiz-first-step.test.ts tests/quiz-booking-handoff.test.ts tests/case-map.test.ts tests/case-map-questions.test.ts tests/case-map-handoff.test.ts tests/case-map-analytics.test.ts',
-  build: 'next lint --no-cache && next build --no-lint',
+  build: 'npm run lint && next build --no-lint',
   'schema-audit': 'node scripts/schema-audit.js',
   'live-smoke': 'node --import tsx scripts/live-smoke.ts',
   'live-readiness': 'node --import tsx scripts/live-readiness.ts',

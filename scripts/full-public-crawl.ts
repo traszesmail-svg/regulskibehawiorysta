@@ -56,6 +56,9 @@ const htmlDir = path.join(reportRoot, 'html')
 const manifestsDir = path.join(reportRoot, 'manifests')
 const shouldFollowDiscoveredLinks = !process.argv.includes('--no-follow') && process.env.FULL_CRAWL_FOLLOW_LINKS?.trim() !== '0'
 const shouldSaveScreenshots = !process.argv.includes('--no-screenshots') && process.env.FULL_CRAWL_SCREENSHOTS?.trim() !== '0'
+const networkIdleTimeoutMs = Math.max(0, Number.parseInt(process.env.FULL_CRAWL_NETWORK_IDLE_TIMEOUT_MS?.trim() || '1500', 10) || 1500)
+const pageSettleTimeMs = Math.max(0, Number.parseInt(process.env.FULL_CRAWL_SETTLE_MS?.trim() || '500', 10) || 500)
+const shouldUseFullPageScreenshots = process.env.FULL_CRAWL_FULL_PAGE_SCREENSHOTS?.trim() === '1'
 const contentDir = path.join(rootDir, 'content')
 const blogDir = path.join(contentDir, 'blog-mvp')
 const blogRoutePaths = readdirSync(blogDir, { withFileTypes: true })
@@ -439,9 +442,18 @@ async function crawlPage(
   try {
     const response = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 })
     responseStatus = response?.status() ?? null
-    await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {})
-    await page.waitForTimeout(800)
+    // Many public routes keep analytics or RSC connections alive. DOM content is
+    // already rendered at this point; cap the optional idle wait so a healthy
+    // full crawl cannot spend 15 seconds per viewport waiting for background IO.
+    await page.waitForLoadState('networkidle', { timeout: networkIdleTimeoutMs }).catch(() => {})
+    await page.waitForTimeout(pageSettleTimeMs)
 
+    // Client redirects can briefly clear the document title while the target
+    // route metadata is being applied. Wait only when that transient is seen,
+    // then collect the final URL and title together.
+    if (!cleanText(await page.title().catch(() => ''))) {
+      await page.waitForFunction(() => document.title.trim().length > 0, { timeout: 5000 }).catch(() => {})
+    }
     const finalUrl = normalizeUrl(page.url(), baseUrl)
     const title = cleanText(await page.title().catch(() => ''))
     const html = await page.content()
@@ -522,7 +534,7 @@ async function crawlPage(
       await saveString(snapshotPaths.html, html)
     }
     if (shouldSaveScreenshots) {
-      await takeScreenshot(page, mode === 'desktop' ? snapshotPaths.desktop : snapshotPaths.mobile, true)
+      await takeScreenshot(page, mode === 'desktop' ? snapshotPaths.desktop : snapshotPaths.mobile, shouldUseFullPageScreenshots)
     }
 
     return {
@@ -681,10 +693,16 @@ async function run() {
       }
 
       const snapshotPaths = getSnapshotPaths(currentUrl)
-      const desktopResult = await crawlPage(desktopContext, currentUrl, 'desktop', baseUrl, snapshotPaths).catch((error: Error) => {
-        crawlFailures.push({ url: currentUrl, mode: 'desktop', error: cleanText(error.stack ?? error.message) })
-        return null
-      })
+      const [desktopResult, mobileResult] = await Promise.all([
+        crawlPage(desktopContext, currentUrl, 'desktop', baseUrl, snapshotPaths).catch((error: Error) => {
+          crawlFailures.push({ url: currentUrl, mode: 'desktop', error: cleanText(error.stack ?? error.message) })
+          return null
+        }),
+        crawlPage(mobileContext, currentUrl, 'mobile', baseUrl, snapshotPaths).catch((error: Error) => {
+          crawlFailures.push({ url: currentUrl, mode: 'mobile', error: cleanText(error.stack ?? error.message) })
+          return null
+        }),
+      ])
 
       if (desktopResult) {
         row.requestedUrl = desktopResult.requestedUrl
@@ -732,11 +750,6 @@ async function run() {
           }
         }
       }
-
-      const mobileResult = await crawlPage(mobileContext, currentUrl, 'mobile', baseUrl, snapshotPaths).catch((error: Error) => {
-        crawlFailures.push({ url: currentUrl, mode: 'mobile', error: cleanText(error.stack ?? error.message) })
-        return null
-      })
 
       if (mobileResult) {
         row.mobileIssues = mobileResult.issues
@@ -835,7 +848,8 @@ async function run() {
         .join(', ') || 'none'}`,
       `- Crawl coverage: ${crawlFailures.length === 0 ? 'full' : 'partial with failures'}`,
       `- Follow discovered links: ${shouldFollowDiscoveredLinks ? 'yes' : 'no'}`,
-      `- Screenshots: ${shouldSaveScreenshots ? 'yes' : 'no'}`,
+      `- Screenshots: ${shouldSaveScreenshots ? (shouldUseFullPageScreenshots ? 'full-page' : 'viewport') : 'no'}`,
+      `- Network-idle settle cap: ${networkIdleTimeoutMs} ms per viewport`,
       '',
       '## Artifacts',
       `- Manifest JSON: [manifests/manifest.json](./manifests/manifest.json)`,

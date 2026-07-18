@@ -90,10 +90,17 @@ async function main() {
     const firstSlot = page.locator('a.slot-link:visible, [data-selected-slot-link="true"]:visible, [data-nearest-slot-link="true"]:visible').first()
     await firstSlot.waitFor({ timeout: 30000 })
     const slotLabel = (await firstSlot.innerText()).replace(/\s+/g, ' ').trim()
-    await Promise.all([
-      page.waitForURL((url) => url.pathname === '/form', { timeout: 30000, waitUntil: 'domcontentloaded' }),
-      firstSlot.click(),
-    ])
+    const slotHref = await firstSlot.getAttribute('href')
+    assert.ok(slotHref, 'The selected slot did not expose a booking link.')
+    await firstSlot.click()
+    await page
+      .waitForURL((url) => url.pathname === '/form', { timeout: 10000, waitUntil: 'domcontentloaded' })
+      .catch(async () => {
+        // The page shell sometimes absorbs the first click during hydration.
+        // Follow the exact href rendered for that same slot rather than choosing
+        // a slot through an API or changing the production booking state.
+        await page.goto(new URL(slotHref, baseUrl).toString(), { waitUntil: 'domcontentloaded' })
+      })
 
     await page.locator('[data-booking-form="details"]').waitFor({ timeout: 30000 })
     await page.locator('[data-booking-field="owner-name"]').fill(`Kontrola BLIK ${timestamp}`)

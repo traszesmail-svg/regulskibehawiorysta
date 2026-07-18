@@ -40,6 +40,11 @@ export type PaymentReferenceSummaryRow = {
   value: string
 }
 
+export type PaymentReferenceSummarySafety = {
+  title: string
+  description: string
+}
+
 type PaymentReferenceLayoutProps = {
   eyebrow?: string
   title: string
@@ -51,6 +56,7 @@ type PaymentReferenceLayoutProps = {
   lineItemLabel: string
   lineItemAmount: string
   totalLabel?: string
+  summarySafety?: PaymentReferenceSummarySafety | null
   children: ReactNode
 }
 
@@ -154,13 +160,22 @@ function PaymentReferenceSummary({
   lineItemLabel,
   lineItemAmount,
   totalLabel,
+  summarySafety,
 }: {
   title?: string
   rows: PaymentReferenceSummaryRow[]
   lineItemLabel: string
   lineItemAmount: string
   totalLabel?: string
+  summarySafety?: PaymentReferenceSummarySafety | null
 }) {
+  const safety = summarySafety === undefined
+    ? {
+        title: 'Bezpiecznie i przez e-mail',
+        description: 'Termin jest pewny po potwierdzeniu płatności. Po potwierdzeniu dostajesz dalszy krok i link do rozmowy.',
+      }
+    : summarySafety
+
   return (
     <aside className="payment-ref-summary">
       <h2>{title}</h2>
@@ -189,13 +204,15 @@ function PaymentReferenceSummary({
           <strong>{lineItemAmount}</strong>
         </div>
       </div>
-      <div className="payment-ref-safety">
-        <ShieldCheck aria-hidden="true" />
-        <span>
-          <strong>Bezpiecznie i przez e-mail</strong>
-          <em>Termin jest pewny po potwierdzeniu płatności. Po potwierdzeniu dostajesz dalszy krok i link do rozmowy.</em>
-        </span>
-      </div>
+      {safety ? (
+        <div className="payment-ref-safety">
+          <ShieldCheck aria-hidden="true" />
+          <span>
+            <strong>{safety.title}</strong>
+            <em>{safety.description}</em>
+          </span>
+        </div>
+      ) : null}
     </aside>
   )
 }
@@ -350,6 +367,7 @@ export function PaymentReferenceLayout({
   lineItemLabel,
   lineItemAmount,
   totalLabel,
+  summarySafety,
   children,
 }: PaymentReferenceLayoutProps) {
   const isCompact = variant === 'compact'
@@ -394,6 +412,7 @@ export function PaymentReferenceLayout({
             lineItemLabel={lineItemLabel}
             lineItemAmount={lineItemAmount}
             totalLabel={totalLabel}
+            summarySafety={summarySafety}
           />
         </section>
         {isCompact ? null : (

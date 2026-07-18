@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server'
 import { getLeadBookingById, updateLeadBooking } from '@/lib/server/lead-bookings'
 import { verifyConfirmToken } from '@/lib/admin-confirm-token'
 import { sendLeadBookingConfirmedEmail } from '@/lib/server/notifications'
-import { createRoomPasswordSetupLink } from '@/lib/server/account-auth'
+import { createRoomPasswordSetupLink, getAccountLoginRedirectUrl } from '@/lib/server/account-auth'
 
 const SERVICE_DURATION_MINUTES: Record<string, number> = {
   'kwadrans-na-juz': 15,
@@ -87,7 +87,7 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
 
   let roomSetupUrl: string | null = null
   try {
-    roomSetupUrl = await createRoomPasswordSetupLink(booking.email, `${new URL(request.url).origin}/login`)
+    roomSetupUrl = await createRoomPasswordSetupLink(booking.email, getAccountLoginRedirectUrl())
   } catch (error) {
     console.error('[confirm-payment] room setup link failed', { id: params.id, error })
   }

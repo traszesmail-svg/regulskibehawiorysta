@@ -1,16 +1,10 @@
 import { NextResponse } from 'next/server'
 import { ConfigurationError } from '@/lib/server/env'
-import { getAccountUserFromAccessToken, setAccountSessionCookies, signUpAccount } from '@/lib/server/account-auth'
+import { getAccountLoginRedirectUrl, getAccountUserFromAccessToken, setAccountSessionCookies, signUpAccount } from '@/lib/server/account-auth'
 import { claimPendingCaseMapProfileClaimsForUser } from '@/lib/server/case-map-profile-claims'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
-
-function getBaseUrl(request: Request) {
-  const origin = request.headers.get('origin')
-  if (origin) return origin
-  return process.env.NEXT_PUBLIC_APP_URL ?? new URL(request.url).origin
-}
 
 function getSafeReturnTo(value: unknown) {
   return typeof value === 'string' && value.startsWith('/') && !value.startsWith('//') ? value : '/pokoj'
@@ -36,7 +30,7 @@ export async function POST(request: Request) {
     }
 
     const returnTo = getSafeReturnTo(body.returnTo)
-    const redirectTo = `${getBaseUrl(request)}/login?returnTo=${encodeURIComponent(returnTo)}`
+    const redirectTo = getAccountLoginRedirectUrl(returnTo)
     const session = await signUpAccount(email, password, redirectTo)
     let caseMapProfileClaimed = false
     if (session) {

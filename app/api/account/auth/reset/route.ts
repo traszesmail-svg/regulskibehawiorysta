@@ -1,15 +1,9 @@
 import { NextResponse } from 'next/server'
 import { ConfigurationError } from '@/lib/server/env'
-import { sendAccountPasswordReset } from '@/lib/server/account-auth'
+import { getAccountLoginRedirectUrl, sendAccountPasswordReset } from '@/lib/server/account-auth'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
-
-function getBaseUrl(request: Request) {
-  const origin = request.headers.get('origin')
-  if (origin) return origin
-  return process.env.NEXT_PUBLIC_APP_URL ?? new URL(request.url).origin
-}
 
 export async function POST(request: Request) {
   try {
@@ -20,7 +14,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: 'Podaj email.' }, { status: 400 })
     }
 
-    await sendAccountPasswordReset(email, `${getBaseUrl(request)}/login`)
+    await sendAccountPasswordReset(email, getAccountLoginRedirectUrl())
     return NextResponse.json({ ok: true })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Nie udało się wysłać linku.'

@@ -1,6 +1,6 @@
 import { createClient, type Session, type User } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
-import { ConfigurationError, getSupabaseServerConfig } from '@/lib/server/env'
+import { ConfigurationError, getBaseUrl, getSupabaseServerConfig } from '@/lib/server/env'
 
 export const ACCOUNT_ACCESS_COOKIE = 'regulski_account_access'
 export const ACCOUNT_REFRESH_COOKIE = 'regulski_account_refresh'
@@ -83,6 +83,16 @@ export function readRefreshToken(request: Request) {
   return readCookie(request.headers.get('cookie'), ACCOUNT_REFRESH_COOKIE)
 }
 
+export function getAccountLoginRedirectUrl(returnTo?: string) {
+  const url = new URL('/login', getBaseUrl())
+
+  if (returnTo) {
+    url.searchParams.set('returnTo', returnTo)
+  }
+
+  return url.toString()
+}
+
 export async function signInAccount(email: string, password: string) {
   const supabase = getSupabaseAuthClient()
   const { data, error } = await supabase.auth.signInWithPassword({
@@ -112,6 +122,20 @@ export async function signUpAccount(email: string, password: string, redirectTo:
   }
 
   return data.session ?? null
+}
+
+export async function confirmAccountSession(accessToken: string, refreshToken: string) {
+  const supabase = getSupabaseAuthClient()
+  const { data, error } = await supabase.auth.setSession({
+    access_token: accessToken,
+    refresh_token: refreshToken,
+  })
+
+  if (error || !data.session) {
+    throw new ConfigurationError(error?.message ?? 'Nie udało się potwierdzić sesji konta.')
+  }
+
+  return data.session
 }
 
 export async function sendAccountPasswordReset(email: string, redirectTo: string) {

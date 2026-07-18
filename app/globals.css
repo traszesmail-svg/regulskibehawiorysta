@@ -19611,6 +19611,79 @@ select:focus-visible {
   margin-top: 18px;
 }
 
+.payment-ref-confirmation-content {
+  display: grid;
+  gap: 18px;
+}
+
+.payment-ref-confirmation-content > .top-gap,
+.payment-ref-confirmation-content > .top-gap-small {
+  margin-top: 0;
+}
+
+.payment-ref-confirmation-content .success-badge {
+  justify-self: start;
+  margin: -8px 0 0;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(176, 123, 63, 0.12);
+  border: 1px solid rgba(176, 123, 63, 0.2);
+  color: #8a5f2c;
+  font-size: 12px;
+}
+
+.payment-ref-confirmation-content[data-confirmation-state='confirmed'] .success-badge {
+  background: rgba(47, 118, 103, 0.12);
+  border-color: rgba(47, 118, 103, 0.2);
+  color: var(--accent-2);
+}
+
+.payment-ref-confirmation-content[data-confirmation-state='manual-rejected'] .success-badge,
+.payment-ref-confirmation-content[data-confirmation-state='closed'] .success-badge,
+.payment-ref-confirmation-content[data-confirmation-state='self-cancelled'] .success-badge {
+  background: rgba(138, 48, 34, 0.1);
+  border-color: rgba(138, 48, 34, 0.18);
+  color: var(--danger);
+}
+
+.payment-ref-confirmation-details {
+  margin-top: -8px;
+}
+
+.payment-ref-confirmation-flow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.payment-ref-confirmation-content .list-card,
+.payment-ref-confirmation-content .prep-checklist {
+  border: 1px solid rgba(72, 64, 50, 0.12);
+  border-radius: 14px;
+  background: rgba(250, 247, 239, 0.72);
+  box-shadow: none;
+}
+
+.payment-ref-confirmation-content .list-card {
+  padding: 16px;
+}
+
+.payment-ref-confirmation-content .list-card strong,
+.payment-ref-confirmation-content .prep-checklist strong {
+  color: var(--ref-ink);
+}
+
+.payment-ref-confirmation-content .list-card span,
+.payment-ref-confirmation-content .prep-checklist li {
+  color: #475149;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.payment-ref-confirmation-actions {
+  margin-top: 2px;
+}
+
 .payment-ref-disclosure {
   border: 1px solid rgba(72, 64, 50, 0.12);
   border-radius: 12px;
@@ -20486,6 +20559,7 @@ select:focus-visible {
 
   .payment-ref-method-tabs,
   .payment-ref-mini-grid,
+  .payment-ref-confirmation-flow,
   .payment-ref-trust,
   .cat-ref-values,
   .cat-ref-proof-strip,

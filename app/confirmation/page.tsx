@@ -2,20 +2,22 @@
 import Link from 'next/link'
 import { unstable_noStore as noStore } from 'next/cache'
 import { headers } from 'next/headers'
-import { CalendarDays } from 'lucide-react'
 import { AnalyticsEventOnMount } from '@/components/AnalyticsEventOnMount'
-import { BookingStageEyebrow } from '@/components/BookingStageEyebrow'
 import { BookingReminderOptIn } from '@/components/BookingReminderOptIn'
 import { getBookingAnalyticsContextParams } from '@/lib/analytics-schema'
 import { CustomerEmailStatusNotice } from '@/components/CustomerEmailStatusNotice'
 import { ConfirmationStatusWatcher } from '@/components/ConfirmationStatusWatcher'
 import { HardNavLink } from '@/components/HardNavLink'
-import { NotatnikPageShell, PUBLIC_BOOKING_FLOW_NAV_ITEMS } from '@/components/NotatnikA'
+import {
+  PaymentReferenceCardTitle,
+  PaymentReferenceLayout,
+  type PaymentReferenceSummaryRow,
+} from '@/components/PaymentReferenceLayout'
 import { PreparationMaterialsCard } from '@/components/PreparationMaterialsCard'
 import { SelfCancellationActions } from '@/components/SelfCancellationActions'
-import { COPY_HELPERS } from '@/lib/copy-governance'
 import {
   type BookingServiceType,
+  getBookingServiceDurationLabel,
   getBookingServiceRoomAccessLabel,
   getBookingServiceTitle,
   resolveBookingServiceType,
@@ -33,8 +35,6 @@ import { SmsConfirmationStatus } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
-
-const bookingFlowSteps = ['Termin', 'Godzina', 'Dane', 'Płatność'] as const
 
 export function generateMetadata(): Metadata {
   return buildTechnicalMetadata({
@@ -259,53 +259,162 @@ export default async function ConfirmationPage(
   const confirmedFlowCards =
     booking && bookingServiceType ? getConfirmedFlowCards(bookingServiceType, roomAccessLabel, customerEmailStatus?.state === 'ready', booking.email) : []
   const pushPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY?.trim() || null
+  const confirmationSummaryRows: PaymentReferenceSummaryRow[] = booking
+    ? [
+        {
+          icon: 'calendar',
+          label: 'Termin',
+          value: formatDateTimeLabel(booking.bookingDate, booking.bookingTime),
+        },
+        {
+          icon: 'form',
+          label: 'Forma',
+          value: roomAccessLabel,
+        },
+        {
+          icon: 'problem',
+          label: 'Problem',
+          value: getProblemLabel(booking.problemType),
+        },
+        {
+          icon: 'duration',
+          label: 'Czas trwania',
+          value: bookingServiceType ? getBookingServiceDurationLabel(bookingServiceType) : '15 minut',
+        },
+      ]
+    : [
+        {
+          icon: 'calendar',
+          label: 'Termin',
+          value: 'Link do rezerwacji',
+        },
+        {
+          icon: 'form',
+          label: 'Forma',
+          value: 'Rozmowa online',
+        },
+        {
+          icon: 'problem',
+          label: 'Problem',
+          value: 'Do sprawdzenia',
+        },
+        {
+          icon: 'duration',
+          label: 'Czas trwania',
+          value: '15–30 minut',
+        },
+      ]
+  const confirmationTitle = flowError
+    ? 'Potwierdzenie rezerwacji chwilowo niedostępne'
+    : !booking
+      ? 'Potwierdzenie rezerwacji wygasło'
+      : isSelfCancelled
+        ? 'Rezerwacja została anulowana'
+        : isConfirmed
+          ? qaBooking
+            ? 'Testowa płatność została potwierdzona'
+            : isPromoPayment
+              ? `Termin na ${serviceLabel} został potwierdzony kodem promocyjnym`
+              : `Wpłata za ${serviceLabel} została potwierdzona`
+          : isWaitingManual
+            ? 'Czekamy na potwierdzenie wpłaty.'
+            : isRejected
+              ? 'Wpłata nie została potwierdzona'
+              : isClosed
+                ? 'Rezerwacja nie jest już aktywna'
+                : 'Sprawdzamy status wpłaty'
+  const confirmationLead = flowError
+    ? 'Spróbuj ponownie za chwilę albo wróć do rezerwacji.'
+    : !booking
+      ? 'Ten link do potwierdzenia jest nieprawidłowy albo wygasł.'
+      : isSelfCancelled
+        ? 'Termin wrócił do kalendarza, a płatność została cofnięta. Możesz od razu wybrać nowy termin albo wrócić później.'
+        : isConfirmed
+          ? qaBooking
+            ? 'To jest rezerwacja testowa. Poniżej masz potwierdzenie i kolejny krok bez realnej płatności.'
+            : isPromoPayment
+              ? `Kod promocyjny został przyjęty. Poniżej masz podsumowanie rezerwacji, status wiadomości, ${roomAccessLabel} i dalszy krok.`
+              : `Wpłata jest już potwierdzona. Poniżej masz podsumowanie rezerwacji, status wiadomości, ${roomAccessLabel} i dalszy krok.`
+          : isWaitingManual
+            ? `Sprawdzamy wpłatę ręcznie i potwierdzimy ją w godzinach obsługi. Gdy status zmieni się na opłacony, zobaczysz ${roomAccessLabel} i sekcję materiałów.`
+            : isRejected
+              ? booking.paymentRejectedReason ?? 'Termin wrócił do puli. Jeśli trzeba, utwórz nową rezerwację i zgłoś wpłatę ponownie.'
+              : isClosed
+                ? 'Ta rezerwacja nie jest już aktywna. Jeśli chcesz, wybierz nowy termin.'
+                : 'Status rezerwacji jest jeszcze domykany. Ta strona sprawdzi go ponownie za chwilę.'
+  const confirmationCardTitle = isWaitingManual
+    ? 'Wpłata została zgłoszona'
+    : isConfirmed
+      ? 'Potwierdzenie rezerwacji'
+      : isSelfCancelled
+        ? 'Rezerwacja została anulowana'
+        : isRejected
+          ? 'Wpłata niepotwierdzona'
+          : isClosed
+            ? 'Rezerwacja zamknięta'
+            : 'Status rezerwacji'
+  const confirmationCardLead = isWaitingManual
+    ? 'Wpłata jest zapisana pod właściwym tytułem. Po ręcznym potwierdzeniu odblokujemy dalszy krok.'
+    : isConfirmed
+      ? 'Termin i kolejne kroki są zapisane pod tym linkiem.'
+      : 'Najważniejsze informacje o rezerwacji są zapisane pod tym linkiem.'
+  const confirmationSummarySafety = isSelfCancelled || isRejected || isClosed
+    ? {
+        title: 'Status rezerwacji',
+        description: 'Ta rezerwacja nie jest już aktywna. Jeśli potrzebujesz nowego terminu, wybierz go od początku.',
+      }
+    : isConfirmed
+      ? {
+          title: 'Wpłata potwierdzona',
+          description: `Termin jest zapisany. Link do ${roomAccessLabel} i dalszą instrukcję masz na tej stronie.`,
+        }
+      : {
+          title: 'Czekamy na potwierdzenie',
+          description: 'Wpłatę sprawdzamy ręcznie w godzinach obsługi. Nie musisz wykonywać ponownie płatności.',
+        }
+  const confirmationAmount = booking ? (isPromoPayment ? '0 zł' : formatPricePln(booking.amount)) : 'Do ustalenia'
+  const confirmationTotalLabel = isPromoPayment
+    ? 'Rozliczenie'
+    : isConfirmed
+      ? 'Opłacono'
+      : isWaitingManual
+        ? 'BLIK po instrukcji'
+        : 'Razem'
 
   return (
-    <NotatnikPageShell
-      tag="Potwierdzenie rezerwacji"
-      pageClassName="confirmation-page"
-      navItems={PUBLIC_BOOKING_FLOW_NAV_ITEMS}
-      ctaHref={quickAudioHref}
-      ctaLabel={FUNNEL_CTA_LABELS.primary}
-      footerPrimaryHref={quickAudioHref}
-      footerPrimaryLabel={FUNNEL_CTA_LABELS.primary}
+    <PaymentReferenceLayout
+      title={confirmationTitle}
+      lead={confirmationLead}
+      variant="compact"
+      summaryRows={confirmationSummaryRows}
+      lineItemLabel={bookingServiceTitle ?? 'Konsultacja behawioralna'}
+      lineItemAmount={confirmationAmount}
+      totalLabel={confirmationTotalLabel}
+      summarySafety={confirmationSummarySafety}
     >
-      <div className="container">
-        <section className="booking-flow-stage-head confirmation-flow-stage-head" aria-label="Etap rezerwacji">
-          <div className="termin-breadcrumb">
-            <CalendarDays size={15} strokeWidth={1.85} aria-hidden="true" />
-            <span>Wybór terminu</span>
-          </div>
-          <div className="termin-step-track booking-flow-step-track" aria-label="Etapy rezerwacji">
-            {bookingFlowSteps.map((step, index) => (
-              <span key={step} className={index === 3 ? 'is-active' : ''}>
-                <strong>{index + 1}</strong>
-                {step}
-              </span>
-            ))}
-          </div>
-        </section>
-
-        <section className="panel centered-panel hero-surface booking-stage-panel transaction-panel booking-flow-panel" data-confirmation-state={confirmationState} data-booking-id={booking?.id ?? ''}>
-          <BookingStageEyebrow stage="confirmation" className="section-eyebrow" />
-          {isConfirmed ? <div className="muted top-gap-small">{COPY_HELPERS.aftercareConfirmation}</div> : null}
+      <div
+        className="payment-ref-confirmation-content"
+        data-confirmation-state={confirmationState}
+        data-booking-id={booking?.id ?? ''}
+        data-customer-email-state={customerEmailStatus?.state ?? 'unknown'}
+      >
           {flowError ? (
-            <div className="stack-gap">
-              <h1>Potwierdzenie rezerwacji chwilowo niedostępne</h1>
+            <div className="payment-ref-stack">
               <div className="error-box">
                 {flowError} Użyj krótkiej wiadomości albo wróć do rezerwacji, jeśli chcesz sprawdzić wszystko jeszcze raz.
               </div>
-              <div className="hero-actions centered-actions">
-                <HardNavLink href={quickAudioHref} className="button button-primary big-button">
+              <div className="payment-ref-button-row">
+                <HardNavLink href={quickAudioHref} className="payment-ref-submit">
                   Wróć do rezerwacji
                 </HardNavLink>
-                <HardNavLink href="/kontakt#formularz" className="button button-ghost big-button">
+                <HardNavLink href="/kontakt#formularz" className="payment-ref-secondary-button">
                   {FUNNEL_CTA_LABELS.contact}
                 </HardNavLink>
               </div>
             </div>
           ) : booking ? (
             <>
+              <PaymentReferenceCardTitle title={confirmationCardTitle}>{confirmationCardLead}</PaymentReferenceCardTitle>
               <div className="success-badge">
                 {isSelfCancelled
                   ? 'Zakup anulowany'
@@ -336,65 +445,31 @@ export default async function ConfirmationPage(
                   }),
                 }}
               />
-              <h1>
-                {isSelfCancelled
-                  ? 'Rezerwacja została anulowana'
-                  : isConfirmed
-                    ? qaBooking
-                      ? 'Testowa płatność została potwierdzona'
-                      : isPromoPayment
-                        ? `Termin na ${serviceLabel} został potwierdzony kodem promocyjnym`
-                        : `Wpłata za ${serviceLabel} została potwierdzona`
-                    : isWaitingManual
-                      ? 'Wpłata czeka na potwierdzenie'
-                      : isRejected
-                        ? 'Nie znaleziono wpłaty do tej rezerwacji'
-                        : 'Płatność nie została jeszcze potwierdzona'}
-              </h1>
-              <p className="hero-text small-width center-text">
-                {isSelfCancelled
-                  ? 'Termin wrócił do kalendarza, a płatność została cofnięta. Jeśli chcesz, możesz od razu wybrać nowy termin albo wrócić później.'
-                  : isConfirmed
-                    ? qaBooking
-                      ? 'To jest rezerwacja testowa. Poniżej masz potwierdzenie i kolejny krok bez realnej płatności.'
-                      : isPromoPayment
-                        ? `Kod promocyjny został przyjęty. Poniżej masz podsumowanie rezerwacji, status wiadomości, ${roomAccessLabel} i dalszy krok.`
-                        : `Wpłata jest już potwierdzona. Poniżej masz podsumowanie rezerwacji, status wiadomości, ${roomAccessLabel} i dalszy krok.`
-                    : isWaitingManual
-                      ? `Sprawdzamy wpłatę ręczną i potwierdzimy ją w godzinach obsługi. Gdy status zmieni się na opłacony, zobaczysz ${roomAccessLabel} i sekcję materiałów.`
-                      : isRejected
-                        ? booking.paymentRejectedReason ?? 'Termin wrócił do puli. Jeśli trzeba, utwórz nową rezerwację i zgłoś wpłatę ponownie.'
-                        : 'Jeśli przed chwilą wysłałeś płatność ręczną, odśwież tę stronę za chwilę. Jeśli wpłata nie została jeszcze zgłoszona, wróć do ekranu płatności i dokończ ten krok.'}
-              </p>
-
-              <div className="summary-grid">
-                <div className="summary-card tree-backed-card">
-                  <div className="stat-label">Usługa</div>
-                  <div className="summary-value">{serviceLabel}</div>
-                </div>
-                <div className="summary-card tree-backed-card">
-                  <div className="stat-label">Temat rozmowy</div>
-                  <div className="summary-value">{getProblemLabel(booking.problemType)}</div>
-                </div>
-                <div className="summary-card tree-backed-card">
-                  <div className="stat-label">Termin</div>
-                  <div className="summary-value">{formatDateTimeLabel(booking.bookingDate, booking.bookingTime)}</div>
-                </div>
-                <div className="summary-card tree-backed-card">
-                  <div className="stat-label">Kontakt</div>
-                  <div className="summary-value">{booking.email}</div>
-                </div>
-                {qaBooking ? (
-                  <div className="summary-card tree-backed-card">
-                    <div className="stat-label">Tryb</div>
-                    <div className="summary-value">Test</div>
+              <details className="payment-ref-disclosure payment-ref-confirmation-details">
+                <summary>Szczegóły rezerwacji</summary>
+                <div className="payment-ref-disclosure-body">
+                  <div className="payment-ref-mini-grid">
+                    <div className="payment-ref-mini-note">
+                      <strong>Usługa</strong>
+                      <span>{serviceLabel}</span>
+                    </div>
+                    <div className="payment-ref-mini-note">
+                      <strong>Kontakt</strong>
+                      <span>{booking.email}</span>
+                    </div>
+                    {qaBooking ? (
+                      <div className="payment-ref-mini-note">
+                        <strong>Tryb</strong>
+                        <span>Test</span>
+                      </div>
+                    ) : null}
+                    <div className="payment-ref-mini-note">
+                      <strong>{isPromoPayment ? 'Rozliczenie' : 'Kwota'}</strong>
+                      <span>{isPromoPayment ? 'Kod promocyjny' : formatPricePln(booking.amount)}</span>
+                    </div>
                   </div>
-                ) : null}
-                <div className="summary-card tree-backed-card">
-                  <div className="stat-label">{isPromoPayment ? 'Rozliczenie' : 'Kwota'}</div>
-                  <div className="summary-value">{isPromoPayment ? 'Kod promocyjny' : formatPricePln(booking.amount)}</div>
                 </div>
-              </div>
+              </details>
 
               {!qaBooking && customerEmailStatus && !isClosed ? (
                 <CustomerEmailStatusNotice
@@ -417,7 +492,7 @@ export default async function ConfirmationPage(
               ) : null}
 
               {!isSelfCancelled && !isClosed ? (
-                <div className="summary-grid trust-grid top-gap">
+                <div className="payment-ref-confirmation-flow top-gap">
                   {(isConfirmed ? confirmedFlowCards : [
                     {
                       title: 'Status płatności',
@@ -434,7 +509,7 @@ export default async function ConfirmationPage(
                       body: `Po statusie opłacone zobaczysz ${roomAccessLabel}, dalszą instrukcję i sekcję materiałów do sprawy.`,
                     },
                   ]).map((card) => (
-                    <div key={card.title} className="summary-card trust-card tree-backed-card">
+                    <div key={card.title} className="payment-ref-mini-note">
                       <strong>{card.title}</strong>
                       <span>{card.body}</span>
                     </div>
@@ -543,13 +618,13 @@ export default async function ConfirmationPage(
                 </div>
               )}
 
-              <div className="hero-actions centered-actions">
+              <div className="payment-ref-button-row payment-ref-confirmation-actions">
                 {isSelfCancelled || isRejected || isClosed ? (
                   <>
-                    <HardNavLink href={quickAudioHref} className="button button-primary big-button">
+                    <HardNavLink href={quickAudioHref} className="payment-ref-submit">
                       Wybierz nowy termin
                     </HardNavLink>
-                    <HardNavLink href="/kontakt#formularz" className="button button-ghost big-button">
+                    <HardNavLink href="/kontakt#formularz" className="payment-ref-secondary-button">
                       {FUNNEL_CTA_LABELS.contact}
                     </HardNavLink>
                   </>
@@ -557,11 +632,11 @@ export default async function ConfirmationPage(
                   <>
                     <Link
                       href={`/call/${booking.id}${accessToken ? `?access=${encodeURIComponent(accessToken)}` : ''}`}
-                      className="button button-primary big-button"
+                      className="payment-ref-submit"
                     >
                       {callRoomCtaLabel}
                     </Link>
-                    <Link href="#materialy-do-sprawy" className="button button-ghost big-button">
+                    <Link href="#materialy-do-sprawy" className="payment-ref-secondary-button">
                       Dodaj materiały
                     </Link>
                   </>
@@ -569,11 +644,11 @@ export default async function ConfirmationPage(
                   <>
                     <HardNavLink
                       href={`/payment?bookingId=${booking.id}${accessToken ? `&access=${encodeURIComponent(accessToken)}` : ''}`}
-                      className="button button-primary big-button"
+                      className="payment-ref-submit"
                     >
                       Wróć do płatności
                     </HardNavLink>
-                    <HardNavLink href="/kontakt#formularz" className="button button-ghost big-button">
+                    <HardNavLink href="/kontakt#formularz" className="payment-ref-secondary-button">
                       {FUNNEL_CTA_LABELS.contact}
                     </HardNavLink>
                   </>
@@ -597,23 +672,20 @@ export default async function ConfirmationPage(
               ) : null}
             </>
           ) : (
-            <>
-              <h1>Potwierdzenie rezerwacji wygasło</h1>
+            <div className="payment-ref-stack">
               <div className="error-box">Ten link do potwierdzenia jest nieprawidłowy albo wygasł.</div>
-              <div className="hero-actions centered-actions">
-                <HardNavLink href={quickAudioHref} className="button button-primary big-button">
+              <div className="payment-ref-button-row">
+                <HardNavLink href={quickAudioHref} className="payment-ref-submit">
                   Przejdź do rezerwacji
                 </HardNavLink>
-                <HardNavLink href="/kontakt#formularz" className="button button-ghost big-button">
+                <HardNavLink href="/kontakt#formularz" className="payment-ref-secondary-button">
                   {FUNNEL_CTA_LABELS.contact}
                 </HardNavLink>
               </div>
-            </>
+            </div>
           )}
-        </section>
-
       </div>
-    </NotatnikPageShell>
+    </PaymentReferenceLayout>
   )
 }
 

@@ -19,6 +19,7 @@ import { CAPBT_ORG_URL, INSTAGRAM_PROFILE_URL, SITE_PRODUCTION_URL } from '@/lib
 import { buildBookMetadata, buildHomeMetadata } from '@/lib/seo'
 import { getDeployReadinessChecks, getGoLiveChecks, getVerifiedDeployReadinessChecks } from '@/lib/server/go-live'
 import { getPaymentModeStatus } from '@/lib/server/env'
+import { getAccountLoginRedirectUrl } from '@/lib/server/account-auth'
 import { isCommerceTestModeAllowed } from '@/lib/server/commerce-service'
 import { getQaCheckoutEligibility, getQaCheckoutPaymentReference, getPublicManualPaymentConfig } from '@/lib/server/payment-options'
 import { getOnlinePaymentRuntime, getOnlinePaymentRuntimeForConsultation } from '@/lib/server/online-payments'
@@ -260,6 +261,37 @@ test('anonymous account pages do not probe the protected account endpoint withou
   assert.match(accountPageSource, /cookies\(\)/)
   assert.match(accountPageSource, /ACCOUNT_REFRESH_COOKIE/)
   assert.match(accountPageSource, /initialSessionHint=\{initialSessionHint\}/)
+})
+
+test('account confirmation redirects use the canonical app URL and establish the account cookie session', () => {
+  const accountAuthSource = readSource('lib', 'server', 'account-auth.ts')
+  const registerSource = readSource('app', 'api', 'account', 'auth', 'register', 'route.ts')
+  const resetSource = readSource('app', 'api', 'account', 'auth', 'reset', 'route.ts')
+  const leadConfirmationSource = readSource('app', 'api', 'admin', 'lead-bookings', '[id]', 'confirm-payment', 'route.ts')
+  const formSource = readSource('components', 'AccountAuthForm.tsx')
+  const confirmationRouteSource = readSource('app', 'api', 'account', 'auth', 'confirm', 'route.ts')
+
+  assert.match(accountAuthSource, /new URL\('\/login', getBaseUrl\(\)\)/)
+  assert.match(accountAuthSource, /supabase\.auth\.setSession/)
+  assert.match(registerSource, /getAccountLoginRedirectUrl\(returnTo\)/)
+  assert.doesNotMatch(registerSource, /headers\.get\('origin'\)/)
+  assert.match(resetSource, /getAccountLoginRedirectUrl\(\)/)
+  assert.match(leadConfirmationSource, /getAccountLoginRedirectUrl\(\)/)
+  assert.match(formSource, /type === 'signup'/)
+  assert.match(formSource, /refresh_token/)
+  assert.match(formSource, /\/api\/account\/auth\/confirm/)
+  assert.match(confirmationRouteSource, /confirmAccountSession/)
+  assert.match(confirmationRouteSource, /setAccountSessionCookies/)
+
+  withEnv(
+    {
+      VERCEL_ENV: 'production',
+      NEXT_PUBLIC_APP_URL: 'http://localhost:3000',
+    },
+    () => {
+      assert.equal(getAccountLoginRedirectUrl('/pokoj'), 'https://regulskibehawiorysta.pl/login?returnTo=%2Fpokoj')
+    },
+  )
 })
 
 test('release smoke validates the intentional legacy online-page redirect without following it', () => {

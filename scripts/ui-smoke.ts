@@ -778,8 +778,26 @@ async function runUiSmokeOnce() {
     assert.equal(manualResponse.ok, true, `POST /api/payments/manual returned ${manualResponse.status}.`)
     const manualPayload = (await manualResponse.json()) as { redirectTo?: string; error?: string }
     assert.ok(manualPayload.redirectTo, 'Expected redirectTo from manual payment API.')
-    await publicPage.goto(`${appUrl}${manualPayload.redirectTo}`, { waitUntil: 'domcontentloaded' })
-    const confirmationUrl = publicPage.url()
+    const confirmationUrl = new URL(manualPayload.redirectTo, appUrl).toString()
+    await publicPage.goto(`${appUrl}/payment?bookingId=${bookingId}&access=${encodeURIComponent(accessToken)}`, {
+      waitUntil: 'domcontentloaded',
+    })
+    await publicPage.locator('[data-payment-state="pending-manual-review"]').waitFor()
+    const refreshStatusLink = publicPage.getByRole('link', { name: 'Odśwież status' })
+    const refreshStatusHref = await refreshStatusLink.getAttribute('href')
+    assert.ok(refreshStatusHref, 'Expected a refresh-status href on the new payment page.')
+    const refreshStatusUrl = new URL(refreshStatusHref, appUrl)
+    assert.equal(refreshStatusUrl.pathname, '/payment')
+    assert.equal(refreshStatusUrl.searchParams.get('bookingId'), bookingId)
+    assert.equal(refreshStatusUrl.searchParams.get('access'), accessToken)
+    await Promise.all([
+      publicPage.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: routeNavigationTimeoutMs }),
+      refreshStatusLink.click(),
+    ])
+    await publicPage.locator('[data-payment-state="pending-manual-review"]').waitFor()
+
+    await publicPage.goto(confirmationUrl, { waitUntil: 'domcontentloaded' })
+    await publicPage.locator('.payment-ref-page--compact').waitFor()
     await publicPage.locator('[data-confirmation-state="pending-manual-review"]').waitFor()
     assert.equal(await publicPage.getByRole('heading', { name: /Nagranie, link lub krótki opis/i }).count(), 0)
 

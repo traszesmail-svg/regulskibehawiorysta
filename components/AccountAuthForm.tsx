@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { LogIn, Mail, UserPlus } from 'lucide-react'
 
 type AuthMode = 'login' | 'register' | 'reset' | 'new-password'
@@ -55,6 +55,7 @@ export function AccountAuthForm() {
   const [error, setError] = useState('')
   const [recoveryToken, setRecoveryToken] = useState('')
   const [caseMapClaimToken, setCaseMapClaimToken] = useState(readCaseMapClaimToken)
+  const signupConfirmationHandledRef = useRef(false)
 
   const title = useMemo(() => {
     if (mode === 'new-password') return 'Ustaw nowe hasło'
@@ -66,6 +67,7 @@ export function AccountAuthForm() {
   useEffect(() => {
     const hash = new URLSearchParams(window.location.hash.replace(/^#/, ''))
     const accessToken = hash.get('access_token')
+    const refreshToken = hash.get('refresh_token')
     const type = hash.get('type')
     const claimToken = hash.get('case-map-claim')
     let shouldClearHash = false
@@ -76,6 +78,39 @@ export function AccountAuthForm() {
         setCaseMapClaimToken(claimToken)
         persistCaseMapClaimToken(claimToken)
       }
+    }
+
+    if (accessToken && refreshToken && (type === 'signup' || type === 'email')) {
+      if (signupConfirmationHandledRef.current) {
+        return
+      }
+
+      signupConfirmationHandledRef.current = true
+      window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`)
+      void (async () => {
+        setLoading(true)
+        setError('')
+        setMessage('')
+
+        try {
+          const response = await fetch('/api/account/auth/confirm', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ accessToken, refreshToken }),
+          })
+          const payload = (await response.json()) as { ok?: boolean; error?: string }
+
+          if (!response.ok || !payload.ok) {
+            throw new Error(payload.error ?? 'Nie udało się potwierdzić konta.')
+          }
+
+          window.location.assign(readReturnHref())
+        } catch (confirmationError) {
+          setError(confirmationError instanceof Error ? confirmationError.message : 'Nie udało się potwierdzić konta.')
+          setLoading(false)
+        }
+      })()
+      return
     }
 
     if (accessToken && (type === 'recovery' || type === 'invite')) {

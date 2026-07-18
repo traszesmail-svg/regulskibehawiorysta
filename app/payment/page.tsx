@@ -6,6 +6,7 @@ import { headers } from 'next/headers'
 import { AnalyticsEventOnMount } from '@/components/AnalyticsEventOnMount'
 import { getBookingAnalyticsContextParams } from '@/lib/analytics-schema'
 import { CustomerEmailStatusNotice } from '@/components/CustomerEmailStatusNotice'
+import { HardNavLink } from '@/components/HardNavLink'
 import { PaymentActions } from '@/components/PaymentActions'
 import { formatCommercePrice, getManualAmountForProduct } from '@/lib/commerce'
 import {
@@ -315,12 +316,12 @@ export default async function PaymentPage(
                     : `Po potwierdzeniu pokażemy link do ${roomAccessLabel} bezpośrednio na stronie potwierdzenia.`}
                 </div>
                 <div className="payment-ref-button-row">
-                  <Link
-                    href={`/confirmation?bookingId=${booking.id}${accessToken ? `&access=${encodeURIComponent(accessToken)}` : ''}&manual=reported${qaBooking ? '&qa=1' : ''}`}
+                  <HardNavLink
+                    href={`/payment?bookingId=${booking.id}${accessToken ? `&access=${encodeURIComponent(accessToken)}` : ''}${qaBooking ? '&qa=1' : ''}`}
                     className="payment-ref-submit"
                   >
                     Odśwież status
-                  </Link>
+                  </HardNavLink>
                   <Link
                     href={`/kontakt?service=${encodeURIComponent(bookingServiceType ?? 'szybka-konsultacja-15-min')}&intent=reschedule&bookingId=${encodeURIComponent(booking.id)}#formularz`}
                     className="payment-ref-secondary-button"

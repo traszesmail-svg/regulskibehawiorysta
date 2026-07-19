@@ -23,71 +23,71 @@ export const metadata: Metadata = buildMarketingMetadata({
 
 const problemVisuals: Record<string, { src: string; alt: string }> = {
   'pies-szczeka-na-psy': {
-    src: '/branding/topic-cards/border-collie-running.jpg',
-    alt: 'Pies w ruchu podczas spaceru, symbol reaktywności i napięcia',
+    src: 'https://images.pexels.com/photos/12031034/pexels-photo-12031034.jpeg?auto=compress&cs=tinysrgb&w=1600&h=1000&fit=crop',
+    alt: 'Biały pies szczeka na smyczy podczas spaceru w parku',
   },
   'pies-ciagnie-na-smyczy': {
-    src: '/branding/topic-cards/french-bulldog-leash.jpg',
-    alt: 'Pies na smyczy podczas spaceru',
+    src: 'https://images.pexels.com/photos/9956390/pexels-photo-9956390.jpeg?auto=compress&cs=tinysrgb&w=1600&h=1000&fit=crop',
+    alt: 'Pies na smyczy pracuje z opiekunem podczas treningu spacerowego',
   },
   'pies-nie-zostaje-sam': {
-    src: '/branding/topic-cards/dog-window-alone.jpg',
-    alt: 'Pies przy oknie, gdy opiekun wychodzi z domu',
+    src: 'https://images.pexels.com/photos/5672282/pexels-photo-5672282.jpeg?auto=compress&cs=tinysrgb&w=1600&h=1000&fit=crop',
+    alt: 'Pies czeka przy drzwiach wejściowych w ciepłym domowym świetle',
   },
   'pies-niszczy-lub-nie-wycisza-sie': {
-    src: '/branding/topic-cards/dog-forest-calm.jpg',
-    alt: 'Spokojny pies w naturalnym otoczeniu',
+    src: 'https://images.pexels.com/photos/5482639/pexels-photo-5482639.jpeg?auto=compress&cs=tinysrgb&w=1600&h=1000&fit=crop',
+    alt: 'Dalmatyńczyk zajmuje się zabawką w spokojnym domowym wnętrzu',
   },
   'nowy-pies-pierwsze-dni': {
-    src: '/branding/topic-cards/puppy-hands.jpg',
-    alt: 'Szczeniak i dłonie opiekuna w pierwszych dniach w domu',
+    src: 'https://images.pexels.com/photos/35614255/pexels-photo-35614255.jpeg?auto=compress&cs=tinysrgb&w=1600&h=1000&fit=crop',
+    alt: 'Szczeniak poznaje spokojne, jasne wnętrze nowego domu',
   },
   'kot-sika-poza-kuweta': {
-    src: '/branding/topic-cards/cats/cat-litter-box.jpg',
-    alt: 'Kot obok kuwety',
+    src: 'https://images.unsplash.com/photo-1727510153658-643787acb16a?auto=format&fit=crop&crop=entropy&w=1600&h=1000&q=86',
+    alt: 'Kot korzysta z nowoczesnej kuwety w domowym wnętrzu',
   },
   'kot-gryzie-przy-glaskaniu': {
-    src: '/branding/topic-cards/cats/cat-touch-defensive.jpg',
-    alt: 'Kot reagujący na dotyk opiekuna',
+    src: 'https://images.pexels.com/photos/3927415/pexels-photo-3927415.jpeg?auto=compress&cs=tinysrgb&w=1600&h=1000&fit=crop',
+    alt: 'Pręgowany kot chwyta zębami dłoń podczas kontaktu z człowiekiem',
   },
   'konflikt-miedzy-kotami': {
-    src: '/branding/topic-cards/cats/cat-intercat-conflict.jpg',
-    alt: 'Dwa koty w napięciu w domu',
+    src: 'https://images.pexels.com/photos/16169491/pexels-photo-16169491.jpeg?auto=compress&cs=tinysrgb&w=1600&h=1000&fit=crop',
+    alt: 'Dwa koty wchodzą ze sobą w napiętą konfrontację',
   },
   'kot-chowa-sie-lub-zyje-w-napieciu': {
-    src: '/branding/topic-cards/cats/cat-anxious-hiding.jpg',
-    alt: 'Kot chowający się w domu',
+    src: 'https://images.pexels.com/photos/36427304/pexels-photo-36427304.jpeg?auto=compress&cs=tinysrgb&w=1600&h=1000&fit=crop',
+    alt: 'Kot ostrożnie wygląda spod stołu w przyciemnionym wnętrzu',
   },
   'nagla-zmiana-zachowania': {
-    src: '/branding/topic-cards/dog-checkup.jpg',
-    alt: 'Wizyta kontrolna i sprawdzanie możliwego tła zdrowotnego',
+    src: 'https://images.pexels.com/photos/28644631/pexels-photo-28644631.jpeg?auto=compress&cs=tinysrgb&w=1600&h=1000&fit=crop',
+    alt: 'Weterynarz bada kota stetoskopem w gabinecie',
   },
   'halas-burza-fajerwerki': {
-    src: '/branding/pdf-covers/pies-boi-sie-gosci-i-dzwiekow.svg',
-    alt: 'Pies reagujący na trudne dźwięki',
+    src: 'https://images.pexels.com/photos/5913975/pexels-photo-5913975.jpeg?auto=compress&cs=tinysrgb&w=1600&h=1000&fit=crop',
+    alt: 'Mały pies szuka bezpiecznego miejsca pod kanapą',
   },
 }
 
 const seasonalVisuals: Record<string, { src: string; alt: string }> = {
   'burze-i-nagly-halas': {
-    src: '/branding/pdf-covers/pies-boi-sie-gosci-i-dzwiekow.svg',
-    alt: 'Pies i trudne dźwięki sezonowe',
+    src: 'https://images.pexels.com/photos/18948630/pexels-photo-18948630.jpeg?auto=compress&cs=tinysrgb&w=1200&h=1000&fit=crop',
+    alt: 'Pies chowa się pod sofą i szuka spokojnego schronienia',
   },
   'wakacje-opieka-i-zmiana-rytmu': {
-    src: '/branding/pdf-covers/pierwsze-dni-po-adopcji-psa-lub-kota.svg',
-    alt: 'Torba i zmiana rytmu dnia w czasie wyjazdów',
+    src: 'https://images.pexels.com/photos/10972597/pexels-photo-10972597.jpeg?auto=compress&cs=tinysrgb&w=1200&h=1000&fit=crop',
+    alt: 'Pies bezpiecznie podróżuje samochodem podczas wyjazdu',
   },
   'powrot-do-pracy-i-szkoly': {
-    src: '/branding/topic-cards/dog-window-alone.jpg',
-    alt: 'Pies przy oknie po zmianie rutyny domowej',
+    src: 'https://images.pexels.com/photos/4969879/pexels-photo-4969879.jpeg?auto=compress&cs=tinysrgb&w=1200&h=1000&fit=crop',
+    alt: 'Pies odpoczywa sam na łóżku po zmianie domowego rytmu',
   },
   'sylwester-i-fajerwerki': {
-    src: '/branding/pdf-covers/pies-boi-sie-gosci-i-dzwiekow.svg',
-    alt: 'Pies reagujący na fajerwerki i hałas',
+    src: 'https://images.pexels.com/photos/19823544/pexels-photo-19823544.jpeg?auto=compress&cs=tinysrgb&w=1200&h=1000&fit=crop',
+    alt: 'Pies odpoczywa pod kocem w bezpiecznym miejscu podczas hałasu',
   },
   'adopcja-i-pierwsze-tygodnie': {
-    src: '/branding/topic-cards/puppy-hands.jpg',
-    alt: 'Nowy pies w domu i pierwsze tygodnie adaptacji',
+    src: 'https://images.pexels.com/photos/31525931/pexels-photo-31525931.jpeg?auto=compress&cs=tinysrgb&w=1200&h=1000&fit=crop',
+    alt: 'Szczeniak spokojnie oswaja się z nowym domem',
   },
 }
 
@@ -133,8 +133,11 @@ function getAnalyticsSpecies(groupId: TrendProblemGroupId) {
 function getProblemVisual(problemId: string, groupId: TrendProblemGroupId) {
   return (
     problemVisuals[problemId] ?? {
-      src: groupId === 'kot' ? '/branding/pet-topics/cat-panel.png' : '/branding/pet-topics/dog-panel.png',
-      alt: groupId === 'kot' ? 'Kot w spokojnym domu' : 'Pies w spokojnym domu',
+      src:
+        groupId === 'kot'
+          ? 'https://images.pexels.com/photos/4240092/pexels-photo-4240092.jpeg?auto=compress&cs=tinysrgb&w=1600&h=1000&fit=crop'
+          : 'https://images.pexels.com/photos/4588894/pexels-photo-4588894.jpeg?auto=compress&cs=tinysrgb&w=1600&h=1000&fit=crop',
+      alt: groupId === 'kot' ? 'Kot w domowym otoczeniu' : 'Pies podczas spokojnego spaceru',
     }
   )
 }
@@ -142,8 +145,8 @@ function getProblemVisual(problemId: string, groupId: TrendProblemGroupId) {
 function getSeasonalVisual(entryId: string) {
   return (
     seasonalVisuals[entryId] ?? {
-      src: '/branding/pdf-covers/pierwsze-dni-po-adopcji-psa-lub-kota.svg',
-      alt: 'Sezonowa zmiana rytmu dla psa lub kota',
+      src: 'https://images.pexels.com/photos/35711491/pexels-photo-35711491.jpeg?auto=compress&cs=tinysrgb&w=1200&h=1000&fit=crop',
+      alt: 'Pies i kot odpoczywają razem w naturalnym świetle',
     }
   )
 }
@@ -212,11 +215,12 @@ export default function ProblemyPage() {
 
             <figure className="problem-hub-hero-visual">
               <Image
-                src="/branding/regulski-web/hero/hero-home.png"
-                alt="Spokojny pies i kot z głównego nagłówka strony"
+                src="https://images.pexels.com/photos/28852102/pexels-photo-28852102.jpeg?auto=compress&cs=tinysrgb&w=1800&h=1200&fit=crop"
+                alt="Pies i kot stoją razem na zewnątrz w naturalnym otoczeniu"
                 fill
                 priority
                 sizes="(max-width: 860px) 100vw, 58vw"
+                unoptimized
               />
             </figure>
 
@@ -286,7 +290,7 @@ export default function ProblemyPage() {
                           data-analytics-item-slug={problem.id}
                           data-analytics-target-href={problem.primaryHref}
                         >
-                          <Image src={visual.src} alt={visual.alt} fill sizes="(max-width: 760px) 86vw, 260px" />
+                          <Image src={visual.src} alt={visual.alt} fill sizes="(max-width: 760px) 86vw, 260px" unoptimized />
                         </Link>
                         <div className="problem-hub-card-body">
                           <span>{problem.eyebrow}</span>
@@ -369,7 +373,7 @@ export default function ProblemyPage() {
                     data-analytics-target-href={entry.href}
                   >
                     <span className="problem-hub-seasonal-media" aria-hidden="true">
-                      <Image src={visual.src} alt="" fill sizes="(max-width: 760px) 36vw, 190px" />
+                      <Image src={visual.src} alt="" fill sizes="(max-width: 760px) 36vw, 190px" unoptimized />
                     </span>
                     <span>{entry.eyebrow}</span>
                     <strong>{entry.title}</strong>
@@ -387,11 +391,11 @@ export default function ProblemyPage() {
           <section className="problem-hub-safe-note problem-hub-safe-note-map">
             <figure className="problem-hub-safe-visual" aria-hidden="true">
               <Image
-                src="/branding/topic-cards/dog-checkup.jpg"
+                src="https://images.pexels.com/photos/6235233/pexels-photo-6235233.jpeg?auto=compress&cs=tinysrgb&w=1200&h=900&fit=crop"
                 alt=""
                 fill
-                loading="eager"
                 sizes="(max-width: 760px) 100vw, 220px"
+                unoptimized
               />
             </figure>
             <div>

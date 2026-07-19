@@ -27,27 +27,27 @@ const processIcons = [MessageSquareText, Headphones, CalendarCheck] as const
 
 const HOME_PROBLEM_VISUALS: Record<string, { src: string; alt: string }> = {
   'pies-szczeka-na-psy': {
-    src: '/branding/topic-cards/border-collie-running.jpg',
-    alt: 'Pies reagujący na innego psa podczas spaceru',
+    src: 'https://images.pexels.com/photos/12031034/pexels-photo-12031034.jpeg?auto=compress&cs=tinysrgb&w=1600&h=1000&fit=crop',
+    alt: 'Biały pies szczeka na smyczy podczas spaceru w parku',
   },
   'pies-ciagnie-na-smyczy': {
-    src: '/branding/topic-cards/french-bulldog-leash.jpg',
-    alt: 'Pies ciągnący na smyczy',
+    src: 'https://images.pexels.com/photos/9956390/pexels-photo-9956390.jpeg?auto=compress&cs=tinysrgb&w=1600&h=1000&fit=crop',
+    alt: 'Pies na smyczy pracuje z opiekunem podczas treningu spacerowego',
   },
   'pies-nie-zostaje-sam': {
-    src: '/branding/topic-cards/dog-window-alone.jpg',
-    alt: 'Pies czekający przy oknie w domu',
+    src: 'https://images.pexels.com/photos/5672282/pexels-photo-5672282.jpeg?auto=compress&cs=tinysrgb&w=1600&h=1000&fit=crop',
+    alt: 'Pies czeka przy drzwiach wejściowych w ciepłym domowym świetle',
   },
-  'kot-sika-poza-kuweta': {
-    src: '/branding/topic-cards/cats/cat-litter-box.jpg',
-    alt: 'Kot obok kuwety',
+  'pies-niszczy-lub-nie-wycisza-sie': {
+    src: 'https://images.pexels.com/photos/5482639/pexels-photo-5482639.jpeg?auto=compress&cs=tinysrgb&w=1600&h=1000&fit=crop',
+    alt: 'Dalmatyńczyk zajmuje się zabawką w spokojnym domowym wnętrzu',
   },
 }
 
 function getHomeProblemVisual(problemId: string) {
   return HOME_PROBLEM_VISUALS[problemId] ?? {
-    src: '/branding/regulski-web/hero/hero-home.png',
-    alt: 'Pies i kot w spokojnym domowym otoczeniu',
+    src: 'https://images.pexels.com/photos/4588894/pexels-photo-4588894.jpeg?auto=compress&cs=tinysrgb&w=1600&h=1000&fit=crop',
+    alt: 'Pies podczas spokojnego spaceru',
   }
 }
 
@@ -134,7 +134,7 @@ export default function HomePage() {
               return (
                 <article key={problem.id} className={'home-problem-story-card home-problem-story-card-' + problem.group}>
                   <figure className="home-problem-story-media">
-                    <Image src={visual.src} alt={visual.alt} fill sizes="(max-width: 760px) 92vw, 420px" />
+                    <Image src={visual.src} alt={visual.alt} fill unoptimized sizes="(max-width: 760px) 92vw, 420px" />
                   </figure>
                   <div className="home-problem-story-copy">
                     <span className="home-trend-problem-eyebrow">{problem.eyebrow}</span>

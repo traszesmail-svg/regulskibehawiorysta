@@ -32445,10 +32445,10 @@ html[data-theme='dark'] input[type="checkbox"] {
 }
 
 
-/* Problem hub final visual containment 2026-07-11 */
+/* Problem hub remote photography framing 2026-07-19 */
 .problem-hub-redesign-page .problem-hub-hero-visual img {
-  object-fit: contain !important;
-  object-position: center bottom !important;
+  object-fit: cover !important;
+  object-position: 58% center !important;
 }
 
 @media (max-width: 760px) {

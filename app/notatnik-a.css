@@ -33468,3 +33468,8 @@ html[data-theme='dark'] input[type="checkbox"] {
     display: none !important;
   }
 }
+
+/* Home problem story card customized framing for dog barking 2026-07-19 */
+.home-problem-story-card-pies-szczeka-na-psy .home-problem-story-media img {
+  object-position: center 18% !important;
+}

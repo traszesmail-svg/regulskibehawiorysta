@@ -1,4 +1,4 @@
-﻿import type { Metadata } from 'next'
+import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, CalendarCheck, Headphones, MessageSquareText, Video } from 'lucide-react'
@@ -27,7 +27,7 @@ const processIcons = [MessageSquareText, Headphones, CalendarCheck] as const
 
 const HOME_PROBLEM_VISUALS: Record<string, { src: string; alt: string }> = {
   'pies-szczeka-na-psy': {
-    src: 'https://images.pexels.com/photos/12031034/pexels-photo-12031034.jpeg?auto=compress&cs=tinysrgb&w=1600&h=1000&fit=crop',
+    src: 'https://images.pexels.com/photos/12031034/pexels-photo-12031034.jpeg?auto=compress&cs=tinysrgb&w=1600',
     alt: 'Biały pies szczeka na smyczy podczas spaceru w parku',
   },
   'pies-ciagnie-na-smyczy': {
@@ -132,7 +132,10 @@ export default function HomePage() {
               const visual = getHomeProblemVisual(problem.id)
 
               return (
-                <article key={problem.id} className={'home-problem-story-card home-problem-story-card-' + problem.group}>
+                <article
+                  key={problem.id}
+                  className={`home-problem-story-card home-problem-story-card-${problem.group} home-problem-story-card-${problem.id}`}
+                >
                   <figure className="home-problem-story-media">
                     <Image src={visual.src} alt={visual.alt} fill unoptimized sizes="(max-width: 760px) 92vw, 420px" />
                   </figure>

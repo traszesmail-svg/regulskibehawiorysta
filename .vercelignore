@@ -42,5 +42,6 @@ resend.txt
 content/guides/sources/**/temp.html
 qa-reports/**
 !qa-reports/latest-report.md
+do-przegladu/**
 *.log
 *.pid

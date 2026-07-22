@@ -305,7 +305,7 @@ export default function EssentialsPage() {
               <div>
                 <h2>Potrzebujesz indywidualnego wsparcia?</h2>
                 <p>Materiały to świetny start, ale czasem warto skonsultować sytuację 1 na 1.</p>
-                <Link href="/" prefetch={false}>
+                <Link href="/cennik" prefetch={false}>
                   Umów konsultację
                   <ArrowRight size={16} strokeWidth={1.8} aria-hidden="true" />
                 </Link>

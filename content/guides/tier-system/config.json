@@ -1,0 +1,47 @@
+{
+  "system": "PDF5POLEK",
+  "brand": "Regulski Behawiorysta",
+  "createdAt": "2026-07-22",
+  "tiers": [
+    {
+      "id": "free",
+      "priceCode": "free",
+      "label": "Bezpłatny start",
+      "priceLabel": "Bezpłatnie",
+      "pageRange": "4–8 stron",
+      "density": "light",
+      "art": "art/tier-free.png",
+      "palette": { "ink": "#193b2d", "muted": "#667269", "paper": "#fffef9", "soft": "#eef1df", "accent": "#6f8352", "accent2": "#cbd8a8", "dark": "#244c38" }
+    },
+    {
+      "id": "p19",
+      "priceCode": "p19",
+      "label": "Krótki poradnik",
+      "priceLabel": "19 zł",
+      "pageRange": "8–14 stron",
+      "density": "practical",
+      "art": "art/tier-19-layout-v3.png",
+      "palette": { "ink": "#3e3329", "muted": "#75685d", "paper": "#fffaf3", "soft": "#f5e8d8", "accent": "#a46845", "accent2": "#e7b98f", "dark": "#6e402b" }
+    },
+    {
+      "id": "p39",
+      "priceCode": "p39",
+      "label": "Plan działania",
+      "priceLabel": "39 zł",
+      "pageRange": "18–30 stron",
+      "density": "structured",
+      "art": "art/tier-39.png",
+      "palette": { "ink": "#173b37", "muted": "#5a706b", "paper": "#fcfbf6", "soft": "#dfe9df", "accent": "#2f7568", "accent2": "#d7b773", "dark": "#123f38" }
+    },
+    {
+      "id": "p59",
+      "priceCode": "p59",
+      "label": "Kompendium premium",
+      "priceLabel": "59 zł",
+      "pageRange": "około 40–50 stron",
+      "density": "editorial",
+      "art": "art/tier-59.png",
+      "palette": { "ink": "#f8f1df", "muted": "#d8d0bf", "paper": "#fffdf8", "soft": "#e9e0cf", "accent": "#d2ae63", "accent2": "#f1d995", "dark": "#103b2a" }
+    }
+  ]
+}

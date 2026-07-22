@@ -21,6 +21,7 @@ type FooterProps = {
   secondaryLabel?: string
   showReviews?: boolean
   reviewSpecies?: 'dog' | 'cat' | 'all'
+  reviewLayout?: 'carousel' | 'editorial'
   sectionBasePath?: '/' | '/blog' | '/psy' | '/koty' | '/opinie' | '/o-mnie' | '/faq' | '/kontakt' | '/materialy'
 }
 
@@ -68,6 +69,7 @@ export function Footer(props: FooterProps) {
             intervalMs={6000}
             initialIndex={initialIndex}
             sourceUrl={reviewSourceUrl}
+            layout={props.reviewLayout}
           />
         ) : null}
         <footer className="site-footer site-footer-home-compact" aria-label="Stopka" data-build-marker={buildMarker.value}>
@@ -101,6 +103,7 @@ export function Footer(props: FooterProps) {
           intervalMs={6000}
           initialIndex={initialIndex}
           sourceUrl={reviewSourceUrl}
+          layout={props.reviewLayout}
         />
       ) : null}
       <footer className="site-footer" aria-label="Stopka" data-build-marker={buildMarker.value}>

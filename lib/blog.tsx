@@ -130,6 +130,18 @@ const BLOG_COVER_WIDTH = 1600
 const BLOG_COVER_HEIGHT = 1000
 
 const BLOG_COVER_BY_SLUG: Record<string, BlogPostCover> = {
+  'pies-boi-sie-burzy-i-fajerwerkow': {
+    src: 'https://images.pexels.com/photos/18948630/pexels-photo-18948630.jpeg?auto=compress&cs=tinysrgb&w=1600&h=1000&fit=crop',
+    alt: 'Pies odpoczywa w osłoniętym miejscu podczas głośnego zdarzenia.',
+    width: BLOG_COVER_WIDTH,
+    height: BLOG_COVER_HEIGHT,
+  },
+  'wakacje-z-psem-plan-bez-chaosu': {
+    src: 'https://images.pexels.com/photos/10972597/pexels-photo-10972597.jpeg?auto=compress&cs=tinysrgb&w=1600&h=1000&fit=crop',
+    alt: 'Pies podróżuje samochodem razem z opiekunem.',
+    width: BLOG_COVER_WIDTH,
+    height: BLOG_COVER_HEIGHT,
+  },
   'szczeniak-pierwsza-noc': {
     src: 'https://images.unsplash.com/photo-1544058635-7b8a6d0fadd8?auto=format&fit=crop&crop=entropy&w=1600&h=1000&q=86',
     alt: 'Śpiący brązowy szczeniak w legowisku w domowym wnętrzu.',
@@ -373,6 +385,68 @@ const CAT_CONFLICT_GUIDE_LINK: BlogSupportLink = {
 }
 
 const BLOG_POST_CONFIGS: BlogPostConfig[] = [
+  {
+    slug: 'pies-boi-sie-burzy-i-fajerwerkow',
+    fileName: '31-wpis-pies-boi-sie-burzy-i-fajerwerkow.md',
+    publishedAt: '2026-07-21',
+    categoryLabel: 'Pies',
+    categoryHref: '/psy',
+    topic: 'pies',
+    audioHref: DOG_AUDIO_HREF,
+    supportLinks: [
+      {
+        label: 'Mapa zachowania: hałas i panika',
+        href: '/mapa-sprawy?problem=halas-burza-fajerwerki',
+        description: 'Uporządkuj nasilenie reakcji, bezpieczeństwo i pierwszy krok przed kolejnym głośnym zdarzeniem.',
+      },
+      {
+        label: 'Materiały dla opiekunów psów',
+        href: '/materialy#psy',
+        description: 'Checklisty i poradniki o napięciu, dźwiękach i codziennym planie psa.',
+      },
+      {
+        label: FUNNEL_CTA_LABELS.primary,
+        href: DOG_AUDIO_HREF,
+        description: 'Jeśli reakcja jest silna i chcesz ustalić plan dla konkretnego psa.',
+      },
+      {
+        label: 'Mapa problemów',
+        href: '/problemy',
+        description: 'Wróć do pozostałych problemów i tematów sezonowych.',
+      },
+    ],
+  },
+  {
+    slug: 'wakacje-z-psem-plan-bez-chaosu',
+    fileName: '32-wpis-wakacje-z-psem-plan-bez-chaosu.md',
+    publishedAt: '2026-07-21',
+    categoryLabel: 'Pies',
+    categoryHref: '/psy',
+    topic: 'pies',
+    audioHref: DOG_AUDIO_HREF,
+    supportLinks: [
+      {
+        label: 'Mapa zachowania: wakacyjna zmiana rytmu',
+        href: '/mapa-sprawy?problem=wakacje-opieka-zmiana-rytmu',
+        description: 'Sprawdź, czy główną trudnością jest podróż, nowe miejsce, opieka zastępcza czy zostawanie samemu.',
+      },
+      {
+        label: 'Pies nie zostaje sam',
+        href: '/problemy/pies-nie-zostaje-sam',
+        description: 'Pierwszy krok, jeśli po zmianie rytmu pojawia się wycie, niszczenie albo panika.',
+      },
+      {
+        label: FUNNEL_CTA_LABELS.primary,
+        href: DOG_AUDIO_HREF,
+        description: 'Krótka rozmowa, jeśli wyjazd jest blisko i trzeba wybrać najbezpieczniejszy wariant opieki.',
+      },
+      {
+        label: 'Mapa problemów',
+        href: '/problemy',
+        description: 'Wróć do pozostałych problemów i tematów sezonowych.',
+      },
+    ],
+  },
   {
     slug: 'szczeniak-pierwsza-noc',
     fileName: '30-wpis-szczeniak-pierwsza-noc.md',

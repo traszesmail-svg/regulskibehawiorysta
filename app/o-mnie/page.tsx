@@ -66,7 +66,10 @@ const credentialCards = [
   },
 ]
 
-const featuredArticle = MEDIA_MENTIONS.find((mention) => mention.id === 'magwet-fear') ?? MEDIA_MENTIONS[0]
+const featuredArticles = MEDIA_MENTIONS.filter((mention) =>
+  mention.id === 'magwet-fear' || mention.id === 'magwet-litter-box',
+)
+const featuredArticle = featuredArticles[0] ?? MEDIA_MENTIONS[0]
 
 const publicLinks = [
   { label: 'COAPE / COAPE', href: COAPE_ORG_URL, icon: <ShieldCheck size={18} strokeWidth={1.8} aria-hidden="true" /> },
@@ -91,7 +94,7 @@ export default function AboutPage() {
   const faqItems = FAQ_SHORTLISTS.consultation.slice(0, 2)
 
   return (
-    <ReferencePageShell className="reference-about-page reference-about-redesign-page" ctaHref="/mapa-sprawy">
+    <ReferencePageShell className="reference-about-page reference-about-redesign-page" ctaHref="/cennik">
       <Schema
         data={[
           getPersonJsonLd(),
@@ -228,13 +231,21 @@ export default function AboutPage() {
             />
           </div>
           <div className="reference-about-publication-copy">
-            <span>{featuredArticle.label}</span>
-            <h2>{featuredArticle.title}</h2>
-            <p>{featuredArticle.summary}</p>
-            <a href={featuredArticle.href} target="_blank" rel="noopener noreferrer">
-              Otwórz artykuł
-              <ExternalLink size={16} strokeWidth={1.8} aria-hidden="true" />
-            </a>
+            <span>Publikacje eksperckie</span>
+            <h2>Artykuły w Magazynie Weterynaryjnym</h2>
+            <div className="reference-about-publication-list">
+              {featuredArticles.map((article) => (
+                <article key={article.id}>
+                  <span>{article.label}</span>
+                  <h3>{article.title}</h3>
+                  <p>{article.summary}</p>
+                  <a href={article.href} target="_blank" rel="noopener noreferrer">
+                    {article.cta}
+                    <ExternalLink size={16} strokeWidth={1.8} aria-hidden="true" />
+                  </a>
+                </article>
+              ))}
+            </div>
           </div>
           <span className="reference-about-leaf reference-about-leaf-publication" aria-hidden="true" />
         </section>
@@ -264,7 +275,7 @@ export default function AboutPage() {
             <h2>Zróbmy pierwszy krok spokojnie</h2>
             <p>Umów konsultację i uporządkujmy sytuację Twojego psa lub kota. Wspólnie wybierzemy plan, który naprawdę ma sens.</p>
             <div className="site-help-cta-actions">
-              <Link href="/" prefetch={false}>
+              <Link href="/cennik" prefetch={false}>
                 Umów konsultację
                 <ChevronRight size={19} strokeWidth={1.8} aria-hidden="true" />
               </Link>

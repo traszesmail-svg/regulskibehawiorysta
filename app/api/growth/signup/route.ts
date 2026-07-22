@@ -4,7 +4,7 @@ export const revalidate = 0
 import { NextResponse } from 'next/server'
 import { getLeadMagnetBySlug } from '@/lib/active-lead-magnets'
 import { recordFunnelEvent } from '@/lib/server/db'
-import { upsertGrowthSignup } from '@/lib/server/growth-signups'
+import { markGrowthSignupStageSent, upsertGrowthSignup } from '@/lib/server/growth-signups'
 import { syncNewsletterSubscriber } from '@/lib/server/mailerlite'
 import { sendLeadMagnetDownloadEmail } from '@/lib/server/notifications'
 import { consumeRequestRateLimit } from '@/lib/server/request-protection'
@@ -22,6 +22,12 @@ function normalizeSingleLine(value: unknown, maxLength: number) {
 
 function isValidEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+}
+
+function getNewsletterWelcomeMagnet(segment: string) {
+  if (segment === 'pies') return getLeadMagnetBySlug('pies-ile-ruchu-potrzebuje')
+  if (segment === 'kot') return getLeadMagnetBySlug('kot-zyje-w-napieciu')
+  return getLeadMagnetBySlug('30-zachowan')
 }
 
 export async function POST(request: Request) {
@@ -55,7 +61,8 @@ export async function POST(request: Request) {
   const location = normalizeSingleLine(body.location, 120)
   const sourcePage = normalizeSingleLine(body.sourcePage, 160)
   const segment = normalizeSingleLine(body.segment, 16) ?? 'oba'
-  const marketingOptIn = body.marketingOptIn === true
+  const newsletterConsent = body.consentNewsletter === true
+  const marketingOptIn = kind === 'newsletter' ? newsletterConsent : body.marketingOptIn === true
   const honeypot = normalizeSingleLine(body.website, 160) ?? ''
 
   if (honeypot) {
@@ -69,6 +76,10 @@ export async function POST(request: Request) {
 
   if (!email || !isValidEmail(email)) {
     return NextResponse.json({ error: 'Podaj poprawny adres e-mail.' }, { status: 400 })
+  }
+
+  if (kind === 'newsletter' && !newsletterConsent) {
+    return NextResponse.json({ error: 'Potwierdź zgodę na otrzymywanie newslettera.' }, { status: 400 })
   }
 
   if (kind === 'lead_magnet' && !leadMagnetSlug) {
@@ -151,15 +162,44 @@ export async function POST(request: Request) {
     console.warn('[regulski-behawiorysta][growth-signup] mailerlite sync failed', provider.reason)
   }
 
+  const welcomeMagnet = kind === 'newsletter' ? getNewsletterWelcomeMagnet(segment) : null
+  let welcomeEmailDelivery: 'sent' | 'skipped' | 'failed' = 'skipped'
+
+  if (welcomeMagnet) {
+    try {
+      welcomeEmailDelivery = (await sendLeadMagnetDownloadEmail(email, welcomeMagnet)).status
+
+      if (signupId && welcomeEmailDelivery === 'sent') {
+        try {
+          await markGrowthSignupStageSent(signupId, 'welcome')
+        } catch (error) {
+          console.warn('[regulski-behawiorysta][growth-signup] welcome status save skipped', error)
+        }
+      }
+    } catch (error) {
+      welcomeEmailDelivery = 'failed'
+      console.error('[regulski-behawiorysta][growth-signup] newsletter welcome email failed', error)
+    }
+  }
+
   const message =
-    provider.status === 'synced'
-      ? 'Zapis został przyjęty. O dalszych wiadomościach poinformujemy tylko przez aktywną listę newslettera.'
-      : 'Zapis został zapisany po stronie serwisu, ale nie potwierdziliśmy przekazania go do listy newslettera. Nie będziemy obiecywać wiadomości e-mail.'
+    provider.status === 'synced' && welcomeEmailDelivery === 'sent'
+      ? 'Zapis został potwierdzony. Link do pierwszego materiału wysłaliśmy także na podany adres.'
+      : provider.status === 'synced'
+        ? 'Zapis został potwierdzony. Pierwszy materiał możesz pobrać bezpośrednio poniżej.'
+        : 'Zapis zachowaliśmy po stronie serwisu, ale nie potwierdziliśmy jeszcze dodania do listy. Materiał możesz pobrać bezpośrednio poniżej.'
 
   return NextResponse.json({
     ok: true,
     signupId,
     provider: provider.status,
+    welcomeEmailDelivery,
+    welcomeMaterial: welcomeMagnet
+      ? {
+          title: welcomeMagnet.shortTitle,
+          downloadUrl: `/api/lead-magnet/${encodeURIComponent(welcomeMagnet.slug)}`,
+        }
+      : null,
     message,
   })
 }

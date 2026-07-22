@@ -5,6 +5,7 @@ import { test } from 'node:test'
 import { POST as postGrowthSignup } from '@/app/api/growth/signup/route'
 import { POST as postGrowthUnsubscribe } from '@/app/api/growth/unsubscribe/route'
 import { getLeadMagnetBySlug } from '@/lib/active-lead-magnets'
+import { NEWSLETTER_EDITORIAL_PLAN } from '@/lib/newsletter-plan'
 import {
   listGrowthSignups,
   upsertGrowthSignup,
@@ -255,5 +256,113 @@ test('marketing template always carries a usable unsubscribe link', async () => 
     )
   } finally {
     ;(globalThis as typeof globalThis & { fetch: typeof fetch }).fetch = originalFetch
+  }
+})
+
+test('newsletter signup requires consent, syncs the list and delivers the selected starter material', async () => {
+  const originalFetch = globalThis.fetch
+  const externalRequests: Array<{ url: string; body: Record<string, unknown> }> = []
+
+  try {
+    ;(globalThis as typeof globalThis & { fetch: typeof fetch }).fetch = (async (input, init) => {
+      externalRequests.push({
+        url: String(input),
+        body: typeof init?.body === 'string' ? (JSON.parse(init.body) as Record<string, unknown>) : {},
+      })
+      return new Response('{}', { status: 200, headers: { 'content-type': 'application/json' } })
+    }) as typeof fetch
+
+    await withEnv(
+      {
+        APP_DATA_MODE: 'local',
+        CUSTOMER_EMAIL_MODE: 'auto',
+        MAIL_PROVIDER: 'resend',
+        RESEND_API_KEY: 're_test_key',
+        RESEND_FROM_EMAIL: 'Regulski Behawiorysta <kontakt@regulskibehawiorysta.pl>',
+        REGULSKI_CONTACT_EMAIL: 'kontakt@regulskibehawiorysta.pl',
+        NEXT_PUBLIC_SITE_URL: 'https://regulskibehawiorysta.pl',
+        MAILERLITE_API_KEY: 'ml_test_key',
+        MAILERLITE_GROUP_NEWSLETTER: 'newsletter-test-group',
+        MAILERLITE_GROUP_CATS: 'cats-test-group',
+      },
+      async () => {
+        const sandbox = await createLocalDataSandbox('newsletter-complete-flow')
+
+        try {
+          const withoutConsent = await postGrowthSignup(
+            new Request('https://example.test/api/growth/signup', {
+              method: 'POST',
+              headers: { 'content-type': 'application/json', 'x-forwarded-for': '203.0.113.111' },
+              body: JSON.stringify({ kind: 'newsletter', email: 'bez-zgody@example.com', segment: 'kot' }),
+            }),
+          )
+          assert.equal(withoutConsent.status, 400)
+          assert.match(await withoutConsent.text(), /Potwierdź zgodę/)
+
+          const response = await postGrowthSignup(
+            new Request('https://example.test/api/growth/signup', {
+              method: 'POST',
+              headers: { 'content-type': 'application/json', 'x-forwarded-for': '203.0.113.112' },
+              body: JSON.stringify({
+                kind: 'newsletter',
+                email: 'kot@example.com',
+                segment: 'kot',
+                consentNewsletter: true,
+                marketingOptIn: true,
+                location: 'newsletter-test',
+                sourcePage: '/newsletter',
+              }),
+            }),
+          )
+          const payload = (await response.json()) as {
+            ok?: boolean
+            provider?: string
+            welcomeEmailDelivery?: string
+            welcomeMaterial?: { title?: string; downloadUrl?: string }
+          }
+
+          assert.equal(response.status, 200)
+          assert.equal(payload.ok, true)
+          assert.equal(payload.provider, 'synced')
+          assert.equal(payload.welcomeEmailDelivery, 'sent')
+          assert.match(payload.welcomeMaterial?.title ?? '', /kot żyje w napięciu/i)
+          assert.equal(payload.welcomeMaterial?.downloadUrl, '/api/lead-magnet/kot-zyje-w-napieciu')
+
+          const [signup] = await listGrowthSignups()
+          assert.equal(signup.kind, 'newsletter')
+          assert.equal(signup.segment, 'kot')
+          assert.equal(signup.marketingOptIn, true)
+          assert.ok(signup.unsubscribeToken)
+          assert.ok(signup.welcomeSentAt)
+
+          assert.equal(externalRequests.length, 2)
+          assert.match(externalRequests[0]?.url ?? '', /connect\.mailerlite\.com\/api\/subscribers/)
+          assert.deepEqual(externalRequests[0]?.body.groups, ['newsletter-test-group', 'cats-test-group'])
+          assert.match(externalRequests[1]?.url ?? '', /api\.resend\.com\/emails/)
+          assert.match(String(externalRequests[1]?.body.subject ?? ''), /Twój PDF/)
+        } finally {
+          await sandbox.cleanup()
+        }
+      },
+    )
+  } finally {
+    ;(globalThis as typeof globalThis & { fetch: typeof fetch }).fetch = originalFetch
+  }
+})
+
+test('newsletter editorial plan covers 36 consecutive months', () => {
+  assert.equal(NEWSLETTER_EDITORIAL_PLAN.length, 36)
+
+  const monthNumbers = NEWSLETTER_EDITORIAL_PLAN.map((issue) => {
+    const [year, month] = issue.period.split('-').map(Number)
+    assert.ok(year)
+    assert.ok(month)
+    assert.ok(issue.title.length > 10)
+    assert.ok(issue.resourceHref.startsWith('/'))
+    return year * 12 + month
+  })
+
+  for (let index = 1; index < monthNumbers.length; index += 1) {
+    assert.equal(monthNumbers[index] - monthNumbers[index - 1], 1)
   }
 })

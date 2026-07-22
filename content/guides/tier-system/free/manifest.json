@@ -1,0 +1,107 @@
+{
+  "tier": "free",
+  "label": "Bezpłatny start",
+  "priceLabel": "bezpłatny",
+  "guides": [
+    {
+      "slug": "pies-w-upal",
+      "species": "pies",
+      "title": "Pies w upał",
+      "subtitle": "Mniej ruchu, więcej bezpieczeństwa",
+      "source": "guides/pies-w-upal.md",
+      "art": "art-pies-w-upal.png",
+      "targetPages": 4,
+      "status": "draft"
+    },
+    {
+      "slug": "pies-burza-nagly-halas",
+      "species": "pies",
+      "title": "Burza i nagły hałas",
+      "subtitle": "Plan pierwszej pomocy dla psa",
+      "source": "guides/pies-burza-nagly-halas.md",
+      "art": "art-pies-burza-nagly-halas.png",
+      "targetPages": 4,
+      "status": "draft"
+    },
+    {
+      "slug": "wakacyjna-opieka-nad-psem",
+      "species": "pies",
+      "title": "Wakacyjna opieka nad psem",
+      "subtitle": "Instrukcja przekazania psa",
+      "source": "guides/wakacyjna-opieka-nad-psem.md",
+      "art": "art-wakacyjna-opieka-nad-psem.png",
+      "targetPages": 4,
+      "status": "draft"
+    },
+    {
+      "slug": "pies-powrot-do-rutyny",
+      "species": "pies",
+      "title": "Powrót do rutyny po urlopie",
+      "subtitle": "7 dni przed pierwszym długim wyjściem",
+      "source": "guides/pies-powrot-do-rutyny.md",
+      "art": "art-pies-powrot-do-rutyny.png",
+      "targetPages": 4,
+      "status": "draft"
+    },
+    {
+      "slug": "pies-warczal-lub-ugryzl",
+      "species": "pies",
+      "title": "Pies warczał lub ugryzł",
+      "subtitle": "Co zrobić przez pierwsze 24 godziny",
+      "source": "guides/pies-warczal-lub-ugryzl.md",
+      "art": "art-pies-warczal-lub-ugryzl.png",
+      "targetPages": 5,
+      "status": "draft"
+    },
+    {
+      "slug": "kot-w-upal",
+      "species": "kot",
+      "title": "Kot w upał",
+      "subtitle": "Bezpieczny dom, woda i odpoczynek",
+      "source": "guides/kot-w-upal.md",
+      "art": "art-kot-w-upal.png",
+      "targetPages": 4,
+      "status": "draft"
+    },
+    {
+      "slug": "kot-opieka-podczas-urlopu",
+      "species": "kot",
+      "title": "Kot zostaje w domu podczas urlopu",
+      "subtitle": "Instrukcja dla opiekuna",
+      "source": "guides/kot-opieka-podczas-urlopu.md",
+      "art": "art-kot-opieka-podczas-urlopu.png",
+      "targetPages": 4,
+      "status": "draft"
+    },
+    {
+      "slug": "kot-transporter-bez-paniki",
+      "species": "kot",
+      "title": "Transporter bez paniki",
+      "subtitle": "Spokojne przygotowanie kota do podróży i weterynarza",
+      "source": "guides/kot-transporter-bez-paniki.md",
+      "art": "art-kot-transporter-bez-paniki.png",
+      "targetPages": 4,
+      "status": "draft"
+    },
+    {
+      "slug": "kot-po-zmianie-w-domu",
+      "species": "kot",
+      "title": "Kot po zmianie w domu",
+      "subtitle": "Adaptacja czy sygnał alarmowy?",
+      "source": "guides/kot-po-zmianie-w-domu.md",
+      "art": "art-kot-po-zmianie-w-domu.png",
+      "targetPages": 4,
+      "status": "draft"
+    },
+    {
+      "slug": "kot-drapie-meble",
+      "species": "kot",
+      "title": "Kot drapie meble",
+      "subtitle": "Mapa potrzeby i trzy poprawki środowiska",
+      "source": "guides/kot-drapie-meble.md",
+      "art": "art-kot-drapie-meble.png",
+      "targetPages": 4,
+      "status": "draft"
+    }
+  ]
+}

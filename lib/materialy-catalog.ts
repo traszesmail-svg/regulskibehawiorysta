@@ -3,7 +3,7 @@
 
 export type MaterialyCategory = 'cat' | 'dog' | 'both'
 export type MaterialyTier = 'free' | 'single' | 'bundle'
-export type MaterialyPriceCode = 'free' | 'p19' | 'p29' | 'p49'
+export type MaterialyPriceCode = 'free' | 'p19' | 'p29' | 'p39' | 'p49' | 'p59' | 'p69' | 'p79' | 'p89' | 'p99'
 
 export type MaterialyGuide = {
   slug: string
@@ -24,7 +24,7 @@ export type MaterialyBundle = {
   title: string
   subtitle: string
   category: Exclude<MaterialyCategory, 'both'>
-  priceCode: 'p49'
+  priceCode: MaterialyPriceCode
   guideSlugs: string[]
   shortPromise: string
 }
@@ -33,14 +33,26 @@ export const PRICE_LABEL: Record<MaterialyPriceCode, string> = {
   free: 'Bezpłatne',
   p19: '19 zł',
   p29: '29 zł',
+  p39: '39 zł',
   p49: '49 zł',
+  p59: '59 zł',
+  p69: '69 zł',
+  p79: '79 zł',
+  p89: '89 zł',
+  p99: '99 zł',
 }
 
 export const PRICE_AMOUNT_PLN: Record<MaterialyPriceCode, number> = {
   free: 0,
   p19: 19,
   p29: 29,
+  p39: 39,
   p49: 49,
+  p59: 59,
+  p69: 69,
+  p79: 79,
+  p89: 89,
+  p99: 99,
 }
 
 const RAW_GUIDES: MaterialyGuide[] = [
@@ -330,9 +342,185 @@ const RAW_GUIDES: MaterialyGuide[] = [
     highlights: ['sen i rytm dnia', 'samoregulacja', 'mniej bodźców'],
     previewPageCount: 10,
   },
+  {
+    slug: 'pies-zostaje-sam-plan-pierwszych-krokow',
+    title: 'Pies zostaje sam',
+    subtitle: 'Plan pierwszych kroków przy szczekaniu, wyciu i napięciu po wyjściu opiekuna',
+    category: 'dog',
+    tier: 'single',
+    priceCode: 'p49',
+    shortPromise: 'Praktyczny poradnik dla opiekuna, który chce zacząć działać spokojnie, a nie losowo testować kolejne pomysły.',
+    forWhom: 'Dla opiekuna, który chce zacząć działać spokojnie, a nie losowo testować kolejne pomysły.',
+    pdfFile: 'pies-zostaje-sam-plan-pierwszych-krokow.pdf',
+    highlights: ['plan działania', 'pierwsze kroki', 'analiza'],
+    previewPageCount: 3,
+  },
+  {
+    slug: 'szczeniak-pierwsze-30-dni',
+    title: 'Szczeniak: pierwsze 30 dni',
+    subtitle: 'Profilaktyka chaosu, gryzienia, przebodźcowania i złych nawyków od pierwszego tygodnia',
+    category: 'dog',
+    tier: 'single',
+    priceCode: 'p59',
+    shortPromise: 'Kompletny plan dla pierwszego miesiąca ze szczeniakiem: środowisko, sen, aktywność, nauka i pierwsze czerwone flagi.',
+    forWhom: 'Dla nowego opiekuna szczeniaka.',
+    pdfFile: 'szczeniak-pierwsze-30-dni.pdf',
+    highlights: ['środowisko i sen', 'aktywność', 'nauka'],
+    previewPageCount: 3,
+  },
+  {
+    slug: 'kot-stres-srodowisko-i-bledy-opiekuna',
+    title: 'Kot: stres i środowisko',
+    subtitle: 'Jak rozpoznać napięcie, poprawić dom i nie utrwalać problemów codziennymi błędami',
+    category: 'cat',
+    tier: 'free',
+    priceCode: 'free',
+    shortPromise: 'Przewodnik po najczęstszych źródłach kociego stresu, subtelnych sygnałach napięcia i prostych zmianach środowiskowych.',
+    forWhom: 'Dla opiekuna kota żyjącego w napięciu środowiskowym.',
+    pdfFile: 'kot-stres-srodowisko-i-bledy-opiekuna.pdf',
+    highlights: ['sygnały stresu', 'zmiany w domu', 'częste błędy'],
+    previewPageCount: 3,
+  },
+  {
+    slug: 'kot-i-kuweta-pierwszy-plan-dzialania',
+    title: 'Kot i kuweta',
+    subtitle: 'Pierwszy plan działania przy sikaniu lub załatwianiu się poza kuwetą',
+    category: 'cat',
+    tier: 'single',
+    priceCode: 'p59',
+    shortPromise: 'Szczegółowy poradnik porządkujący diagnozę wstępną, środowisko, kuwetę, lokalizacje i plan monitorowania.',
+    forWhom: 'Dla opiekuna kota załatwiającego się poza kuwetą.',
+    pdfFile: 'kot-i-kuweta-pierwszy-plan-dzialania.pdf',
+    highlights: ['diagnoza', 'środowisko', 'kuweta i żwirek'],
+    previewPageCount: 3,
+  },
+  {
+    slug: 'domowy-enrichment-plan-na-14-dni',
+    title: 'Domowy enrichment',
+    subtitle: '14-dniowy plan aktywności i regulacji pobudzenia dla psa lub kota mieszkającego w domu',
+    category: 'both',
+    tier: 'free',
+    priceCode: 'free',
+    shortPromise: 'Krótki, checklistowy materiał z gotowym planem aktywności, odpoczynku i notowania reakcji psa lub kota.',
+    forWhom: 'Dla każdego opiekuna psa i kota.',
+    pdfFile: 'domowy-enrichment-plan-na-14-dni.pdf',
+    highlights: ['plan aktywności', 'regulacja', 'obserwacja'],
+    previewPageCount: 3,
+  },
+  {
+    slug: 'pierwsze-dni-po-adopcji-psa-lub-kota',
+    title: 'Pierwsze dni po adopcji',
+    subtitle: 'Bezpieczne wdrożenie psa lub kota do domu bez przeciążania, pośpiechu i złych interpretacji',
+    category: 'both',
+    tier: 'free',
+    priceCode: 'free',
+    shortPromise: 'Krótki poradnik wdrożeniowy dla opiekunów po adopcji: pierwszy dzień, pierwszy tydzień i sygnały, które wymagają zmiany planu.',
+    forWhom: 'Dla świeżo upieczonego opiekuna po adopcji.',
+    pdfFile: 'pierwsze-dni-po-adopcji-psa-lub-kota.pdf',
+    highlights: ['pierwszy dzień', 'adaptacja', 'reagowanie'],
+    previewPageCount: 3,
+  },
+  {
+    slug: 'pies-reaktywny-na-spacerze',
+    title: 'Pies reaktywny na spacerze',
+    subtitle: 'Pierwszy plan pracy przy szczekaniu, spinaniu się i trudnych mijankach',
+    category: 'dog',
+    tier: 'single',
+    priceCode: 'p39',
+    shortPromise: 'Krótki poradnik porządkujący pierwsze decyzje przy reaktywności spacerowej.',
+    forWhom: 'Dla opiekuna psa reaktywnego na spacerze.',
+    pdfFile: 'pies-reaktywny-na-spacerze.pdf',
+    highlights: ['trudne mijanki', 'szczekanie', 'plan pracy'],
+    previewPageCount: 3,
+  },
+  {
+    slug: 'pies-boi-sie-gosci-i-dzwiekow',
+    title: 'Pies boi się gości i dźwięków',
+    subtitle: 'Jak ustawić bezpieczny plan przy lęku domowym, dzwonku i trudnych wizytach',
+    category: 'dog',
+    tier: 'free',
+    priceCode: 'free',
+    shortPromise: 'Mini-poradnik dla opiekunów psów lękowych przy gościach, dźwiękach i codziennym ruchu.',
+    forWhom: 'Dla opiekuna lękliwego psa.',
+    pdfFile: 'pies-boi-sie-gosci-i-dzwiekow.pdf',
+    highlights: ['dźwięki', 'goście', 'bezpieczna przestrzeń'],
+    previewPageCount: 3,
+  },
+  {
+    slug: 'konflikt-miedzy-kotami-w-domu',
+    title: 'Konflikt między kotami',
+    subtitle: 'Jak rozpoznać cichy konflikt, blokady i napięcie w domu wielokotowym',
+    category: 'cat',
+    tier: 'single',
+    priceCode: 'p39',
+    shortPromise: 'Praktyczny mini-poradnik o subtelnym konflikcie, zasobach i bezpieczeństwie w domu wielokotowym.',
+    forWhom: 'Dla opiekunów więcej niż jednego kota.',
+    pdfFile: 'konflikt-miedzy-kotami-w-domu.pdf',
+    highlights: ['cichy konflikt', 'zasoby', 'bezpieczeństwo'],
+    previewPageCount: 3,
+  },
+  {
+    slug: 'kot-dotyk-pielegnacja-i-obrona',
+    title: 'Kot: dotyk i pielęgnacja',
+    subtitle: 'Pierwszy plan przy obronie, napięciu i trudnych procedurach codziennych',
+    category: 'cat',
+    tier: 'single',
+    priceCode: 'p29',
+    shortPromise: 'Krótki poradnik o sygnałach granicy kota i bezpieczniejszej pielęgnacji.',
+    forWhom: 'Dla opiekuna kota wrażliwego na dotyk.',
+    pdfFile: 'kot-dotyk-pielegnacja-i-obrona.pdf',
+    highlights: ['pielęgnacja', 'stawianie granic', 'bezpieczeństwo'],
+    previewPageCount: 3,
+  },
 ]
 
-const RAW_BUNDLES: MaterialyBundle[] = []
+const RAW_BUNDLES: MaterialyBundle[] = [
+  {
+    slug: 'pakiet-startowy-psa',
+    title: 'Pakiet Startowy Psa',
+    subtitle: 'Spokojny start, lepszy rytm dnia i mniej chaosu w pierwszych tygodniach.',
+    category: 'dog',
+    priceCode: 'p89',
+    guideSlugs: ['szczeniak-pierwsze-30-dni', 'domowy-enrichment-plan-na-14-dni', 'pierwsze-dni-po-adopcji-psa-lub-kota'],
+    shortPromise: 'Spokojny start, lepszy rytm dnia i mniej chaosu w pierwszych tygodniach.',
+  },
+  {
+    slug: 'pakiet-spokojny-dom-pies',
+    title: 'Pakiet Spokojny Dom: pies',
+    subtitle: 'Mniej przeciążenia, lepszy plan domowy i niższy próg wejścia do konsultacji.',
+    category: 'dog',
+    priceCode: 'p99',
+    guideSlugs: ['pies-zostaje-sam-plan-pierwszych-krokow', 'pies-boi-sie-gosci-i-dzwiekow', 'domowy-enrichment-plan-na-14-dni'],
+    shortPromise: 'Mniej przeciążenia, lepszy plan domowy i niższy próg wejścia do konsultacji.',
+  },
+  {
+    slug: 'pakiet-spacerowy-pies',
+    title: 'Pakiet Spacery Bez Napięcia',
+    subtitle: 'Pierwszy plan pracy na spacerze i lepsza kontrola bodźców codziennych.',
+    category: 'dog',
+    priceCode: 'p69',
+    guideSlugs: ['pies-reaktywny-na-spacerze', 'pies-boi-sie-gosci-i-dzwiekow'],
+    shortPromise: 'Pierwszy plan pracy na spacerze i lepsza kontrola bodźców codziennych.',
+  },
+  {
+    slug: 'pakiet-kota-domowego',
+    title: 'Pakiet Kota Domowego',
+    subtitle: 'Środowisko, kuweta i relacje domowe spięte w jeden sensowny plan.',
+    category: 'cat',
+    priceCode: 'p99',
+    guideSlugs: ['kot-stres-srodowisko-i-bledy-opiekuna', 'kot-i-kuweta-pierwszy-plan-dzialania', 'konflikt-miedzy-kotami-w-domu'],
+    shortPromise: 'Środowisko, kuweta i relacje domowe spięte w jeden sensowny plan.',
+  },
+  {
+    slug: 'pakiet-kot-bez-napiecia',
+    title: 'Pakiet Kot Bez Napięcia',
+    subtitle: 'Lepsze bezpieczeństwo kota, mniej obrony i czytelniejsza praca z domem.',
+    category: 'cat',
+    priceCode: 'p79',
+    guideSlugs: ['kot-stres-srodowisko-i-bledy-opiekuna', 'kot-dotyk-pielegnacja-i-obrona', 'konflikt-miedzy-kotami-w-domu'],
+    shortPromise: 'Lepsze bezpieczeństwo kota, mniej obrony i czytelniejsza praca z domem.',
+  }
+]
 
 const guidesBySlug = new Map(RAW_GUIDES.map((guide) => [guide.slug, guide] as const))
 const bundlesBySlug = new Map(RAW_BUNDLES.map((bundle) => [bundle.slug, bundle] as const))

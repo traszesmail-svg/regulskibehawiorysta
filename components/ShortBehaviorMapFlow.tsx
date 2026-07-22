@@ -236,8 +236,8 @@ export function ShortBehaviorMapFlow({
     {
       id: 'scope',
       eyebrow: 'Mapa zachowania',
-      title: 'Jak chcesz dziś zacząć?',
-      helper: 'Wybierz krótszą drogę na start albo pełniejszą mapę sytuacji. Na końcu pokażemy konsultację dopasowaną do tego, czego dziś potrzebujesz.',
+      title: 'Uporządkuj sytuację psa lub kota krok po kroku',
+      helper: 'Odpowiedz na kilka pytań o to, co widzisz. Na końcu Mapa zbierze najważniejsze obserwacje i wskaże sensowny kolejny krok — bez zgadywania i bez stawiania diagnozy.',
       kind: 'scope',
     },
     {
@@ -284,9 +284,7 @@ export function ShortBehaviorMapFlow({
         ? Boolean(topic)
         : isAnswered(answers[currentQuestion?.id ?? currentScene.id])
   )
-  const heroImage = species === 'kot'
-    ? '/images/mapa-zachowania/hero-kot-v2.png'
-    : '/images/mapa-zachowania/hero-pies-v2.png'
+  const heroImage = '/branding/section-heroes/behavior-map-observation-v1.webp'
   const currentQuestionId = mode === 'result'
     ? null
     : currentScene?.kind === 'question'
@@ -592,8 +590,8 @@ export function ShortBehaviorMapFlow({
             <div className={styles.visualShade} />
             <div className={styles.visualBadge}><MapIcon name="observe-eye" className={styles.visualBadgeIcon} /><span>Spokojnie, krok po kroku</span></div>
             <div className={styles.visualCaption}>
-              <span>{species === 'kot' ? 'Kot i dom' : species === 'pies' ? 'Pies i codzienność' : 'Mapa zachowania'}</span>
-              <strong>{species ? <>Przyjrzyjmy się<br />tej sytuacji.</> : <>Zobaczmy,<br />co dziś jest ważne.</>}</strong>
+              <span>{species === 'kot' ? 'Kot i dom' : species === 'pies' ? 'Pies i codzienność' : 'Najpierw obserwacja'}</span>
+              <strong>{species ? <>Przyjrzyjmy się<br />tej sytuacji.</> : <>Zbierzmy fakty.<br />Potem wybierzmy krok.</>}</strong>
             </div>
           </div>
 

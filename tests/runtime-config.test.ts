@@ -592,8 +592,8 @@ test('Mapa zachowania speaks to the owner instead of exposing internal funnel la
     '20260717001_case_map_analytics_and_profile_claims.sql',
   )
 
-  assert.match(mapSource, /Jak chcesz dziś zacząć\?/)
-  assert.match(mapSource, /Zobaczmy,<br \/>co dziś jest ważne\./)
+  assert.match(mapSource, /Uporządkuj sytuację psa lub kota krok po kroku/)
+  assert.match(mapSource, /Zbierzmy fakty\.<br \/>Potem wybierzmy krok\./)
   assert.match(mapSource, /Przygotowanie do rozmowy/)
   assert.match(mapSource, /Twoje odpowiedzi pozwolą nam od razu skupić się na sytuacji/)
   assert.match(mapSource, /Wybierz termin · Konsultacja 15 min/)

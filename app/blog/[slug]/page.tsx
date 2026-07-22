@@ -136,7 +136,7 @@ export default async function BlogArticlePage(props: BlogArticlePageProps) {
               <PawPrint size={24} strokeWidth={1.6} aria-hidden="true" />
               <strong>Potrzebujesz indywidualnej pomocy?</strong>
               <p>Umów konsultację i pracujmy razem nad rozwiązaniem problemu.</p>
-              <Link href="/mapa-sprawy" prefetch={false}>
+              <Link href="/cennik" prefetch={false}>
                 Umów konsultację
               </Link>
             </div>
@@ -182,7 +182,7 @@ export default async function BlogArticlePage(props: BlogArticlePageProps) {
             <h2>Nie wiesz, od czego zacząć?</h2>
             <p>Przejdź przez Mapę sprawy albo umów konsultację. Dobierzemy pierwszy krok do realnej sytuacji Twojego psa lub kota.</p>
           </div>
-          <Link href="/mapa-sprawy" prefetch={false}>
+          <Link href="/cennik" prefetch={false}>
             Umów konsultację
             <ArrowRight size={17} strokeWidth={1.9} aria-hidden="true" />
           </Link>

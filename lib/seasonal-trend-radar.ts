@@ -69,8 +69,8 @@ export const SEASONAL_TREND_ENTRIES: SeasonalTrendEntry[] = [
     title: 'Burze i nagły hałas',
     copy:
       'Przy panice nie testujemy odwagi. Najpierw zabezpieczamy miejsce odpoczynku, dystans i przewidywalny plan na najbliższe dni.',
-    path: '/mapa-sprawy?problem=halas-burza-fajerwerki',
-    ctaLabel: 'Ustal pierwszy krok',
+    path: '/blog/pies-boi-sie-burzy-i-fajerwerkow',
+    ctaLabel: 'Czytaj plan na hałas',
     problemKey: 'halas-burza-fajerwerki',
   }),
   seasonalEntry({
@@ -81,8 +81,8 @@ export const SEASONAL_TREND_ENTRIES: SeasonalTrendEntry[] = [
     title: 'Wakacje, opieka i zmiana rytmu',
     copy:
       'Wyjazd, inny opiekun albo nowy plan dnia potrafią nasilić samotność, napięcie i problemy z wyciszeniem. Tu liczy się przygotowanie przed zmianą.',
-    path: '/mapa-sprawy?problem=wakacje-opieka-zmiana-rytmu',
-    ctaLabel: 'Sprawdź przygotowanie',
+    path: '/blog/wakacje-z-psem-plan-bez-chaosu',
+    ctaLabel: 'Czytaj plan na wyjazd',
     problemKey: 'wakacje-opieka-zmiana-rytmu',
     species: 'pies',
   }),
@@ -94,8 +94,8 @@ export const SEASONAL_TREND_ENTRIES: SeasonalTrendEntry[] = [
     title: 'Powrót do pracy i szkoły',
     copy:
       'Po wakacjach problem zostawania samemu często wraca mocniej. Zamiast nagłej próby warto sprawdzić nagranie i próg trudności.',
-    path: '/problemy/pies-nie-zostaje-sam',
-    ctaLabel: 'Zobacz plan samotności',
+    path: '/blog/jak-nagrac-psa-zostawionego-samemu',
+    ctaLabel: 'Czytaj o powrocie do rutyny',
     problemKey: 'pies-nie-zostaje-sam',
     species: 'pies',
   }),
@@ -107,8 +107,8 @@ export const SEASONAL_TREND_ENTRIES: SeasonalTrendEntry[] = [
     title: 'Sylwester i fajerwerki',
     copy:
       'Najlepszy plan powstaje przed kulminacją hałasu. W kryzysie priorytetem jest bezpieczeństwo, nie trening na siłę.',
-    path: '/mapa-sprawy?problem=halas-burza-fajerwerki',
-    ctaLabel: 'Przygotuj bezpieczny plan',
+    path: '/blog/pies-boi-sie-burzy-i-fajerwerkow',
+    ctaLabel: 'Czytaj plan przed Sylwestrem',
     problemKey: 'halas-burza-fajerwerki',
   }),
   seasonalEntry({

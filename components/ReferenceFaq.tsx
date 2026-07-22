@@ -140,16 +140,16 @@ export function ReferenceFaq({ contactHref }: ReferenceFaqProps) {
             własnymi słowami. Chętnie pomogę!
           </p>
         </div>
-        <div className="reference-faq-hero-art" aria-hidden="true">
+        <figure className="reference-faq-hero-art">
           <Image
-            src="/faq/faq-hero-pets-transparent.png"
-            alt=""
+            src="/branding/section-heroes/faq-questions-v1.webp"
+            alt="Opiekunka spokojnie obserwuje psa i kota, szukając odpowiedzi na pytanie o ich zachowanie"
             fill
             priority
             sizes="(max-width: 760px) 90vw, 430px"
             className="reference-faq-hero-image"
           />
-        </div>
+        </figure>
         <span className="reference-faq-leaves reference-faq-leaves-left" aria-hidden="true" />
         <span className="reference-faq-paw-mark" aria-hidden="true">
           <PawPrint size={42} strokeWidth={1.7} />

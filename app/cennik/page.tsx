@@ -140,23 +140,23 @@ export default function PricingPage() {
               meta="Dla psa i kota. Połączenie telefoniczne."
               primaryHref={getDirectBookingHref('szybka-konsultacja-15-min')}
               primaryLabel="Wybieram Kwadrans"
-              secondaryHref="/mapa-sprawy"
-              secondaryLabel="Nie wiem — Mapa zachowania"
+              secondaryHref="/#wybór"
+              secondaryLabel="Pomóż mi wybrać"
             />
           </div>
           <div className="pricing-2026-hero-media" aria-hidden="true">
             <Image
-              src="/pricing/pricing-hero-photo-card.png"
-              alt=""
-              width={343}
-              height={340}
+              src="/branding/section-heroes/pricing-choice-v1.webp"
+              alt="Pies i kot obok przygotowanego telefonu i notatnika do konsultacji"
+              width={1536}
+              height={1024}
               sizes="(max-width: 760px) 100vw, 343px"
               priority
             />
           </div>
         </section>
 
-        <section className="pricing-2026-offers" aria-label="Formaty rozmów i ceny">
+        <section className="pricing-2026-offers" id="formaty" aria-label="Formaty rozmów i ceny">
           {pricingCards.map((card) => {
             const visual = offerVisuals[card.service]
 

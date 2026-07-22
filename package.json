@@ -35,7 +35,15 @@
     "stage8-email-previews": "node --import tsx scripts/stage8-email-previews.ts",
     "materialy-smoke": "node --import tsx scripts/materialy-smoke.ts",
     "commerce-smoke": "node --import tsx scripts/commerce-smoke.ts",
-    "materialy-build-pdfs": "node scripts/pdf/build.mjs"
+    "materialy-build-pdfs": "node scripts/pdf/build.mjs",
+    "materialy-build-review": "node --import tsx scripts/pdf/build-review-catalog.ts",
+    "materialy-audit-review": "node --import tsx scripts/pdf/audit-review-catalog.ts",
+    "materialy-prepare-review-art": "node --import tsx scripts/pdf/prepare-review-art.ts",
+    "pdf5polek-build-system": "node --import tsx scripts/pdf/build-tier-system.ts",
+    "pdf5polek-audit-system": "node --import tsx scripts/pdf/audit-tier-system.ts",
+    "pdf5polek-build-free": "node --import tsx scripts/pdf/build-free-shelf.ts",
+    "pdf5polek-audit-free": "node --import tsx scripts/pdf/audit-free-shelf.ts",
+    "pdf5polek-review-free": "node --import tsx scripts/pdf/render-free-review.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.54.0",

@@ -69,7 +69,13 @@ export default async function ContactPage(
     <main className="notatnik-page contact-page contact-page-redesign contact-page-reference">
       <Schema data={structuredData} />
       <div className="notatnik-shell contact-shell">
-        <NotatnikTopbar tag="Kontakt" navItems={PUBLIC_SITE_NAV_ITEMS} showUtilityLinks={false} />
+        <NotatnikTopbar
+          tag="Kontakt"
+          navItems={PUBLIC_SITE_NAV_ITEMS}
+          showUtilityLinks={false}
+          ctaHref="/cennik"
+          ctaLabel="Umów konsultację"
+        />
         <ReferenceHeroLeaf />
 
         <section className="contact-reference-hero" aria-labelledby="contact-title">
@@ -95,10 +101,10 @@ export default async function ContactPage(
           <div className="contact-reference-photo-wrap">
             <figure className="contact-reference-photo">
               <Image
-                src="/branding/omnie3.png"
-                alt="Krzysztof Regulski w granatowym stroju medycznym"
-                width={1024}
-                height={1536}
+                src="/branding/section-heroes/contact-message-v1.webp"
+                alt="Opiekunka opisuje sytuację psa i kota w krótkiej wiadomości"
+                width={1122}
+                height={1402}
                 priority
                 sizes="(max-width: 760px) 86vw, 360px"
               />
@@ -121,8 +127,8 @@ export default async function ContactPage(
               <Search size={34} strokeWidth={1.8} />
             </span>
             <div>
-              <h2>Szeroka perspektywa</h2>
-              <p>Łączę wiedzę, doświadczenie i wgląd w zachowanie zwierząt.</p>
+              <h2>Patrzę szerzej</h2>
+              <p>Łączę zachowanie, zdrowie, środowisko i codzienny rytm zwierzęcia.</p>
             </div>
           </article>
           <article>
@@ -151,7 +157,7 @@ export default async function ContactPage(
                 <PenLine size={22} strokeWidth={1.8} aria-hidden="true" />
                 <span>Przejdź do formularza</span>
               </Link>
-              <Link href="/" prefetch={false} className="contact-reference-secondary">
+              <Link href="/cennik" prefetch={false} className="contact-reference-secondary">
                 Umów konsultację
               </Link>
             </div>

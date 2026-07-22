@@ -1,12 +1,11 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight, BookOpen, CalendarDays, Cat, Dog, PawPrint, Search, ShieldCheck } from 'lucide-react'
+import { ArrowRight, BookOpen, CalendarDays, Cat, Compass, Dog, PawPrint, Search, ShieldCheck } from 'lucide-react'
 import { NotatnikFooter, NotatnikTopbar, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
 import { ReferenceHeroLeaf } from '@/components/ReferencePageShell'
 import { Schema } from '@/components/schema'
-import { INSTAGRAM_PROBLEM_ROUTES } from '@/lib/instagram-problem-routes'
-import { getSeasonalTrendRadar } from '@/lib/seasonal-trend-radar'
+import { getSeasonalTrendRadar, SEASONAL_TREND_ENTRIES } from '@/lib/seasonal-trend-radar'
 import { getBreadcrumbJsonLd, getItemListJsonLd } from '@/lib/schema'
 import { getCanonicalBaseUrl } from '@/lib/server/env'
 import { buildMarketingMetadata } from '@/lib/seo'
@@ -23,8 +22,8 @@ export const metadata: Metadata = buildMarketingMetadata({
 
 const problemVisuals: Record<string, { src: string; alt: string }> = {
   'pies-szczeka-na-psy': {
-    src: 'https://images.pexels.com/photos/12031034/pexels-photo-12031034.jpeg?auto=compress&cs=tinysrgb&w=1600&h=1000&fit=crop',
-    alt: 'Biały pies szczeka na smyczy podczas spaceru w parku',
+    src: '/blog-covers/blog-dlaczego-moj-pies-szczeka-na-inne-psy-photo.webp',
+    alt: 'Dwa psy spotykają się na smyczach podczas spaceru',
   },
   'pies-ciagnie-na-smyczy': {
     src: 'https://images.pexels.com/photos/9956390/pexels-photo-9956390.jpeg?auto=compress&cs=tinysrgb&w=1600&h=1000&fit=crop',
@@ -153,6 +152,11 @@ function getSeasonalVisual(entryId: string) {
 
 export default function ProblemyPage() {
   const seasonalTrendRadar = getSeasonalTrendRadar()
+  const activeSeasonalIds = new Set(seasonalTrendRadar.activeEntries.map((entry) => entry.id))
+  const seasonalEntries = [
+    ...seasonalTrendRadar.activeEntries,
+    ...SEASONAL_TREND_ENTRIES.filter((entry) => !activeSeasonalIds.has(entry.id)),
+  ]
   const baseUrl = getCanonicalBaseUrl()
   const groupedProblems = TREND_PROBLEM_GROUPS.map((group) => ({
     ...group,
@@ -183,7 +187,10 @@ export default function ProblemyPage() {
         <div className="blog-redesign-content problem-hub-content">
           <section className="problem-hub-hero problem-hub-map-hero" aria-labelledby="problem-hub-title">
             <div className="problem-hub-hero-copy">
-              <h1 id="problem-hub-title">Mapa problemów</h1>
+              <h1 id="problem-hub-title">
+                <span>Mapa</span>
+                <span>problemów</span>
+              </h1>
               <p>
                 Zacznij od sytuacji, którą widzisz u swojego psa lub kota. Znajdziesz tu pierwszy krok,
                 artykuł albo Mapę sprawy, które pomogą spokojnie ruszyć dalej.
@@ -215,12 +222,11 @@ export default function ProblemyPage() {
 
             <figure className="problem-hub-hero-visual">
               <Image
-                src="https://images.pexels.com/photos/28852102/pexels-photo-28852102.jpeg?auto=compress&cs=tinysrgb&w=1800&h=1200&fit=crop"
-                alt="Pies i kot stoją razem na zewnątrz w naturalnym otoczeniu"
+                src="/branding/problemy/hero-problemy-opiekun-pies-kot-v2.webp"
+                alt="Zatroskana opiekunka obserwuje napiętego psa i czujnego kota w domu"
                 fill
                 priority
                 sizes="(max-width: 860px) 100vw, 58vw"
-                unoptimized
               />
             </figure>
 
@@ -345,23 +351,24 @@ export default function ProblemyPage() {
                 <CalendarDays size={23} strokeWidth={1.85} />
               </span>
               <div>
-                <h2 id="problem-hub-seasonal-title">Sezon</h2>
+                <h2 id="problem-hub-seasonal-title">Gdy zmienia się pora roku</h2>
                 <p>
-                  Są tematy, które wracają falami: hałas, wyjazdy, opieka zastępcza i zmiana rytmu.
-                  Tu dostajesz szybkie wejście do właściwego pierwszego kroku.
+                  Latem częściej pojawia się lęk przed burzą i napięcie związane z wyjazdami. Jesienią
+                  wracają trudności z zostawaniem samemu, a zimą lęk przed fajerwerkami.
                 </p>
               </div>
             </div>
             <div className="problem-hub-seasonal-grid">
-              {seasonalTrendRadar.activeEntries.map((entry) => {
+              {seasonalEntries.map((entry) => {
                 const visual = getSeasonalVisual(entry.id)
+                const isActive = activeSeasonalIds.has(entry.id)
 
                 return (
                   <Link
                     key={entry.id}
                     href={entry.href}
                     prefetch={false}
-                    className="problem-hub-seasonal-card problem-hub-seasonal-card-visual"
+                    className={`problem-hub-seasonal-card problem-hub-seasonal-card-visual${isActive ? ' is-active' : ''}`}
                     data-analytics-event="topic_selected"
                     data-analytics-location="problem-hub-seasonal"
                     data-analytics-campaign={seasonalTrendRadar.campaign}
@@ -375,11 +382,13 @@ export default function ProblemyPage() {
                     <span className="problem-hub-seasonal-media" aria-hidden="true">
                       <Image src={visual.src} alt="" fill sizes="(max-width: 760px) 36vw, 190px" unoptimized />
                     </span>
-                    <span>{entry.eyebrow}</span>
+                    <span className="problem-hub-seasonal-status">
+                      {isActive ? 'Teraz' : entry.seasonLabel}
+                    </span>
                     <strong>{entry.title}</strong>
                     <p>{entry.copy}</p>
                     <small>
-                      {entry.seasonLabel}
+                      {entry.ctaLabel}
                       <ArrowRight size={14} strokeWidth={1.9} aria-hidden="true" />
                     </small>
                   </Link>
@@ -419,34 +428,26 @@ export default function ProblemyPage() {
             </Link>
           </section>
 
-          <section className="problem-hub-ig-map problem-hub-routes-map" aria-labelledby="problem-hub-ig-title">
-            <div className="blog-redesign-section-heading">
-              <h2 id="problem-hub-ig-title">Szybkie ścieżki z Instagrama</h2>
+          <section className="problem-hub-next-step" aria-labelledby="problem-hub-next-step-title">
+            <span className="problem-hub-next-step-icon" aria-hidden="true">
+              <Compass size={30} strokeWidth={1.75} />
+            </span>
+            <div>
+              <p className="problem-hub-next-step-kicker">Nie widzisz swojej sytuacji?</p>
+              <h2 id="problem-hub-next-step-title">Nie musisz dopasowywać problemu na siłę</h2>
               <p>
-                Jeśli trafiasz tu z posta albo stories, te linki prowadzą do tej samej logiki:
-                problem, krótki kontekst, Mapa zachowania albo rezerwacja.
+                Ta strona zbiera najczęstsze sytuacje. Jeśli objawy się mieszają albo problem wygląda
+                inaczej, przejdź przez Mapę zachowania i zacznij od tego, co naprawdę obserwujesz.
               </p>
             </div>
-            <div className="problem-hub-ig-grid">
-              {INSTAGRAM_PROBLEM_ROUTES.map((route) => (
-                <Link
-                  key={route.id}
-                  href={route.href}
-                  prefetch={false}
-                  data-analytics-event="topic_selected"
-                  data-analytics-location="problem-hub-instagram-map"
-                  data-analytics-problem={route.problemKey}
-                  data-analytics-cta-label={route.label}
-                  data-analytics-item-type="instagram_problem_route"
-                  data-analytics-item-slug={route.problemKey}
-                  data-analytics-target-href={route.publicHref}
-                  data-analytics-campaign="trend_radar"
-                >
-                  <span>{route.postTopic}</span>
-                  <strong>{route.label}</strong>
-                  <small>{route.publicHref}</small>
-                </Link>
-              ))}
+            <div className="problem-hub-next-step-actions">
+              <Link href="/mapa-sprawy" prefetch={false}>
+                Przejdź przez Mapę zachowania
+                <ArrowRight size={16} strokeWidth={1.9} aria-hidden="true" />
+              </Link>
+              <Link href="/blog" prefetch={false} className="is-secondary">
+                Zobacz wszystkie artykuły
+              </Link>
             </div>
           </section>
         </div>

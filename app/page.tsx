@@ -3,7 +3,6 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, CalendarCheck, Headphones, MessageSquareText, Video } from 'lucide-react'
 import { EditorialIndexTopbar } from '@/components/EditorialIndexTopbar'
-import { FinalReviewsQuoteCarousel } from '@/components/FinalReviewsQuoteCarousel'
 import { FaqAccordion } from '@/components/FaqAccordion'
 import { HomepageIntroPopup } from '@/components/HomepageIntroPopup'
 import { HomepageServiceSelector } from '@/components/HomepageServiceSelector'
@@ -27,8 +26,8 @@ const processIcons = [MessageSquareText, Headphones, CalendarCheck] as const
 
 const HOME_PROBLEM_VISUALS: Record<string, { src: string; alt: string }> = {
   'pies-szczeka-na-psy': {
-    src: 'https://images.pexels.com/photos/12031034/pexels-photo-12031034.jpeg?auto=compress&cs=tinysrgb&w=1600',
-    alt: 'Biały pies szczeka na smyczy podczas spaceru w parku',
+    src: '/blog-covers/blog-dlaczego-moj-pies-szczeka-na-inne-psy-photo.webp',
+    alt: 'Dwa psy spotykają się na smyczach podczas spaceru',
   },
   'pies-ciagnie-na-smyczy': {
     src: 'https://images.pexels.com/photos/9956390/pexels-photo-9956390.jpeg?auto=compress&cs=tinysrgb&w=1600&h=1000&fit=crop',
@@ -44,10 +43,40 @@ const HOME_PROBLEM_VISUALS: Record<string, { src: string; alt: string }> = {
   },
 }
 
+const HOME_SEASONAL_VISUALS: Record<string, { src: string; alt: string }> = {
+  'burze-i-nagly-halas': {
+    src: 'https://images.pexels.com/photos/18948630/pexels-photo-18948630.jpeg?auto=compress&cs=tinysrgb&w=1200&h=800&fit=crop',
+    alt: 'Pies odpoczywa w osłoniętym miejscu podczas głośnego zdarzenia',
+  },
+  'wakacje-opieka-i-zmiana-rytmu': {
+    src: 'https://images.pexels.com/photos/10972597/pexels-photo-10972597.jpeg?auto=compress&cs=tinysrgb&w=1200&h=800&fit=crop',
+    alt: 'Pies podróżuje samochodem razem z opiekunem',
+  },
+  'powrot-do-pracy-i-szkoly': {
+    src: 'https://images.pexels.com/photos/4969879/pexels-photo-4969879.jpeg?auto=compress&cs=tinysrgb&w=1200&h=800&fit=crop',
+    alt: 'Pies odpoczywa w domu po zmianie codziennego rytmu',
+  },
+  'sylwester-i-fajerwerki': {
+    src: 'https://images.pexels.com/photos/19823544/pexels-photo-19823544.jpeg?auto=compress&cs=tinysrgb&w=1200&h=800&fit=crop',
+    alt: 'Pies odpoczywa pod kocem w spokojnym miejscu',
+  },
+  'adopcja-i-pierwsze-tygodnie': {
+    src: 'https://images.pexels.com/photos/31525931/pexels-photo-31525931.jpeg?auto=compress&cs=tinysrgb&w=1200&h=800&fit=crop',
+    alt: 'Młody pies poznaje nowy dom',
+  },
+}
+
 function getHomeProblemVisual(problemId: string) {
   return HOME_PROBLEM_VISUALS[problemId] ?? {
     src: 'https://images.pexels.com/photos/4588894/pexels-photo-4588894.jpeg?auto=compress&cs=tinysrgb&w=1600&h=1000&fit=crop',
     alt: 'Pies podczas spokojnego spaceru',
+  }
+}
+
+function getHomeSeasonalVisual(entryId: string) {
+  return HOME_SEASONAL_VISUALS[entryId] ?? {
+    src: '/images/mobile-header-pies-kot-reference.png',
+    alt: 'Pies i kot odpoczywają razem w domu',
   }
 }
 
@@ -192,39 +221,58 @@ export default function HomePage() {
         </section>
         <section className="compact-home-section home-seasonal-trend-section" aria-labelledby="home-seasonal-trend-title">
           <div className="home-seasonal-trend-panel">
-            <div className="home-seasonal-trend-copy">
-              <span className="home-trend-problems-kicker">Trend radar sezonowy</span>
-              <h2 id="home-seasonal-trend-title">Teraz warto sprawdzić tematy, które zwykle nasilają się w sezonie</h2>
-              <p>
-                To nie są osobne usługi. To szybkie wejścia do istniejącej ścieżki: problem, pierwszy kontekst i Mapa zachowania, gdy trzeba wybrać zakres pomocy.
-              </p>
+            <div className="home-seasonal-trend-heading">
+              <span className="home-seasonal-trend-icon" aria-hidden="true">
+                <CalendarCheck size={28} strokeWidth={1.75} />
+              </span>
+              <div className="home-seasonal-trend-copy">
+                <span className="home-trend-problems-kicker">Ważne o tej porze roku</span>
+                <h2 id="home-seasonal-trend-title">Burze i wyjazdy mogą zmienić codzienny rytm</h2>
+                <p>
+                  Latem częściej pojawia się lęk przed nagłym hałasem, a wyjazd lub zmiana opiekuna mogą
+                  zwiększyć napięcie. Wybierz sytuację i przeczytaj, co zrobić jako pierwsze.
+                </p>
+              </div>
+              <Link href="/problemy#problem-hub-seasonal-title" prefetch={false} className="home-seasonal-trend-all">
+                Wszystkie pory roku
+                <ArrowRight size={15} strokeWidth={1.9} aria-hidden="true" />
+              </Link>
             </div>
             <div className="home-seasonal-trend-grid">
-              {seasonalTrendRadar.activeEntries.map((entry) => (
-                <Link
-                  key={entry.id}
-                  href={entry.href}
-                  prefetch={false}
-                  className="home-seasonal-trend-card"
-                  data-analytics-event="topic_selected"
-                  data-analytics-location="home-seasonal-trends"
-                  data-analytics-campaign={seasonalTrendRadar.campaign}
-                  data-analytics-problem={entry.problemKey}
-                  data-analytics-species={entry.species}
-                  data-analytics-cta-label={entry.ctaLabel}
-                  data-analytics-item-type="seasonal_topic"
-                  data-analytics-item-slug={entry.id}
-                  data-analytics-target-href={entry.href}
-                >
-                  <span>{entry.eyebrow}</span>
-                  <strong>{entry.title}</strong>
-                  <p>{entry.copy}</p>
-                  <small>
-                    {entry.seasonLabel}
-                    <ArrowRight size={14} strokeWidth={1.9} aria-hidden="true" />
-                  </small>
-                </Link>
-              ))}
+              {seasonalTrendRadar.activeEntries.map((entry) => {
+                const visual = getHomeSeasonalVisual(entry.id)
+
+                return (
+                  <Link
+                    key={entry.id}
+                    href={entry.href}
+                    prefetch={false}
+                    className="home-seasonal-trend-card"
+                    data-analytics-event="topic_selected"
+                    data-analytics-location="home-seasonal-trends"
+                    data-analytics-campaign={seasonalTrendRadar.campaign}
+                    data-analytics-problem={entry.problemKey}
+                    data-analytics-species={entry.species}
+                    data-analytics-cta-label={entry.ctaLabel}
+                    data-analytics-item-type="seasonal_topic"
+                    data-analytics-item-slug={entry.id}
+                    data-analytics-target-href={entry.href}
+                  >
+                    <figure className="home-seasonal-trend-media">
+                      <Image src={visual.src} alt={visual.alt} fill unoptimized sizes="(max-width: 700px) 92vw, 420px" />
+                    </figure>
+                    <div className="home-seasonal-trend-card-copy">
+                      <span>Teraz</span>
+                      <strong>{entry.title}</strong>
+                      <p>{entry.copy}</p>
+                      <small>
+                        {entry.ctaLabel}
+                        <ArrowRight size={14} strokeWidth={1.9} aria-hidden="true" />
+                      </small>
+                    </div>
+                  </Link>
+                )
+              })}
             </div>
           </div>
         </section>
@@ -316,9 +364,13 @@ export default function HomePage() {
           </div>
         </section>
 
-        <NotatnikFooter variant="home" primaryHref="/mapa-sprawy" primaryLabel="Mapa zachowania" />
+        <NotatnikFooter
+          variant="home"
+          primaryHref="/mapa-sprawy"
+          primaryLabel="Mapa zachowania"
+          reviewLayout="editorial"
+        />
       </div>
     </main>
   )
 }
-

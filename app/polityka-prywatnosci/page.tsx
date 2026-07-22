@@ -48,7 +48,10 @@ const sections: LegalSection[] = [
           <li>W Mapie zachowania: odpowiedzi wpisane lub wybrane przez użytkownika; pełna Mapa jest zapisywana w prywatnym Pokoju wyłącznie po osobnej, dobrowolnej zgodzie. Do oczekiwania na odbiór przechowujemy skrót e-maila i skrót jednorazowego potwierdzenia.</li>
           <li>Przy realizacji usługi: dane potrzebne do potwierdzenia rezerwacji, wysyłki wiadomości oraz dostępu do pokoju rozmowy.</li>
           <li>W materiałach przygotowawczych: notatki, linki i pliki dodane dobrowolnie przez klienta.</li>
-          <li>W formularzach materiałów bezpłatnych i newslettera: adres e-mail, segment tematyczny oraz identyfikator materiału lub źródła zapisu.</li>
+          <li>
+            W formularzach materiałów bezpłatnych i newslettera: adres e-mail, segment tematyczny, identyfikator
+            materiału lub źródła zapisu, status i czas zgody oraz techniczny identyfikator rezygnacji.
+          </li>
         </ul>
       </>
     ),
@@ -138,6 +141,17 @@ const sections: LegalSection[] = [
         <p>
           Formularze materiałów bezpłatnych i newslettera służą do przyjęcia zgłoszenia, przypisania go do właściwej
           strony, materiału lub segmentu tematycznego oraz obsługi dalszego kroku wynikającego z danego formularza.
+        </p>
+        <p>
+          Zapis do newslettera odbywa się na podstawie dobrowolnej zgody. Adres może zostać przekazany dostawcy listy
+          mailingowej w celu prowadzenia wysyłki, a wiadomość z materiałem startowym może zostać obsłużona przez
+          skonfigurowanego dostawcę poczty transakcyjnej. Dane nie są przekazywane do innych celów niż wskazane przy
+          zapisie.
+        </p>
+        <p>
+          Zgodę na newsletter można wycofać w każdym czasie przez link rezygnacji w wiadomości albo przez kontakt z
+          administratorem. Wycofanie zgody jest bezpłatne, nie powoduje negatywnych konsekwencji i nie wpływa na
+          zgodność z prawem przetwarzania wykonanego przed jej wycofaniem.
         </p>
         <p>
           Serwis zapisuje decyzję dotyczącą analityki w pamięci przeglądarki (localStorage) i pliku cookie. Narzędzia analityczne nie są

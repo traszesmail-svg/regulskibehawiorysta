@@ -54,8 +54,8 @@ const BLOG_POPULAR_SLUGS = [
   'pies-ciagnie-na-smyczy',
 ] as const
 
-const BLOG_HERO_IMAGE = '/branding/regulski-web/hero/hero-blog.png'
-const BLOG_AUTHOR_IMAGE = '/branding/specialist-krzysztof-portrait.jpg'
+const BLOG_HERO_IMAGE = '/branding/section-heroes/blog-observation-v1.webp'
+const BLOG_AUTHOR_IMAGE = '/branding/omnie.png'
 
 type BlogSearchParams = {
   category?: string | string[]
@@ -319,7 +319,13 @@ export default async function BlogPage(props: { searchParams?: Promise<BlogSearc
     <main className="notatnik-page blog-page blog-index-page blog-redesign-page blog-magazine-page">
       <Schema data={structuredData} />
       <div className="notatnik-shell blog-index-shell blog-redesign-shell blog-magazine-shell">
-        <NotatnikTopbar tag="Regulski" navItems={PUBLIC_SITE_NAV_ITEMS} showUtilityLinks={false} />
+        <NotatnikTopbar
+          tag="Regulski"
+          navItems={PUBLIC_SITE_NAV_ITEMS}
+          showUtilityLinks={false}
+          ctaHref="/cennik"
+          ctaLabel="Umów konsultację"
+        />
         <ReferenceHeroLeaf />
 
         <div className="blog-redesign-content blog-magazine-content">
@@ -333,14 +339,20 @@ export default async function BlogPage(props: { searchParams?: Promise<BlogSearc
               </p>
               <div className="blog-magazine-hero-actions">
                 <Link href="/mapa-sprawy" prefetch={false}>
-                  Umów konsultację
+                  Znajdź pierwszy krok
                   <ArrowRight size={17} strokeWidth={1.9} aria-hidden="true" />
                 </Link>
-                <span>Indywidualna pomoc dopasowana do Was</span>
+                <span>Zacznij od sytuacji, którą widzisz na co dzień</span>
               </div>
             </div>
-            <figure className="blog-magazine-hero-art" aria-hidden="true">
-              <Image src={BLOG_HERO_IMAGE} alt="" fill sizes="(max-width: 760px) 92vw, 620px" priority />
+            <figure className="blog-magazine-hero-art">
+              <Image
+                src={BLOG_HERO_IMAGE}
+                alt="Opiekun zapisuje obserwacje zachowania psa i kota w domowym gabinecie"
+                fill
+                sizes="(max-width: 760px) 92vw, 620px"
+                priority
+              />
             </figure>
           </section>
 
@@ -470,7 +482,13 @@ export default async function BlogPage(props: { searchParams?: Promise<BlogSearc
             <aside className="blog-magazine-sidebar" aria-label="Pomocnicze informacje bloga">
               <section className="blog-author-card">
                 <h2>O autorze</h2>
-                <Image src={BLOG_AUTHOR_IMAGE} alt="Krzysztof Regulski" width={132} height={132} loading="lazy" />
+                <Image
+                  src={BLOG_AUTHOR_IMAGE}
+                  alt="Krzysztof Regulski z kotem"
+                  width={260}
+                  height={347}
+                  loading="lazy"
+                />
                 <strong>Krzysztof Regulski</strong>
                 <span>Behawiorysta psów i kotów</span>
                 <p>Pomagam opiekunom lepiej zrozumieć zachowanie zwierząt i dobrać spokojny, praktyczny pierwszy krok.</p>
@@ -481,11 +499,18 @@ export default async function BlogPage(props: { searchParams?: Promise<BlogSearc
               </section>
 
               <section className="blog-newsletter-card">
-                <Mail size={30} strokeWidth={1.55} aria-hidden="true" />
-                <h2>Bądź na bieżąco</h2>
-                <p>Nowe artykuły, proste wskazówki i tematy, które warto zauważyć wcześniej.</p>
+                <span className="blog-newsletter-card-icon" aria-hidden="true">
+                  <Mail size={27} strokeWidth={1.65} />
+                </span>
+                <small>Raz w miesiącu</small>
+                <h2>Spokojna wiedza i materiał na start</h2>
+                <p>Jedna praktyczna wiadomość, sezonowy temat i PDF dopasowany do psa, kota albo obu.</p>
+                <ul>
+                  <li>bez codziennego spamu</li>
+                  <li>wypisanie jednym kliknięciem</li>
+                </ul>
                 <Link href="/newsletter" prefetch={false}>
-                  Zapisz się
+                  Zobacz newsletter
                   <ArrowRight size={15} strokeWidth={1.9} aria-hidden="true" />
                 </Link>
               </section>
@@ -512,7 +537,7 @@ export default async function BlogPage(props: { searchParams?: Promise<BlogSearc
               <h2>Potrzebujesz indywidualnej pomocy?</h2>
               <p>Każde zwierzę jest inne. Jeśli artykuł pomaga nazwać problem, konsultacja pomaga ułożyć pierwszy plan działania.</p>
             </div>
-            <Link href="/mapa-sprawy" prefetch={false}>
+            <Link href="/cennik" prefetch={false}>
               Umów konsultację
               <ArrowRight size={17} strokeWidth={1.9} aria-hidden="true" />
             </Link>

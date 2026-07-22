@@ -17,9 +17,9 @@ test('blog covers use unique external 16:10 image sources', () => {
     /^  '([^']+)': \{\r?\n    src: '([^']+)',\r?\n    alt: '([^']+)',/gm,
   )].map(([, slug, src, alt]) => ({ slug, src, alt }))
 
-  assert.equal(covers.length, 24)
-  assert.equal(new Set(covers.map(({ slug }) => slug)).size, 24)
-  assert.equal(new Set(covers.map(({ src }) => src)).size, 24)
+  assert.equal(covers.length, 26)
+  assert.equal(new Set(covers.map(({ slug }) => slug)).size, 26)
+  assert.equal(new Set(covers.map(({ src }) => src)).size, 26)
   assert.ok(covers.every(({ alt }) => alt.trim().length >= 12))
 
   for (const { src } of covers) {

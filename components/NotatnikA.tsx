@@ -53,6 +53,7 @@ type NotatnikFooterProps = {
   variant?: 'landing' | 'lean' | 'full' | 'home' | 'legal'
   showReviews?: boolean
   reviewSpecies?: 'dog' | 'cat' | 'all'
+  reviewLayout?: 'carousel' | 'editorial'
 }
 
 type NotatnikPageShellProps = {
@@ -288,6 +289,7 @@ export function NotatnikFooter({
   variant = 'home',
   showReviews = true,
   reviewSpecies = 'all',
+  reviewLayout = 'carousel',
 }: NotatnikFooterProps) {
   return (
     <Footer
@@ -296,6 +298,7 @@ export function NotatnikFooter({
       ctaLabel={primaryLabel}
       showReviews={showReviews}
       reviewSpecies={reviewSpecies}
+      reviewLayout={reviewLayout}
     />
   )
 }

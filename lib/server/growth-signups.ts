@@ -116,7 +116,7 @@ async function writeLocalRecords(records: GrowthSignupRecord[]) {
 
 export async function upsertGrowthSignup(input: GrowthSignupInput): Promise<GrowthSignupRecord> {
   const nowIso = new Date().toISOString()
-  const marketingOptIn = input.kind === 'lead_magnet' && input.marketingOptIn === true
+  const marketingOptIn = input.marketingOptIn === true
   const record: GrowthSignupRecord = {
     id: getSignupId(input),
     email: input.email.trim().toLowerCase(),

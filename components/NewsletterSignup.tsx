@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, type FormEvent } from 'react'
+import Link from 'next/link'
 import { trackAnalyticsEvent } from '@/lib/analytics'
 import type { GrowthSpecies } from '@/lib/growth-layer'
 
@@ -21,8 +22,13 @@ const NEWSLETTER_SIGNUP_COPY = {
   buttonLabel: 'Zapisz się',
   note: 'Bez spamu, bez codziennych maili. Możesz wypisać się jednym kliknięciem.',
   successTitle: 'Dziękuję za zapis',
-  successBody: 'Na liście zostajesz po to, żeby dostawać praktyczne treści, a nie częste kampanie sprzedażowe.',
+  successBody: 'Zapis został przyjęty. Pierwszy materiał możesz pobrać od razu.',
 } as const
+
+type WelcomeMaterial = {
+  title: string
+  downloadUrl: string
+}
 
 function isEmailValid(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
@@ -38,8 +44,11 @@ export function NewsletterSignup({
 }: NewsletterSignupProps) {
   const [email, setEmail] = useState('')
   const [segment, setSegment] = useState<GrowthSpecies>('oba')
+  const [consent, setConsent] = useState(false)
+  const [website, setWebsite] = useState('')
   const [status, setStatus] = useState<FormState>('idle')
   const [feedback, setFeedback] = useState('')
+  const [welcomeMaterial, setWelcomeMaterial] = useState<WelcomeMaterial | null>(null)
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -50,8 +59,15 @@ export function NewsletterSignup({
       return
     }
 
+    if (!consent) {
+      setStatus('error')
+      setFeedback('Potwierdź zgodę na otrzymywanie newslettera.')
+      return
+    }
+
     setStatus('loading')
     setFeedback('')
+    setWelcomeMaterial(null)
 
     try {
       const response = await fetch('/api/growth/signup', {
@@ -63,12 +79,20 @@ export function NewsletterSignup({
           kind: 'newsletter',
           email: email.trim(),
           segment,
+          consentNewsletter: consent,
+          marketingOptIn: consent,
+          website,
           location,
           sourcePage,
         }),
       })
 
-      const payload = (await response.json()) as { ok?: boolean; message?: string; error?: string }
+      const payload = (await response.json()) as {
+        ok?: boolean
+        message?: string
+        error?: string
+        welcomeMaterial?: WelcomeMaterial
+      }
 
       if (!response.ok || !payload.ok) {
         throw new Error(payload.error ?? 'Nie udało się zapisać do newslettera.')
@@ -82,8 +106,11 @@ export function NewsletterSignup({
 
       setStatus('success')
       setFeedback(payload.message ?? NEWSLETTER_SIGNUP_COPY.successBody)
+      setWelcomeMaterial(payload.welcomeMaterial ?? null)
       setEmail('')
       setSegment('oba')
+      setConsent(false)
+      setWebsite('')
     } catch (error) {
       setStatus('error')
       setFeedback(error instanceof Error ? error.message : 'Nie udało się zapisać do newslettera.')
@@ -97,6 +124,19 @@ export function NewsletterSignup({
       <p className="muted">{lead}</p>
 
       <form className={`form-grid top-gap${compact ? ' compact-form-grid' : ''}`} onSubmit={handleSubmit} noValidate>
+        <div className="newsletter-honeypot" aria-hidden="true">
+          <label htmlFor={`newsletter-website-${location}`}>Strona internetowa</label>
+          <input
+            id={`newsletter-website-${location}`}
+            name="website"
+            type="text"
+            value={website}
+            onChange={(event) => setWebsite(event.target.value)}
+            tabIndex={-1}
+            autoComplete="off"
+          />
+        </div>
+
         <div className="form-field">
           <label htmlFor={`newsletter-email-${location}`}>E-mail</label>
           <input
@@ -124,6 +164,22 @@ export function NewsletterSignup({
           </select>
         </div>
 
+        <label className="checkbox-field full-width newsletter-consent-field">
+          <input
+            name="consentNewsletter"
+            type="checkbox"
+            checked={consent}
+            onChange={(event) => setConsent(event.target.checked)}
+          />
+          <span>
+            Chcę otrzymywać newsletter o zachowaniu psów i kotów. Znam zasady opisane w{' '}
+            <Link href="/polityka-prywatnosci" prefetch={false}>
+              polityce prywatności
+            </Link>
+            .
+          </span>
+        </label>
+
         <div className="full-width hero-actions top-gap-small">
           <button type="submit" className="button button-primary" disabled={status === 'loading'}>
             {status === 'loading' ? 'Zapisuje...' : NEWSLETTER_SIGNUP_COPY.buttonLabel}
@@ -136,6 +192,11 @@ export function NewsletterSignup({
           <div className={`full-width info-box ${status === 'error' ? 'error-box' : ''}`}>
             <strong>{status === 'success' ? NEWSLETTER_SIGNUP_COPY.successTitle : 'Uwaga'}</strong>
             <span>{feedback}</span>
+            {status === 'success' && welcomeMaterial ? (
+              <a className="newsletter-material-download" href={welcomeMaterial.downloadUrl}>
+                Pobierz teraz: {welcomeMaterial.title}
+              </a>
+            ) : null}
           </div>
         ) : null}
       </form>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import {
   BookOpen,
@@ -15,6 +16,12 @@ import {
 } from 'lucide-react'
 import type { AccountHomePayload, AccountPet, AccountPetSpecies } from '@/lib/account'
 import type { CaseMapSummary } from '@/lib/case-map'
+import {
+  PRICE_LABEL,
+  getMaterialyGuideBySlug,
+  getMaterialyGuideCoverSrc,
+  type MaterialyGuide,
+} from '@/lib/materialy-catalog'
 
 type AccountView = 'start' | 'pupil' | 'rozmowa' | 'materialy' | 'historia'
 
@@ -35,6 +42,21 @@ const ACCOUNT_VIEWS: Array<{ id: AccountView; label: string; icon: typeof PawPri
   { id: 'materialy', label: 'Materiały', icon: BookOpen },
   { id: 'historia', label: 'Historia', icon: History },
 ]
+
+const ROOM_MATERIAL_SLUGS: Record<AccountPetSpecies, string[]> = {
+  pies: ['pies-sam-w-domu', 'pies-zostaje-sam-plan-pierwszych-krokow', 'pies-reaktywny-na-spacerze'],
+  kot: ['pierwszy-tydzien-z-kotem', 'kot-i-kuweta-pierwszy-plan-dzialania', 'konflikt-miedzy-kotami-w-domu'],
+}
+
+function getRoomMaterialGuides(species: AccountPetSpecies): MaterialyGuide[] {
+  return ROOM_MATERIAL_SLUGS[species]
+    .map((slug) => getMaterialyGuideBySlug(slug))
+    .filter((guide): guide is MaterialyGuide => Boolean(guide))
+}
+
+function buildRoomMaterialOrderHref(slug: string) {
+  return `/zamow-pdf?guide=${encodeURIComponent(slug)}`
+}
 
 function formatDateTime(value: string) {
   try {
@@ -303,37 +325,94 @@ export function AccountRoomApp({ initialView = 'start', initialSessionHint = fal
 
   if (!authenticated) {
     return (
-      <section className="account-room-panel account-room-panel-shell">
-        <div className="section-eyebrow">Pokój opiekuna</div>
-        <h1>Zaloguj się, żeby zobaczyć swoje rezerwacje i materiały.</h1>
-        <p className="hero-text small-width center-text">
-          Konto łączy zakupione PDF-y, konsultacje, profil pupila, rozmowę i pliki w jednym miejscu.
-        </p>
-        <div className="hero-actions centered-actions">
-          <Link href="/login" className="button button-primary big-button">
-            <LogIn size={18} aria-hidden="true" />
-            Zaloguj się
-          </Link>
-          <Link href="/dostep" className="button button-ghost big-button">
-            Mam kod dostępu
-          </Link>
+      <section className="account-room-panel account-room-panel-shell account-room-entry">
+        <div className="account-room-entry-copy">
+          <div className="section-eyebrow">Twój prywatny Pokój</div>
+          <h1>Wszystko o Twoim pupilu w jednym spokojnym miejscu</h1>
+          <p className="account-room-entry-lead">
+            Po zalogowaniu zobaczysz najbliższy termin, materiały i historię sprawy. Uzupełnisz też
+            profil pupila, wrócisz do Mapy zachowania i wyślesz wiadomość lub plik.
+          </p>
+
+          <ul className="account-room-entry-benefits" aria-label="Co znajdziesz w Pokoju opiekuna">
+            <li>
+              <span className="account-room-entry-icon">
+                <Smartphone size={20} aria-hidden="true" />
+              </span>
+              <span>
+                <strong>Terminy i link do rozmowy</strong>
+                <small>Wszystkie informacje przed konsultacją pod ręką.</small>
+              </span>
+            </li>
+            <li>
+              <span className="account-room-entry-icon">
+                <PawPrint size={20} aria-hidden="true" />
+              </span>
+              <span>
+                <strong>Profil pupila i zapisane Mapy</strong>
+                <small>Nie musisz za każdym razem opowiadać wszystkiego od początku.</small>
+              </span>
+            </li>
+            <li>
+              <span className="account-room-entry-icon">
+                <BookOpen size={20} aria-hidden="true" />
+              </span>
+              <span>
+                <strong>Materiały, wiadomości i pliki</strong>
+                <small>Wracasz do zaleceń wtedy, kiedy naprawdę ich potrzebujesz.</small>
+              </span>
+            </li>
+          </ul>
+
+          <div className="account-room-entry-actions">
+            <Link href="/login" className="button button-primary big-button">
+              <LogIn size={18} aria-hidden="true" />
+              Otwórz mój Pokój
+            </Link>
+            <Link href="/dostep" className="button button-ghost big-button">
+              Mam tylko kod do PDF
+            </Link>
+          </div>
+          <p className="account-room-entry-security">Twoje dane są widoczne dopiero po zalogowaniu.</p>
         </div>
+
+        <figure className="account-room-entry-media">
+          <Image
+            src="/branding/section-heroes/room-access-v1.webp"
+            alt="Opiekunka korzystająca z Pokoju opiekuna w domu, w towarzystwie psa i kota"
+            fill
+            priority
+            sizes="(max-width: 900px) 100vw, 52vw"
+          />
+          <figcaption>
+            <strong>Wracaj do sprawy bez szukania po mailach.</strong>
+            <span>Termin, profil pupila i materiały czekają w jednym miejscu.</span>
+          </figcaption>
+        </figure>
       </section>
     )
   }
 
+  const roomMaterialGuides = getRoomMaterialGuides(account?.pets[0]?.species === 'kot' ? 'kot' : 'pies')
+
   return (
     <section className="account-room-panel account-room-panel-shell">
       <div className="account-room-header">
-        <div>
-          <div className="section-eyebrow">Pokój opiekuna</div>
-          <h1>Moja aplikacja Regulski Behawiorysta</h1>
-          <p>{account?.profile.email}</p>
+        <div className="account-room-identity">
+          <div className="section-eyebrow">Prywatna przestrzeń</div>
+          <h1>Twój Pokój opiekuna</h1>
+          <p>Terminy, historia pupila, materiały i rozmowa z behawiorystą w jednym miejscu.</p>
         </div>
-        <button type="button" className="button button-ghost" onClick={signOut}>
-          <LogOut size={17} aria-hidden="true" />
-          Wyloguj
-        </button>
+        <div className="account-room-header-actions">
+          <span className="account-user-chip">
+            <PawPrint size={16} aria-hidden="true" />
+            {account?.profile.email}
+          </span>
+          <button type="button" className="button button-ghost account-signout" onClick={signOut}>
+            <LogOut size={17} aria-hidden="true" />
+            Wyloguj
+          </button>
+        </div>
       </div>
 
       <AccountInstallPrompt />
@@ -359,64 +438,91 @@ export function AccountRoomApp({ initialView = 'start', initialSessionHint = fal
       {notice ? <p className="form-success account-alert">{notice}</p> : null}
 
       {activeView === 'start' ? (
-        <div className="account-dashboard-grid">
-          <article className="account-room-card">
-            <span className="account-card-kicker">Najbliższy krok</span>
-            <h2>{account?.bookings[0]?.title ?? 'Brak aktywnej rezerwacji'}</h2>
-            <p>{account?.bookings[0]?.dateLabel ?? 'Po rezerwacji termin pojawi się tutaj.'}</p>
-            {account?.bookings[0]?.meetingUrl ? (
-              <a href={account.bookings[0].meetingUrl} className="button button-primary" target="_blank" rel="noopener noreferrer">
-                Otwórz pokój rozmowy
-              </a>
-            ) : (
-              <Link href="/book" className="button button-primary">
-                Zarezerwuj konsultację
-              </Link>
-            )}
-          </article>
+        <div className="account-room-start">
+          <section className="account-room-overview">
+            <div className="account-room-overview-copy">
+              <span className="account-card-kicker">Wszystko pod ręką</span>
+              <h2>{account?.pets[0]?.name ? `Dobrze Cię widzieć. Co dziś słychać u ${account.pets[0].name}?` : 'Dobrze Cię widzieć. Od czego zaczynamy?'}</h2>
+              <p>
+                Wróć do rozmowy, uzupełnij historię pupila albo sprawdź najbliższy termin bez szukania po wiadomościach.
+              </p>
+              <div className="account-room-overview-actions">
+                <button type="button" className="button button-primary" onClick={() => setActiveView('rozmowa')}>
+                  <MessageCircle size={17} aria-hidden="true" />
+                  Przejdź do rozmowy
+                </button>
+                <button type="button" className="button button-ghost" onClick={() => setActiveView('pupil')}>
+                  <PawPrint size={17} aria-hidden="true" />
+                  Profil pupila
+                </button>
+              </div>
+            </div>
 
-          <article className="account-room-card">
-            <span className="account-card-kicker">Pupil</span>
-            <h2>{account?.pets[0]?.name ?? 'Dodaj pupila'}</h2>
-            <p>{account?.pets[0]?.behaviorNotes || 'Zdjęcie, wiek i krótka historia pomagają trzymać sprawę w jednym miejscu.'}</p>
-            <button type="button" className="button button-ghost" onClick={() => setActiveView('pupil')}>
-              <PawPrint size={17} aria-hidden="true" />
-              Uzupełnij
-            </button>
-          </article>
+            <div className="account-room-next-step">
+              <span className="account-card-kicker">Najbliższy termin</span>
+              <h3>{account?.bookings[0]?.title ?? 'Nie masz jeszcze rezerwacji'}</h3>
+              <p>{account?.bookings[0]?.dateLabel ?? 'Po rezerwacji termin i link do spotkania pojawią się właśnie tutaj.'}</p>
+              {account?.bookings[0]?.meetingUrl ? (
+                <a href={account.bookings[0].meetingUrl} className="button button-primary" target="_blank" rel="noopener noreferrer">
+                  Otwórz pokój rozmowy
+                </a>
+              ) : account?.bookings[0] ? (
+                <button type="button" className="button button-ghost" onClick={() => setActiveView('historia')}>
+                  Zobacz szczegóły
+                </button>
+              ) : (
+                <Link href="/cennik" className="button button-primary">
+                  Wybierz konsultację
+                </Link>
+              )}
+            </div>
+          </section>
 
-          <article className="account-room-card">
-            <span className="account-card-kicker">Materiały</span>
-            <h2>{account?.materials.length ?? 0} w koncie</h2>
-            <p>Zakupione ebooki i PDF-y będą widoczne po emailu konta.</p>
-            <button type="button" className="button button-ghost" onClick={() => setActiveView('materialy')}>
-              <BookOpen size={17} aria-hidden="true" />
-              Otwórz
-            </button>
-          </article>
+          <div className="account-room-quick-grid">
+            <article className="account-room-card account-quick-card">
+              <span className="account-quick-icon"><PawPrint size={21} aria-hidden="true" /></span>
+              <div>
+                <span className="account-card-kicker">Pupil</span>
+                <h2>{account?.pets[0]?.name ?? 'Dodaj pupila'}</h2>
+                <p>{account?.pets[0]?.behaviorNotes || 'Zapisz najważniejsze informacje i obserwacje.'}</p>
+              </div>
+              <button type="button" className="account-card-link" onClick={() => setActiveView('pupil')}>Otwórz profil <span aria-hidden="true">→</span></button>
+            </article>
 
-          <article className="account-room-card">
-            <span className="account-card-kicker">Mapy zachowania</span>
-            <h2>{caseMaps.length === 0 ? 'Brak zapisanych Map zachowania' : caseMaps.length === 1 ? '1 zapisana Mapa zachowania' : caseMaps.length + ' zapisane Mapy zachowania'}</h2>
-            <p>To prywatne podsumowania, do których możesz wrócić przed rozmową.</p>
-            {caseMaps[0] ? (
-              <Link href={'/mapa-sprawy?resume=' + encodeURIComponent(caseMaps[0].id)} className="button button-ghost">
-                Otwórz ostatnią Mapę zachowania
-              </Link>
-            ) : (
-              <Link href="/mapa-sprawy" className="button button-ghost">Rozpocznij Mapę zachowania</Link>
-            )}
-          </article>
+            <article className="account-room-card account-quick-card">
+              <span className="account-quick-icon"><MessageCircle size={21} aria-hidden="true" /></span>
+              <div>
+                <span className="account-card-kicker">Rozmowa</span>
+                <h2>{account?.conversations[0]?.messages.length ?? 0} wiadomości</h2>
+                <p>Wyślij opis, zdjęcie, film albo PDF do sprawy pupila.</p>
+              </div>
+              <button type="button" className="account-card-link" onClick={() => setActiveView('rozmowa')}>Napisz wiadomość <span aria-hidden="true">→</span></button>
+            </article>
 
-          <article className="account-room-card">
-            <span className="account-card-kicker">Rozmowa</span>
-            <h2>{account?.conversations[0]?.messages.length ?? 0} wiadomości</h2>
-            <p>Dodaj opis, zdjęcie, film albo PDF do sprawy pupila.</p>
-            <button type="button" className="button button-ghost" onClick={() => setActiveView('rozmowa')}>
-              <MessageCircle size={17} aria-hidden="true" />
-              Napisz
-            </button>
-          </article>
+            <article className="account-room-card account-quick-card">
+              <span className="account-quick-icon"><BookOpen size={21} aria-hidden="true" /></span>
+              <div>
+                <span className="account-card-kicker">Materiały</span>
+                <h2>{account?.materials.length ?? 0} w koncie</h2>
+                <p>Zakupione ebooki i PDF-y dostępne w jednym miejscu.</p>
+              </div>
+              <button type="button" className="account-card-link" onClick={() => setActiveView('materialy')}>Zobacz materiały <span aria-hidden="true">→</span></button>
+            </article>
+
+            <article className="account-room-card account-quick-card">
+              <span className="account-quick-icon"><History size={21} aria-hidden="true" /></span>
+              <div>
+                <span className="account-card-kicker">Mapy zachowania</span>
+                <h2>{caseMaps.length === 0 ? 'Zacznij pierwszą Mapę' : caseMaps.length === 1 ? '1 zapisana Mapa' : `${caseMaps.length} zapisane Mapy`}</h2>
+                <p>Wracaj do prywatnych podsumowań przed rozmową.</p>
+              </div>
+              {caseMaps[0] ? (
+                <Link href={'/mapa-sprawy?resume=' + encodeURIComponent(caseMaps[0].id)} className="account-card-link">Otwórz ostatnią Mapę <span aria-hidden="true">→</span></Link>
+              ) : (
+                <Link href="/mapa-sprawy" className="account-card-link">Rozpocznij Mapę <span aria-hidden="true">→</span></Link>
+              )}
+            </article>
+          </div>
         </div>
       ) : null}
 
@@ -479,18 +585,28 @@ export function AccountRoomApp({ initialView = 'start', initialSessionHint = fal
         const isMessageBlocked = isChatBlocked || isFullSupportExpired
 
         return (
-          <div className="account-split">
-            <div className="account-room-card">
-              <h2>Dodaj wiadomość albo plik</h2>
+          <div className="account-chat-layout">
+            <aside className="account-room-card account-chat-aside">
+              <span className="account-quick-icon"><MessageCircle size={22} aria-hidden="true" /></span>
+              <span className="account-card-kicker">Prywatna rozmowa</span>
+              <h2>{account?.pets[0]?.name ? `Sprawa: ${account.pets[0].name}` : 'Twoja rozmowa z behawiorystą'}</h2>
+              <p>
+                Opisz sytuację własnymi słowami. Możesz dołączyć zdjęcie, krótki film albo PDF — odpowiedź zostanie w tym Pokoju.
+              </p>
+
+              <div className="account-chat-context">
+                <div>
+                  <span>Pupil</span>
+                  <strong>{account?.pets[0]?.name ?? 'Nieuzupełniony profil'}</strong>
+                </div>
+                <div>
+                  <span>Konsultacja</span>
+                  <strong>{latestBooking?.title ?? 'Brak aktywnej konsultacji'}</strong>
+                </div>
+              </div>
+
               {isLimited && questionsRemaining !== null ? (
-                <div style={{
-                  padding: '0.8rem 1rem',
-                  borderRadius: '8px',
-                  background: isChatBlocked ? 'rgba(138, 48, 34, 0.1)' : 'rgba(23, 63, 36, 0.08)',
-                  border: `1px solid ${isChatBlocked ? '#8a3022' : 'var(--border)'}`,
-                  marginBottom: '1rem',
-                  fontSize: '0.9rem'
-                }}>
+                <div className={`account-chat-access-notice${isChatBlocked ? ' is-blocked' : ''}`}>
                   {isChatBlocked ? (
                     <strong>Wykorzystałeś limit pytań uzupełniających na czacie po tej konsultacji.</strong>
                   ) : (
@@ -499,91 +615,171 @@ export function AccountRoomApp({ initialView = 'start', initialSessionHint = fal
                 </div>
               ) : null}
               {fullSupportEndsAt ? (
-                <div className="account-room-notice">
+                <div className={`account-chat-access-notice${isFullSupportExpired ? ' is-blocked' : ''}`}>
                   {isFullSupportExpired
                     ? '14-dniowy okres komunikacji w pokoju po pełnej konsultacji zakończył się.'
                     : `Komunikacja w pokoju jest aktywna do ${new Intl.DateTimeFormat('pl-PL', { dateStyle: 'long', timeStyle: 'short' }).format(new Date(fullSupportEndsAt))}.`}
                 </div>
               ) : null}
-              <form className="materialy-form account-form" onSubmit={sendMessage}>
-                <label>
-                  Wiadomość
+            </aside>
+
+            <section className="account-room-card account-chat-panel">
+              <header className="account-chat-panel-header">
+                <div>
+                  <span className="account-card-kicker">Wiadomości</span>
+                  <h2>Rozmowa z behawiorystą</h2>
+                </div>
+                <span className="account-chat-status"><span aria-hidden="true" /> Prywatny wątek</span>
+              </header>
+
+              <div className="account-chat-thread" aria-live="polite">
+                {(account?.conversations.length ?? 0) === 0 ? (
+                  <div className="account-chat-empty">
+                    <span><MessageCircle size={28} aria-hidden="true" /></span>
+                    <h3>Tu zacznie się Wasza rozmowa</h3>
+                    <p>Napisz pierwszą wiadomość. Wątek zostanie automatycznie przypisany do Twojej sprawy.</p>
+                  </div>
+                ) : null}
+                {account?.conversations.map((conversation) => (
+                  <article key={conversation.id} className="account-chat-conversation">
+                    <span className="account-chat-subject">{conversation.subject}</span>
+                    {conversation.messages.length === 0 ? (
+                      <div className="account-chat-empty compact">
+                        <p>Wątek jest gotowy. Napisz pierwszą wiadomość poniżej.</p>
+                      </div>
+                    ) : null}
+                    {conversation.messages.map((message) => (
+                      <div key={message.id} className={`account-chat-message-row is-${message.sender}`}>
+                        <div className={`account-message-bubble is-${message.sender}`}>
+                          <div className="account-message-heading">
+                            <strong>{message.sender === 'specialist' ? 'Behawiorysta' : message.sender === 'system' ? 'Informacja' : 'Ty'}</strong>
+                            <span className="account-message-meta">{formatDateTime(message.createdAt)}</span>
+                          </div>
+                          {message.body ? <p>{message.body}</p> : null}
+                          {message.attachments.map((attachment) => (
+                            <a key={attachment.id} href={attachment.signedUrl ?? '#'} className="account-attachment-link" target="_blank" rel="noopener noreferrer">
+                              <Download size={15} aria-hidden="true" />
+                              {attachment.fileName} ({formatBytes(attachment.fileSizeBytes)})
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </article>
+                ))}
+              </div>
+
+              <form className="materialy-form account-form account-chat-composer" onSubmit={sendMessage}>
+                <label className="account-chat-message-field">
+                  <span>Twoja wiadomość</span>
                   <textarea
                     value={messageBody}
                     onChange={(event) => setMessageBody(event.target.value)}
-                    rows={6}
+                    rows={4}
                     disabled={isMessageBlocked}
-                    placeholder={isMessageBlocked ? "Wysyłka wiadomości jest obecnie niedostępna." : "Napisz wiadomość..."}
+                    placeholder={isMessageBlocked ? 'Wysyłka wiadomości jest obecnie niedostępna.' : 'Opisz krótko, co się wydarzyło i co najbardziej Cię niepokoi…'}
                   />
                 </label>
-                <label>
-                  Plik
-                  <input
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp,application/pdf,video/mp4,video/quicktime"
-                    onChange={(event) => setMessageFile(event.target.files?.[0] ?? null)}
-                    disabled={isMessageBlocked}
-                  />
-                </label>
-                <button type="submit" className="button button-primary big-button" disabled={busy || isMessageBlocked}>
-                  <Upload size={17} aria-hidden="true" />
-                  {busy ? 'Wysyłam...' : 'Dodaj do rozmowy'}
-                </button>
-              </form>
-            </div>
-
-            <div className="account-message-list">
-              {(account?.conversations.length ?? 0) === 0 ? (
-                <div className="account-room-card">
-                  <h2>Brak rozmowy</h2>
-                  <p>Pierwsza wiadomość utworzy wątek w pokoju opiekuna.</p>
+                <div className="account-chat-composer-actions">
+                  <label className={`account-chat-file${messageFile ? ' has-file' : ''}`}>
+                    <Upload size={17} aria-hidden="true" />
+                    <span>{messageFile?.name ?? 'Dodaj plik'}</span>
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,application/pdf,video/mp4,video/quicktime"
+                      onChange={(event) => setMessageFile(event.target.files?.[0] ?? null)}
+                      disabled={isMessageBlocked}
+                    />
+                  </label>
+                  <button type="submit" className="button button-primary" disabled={busy || isMessageBlocked}>
+                    <MessageCircle size={17} aria-hidden="true" />
+                    {busy ? 'Wysyłam...' : 'Wyślij wiadomość'}
+                  </button>
                 </div>
-              ) : null}
-              {account?.conversations.map((conversation) => (
-                <article key={conversation.id} className="account-room-card">
-                  <span className="account-card-kicker">{conversation.subject}</span>
-                  {conversation.messages.length === 0 ? <p>Wątek jest pusty.</p> : null}
-                  {conversation.messages.map((message) => (
-                    <div key={message.id} className={`account-message-bubble is-${message.sender}`}>
-                      <div className="account-message-meta">{formatDateTime(message.createdAt)}</div>
-                      {message.body ? <p>{message.body}</p> : null}
-                      {message.attachments.map((attachment) => (
-                        <a key={attachment.id} href={attachment.signedUrl ?? '#'} className="account-attachment-link" target="_blank" rel="noopener noreferrer">
-                          <Download size={15} aria-hidden="true" />
-                          {attachment.fileName} ({formatBytes(attachment.fileSizeBytes)})
-                        </a>
-                      ))}
-                    </div>
-                  ))}
-                </article>
-              ))}
-            </div>
+                <small>Możesz dołączyć JPG, PNG, WEBP, PDF albo krótki film.</small>
+              </form>
+            </section>
           </div>
         )
       })() : null}
 
       {activeView === 'materialy' ? (
-        <div className="account-list-grid">
-          {(account?.materials.length ?? 0) === 0 ? (
-            <article className="account-room-card">
-              <h2>Brak materiałów w koncie</h2>
-              <p>Zakupione PDF-y pojawią się tutaj po emailu konta. Starszy kod nadal wpiszesz na stronie dostępu.</p>
-              <Link href="/dostep" className="button button-ghost">Wpisz kod</Link>
-            </article>
-          ) : null}
-          {account?.materials.map((material) => (
-            <article key={material.orderNumber} className="account-room-card">
-              <span className="account-card-kicker">{material.orderNumber}</span>
-              <h2>{material.productName}</h2>
-              <p>{material.statusLabel}</p>
-              {material.accessUrl ? (
-                <Link href={material.accessUrl} className="button button-primary">
-                  <Download size={17} aria-hidden="true" />
-                  Otwórz PDF
-                </Link>
-              ) : null}
-            </article>
-          ))}
+        <div className="account-materials-room">
+          <header className="account-materials-header">
+            <div>
+              <span className="account-card-kicker">Twoja biblioteka</span>
+              <h2>Materiały do spokojnej pracy w domu</h2>
+              <p>Bezpłatny materiał otworzysz od razu. Płatne poradniki prowadzą bezpośrednio do zamówienia.</p>
+            </div>
+            <Link href="/materialy" className="button button-ghost">Zobacz wszystkie materiały</Link>
+          </header>
+
+          {(account?.materials.length ?? 0) > 0 ? (
+            <section className="account-owned-materials" aria-labelledby="account-owned-materials-title">
+              <h3 id="account-owned-materials-title">Już w Twoim koncie</h3>
+              <div className="account-list-grid">
+                {account?.materials.map((material) => (
+                  <article key={material.orderNumber} className="account-room-card account-owned-material">
+                    <span className="account-card-kicker">{material.orderNumber}</span>
+                    <h2>{material.productName}</h2>
+                    <p>{material.statusLabel}</p>
+                    {material.accessUrl ? (
+                      <Link href={material.accessUrl} className="button button-primary">
+                        <Download size={17} aria-hidden="true" />
+                        Otwórz PDF
+                      </Link>
+                    ) : null}
+                  </article>
+                ))}
+              </div>
+            </section>
+          ) : (
+            <div className="account-materials-empty">
+              <BookOpen size={20} aria-hidden="true" />
+              <span>Nie masz jeszcze kupionych materiałów. Poniżej znajdziesz dobry punkt startu.</span>
+              <Link href="/dostep">Mam starszy kod dostępu</Link>
+            </div>
+          )}
+
+          <section className="account-materials-recommended" aria-labelledby="account-materials-recommended-title">
+            <div className="account-materials-section-title">
+              <div>
+                <span className="account-card-kicker">Wybrane dla Ciebie</span>
+                <h3 id="account-materials-recommended-title">Zacznij od jednego konkretnego tematu</h3>
+              </div>
+              <p>Pierwszy materiał jest bezpłatny.</p>
+            </div>
+            <div className="account-materials-grid">
+              {roomMaterialGuides.map((guide) => {
+                const isFree = guide.priceCode === 'free'
+                const href = isFree ? `/poradniki/${guide.pdfFile}` : buildRoomMaterialOrderHref(guide.slug)
+
+                return (
+                  <article key={guide.slug} className={`account-material-card${isFree ? ' is-free' : ''}`}>
+                    <div className="account-material-cover">
+                      <Image
+                        src={getMaterialyGuideCoverSrc(guide)}
+                        alt={`Okładka PDF: ${guide.title}`}
+                        fill
+                        sizes="(max-width: 680px) 82vw, (max-width: 980px) 40vw, 230px"
+                        unoptimized
+                      />
+                      <span>{PRICE_LABEL[guide.priceCode]}</span>
+                    </div>
+                    <div className="account-material-card-copy">
+                      <span className="account-card-kicker">{guide.category === 'cat' ? 'Dla kota' : guide.category === 'dog' ? 'Dla psa' : 'Dla psa i kota'}</span>
+                      <h4>{guide.title}</h4>
+                      <p>{guide.shortPromise}</p>
+                      <Link href={href} className={`button ${isFree ? 'button-primary' : 'button-ghost'}`} target={isFree ? '_blank' : undefined} rel={isFree ? 'noopener noreferrer' : undefined}>
+                        {isFree ? <Download size={17} aria-hidden="true" /> : <BookOpen size={17} aria-hidden="true" />}
+                        {isFree ? 'Pobierz bezpłatnie' : `Zobacz i kup · ${PRICE_LABEL[guide.priceCode]}`}
+                      </Link>
+                    </div>
+                  </article>
+                )
+              })}
+            </div>
+          </section>
         </div>
       ) : null}
 

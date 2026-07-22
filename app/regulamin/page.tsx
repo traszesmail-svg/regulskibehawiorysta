@@ -9,13 +9,13 @@ export const dynamic = 'force-dynamic'
 export const metadata: Metadata = buildLegalMetadata(
   'Regulamin',
   '/regulamin',
-  'Regulamin serwisu, rezerwacji, płatności, zmian terminu i reklamacji w serwisie Regulski.',
+  'Regulamin serwisu, newslettera, materiałów bezpłatnych, rezerwacji, płatności, zmian terminu i reklamacji w serwisie Regulski.',
 )
 
 const summaryItems: LegalSummaryItem[] = [
   {
     label: 'Usługi objęte dokumentem',
-    value: 'Kwadrans, Kwadrans na już, Dwa kwadranse oraz podstawowe zasady korzystania z serwisu.',
+    value: 'Kwadrans, Kwadrans na już, Dwa kwadranse, newsletter, materiały bezpłatne oraz podstawowe zasady korzystania z serwisu.',
   },
   {
     label: 'Model płatności',
@@ -189,7 +189,37 @@ const sections: LegalSection[] = [
     ),
   },
   {
-    title: '12. Postanowienia końcowe',
+    title: '12. Newsletter i materiały bezpłatne',
+    body: (
+      <>
+        <p>
+          Zapis do newslettera jest dobrowolny i bezpłatny. Wymaga podania aktywnego adresu e-mail, wybrania
+          segmentu tematycznego oraz potwierdzenia zgody na otrzymywanie wiadomości.
+        </p>
+        <p>
+          Newsletter jest planowany co do zasady raz w miesiącu. Może zawierać wskazówki dotyczące zachowania psów
+          i kotów, odnośniki do artykułów, informacje o aktualnych materiałach oraz treści związane z ofertą serwisu.
+          Częstotliwość może zostać czasowo zmieniona z przyczyn redakcyjnych lub technicznych.
+        </p>
+        <p>
+          Po prawidłowym zapisie użytkownik może otrzymać materiał startowy dobrany do wybranego segmentu: pies,
+          kot albo oba. Materiał jest dostępny także przez bezpośredni link pokazany po zapisie, jeżeli dodatkowa
+          wiadomość e-mail nie zostanie dostarczona.
+        </p>
+        <p>
+          Materiały i newsletter mają charakter edukacyjny. Nie stanowią diagnozy medycznej, porady weterynaryjnej
+          ani indywidualnego planu terapii i nie zastępują konsultacji dotyczącej konkretnego zwierzęcia.
+        </p>
+        <p>
+          Z newslettera można zrezygnować w każdym czasie, bez opłat i bez negatywnych konsekwencji, korzystając
+          z linku rezygnacji umieszczonego w wiadomości albo kontaktując się przez formularz lub e-mail. Wycofanie
+          zgody nie wpływa na zgodność z prawem działań wykonanych przed jej wycofaniem.
+        </p>
+      </>
+    ),
+  },
+  {
+    title: '13. Postanowienia końcowe',
     body: (
       <>
         <p>Regulamin obowiązuje od dnia jego opublikowania w serwisie i ma zastosowanie do rezerwacji składanych po tej dacie.</p>
@@ -204,7 +234,7 @@ export default function TermsPage() {
     <LegalPageLayout
       eyebrow="Regulamin"
       title="Regulamin świadczenia usług"
-      intro="Dokument określa zasady korzystania z serwisu, rezerwacji usług, dokonywania płatności, potwierdzeń, zmian terminu oraz trybu składania reklamacji."
+      intro="Dokument określa zasady korzystania z serwisu, newslettera, materiałów bezpłatnych, rezerwacji usług, dokonywania płatności, potwierdzeń, zmian terminu oraz trybu składania reklamacji."
       summaryItems={summaryItems}
       sections={sections}
       structuredData={[

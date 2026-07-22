@@ -5,7 +5,7 @@ import { FUNNEL_SERVICE_CONFIG, type PublicBookingServiceType } from '@/lib/funn
 import { PUBLIC_OFFER_PRICE_LABELS } from '@/lib/public-offer-copy'
 import { PRICE_PROMOTION_LABEL, WEEKLY_PRICE_VALIDITY_COPY } from '@/lib/pricing'
 
-export const bookHref = '/'
+export const bookHref = '/#wybór'
 export const contactHref = '/kontakt#formularz'
 export const fullPricingHref = '/cennik/pelny'
 

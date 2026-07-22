@@ -1,0 +1,67 @@
+[
+  {
+    "slug": "nagla-zmiana-zachowania-pierwszy-filtr",
+    "title": "Nagła zmiana zachowania",
+    "subtitle": "Pierwszy filtr: zdrowie, środowisko i oś czasu problemu",
+    "category": "both",
+    "tier": "free",
+    "priceCode": "free",
+    "shortPromise": "Pomaga zebrać fakty i wybrać bezpieczny pierwszy krok bez zgadywania diagnozy.",
+    "forWhom": "Dla opiekuna psa lub kota, który zauważył nową, nietypową albo szybko nasilającą się zmianę zachowania.",
+    "pdfFile": "nagla-zmiana-zachowania-pierwszy-filtr.pdf",
+    "highlights": ["oś czasu", "czerwone flagi", "pierwszy krok"],
+    "previewPageCount": 3
+  },
+  {
+    "slug": "burza-i-fajerwerki-plan-bezpieczenstwa",
+    "title": "Burza i fajerwerki",
+    "subtitle": "Plan bezpieczeństwa przed, w trakcie i po nagłym hałasie",
+    "category": "both",
+    "tier": "single",
+    "priceCode": "p19",
+    "shortPromise": "Gotowy plan domu, obserwacji i reagowania, gdy pies lub kot boi się huku.",
+    "forWhom": "Dla opiekuna zwierzęcia, które chowa się, dyszy, ucieka, drży albo długo wraca do równowagi po hałasie.",
+    "pdfFile": "burza-i-fajerwerki-plan-bezpieczenstwa.pdf",
+    "highlights": ["bezpieczna strefa", "plan na hałas", "regeneracja"],
+    "previewPageCount": 3
+  },
+  {
+    "slug": "wakacyjna-opieka-instrukcja-dla-opiekuna",
+    "title": "Wakacyjna opieka bez chaosu",
+    "subtitle": "Instrukcja dla petsittera, rodziny lub hotelu",
+    "category": "both",
+    "tier": "single",
+    "priceCode": "p19",
+    "shortPromise": "Porządkuje rytm dnia, zasady bezpieczeństwa i plan awaryjny na czas wyjazdu opiekuna.",
+    "forWhom": "Dla osoby, która przygotowuje psa lub kota do opieki zastępczej i chce przekazać ważne informacje bez luk.",
+    "pdfFile": "wakacyjna-opieka-instrukcja-dla-opiekuna.pdf",
+    "highlights": ["karta pupila", "rytuały", "plan awaryjny"],
+    "previewPageCount": 3
+  },
+  {
+    "slug": "powrot-do-rutyny-plan-na-14-dni",
+    "title": "Powrót do rutyny",
+    "subtitle": "14 dni spokojnej zmiany po urlopie, przeprowadzce albo zmianie planu dnia",
+    "category": "both",
+    "tier": "single",
+    "priceCode": "p19",
+    "shortPromise": "Pomaga zmieniać godziny, samotność i aktywność małymi krokami zamiast robić nagłą próbę.",
+    "forWhom": "Dla opiekuna, który wraca do pracy albo zmienia codzienny rytm psa lub kota.",
+    "pdfFile": "powrot-do-rutyny-plan-na-14-dni.pdf",
+    "highlights": ["stałe punkty dnia", "małe przesunięcia", "monitorowanie"],
+    "previewPageCount": 3
+  },
+  {
+    "slug": "podroz-ze-zwierzeciem-plan-przygotowania",
+    "title": "Podróż ze zwierzęciem",
+    "subtitle": "Plan przygotowania transportu, nowego miejsca i pierwszej doby",
+    "category": "both",
+    "tier": "single",
+    "priceCode": "p29",
+    "shortPromise": "Łączy trening transportera lub samochodu z checklistą bezpieczeństwa i planem adaptacji na miejscu.",
+    "forWhom": "Dla opiekuna psa lub kota przed dłuższą jazdą, urlopem albo zmianą miejsca pobytu.",
+    "pdfFile": "podroz-ze-zwierzeciem-plan-przygotowania.pdf",
+    "highlights": ["próby przed wyjazdem", "transport", "pierwsza doba"],
+    "previewPageCount": 3
+  }
+]

@@ -111,6 +111,10 @@
   content: '';
 }
 
+.visual::after {
+  display: none;
+}
+
 .visualShade {
   position: absolute;
   inset: 0;

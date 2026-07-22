@@ -81,6 +81,7 @@ export default async function WaitingPage(props: {
     <NotatnikPageShell
       tag="Status płatności"
       navItems={PUBLIC_BOOKING_FLOW_NAV_ITEMS}
+      topbarProfile="flow"
       ctaHref={consultationReady ? readyUrl ?? '/book' : '/dostep'}
       ctaLabel={consultationReady ? 'Wejdź do pokoju' : 'Wpisz kod'}
       footerPrimaryHref={consultationReady ? readyUrl ?? '/book' : '/dostep'}

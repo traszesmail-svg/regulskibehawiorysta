@@ -62,6 +62,7 @@ export default async function RoomAccessPage(
     <NotatnikPageShell
       tag="Dostęp"
       navItems={PUBLIC_BOOKING_FLOW_NAV_ITEMS}
+      topbarProfile="flow"
       ctaHref="/dostep"
       ctaLabel="Wpisz kod"
       footerPrimaryHref="/dostep"

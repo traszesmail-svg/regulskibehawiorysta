@@ -28,6 +28,7 @@ export default async function AccountPage() {
     <NotatnikPageShell
       tag="Konto"
       navItems={PUBLIC_BOOKING_FLOW_NAV_ITEMS}
+      topbarProfile="flow"
       ctaHref="/pokoj"
       ctaLabel="Pokój"
       footerPrimaryHref="/pokoj"

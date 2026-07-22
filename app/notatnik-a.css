@@ -36676,3 +36676,170 @@ html[data-theme='dark'] input[type="checkbox"] {
     height: 250px;
   }
 }
+
+/* Canonical top menu. Keep this final block below route-specific legacy rules. */
+main.notatnik-page > .notatnik-shell,
+main.payment-ref-page > .payment-ref-shell {
+  width: min(1120px, calc(100vw - 48px)) !important;
+  max-width: 1120px !important;
+  margin-inline: auto !important;
+}
+
+#notatnik-topbar {
+  position: sticky !important;
+  z-index: 40 !important;
+  top: 0 !important;
+  display: flex !important;
+  width: min(1120px, calc(100vw - 48px)) !important;
+  max-width: none !important;
+  margin-inline: auto !important;
+  min-height: 104px !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 18px !important;
+  padding: 14px 20px !important;
+  border: 1px solid rgba(224, 213, 194, 0.92) !important;
+  border-radius: 26px 26px 0 0 !important;
+  background: rgba(255, 253, 248, 0.96) !important;
+  box-shadow: 0 18px 48px rgba(67, 49, 22, 0.07) !important;
+  backdrop-filter: blur(16px) !important;
+}
+
+#notatnik-topbar .notatnik-brand {
+  display: flex !important;
+  width: 300px !important;
+  max-width: 300px !important;
+  min-width: 0 !important;
+  flex: 0 1 300px !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+#notatnik-topbar .notatnik-brand-credential {
+  width: 60px !important;
+  height: 60px !important;
+  flex: 0 0 60px !important;
+}
+
+#notatnik-topbar .notatnik-brand-copy {
+  width: 218px !important;
+  min-width: 0 !important;
+}
+
+#notatnik-topbar .notatnik-brand-mark {
+  font-size: 29px !important;
+  line-height: 0.94 !important;
+}
+
+#notatnik-topbar .notatnik-brand-tag {
+  margin-top: 6px !important;
+  font-size: 10.5px !important;
+  line-height: 1.15 !important;
+}
+
+#notatnik-topbar .notatnik-nav {
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+}
+
+#notatnik-topbar .notatnik-nav a {
+  min-height: 38px !important;
+  padding: 10px 7px !important;
+  border-radius: 999px !important;
+  color: #2b4634 !important;
+  font-size: 12.5px !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+}
+
+#notatnik-topbar .notatnik-nav a:hover {
+  color: #17452f !important;
+  background: rgba(44, 105, 68, 0.08) !important;
+}
+
+#notatnik-topbar .notatnik-topbar-actions {
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 7px !important;
+}
+
+#notatnik-topbar .notatnik-topbar-quick-help {
+  min-height: 42px !important;
+  padding: 0 13px !important;
+  border-radius: 999px !important;
+  font-size: 12.5px !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+}
+
+@media (min-width: 1180px) {
+  #notatnik-topbar .notatnik-nav,
+  #notatnik-topbar .notatnik-topbar-actions {
+    display: flex !important;
+  }
+
+  #notatnik-topbar .notatnik-mobile-menu {
+    display: none !important;
+  }
+}
+
+@media (max-width: 1179px) {
+  #notatnik-topbar .notatnik-nav,
+  #notatnik-topbar .notatnik-topbar-actions {
+    display: none !important;
+  }
+
+  #notatnik-topbar .notatnik-mobile-menu {
+    display: block !important;
+    margin-left: auto !important;
+  }
+}
+
+@media (max-width: 760px) {
+  main.notatnik-page > .notatnik-shell,
+  main.payment-ref-page > .payment-ref-shell {
+    width: calc(100vw - 10px) !important;
+  }
+
+  #notatnik-topbar {
+    width: calc(100vw - 10px) !important;
+    min-height: 88px !important;
+    gap: 10px !important;
+    padding: 12px 14px !important;
+    border-radius: 22px 22px 0 0 !important;
+  }
+
+  #notatnik-topbar .notatnik-brand {
+    width: min(232px, calc(100vw - 92px)) !important;
+    max-width: 232px !important;
+    flex-basis: 232px !important;
+    gap: 9px !important;
+  }
+
+  #notatnik-topbar .notatnik-brand-credential {
+    width: 50px !important;
+    height: 50px !important;
+    flex-basis: 50px !important;
+  }
+
+  #notatnik-topbar .notatnik-brand-copy {
+    width: min(173px, calc(100vw - 151px)) !important;
+  }
+
+  #notatnik-topbar .notatnik-brand-mark {
+    font-size: 23px !important;
+  }
+
+  #notatnik-topbar .notatnik-brand-tag {
+    margin-top: 5px !important;
+    font-size: 9px !important;
+  }
+
+  #notatnik-topbar .notatnik-mobile-menu summary {
+    width: 52px !important;
+    height: 52px !important;
+    min-width: 52px !important;
+  }
+}

@@ -21,6 +21,7 @@ export default function AccessPage() {
     <NotatnikPageShell
       tag="Dostęp"
       navItems={PUBLIC_BOOKING_FLOW_NAV_ITEMS}
+      topbarProfile="flow"
       ctaHref="/kontakt"
       ctaLabel="Kontakt"
       footerPrimaryHref="/kontakt"

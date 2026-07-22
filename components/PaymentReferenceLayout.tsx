@@ -375,7 +375,7 @@ export function PaymentReferenceLayout({
   return (
     <main className={isCompact ? 'payment-ref-page payment-ref-page--compact' : 'payment-ref-page'}>
       <div className="payment-ref-shell">
-        <NotatnikTopbar tag="Regulski" navItems={PUBLIC_SITE_NAV_ITEMS} showUtilityLinks={false} />
+        <NotatnikTopbar tag="Regulski" navItems={PUBLIC_SITE_NAV_ITEMS} showUtilityLinks={false} profile="flow" />
         {isCompact ? (
           <section className="payment-ref-compact-intro">
             <div className="payment-ref-booking-stage" aria-label="Etap rezerwacji">

@@ -22,6 +22,7 @@ export default function LoginPage() {
     <NotatnikPageShell
       tag="Konto"
       navItems={PUBLIC_BOOKING_FLOW_NAV_ITEMS}
+      topbarProfile="flow"
       ctaHref="/dostep"
       ctaLabel="Kod dostępu"
       footerPrimaryHref="/pokoj"

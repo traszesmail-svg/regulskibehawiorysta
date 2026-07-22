@@ -51,6 +51,7 @@ export default async function BlikPaymentPage(props: {
     <NotatnikPageShell
       tag="BLIK po instrukcji e-mail"
       navItems={PUBLIC_BOOKING_FLOW_NAV_ITEMS}
+      topbarProfile="flow"
       ctaHref="/dostep"
       ctaLabel="Wpisz kod"
       footerPrimaryHref="/dostep"

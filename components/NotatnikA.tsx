@@ -23,6 +23,13 @@ export const PUBLIC_SITE_NAV_ITEMS: readonly NotatnikNavItem[] = [
 
 export const PUBLIC_BOOKING_FLOW_NAV_ITEMS: readonly NotatnikNavItem[] = PUBLIC_SITE_NAV_ITEMS
 
+export const PUBLIC_SITE_TOPBAR_CTA = {
+  href: '/mapa-sprawy',
+  label: 'Mapa zachowania',
+} as const
+
+export type NotatnikTopbarProfile = 'site' | 'flow'
+
 type NotatnikTopbarProps = {
   tag: string
   navItems: readonly NotatnikNavItem[]
@@ -30,6 +37,7 @@ type NotatnikTopbarProps = {
   ctaLabel?: string
   ctaVariant?: 'solid' | 'ghost' | 'accent'
   showUtilityLinks?: boolean
+  profile?: NotatnikTopbarProfile
 }
 
 type NotatnikSectionHeadProps = {
@@ -70,6 +78,7 @@ type NotatnikPageShellProps = {
   footerVariant?: 'landing' | 'lean' | 'full' | 'home' | 'legal'
   showFooterReviews?: boolean
   analyticsDisabled?: boolean
+  topbarProfile?: NotatnikTopbarProfile
   children: React.ReactNode
 }
 
@@ -115,14 +124,18 @@ function NotatnikBrandLockup() {
 
 export function NotatnikTopbar({
   navItems = PUBLIC_SITE_NAV_ITEMS,
-  ctaHref = '/mapa-sprawy',
-  ctaLabel = 'Mapa zachowania',
+  ctaHref,
+  ctaLabel,
   showUtilityLinks = true,
+  profile = 'site',
 }: NotatnikTopbarProps) {
   const hasNavItems = navItems.length > 0
+  const resolvedCtaHref = profile === 'site' ? PUBLIC_SITE_TOPBAR_CTA.href : (ctaHref ?? PUBLIC_SITE_TOPBAR_CTA.href)
+  const resolvedCtaLabel = profile === 'site' ? PUBLIC_SITE_TOPBAR_CTA.label : (ctaLabel ?? PUBLIC_SITE_TOPBAR_CTA.label)
+  const resolvedShowUtilityLinks = profile === 'site' ? true : showUtilityLinks
 
   return (
-    <header className="notatnik-topbar">
+    <header id="notatnik-topbar" className={`notatnik-topbar notatnik-topbar-${profile}`} data-topbar-profile={profile}>
       <NotatnikBrandLockup />
 
       {hasNavItems ? (
@@ -136,12 +149,12 @@ export function NotatnikTopbar({
       ) : null}
 
       <div className="notatnik-topbar-actions">
-        <Link href={ctaHref} prefetch={false} className="notatnik-topbar-quick-help">
+        <Link href={resolvedCtaHref} prefetch={false} className="notatnik-topbar-quick-help">
           <Zap size={16} strokeWidth={2.1} aria-hidden="true" />
-          <span>{ctaLabel}</span>
+          <span>{resolvedCtaLabel}</span>
         </Link>
-        {showUtilityLinks ? <ThemeToggle /> : null}
-        {showUtilityLinks ? (
+        {resolvedShowUtilityLinks ? <ThemeToggle /> : null}
+        {resolvedShowUtilityLinks ? (
           <a
             href={INSTAGRAM_PROFILE_URL}
             target="_blank"
@@ -154,7 +167,7 @@ export function NotatnikTopbar({
         ) : null}
       </div>
 
-      {hasNavItems ? <NotatnikMobileMenu navItems={navItems} ctaHref={ctaHref} ctaLabel={ctaLabel} /> : null}
+      {hasNavItems ? <NotatnikMobileMenu navItems={navItems} ctaHref={resolvedCtaHref} ctaLabel={resolvedCtaLabel} /> : null}
     </header>
   )
 }
@@ -317,6 +330,7 @@ export function NotatnikPageShell({
   footerVariant = 'home',
   showFooterReviews = false,
   analyticsDisabled = false,
+  topbarProfile = 'site',
   children,
 }: NotatnikPageShellProps) {
   return (
@@ -326,7 +340,7 @@ export function NotatnikPageShell({
     >
       {showSideVisuals ? <NotatnikSideVisuals variant={sideVisualVariant} /> : null}
       <div className={shellClassName ? `notatnik-shell ${shellClassName}` : 'notatnik-shell'}>
-        <NotatnikTopbar tag={tag} navItems={navItems} ctaHref={ctaHref} ctaLabel={ctaLabel} />
+        <NotatnikTopbar tag={tag} navItems={navItems} ctaHref={ctaHref} ctaLabel={ctaLabel} profile={topbarProfile} />
         {children}
         <NotatnikFooter
           primaryHref={footerPrimaryHref}

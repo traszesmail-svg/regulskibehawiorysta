@@ -117,7 +117,7 @@ export default async function FormPage(
     <main className={`notatnik-page booking-form-page booking-form-page-${isCat ? 'cat' : 'dog'}`} data-analytics-disabled={qaBooking ? 'true' : undefined} data-qa-booking={qaBooking ? 'true' : 'false'}>
       <NotatnikSideVisuals variant={isCat ? 'cat' : 'dog'} />
       <div className="notatnik-shell booking-form-shell">
-        <NotatnikTopbar tag="Rezerwacja konsultacji" navItems={PUBLIC_BOOKING_FLOW_NAV_ITEMS} ctaHref={slotsHref} ctaLabel="Wróć do terminów" ctaVariant="ghost" />
+        <NotatnikTopbar tag="Rezerwacja konsultacji" navItems={PUBLIC_BOOKING_FLOW_NAV_ITEMS} ctaHref={slotsHref} ctaLabel="Wróć do terminów" ctaVariant="ghost" profile="flow" />
 
         <section className="booking-flow-stage-head" aria-label="Etap rezerwacji">
           <div className="termin-breadcrumb">

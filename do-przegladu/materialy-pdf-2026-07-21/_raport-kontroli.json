@@ -1,0 +1,353 @@
+{
+  "generatedAt": "2026-07-21T14:36:07.196Z",
+  "directory": "do-przegladu\\materialy-pdf-2026-07-21",
+  "pdfCount": 37,
+  "pageTotal": 241,
+  "failedCount": 0,
+  "duplicateHashes": [],
+  "files": [
+    {
+      "file": "30-zachowan.pdf",
+      "pages": 5,
+      "sizeKb": 130,
+      "sha256": "89518596463d9a33fb3ff299c6e9d8e507258a9b7dbc2ebbadfa502e7ff2cbdf",
+      "qpdfOk": true,
+      "blankPages": [],
+      "lowTextPages": []
+    },
+    {
+      "file": "burza-i-fajerwerki-plan-bezpieczenstwa.pdf",
+      "pages": 4,
+      "sizeKb": 121,
+      "sha256": "5667c0146a2d181a3823d057e9c91baa9019627415d565adc94b0796aae4c307",
+      "qpdfOk": true,
+      "blankPages": [],
+      "lowTextPages": []
+    },
+    {
+      "file": "domowy-enrichment-plan-na-14-dni.pdf",
+      "pages": 7,
+      "sizeKb": 150,
+      "sha256": "1e20a0c1b7d7e93978e0a341029b17bd10ff15519428f0aeee04ba0fa5c29556",
+      "qpdfOk": true,
+      "blankPages": [],
+      "lowTextPages": []
+    },
+    {
+      "file": "konflikt-miedzy-kotami-w-domu.pdf",
+      "pages": 5,
+      "sizeKb": 129,
+      "sha256": "83600ae8f4b90ef8da7230594301bda8e5adfb6f31beee2bf4b04da40efbc125",
+      "qpdfOk": true,
+      "blankPages": [],
+      "lowTextPages": []
+    },
+    {
+      "file": "konflikt-miedzy-kotami.pdf",
+      "pages": 9,
+      "sizeKb": 137,
+      "sha256": "9629ec00b339e445dbd1b0b7110cf31f28149d6ea05044919a26e177462a5916",
+      "qpdfOk": true,
+      "blankPages": [],
+      "lowTextPages": []
+    },
+    {
+      "file": "kot-boi-sie-kuwety.pdf",
+      "pages": 9,
+      "sizeKb": 135,
+      "sha256": "8ea5c4358c4a3d9fa484a51f0dab521413f58c585a07b54057e5f8a4cd16ba7c",
+      "qpdfOk": true,
+      "blankPages": [],
+      "lowTextPages": []
+    },
+    {
+      "file": "kot-budzi-dom-po-nocy.pdf",
+      "pages": 10,
+      "sizeKb": 163,
+      "sha256": "75f985557aeaee93fcf86ff21f67b045290d72cf3980a705a9b0d4195debaceb",
+      "qpdfOk": true,
+      "blankPages": [],
+      "lowTextPages": []
+    },
+    {
+      "file": "kot-chowa-sie-po-zmianach.pdf",
+      "pages": 10,
+      "sizeKb": 162,
+      "sha256": "6a8347e73ecde410cdab53f44a54be45f5ba57f779437028567717896b557e78",
+      "qpdfOk": true,
+      "blankPages": [],
+      "lowTextPages": []
+    },
+    {
+      "file": "kot-dotyk-pielegnacja-i-obrona.pdf",
+      "pages": 5,
+      "sizeKb": 131,
+      "sha256": "ffbfd938c18ebf95d63f37382f3a95522fdca196bcc6e70af9c0dfbd7cd971b2",
+      "qpdfOk": true,
+      "blankPages": [],
+      "lowTextPages": []
+    },
+    {
+      "file": "kot-gryzie-przy-glaskaniu.pdf",
+      "pages": 9,
+      "sizeKb": 140,
+      "sha256": "5666e9c2b9cb73d1c3bfeb5e3b0a1aec69bd901bc0fb0b8ffcaf9fd085275131",
+      "qpdfOk": true,
+      "blankPages": [],
+      "lowTextPages": []
+    },
+    {
+      "file": "kot-i-kuweta-pierwszy-plan-dzialania.pdf",
+      "pages": 7,
+      "sizeKb": 151,
+      "sha256": "6bf2e02db84b7375f3f0c2dc4c9634532bd9192e0830135bb5c258dce43cbfd7",
+      "qpdfOk": true,
+      "blankPages": [],
+      "lowTextPages": []
+    },
+    {
+      "file": "kot-stres-srodowisko-i-bledy-opiekuna.pdf",
+      "pages": 8,
+      "sizeKb": 159,
+      "sha256": "73c9c3ffb53f57f174fce254c071847234d4efbb2d00d5083da623fa51a5f6e4",
+      "qpdfOk": true,
+      "blankPages": [],
+      "lowTextPages": []
+    },
+    {
+      "file": "kot-zyje-w-napieciu.pdf",
+      "pages": 9,
+      "sizeKb": 151,
+      "sha256": "35d923d6c105a6f961a18b52cee20bf47dc37a6dbcbfb2a35b58ac14531a284f",
+      "qpdfOk": true,
+      "blankPages": [],
+      "lowTextPages": []
+    },
+    {
+      "file": "koty-zabawa-czy-napiecie.pdf",
+      "pages": 8,
+      "sizeKb": 135,
+      "sha256": "253cc2ae9d6b9a8310ef2b223cfe045784ac9227f4b3ee6c19491a0fdfa0f090",
+      "qpdfOk": true,
+      "blankPages": [],
+      "lowTextPages": []
+    },
+    {
+      "file": "kwadrans-podstawy-kota.pdf",
+      "pages": 11,
+      "sizeKb": 148,
+      "sha256": "c4dc439e480c8eec0196dbb7229ad363f20f70eb46afec32cf7180636763ba60",
+      "qpdfOk": true,
+      "blankPages": [],
+      "lowTextPages": []
+    },
+    {
+      "file": "kwadrans-podstawy-psa.pdf",
+      "pages": 11,
+      "sizeKb": 147,
+      "sha256": "afbf4a5946a9efd7b57c9fee2fc2698c0ecca3de1b4df2c273ac9e00b16cfa19",
+      "qpdfOk": true,
+      "blankPages": [],
+      "lowTextPages": []
+    },
+    {
+      "file": "miauczenie-o-swicie.pdf",
+      "pages": 7,
+      "sizeKb": 127,
+      "sha256": "e74f2986f7c61f490d8400d3274575f2c57a946258fea2caaed57488d9dd28a0",
+      "qpdfOk": true,
+      "blankPages": [],
+      "lowTextPages": []
+    },
+    {
+      "file": "nagla-zmiana-zachowania-pierwszy-filtr.pdf",
+      "pages": 5,
+      "sizeKb": 130,
+      "sha256": "ac755dcb27bcf59ca9c46618f7e5940545b9990cacffcb63640c253b1016ade9",
+      "qpdfOk": true,
+      "blankPages": [],
+      "lowTextPages": []
+    },
+    {
+      "file": "pierwsze-dni-po-adopcji-psa-lub-kota.pdf",
+      "pages": 7,
+      "sizeKb": 149,
+      "sha256": "9bff89b072755d20720af40446a24109345a2453f4210dcca26b37fa68db48b5",
+      "qpdfOk": true,
+      "blankPages": [],
+      "lowTextPages": []
+    },
+    {
+      "file": "pierwszy-tydzien-z-kotem.pdf",
+      "pages": 4,
+      "sizeKb": 129,
+      "sha256": "981e25c5be5b8b1265ad157fdf21a143a02c6a73d52f063ce0dd74e542f99f20",
+      "qpdfOk": true,
+      "blankPages": [],
+      "lowTextPages": []
+    },
+    {
+      "file": "pies-boi-sie-gosci-i-dzwiekow.pdf",
+      "pages": 5,
+      "sizeKb": 129,
+      "sha256": "ac59ac834c526adb543a9ff169385084c236426894d5c84d918ef4f7080d409e",
+      "qpdfOk": true,
+      "blankPages": [],
+      "lowTextPages": []
+    },
+    {
+      "file": "pies-broni-zasobow.pdf",
+      "pages": 3,
+      "sizeKb": 106,
+      "sha256": "bc8d8305a90bd396b30c7f9af4376f06a11e9a5e4192db014512db192e66b76b",
+      "qpdfOk": true,
+      "blankPages": [],
+      "lowTextPages": []
+    },
+    {
+      "file": "pies-do-pracy-z-ludzmi.pdf",
+      "pages": 3,
+      "sizeKb": 107,
+      "sha256": "94935b0d1aee5e87a427e0c91c8ee1a0c4d234f9a0d3753078979be1902ea7c8",
+      "qpdfOk": true,
+      "blankPages": [],
+      "lowTextPages": []
+    },
+    {
+      "file": "pies-glupieje-na-smyczy.pdf",
+      "pages": 6,
+      "sizeKb": 139,
+      "sha256": "97ff98d99d67772846d77bd5fa6a044ff0aee4bff691f3ae8f9f667019ea3fed",
+      "qpdfOk": true,
+      "blankPages": [],
+      "lowTextPages": []
+    },
+    {
+      "file": "pies-ile-ruchu-potrzebuje.pdf",
+      "pages": 3,
+      "sizeKb": 111,
+      "sha256": "fca3cabc934dc1c46cc4842f0434f989441010f75070a57fac12ff5399304250",
+      "qpdfOk": true,
+      "blankPages": [],
+      "lowTextPages": []
+    },
+    {
+      "file": "pies-niszczy-w-domu.pdf",
+      "pages": 3,
+      "sizeKb": 107,
+      "sha256": "98f1d523bfceef03bbdef6c4f1325492ad5b404df7240353202d99944645ff9e",
+      "qpdfOk": true,
+      "blankPages": [],
+      "lowTextPages": []
+    },
+    {
+      "file": "pies-pogon-i-hamulce.pdf",
+      "pages": 7,
+      "sizeKb": 141,
+      "sha256": "9a6e6a5a622dbf1aa9492028f2f95154e9a08c42f171f2e23d7a435861c4552a",
+      "qpdfOk": true,
+      "blankPages": [],
+      "lowTextPages": [
+        {
+          "page": 6,
+          "characters": 73
+        }
+      ]
+    },
+    {
+      "file": "pies-reaktywny-na-spacerze.pdf",
+      "pages": 5,
+      "sizeKb": 129,
+      "sha256": "a08a4072b98da2757eaa2f89e6288e200191100aada2637740c6dfd798c48de3",
+      "qpdfOk": true,
+      "blankPages": [],
+      "lowTextPages": []
+    },
+    {
+      "file": "pies-sam-w-domu.pdf",
+      "pages": 5,
+      "sizeKb": 131,
+      "sha256": "42df01d3c5b43b04422cc34c924555ae921c77582fb2637f21949d13298748bc",
+      "qpdfOk": true,
+      "blankPages": [],
+      "lowTextPages": []
+    },
+    {
+      "file": "pies-szczeka-na-gosci.pdf",
+      "pages": 6,
+      "sizeKb": 138,
+      "sha256": "1d7ef1feeeab108106846099fa28ce02c78e7ae0213fecafd6d0dd28b7f8782b",
+      "qpdfOk": true,
+      "blankPages": [],
+      "lowTextPages": []
+    },
+    {
+      "file": "pies-zostaje-sam-plan-pierwszych-krokow.pdf",
+      "pages": 10,
+      "sizeKb": 176,
+      "sha256": "526a26ebada13b583cddfa4ecb7450db835b1fe6bfc24b28d392bc7ec3491bfd",
+      "qpdfOk": true,
+      "blankPages": [],
+      "lowTextPages": []
+    },
+    {
+      "file": "podroz-ze-zwierzeciem-plan-przygotowania.pdf",
+      "pages": 5,
+      "sizeKb": 128,
+      "sha256": "427105bbcd5e73589bd7d40d9c06c06bd19d3f5cd6286cc3802b8d7c48d515f1",
+      "qpdfOk": true,
+      "blankPages": [],
+      "lowTextPages": []
+    },
+    {
+      "file": "powrot-do-rutyny-plan-na-14-dni.pdf",
+      "pages": 5,
+      "sizeKb": 127,
+      "sha256": "a8b67ccbf060e3eb2554d021bdd407dd4fc9319d9eecc0a64b35c59b44438f7a",
+      "qpdfOk": true,
+      "blankPages": [],
+      "lowTextPages": [
+        {
+          "page": 4,
+          "characters": 65
+        }
+      ]
+    },
+    {
+      "file": "szczeniak-gryzie-i-skacze.pdf",
+      "pages": 9,
+      "sizeKb": 141,
+      "sha256": "3c30b6f88a18b546704e8d19864559dae1e177408d1cae776a8d00cf579bceca",
+      "qpdfOk": true,
+      "blankPages": [],
+      "lowTextPages": []
+    },
+    {
+      "file": "szczeniak-pierwsze-30-dni.pdf",
+      "pages": 9,
+      "sizeKb": 164,
+      "sha256": "3258eda19cc2fc9973a100da95d8b125795b4a59c7c0de1441eabf1139bfb0c1",
+      "qpdfOk": true,
+      "blankPages": [],
+      "lowTextPages": []
+    },
+    {
+      "file": "szczeniak-wyciszanie.pdf",
+      "pages": 3,
+      "sizeKb": 107,
+      "sha256": "1db6b50992b288703b5024ba4d998c68d7790e49d833609ee8895a7a9df2914c",
+      "qpdfOk": true,
+      "blankPages": [],
+      "lowTextPages": []
+    },
+    {
+      "file": "wakacyjna-opieka-instrukcja-dla-opiekuna.pdf",
+      "pages": 4,
+      "sizeKb": 120,
+      "sha256": "9f95ca57000da44bfa7d2a44447145d5657e673f6a56478950b276b3a9902498",
+      "qpdfOk": true,
+      "blankPages": [],
+      "lowTextPages": []
+    }
+  ]
+}

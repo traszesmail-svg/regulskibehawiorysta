@@ -1,0 +1,86 @@
+{
+  "tier": "free",
+  "generatedAt": "2026-07-22T14:18:02.376Z",
+  "guides": [
+    {
+      "slug": "pies-w-upal",
+      "species": "pies",
+      "title": "Pies w upał",
+      "pages": 4,
+      "sizeKb": 6390,
+      "pdf": "pies-w-upal.pdf"
+    },
+    {
+      "slug": "pies-burza-nagly-halas",
+      "species": "pies",
+      "title": "Burza i nagły hałas",
+      "pages": 4,
+      "sizeKb": 6654,
+      "pdf": "pies-burza-nagly-halas.pdf"
+    },
+    {
+      "slug": "wakacyjna-opieka-nad-psem",
+      "species": "pies",
+      "title": "Wakacyjna opieka nad psem",
+      "pages": 4,
+      "sizeKb": 4108,
+      "pdf": "wakacyjna-opieka-nad-psem.pdf"
+    },
+    {
+      "slug": "pies-powrot-do-rutyny",
+      "species": "pies",
+      "title": "Powrót do rutyny po urlopie",
+      "pages": 4,
+      "sizeKb": 4152,
+      "pdf": "pies-powrot-do-rutyny.pdf"
+    },
+    {
+      "slug": "pies-warczal-lub-ugryzl",
+      "species": "pies",
+      "title": "Pies warczał lub ugryzł",
+      "pages": 5,
+      "sizeKb": 6179,
+      "pdf": "pies-warczal-lub-ugryzl.pdf"
+    },
+    {
+      "slug": "kot-w-upal",
+      "species": "kot",
+      "title": "Kot w upał",
+      "pages": 4,
+      "sizeKb": 6019,
+      "pdf": "kot-w-upal.pdf"
+    },
+    {
+      "slug": "kot-opieka-podczas-urlopu",
+      "species": "kot",
+      "title": "Kot zostaje w domu podczas urlopu",
+      "pages": 4,
+      "sizeKb": 4049,
+      "pdf": "kot-opieka-podczas-urlopu.pdf"
+    },
+    {
+      "slug": "kot-transporter-bez-paniki",
+      "species": "kot",
+      "title": "Transporter bez paniki",
+      "pages": 4,
+      "sizeKb": 3863,
+      "pdf": "kot-transporter-bez-paniki.pdf"
+    },
+    {
+      "slug": "kot-po-zmianie-w-domu",
+      "species": "kot",
+      "title": "Kot po zmianie w domu",
+      "pages": 4,
+      "sizeKb": 3918,
+      "pdf": "kot-po-zmianie-w-domu.pdf"
+    },
+    {
+      "slug": "kot-drapie-meble",
+      "species": "kot",
+      "title": "Kot drapie meble",
+      "pages": 4,
+      "sizeKb": 5969,
+      "pdf": "kot-drapie-meble.pdf"
+    }
+  ]
+}

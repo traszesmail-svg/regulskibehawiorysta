@@ -1,5 +1,19 @@
 [
   {
+    "id": "d9ede618-227a-4636-bf83-0c77cae2f781",
+    "eventType": "contact_form_started",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "client",
+    "pagePath": "/kontakt",
+    "location": null,
+    "properties": {
+      "source_page": "/kontakt",
+      "intent": "contact"
+    },
+    "createdAt": "2026-07-21T07:57:02.125Z"
+  },
+  {
     "id": "c20ecedf-619f-4ed7-be0b-bc1a094b1a60",
     "eventType": "booking_drop",
     "bookingId": null,

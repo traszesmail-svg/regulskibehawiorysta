@@ -134,6 +134,16 @@ export default function HomePage() {
           <HomepageServiceSelector />
         </section>
 
+        <aside className="homepage-clinic-entry" aria-label="Kod od lecznicy">
+          <div>
+            <strong>Masz kod od lecznicy?</strong>
+            <span>Wejdź ścieżką Kwadransa, a następnie wybierz gatunek, temat i termin.</span>
+          </div>
+          <Link href="/lecznica" prefetch={false} className="button button-ghost">
+            Wpisz kod od lecznicy
+            <ArrowRight size={17} aria-hidden="true" />
+          </Link>
+        </aside>
         <section className="compact-home-section home-trend-problems-section home-problem-story-section" id="najczestsze-problemy">
           <div className="home-problem-story-heading">
             <span className="home-trend-problems-kicker">Najczęściej szukane teraz</span>

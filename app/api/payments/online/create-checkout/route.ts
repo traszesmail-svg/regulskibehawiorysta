@@ -43,6 +43,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Nie znaleziono zamówienia.' }, { status: 404 })
   }
 
+  if (order.meta.clinicPhoneUpgrade) {
+    return NextResponse.json({ error: 'Dopłata telefoniczna jest dostępna wyłącznie jako BLIK na telefon.' }, { status: 400 })
+  }
+
   if (mock) {
     if (!isCommerceTestModeAllowed()) {
       return NextResponse.json({ error: 'Testowa płatność online jest wyłączona.' }, { status: 403 })

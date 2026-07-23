@@ -9,8 +9,8 @@ const execFileAsync = promisify(execFile)
 const ROOT = process.cwd()
 const SYSTEM_DIR = path.join(ROOT, 'content', 'guides', 'tier-system')
 const FREE_DIR = path.join(SYSTEM_DIR, 'free')
-const OUTPUT_DIR = path.join(ROOT, 'do-przegladu', 'system-pdf5polek-2026-07-22', 'free-shelf')
-const AUDIT_DIR = path.join(ROOT, '.tmp', 'free-shelf-20260722')
+const OUTPUT_DIR = path.join(ROOT, 'do-przegladu', 'system-pdf5polek-2026-07-23', 'free-shelf')
+const AUDIT_DIR = path.join(ROOT, '.tmp', 'free-shelf-20260723')
 const BODY_PAGE_CHAR_LIMIT = 2150
 
 type Guide = {

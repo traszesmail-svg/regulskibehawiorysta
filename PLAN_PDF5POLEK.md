@@ -141,10 +141,10 @@ Nie używamy jednego artykułu jako ukrytego zamiennika całego PDF-u. Tłumacze
 - [x] Zamknąć bramkę poprzedniej półki po akceptacji użytkownika.
 - [x] Wygenerować w najnowszej dostępnej ścieżce ImageGen dedykowaną ilustrację półki 19 zł i zapisać prompt.
 - [x] Zbudować 8-stronicowy layout kontrolny wyraźnie odmienny od półki bezpłatnej: organiczne plamy gwaszu, papierowe pola, otwarcie modułu, mapa, ścieżka planu, checklisty, arkusz i wizualne zakończenie; kierunek dopieszczony po kontroli „Publisher”.
-- [ ] Uzyskać akceptację layoutu półki 19 zł.
-- [ ] Po akceptacji layoutu wspólnie wybrać 5 tematów psich i 5 kocich.
-- [ ] Wykonać 10 kompletnych PDF-ów wraz z ilustracjami i QA.
-- [ ] Przekazać całą półkę do akceptacji.
+- [x] Uzyskać akceptację layoutu półki 19 zł — zatwierdzone 2026-07-23.
+- [x] Po akceptacji layoutu wspólnie wybrać 5 tematów psich i 5 kocich — zatwierdzone 2026-07-23.
+- [x] Wykonać 10 kompletnych PDF-ów wraz z ilustracjami i QA — 2026-07-23.
+- [x] Przekazać całą półkę do akceptacji — 2026-07-23.
 
 ### Etap 8 — półka 39 zł
 
@@ -166,4 +166,4 @@ Nie używamy jednego artykułu jako ukrytego zamiennika całego PDF-u. Tłumacze
 
 ## Aktualny etap
 
-W toku: **bramka akceptacji layoutu półki 19 zł**. Półka bezpłatna została zaakceptowana. Po uwadze, że pierwsza wersja wyglądała zbyt „Publisherowo”, kierunek został przebudowany na bazie nowej planszy ImageGen: organiczne plamy, nieregularne papierowe moduły, ścieżka decyzji, rysunkowe marginesy i ilustracja wtopiona w kompozycję. Demonstrator ma 8 stron, przeszedł `qpdf --check`, ma kompletne stopki i nie zawiera technicznej nazwy systemu. Nie wybierać tematów ani nie produkować 10 materiałów przed akceptacją layoutu.
+Półka **19 zł** jest gotowa do akceptacji. Obejmuje 10 praktycznych poradników: 5 dla psa i 5 dla kota. Każdy PDF ma 8–14 stron, został złożony w zatwierdzonym layoucie P19 i przeszedł `qpdf --check`. Pliki oraz manifest znajdują się w `do-przegladu/system-pdf5polek-2026-07-23/p19-shelf/`. Następny etap to wybór tematów półki 39 zł po akceptacji tej serii.

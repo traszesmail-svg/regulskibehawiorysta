@@ -160,6 +160,12 @@ export async function attachCheckoutSession(bookingId: string, checkoutSessionId
   return getProvider().attachCheckoutSession(bookingId, checkoutSessionId)
 }
 
+export async function updateBookingCallState(
+  bookingId: string,
+  patch: Parameters<StoreProvider['updateBookingCallState']>[1],
+) {
+  return getProvider().updateBookingCallState(bookingId, patch)
+}
 export async function attachPayuOrder(
   bookingId: string,
   paymentData: Parameters<StoreProvider['attachPayuOrder']>[1],
@@ -172,6 +178,10 @@ export async function markBookingManualPaymentPending(
   paymentData?: Parameters<StoreProvider['markBookingManualPaymentPending']>[1],
 ) {
   return getProvider().markBookingManualPaymentPending(bookingId, paymentData)
+}
+
+export async function markBookingClinicPhoneUpgrade(bookingId: string, phone: string) {
+  return getProvider().markBookingClinicPhoneUpgrade(bookingId, phone)
 }
 
 export async function markBookingPaid(

@@ -41,6 +41,10 @@ export default async function WaitingPage(props: {
   const order = await getCommerceOrderForViewer(params.orderNumber, viewerToken)
   const accessReady = order ? canUseCommerceAccess(order) : false
   const consultationReady = Boolean(order?.productType === 'consultation' && order.status === 'paid' && order.meta.bookingId)
+  const clinicPhoneUpgradePending = Boolean(order?.meta.clinicPhoneUpgrade && order.status === 'payment_reported' && order.meta.bookingId)
+  const clinicJitsiUrl = clinicPhoneUpgradePending && order?.meta.bookingId
+    ? '/call/' + order.meta.bookingId + (order.meta.bookingAccessToken ? '?access=' + encodeURIComponent(order.meta.bookingAccessToken) : '')
+    : null
   const consultationUrl =
     consultationReady && order?.meta.bookingId
       ? `/call/${order.meta.bookingId}${order.meta.bookingAccessToken ? `?access=${encodeURIComponent(order.meta.bookingAccessToken)}` : ''}`
@@ -114,7 +118,13 @@ export default async function WaitingPage(props: {
                 initialReadyLabel={consultationReady ? 'Wejdź do pokoju rozmowy' : 'Przejdź do dostępu'}
                 initialReadyText={consultationReady ? 'Konsultacja jest potwierdzona. Możesz przejść do pokoju rozmowy.' : null}
                 initialTestAdminConfirmUrl={testAdminConfirmUrl}
-              />
+              />              {clinicJitsiUrl ? (
+                <div className="list-card accent-outline top-gap">
+                  <strong>Darmowa ścieżka Jitsi pozostaje aktywna</strong>
+                  <span>Jeśli dopłata nie będzie jeszcze potwierdzona w chwili terminu, rozmowa odbędzie się przez Jitsi.</span>
+                  <Link href={clinicJitsiUrl} className="button button-primary">Wejdź do Jitsi</Link>
+                </div>
+              ) : null}
             </>
           )}
         </section>

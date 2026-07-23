@@ -63,6 +63,7 @@ export default async function CheckoutPage(
   }
 
   const order = orderNumber ? await getCommerceOrderForViewer(orderNumber, viewerToken) : null
+  const isClinicPhoneUpgrade = Boolean(order?.meta.clinicPhoneUpgrade)
   const onlinePayment = getOnlinePaymentRuntime(order)
   const isConsultation = order?.productType === 'consultation'
   const consultationServiceType = resolveBookingServiceType(order?.meta.serviceType, order?.amount)
@@ -189,6 +190,7 @@ export default async function CheckoutPage(
               manualAmount={order.manualAmount}
               onlinePayment={onlinePayment}
               testModeAllowed={isCommerceTestModeAllowed()}
+              manualOnly={isClinicPhoneUpgrade}
             />
           </>
         )}

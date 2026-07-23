@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { listBookings, updateBookingCallState } from '@/lib/server/db'
 import { listLeadBookings, updateLeadBooking } from '@/lib/server/lead-bookings'
 
 export async function GET(req: NextRequest) {
   const zdEcho = req.nextUrl.searchParams.get('zd_echo')
-  if (zdEcho) {
-    return new NextResponse(zdEcho)
-  }
+  if (zdEcho) return new NextResponse(zdEcho)
   return NextResponse.json({ ok: true })
 }
 
@@ -14,43 +13,32 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData()
     const event = formData.get('event') as string | null
     const callId = (formData.get('call_id') ?? formData.get('pbx_call_id')) as string | null
+    if (!event || !callId) return NextResponse.json({ error: 'Missing parameters' }, { status: 400 })
 
-    console.log('[ZADARMA WEBHOOK]', { event, callId })
-
-    if (!event || !callId) {
-      return NextResponse.json({ error: 'Missing parameters' }, { status: 400 })
-    }
-
-    // Find the booking with this callId
-    const bookings = await listLeadBookings()
-    const booking = bookings.find((b) => b.callId === callId)
-
-    if (!booking) {
-      console.warn('[ZADARMA WEBHOOK] No booking found for callId:', callId)
-      return NextResponse.json({ ok: true, message: 'No matching booking' })
-    }
-
-    if (event.includes('ANSWER')) {
-      // Set startedAt only if it wasn't set yet (to avoid overwriting when the second leg answers)
-      if (!booking.startedAt) {
-        await updateLeadBooking({
-          id: booking.id,
-          callStatus: 'active',
-          startedAt: new Date().toISOString(),
-        })
-        console.log('[ZADARMA WEBHOOK] Call started for booking:', booking.id)
+    const leadBookings = await listLeadBookings()
+    const leadBooking = leadBookings.find((booking) => booking.callId === callId)
+    if (leadBooking) {
+      if (event.includes('ANSWER') && !leadBooking.startedAt) {
+        await updateLeadBooking({ id: leadBooking.id, callStatus: 'active', startedAt: new Date().toISOString() })
+      } else if (event.includes('END')) {
+        await updateLeadBooking({ id: leadBooking.id, callStatus: 'completed' })
       }
+      return NextResponse.json({ ok: true })
+    }
+
+    const mainBookings = await listBookings()
+    const mainBooking = mainBookings.find((booking) => booking.callId === callId)
+    if (!mainBooking) return NextResponse.json({ ok: true, message: 'No matching booking' })
+
+    if (event.includes('ANSWER') && !mainBooking.startedAt) {
+      await updateBookingCallState(mainBooking.id, { callStatus: 'active', startedAt: new Date().toISOString() })
     } else if (event.includes('END')) {
-      await updateLeadBooking({
-        id: booking.id,
-        callStatus: 'completed',
-      })
-      console.log('[ZADARMA WEBHOOK] Call ended for booking:', booking.id)
+      await updateBookingCallState(mainBooking.id, { callStatus: 'completed' })
     }
 
     return NextResponse.json({ ok: true })
-  } catch (err) {
-    console.error('[ZADARMA WEBHOOK] Error processing webhook:', err)
+  } catch (error) {
+    console.error('[ZADARMA WEBHOOK] Error processing webhook:', error)
     return NextResponse.json({ error: 'Internal Error' }, { status: 500 })
   }
 }

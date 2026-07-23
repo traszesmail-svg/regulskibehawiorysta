@@ -33,6 +33,7 @@ create table if not exists public.bookings (
   payment_status text not null check (payment_status in ('unpaid', 'pending_manual_review', 'paid', 'failed', 'rejected', 'refunded')),
   payment_method text check (payment_method in ('manual', 'payu', 'stripe', 'mock', 'promo')),
   payment_reference text,
+  consultation_mode text check (consultation_mode in ('phone', 'jitsi')) ,
   amount numeric(10,2) not null,
   meeting_url text not null,
   checkout_session_id text,

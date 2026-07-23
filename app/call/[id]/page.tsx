@@ -152,7 +152,11 @@ export default async function CallPage(
 
   const hasAccess = booking.paymentStatus === 'paid' && (booking.bookingStatus === 'confirmed' || booking.bookingStatus === 'done')
   const serviceType = resolveBookingServiceType(booking.serviceType, booking.amount)
-  const roomAccessLabel = getBookingServiceRoomAccessLabel(serviceType)
+  const roomAccessLabel = booking.consultationMode === 'jitsi'
+    ? 'pokój rozmowy Jitsi'
+    : booking.consultationMode === 'phone'
+      ? 'rozmowa telefoniczna'
+      : getBookingServiceRoomAccessLabel(serviceType)
   const qaBooking = Boolean(booking.qaBooking)
 
   return (
@@ -184,6 +188,7 @@ export default async function CallPage(
               animalType={booking.animalType}
               problemType={booking.problemType}
               serviceType={serviceType}
+              consultationMode={booking.consultationMode ?? null}
               qaBooking={qaBooking}
               callId={booking.callId ?? null}
               callStatus={booking.callStatus ?? null}

@@ -176,6 +176,7 @@ function normalizeBookingRecord(booking: BookingRecord): BookingRecord {
     customerAccessTokenHash: booking.customerAccessTokenHash ?? '',
     paymentMethod: booking.paymentMethod ?? null,
     paymentReference: booking.paymentReference ?? null,
+    consultationMode: booking.consultationMode ?? null,
     meetingUrl: normalizeMeetingUrl(booking.id, booking.meetingUrl),
     qaBooking: booking.qaBooking ?? false,
     paymentReportedAt: booking.paymentReportedAt ?? null,
@@ -568,6 +569,7 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
       paymentStatus: 'unpaid',
       paymentMethod: null,
       paymentReference: null,
+      consultationMode: null,
       meetingUrl: createMeetingUrl(bookingId),
       createdAt: nowIso,
       updatedAt: nowIso,
@@ -741,6 +743,22 @@ export async function attachCheckoutSession(bookingId: string, checkoutSessionId
   })
 }
 
+export async function updateBookingCallState(
+  bookingId: string,
+  patch: { callId?: string | null; callStatus?: string | null; startedAt?: string | null },
+): Promise<BookingRecord | null> {
+  return withLock(async () => {
+    const store = await readStore()
+    const booking = store.bookings.find((item) => item.id === bookingId)
+    if (!booking) return null
+    if (patch.callId !== undefined) booking.callId = patch.callId
+    if (patch.callStatus !== undefined) booking.callStatus = patch.callStatus
+    if (patch.startedAt !== undefined) booking.startedAt = patch.startedAt
+    booking.updatedAt = new Date().toISOString()
+    await persistStore(store)
+    return booking
+  })
+}
 export async function attachPayuOrder(
   bookingId: string,
   paymentData: { payuOrderId: string; payuOrderStatus?: string | null },
@@ -832,6 +850,27 @@ export async function markBookingManualPaymentPending(
   })
 }
 
+export async function markBookingClinicPhoneUpgrade(bookingId: string, phone: string): Promise<BookingRecord | null> {
+  return withLock(async () => {
+    const store = await readStore()
+    const booking = store.bookings.find((item) => item.id === bookingId)
+    if (!booking) return null
+    const normalized = normalizePolishPhone(phone)
+    if (!normalized) throw new Error('Podaj poprawny numer telefonu.')
+    if (booking.paymentStatus === 'paid' && booking.paymentMethod === 'promo' && booking.consultationMode === 'phone' && booking.customerPhoneNormalized === normalized.e164) {
+      return booking
+    }
+    if (booking.paymentStatus !== 'paid' || booking.paymentMethod !== 'promo' || booking.consultationMode !== 'jitsi') {
+      throw new Error('Ta rezerwacja nie ma aktywnego kodu lecznicy do dopłaty telefonicznej.')
+    }    booking.phone = phone.trim()
+    booking.customerPhoneNormalized = normalized.e164
+    booking.consultationMode = 'phone'
+    booking.updatedAt = new Date().toISOString()
+    await persistStore(store)
+    return booking
+  })
+}
+
 export async function markBookingPaid(
   bookingId: string,
   paymentData?: {
@@ -839,6 +878,7 @@ export async function markBookingPaid(
     paymentIntentId?: string | null
     paymentMethod?: BookingRecord['paymentMethod']
     paymentReference?: string | null
+    consultationMode?: BookingRecord['consultationMode']
     payuOrderId?: string | null
     payuOrderStatus?: string | null
     triggerPaymentConfirmationSms?: boolean
@@ -878,6 +918,7 @@ export async function markBookingPaid(
     booking.cancelledAt = null
     booking.expiredAt = null
     booking.paymentMethod = paymentData?.paymentMethod ?? booking.paymentMethod ?? null
+    booking.consultationMode = paymentData?.consultationMode ?? booking.consultationMode ?? null
     booking.paymentReference = paymentData?.paymentReference ?? booking.paymentReference ?? null
     booking.paymentReportedAt = booking.paymentReportedAt ?? null
     booking.paymentRejectedAt = null

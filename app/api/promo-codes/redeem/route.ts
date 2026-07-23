@@ -17,8 +17,12 @@ export async function POST(request: Request) {
   const bookingId = typeof body.bookingId === 'string' ? body.bookingId.trim() : ''
   const accessToken = typeof body.accessToken === 'string' ? body.accessToken.trim() : ''
   const code = typeof body.code === 'string' ? body.code.trim() : ''
+  const consultationMode = 'jitsi' as const
 
-  if (!bookingId) {
+
+  if (body.consultationMode === 'phone') {
+    return NextResponse.json({ error: 'Wariant telefoniczny wymaga numeru telefonu i osobnej dopłaty.' }, { status: 400 })
+  }  if (!bookingId) {
     return NextResponse.json({ error: 'Brak bookingId.' }, { status: 400 })
   }
 
@@ -33,7 +37,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Nie znaleziono rezerwacji albo link wygasl.' }, { status: 403 })
     }
 
-    const result = await redeemPromoCodeForBooking(booking, code)
+    const result = await redeemPromoCodeForBooking(booking, code, consultationMode)
     const redirectParams = new URLSearchParams({
       bookingId: result.booking.id,
       promo: 'redeemed',

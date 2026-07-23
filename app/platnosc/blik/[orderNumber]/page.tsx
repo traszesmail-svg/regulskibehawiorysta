@@ -38,13 +38,14 @@ export default async function BlikPaymentPage(props: {
   // state is created only when the buyer explicitly reports a completed BLIK.
   const order = await getCommerceOrderForViewer(params.orderNumber, viewerToken)
   const manual = getManualPaymentConfig()
+  const isClinicPhoneUpgrade = Boolean(order?.meta.clinicPhoneUpgrade)
   const needsActiveConsultationBooking =
     order?.productType === 'consultation' &&
     (order.status === 'created' || order.status === 'waiting_manual_payment' || order.status === 'payment_reported')
   const consultationBooking =
     needsActiveConsultationBooking && order?.meta.bookingId ? await getBookingById(order.meta.bookingId) : null
   const consultationBookingUnavailable = Boolean(
-    needsActiveConsultationBooking && (!consultationBooking || !isBookingAwaitingPayment(consultationBooking)),
+    needsActiveConsultationBooking && !isClinicPhoneUpgrade && (!consultationBooking || !isBookingAwaitingPayment(consultationBooking)),
   )
 
   return (
@@ -93,9 +94,11 @@ export default async function BlikPaymentPage(props: {
             </div>
           ) : order.status === 'payment_reported' ? (
             <div className="stack-gap">
-              <h1>Zgłoszenie płatności zostało wysłane.</h1>
+              <h1>{isClinicPhoneUpgrade ? 'Zgłoszenie dopłaty BLIK zostało wysłane.' : 'Zgłoszenie płatności zostało wysłane.'}</h1>
               <p className="hero-text small-width center-text">
-                Nie musisz zgłaszać wpłaty drugi raz. Otwórz status, aby zobaczyć dalszą informację po ręcznej weryfikacji.
+                {isClinicPhoneUpgrade
+                  ? 'Nie musisz zgłaszać wpłaty drugi raz. Do czasu potwierdzenia dopłaty nadal możesz rozmawiać przez bezpłatne Jitsi.'
+                  : 'Nie musisz zgłaszać wpłaty drugi raz. Otwórz status, aby zobaczyć dalszą informację po ręcznej weryfikacji.'}
               </p>
               <Link href={buildCommerceWaitingHref(order.orderNumber, viewerToken)} className="button button-primary big-button">
                 Otwórz status płatności
@@ -104,9 +107,9 @@ export default async function BlikPaymentPage(props: {
           ) : (
             <>
               <div className="section-eyebrow">Płatność ręczna</div>
-              <h1>BLIK po instrukcji e-mail</h1>
+              <h1>{isClinicPhoneUpgrade ? "Dopłata BLIK na telefon" : "BLIK po instrukcji e-mail"}</h1>
               <p className="hero-text small-width center-text">
-                Kwota: <strong>{formatCommercePrice(order.manualAmount)}</strong>. Zrób przelew BLIK na numer{' '}
+                Kwota: <strong>{formatCommercePrice(order.manualAmount)}</strong>. Wyślij dopłatę BLIK na telefon na numer{' '}
                 <strong>{manual.phoneDisplay ?? manual.phone ?? 'brak numeru'}</strong> i w tytule wpisz dokładnie numer zamówienia.
               </p>
               <CommerceBlikActions
@@ -115,7 +118,7 @@ export default async function BlikPaymentPage(props: {
                 phoneDisplay={manual.phoneDisplay ?? manual.phone}
               />
               <div className="disclaimer">
-                Po wykonaniu wpłaty kliknij „Zapłaciłem/am”. Dostęp zostanie aktywowany po ręcznym potwierdzeniu płatności.
+                Po wykonaniu wpłaty kliknij „Zapłaciłem/am”. {isClinicPhoneUpgrade ? 'Brak potwierdzenia nie odbiera bezpłatnego Jitsi; telefon włączymy dopiero po akceptacji.' : 'Dostęp zostanie aktywowany po ręcznym potwierdzeniu płatności.'}
               </div>
             </>
           )}

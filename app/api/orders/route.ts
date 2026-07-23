@@ -3,6 +3,7 @@ export const revalidate = 0
 
 import { NextResponse } from 'next/server'
 import {
+  createClinicPhoneUpgradeCommerceOrder,
   createEbookCommerceOrder,
   createOrReuseConsultationCommerceOrder,
   fulfillCommerceOrderAndNotify,
@@ -52,6 +53,35 @@ export async function POST(request: Request) {
       })
     }
 
+    if (body.kind === 'clinic-phone-upgrade') {
+      const bookingId = typeof body.bookingId === 'string' ? body.bookingId.trim() : ''
+      const accessToken = typeof body.accessToken === 'string' ? body.accessToken.trim() : null
+      const phone = typeof body.phone === 'string' ? body.phone.trim() : ''
+
+      if (!bookingId || !phone) {
+        return NextResponse.json({ error: 'Podaj rezerwację i numer telefonu.' }, { status: 400 })
+      }
+
+      const order = await createClinicPhoneUpgradeCommerceOrder(
+        bookingId,
+        accessToken,
+        phone,
+        request.headers.get('authorization'),
+      )
+      const onlinePayment = getOnlinePaymentRuntime(order)
+      const onlineCheckoutUrl =
+        onlinePayment.provider === 'naffy' && onlinePayment.naffyUrl
+          ? buildNaffyCheckoutUrl(onlinePayment.naffyUrl, order)
+          : null
+
+      return NextResponse.json({
+        ok: true,
+        orderNumber: order.orderNumber,
+        viewerToken: order.viewerToken,
+        onlineCheckoutUrl,
+        redirectTo: buildCommerceCheckoutHref(order.orderNumber, order.viewerToken),
+      })
+    }
     if (body.kind === 'ebook') {
       if (body.consentProcessing !== true || body.consentPolicy !== true) {
         return NextResponse.json({ error: 'Zaznacz wymagane zgody.' }, { status: 400 })

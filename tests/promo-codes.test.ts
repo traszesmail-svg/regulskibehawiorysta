@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { createPendingBooking, getBookingById, listAvailabilityAdmin } from '@/lib/server/db'
-import { createPromoCampaign, listPromoCampaigns, redeemPromoCodeForBooking } from '@/lib/server/promo-codes'
+import { createPendingBooking, getBookingById, listAvailabilityAdmin, markBookingClinicPhoneUpgrade } from '@/lib/server/db'
+import { createPromoCampaign, listPromoCampaigns, redeemPromoCodeForBooking, validatePromoCodeForService } from '@/lib/server/promo-codes'
 import { isAvailabilitySlotBookableForService } from '@/lib/scheduling/rules'
 import { createLocalDataSandbox } from '@/scripts/lib/local-data-sandbox'
 
@@ -98,6 +98,50 @@ test('promo code confirms a Kwadrans booking once and cannot be reused', async (
 
         const unpaidSecondBooking = await getBookingById(secondBooking.booking.id)
         assert.equal(unpaidSecondBooking?.paymentStatus, 'unpaid')
+      } finally {
+        await sandbox.cleanup()
+      }
+    },
+  )
+})
+
+test('clinic code keeps Jitsi until a paid phone upgrade supplies a valid phone', async () => {
+  await withEnv(
+    {
+      APP_DATA_MODE: 'local',
+      CUSTOMER_EMAIL_MODE: 'disabled',
+      ADMIN_NOTIFICATION_EMAIL: null,
+      RESEND_API_KEY: null,
+    },
+    async () => {
+      const sandbox = await createLocalDataSandbox('promo-clinic-channel', process.cwd())
+      try {
+        const slot = (await listAvailabilityAdmin()).find((item) =>
+          isAvailabilitySlotBookableForService(item, 'szybka-konsultacja-15-min'),
+        )
+        assert.ok(slot, 'Expected a seeded Kwadrans slot.')
+
+        const campaign = await createPromoCampaign({ clinicName: 'Lecznica Kanał', codeCount: 1, expiresAt: '2035-12-31' })
+        await validatePromoCodeForService(campaign.codes[0])
+        await validatePromoCodeForService(campaign.codes[0])
+        const [beforeRedemption] = await listPromoCampaigns()
+        assert.equal(beforeRedemption.activeCount, 1, 'Validation must not consume the code.')
+
+        const created = await createQuickBooking(slot.id, 'promo-channel@example.com')
+        const redeemed = await redeemPromoCodeForBooking(created.booking, campaign.codes[0], 'jitsi')
+        assert.equal(redeemed.booking.consultationMode, 'jitsi')
+        assert.equal(redeemed.booking.phone, '')
+
+        await assert.rejects(
+          () => markBookingClinicPhoneUpgrade(created.booking.id, ''),
+          /poprawny numer telefonu/i,
+        )
+        const withoutUpgrade = await getBookingById(created.booking.id)
+        assert.equal(withoutUpgrade?.consultationMode, 'jitsi', 'Unpaid/invalid phone upgrade must keep Jitsi.')
+
+        const upgraded = await markBookingClinicPhoneUpgrade(created.booking.id, '500 600 700')
+        assert.equal(upgraded?.consultationMode, 'phone')
+        assert.equal(upgraded?.customerPhoneNormalized, '+48500600700')
       } finally {
         await sandbox.cleanup()
       }

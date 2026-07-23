@@ -6,7 +6,7 @@ import { resolveBookingServiceType, type BookingServiceType } from '@/lib/bookin
 import { DEFAULT_PROMO_CODE_COUNT, MAX_PROMO_CODE_COUNT, PROMO_CODE_SERVICE_TYPE } from '@/lib/promo-codes'
 import { markBookingPaid } from '@/lib/server/db'
 import { getLocalStoreDataDir } from '@/lib/server/local-store-path'
-import type { BookingRecord } from '@/lib/types'
+import type { BookingRecord, ConsultationMode } from '@/lib/types'
 
 export { DEFAULT_PROMO_CODE_COUNT, MAX_PROMO_CODE_COUNT, PROMO_CODE_SERVICE_TYPE }
 
@@ -524,6 +524,46 @@ function assertPromoCodeCanBeUsed(
   }
 }
 
+export async function validatePromoCodeForService(rawCode: string, serviceType: BookingServiceType = PROMO_CODE_SERVICE_TYPE) {
+  const code = normalizePromoCode(rawCode)
+
+  if (!code) {
+    throw new Error('Wpisz kod promocyjny.')
+  }
+
+  const supabase = getSupabaseClient()
+  if (supabase) {
+    const { data: codeRow, error: codeError } = await supabase
+      .from('promo_codes')
+      .select('*')
+      .eq('code_hash', hashPromoCode(code))
+      .maybeSingle()
+
+    if (!codeError && codeRow) {
+      const codeRecord = mapCodeRow(codeRow as PromoCodeRow)
+      const { data: campaignRow, error: campaignError } = await supabase
+        .from('promo_campaigns')
+        .select('*')
+        .eq('id', codeRecord.campaignId)
+        .maybeSingle()
+
+      if (!campaignError) {
+        const campaign = campaignRow ? mapCampaignRow(campaignRow as PromoCampaignRow) : null
+        assertPromoCodeCanBeUsed(campaign, codeRecord, serviceType)
+        return { ok: true as const, clinicName: campaign?.clinicName ?? null }
+      }
+    } else if (codeError) {
+      console.warn('[promo-codes] Supabase code validation failed, using local fallback', codeError.message)
+    }
+  }
+
+  const store = await readLocalStore()
+  const codeHash = hashPromoCode(code)
+  const codeRecord = store.codes.find((item) => item.codeHash === codeHash) ?? null
+  const campaign = codeRecord ? store.campaigns.find((item) => item.id === codeRecord.campaignId) ?? null : null
+  assertPromoCodeCanBeUsed(campaign, codeRecord, serviceType)
+  return { ok: true as const, clinicName: campaign?.clinicName ?? null }
+}
 async function claimLocalPromoCode(input: {
   code: string
   bookingId: string
@@ -741,7 +781,7 @@ async function claimPromoCode(input: {
   return (await claimSupabasePromoCode(input)) ?? claimLocalPromoCode(input)
 }
 
-export async function redeemPromoCodeForBooking(booking: BookingRecord, rawCode: string) {
+export async function redeemPromoCodeForBooking(booking: BookingRecord, rawCode: string, consultationMode: ConsultationMode = 'jitsi') {
   const code = normalizePromoCode(rawCode)
   const serviceType = resolveBookingServiceType(booking.serviceType, booking.amount)
 
@@ -769,6 +809,7 @@ export async function redeemPromoCodeForBooking(booking: BookingRecord, rawCode:
       paymentMethod: 'promo',
       paymentReference: claim.paymentReference,
       triggerPaymentConfirmationSms: false,
+      consultationMode,
     })
 
     if (!updatedBooking) {

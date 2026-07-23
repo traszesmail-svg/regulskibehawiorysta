@@ -18,7 +18,7 @@ const summaryItems: LegalSummaryItem[] = [
   },
   {
     label: 'Podstawowe narzędzia',
-    value: 'Supabase, Resend, Jitsi, WhatsApp/Meta, Naffy, obsługa BLIK na telefon oraz narzędzia analityczne uruchamiane wyłącznie po wyrażeniu zgody.',
+    value: 'Supabase, Resend, Jitsi, Zadarma, WhatsApp/Meta, Naffy, obsługa BLIK na telefon oraz narzędzia analityczne uruchamiane wyłącznie po wyrażeniu zgody.',
   },
   {
     label: 'Publiczny kontakt',
@@ -125,7 +125,32 @@ const sections: LegalSection[] = [
     ),
   },
   {
-    title: '6. Kontakt publiczny',
+    title: '6. Program kodów dla klientów lecznic',
+    body: (
+      <>
+        <p>
+          W programie przetwarzany jest skrót jednorazowego kodu, identyfikator kampanii i lecznicy, status wykorzystania,
+          identyfikator rezerwacji oraz wybrany kanał rozmowy. Jawny kod nie jest przechowywany po wygenerowaniu puli.
+        </p>
+        <p>
+          Numer telefonu jest wymagany i zapisywany wyłącznie wtedy, gdy klient wybierze odpłatny wariant telefoniczny.
+          Przy wariancie Jitsi numer telefonu nie jest potrzebny do realizacji rozmowy. Dla połączenia telefonicznego numer,
+          identyfikator połączenia i techniczne statusy mogą być przetwarzane przez Zadarma jako dostawcę telefonii.
+        </p>
+        <p>
+          Lecznica, która przekazała kod, nie otrzymuje automatycznie danych klienta, treści formularza ani informacji o
+          zachowaniu zwierzęcia. Przekazanie takich danych wymagałoby odrębnej podstawy prawnej lub zgody. Nazwa i logotyp
+          lecznicy są publikowane wyłącznie po potwierdzeniu udziału i uzgodnieniu zasad wykorzystania oznaczeń.
+        </p>
+        <p>
+          Dane kampanii, wykorzystania kodu, rezerwacji i dopłaty są przechowywane przez okres niezbędny do wykonania usługi,
+          rozliczeń, obsługi reklamacji oraz dochodzenia lub obrony roszczeń, a następnie usuwane albo ograniczane zgodnie z
+          obowiązkami prawnymi administratora.
+        </p>
+      </>
+    ),
+  },  {
+    title: '7. Kontakt publiczny',
     body: (
       <>
         <p>
@@ -135,7 +160,7 @@ const sections: LegalSection[] = [
     ),
   },
   {
-    title: '7. Materiały bezpłatne, newsletter i analityka',
+    title: '8. Materiały bezpłatne, newsletter i analityka',
     body: (
       <>
         <p>
@@ -172,7 +197,7 @@ const sections: LegalSection[] = [
     ),
   },
   {
-    title: '8. Okres przechowywania danych',
+    title: '9. Okres przechowywania danych',
     body: (
       <>
         <p>
@@ -192,7 +217,7 @@ const sections: LegalSection[] = [
     ),
   },
   {
-    title: '9. Prawa osoby, której dane dotyczą',
+    title: '10. Prawa osoby, której dane dotyczą',
     body: (
       <>
         <p>
@@ -208,7 +233,7 @@ const sections: LegalSection[] = [
     ),
   },
   {
-    title: '10. Postanowienia końcowe',
+    title: '11. Postanowienia końcowe',
     body: (
       <>
         <p>

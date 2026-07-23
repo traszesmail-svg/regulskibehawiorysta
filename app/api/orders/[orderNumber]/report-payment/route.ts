@@ -45,6 +45,12 @@ async function getConsultationBookingBlocker(order: CommerceOrder) {
 
   const booking = await getBookingById(order.meta.bookingId)
 
+  if (order.meta.clinicPhoneUpgrade) {
+    return booking && booking.paymentStatus === 'paid' && booking.paymentMethod === 'promo' && booking.consultationMode === 'jitsi'
+      ? null
+      : INACTIVE_CONSULTATION_BOOKING_MESSAGE
+  }
+
   return booking && isBookingAwaitingPayment(booking) ? null : INACTIVE_CONSULTATION_BOOKING_MESSAGE
 }
 
@@ -78,7 +84,7 @@ async function reconcileReportedManualPayment(
     }
   }
 
-  if (current.productType === 'consultation' && current.meta.bookingId && !current.manualPaymentBookingPendingAt) {
+  if (current.productType === 'consultation' && current.meta.bookingId && !current.manualPaymentBookingPendingAt && !current.meta.clinicPhoneUpgrade) {
     const bookingBlocker = await getConsultationBookingBlocker(current)
 
     if (bookingBlocker) {

@@ -115,7 +115,37 @@ const sections: LegalSection[] = [
     ),
   },
   {
-    title: '6. Realizacja usługi',
+    title: '6. Kody od lecznic i wybór kanału',
+    body: (
+      <>
+        <p>
+          Jednorazowy kod przekazany przez lecznicę dotyczy tej samej usługi Kwadrans i nie tworzy odrębnej usługi ani
+          nie omija terminarza. Po sprawdzeniu kodu klient wybiera gatunek, temat, dostępny termin i uzupełnia formularz rezerwacji.
+        </p>
+        <p>
+          Po potwierdzeniu kodu klient wybiera kanał realizacji: rozmowę przez Jitsi bez dopłaty albo rozmowę telefoniczną
+          jako odpłatną usługę dodatkową. Wysokość dopłaty jest pokazywana przed wyborem telefonu i przed złożeniem zamówienia.
+          Dla wariantu telefonicznego podanie prawidłowego numeru telefonu jest obowiązkowe.
+        </p>
+        <p>
+          Brak zapłaty albo brak potwierdzenia dopłaty telefonicznej nie odbiera prawa do wariantu Jitsi uzyskanego kodem.
+          Kanał zostaje zmieniony na telefon dopiero po potwierdzeniu dopłaty. Połączenie telefoniczne może być realizowane
+          technicznie przez Zadarma na numer podany przez klienta.
+        </p>
+        <p>
+          Kod jest zużywany przy potwierdzeniu rezerwacji, ma limit jednego użycia i może mieć termin ważności. W razie
+          odwołania terminu lub awarii po stronie usługodawcy klient powinien skontaktować się w celu przeniesienia uprawnienia
+          albo ustalenia nowego terminu. Nieodebranie prawidłowo zestawionego połączenia przez klienta może zostać uznane za
+          niestawienie się na usługę; awaria po stronie usługodawcy lub operatora nie obciąża klienta.
+        </p>
+        <p>
+          Jeżeli termin przypada przed upływem 14 dni od zawarcia umowy, klient składa w formularzu wyraźne żądanie rozpoczęcia
+          świadczenia przed upływem tego terminu i przyjmuje do wiadomości skutki pełnego wykonania usługi dla prawa odstąpienia.
+        </p>
+      </>
+    ),
+  },  {
+    title: '7. Realizacja usługi',
     body: (
       <>
         <p>
@@ -130,7 +160,7 @@ const sections: LegalSection[] = [
     ),
   },
   {
-    title: '7. Zmiana terminu i rezygnacja',
+    title: '8. Zmiana terminu i rezygnacja',
     body: (
       <>
         <p>Po potwierdzeniu wpłaty klient ma 24 godziny na zgłoszenie rezygnacji albo wniosku o zmianę terminu.</p>
@@ -143,7 +173,7 @@ const sections: LegalSection[] = [
     ),
   },
   {
-    title: '8. Nieobecność i wygaśnięcie rezerwacji',
+    title: '9. Nieobecność i wygaśnięcie rezerwacji',
     body: (
       <>
         <p>Jeżeli klient nie opłaci rezerwacji albo wpłata nie zostanie potwierdzona, rezerwacja może zostać zamknięta jako nieaktywna.</p>
@@ -152,7 +182,7 @@ const sections: LegalSection[] = [
     ),
   },
   {
-    title: '9. Ograniczenie odpowiedzialności i siła wyższa',
+    title: '10. Ograniczenie odpowiedzialności i siła wyższa',
     body: (
       <>
         <p>
@@ -168,7 +198,7 @@ const sections: LegalSection[] = [
     ),
   },
   {
-    title: '10. Reklamacje',
+    title: '11. Reklamacje',
     body: (
       <>
         <p>Reklamacje dotyczące działania serwisu, procesu rezerwacji albo realizacji usługi można zgłaszać przez formularz kontaktowy lub e-mail.</p>
@@ -181,7 +211,7 @@ const sections: LegalSection[] = [
     ),
   },
   {
-    title: '11. Dane osobowe',
+    title: '12. Dane osobowe',
     body: (
       <>
         <p>Zasady przetwarzania danych osobowych związanych z serwisem, kontaktem, rezerwacją i realizacją usług określa odrębna Polityka prywatności.</p>
@@ -189,7 +219,7 @@ const sections: LegalSection[] = [
     ),
   },
   {
-    title: '12. Newsletter i materiały bezpłatne',
+    title: '13. Newsletter i materiały bezpłatne',
     body: (
       <>
         <p>
@@ -219,7 +249,7 @@ const sections: LegalSection[] = [
     ),
   },
   {
-    title: '13. Postanowienia końcowe',
+    title: '14. Postanowienia końcowe',
     body: (
       <>
         <p>Regulamin obowiązuje od dnia jego opublikowania w serwisie i ma zastosowanie do rezerwacji składanych po tej dacie.</p>

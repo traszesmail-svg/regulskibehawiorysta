@@ -1,0 +1,47 @@
+KONTROLA TECHNICZNA PDF - MATERIAŁY DO PRZEGLĄDU
+
+Folder: do-przegladu\materialy-pdf-2026-07-21
+Liczba PDF: 37
+Łączna liczba stron: 241
+Pliki z błędem lub pustą stroną: 0
+Duplikaty binarne: 0
+
+30-zachowan.pdf | 5 stron | 130 KB | qpdf OK | bez pustych stron | bez podejrzanie krótkich stron
+burza-i-fajerwerki-plan-bezpieczenstwa.pdf | 4 stron | 121 KB | qpdf OK | bez pustych stron | bez podejrzanie krótkich stron
+domowy-enrichment-plan-na-14-dni.pdf | 7 stron | 150 KB | qpdf OK | bez pustych stron | bez podejrzanie krótkich stron
+konflikt-miedzy-kotami-w-domu.pdf | 5 stron | 129 KB | qpdf OK | bez pustych stron | bez podejrzanie krótkich stron
+konflikt-miedzy-kotami.pdf | 9 stron | 137 KB | qpdf OK | bez pustych stron | bez podejrzanie krótkich stron
+kot-boi-sie-kuwety.pdf | 9 stron | 135 KB | qpdf OK | bez pustych stron | bez podejrzanie krótkich stron
+kot-budzi-dom-po-nocy.pdf | 10 stron | 163 KB | qpdf OK | bez pustych stron | bez podejrzanie krótkich stron
+kot-chowa-sie-po-zmianach.pdf | 10 stron | 162 KB | qpdf OK | bez pustych stron | bez podejrzanie krótkich stron
+kot-dotyk-pielegnacja-i-obrona.pdf | 5 stron | 131 KB | qpdf OK | bez pustych stron | bez podejrzanie krótkich stron
+kot-gryzie-przy-glaskaniu.pdf | 9 stron | 140 KB | qpdf OK | bez pustych stron | bez podejrzanie krótkich stron
+kot-i-kuweta-pierwszy-plan-dzialania.pdf | 7 stron | 151 KB | qpdf OK | bez pustych stron | bez podejrzanie krótkich stron
+kot-stres-srodowisko-i-bledy-opiekuna.pdf | 8 stron | 159 KB | qpdf OK | bez pustych stron | bez podejrzanie krótkich stron
+kot-zyje-w-napieciu.pdf | 9 stron | 151 KB | qpdf OK | bez pustych stron | bez podejrzanie krótkich stron
+koty-zabawa-czy-napiecie.pdf | 8 stron | 135 KB | qpdf OK | bez pustych stron | bez podejrzanie krótkich stron
+kwadrans-podstawy-kota.pdf | 11 stron | 148 KB | qpdf OK | bez pustych stron | bez podejrzanie krótkich stron
+kwadrans-podstawy-psa.pdf | 11 stron | 147 KB | qpdf OK | bez pustych stron | bez podejrzanie krótkich stron
+miauczenie-o-swicie.pdf | 7 stron | 127 KB | qpdf OK | bez pustych stron | bez podejrzanie krótkich stron
+nagla-zmiana-zachowania-pierwszy-filtr.pdf | 5 stron | 130 KB | qpdf OK | bez pustych stron | bez podejrzanie krótkich stron
+pierwsze-dni-po-adopcji-psa-lub-kota.pdf | 7 stron | 149 KB | qpdf OK | bez pustych stron | bez podejrzanie krótkich stron
+pierwszy-tydzien-z-kotem.pdf | 4 stron | 129 KB | qpdf OK | bez pustych stron | bez podejrzanie krótkich stron
+pies-boi-sie-gosci-i-dzwiekow.pdf | 5 stron | 129 KB | qpdf OK | bez pustych stron | bez podejrzanie krótkich stron
+pies-broni-zasobow.pdf | 3 stron | 106 KB | qpdf OK | bez pustych stron | bez podejrzanie krótkich stron
+pies-do-pracy-z-ludzmi.pdf | 3 stron | 107 KB | qpdf OK | bez pustych stron | bez podejrzanie krótkich stron
+pies-glupieje-na-smyczy.pdf | 6 stron | 139 KB | qpdf OK | bez pustych stron | bez podejrzanie krótkich stron
+pies-ile-ruchu-potrzebuje.pdf | 3 stron | 111 KB | qpdf OK | bez pustych stron | bez podejrzanie krótkich stron
+pies-niszczy-w-domu.pdf | 3 stron | 107 KB | qpdf OK | bez pustych stron | bez podejrzanie krótkich stron
+pies-pogon-i-hamulce.pdf | 7 stron | 141 KB | qpdf OK | bez pustych stron | strony z małą ilością tekstu: 6 (73)
+pies-reaktywny-na-spacerze.pdf | 5 stron | 129 KB | qpdf OK | bez pustych stron | bez podejrzanie krótkich stron
+pies-sam-w-domu.pdf | 5 stron | 131 KB | qpdf OK | bez pustych stron | bez podejrzanie krótkich stron
+pies-szczeka-na-gosci.pdf | 6 stron | 138 KB | qpdf OK | bez pustych stron | bez podejrzanie krótkich stron
+pies-zostaje-sam-plan-pierwszych-krokow.pdf | 10 stron | 176 KB | qpdf OK | bez pustych stron | bez podejrzanie krótkich stron
+podroz-ze-zwierzeciem-plan-przygotowania.pdf | 5 stron | 128 KB | qpdf OK | bez pustych stron | bez podejrzanie krótkich stron
+powrot-do-rutyny-plan-na-14-dni.pdf | 5 stron | 127 KB | qpdf OK | bez pustych stron | strony z małą ilością tekstu: 4 (65)
+szczeniak-gryzie-i-skacze.pdf | 9 stron | 141 KB | qpdf OK | bez pustych stron | bez podejrzanie krótkich stron
+szczeniak-pierwsze-30-dni.pdf | 9 stron | 164 KB | qpdf OK | bez pustych stron | bez podejrzanie krótkich stron
+szczeniak-wyciszanie.pdf | 3 stron | 107 KB | qpdf OK | bez pustych stron | bez podejrzanie krótkich stron
+wakacyjna-opieka-instrukcja-dla-opiekuna.pdf | 4 stron | 120 KB | qpdf OK | bez pustych stron | bez podejrzanie krótkich stron
+
+WYNIK: komplet przeszedł kontrolę techniczną.

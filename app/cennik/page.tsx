@@ -1,4 +1,4 @@
-﻿import type { Metadata } from 'next'
+import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import {
@@ -208,6 +208,16 @@ export default function PricingPage() {
           </p>
         </section>
 
+        <section className="pricing-2026-clinic-program" aria-labelledby="clinic-program-pricing-title">
+          <div>
+            <span className="pricing-2026-pill">Program dla klientów lecznic</span>
+            <h2 id="clinic-program-pricing-title">Masz jednorazowy kod do Kwadransa?</h2>
+            <p>Wpisz kod, a następnie wybierz gatunek, temat i termin. Sposób rozmowy wybierzesz później, po potwierdzeniu kodu.</p>
+          </div>
+          <Link href="/lecznica" prefetch={false} className="pricing-2026-btn pricing-2026-btn-secondary">
+            Wpisz kod od lecznicy
+          </Link>
+        </section>
         <section className="pricing-2026-benefits" aria-label="Co dostajesz w rozmowie">
           {benefits.map((benefit) => {
             const Icon = benefit.icon

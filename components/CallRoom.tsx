@@ -15,7 +15,7 @@ import {
 import { formatDateTimeLabel, getSecondsUntilRoomUnlock } from '@/lib/data'
 import { createMeetingEmbedUrl } from '@/lib/server/jitsi'
 import { CAPBT_LOGO, COAPE_LOGO, SITE_NAME, COAPE_ORG_URL, CAPBT_PROFILE_URL } from '@/lib/site'
-import { AnimalType, BookingRecord, ProblemType } from '@/lib/types'
+import { AnimalType, BookingRecord, type ConsultationMode, ProblemType } from '@/lib/types'
 
 function formatTime(seconds: number): string {
   const minutes = Math.floor(seconds / 60)
@@ -113,6 +113,7 @@ interface CallRoomProps {
   animalType: AnimalType
   problemType: ProblemType
   serviceType: BookingServiceType
+  consultationMode?: ConsultationMode | null
   qaBooking?: boolean
   callId?: string | null
   callStatus?: string | null
@@ -135,6 +136,7 @@ export function CallRoom({
   animalType,
   problemType,
   serviceType,
+  consultationMode = null,
   qaBooking = false,
   callId = null,
   callStatus = null,
@@ -147,9 +149,14 @@ export function CallRoom({
 }: CallRoomProps) {
   const router = useRouter()
   const trackedEntryRef = useRef(false)
+  const zadarmaTriggerRef = useRef(false)
   const roomDurationMinutes = getBookingServiceRoomDurationMinutes(serviceType)
   const serviceTitle = getBookingServiceTitle(serviceType)
-  const roomAccessLabel = getBookingServiceRoomAccessLabel(serviceType)
+  const roomAccessLabel = consultationMode === 'jitsi'
+    ? 'pokój rozmowy Jitsi'
+    : consultationMode === 'phone'
+      ? 'rozmowa telefoniczna'
+      : getBookingServiceRoomAccessLabel(serviceType)
   const roomCopy = getCallRoomCopy(serviceType, roomAccessLabel)
   const [secondsLeft, setSecondsLeft] = useState(roomDurationMinutes * 60)
   const [running, setRunning] = useState(false)
@@ -159,7 +166,9 @@ export function CallRoom({
   const [unlockInSeconds, setUnlockInSeconds] = useState(() =>
     Math.max(0, getSecondsUntilRoomUnlock(bookingDate, bookingTime)),
   )
-  const isPhoneCall = serviceType === 'szybka-konsultacja-15-min' || serviceType === 'kwadrans-na-juz' || serviceType === 'konsultacja-30-min'
+  const isPhoneCall = consultationMode
+    ? consultationMode === 'phone'
+    : serviceType === 'szybka-konsultacja-15-min' || serviceType === 'kwadrans-na-juz' || serviceType === 'konsultacja-30-min'
   const [callSecondsLeft, setCallSecondsLeft] = useState(roomDurationMinutes * 60)
   const [emergencyReason, setEmergencyReason] = useState('')
   const [emergencySubmitted, setEmergencySubmitted] = useState(false)
@@ -189,6 +198,27 @@ export function CallRoom({
     [accessToken, bookingId],
   )
 
+  useEffect(() => {
+    if (!isPhoneCall || !roomUnlocked || finished || callId || zadarmaTriggerRef.current) return
+    zadarmaTriggerRef.current = true
+
+    void fetch('/api/zadarma/trigger-booking', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bookingId, accessToken }),
+    })
+      .then(async (response) => {
+        if (!response.ok) {
+          const payload = (await response.json()) as { error?: string }
+          throw new Error(payload.error ?? 'Nie udało się uruchomić połączenia telefonicznego.')
+        }
+        router.refresh()
+      })
+      .catch((triggerError) => {
+        console.error('[regulski-behawiorysta][zadarma] trigger failed', triggerError)
+        setError(triggerError instanceof Error ? triggerError.message : 'Nie udało się uruchomić połączenia telefonicznego.')
+      })
+  }, [accessToken, bookingId, callId, finished, isPhoneCall, roomUnlocked, router])
   useEffect(() => {
     if (qaBooking) {
       return

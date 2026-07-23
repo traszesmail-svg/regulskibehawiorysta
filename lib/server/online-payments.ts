@@ -104,6 +104,9 @@ function resolveConsultationServiceType(order: CommerceOrder): BookingServiceTyp
 }
 
 function readNaffyPaymentUrl(order?: CommerceOrder | null): string | null {
+  if (order?.meta.clinicPhoneUpgrade) {
+    return readFirstValidHttpsEnv(['NAFFY_CLINIC_PHONE_UPGRADE_URL'])
+  }
   if (order?.productType === 'consultation') {
     const serviceType = resolveConsultationServiceType(order)
     const serviceUrl = getConsultationNaffyPaymentUrl(serviceType)
@@ -128,6 +131,32 @@ function buildAvailableRuntime(naffyUrl: string): OnlinePaymentRuntime {
   }
 }
 
+export function getOnlinePaymentRuntimeForClinicPhoneUpgrade(): OnlinePaymentRuntime {
+  const naffyUrl = readFirstValidHttpsEnv(['NAFFY_CLINIC_PHONE_UPGRADE_URL'])
+  if (naffyUrl) return buildAvailableRuntime(naffyUrl)
+
+  if (readTrimmedEnv('STRIPE_SECRET_KEY')) {
+    return {
+      provider: 'stripe',
+      available: true,
+      label: 'Karta / Apple Pay / Google Pay',
+      buttonLabel: 'Zapłać online',
+      description: 'Karta oraz portfele Apple Pay i Google Pay, gdy urządzenie je udostępnia.',
+      unavailableMessage: '',
+      naffyUrl: null,
+    }
+  }
+
+  return {
+    provider: 'none',
+    available: false,
+    label: 'Płatność online',
+    buttonLabel: 'Zapłać online',
+    description: 'Płatność online dla dopłaty telefonicznej jest chwilowo niedostępna.',
+    unavailableMessage: 'Wybierz BLIK po instrukcji e-mail.',
+    naffyUrl: null,
+  }
+}
 export function getOnlinePaymentRuntimeForConsultation(serviceType: BookingServiceType): OnlinePaymentRuntime {
   const naffyUrl = getConsultationNaffyPaymentUrl(serviceType) ?? readGlobalNaffyPaymentUrl()
 

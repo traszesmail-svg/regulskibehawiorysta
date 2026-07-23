@@ -86,6 +86,7 @@ type BookingRow = {
   payment_status: string
   payment_method?: string | null
   payment_reference?: string | null
+  consultation_mode?: 'phone' | 'jitsi' | null
   amount: number | string
   meeting_url: string
   created_at: string
@@ -182,6 +183,7 @@ const LEGACY_PAYMENT_META_PREFIX = '__beh15_payment__:' as const
 const LEGACY_PAYMENT_COLUMN_NAMES = [
   'payment_method',
   'payment_reference',
+  'consultation_mode',
   'payu_order_id',
   'payu_order_status',
   'payment_reported_at',
@@ -249,6 +251,7 @@ const QA_BOOKING_SELECT_COLUMNS = ['qa_booking'] as const
 const PAYMENT_SELECT_COLUMNS = [
   'payment_method',
   'payment_reference',
+  'consultation_mode',
   'payu_order_id',
   'payu_order_status',
   'payment_reported_at',
@@ -1256,6 +1259,7 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
     ...bookingInsertPayload,
     payment_method: null,
     payment_reference: null,
+    consultation_mode: null,
     payment_reported_at: null,
     payment_rejected_at: null,
     payment_rejected_reason: null,
@@ -1596,6 +1600,23 @@ export async function attachCheckoutSession(bookingId: string, checkoutSessionId
   return data ? mapBookingRow(data as unknown as BookingRow) : null
 }
 
+export async function updateBookingCallState(
+  bookingId: string,
+  patch: { callId?: string | null; callStatus?: string | null; startedAt?: string | null },
+): Promise<BookingRecord | null> {
+  const update: Record<string, string | null> = { updated_at: new Date().toISOString() }
+  if (patch.callId !== undefined) update.call_id = patch.callId
+  if (patch.callStatus !== undefined) update.call_status = patch.callStatus
+  if (patch.startedAt !== undefined) update.started_at = patch.startedAt
+  const { data, error } = await getSupabaseAdmin()
+    .from('bookings')
+    .update(update)
+    .eq('id', bookingId)
+    .select(BOOKING_SELECT_COLUMNS)
+    .maybeSingle()
+  if (error) throw error
+  return data ? mapBookingRow(data as unknown as BookingRow) : null
+}
 export async function attachPayuOrder(
   bookingId: string,
   paymentData: { payuOrderId: string; payuOrderStatus?: string | null },
@@ -1803,6 +1824,21 @@ export async function markBookingManualPaymentPending(
   return updatedBooking
 }
 
+export async function markBookingClinicPhoneUpgrade(bookingId: string, phone: string): Promise<BookingRecord | null> {
+  const current = await getBookingById(bookingId)
+  if (!current) return null
+  const normalized = normalizePolishPhone(phone)
+  if (!normalized) throw new Error('Podaj poprawny numer telefonu.')
+  if (current.paymentStatus === 'paid' && current.paymentMethod === 'promo' && current.consultationMode === 'phone' && current.customerPhoneNormalized === normalized.e164) {
+    return current
+  }
+  if (current.paymentStatus !== 'paid' || current.paymentMethod !== 'promo' || current.consultationMode !== 'jitsi') {
+    throw new Error('Ta rezerwacja nie ma aktywnego kodu lecznicy do dopłaty telefonicznej.')
+  }  const { data, error } = await getSupabaseAdmin().from('bookings').update({ phone: phone.trim(), customer_phone_normalized: normalized.e164, consultation_mode: 'phone', updated_at: new Date().toISOString() }).eq('id', bookingId).select('*').maybeSingle()
+  if (error) throw error
+  return data ? mapBookingRow(data as unknown as BookingRow) : null
+}
+
 export async function markBookingPaid(
   bookingId: string,
   paymentData?: {
@@ -1810,6 +1846,7 @@ export async function markBookingPaid(
     paymentIntentId?: string | null
     paymentMethod?: BookingRecord['paymentMethod']
     paymentReference?: string | null
+    consultationMode?: BookingRecord['consultationMode']
     payuOrderId?: string | null
     payuOrderStatus?: string | null
     triggerPaymentConfirmationSms?: boolean
@@ -1884,6 +1921,7 @@ export async function markBookingPaid(
     ...basePaymentUpdate,
     payment_method: paymentMethod,
     payment_reference: paymentData?.paymentReference ?? current.paymentReference ?? null,
+    consultation_mode: paymentData?.consultationMode ?? current.consultationMode ?? null,
     payment_rejected_at: null,
     payment_rejected_reason: null,
     payu_order_id: paymentData?.payuOrderId ?? current.payuOrderId ?? null,

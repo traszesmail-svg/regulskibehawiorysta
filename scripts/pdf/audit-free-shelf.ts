@@ -4,7 +4,7 @@ import path from 'node:path'
 
 const ROOT = process.cwd()
 const FREE_DIR = path.join(ROOT, 'content', 'guides', 'tier-system', 'free')
-const OUTPUT_DIR = path.join(ROOT, 'do-przegladu', 'system-pdf5polek-2026-07-22', 'free-shelf')
+const OUTPUT_DIR = path.join(ROOT, 'do-przegladu', 'system-pdf5polek-2026-07-23', 'free-shelf')
 const REPORT = path.join(OUTPUT_DIR, 'audit.json')
 
 type Guide = { slug: string; title: string; targetPages: number }

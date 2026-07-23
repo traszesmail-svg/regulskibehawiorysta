@@ -22,6 +22,7 @@ export type BookingStatus = 'pending' | 'pending_manual_payment' | 'confirmed' |
 export type PaymentStatus = 'unpaid' | 'pending_manual_review' | 'paid' | 'failed' | 'rejected' | 'refunded'
 
 export type PaymentMethod = 'manual' | 'payu' | 'stripe' | 'mock' | 'promo'
+export type ConsultationMode = 'phone' | 'jitsi'
 
 export type FunnelEventType =
   | 'page_view'
@@ -183,6 +184,7 @@ export interface BookingRecord {
   paymentStatus: PaymentStatus
   paymentMethod?: PaymentMethod | null
   paymentReference?: string | null
+  consultationMode?: ConsultationMode | null
   meetingUrl: string
   createdAt: string
   updatedAt: string

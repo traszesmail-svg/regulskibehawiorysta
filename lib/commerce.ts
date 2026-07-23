@@ -27,6 +27,8 @@ export type CommerceProductMeta = {
   animalType?: string
   problemType?: string
   notes?: string | null
+  clinicPhoneUpgrade?: boolean
+  consultationMode?: 'phone' | 'jitsi'
 }
 
 export type CommerceOrder = {

@@ -1,0 +1,42 @@
+[
+  {
+    "id": "free",
+    "label": "Bezpłatny start",
+    "price": "Bezpłatnie",
+    "targetPages": "4–8 stron",
+    "demoPages": 4,
+    "pdf": "demonstrator-free.pdf",
+    "sizeKb": 4418,
+    "preview": ".tmp\\system-pdf5polek-20260722\\free-cover.png"
+  },
+  {
+    "id": "p19",
+    "label": "Krótki poradnik",
+    "price": "19 zł",
+    "targetPages": "8–14 stron",
+    "demoPages": 8,
+    "pdf": "demonstrator-p19.pdf",
+    "sizeKb": 10224,
+    "preview": ".tmp\\system-pdf5polek-20260722\\p19-cover.png"
+  },
+  {
+    "id": "p39",
+    "label": "Plan działania",
+    "price": "39 zł",
+    "targetPages": "18–30 stron",
+    "demoPages": 7,
+    "pdf": "demonstrator-p39.pdf",
+    "sizeKb": 6691,
+    "preview": ".tmp\\system-pdf5polek-20260722\\p39-cover.png"
+  },
+  {
+    "id": "p59",
+    "label": "Kompendium premium",
+    "price": "59 zł",
+    "targetPages": "około 40–50 stron",
+    "demoPages": 9,
+    "pdf": "demonstrator-p59.pdf",
+    "sizeKb": 9204,
+    "preview": ".tmp\\system-pdf5polek-20260722\\p59-cover.png"
+  }
+]

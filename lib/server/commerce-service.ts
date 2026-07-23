@@ -1,4 +1,4 @@
-import { getBookingForViewer, markBookingPaid } from '@/lib/server/db'
+import { getBookingForViewer, markBookingClinicPhoneUpgrade, markBookingPaid } from '@/lib/server/db'
 import { getBaseUrl, isProductionDeployment } from '@/lib/server/env'
 import {
   PRICE_AMOUNT_PLN,
@@ -22,6 +22,8 @@ import {
   getCommerceOrder,
 } from '@/lib/server/commerce-store'
 import { sendCommerceAccessCodeCustomerEmail } from '@/lib/server/notifications'
+import { CLINIC_PHONE_UPGRADE_PRICE_PLN } from '@/lib/pricing'
+import { normalizePolishPhone } from '@/lib/phone'
 
 type EbookOrderInput = {
   productKind: 'guide' | 'bundle'
@@ -94,6 +96,56 @@ export async function createOrReuseConsultationCommerceOrder(
   })
 }
 
+export async function createClinicPhoneUpgradeCommerceOrder(
+  bookingId: string,
+  accessToken: string | null | undefined,
+  phone: string,
+  authorizationHeader?: string | null,
+) {
+  const booking = await getBookingForViewer(bookingId, accessToken ?? null, authorizationHeader ?? null)
+
+  if (!booking) {
+    throw new Error('Nie znaleziono rezerwacji albo link wygasł.')
+  }
+
+  if (booking.paymentMethod !== 'promo' || booking.paymentStatus !== 'paid' || booking.consultationMode !== 'jitsi') {
+    throw new Error('Najpierw aktywuj kod od lecznicy. Dopłata telefoniczna jest dostępna po wyborze kanału.')
+  }
+
+  const normalizedPhone = normalizePolishPhone(phone)
+  if (!normalizedPhone) {
+    throw new Error('Podaj poprawny numer telefonu, na który ma trafić połączenie.')
+  }
+
+  const productId = `clinic-phone-upgrade:${booking.id}`
+  const existing = await findCommerceOrderByProduct('consultation', productId)
+
+  if (existing) {
+    return ensureCommerceOrderViewerToken(existing)
+  }
+
+  const serviceType = resolveBookingServiceType(booking.serviceType, booking.amount)
+  return createCommerceOrder({
+    customerEmail: booking.email,
+    customerName: booking.ownerName,
+    customerPhone: normalizedPhone.e164,
+    productType: 'consultation',
+    productId,
+    productName: 'Dopłata do rozmowy telefonicznej — Kwadrans z kodem od lecznicy',
+    amount: CLINIC_PHONE_UPGRADE_PRICE_PLN,
+    onlineAmount: CLINIC_PHONE_UPGRADE_PRICE_PLN,
+    manualAmount: CLINIC_PHONE_UPGRADE_PRICE_PLN,
+    meta: {
+      bookingId: booking.id,
+      bookingAccessToken: accessToken ?? null,
+      serviceType,
+      animalType: booking.animalType,
+      problemType: booking.problemType,
+      clinicPhoneUpgrade: true,
+      consultationMode: 'phone',
+    },
+  })
+}
 export async function createEbookCommerceOrder(input: EbookOrderInput) {
   const name = trim(input.name, 120)
   const email = trim(input.email, 160).toLowerCase()
@@ -156,7 +208,7 @@ export async function fulfillCommerceOrderAndNotify(
     orderBefore.status === 'access_sent' &&
     Boolean(orderBefore.accessCode)
 
-  if (orderBefore.productType === 'consultation' && orderBefore.meta.bookingId) {
+  if (orderBefore.productType === 'consultation' && orderBefore.meta.bookingId && !orderBefore.meta.clinicPhoneUpgrade) {
     await markBookingPaid(orderBefore.meta.bookingId, {
       paymentMethod: paymentMethodForBooking(method),
       paymentReference: orderBefore.orderNumber,
@@ -169,6 +221,10 @@ export async function fulfillCommerceOrderAndNotify(
 
   if (!order) {
     throw new Error('Nie znaleziono zamówienia.')
+  }
+
+  if (orderBefore.productType === 'consultation' && orderBefore.meta.bookingId && orderBefore.meta.clinicPhoneUpgrade) {
+    await markBookingClinicPhoneUpgrade(orderBefore.meta.bookingId, orderBefore.customerPhone ?? '')
   }
 
   if (!alreadySent && order.productType === 'ebook') {

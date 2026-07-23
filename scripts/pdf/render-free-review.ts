@@ -7,8 +7,8 @@ import sharp from 'sharp'
 const execFileAsync = promisify(execFile)
 const ROOT = process.cwd()
 const FREE_DIR = path.join(ROOT, 'content', 'guides', 'tier-system', 'free')
-const OUTPUT_DIR = path.join(ROOT, 'do-przegladu', 'system-pdf5polek-2026-07-22', 'free-shelf')
-const REVIEW_DIR = path.join(ROOT, '.tmp', 'free-shelf-20260722', 'review')
+const OUTPUT_DIR = path.join(ROOT, 'do-przegladu', 'system-pdf5polek-2026-07-23', 'free-shelf')
+const REVIEW_DIR = path.join(ROOT, '.tmp', 'free-shelf-20260723', 'review')
 
 type Guide = { slug: string; targetPages: number }
 type Manifest = { guides: Guide[] }

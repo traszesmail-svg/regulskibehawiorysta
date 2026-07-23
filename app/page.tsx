@@ -3,6 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, CalendarCheck, Headphones, MessageSquareText, Video } from 'lucide-react'
 import { EditorialIndexTopbar } from '@/components/EditorialIndexTopbar'
+import { ClinicCodeEntry } from '@/components/ClinicCodeEntry'
 import { FaqAccordion } from '@/components/FaqAccordion'
 import { HomepageIntroPopup } from '@/components/HomepageIntroPopup'
 import { HomepageServiceSelector } from '@/components/HomepageServiceSelector'
@@ -137,13 +138,10 @@ export default function HomePage() {
         <aside className="homepage-clinic-entry" aria-label="Kod od lecznicy">
           <div>
             <strong>Masz kod od lecznicy?</strong>
-            <span>Wejdź ścieżką Kwadransa, a następnie wybierz gatunek, temat i termin.</span>
           </div>
-          <Link href="/lecznica" prefetch={false} className="button button-ghost">
-            Wpisz kod od lecznicy
-            <ArrowRight size={17} aria-hidden="true" />
-          </Link>
+          <ClinicCodeEntry />
         </aside>
+
         <section className="compact-home-section home-trend-problems-section home-problem-story-section" id="najczestsze-problemy">
           <div className="home-problem-story-heading">
             <span className="home-trend-problems-kicker">Najczęściej szukane teraz</span>

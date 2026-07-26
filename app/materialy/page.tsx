@@ -132,7 +132,7 @@ export default function MaterialyLandingPage() {
       </section>
 
       <section id="bezplatne" className="compact-home-section materialy-home-section">
-        <NotatnikSectionHead index="I." kicker="Bezpłatne" title="Krótkie PDF-y na konkretne sytuacje." />
+        <NotatnikSectionHead index="I." kicker="Bezpłatne" title="10 krótkich PDF-ów na konkretne sytuacje." />
         <p style={{ maxWidth: '720px', color: 'var(--ink-quiet)' }}>
           Materiały dla opiekunów psów i kotów. Każdy możesz przejrzeć i pobrać bez płatności.
         </p>
@@ -144,7 +144,7 @@ export default function MaterialyLandingPage() {
       </section>
 
       <section id="p19" className="compact-home-section materialy-home-section materialy-home-section-alt">
-        <NotatnikSectionHead index="II." kicker="19 zł" title="Rozszerzone plany pierwszego działania." />
+        <NotatnikSectionHead index="II." kicker="19 zł" title="10 rozszerzonych planów pierwszego działania." />
         <p style={{ maxWidth: '720px', color: 'var(--ink-quiet)' }}>
           Konkretne materiały o samotności, spacerach, gościach, zasobach, kuwecie, napięciu i relacjach między kotami.
         </p>

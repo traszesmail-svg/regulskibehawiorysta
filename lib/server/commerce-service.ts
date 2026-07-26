@@ -109,7 +109,7 @@ export async function createClinicPhoneUpgradeCommerceOrder(
   }
 
   if (booking.paymentMethod !== 'promo' || booking.paymentStatus !== 'paid' || booking.consultationMode !== 'jitsi') {
-    throw new Error('Najpierw aktywuj kod od lecznicy. Dopłata telefoniczna jest dostępna po wyborze kanału.')
+    throw new Error('Najpierw aktywuj kod przekazany przez lecznicę. Dopłata telefoniczna jest dostępna po wyborze kanału.')
   }
 
   const normalizedPhone = normalizePolishPhone(phone)

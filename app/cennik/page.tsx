@@ -215,7 +215,7 @@ export default function PricingPage() {
             <p>Wpisz kod, a następnie wybierz gatunek, temat i termin. Sposób rozmowy wybierzesz później, po potwierdzeniu kodu.</p>
           </div>
           <Link href="/lecznica" prefetch={false} className="pricing-2026-btn pricing-2026-btn-secondary">
-            Wpisz kod od lecznicy
+            Wpisz kod przekazany przez lecznicę
           </Link>
         </section>
         <section className="pricing-2026-benefits" aria-label="Co dostajesz w rozmowie">

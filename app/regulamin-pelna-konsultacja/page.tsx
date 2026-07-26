@@ -61,9 +61,9 @@ const sections: LegalSection[] = [
     body: (
       <>
         <p>Cena konsultacji: {PUBLIC_OFFER_PRICE_LABELS.premium} brutto.</p>
-        <p>Metody płatności: {PUBLIC_OFFER_PAYMENT_METHODS}. Jeżeli aktywna jest płatność online, klient przechodzi do niej bezpośrednio po utworzeniu rezerwacji. Jeżeli aktywna jest płatność ręczna, klient otrzymuje dalszą instrukcję dla wybranej metody.</p>
+        <p>Metody płatności: {PUBLIC_OFFER_PAYMENT_METHODS}. Jeżeli aktywna jest płatność online, klient przechodzi do niej bezpośrednio po utworzeniu rezerwacji. Jeżeli aktywna jest płatność BLIK według instrukcji, klient otrzymuje dane potrzebne do wykonania wpłaty.</p>
         <p>Termin jest wstępnie blokowany na czas płatności. Standardowe okno blokady wynosi 15 minut.</p>
-        <p>Termin zostaje ostatecznie zablokowany dopiero po potwierdzeniu płatności. Przy płatności ręcznej potwierdzenie może wymagać obsługi przez usługodawcę w godzinach 9:00-21:00, poza dniami ustawowo wolnymi od pracy.</p>
+        <p>Termin zostaje ostatecznie zablokowany dopiero po potwierdzeniu płatności. Przy płatności BLIK według instrukcji wpłatę potwierdza usługodawca w godzinach 9:00-21:00, poza dniami ustawowo wolnymi od pracy.</p>
         <p>Rezerwacja bez dokonanej lub potwierdzonej płatności nie jest wiążąca, a termin może wrócić do puli dostępnych terminów.</p>
       </>
     ),

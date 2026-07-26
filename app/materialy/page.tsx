@@ -11,7 +11,7 @@ import {
   categoryLabel,
   getMaterialyGuideCoverSrc,
   getMaterialyGuidePreviewSrcs,
-  listMaterialyGuides,
+  listPublishedMaterialyGuides,
   type MaterialyGuide,
 } from '@/lib/materialy-catalog'
 
@@ -28,11 +28,12 @@ const quickPriceLabel = PUBLIC_OFFER_PRICE_LABELS.quick
 function MaterialyGuideCard({ guide }: { guide: MaterialyGuide }) {
   const coverSrc = getMaterialyGuideCoverSrc(guide)
   const previews = getMaterialyGuidePreviewSrcs(guide, 2)
-  const ctaLabel = guide.priceCode === 'free' ? 'Jak pobrać PDF' : 'Zapytaj o PDF'
+  const detailHref = `/materialy/${guide.slug}`
+  const ctaLabel = guide.priceCode === 'free' ? 'Zobacz i pobierz PDF' : 'Zobacz PDF'
 
   return (
     <article className="notatnik-material-card notatnik-material-card-with-cover">
-      <span className="notatnik-material-cover-link" aria-label={`Okładka ${guide.title}`}>
+      <Link href={detailHref} prefetch={false} className="notatnik-material-cover-link" aria-label={`Zobacz PDF: ${guide.title}`}>
         <span className="notatnik-material-cover-frame">
           <Image
             src={coverSrc}
@@ -43,7 +44,7 @@ function MaterialyGuideCard({ guide }: { guide: MaterialyGuide }) {
             unoptimized
           />
         </span>
-      </span>
+      </Link>
 
       <div className="notatnik-material-tag notatnik-mono">
         {categoryLabel(guide.category)} · {PRICE_LABEL[guide.priceCode]}
@@ -72,7 +73,7 @@ function MaterialyGuideCard({ guide }: { guide: MaterialyGuide }) {
         ))}
       </ul>
 
-      <Link href={guide.priceCode === 'free' ? '/materialy#jak-to-dziala' : '/kontakt#formularz'} prefetch={false}>
+      <Link href={detailHref} prefetch={false}>
         {ctaLabel} &rarr;
       </Link>
     </article>
@@ -80,10 +81,9 @@ function MaterialyGuideCard({ guide }: { guide: MaterialyGuide }) {
 }
 
 export default function MaterialyLandingPage() {
-  const guides = listMaterialyGuides()
-  const catGuides = guides.filter((guide) => guide.category === 'cat')
-  const dogGuides = guides.filter((guide) => guide.category === 'dog')
-  const sharedGuides = guides.filter((guide) => guide.category === 'both')
+  const guides = listPublishedMaterialyGuides()
+  const freeGuides = guides.filter((guide) => guide.priceCode === 'free')
+  const p19Guides = guides.filter((guide) => guide.priceCode === 'p19')
 
   return (
     <NotatnikPageShell
@@ -104,18 +104,18 @@ export default function MaterialyLandingPage() {
             Materiały PDF dla opiekunów psów i kotów. <em>Praktyczne wsparcie przed rozmową i na co dzień.</em>
           </h1>
           <p>
-            Wybierz krótki poradnik, zobacz opis i pobierz go po podaniu adresu e-mail. Materiały pomagają
-            uporządkować obserwacje przed konsultacją i lepiej nazwać problem.
+            Wybierz bezpłatny poradnik albo rozszerzony materiał za 19 zł. Każdy PDF ma własną stronę z opisem,
+            podglądem wnętrza i prostym formularzem pobrania lub zamówienia.
           </p>
           <div className="notatnik-subhero-actions">
-            <Link href="#psy" prefetch={false} className="notatnik-btn">
-              <span>Materiały dla psa</span>
+            <Link href="#bezplatne" prefetch={false} className="notatnik-btn">
+              <span>Bezpłatne PDF-y</span>
               <span className="notatnik-btn-arrow" aria-hidden="true">
                 &rarr;
               </span>
             </Link>
-            <Link href="#koty" prefetch={false} className="notatnik-btn notatnik-btn-ghost">
-              <span>Materiały dla kota</span>
+            <Link href="#p19" prefetch={false} className="notatnik-btn notatnik-btn-ghost">
+              <span>PDF-y po 19 zł</span>
             </Link>
           </div>
         </div>
@@ -123,63 +123,52 @@ export default function MaterialyLandingPage() {
         <div className="summary-card tree-backed-card regulski-web-summary-card materialy-home-sidecard">
           <RegulskiWebHero variant="materialy" priority />
           <div className="section-eyebrow">Dostęp</div>
-          <h3>Pobranie przez e-mail i kod dostępu</h3>
+          <h3>Podgląd, pobranie i bezpieczny powrót do pliku</h3>
           <p>
-            Po wpisaniu imienia i e-maila wyślemy kod dostępu. Kod prowadzi do pokoju, w którym pobierzesz
-            wybrany PDF.
+            Bezpłatny PDF pobierzesz po wpisaniu e-maila. Przy materiale za 19 zł przejdziesz do płatności,
+            a po jej potwierdzeniu otrzymasz dostęp do pliku.
           </p>
         </div>
       </section>
 
-      {sharedGuides.length > 0 ? (
-        <section id="start" className="compact-home-section materialy-home-section">
-          <NotatnikSectionHead index="I." kicker="Start" title="Najszerszy materiał dla opiekuna psa albo kota." />
-          <div className="notatnik-material-grid top-gap-small">
-            {sharedGuides.map((guide) => (
-              <MaterialyGuideCard key={guide.slug} guide={guide} />
-            ))}
-          </div>
-        </section>
-      ) : null}
-
-      <section id="psy" className="compact-home-section materialy-home-section materialy-home-section-alt">
-        <NotatnikSectionHead index="II." kicker="Psy" title="Materiały dla opiekunów psów." />
+      <section id="bezplatne" className="compact-home-section materialy-home-section">
+        <NotatnikSectionHead index="I." kicker="Bezpłatne" title="Krótkie PDF-y na konkretne sytuacje." />
         <p style={{ maxWidth: '720px', color: 'var(--ink-quiet)' }}>
-          Zostawanie samemu, smycz, goście, zasoby, niszczenie w domu, pobudzenie i pierwsze plany pracy ze szczeniakiem.
+          Materiały dla opiekunów psów i kotów. Każdy możesz przejrzeć i pobrać bez płatności.
         </p>
         <div className="notatnik-material-grid top-gap-small">
-          {dogGuides.map((guide) => (
+          {freeGuides.map((guide) => (
             <MaterialyGuideCard key={guide.slug} guide={guide} />
           ))}
         </div>
       </section>
 
-      <section id="koty" className="compact-home-section materialy-home-section">
-        <NotatnikSectionHead index="III." kicker="Koty" title="Materiały dla opiekunów kotów." />
+      <section id="p19" className="compact-home-section materialy-home-section materialy-home-section-alt">
+        <NotatnikSectionHead index="II." kicker="19 zł" title="Rozszerzone plany pierwszego działania." />
         <p style={{ maxWidth: '720px', color: 'var(--ink-quiet)' }}>
-          Kuweta, napięcie między kotami, nocne i poranne miauczenie, chowanie się po zmianach oraz kontakt z człowiekiem.
+          Konkretne materiały o samotności, spacerach, gościach, zasobach, kuwecie, napięciu i relacjach między kotami.
         </p>
         <div className="notatnik-material-grid top-gap-small">
-          {catGuides.map((guide) => (
+          {p19Guides.map((guide) => (
             <MaterialyGuideCard key={guide.slug} guide={guide} />
           ))}
         </div>
       </section>
 
-      <section id="jak-to-dziala" className="compact-home-section materialy-home-section materialy-home-section-alt">
-        <NotatnikSectionHead index="IV." kicker="Jak to działa" title="Pobranie w 3 krokach." />
+      <section id="jak-to-dziala" className="compact-home-section materialy-home-section">
+        <NotatnikSectionHead index="III." kicker="Jak to działa" title="Pobranie w 3 krokach." />
         <div className="notatnik-steps">
           <article className="notatnik-step">
             <div className="notatnik-step-number">01</div>
-            <p>Wybierasz PDF i wpisujesz imię oraz e-mail. Przy bezpłatnych materiałach nie przechodzisz przez płatność.</p>
+            <p>Otwierasz stronę wybranego PDF-u i sprawdzasz opis oraz podgląd jego wnętrza.</p>
           </article>
           <article className="notatnik-step">
             <div className="notatnik-step-number">02</div>
-            <p>System wysyła kod dostępu na e-mail i pokazuje numer zamówienia.</p>
+            <p>Przy bezpłatnym materiale wpisujesz e-mail. Przy PDF-ie za 19 zł uzupełniasz formularz i przechodzisz do płatności.</p>
           </article>
           <article className="notatnik-step">
             <div className="notatnik-step-number">03</div>
-            <p>Wpisujesz kod na /dostep, przechodzisz do pokoju i pobierasz PDF.</p>
+            <p>Bezpłatny plik pobiera się od razu. Po płatności dostajesz kod do pokoju, z którego pobierzesz kupiony PDF.</p>
           </article>
         </div>
       </section>

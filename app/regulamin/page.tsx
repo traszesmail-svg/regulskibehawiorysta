@@ -103,12 +103,12 @@ const sections: LegalSection[] = [
       <>
         <p>
           Publicznie komunikowany model płatności to {PUBLIC_OFFER_PAYMENT_METHODS}. Jeżeli aktywna jest płatność online,
-          klient przechodzi do niej bezpośrednio po utworzeniu rezerwacji. Jeżeli aktywna jest płatność ręczna, klient
-          otrzymuje dalszą instrukcję dla wybranej metody.
+          klient przechodzi do niej bezpośrednio po utworzeniu rezerwacji. Jeżeli aktywna jest płatność BLIK według
+          instrukcji, klient otrzymuje dane potrzebne do wykonania wpłaty.
         </p>
         <p>
-          Termin zostaje ostatecznie zablokowany dopiero po potwierdzeniu płatności. Przy płatności ręcznej potwierdzenie
-          może wymagać obsługi przez usługodawcę w godzinach 9-21, poza dniami ustawowo wolnymi od pracy.
+          Termin zostaje ostatecznie zablokowany dopiero po potwierdzeniu płatności. Przy płatności BLIK według instrukcji
+          wpłatę potwierdza usługodawca w godzinach 9-21, poza dniami ustawowo wolnymi od pracy.
         </p>
         <p>Nieopłacona lub niepotwierdzona rezerwacja może wygasnąć, a termin może wrócić do puli dostępnych terminów.</p>
       </>

@@ -304,6 +304,16 @@ export function getDataModeStatus(): RuntimeModeStatus<DataMode, ActiveDataMode>
   }
 
   if (missing.length > 0 || keyIssue) {
+    if (process.env.NODE_ENV !== 'production') {
+      return {
+        configured,
+        active: 'local',
+        isValid: true,
+        usesFallback: true,
+        missing: [],
+        summary: `APP_DATA_MODE=auto -> fallback to local (dev only), missing ${formatEnvList(missing)}.`,
+      }
+    }
     return {
       configured,
       active: null,

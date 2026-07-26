@@ -1,4 +1,4 @@
-﻿import type { Metadata } from 'next'
+import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { unstable_noStore as noStore } from 'next/cache'
@@ -68,12 +68,12 @@ const bookingFaqItems = [
   {
     question: 'Czy muszę instalować jakąś aplikację?',
     answer:
-      'Nie zakładam instalacji aplikacji ani konta. Po potwierdzeniu płatności dostaniesz e-mail z linkiem do rozmowy, najczęściej w Jitsi albo pokoju rozmowy w serwisie.',
+      'Nie musisz instalować aplikacji ani zakładać konta. Po potwierdzeniu płatności dostaniesz e-mail z linkiem do Jitsi albo pokoju rozmowy w serwisie.',
   },
   {
     question: 'Kiedy termin jest pewny?',
     answer:
-      'Wybrany termin trzymamy przez 15 minut na dokończenie rezerwacji. Termin jest pewny po opłaceniu i potwierdzeniu płatności; przy płatności ręcznej potwierdzenie może wymagać obsługi w godzinach 9-21.',
+      'Wybrany termin trzymamy przez 15 minut na dokończenie rezerwacji. Termin jest pewny po opłaceniu i potwierdzeniu płatności. Przy płatności BLIK po instrukcji e-mail potwierdzenie wymaga obsługi w godzinach 9-21.',
   },
   {
     question: 'Czy mogę zmienić lub odwołać termin?',
@@ -257,11 +257,26 @@ export async function BookingSlotCalendar({
         dataMode: dataMode.summary,
         error: error instanceof Error ? { name: error.name, message: error.message, stack: error.stack } : String(error),
       })
-      publicFlowMessage = 'Terminy chwilowo się odświeżają. Spróbuj ponownie za moment.'
+      if (process.env.NODE_ENV !== 'production') {
+        const { buildSeedAvailabilitySlots } = await import('@/lib/server/availability-seed')
+        availabilitySlots = buildSeedAvailabilitySlots(new Date(), new Date().toISOString())
+      } else {
+        publicFlowMessage = 'Terminy chwilowo się odświeżają. Spróbuj ponownie za moment.'
+      }
     }
   } else {
     console.warn('[regulski][termin] booking data mode is invalid', dataMode.summary)
-    publicFlowMessage = 'Terminy chwilowo się odświeżają. Spróbuj ponownie za moment.'
+    if (process.env.NODE_ENV !== 'production') {
+      const { buildSeedAvailabilitySlots } = await import('@/lib/server/availability-seed')
+      availabilitySlots = buildSeedAvailabilitySlots(new Date(), new Date().toISOString())
+    } else {
+      publicFlowMessage = 'Terminy chwilowo się odświeżają. Spróbuj ponownie za moment.'
+    }
+  }
+
+  if (availabilitySlots.length === 0 && process.env.NODE_ENV !== 'production') {
+    const { buildSeedAvailabilitySlots } = await import('@/lib/server/availability-seed')
+    availabilitySlots = buildSeedAvailabilitySlots(new Date(), new Date().toISOString())
   }
 
   const calendar = buildCalendarDays(availabilitySlots, serviceType, problem, serviceQuery, qaBooking, requestedSpecies, marketingParams)

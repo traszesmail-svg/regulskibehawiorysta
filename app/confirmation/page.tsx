@@ -498,7 +498,7 @@ export default async function ConfirmationPage(
                       title: 'Status płatności',
                       body: isWaitingManual
                         ? 'Wpłata jest zapisana i czeka na potwierdzenie w godzinach obsługi.'
-                        : 'Wpłata nie jest jeszcze potwierdzona. Jeśli właśnie wysłałeś płatność ręczną, poczekaj na ręczną akceptację.',
+                        : 'Wpłata nie jest jeszcze potwierdzona. Jeśli właśnie wysłałeś BLIK zgodnie z instrukcją, poczekaj na potwierdzenie.',
                     },
                     {
                       title: 'Kolejny krok',

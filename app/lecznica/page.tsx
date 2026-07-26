@@ -6,7 +6,7 @@ import { CLINIC_PARTNERS } from '@/lib/clinic-partners'
 import { buildMarketingMetadata } from '@/lib/seo'
 
 export const metadata: Metadata = buildMarketingMetadata({
-  title: 'Kod od lecznicy',
+  title: 'Kod przekazany przez lecznicę',
   path: '/lecznica',
   description: 'Wejście do Kwadransa dla opiekunów, którzy otrzymali jednorazowy kod w lecznicy.',
 })
@@ -16,7 +16,7 @@ export default function ClinicCodePage() {
     <ReferencePageShell className="clinic-program-page" ctaHref="/book">
       <section className="clinic-program-hero">
         <span className="section-eyebrow">Program dla klientów lecznic</span>
-        <h1>Masz kod od lecznicy?</h1>
+        <h1>Masz kod przekazany przez lecznicę?</h1>
         <p>
           Wpisz go poniżej. Następnie wybierzesz psa lub kota, temat sprawy oraz dostępny termin Kwadransa.
         </p>

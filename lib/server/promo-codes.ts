@@ -790,7 +790,7 @@ export async function redeemPromoCodeForBooking(booking: BookingRecord, rawCode:
   }
 
   if (serviceType !== PROMO_CODE_SERVICE_TYPE) {
-    throw new Error('Kod od lecznicy dziala tylko dla uslugi Kwadrans z behawiorysta.')
+    throw new Error('Kod przekazany przez lecznice dziala tylko dla uslugi Kwadrans z behawiorysta.')
   }
 
   if (!(booking.bookingStatus === 'pending' && booking.paymentStatus === 'unpaid')) {

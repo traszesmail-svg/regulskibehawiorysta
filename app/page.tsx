@@ -135,9 +135,11 @@ export default function HomePage() {
           <HomepageServiceSelector />
         </section>
 
-        <aside className="homepage-clinic-entry" aria-label="Kod od lecznicy">
+        <aside className="homepage-clinic-entry" aria-label="Kod przekazany przez lecznicę">
           <div>
-            <strong>Masz kod od lecznicy?</strong>
+            <Link href="/lecznica" prefetch={false}>
+              <strong>Masz kod przekazany przez lecznicę?</strong>
+            </Link>
           </div>
           <ClinicCodeEntry />
         </aside>

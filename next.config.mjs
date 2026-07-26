@@ -40,30 +40,7 @@ const securityHeaders = [
   },
 ]
 
-const REMOVED_MATERIALY_SLUGS = [
-  'kot-zyje-w-napieciu',
-  'pies-ile-ruchu-potrzebuje',
-  'kwadrans-podstawy-kota',
-  'kwadrans-podstawy-psa',
-  '30-zachowan',
-  'pierwszy-tydzien-z-kotem',
-  'pies-sam-w-domu',
-  'konflikt-miedzy-kotami',
-  'kot-boi-sie-kuwety',
-  'kot-budzi-dom-po-nocy',
-  'kot-chowa-sie-po-zmianach',
-  'kot-gryzie-przy-glaskaniu',
-  'koty-zabawa-czy-napiecie',
-  'miauczenie-o-swicie',
-  'pies-broni-zasobow',
-  'pies-do-pracy-z-ludzmi',
-  'pies-glupieje-na-smyczy',
-  'pies-niszczy-w-domu',
-  'pies-pogon-i-hamulce',
-  'pies-szczeka-na-gosci',
-  'szczeniak-gryzie-i-skacze',
-  'szczeniak-wyciszanie',
-]
+const REMOVED_MATERIALY_SLUGS = []
 
 const REMOVED_LEAD_MAGNET_SLUGS = [
   'pies-ile-ruchu-potrzebuje',
@@ -88,7 +65,6 @@ const nextConfig = {
   typedRoutes: false,
   outputFileTracingIncludes: {
     '/*': [
-      './qa-reports/latest-report.md',
       './supabase/schema.sql',
       './supabase/migrations/**/*.sql',
     ],

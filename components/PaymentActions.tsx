@@ -86,13 +86,36 @@ export function PaymentActions({
   const [selectedMethod, setSelectedMethod] = useState<'online' | 'manual' | 'promo'>(
     manualAvailable ? 'manual' : effectiveOnlinePayment.available ? 'online' : 'manual',
   )
+  const [isClinicFlow, setIsClinicFlow] = useState(false)
+  const [clinicName, setClinicName] = useState<string | null>(null)
+
   useEffect(() => {
     const storedCode = window.sessionStorage.getItem('clinicPromoCode')
     if (storedCode) {
       setPromoCode(storedCode)
       setSelectedMethod('promo')
+      setIsClinicFlow(true)
+      void fetch('/api/promo-codes/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: storedCode }),
+      })
+        .then((res) => res.json())
+        .then((payload: { ok?: boolean; clinicName?: string }) => {
+          if (payload.ok) {
+            setPromoValidated(true)
+            if (payload.clinicName) setClinicName(payload.clinicName)
+          } else {
+            setIsClinicFlow(false)
+            setSelectedMethod(manualAvailable ? 'manual' : effectiveOnlinePayment.available ? 'online' : 'manual')
+          }
+        })
+        .catch(() => {
+          setIsClinicFlow(false)
+          setSelectedMethod(manualAvailable ? 'manual' : effectiveOnlinePayment.available ? 'online' : 'manual')
+        })
     }
-  }, [])
+  }, [manualAvailable, effectiveOnlinePayment.available])
 
   const qaAvailable = Boolean(qaBooking && qaEligibility?.isAllowed)
   const promoAvailable = serviceType === PROMO_CODE_SERVICE_TYPE
@@ -143,14 +166,13 @@ export function PaymentActions({
     } catch (paymentError) {
       console.error('[regulski-behawiorysta][payment] qa checkout failed', paymentError)
       setError(paymentError instanceof Error ? paymentError.message : 'Wystąpił błąd testowej płatności.')
-    } finally {
       setQaLoading(false)
     }
   }
 
   async function handlePromoSubmit() {
     if (!promoAvailable) {
-      setError('Kod od lecznicy działa tylko dla usługi Kwadrans z behawiorystą.')
+      setError('Kod przekazany przez lecznicę działa tylko dla usługi Kwadrans z behawiorystą.')
       return
     }
 
@@ -170,11 +192,14 @@ export function PaymentActions({
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ code: promoCode }),
         })
-        const payload = (await response.json()) as { ok?: boolean; error?: string }
+        const payload = (await response.json()) as { ok?: boolean; error?: string; clinicName?: string }
         if (!response.ok || !payload.ok) {
           throw new Error(payload.error ?? 'Nie udało się sprawdzić kodu promocyjnego.')
         }
         setPromoValidated(true)
+        if (payload.clinicName) setClinicName(payload.clinicName)
+        setIsClinicFlow(true)
+        setPromoLoading(false)
         return
       }
 
@@ -240,7 +265,6 @@ export function PaymentActions({
     } catch (paymentError) {
       console.error('[regulski-behawiorysta][payment] promo code failed', paymentError)
       setError(paymentError instanceof Error ? paymentError.message : 'Wystąpił błąd obsługi kodu.')
-    } finally {
       setPromoLoading(false)
     }
   }
@@ -397,12 +421,15 @@ export function PaymentActions({
     <div className="payment-ref-action" data-payment-method-selected={selectedMethod}>
       {error ? <div className="error-box">{error}</div> : null}
 
-      <div className="payment-ref-method-lead">
-        <LockKeyhole aria-hidden="true" />
-        <span>Najtaniej: BLIK po instrukcji e-mail, bez prowizji pośrednika. Po potwierdzeniu dostaniesz link do {roomAccessLabel}.</span>
-      </div>
+      {!isClinicFlow ? (
+        <div className="payment-ref-method-lead">
+          <LockKeyhole aria-hidden="true" />
+          <span>Najtaniej: BLIK po instrukcji e-mail, bez prowizji pośrednika. Po potwierdzeniu dostaniesz link do {roomAccessLabel}.</span>
+        </div>
+      ) : null}
 
-      <div className="payment-ref-method-tabs" role="radiogroup" aria-label="Metoda płatności">
+      {!isClinicFlow ? (
+        <div className="payment-ref-method-tabs" role="radiogroup" aria-label="Metoda płatności">
         <button
           type="button"
           className="payment-ref-method-tab payment-ref-method-tab--blik"
@@ -452,47 +479,79 @@ export function PaymentActions({
         >
           <TicketCheck aria-hidden="true" />
           <span>
-            <strong>Mam kod od lecznicy</strong>
+            <strong>Mam kod przekazany przez lecznicę</strong>
             <em>{promoAvailable ? 'Kod promocyjny zastępuje płatność dla Kwadransa' : 'Dostępne tylko dla Kwadransa'}</em>
           </span>
         </button>
-      </div>
+        </div>
+      ) : null}
 
       <div className="payment-ref-method-panel">
-        <h3>{selectedMethod === 'online' ? 'Płatność online' : isPromoSelected ? 'Kod od lecznicy' : 'BLIK po instrukcji e-mail'}</h3>
-        <p>
-          {selectedMethod === 'online'
-            ? effectiveOnlinePayment.available
-              ? 'Po kliknięciu otworzy się bezpieczny checkout online z kartą oraz, gdy urządzenie je udostępnia, Apple Pay i Google Pay.'
-              : effectiveOnlinePayment.unavailableMessage
-            : isPromoSelected
-              ? promoValidated
-                ? 'Kod jest poprawny. Teraz wybierz, czy rozmawiasz bezpłatnie przez Jitsi, czy dopłacasz do połączenia telefonicznego.'
-                : 'Wpisz kod przekazany przez lecznicę. Po sprawdzeniu wybierzesz sposób rozmowy.'
-              : 'Przejdziesz do instrukcji BLIK i zgłosisz wpłatę. To najtańsza ścieżka, bo nie dolicza prowizji pośrednika.'}
-        </p>
-        <div className="payment-ref-field">
-          <span>Kwota</span>
-          <strong data-promo-amount={isPromoSelected ? 'true' : 'false'}>{selectedAmountLabel}</strong>
-        </div>
+        {isClinicFlow ? (
+          <>
+            <style>{`
+              .payment-ref-compact-intro h1,
+              .payment-ref-compact-intro p:last-child { display: none !important; }
+              .payment-ref-card-title { display: none !important; }
+              .payment-ref-total { display: none !important; }
+              .payment-ref-summary-list .payment-ref-summary-row:nth-child(4) { display: none !important; }
+            `}</style>
+            <div className="payment-ref-method-lead" style={{ background: 'var(--accent-light)', color: 'var(--accent-dark)', marginBottom: '1.5rem', borderRadius: '1rem', padding: '1.25rem' }}>
+              <TicketCheck aria-hidden="true" style={{ width: '2rem', height: '2rem', marginBottom: '0.5rem' }} />
+              <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem' }}>Darmowa konsultacja z lecznicy{clinicName ? ` ${clinicName}` : ''}</h3>
+              <p style={{ margin: 0, fontSize: '0.9rem' }}>Ten termin jest w pełni opłacony przez Twoją lecznicę. Wybierz dogodny sposób rozmowy bez dodatkowych ukrytych kosztów.</p>
+            </div>
+            <div className="payment-ref-field">
+              <span>Kwota do zapłaty</span>
+              <strong data-promo-amount="true" style={{ color: 'var(--accent-dark)' }}>{selectedAmountLabel}</strong>
+            </div>
+          </>
+        ) : (
+          <>
+            <h3>
+              {selectedMethod === 'online'
+                ? 'Płatność online'
+                : isPromoSelected
+                  ? 'Kod przekazany przez lecznicę'
+                  : 'BLIK po instrukcji e-mail'}
+            </h3>
+            <p>
+              {selectedMethod === 'online'
+                ? effectiveOnlinePayment.available
+                  ? 'Po kliknięciu otworzy się bezpieczny checkout online z kartą oraz, gdy urządzenie je udostępnia, Apple Pay i Google Pay.'
+                  : effectiveOnlinePayment.unavailableMessage
+                : isPromoSelected
+                  ? promoValidated
+                    ? 'Kod jest poprawny. Teraz wybierz, czy rozmawiasz bezpłatnie przez Jitsi, czy dopłacasz do połączenia telefonicznego.'
+                    : 'Wpisz kod przekazany przez lecznicę. Po sprawdzeniu wybierzesz sposób rozmowy.'
+                  : 'Przejdziesz do instrukcji BLIK i zgłosisz wpłatę. To najtańsza ścieżka, bo nie dolicza prowizji pośrednika.'}
+            </p>
+            <div className="payment-ref-field">
+              <span>Kwota</span>
+              <strong data-promo-amount={isPromoSelected ? 'true' : 'false'}>{selectedAmountLabel}</strong>
+            </div>
+          </>
+        )}
         {isPromoSelected ? (
           <>
-            <label className="payment-ref-field payment-ref-code-field">
-              <span>Kod promocyjny</span>
-              <input
-                type="text"
-                value={promoCode}
-                onChange={(event) => {
-                  setPromoCode(event.target.value)
-                  setPromoValidated(false)
-                  setPromoRedeemed(false)
-                }}
-                placeholder="VET-XXXX-XXXX"
-                autoCapitalize="characters"
-                autoComplete="off"
-                data-promo-code-input="true"
-              />
-            </label>
+            {!isClinicFlow ? (
+              <label className="payment-ref-field payment-ref-code-field">
+                <span>Kod promocyjny</span>
+                <input
+                  type="text"
+                  value={promoCode}
+                  onChange={(event) => {
+                    setPromoCode(event.target.value)
+                    setPromoValidated(false)
+                    setPromoRedeemed(false)
+                  }}
+                  placeholder="VET-XXXX-XXXX"
+                  autoCapitalize="characters"
+                  autoComplete="off"
+                  data-promo-code-input="true"
+                />
+              </label>
+            ) : null}
             {promoValidated ? (
               <div className="payment-ref-channel-grid" role="radiogroup" aria-label="Kanał rozmowy" data-promo-channel-choice="true">
                 <button type="button" className="payment-ref-method-tab" data-selected={promoChannel === 'jitsi' ? 'true' : 'false'} data-promo-channel="jitsi" onClick={() => setPromoChannel('jitsi')} role="radio" aria-checked={promoChannel === 'jitsi'}>

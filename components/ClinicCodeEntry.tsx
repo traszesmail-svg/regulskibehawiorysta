@@ -38,7 +38,7 @@ export function ClinicCodeEntry() {
 
   return (
     <form className="clinic-code-form" onSubmit={handleSubmit} data-clinic-code-entry="true">
-      <label htmlFor="clinic-code">Kod od lecznicy</label>
+      <label htmlFor="clinic-code">Kod przekazany przez lecznicę</label>
       <div className="clinic-code-row">
         <input
           id="clinic-code"

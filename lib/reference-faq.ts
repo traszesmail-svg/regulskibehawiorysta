@@ -83,14 +83,14 @@ export const referenceFaqItems: ReferenceFaqItem[] = [
     category: 'techniczne',
     question: 'Jak szybko otrzymam odpowiedź?',
     answer:
-      'Na zwykłą wiadomość odpowiadam zwykle w ciągu 1-2 dni roboczych. Przy wybranym terminie i płatności komunikacja dotyczy już konkretnej rezerwacji.',
+      'Na wiadomość wysłaną bez rezerwacji odpowiadam zwykle w ciągu 1-2 dni roboczych. Po wyborze terminu i opłaceniu usługi dalsza komunikacja dotyczy konkretnej rezerwacji.',
   },
   {
     id: 'przygotowanie',
     category: 'konsultacje',
     question: 'Jak się przygotować do konsultacji?',
     answer:
-      'Przygotuj krótki opis sytuacji, wiek zwierzęcia, czas trwania problemu i to, co już było próbowane. Nagrania są pomocne, ale nie są warunkiem rozpoczęcia.',
+      'Przygotuj krótki opis sytuacji, wiek zwierzęcia, czas trwania problemu i to, co już było próbowane. Nagrania są pomocne, ale nie są warunkiem rozpoczęcia konsultacji.',
   },
   {
     id: 'plan-pracy',

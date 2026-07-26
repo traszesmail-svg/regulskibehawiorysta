@@ -529,12 +529,21 @@ export function listMaterialyGuides(): MaterialyGuide[] {
   return RAW_GUIDES
 }
 
+export function listPublishedMaterialyGuides(): MaterialyGuide[] {
+  return RAW_GUIDES.filter((guide) => guide.priceCode === 'free' || guide.priceCode === 'p19')
+}
+
 export function listMaterialyBundles(): MaterialyBundle[] {
   return RAW_BUNDLES
 }
 
 export function getMaterialyGuideBySlug(slug: string): MaterialyGuide | null {
   return guidesBySlug.get(slug) ?? null
+}
+
+export function getPublishedMaterialyGuideBySlug(slug: string): MaterialyGuide | null {
+  const guide = guidesBySlug.get(slug)
+  return guide && (guide.priceCode === 'free' || guide.priceCode === 'p19') ? guide : null
 }
 
 export function getMaterialyBundleBySlug(slug: string): MaterialyBundle | null {

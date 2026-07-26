@@ -10,6 +10,7 @@ data/
 !data/
 !data/testimonials.json
 data/payment-orders.json
+data/promo-codes.json
 
 CHATGPT_*.txt
 FINAL_*REPORT*.txt
@@ -74,6 +75,18 @@ qa-reports/lighthouse/
 qa-reports/stage9-performance-audit/
 qa-reports/final-crawl/
 qa-reports/remaining-pages-*/
+qa-reports/
+do-przegladu/
+.tmp/
+
+# Jednorazowe lokalne skrypty do testów kodów i rezerwacji.
+test-promo.ts
+scripts/gen-test-code.ts
+scripts/generate-live-promo-code.mjs
+scripts/generate-promo.ts
+scripts/generate-test-promo-code.mjs
+scripts/test-booking.ts
+scripts/test-code-validation.ts
 
 .DS_Store
 Thumbs.db

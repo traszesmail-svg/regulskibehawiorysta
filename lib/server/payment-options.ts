@@ -60,7 +60,7 @@ function getManualPaymentMethodLabel(phone: string | null) {
 
 
 
-  return 'Wpłata ręczna'
+  return 'Płatność według instrukcji'
 }
 
 function getManualPaymentAvailabilityLabel(phone: string | null) {
@@ -74,7 +74,7 @@ function getManualPaymentAvailabilityLabel(phone: string | null) {
 
 
 
-  return 'Wpłata ręczna jest dostępna'
+  return 'Płatność według instrukcji jest dostępna'
 }
 
 export type ManualPaymentConfig = {

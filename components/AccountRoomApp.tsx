@@ -55,7 +55,7 @@ function getRoomMaterialGuides(species: AccountPetSpecies): MaterialyGuide[] {
 }
 
 function buildRoomMaterialOrderHref(slug: string) {
-  return `/zamow-pdf?guide=${encodeURIComponent(slug)}`
+  return `/materialy/${encodeURIComponent(slug)}`
 }
 
 function formatDateTime(value: string) {

@@ -21,7 +21,7 @@ export function generateMetadata(): Metadata {
   return buildTechnicalMetadata({
     title: 'BLIK po instrukcji e-mail',
     path: '/platnosc/blik',
-    description: 'Instrukcja ręcznej płatności BLIK bez publicznego numeru.',
+    description: 'Instrukcja płatności BLIK na telefon bez publicznego numeru.',
     noIndex: true,
     follow: false,
   })
@@ -106,7 +106,7 @@ export default async function BlikPaymentPage(props: {
             </div>
           ) : (
             <>
-              <div className="section-eyebrow">Płatność ręczna</div>
+              <div className="section-eyebrow">BLIK na telefon</div>
               <h1>{isClinicPhoneUpgrade ? "Dopłata BLIK na telefon" : "BLIK po instrukcji e-mail"}</h1>
               <p className="hero-text small-width center-text">
                 Kwota: <strong>{formatCommercePrice(order.manualAmount)}</strong>. Wyślij dopłatę BLIK na telefon na numer{' '}

@@ -7,7 +7,7 @@ import { loadEnvConfig } from '@next/env'
 import { chromium, type BrowserContext, type Page } from 'playwright-core'
 import { listLeadMagnetPaths } from '@/lib/active-lead-magnets'
 import { buildBookHref } from '@/lib/booking-routing'
-import { listMaterialyBundles, listMaterialyGuides } from '@/lib/materialy-catalog'
+import { listMaterialyBundles, listPublishedMaterialyGuides } from '@/lib/materialy-catalog'
 import { SITE_PRODUCTION_URL } from '@/lib/site'
 import { resolveBrowserExecutablePath } from './lib/browser-path'
 
@@ -75,7 +75,7 @@ const blogRoutePaths = readdirSync(blogDir, { withFileTypes: true })
   })
 const pdfRoutePaths = [
   '/materialy',
-  ...listMaterialyGuides().map((guide) => `/materialy/${guide.slug}`),
+  ...listPublishedMaterialyGuides().map((guide) => `/materialy/${guide.slug}`),
   ...listMaterialyBundles().map((bundle) => `/materialy/pakiet/${bundle.slug}`),
 ]
 const localSeoPaths = ['/behawiorysta-online-polska']

@@ -3,7 +3,20 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useMemo, useRef, useState, type MouseEvent, type ReactNode } from 'react'
-import { CalendarDays, Cat, Check, Clock3, Dog, Headphones, Lightbulb, PawPrint, Tag, Video } from 'lucide-react'
+import {
+  CalendarDays,
+  Cat,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Clock3,
+  Dog,
+  Headphones,
+  Lightbulb,
+  PawPrint,
+  Tag,
+  Video,
+} from 'lucide-react'
 import { BookingForm, type BookingCreatedPayload } from '@/components/BookingForm'
 import { PaymentActions } from '@/components/PaymentActions'
 import { trackAnalyticsEvent } from '@/lib/analytics'
@@ -94,14 +107,36 @@ function getSpeciesIcon(species: TerminCalendarSummary['species']) {
   return PawPrint
 }
 
+function getMonthKey(dateKey: string) {
+  return dateKey.slice(0, 7)
+}
+
+function formatCalendarMonthTitle(monthKey: string) {
+  const [year, month] = monthKey.split('-').map(Number)
+  if (!year || !month) {
+    return ''
+  }
+
+  return new Intl.DateTimeFormat('pl-PL', {
+    month: 'long',
+    year: 'numeric',
+  }).format(new Date(year, month - 1, 1, 12))
+}
+
 export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, paymentConfig, choicePanel }: TerminCalendarPickerProps) {
   const allVisibleSlots = useMemo(() => days.flatMap((day) => day.slots), [days])
   const flatSlots = useMemo(() => allVisibleSlots.filter((slot) => slot.isBookable), [allVisibleSlots])
   const isUrgentBooking = summary.serviceType === 'kwadrans-na-juz'
   const nearestSlots = isUrgentBooking ? allVisibleSlots : flatSlots.slice(0, 5)
   const firstAvailableDay = days.find((day) => day.availableSlotCount > 0) ?? days.find((day) => day.isInPrimaryMonth) ?? days[0] ?? null
+  const calendarMonthKeys = useMemo(
+    () => Array.from(new Set(days.filter((day) => day.isInPrimaryMonth).map((day) => getMonthKey(day.date)))),
+    [days],
+  )
+  const firstCalendarMonthKey = firstAvailableDay ? getMonthKey(firstAvailableDay.date) : calendarMonthKeys[0] ?? ''
   const [selectedDayDate, setSelectedDayDate] = useState(firstAvailableDay?.date ?? '')
   const [selectedSlotId, setSelectedSlotId] = useState(flatSlots[0]?.id ?? '')
+  const [visibleMonthKey, setVisibleMonthKey] = useState(firstCalendarMonthKey)
   const [createdBooking, setCreatedBooking] = useState<BookingCreatedPayload | null>(null)
   const inlineFlowRef = useRef<HTMLElement | null>(null)
   const selectedDay = days.find((day) => day.date === selectedDayDate) ?? firstAvailableDay
@@ -114,10 +149,47 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, pay
   const petVisualAlt = summary.species === 'kot' ? 'Spokojny kot' : 'Spokojny pies'
   const onlinePayment = paymentConfig.onlinePayment ?? disabledOnlinePayment
   const showSpeciesAndTopic = !isUrgentBooking
+  const activeMonthKey = calendarMonthKeys.includes(visibleMonthKey) ? visibleMonthKey : firstCalendarMonthKey
+  const activeMonthIndex = Math.max(0, calendarMonthKeys.indexOf(activeMonthKey))
+  const activeMonthLabel = formatCalendarMonthTitle(activeMonthKey) || monthLabel
+  const visibleCalendarDays = useMemo(() => {
+    if (!activeMonthKey) {
+      return days
+    }
+
+    const firstMonthDayIndex = days.findIndex((day) => getMonthKey(day.date) === activeMonthKey)
+    let lastMonthDayIndex = -1
+
+    days.forEach((day, index) => {
+      if (getMonthKey(day.date) === activeMonthKey) {
+        lastMonthDayIndex = index
+      }
+    })
+
+    if (firstMonthDayIndex < 0 || lastMonthDayIndex < 0) {
+      return days
+    }
+
+    const firstMonthDay = new Date(`${days[firstMonthDayIndex].date}T12:00:00`)
+    const lastMonthDay = new Date(`${days[lastMonthDayIndex].date}T12:00:00`)
+    const leadingDays = (firstMonthDay.getDay() + 6) % 7
+    const trailingDays = 6 - ((lastMonthDay.getDay() + 6) % 7)
+
+    return days.slice(
+      Math.max(0, firstMonthDayIndex - leadingDays),
+      Math.min(days.length, lastMonthDayIndex + trailingDays + 1),
+    )
+  }, [activeMonthKey, days])
 
   useEffect(() => {
     setCreatedBooking(null)
   }, [selectedSlotId])
+
+  useEffect(() => {
+    if (firstCalendarMonthKey && !calendarMonthKeys.includes(visibleMonthKey)) {
+      setVisibleMonthKey(firstCalendarMonthKey)
+    }
+  }, [calendarMonthKeys, firstCalendarMonthKey, visibleMonthKey])
 
   function scrollToInlineFlow() {
     window.requestAnimationFrame(() => {
@@ -126,6 +198,7 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, pay
   }
 
   function chooseDay(day: TerminCalendarDay) {
+    setVisibleMonthKey(getMonthKey(day.date))
     setSelectedDayDate(day.date)
     setSelectedSlotId(day.slots.find((slot) => slot.isBookable)?.id ?? '')
   }
@@ -154,6 +227,7 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, pay
       return
     }
 
+    setVisibleMonthKey(getMonthKey(slot.date))
     setSelectedDayDate(slot.date)
     setSelectedSlotId(slot.id)
     scrollToInlineFlow()
@@ -221,13 +295,38 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, pay
         ) : null}
 
         {!isUrgentBooking ? <div className="termin-calendar-toolbar">
-          <div>
+          <div className="termin-calendar-toolbar-heading">
             <span>2. Wybierz datę</span>
-            <strong>{monthLabel}</strong>
+            <strong>{activeMonthLabel}</strong>
           </div>
-          <p>
-            {slotCount > 0 ? `${slotCount} dostępnych terminów` : 'Brak dostępnych terminów'} / {summary.serviceBadge}
-          </p>
+          <div className="termin-calendar-toolbar-meta">
+            <p>
+              {slotCount > 0 ? `${slotCount} dostępnych terminów w całym zakresie` : 'Brak dostępnych terminów'} / {summary.serviceBadge}
+            </p>
+            {calendarMonthKeys.length > 1 ? (
+              <div className="termin-calendar-month-nav" aria-label="Zmiana miesiąca kalendarza">
+                <button
+                  type="button"
+                  onClick={() => setVisibleMonthKey(calendarMonthKeys[activeMonthIndex - 1])}
+                  disabled={activeMonthIndex === 0}
+                  aria-label="Poprzedni miesiąc"
+                >
+                  <ChevronLeft size={18} strokeWidth={2} aria-hidden="true" />
+                </button>
+                <span aria-live="polite">
+                  {activeMonthIndex + 1} z {calendarMonthKeys.length}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setVisibleMonthKey(calendarMonthKeys[activeMonthIndex + 1])}
+                  disabled={activeMonthIndex === calendarMonthKeys.length - 1}
+                  aria-label="Następny miesiąc"
+                >
+                  <ChevronRight size={18} strokeWidth={2} aria-hidden="true" />
+                </button>
+              </div>
+            ) : null}
+          </div>
         </div> : null}
 
         {!isUrgentBooking ? <div className="termin-calendar-weekdays" aria-hidden="true">
@@ -237,7 +336,7 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, pay
         </div> : null}
 
         {!isUrgentBooking ? <div className="termin-calendar-grid" aria-label="Kalendarz dostępnych terminów">
-          {days.map((day) => (
+          {visibleCalendarDays.map((day) => (
             <article
               key={day.date}
               className={`termin-calendar-day${day.availableSlotCount > 0 ? ' has-slots' : ''}${day.slots.length > 0 ? ' has-visible-slots' : ''}${day.isInPrimaryMonth ? '' : ' is-muted'}`}
@@ -376,7 +475,7 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, pay
             <h2>{createdBooking ? 'Wybierz płatność albo wpisz kod' : 'Uzupełnij dane do wybranego terminu'}</h2>
             <p>
               {selectedSlot
-                ? `${selectedSlot.dateLabel}, ${selectedSlot.time}. Dane i płatność zostają w tym samym widoku.`
+                ? `${selectedSlot.dateLabel}, ${selectedSlot.time}. Dane uzupełnisz poniżej. Po ich wysłaniu przejdziesz do wyboru płatności.`
                 : 'Wybierz dzień i godzinę, a formularz pojawi się tutaj.'}
             </p>
           </div>
@@ -395,7 +494,8 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, pay
             {createdBooking ? (
               <div className="termin-inline-payment-panel">
                 <div className="notatnik-callout">
-                  Termin jest zapisany i trzymany na czas płatności. Możesz użyć kodu od lecznicy albo przejść standardową płatnością.
+                  Termin jest zapisany i trzymany na czas płatności. Jeśli masz kod przekazany przez lecznicę, wpisz go poniżej.
+                  W przeciwnym razie wybierz dostępną metodę płatności.
                 </div>
                 <PaymentActions
                   bookingId={createdBooking.bookingId}

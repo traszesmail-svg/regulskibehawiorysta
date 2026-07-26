@@ -26979,6 +26979,55 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
   font-size: 12px !important;
 }
 
+.termin-calendar-toolbar-meta {
+  justify-items: end;
+  gap: 8px !important;
+  text-align: right;
+}
+
+.termin-calendar-month-nav {
+  display: flex !important;
+  align-items: center;
+  gap: 8px !important;
+}
+
+.termin-calendar-month-nav button {
+  display: inline-grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  padding: 0;
+  border: 1px solid rgba(16, 75, 43, 0.18);
+  border-radius: 999px;
+  background: #fffdf8;
+  color: #104b2b;
+  cursor: pointer;
+}
+
+.termin-calendar-month-nav button:hover,
+.termin-calendar-month-nav button:focus-visible {
+  border-color: rgba(16, 75, 43, 0.36);
+  background: #eef5e9;
+}
+
+.termin-calendar-month-nav button:disabled {
+  border-color: rgba(80, 65, 47, 0.1);
+  background: #f5f1e9;
+  color: rgba(23, 33, 25, 0.46);
+  cursor: not-allowed;
+}
+
+.termin-calendar-month-nav span {
+  min-width: 42px;
+  color: rgba(23, 33, 25, 0.78) !important;
+  font-family: var(--font-body), system-ui, sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0 !important;
+  text-align: center;
+  text-transform: none !important;
+}
+
 .termin-calendar-weekdays {
   padding: 0 18px !important;
   border-bottom: 0 !important;
@@ -26988,7 +27037,7 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
 .termin-calendar-weekdays span {
   padding: 10px 4px !important;
   border: 0 !important;
-  color: rgba(23, 33, 25, 0.58) !important;
+  color: rgba(23, 33, 25, 0.74) !important;
   font-size: 11px !important;
   letter-spacing: 0.02em !important;
 }
@@ -27086,7 +27135,7 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
 }
 
 .termin-slot-button small {
-  color: rgba(23, 33, 25, 0.58) !important;
+  color: rgba(23, 33, 25, 0.72) !important;
   font-family: var(--font-body), system-ui, sans-serif !important;
   font-size: 10px !important;
   font-weight: 760 !important;
@@ -27104,14 +27153,14 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
 .termin-slot-button.is-locked {
   border-color: rgba(80, 65, 47, 0.1) !important;
   background: #f5efe4 !important;
-  color: rgba(23, 33, 25, 0.62) !important;
+  color: rgba(23, 33, 25, 0.72) !important;
 }
 
 .termin-slot-button.is-unavailable,
 .termin-slot-button.is-reserved_for_urgent {
   border-color: rgba(80, 65, 47, 0.08) !important;
   background: #f8f5ee !important;
-  color: rgba(23, 33, 25, 0.44) !important;
+  color: rgba(23, 33, 25, 0.66) !important;
 }
 
 .termin-slot-button.is-selected {
@@ -27186,6 +27235,11 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
   font-size: 24px !important;
 }
 
+.termin-calendar-summary-list small,
+.termin-calendar-summary > small {
+  color: #625f56 !important;
+}
+
 .termin-calendar-summary-note {
   border-radius: 12px !important;
   background:
@@ -27222,10 +27276,54 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
 }
 
 .termin-nearest-slots-head strong {
-  color: rgba(23, 33, 25, 0.68) !important;
+  color: rgba(23, 33, 25, 0.78) !important;
   font-size: 12px !important;
   font-weight: 760 !important;
   line-height: 1.35 !important;
+}
+
+.termin-nearest-slot-list {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px !important;
+}
+
+.termin-nearest-slot-link {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  gap: 2px 12px !important;
+  align-items: center !important;
+  min-height: 66px !important;
+  padding: 12px 14px !important;
+  border: 1px solid rgba(16, 75, 43, 0.14) !important;
+  border-radius: 12px !important;
+  background: #fffdf8 !important;
+  box-shadow: 0 10px 20px rgba(67, 49, 28, 0.07) !important;
+}
+
+.termin-nearest-slot-link span,
+.termin-nearest-slot-link small {
+  min-width: 0 !important;
+  color: rgba(23, 33, 25, 0.78) !important;
+  font-size: 12px !important;
+  line-height: 1.3 !important;
+}
+
+.termin-nearest-slot-link span {
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+}
+
+.termin-nearest-slot-link strong {
+  grid-row: span 2 !important;
+  color: #104b2b !important;
+  font-size: 20px !important;
+  font-weight: 900 !important;
+}
+
+.termin-nearest-slot-link small {
+  font-weight: 760 !important;
 }
 
 .termin-calendar-layout-urgent .termin-nearest-slots {
@@ -27252,6 +27350,7 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
 
 .termin-calendar-layout-urgent .termin-nearest-slot-list {
   display: grid !important;
+  grid-template-columns: 1fr !important;
   gap: 8px !important;
   max-height: 340px;
   overflow-y: auto;
@@ -27343,6 +27442,11 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
     grid-template-columns: 1fr !important;
   }
 
+  .termin-calendar-toolbar-meta {
+    justify-items: start;
+    text-align: left;
+  }
+
   .termin-nearest-slots {
     display: grid !important;
     gap: 12px !important;
@@ -27375,6 +27479,7 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
 
   .termin-nearest-slot-list {
     display: grid !important;
+    grid-template-columns: 1fr !important;
     gap: 8px !important;
   }
 
@@ -27400,15 +27505,15 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
   .termin-nearest-slot-link span,
   .termin-nearest-slot-link small {
     min-width: 0 !important;
-    color: rgba(23, 33, 25, 0.68) !important;
+    color: rgba(23, 33, 25, 0.78) !important;
     font-size: 12px !important;
     line-height: 1.25 !important;
   }
 
   .termin-nearest-slot-link span {
-    overflow: hidden !important;
-    white-space: nowrap !important;
-    text-overflow: ellipsis !important;
+    overflow: visible !important;
+    white-space: normal !important;
+    text-overflow: clip !important;
   }
 
   .termin-nearest-slot-link strong {
@@ -30547,7 +30652,7 @@ html[data-theme='dark'] input[type="checkbox"] {
 .home-trend-problem-eyebrow {
   display: inline-flex;
   width: fit-content;
-  color: #4a8d7a;
+  color: #2f6d5b;
   font-size: 11px;
   font-weight: 900;
   letter-spacing: 0.12em;

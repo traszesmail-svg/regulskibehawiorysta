@@ -23,15 +23,15 @@ export function getManualPaymentDisplayCopy({
 
   if (hasPhone) {
     return {
-      selectionTitle: 'Wpłata ręczna',
-      summaryTitle: 'Wpłata ręczna z potwierdzeniem',
-      description: 'Opłać rezerwację zgodnie z danymi poniżej i poczekaj na ręczne potwierdzenie wpłaty.',
+      selectionTitle: 'BLIK po instrukcji e-mail',
+      summaryTitle: 'BLIK po instrukcji e-mail',
+      description: 'Opłać rezerwację zgodnie z danymi poniżej. Wpłatę potwierdzimy w godzinach obsługi.',
     }
   }
 
   return {
-    selectionTitle: 'Wpłata ręczna',
-    summaryTitle: 'Wpłata ręczna z potwierdzeniem',
+    selectionTitle: 'Płatność według instrukcji',
+    summaryTitle: 'Płatność według instrukcji',
     description: 'Dalsze szczegóły płatności zależą od aktywnej konfiguracji rezerwacji.',
   }
 }

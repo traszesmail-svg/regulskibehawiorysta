@@ -78,7 +78,7 @@ export const faq = [
   },
   {
     q: 'Czy mogę anulować zakup?',
-    a: 'Po potwierdzeniu wpłaty masz krótkie okno na zgłoszenie rezygnacji lub zmiany terminu. Przy obecnym modelu płatności ręcznej ewentualny zwrot wymaga kontaktu i indywidualnej decyzji.',
+    a: 'Po potwierdzeniu wpłaty masz krótkie okno na zgłoszenie rezygnacji lub zmiany terminu. Przy płatności BLIK potwierdzanej przez obsługę ewentualny zwrot wymaga kontaktu i indywidualnej decyzji.',
   },
   {
     q: 'Co dostaję po rozmowie?',

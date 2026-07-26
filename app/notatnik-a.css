@@ -30620,7 +30620,12 @@ html[data-theme='dark'] input[type="checkbox"] {
   }
 
   .materialy-page.homepage-shell .materialy-home-sidecard .regulski-web-hero-visual {
-    min-height: 220px;
+    min-height: 0;
+    aspect-ratio: 16 / 9;
+  }
+
+  .materialy-page.homepage-shell .materialy-home-sidecard .regulski-web-hero-image {
+    object-fit: contain;
   }
 }
 /* Trend Radar problem navigation */

@@ -964,18 +964,30 @@ async function cleanupExpiredReservations() {
 
 async function listAvailabilityRows(): Promise<AvailabilityRow[]> {
   const supabase = getSupabaseAdmin()
-  const { data, error } = await supabase
-    .from('availability')
-    .select('*')
-    .order('booking_date', { ascending: true })
-    .order('booking_time', { ascending: true })
-    .range(0, 9999)
+  const pageSize = 1000
+  const rows: AvailabilityRow[] = []
 
-  if (error) {
-    throw error
+  for (let pageStart = 0; ; pageStart += pageSize) {
+    const { data, error } = await supabase
+      .from('availability')
+      .select('*')
+      .order('booking_date', { ascending: true })
+      .order('booking_time', { ascending: true })
+      .range(pageStart, pageStart + pageSize - 1)
+
+    if (error) {
+      throw error
+    }
+
+    const page = (data as AvailabilityRow[]) ?? []
+    rows.push(...page)
+
+    if (page.length < pageSize) {
+      break
+    }
   }
 
-  return (data as AvailabilityRow[]) ?? []
+  return rows
 }
 
 async function ensureFutureAvailabilityRows(): Promise<AvailabilitySlot[]> {

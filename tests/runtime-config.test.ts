@@ -963,7 +963,8 @@ test('qa booking schema fallback keeps public booking inserts alive', () => {
 test('production availability reads past Supabase default pagination', () => {
   const supabaseStoreSource = readSource('lib', 'server', 'supabase-store.ts')
 
-  assert.match(supabaseStoreSource, /\.from\('availability'\)[\s\S]*?\.range\(0, 9999\)/)
+  assert.match(supabaseStoreSource, /for \(let pageStart = 0; ; pageStart \+= pageSize\)/)
+  assert.match(supabaseStoreSource, /\.range\(pageStart, pageStart \+ pageSize - 1\)/)
 })
 
 test('booking form shows normalized slot conflict copy instead of raw api errors', () => {

@@ -24,11 +24,26 @@ export function ClinicCodeEntry() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code }),
       })
-      const payload = (await response.json()) as { ok?: boolean; error?: string }
+      const payload = (await response.json()) as {
+        ok?: boolean
+        error?: string
+        clinicName?: string | null
+        clinicLogoSrc?: string | null
+      }
       if (!response.ok || !payload.ok) throw new Error(payload.error ?? 'Nie udało się sprawdzić kodu.')
 
       window.sessionStorage.setItem('clinicPromoCode', code.trim().toUpperCase())
-      router.push('/book?service=szybka-konsultacja-15-min&clinic=1')
+      if (payload.clinicName) {
+        window.sessionStorage.setItem('clinicPromoName', payload.clinicName)
+      } else {
+        window.sessionStorage.removeItem('clinicPromoName')
+      }
+      if (payload.clinicLogoSrc) {
+        window.sessionStorage.setItem('clinicPromoLogo', payload.clinicLogoSrc)
+      } else {
+        window.sessionStorage.removeItem('clinicPromoLogo')
+      }
+      router.push('/wybor?clinic=1')
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : 'Nie udało się sprawdzić kodu.')
     } finally {

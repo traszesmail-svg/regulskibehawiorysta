@@ -204,8 +204,9 @@
 }
 
 .catPage .heroImage img {
-  object-position: 68% 46%;
-  transform: scale(1.1);
+  object-fit: contain;
+  object-position: center top;
+  transform: none;
 }
 
 .dogPage .content::before {
@@ -396,6 +397,106 @@
   box-shadow: 0 10px 22px rgba(48, 39, 25, 0.14);
 }
 
+.clinicAnimalChoice {
+  display: grid;
+  gap: 17px;
+  padding: 18px;
+  border: 1px solid rgba(79, 72, 53, 0.1);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(224, 231, 206, 0.72), transparent 42%),
+    linear-gradient(145deg, #fffdf8, #f7f0e4);
+  box-shadow: 0 15px 36px rgba(48, 39, 25, 0.08);
+}
+
+.clinicAnimalChoice h2 {
+  margin: 11px 0 0;
+  color: #113c24;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 29px;
+  line-height: 1.02;
+}
+
+.clinicAnimalChoice p {
+  max-width: 38ch;
+  margin: 7px 0 0;
+  color: rgba(22, 35, 28, 0.7);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.clinicAnimalGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 11px;
+}
+
+.clinicAnimalCard {
+  display: grid;
+  grid-template-columns: 82px minmax(0, 1fr);
+  min-height: 100px;
+  overflow: hidden;
+  border: 1px solid rgba(20, 61, 36, 0.12);
+  border-radius: 18px;
+  color: inherit;
+  background: rgba(255, 253, 248, 0.88);
+  text-decoration: none;
+  box-shadow: 0 10px 25px rgba(48, 39, 25, 0.06);
+  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.clinicAnimalCard:hover,
+.clinicAnimalCard:focus-visible {
+  transform: translateY(-2px);
+  border-color: rgba(20, 61, 36, 0.32);
+  box-shadow: 0 15px 30px rgba(48, 39, 25, 0.12);
+}
+
+.clinicAnimalCardImage {
+  position: relative;
+  min-height: 100px;
+  overflow: hidden;
+  background: #f4ecdf;
+}
+
+.clinicAnimalCardImage img {
+  object-fit: contain;
+  object-position: center;
+}
+
+.clinicAnimalCardCopy {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 20px;
+  gap: 5px 4px;
+  align-content: center;
+  align-items: center;
+  padding: 12px 10px;
+}
+
+.clinicAnimalCardCopy strong {
+  display: inline-flex;
+  grid-column: 1 / 2;
+  align-items: center;
+  gap: 6px;
+  color: #113c24;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 19px;
+  line-height: 1;
+}
+
+.clinicAnimalCardCopy small {
+  grid-column: 1 / -1;
+  color: rgba(22, 35, 28, 0.66);
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+.clinicAnimalCardCopy > svg {
+  grid-column: 2;
+  grid-row: 1;
+  color: #164126;
+}
+
 @media (max-width: 520px) {
   .page {
     padding: 0;
@@ -462,6 +563,10 @@
   }
 
   .choiceGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .clinicAnimalGrid {
     grid-template-columns: 1fr;
   }
 

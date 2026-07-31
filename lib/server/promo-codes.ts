@@ -19,6 +19,7 @@ type PromoCodeStatus = 'active' | 'used' | 'revoked' | 'expired'
 export type PromoCampaignRecord = {
   id: string
   clinicName: string
+  logoSrc: string | null
   serviceType: BookingServiceType
   codeCount: number
   status: PromoCampaignStatus
@@ -63,6 +64,7 @@ type PromoStoreShape = {
 type PromoCampaignRow = {
   id: string
   clinic_name: string
+  logo_src?: string | null
   service_type: string
   code_count: number
   status: string
@@ -131,6 +133,7 @@ type PromoCodeClaim = {
 
 type CreatePromoCampaignInput = {
   clinicName: string
+  logoSrc?: string | null
   codeCount?: number | string | null
   expiresAt?: string | null
 }
@@ -160,7 +163,12 @@ async function readLocalStore(): Promise<PromoStoreShape> {
     const parsed = JSON.parse(raw) as Partial<PromoStoreShape>
 
     return {
-      campaigns: Array.isArray(parsed.campaigns) ? parsed.campaigns : [],
+      campaigns: Array.isArray(parsed.campaigns)
+        ? parsed.campaigns.map((campaign) => ({
+            ...campaign,
+            logoSrc: sanitizeClinicLogoSrc(campaign.logoSrc),
+          }))
+        : [],
       codes: Array.isArray(parsed.codes) ? parsed.codes : [],
       redemptions: Array.isArray(parsed.redemptions) ? parsed.redemptions : [],
     }
@@ -243,6 +251,25 @@ function sanitizeClinicName(value: string) {
   return value.trim().replace(/\s+/g, ' ').slice(0, 120)
 }
 
+function sanitizeClinicLogoSrc(value: string | null | undefined) {
+  const raw = value?.trim().slice(0, 500) ?? ''
+
+  if (!raw) {
+    return null
+  }
+
+  if (raw.startsWith('/') && !raw.startsWith('//')) {
+    return raw
+  }
+
+  try {
+    const parsed = new URL(raw)
+    return parsed.protocol === 'https:' ? parsed.toString() : null
+  } catch {
+    return null
+  }
+}
+
 function paymentReferenceForClaim(campaign: Pick<PromoCampaignRecord, 'clinicName'>, code: Pick<PromoCodeRecord, 'codeLabel'>) {
   return `PROMO ${campaign.clinicName} ${code.codeLabel}`.slice(0, 120)
 }
@@ -251,6 +278,7 @@ function mapCampaignRow(row: PromoCampaignRow): PromoCampaignRecord {
   return {
     id: row.id,
     clinicName: row.clinic_name,
+    logoSrc: sanitizeClinicLogoSrc(row.logo_src),
     serviceType: resolveBookingServiceType(row.service_type, 0),
     codeCount: Number(row.code_count),
     status: row.status === 'paused' || row.status === 'archived' ? row.status : 'active',
@@ -334,6 +362,7 @@ function buildLocalCampaignSummary(store: PromoStoreShape, campaign: PromoCampai
 }
 
 async function createLocalPromoCampaign(input: Required<Pick<CreatePromoCampaignInput, 'clinicName'>> & {
+  logoSrc: string | null
   codeCount: number
   expiresAt: string | null
 }): Promise<PromoCampaignCreationResult> {
@@ -343,6 +372,7 @@ async function createLocalPromoCampaign(input: Required<Pick<CreatePromoCampaign
     const campaign: PromoCampaignRecord = {
       id: randomUUID(),
       clinicName: input.clinicName,
+      logoSrc: input.logoSrc,
       serviceType: PROMO_CODE_SERVICE_TYPE,
       codeCount: input.codeCount,
       status: 'active',
@@ -392,6 +422,7 @@ async function createLocalPromoCampaign(input: Required<Pick<CreatePromoCampaign
 }
 
 async function createSupabasePromoCampaign(input: Required<Pick<CreatePromoCampaignInput, 'clinicName'>> & {
+  logoSrc: string | null
   codeCount: number
   expiresAt: string | null
 }): Promise<PromoCampaignCreationResult | null> {
@@ -420,6 +451,7 @@ async function createSupabasePromoCampaign(input: Required<Pick<CreatePromoCampa
     .insert({
       id: campaignId,
       clinic_name: input.clinicName,
+      logo_src: input.logoSrc,
       service_type: PROMO_CODE_SERVICE_TYPE,
       code_count: input.codeCount,
       status: 'active',
@@ -464,6 +496,7 @@ export async function createPromoCampaign(input: CreatePromoCampaignInput): Prom
 
   const payload = {
     clinicName,
+    logoSrc: sanitizeClinicLogoSrc(input.logoSrc),
     codeCount: normalizeCodeCount(input.codeCount),
     expiresAt: normalizeExpiresAt(input.expiresAt),
   }
@@ -550,7 +583,7 @@ export async function validatePromoCodeForService(rawCode: string, serviceType: 
       if (!campaignError) {
         const campaign = campaignRow ? mapCampaignRow(campaignRow as PromoCampaignRow) : null
         assertPromoCodeCanBeUsed(campaign, codeRecord, serviceType)
-        return { ok: true as const, clinicName: campaign?.clinicName ?? null }
+        return { ok: true as const, clinicName: campaign?.clinicName ?? null, clinicLogoSrc: campaign?.logoSrc ?? null }
       }
     } else if (codeError) {
       console.warn('[promo-codes] Supabase code validation failed, using local fallback', codeError.message)
@@ -562,7 +595,7 @@ export async function validatePromoCodeForService(rawCode: string, serviceType: 
   const codeRecord = store.codes.find((item) => item.codeHash === codeHash) ?? null
   const campaign = codeRecord ? store.campaigns.find((item) => item.id === codeRecord.campaignId) ?? null : null
   assertPromoCodeCanBeUsed(campaign, codeRecord, serviceType)
-  return { ok: true as const, clinicName: campaign?.clinicName ?? null }
+  return { ok: true as const, clinicName: campaign?.clinicName ?? null, clinicLogoSrc: campaign?.logoSrc ?? null }
 }
 async function claimLocalPromoCode(input: {
   code: string

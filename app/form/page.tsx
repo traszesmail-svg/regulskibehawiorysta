@@ -18,6 +18,7 @@ import {
 import {
   buildBookHref,
   buildSlotHref,
+  readClinicFlowSearchParam,
   readBookingSpeciesSearchParam,
   readBookingServiceSearchParam,
   readProblemTypeSearchParam,
@@ -62,15 +63,16 @@ export default async function FormPage(
   const fallbackError = readSearchParam(searchParams?.error)
   const qaBooking = readQaBookingSearchParam(searchParams?.qa)
   const requestedSpecies = readBookingSpeciesSearchParam(searchParams?.species)
+  const clinicFlow = readClinicFlowSearchParam(searchParams?.clinic)
 
   if (!problem || !slotId) {
-    redirect(buildBookHref(null, serviceQuery, qaBooking, requestedSpecies))
+    redirect(buildBookHref(null, serviceQuery, qaBooking, requestedSpecies, clinicFlow))
   }
 
   const species = requestedSpecies ?? getProblemSpecies(problem)
   const messageHref = `/kontakt?species=${species}#formularz`
-  const quickAudioHref = buildBookHref(null, 'szybka-konsultacja-15-min', qaBooking, species)
-  const slotsHref = buildSlotHref(problem, serviceQuery, qaBooking, species)
+  const quickAudioHref = buildBookHref(null, 'szybka-konsultacja-15-min', qaBooking, species, clinicFlow)
+  const slotsHref = buildSlotHref(problem, serviceQuery, qaBooking, species, clinicFlow)
   const isCat = species === 'kot'
   const publicContact = getPublicContactDetails()
   const petImage = isCat ? '/wybor/cat-choice-avatar.png' : '/wybor/dog-choice-avatar.png'
@@ -208,6 +210,7 @@ export default async function FormPage(
                 slotId={activeSlot.id}
                 slotLabel={formatDateTimeLabel(activeSlot.bookingDate, activeSlot.bookingTime)}
                 amountLabel={amountLabel}
+                clinicFlow={clinicFlow}
                 qaBooking={qaBooking}
               />
             ) : (

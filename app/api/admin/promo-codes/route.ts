@@ -16,6 +16,7 @@ export async function POST(request: Request) {
   try {
     const result = await createPromoCampaign({
       clinicName: typeof body.clinicName === 'string' ? body.clinicName : '',
+      logoSrc: typeof body.logoSrc === 'string' ? body.logoSrc : null,
       codeCount:
         typeof body.codeCount === 'number' || typeof body.codeCount === 'string'
           ? body.codeCount

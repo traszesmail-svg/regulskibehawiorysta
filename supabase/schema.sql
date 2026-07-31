@@ -179,6 +179,7 @@ create table if not exists public.availability (
 create table if not exists public.promo_campaigns (
   id uuid primary key default gen_random_uuid(),
   clinic_name text not null,
+  logo_src text,
   service_type text not null default 'szybka-konsultacja-15-min',
   code_count integer not null default 5 check (code_count between 1 and 100),
   status text not null default 'active' check (status in ('active', 'paused', 'archived')),

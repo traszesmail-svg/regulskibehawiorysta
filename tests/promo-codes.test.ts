@@ -105,6 +105,33 @@ test('promo code confirms a Kwadrans booking once and cannot be reused', async (
   )
 })
 
+test('clinic code returns the logo assigned to its campaign', async () => {
+  await withEnv(
+    {
+      APP_DATA_MODE: 'local',
+    },
+    async () => {
+      const sandbox = await createLocalDataSandbox('promo-clinic-logo', process.cwd())
+
+      try {
+        const campaign = await createPromoCampaign({
+          clinicName: 'Lecznica z logo',
+          logoSrc: '/branding/clinics/lecznica-z-logo/logo.svg',
+          codeCount: 1,
+          expiresAt: '2035-12-31',
+        })
+
+        const validated = await validatePromoCodeForService(campaign.codes[0])
+
+        assert.equal(validated.clinicName, 'Lecznica z logo')
+        assert.equal(validated.clinicLogoSrc, '/branding/clinics/lecznica-z-logo/logo.svg')
+      } finally {
+        await sandbox.cleanup()
+      }
+    },
+  )
+})
+
 test('clinic code keeps Jitsi until a paid phone upgrade supplies a valid phone', async () => {
   await withEnv(
     {

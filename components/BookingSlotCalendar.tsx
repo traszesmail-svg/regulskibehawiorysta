@@ -5,6 +5,7 @@ import { unstable_noStore as noStore } from 'next/cache'
 import { CalendarDays, Cat, Check, ChevronDown, Dog, Headphones, PawPrint } from 'lucide-react'
 import { AnalyticsEventOnMount } from '@/components/AnalyticsEventOnMount'
 import { CaseMapBookingAnalytics } from '@/components/CaseMapBookingAnalytics'
+import { ClinicBookingIdentity } from '@/components/ClinicBookingIdentity'
 import { MobileFirstStepCta } from '@/components/MobileFirstStepCta'
 import { NotatnikPageShell, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
 import { TerminCalendarPicker, type TerminCalendarDay as PickerCalendarDay } from '@/components/TerminCalendarPicker'
@@ -23,6 +24,7 @@ import {
   appendSearchParams,
   buildFormHref,
   buildSlotHref,
+  readClinicFlowSearchParam,
   readBookingSpeciesSearchParam,
   readBookingServiceSearchParam,
   readProblemTypeSearchParam,
@@ -57,6 +59,7 @@ export const metadata: Metadata = {
 }
 
 const terminSteps = ['Termin', 'Godzina', 'Dane', 'Płatność'] as const
+const clinicTerminSteps = ['Termin', 'Godzina', 'Dane', 'Potwierdzenie'] as const
 const urgentTerminSteps = ['Najbliższe terminy', 'Dane', 'Płatność'] as const
 
 const bookingFaqItems = [
@@ -152,6 +155,7 @@ function buildCalendarDays(
   serviceQuery: BookingServiceType | null,
   qaBooking: boolean,
   requestedSpecies: 'pies' | 'kot' | null,
+  clinicFlow: boolean,
   marketingParams: Record<string, string>,
   now = new Date(),
 ): { days: CalendarDay[]; label: string; slotCount: number } {
@@ -200,7 +204,7 @@ function buildCalendarDays(
         dateLabel: formatReadableDate(parseDate(dateKey)),
         time: slot.time,
         href: slot.isBookable
-          ? appendSearchParams(buildFormHref(problem, slot.id, serviceQuery, qaBooking, requestedSpecies), marketingParams)
+          ? appendSearchParams(buildFormHref(problem, slot.id, serviceQuery, qaBooking, requestedSpecies, clinicFlow), marketingParams)
           : null,
         serviceType,
         serviceTitle: FUNNEL_SERVICE_CONFIG[serviceType].title,
@@ -241,10 +245,11 @@ export async function BookingSlotCalendar({
   const serviceQuery = getServiceQuery(serviceType)
   const qaBooking = readQaBookingSearchParam(searchParams?.qa)
   const requestedSpecies = readBookingSpeciesSearchParam(searchParams?.species)
+  const clinicFlow = readClinicFlowSearchParam(searchParams?.clinic)
   const marketingParams = getMarketingParams(searchParams)
   const serviceConfig = FUNNEL_SERVICE_CONFIG[serviceType]
 
-  const retryHref = appendSearchParams(buildSlotHref(problem, serviceQuery, qaBooking, requestedSpecies), marketingParams)
+  const retryHref = appendSearchParams(buildSlotHref(problem, serviceQuery, qaBooking, requestedSpecies, clinicFlow), marketingParams)
   const dataMode = getDataModeStatus()
   let availabilitySlots: AvailabilitySlot[] = []
   let publicFlowMessage: string | null = null
@@ -279,7 +284,7 @@ export async function BookingSlotCalendar({
     availabilitySlots = buildSeedAvailabilitySlots(new Date(), new Date().toISOString())
   }
 
-  const calendar = buildCalendarDays(availabilitySlots, serviceType, problem, serviceQuery, qaBooking, requestedSpecies, marketingParams)
+  const calendar = buildCalendarDays(availabilitySlots, serviceType, problem, serviceQuery, qaBooking, requestedSpecies, clinicFlow, marketingParams)
   const problemSpecies = requestedSpecies ?? getProblemSpecies(problem)
   const isUrgentBooking = serviceType === 'kwadrans-na-juz'
   const petVisualSrc = isUrgentBooking
@@ -291,7 +296,7 @@ export async function BookingSlotCalendar({
   const contactHref = `/kontakt?species=${problemSpecies}#formularz`
   const pageClassName = isUrgentBooking ? 'termin-page termin-urgent-page' : `termin-page termin-${problemSpecies}-page`
   const sideVisualVariant = 'booking'
-  const modeLabel = serviceConfig.mode === 'phone' ? 'Połączenie telefoniczne' : 'Jitsi (audio lub wideo)'
+  const modeLabel = clinicFlow ? 'Jitsi (audio lub wideo)' : serviceConfig.mode === 'phone' ? 'Połączenie telefoniczne' : 'Jitsi (audio lub wideo)'
   const processOutcomeCopy =
     serviceType === 'konsultacja-behawioralna-online'
       ? 'W pełnej konsultacji dostajesz analizę zachowania, prawdopodobną przyczynę problemu, plan działania i 14 dni komunikacji w pokoju klienta.'
@@ -307,23 +312,23 @@ export async function BookingSlotCalendar({
       <div>
         <span>Gatunek</span>
         <div className="termin-inline-choice-options">
-          <Link href={buildSlotHref('separacja', serviceQuery, qaBooking, 'pies')} prefetch={false} className={problemSpecies === 'pies' ? 'is-selected' : ''}>
+          <Link href={buildSlotHref('separacja', serviceQuery, qaBooking, 'pies', clinicFlow)} prefetch={false} className={problemSpecies === 'pies' ? 'is-selected' : ''}>
             <Dog size={18} strokeWidth={1.9} aria-hidden="true" />
             Pies
           </Link>
-          <Link href={buildSlotHref('kot-stres', serviceQuery, qaBooking, 'kot')} prefetch={false} className={problemSpecies === 'kot' ? 'is-selected' : ''}>
+          <Link href={buildSlotHref('kot-stres', serviceQuery, qaBooking, 'kot', clinicFlow)} prefetch={false} className={problemSpecies === 'kot' ? 'is-selected' : ''}>
             <Cat size={18} strokeWidth={1.9} aria-hidden="true" />
             Kot
           </Link>
         </div>
-        <Link href="/wybor" prefetch={false} className="termin-inline-topic-select">
+        <Link href={clinicFlow ? '/wybor?clinic=1' : '/wybor'} prefetch={false} className="termin-inline-topic-select">
           <PawPrint size={18} strokeWidth={1.9} aria-hidden="true" />
           Zmień wybór
         </Link>
       </div>
       <div>
         <span>Temat konsultacji</span>
-        <Link href="/wybor" prefetch={false} className="termin-inline-topic-select">
+        <Link href={clinicFlow ? '/wybor?clinic=1' : '/wybor'} prefetch={false} className="termin-inline-topic-select">
           {getProblemLabel(problem)}
           <ChevronDown size={18} strokeWidth={1.9} aria-hidden="true" />
         </Link>
@@ -337,7 +342,7 @@ export async function BookingSlotCalendar({
       navItems={PUBLIC_SITE_NAV_ITEMS}
       ctaHref="/mapa-sprawy"
       ctaLabel="Mapa zachowania"
-      footerPrimaryHref="/wybor"
+      footerPrimaryHref={clinicFlow ? '/wybor?clinic=1' : '/wybor'}
       footerPrimaryLabel="Wróć do wyboru"
       sideVisualVariant={sideVisualVariant}
       pageClassName={pageClassName}
@@ -361,22 +366,25 @@ export async function BookingSlotCalendar({
             {isUrgentBooking ? (
               <h1>Rezerwacja Kwadrans na już</h1>
             ) : (
-              <h1>Wybierz termin konsultacji</h1>
+              <h1>{clinicFlow ? 'Wybierz termin z lecznicy' : 'Wybierz termin konsultacji'}</h1>
             )}
             <p>
-              {isUrgentBooking
-                ? 'Wybierz najbliższy dostępny termin krótkiej konsultacji. W kolejnym kroku wpiszesz dane, opłacisz rezerwację i dostaniesz e-mail z potwierdzeniem.'
-                : 'Wybierz dogodny dzień i godzinę. W kolejnym kroku wpiszesz dane, opłacisz rezerwację i dostaniesz e-mail z potwierdzeniem.'}
+              {clinicFlow
+                ? 'Wybierz dogodny dzień i godzinę. Konsultacja jest bezpłatna dzięki kodowi przekazanemu przez lecznicę — nie pobieramy opłaty za rezerwację.'
+                : isUrgentBooking
+                  ? 'Wybierz najbliższy dostępny termin krótkiej konsultacji. W kolejnym kroku wpiszesz dane, opłacisz rezerwację i dostaniesz e-mail z potwierdzeniem.'
+                  : 'Wybierz dogodny dzień i godzinę. W kolejnym kroku wpiszesz dane, opłacisz rezerwację i dostaniesz e-mail z potwierdzeniem.'}
             </p>
+            {clinicFlow ? <ClinicBookingIdentity /> : null}
             <MobileFirstStepCta
-              eyebrow="Najbliższy krok"
-              title={serviceConfig.shortTitle}
-              copy={getBookingServiceSlotSummary(serviceType)}
-              meta={`${formatPricePln(serviceConfig.priceAmount)} / ${getBookingServiceDurationLabel(serviceType)}`}
+              eyebrow={clinicFlow ? 'Kod lecznicy aktywny' : 'Najbliższy krok'}
+              title={clinicFlow ? 'Darmowa konsultacja z lecznicy' : serviceConfig.shortTitle}
+              copy={clinicFlow ? 'Wybierz termin, wpisz dane i potwierdź rezerwację. Kod pokrywa koszt rozmowy.' : getBookingServiceSlotSummary(serviceType)}
+              meta={clinicFlow ? `0 zł / ${getBookingServiceDurationLabel(serviceType)} online` : `${formatPricePln(serviceConfig.priceAmount)} / ${getBookingServiceDurationLabel(serviceType)}`}
               primaryHref="#najblizsze-terminy"
               primaryLabel="Zobacz terminy"
-              secondaryHref="/cennik"
-              secondaryLabel="Porównaj opcje"
+              secondaryHref={clinicFlow ? '/wybor?clinic=1' : '/cennik'}
+              secondaryLabel={clinicFlow ? 'Zmień wybór' : 'Porównaj opcje'}
             />
           </div>
 
@@ -385,7 +393,7 @@ export async function BookingSlotCalendar({
           </figure>
 
           <div className="termin-step-track" aria-label="Etapy rezerwacji" data-urgent={isUrgentBooking ? 'true' : undefined}>
-            {(isUrgentBooking ? urgentTerminSteps : terminSteps).map((step, index) => (
+            {(isUrgentBooking ? urgentTerminSteps : clinicFlow ? clinicTerminSteps : terminSteps).map((step, index) => (
               <span key={step} className={index === 0 ? 'is-active' : ''}>
                 <strong>{index + 1}</strong>
                 {step}
@@ -395,7 +403,9 @@ export async function BookingSlotCalendar({
 
           <div className="termin-calendar-shell" id="najblizsze-terminy">
             <div className="notatnik-callout termin-calendar-callout">
-              Prosty proces: wybierasz termin, wpisujesz dane, przechodzisz do płatności i dostajesz potwierdzenie e-mailem.
+              {clinicFlow
+                ? 'Prosty proces: wybierasz termin, wpisujesz dane i aktywujesz kod lecznicy. Nie pobieramy płatności; potwierdzenie rezerwacji dostaniesz e-mailem.'
+                : 'Prosty proces: wybierasz termin, wpisujesz dane, przechodzisz do płatności i dostajesz potwierdzenie e-mailem.'}{' '}
               Wybrany termin trzymamy przez 15 minut na czas spokojnego dokończenia rezerwacji.
             </div>
 
@@ -456,9 +466,10 @@ export async function BookingSlotCalendar({
                 problemType: problem,
                 problemLabel: getProblemLabel(problem),
                 species: problemSpecies,
+                clinicFlow,
                 animalType: problemSpecies === 'kot' ? 'Kot' : 'Pies',
                 modeLabel,
-                priceLabel: formatPricePln(serviceConfig.priceAmount),
+                priceLabel: clinicFlow ? '0 zł' : formatPricePln(serviceConfig.priceAmount),
                 priceAmount: bookingAmount,
                 slotSummary: getBookingServiceSlotSummary(serviceType),
                 contactHref,

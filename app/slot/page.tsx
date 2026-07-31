@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import {
   buildBookHref,
   buildSlotHref,
+  readClinicFlowSearchParam,
   readBookingSpeciesSearchParam,
   readBookingServiceSearchParam,
   readProblemTypeSearchParam,
@@ -33,10 +34,11 @@ export default async function SlotPage(
   const serviceQuery = serviceType === DEFAULT_BOOKING_SERVICE ? null : serviceType
   const qaBooking = readQaBookingSearchParam(searchParams?.qa)
   const species = readBookingSpeciesSearchParam(searchParams?.species)
+  const clinicFlow = readClinicFlowSearchParam(searchParams?.clinic)
 
   if (!problem) {
-    redirect(buildBookHref(null, serviceQuery, qaBooking, species))
+    redirect(buildBookHref(null, serviceQuery, qaBooking, species, clinicFlow))
   }
 
-  redirect(buildSlotHref(problem, serviceQuery, qaBooking, species))
+  redirect(buildSlotHref(problem, serviceQuery, qaBooking, species, clinicFlow))
 }

@@ -17,7 +17,7 @@ import { ReferenceHeroLeaf } from '@/components/ReferencePageShell'
 import { Schema } from '@/components/schema'
 import { getBreadcrumbJsonLd, getFaqPageJsonLd } from '@/lib/schema'
 import { buildMarketingMetadata } from '@/lib/seo'
-import { buildMailtoHref, getPublicContactDetails } from '@/lib/site'
+import { buildMailtoHref, COAPE_ORG_URL, COAPE_POLSKA_LOGO, getPublicContactDetails } from '@/lib/site'
 
 export const metadata: Metadata = buildMarketingMetadata({
   title: 'Kontakt i pierwszy krok',
@@ -207,13 +207,71 @@ export default async function ContactPage(
           </div>
         </section>
 
-        <section className="contact-reference-reassurance" aria-label="Podejście do pracy">
-          <span className="contact-reference-reassurance-icon" aria-hidden="true">
-            <Leaf size={42} strokeWidth={1.6} />
-          </span>
-          <div>
-            <h2>Pracuję z uważnością, szacunkiem i empatią</h2>
-            <p>Bo każde zwierzę i każda relacja zasługują na zrozumienie.</p>
+        <section className="contact-reference-reassurance" aria-labelledby="contact-approach-title">
+          <div className="contact-reference-reassurance-copy">
+            <div className="contact-reference-reassurance-heading-row">
+              <span className="contact-reference-reassurance-icon" aria-hidden="true">
+                <Leaf size={34} strokeWidth={1.6} />
+              </span>
+              <span className="contact-reference-reassurance-kicker">Moje podejście</span>
+            </div>
+            <h2 id="contact-approach-title">Pracuję z uważnością, szacunkiem i empatią</h2>
+            <p>
+              Zanim zaproponuję rozwiązanie, chcę zrozumieć kontekst, granice i codzienność
+              Waszej relacji.
+            </p>
+
+            <ul className="contact-reference-values" aria-label="Co to oznacza w praktyce">
+              <li>
+                <CheckCircle2 size={21} strokeWidth={2} aria-hidden="true" />
+                <span>
+                  <strong>Bez oceniania</strong>
+                  <small>Słucham i porządkuję sytuację.</small>
+                </span>
+              </li>
+              <li>
+                <CheckCircle2 size={21} strokeWidth={2} aria-hidden="true" />
+                <span>
+                  <strong>Bez presji</strong>
+                  <small>Tempo dopasowuję do zwierzęcia.</small>
+                </span>
+              </li>
+              <li>
+                <CheckCircle2 size={21} strokeWidth={2} aria-hidden="true" />
+                <span>
+                  <strong>Z konkretnym krokiem</strong>
+                  <small>Wiesz, od czego spokojnie zacząć.</small>
+                </span>
+              </li>
+            </ul>
+
+            <p className="contact-reference-reassurance-signoff">
+              Każde zwierzę i każda relacja zasługują na zrozumienie.
+            </p>
+          </div>
+
+          <div className="contact-reference-reassurance-visual">
+            <Image
+              src="/branding/contact/approach-animals-v1.png"
+              alt="Spokojny pies i kot odpoczywają razem w domu"
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 980px) 50vw, 430px"
+            />
+            <a
+              className="contact-reference-reassurance-credential"
+              href={COAPE_ORG_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Poznaj metodologię COAPE"
+            >
+              <Image
+                src={COAPE_POLSKA_LOGO.src}
+                alt={COAPE_POLSKA_LOGO.alt}
+                width={COAPE_POLSKA_LOGO.width}
+                height={COAPE_POLSKA_LOGO.height}
+              />
+              <span>Praca oparta na metodologii COAPE</span>
+            </a>
           </div>
         </section>
 

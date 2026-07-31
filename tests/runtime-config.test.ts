@@ -11,7 +11,7 @@ import generateRobots from '@/app/robots'
 import { Footer } from '@/components/Footer'
 import { SocialSection } from '@/components/SocialSection'
 import { SocialProofSection } from '@/components/SocialProofSection'
-import { buildBookHref, buildFormHref, buildPaymentHref, buildSlotHref, readQaBookingSearchParam } from '@/lib/booking-routing'
+import { buildBookHref, buildFormHref, buildPaymentHref, buildSlotHref, readClinicFlowSearchParam, readQaBookingSearchParam } from '@/lib/booking-routing'
 import { BUILD_MARKER_KEY } from '@/lib/build-marker'
 import { evaluateReleaseSmokeRedirect, getDefaultReleaseSmokeRules } from '@/lib/release-smoke'
 import { getOrganizationJsonLd } from '@/lib/schema'
@@ -886,8 +886,12 @@ test('qa checkout routing stays isolated and allowlist-gated', () => {
   assert.equal(readQaBookingSearchParam('yes'), true)
   assert.equal(readQaBookingSearchParam('0'), false)
   assert.equal(readQaBookingSearchParam(undefined), false)
+  assert.equal(readClinicFlowSearchParam('1'), true)
+  assert.equal(readClinicFlowSearchParam('true'), true)
+  assert.equal(readClinicFlowSearchParam('0'), false)
 
   assert.equal(buildBookHref(null, null, true), '/book?qa=1')
+  assert.equal(buildBookHref('kot-stres', null, false, 'kot', true), '/book?problem=kot-stres&species=kot&clinic=1')
   assert.equal(buildSlotHref('szczeniak', null, true), '/book?problem=szczeniak&qa=1')
   assert.equal(buildFormHref('szczeniak', 'slot-123', 'konsultacja-30-min', true), '/form?problem=szczeniak&slotId=slot-123&service=konsultacja-30-min&qa=1')
   assert.equal(buildPaymentHref('booking-123', 'access-token', 'konsultacja-30-min', true), '/payment?bookingId=booking-123&access=access-token&service=konsultacja-30-min&qa=1')
@@ -2061,6 +2065,12 @@ test('clinic code funnel reveals phone surcharge only after validation and keeps
   const paymentSource = readSource('components', 'PaymentActions.tsx')
   const clinicEntrySource = readSource('components', 'ClinicCodeEntry.tsx')
   const clinicPageSource = readSource('app', 'lecznica', 'page.tsx')
+  const choicePageSource = readSource('app', 'wybor', 'page.tsx')
+  const formatPageSource = readSource('app', 'format-konsultacji', 'page.tsx')
+  const bookingSource = readSource('components', 'BookingSlotCalendar.tsx')
+  const clinicIdentitySource = readSource('components', 'ClinicBookingIdentity.tsx')
+  const choiceStylesSource = readSource('app', 'wybor', 'wybor.module.css')
+  const contactSource = readSource('app', 'kontakt', 'page.tsx')
   const homeSource = readSource('app', 'page.tsx')
   const pricingSource = readSource('app', 'cennik', 'page.tsx')
   const termsSource = readSource('app', 'regulamin', 'page.tsx')
@@ -2074,7 +2084,17 @@ test('clinic code funnel reveals phone surcharge only after validation and keeps
   assert.doesNotMatch(pricingSource, /clinic-program-pricing-title[\s\S]{0,600}9 zł/)
   assert.match(clinicPageSource, /Lecznice uczestniczące w programie/)
   assert.match(clinicEntrySource, /sessionStorage\.setItem\('clinicPromoCode'/)
-  assert.match(clinicEntrySource, /\/book\?service=szybka-konsultacja-15-min&clinic=1/)
+  assert.match(clinicEntrySource, /\/wybor\?clinic=1/)
+  assert.match(choicePageSource, /data-clinic-animal-choice/)
+  assert.match(choicePageSource, /animal=dog&clinic=1/)
+  assert.match(choicePageSource, /animal=cat&clinic=1/)
+  assert.ok(formatPageSource.includes('buildBookHref(problem, service, false, species, clinicFlow)'))
+  assert.match(bookingSource, /readClinicFlowSearchParam/)
+  assert.match(bookingSource, /priceLabel: clinicFlow \? '0 /)
+  assert.match(clinicIdentitySource, /data-clinic-booking-identity/)
+  assert.match(choiceStylesSource, /\.catPage \.heroImage img[\s\S]{0,160}object-fit: contain/)
+  assert.match(contactSource, /approach-animals-v1\.png/)
+  assert.match(contactSource, /COAPE_POLSKA_LOGO/)
   assert.match(paymentSource, /promoValidated \? \(/)
   assert.match(paymentSource, /data-promo-channel="phone"/)
   assert.match(paymentSource, /data-promo-phone-input="true"/)

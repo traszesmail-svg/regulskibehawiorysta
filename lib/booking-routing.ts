@@ -34,6 +34,16 @@ export function readQaBookingSearchParam(value: SearchParamValue): boolean {
   return ['1', 'true', 'qa', 'yes'].includes(qa.trim().toLowerCase())
 }
 
+export function readClinicFlowSearchParam(value: SearchParamValue): boolean {
+  const clinic = readSearchParam(value)
+
+  if (!clinic) {
+    return false
+  }
+
+  return ['1', 'true', 'yes'].includes(clinic.trim().toLowerCase())
+}
+
 export function isBookingSpecies(value: string | null | undefined): value is BookingSpecies {
   return value === 'pies' || value === 'kot'
 }
@@ -61,12 +71,14 @@ export function buildBookHref(
   serviceType?: BookingServiceType | null,
   qaBooking?: boolean,
   species?: BookingSpecies | null,
+  clinicFlow?: boolean,
 ): string {
   return buildQueryHref('/book', {
     problem: problem ?? null,
     service: serviceType ?? null,
     qa: qaBooking ? '1' : null,
     species: species ?? null,
+    clinic: clinicFlow ? '1' : null,
   })
 }
 
@@ -75,12 +87,14 @@ export function buildSlotHref(
   serviceType?: BookingServiceType | null,
   qaBooking?: boolean,
   species?: BookingSpecies | null,
+  clinicFlow?: boolean,
 ): string {
   return buildQueryHref('/book', {
     problem,
     service: serviceType ?? null,
     qa: qaBooking ? '1' : null,
     species: species ?? null,
+    clinic: clinicFlow ? '1' : null,
   })
 }
 
@@ -90,6 +104,7 @@ export function buildFormHref(
   serviceType?: BookingServiceType | null,
   qaBooking?: boolean,
   species?: BookingSpecies | null,
+  clinicFlow?: boolean,
 ): string {
   return buildQueryHref('/form', {
     problem,
@@ -97,6 +112,7 @@ export function buildFormHref(
     service: serviceType ?? null,
     qa: qaBooking ? '1' : null,
     species: species ?? null,
+    clinic: clinicFlow ? '1' : null,
   })
 }
 
@@ -105,12 +121,14 @@ export function buildPaymentHref(
   accessToken?: string | null,
   serviceType?: BookingServiceType | null,
   qaBooking?: boolean,
+  clinicFlow?: boolean,
 ): string {
   return buildQueryHref('/payment', {
     bookingId,
     access: accessToken ?? null,
     service: serviceType ?? null,
     qa: qaBooking ? '1' : null,
+    clinic: clinicFlow ? '1' : null,
   })
 }
 

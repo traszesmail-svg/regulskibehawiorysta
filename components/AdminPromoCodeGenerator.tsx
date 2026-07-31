@@ -7,6 +7,7 @@ import { DEFAULT_PROMO_CODE_COUNT, MAX_PROMO_CODE_COUNT } from '@/lib/promo-code
 type CreatedPromoCampaign = {
   campaign: {
     clinicName: string
+    logoSrc: string | null
     expiresAt: string | null
     generatedCount: number
   }
@@ -22,6 +23,7 @@ function defaultExpiryDate() {
 export function AdminPromoCodeGenerator() {
   const router = useRouter()
   const [clinicName, setClinicName] = useState('')
+  const [logoSrc, setLogoSrc] = useState('')
   const [codeCount, setCodeCount] = useState(String(DEFAULT_PROMO_CODE_COUNT))
   const [expiresAt, setExpiresAt] = useState(defaultExpiryDate)
   const [created, setCreated] = useState<CreatedPromoCampaign | null>(null)
@@ -32,6 +34,7 @@ export function AdminPromoCodeGenerator() {
 
   function handleReset() {
     setClinicName('')
+    setLogoSrc('')
     setCodeCount(String(DEFAULT_PROMO_CODE_COUNT))
     setExpiresAt(defaultExpiryDate())
     setCreated(null)
@@ -66,6 +69,7 @@ export function AdminPromoCodeGenerator() {
         },
         body: JSON.stringify({
           clinicName,
+          logoSrc,
           codeCount,
           expiresAt,
         }),
@@ -113,6 +117,16 @@ export function AdminPromoCodeGenerator() {
             placeholder="np. Przychodnia Vet..."
             maxLength={120}
             required
+          />
+        </div>
+        <div>
+          <label>Logo lecznicy (URL lub ścieżka publiczna)</label>
+          <input
+            type="text"
+            value={logoSrc}
+            onChange={(event) => setLogoSrc(event.target.value)}
+            placeholder="/branding/clinics/nazwa/logo.png"
+            maxLength={500}
           />
         </div>
         <div>

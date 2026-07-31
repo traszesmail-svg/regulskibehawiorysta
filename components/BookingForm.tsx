@@ -34,6 +34,7 @@ interface BookingFormProps {
   slotId: string
   slotLabel: string
   amountLabel: string
+  clinicFlow?: boolean
   qaBooking?: boolean
   sourcePage?: string
   submitLabel?: string
@@ -96,6 +97,7 @@ export function BookingForm({
   slotId,
   slotLabel,
   amountLabel,
+  clinicFlow = false,
   qaBooking = false,
   sourcePage = '/form',
   submitLabel,
@@ -162,7 +164,7 @@ export function BookingForm({
   }
 
   function getSlotPickerHref() {
-    return buildSlotHref(problemType, serviceType === DEFAULT_BOOKING_SERVICE ? null : serviceType, qaBooking)
+    return buildSlotHref(problemType, serviceType === DEFAULT_BOOKING_SERVICE ? null : serviceType, qaBooking, null, clinicFlow)
   }
 
   function showError(message: string, actionHref: string | null = null) {
@@ -284,6 +286,7 @@ export function BookingForm({
             payload.accessToken,
             serviceType === DEFAULT_BOOKING_SERVICE ? null : serviceType,
             qaBooking,
+            clinicFlow,
           ),
           getMarketingParamsFromBrowser(),
         ),
@@ -441,7 +444,9 @@ export function BookingForm({
             ? submittingLabel ?? 'Przygotowuję płatność...'
             : qaBooking
               ? 'Przejdź do testowej płatności'
-              : submitLabel ?? 'Przejdź do płatności'}
+              : clinicFlow
+                ? submitLabel ?? 'Potwierdź bezpłatną rezerwację'
+                : submitLabel ?? 'Przejdź do płatności'}
         </span>
         <ArrowRight size={18} strokeWidth={1.9} aria-hidden="true" />
       </button>
@@ -449,8 +454,9 @@ export function BookingForm({
       <div className="booking-details-safe-note">
         <LockKeyhole size={13} strokeWidth={1.9} aria-hidden="true" />
         <span>
-          Po wysłaniu danych trzymamy wybrany termin przez 15 minut na czas płatności. Po opłaceniu dostaniesz e-mail z
-          potwierdzeniem. Do zapłaty w kolejnym kroku: {amountLabel}.
+          {clinicFlow
+            ? 'Po wysłaniu danych trzymamy wybrany termin przez 15 minut i aktywujemy kod lecznicy. Potwierdzenie dostaniesz e-mailem. Do zapłaty: 0 zł.'
+            : `Po wysłaniu danych trzymamy wybrany termin przez 15 minut na czas płatności. Po opłaceniu dostaniesz e-mail z potwierdzeniem. Do zapłaty w kolejnym kroku: ${amountLabel}.`}
         </span>
       </div>
     </form>

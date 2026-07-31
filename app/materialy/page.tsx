@@ -1,8 +1,17 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { NotatnikFinalCta, NotatnikPageShell, NotatnikSectionHead, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
-import { RegulskiWebHero } from '@/components/RegulskiWebHero'
+import {
+  ArrowDownToLine,
+  ArrowRight,
+  Check,
+  CloudDownload,
+  CreditCard,
+  FileText,
+  PawPrint,
+  ShoppingCart,
+} from 'lucide-react'
+import { NotatnikPageShell, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
 import { buildBookHref } from '@/lib/booking-routing'
 import { buildMarketingMetadata } from '@/lib/seo'
 import { PUBLIC_OFFER_PRICE_LABELS } from '@/lib/public-offer-copy'
@@ -10,7 +19,6 @@ import {
   PRICE_LABEL,
   categoryLabel,
   getMaterialyGuideCoverSrc,
-  getMaterialyGuidePreviewSrcs,
   listPublishedMaterialyGuides,
   type MaterialyGuide,
 } from '@/lib/materialy-catalog'
@@ -26,57 +34,84 @@ const quickHref = buildBookHref(null, 'szybka-konsultacja-15-min', false)
 const quickPriceLabel = PUBLIC_OFFER_PRICE_LABELS.quick
 
 function MaterialyGuideCard({ guide }: { guide: MaterialyGuide }) {
-  const coverSrc = getMaterialyGuideCoverSrc(guide)
-  const previews = getMaterialyGuidePreviewSrcs(guide, 2)
   const detailHref = `/materialy/${guide.slug}`
-  const ctaLabel = guide.priceCode === 'free' ? 'Zobacz i pobierz PDF' : 'Zobacz PDF'
+  const isFree = guide.priceCode === 'free'
 
   return (
-    <article className="notatnik-material-card notatnik-material-card-with-cover">
-      <Link href={detailHref} prefetch={false} className="notatnik-material-cover-link" aria-label={`Zobacz PDF: ${guide.title}`}>
-        <span className="notatnik-material-cover-frame">
+    <article className="materialy-showcase-card">
+      <Link
+        href={detailHref}
+        prefetch={false}
+        className="materialy-showcase-card-link"
+        aria-label={`Zobacz PDF: ${guide.title}`}
+      >
+        <span className="materialy-showcase-cover">
           <Image
-            src={coverSrc}
+            src={getMaterialyGuideCoverSrc(guide)}
             alt={`Okładka PDF: ${guide.title}`}
             fill
-            sizes="(max-width: 760px) 58vw, (max-width: 1100px) 24vw, 180px"
-            className="notatnik-material-cover-image"
+            sizes="(max-width: 620px) 64vw, (max-width: 1100px) 28vw, 190px"
+            className="materialy-showcase-cover-image"
             unoptimized
           />
+          <span className={`materialy-showcase-price${isFree ? ' is-free' : ''}`}>
+            {PRICE_LABEL[guide.priceCode]}
+          </span>
+        </span>
+
+        <span className="materialy-showcase-card-copy">
+          <span className="materialy-showcase-species">{categoryLabel(guide.category)}</span>
+          <strong>{guide.title}</strong>
+          <span className="materialy-showcase-promise">{guide.shortPromise}</span>
+        </span>
+
+        <span className="materialy-showcase-card-footer">
+          <span>PDF · {guide.previewPageCount} strony podglądu</span>
+          <span className="materialy-showcase-card-action" aria-hidden="true">
+            {isFree ? <ArrowDownToLine size={18} strokeWidth={1.8} /> : <ArrowRight size={18} strokeWidth={1.8} />}
+          </span>
         </span>
       </Link>
-
-      <div className="notatnik-material-tag notatnik-mono">
-        {categoryLabel(guide.category)} · {PRICE_LABEL[guide.priceCode]}
-      </div>
-      <h3>{guide.title}</h3>
-      <p style={{ minHeight: '3.7em' }}>{guide.subtitle}</p>
-
-      <div className="notatnik-material-preview-strip" aria-label={`Podgląd PDF: ${guide.title}`}>
-        {previews.map((src, index) => (
-          <span key={src} className="notatnik-material-preview-thumb">
-            <Image
-              src={src}
-              alt={`Podgląd strony ${index + 1}: ${guide.title}`}
-              fill
-              sizes="72px"
-              className="notatnik-material-preview-image"
-              unoptimized
-            />
-          </span>
-        ))}
-      </div>
-
-      <ul style={{ margin: '10px 0 14px', padding: '0 0 0 16px', fontSize: '13px', color: 'var(--ink-quiet)' }}>
-        {guide.highlights.map((highlight) => (
-          <li key={highlight}>{highlight}</li>
-        ))}
-      </ul>
-
-      <Link href={detailHref} prefetch={false}>
-        {ctaLabel} &rarr;
-      </Link>
     </article>
+  )
+}
+
+function MaterialyShelf({
+  id,
+  eyebrow,
+  title,
+  copy,
+  guides,
+  tone = 'light',
+}: {
+  id: string
+  eyebrow: string
+  title: string
+  copy: string
+  guides: MaterialyGuide[]
+  tone?: 'light' | 'sage'
+}) {
+  return (
+    <section id={id} className={`materialy-showcase-section materialy-showcase-section-${tone}`}>
+      <header className="materialy-showcase-heading">
+        <span>{eyebrow}</span>
+        <h2>{title}</h2>
+        <p>{copy}</p>
+        <div className="materialy-showcase-divider" aria-hidden="true">
+          <i />
+          <PawPrint size={18} strokeWidth={1.6} />
+          <i />
+        </div>
+        <small>5 materiałów dla psów · 5 materiałów dla kotów</small>
+      </header>
+
+      <p className="materialy-showcase-swipe">Przesuń, aby zobaczyć kolejne materiały →</p>
+      <div className="materialy-showcase-grid">
+        {guides.map((guide) => (
+          <MaterialyGuideCard key={guide.slug} guide={guide} />
+        ))}
+      </div>
+    </section>
   )
 }
 
@@ -84,6 +119,9 @@ export default function MaterialyLandingPage() {
   const guides = listPublishedMaterialyGuides()
   const freeGuides = guides.filter((guide) => guide.priceCode === 'free')
   const p19Guides = guides.filter((guide) => guide.priceCode === 'p19')
+  const featuredGuides = [freeGuides[0], freeGuides[5]].filter(
+    (guide): guide is MaterialyGuide => Boolean(guide),
+  )
 
   return (
     <NotatnikPageShell
@@ -93,92 +131,152 @@ export default function MaterialyLandingPage() {
       ctaLabel={`Kwadrans / ${quickPriceLabel}`}
       footerPrimaryHref={quickHref}
       footerPrimaryLabel="Kwadrans z behawiorystą"
-      sideVisualVariant="materials"
-      pageClassName="homepage-shell materialy-page"
-      shellClassName="homepage-main materialy-shell"
+      pageClassName="homepage-shell materialy-page materialy-showcase-page"
+      shellClassName="homepage-main materialy-shell materialy-showcase-shell"
     >
-      <section className="notatnik-subhero materialy-home-hero compact-home-section">
-        <div>
-          <div className="notatnik-subhero-tag notatnik-mono">Materiały PDF</div>
-          <h1>
-            Materiały PDF dla opiekunów psów i kotów. <em>Praktyczne wsparcie przed rozmową i na co dzień.</em>
-          </h1>
-          <p>
-            Wybierz bezpłatny poradnik albo rozszerzony materiał za 19 zł. Każdy PDF ma własną stronę z opisem,
-            podglądem wnętrza i prostym formularzem pobrania lub zamówienia.
+      <section className="materialy-visual-hero" aria-labelledby="materialy-title">
+        <div className="materialy-visual-hero-copy">
+          <span className="materialy-visual-kicker">
+            <FileText size={16} strokeWidth={1.8} aria-hidden="true" />
+            Materiały PDF
+          </span>
+          <h1 id="materialy-title">Materiały PDF dla opiekunów psów i kotów</h1>
+          <p className="materialy-visual-lead">Praktyczne wsparcie przed rozmową i na co dzień.</p>
+          <p className="materialy-visual-copy">
+            Wybierz krótki bezpłatny poradnik albo rozszerzony plan za 19 zł. Proste wskazówki,
+            gotowe do wdrożenia wtedy, gdy potrzebujesz spokojnego pierwszego kroku.
           </p>
-          <div className="notatnik-subhero-actions">
-            <Link href="#bezplatne" prefetch={false} className="notatnik-btn">
-              <span>Bezpłatne PDF-y</span>
-              <span className="notatnik-btn-arrow" aria-hidden="true">
-                &rarr;
-              </span>
+          <div className="materialy-visual-actions">
+            <Link href="#bezplatne" prefetch={false} className="materialy-visual-primary">
+              <span>Przeglądaj materiały</span>
+              <ArrowDownToLine size={18} strokeWidth={1.8} aria-hidden="true" />
             </Link>
-            <Link href="#p19" prefetch={false} className="notatnik-btn notatnik-btn-ghost">
-              <span>PDF-y po 19 zł</span>
+            <Link href="#jak-to-dziala" prefetch={false} className="materialy-visual-secondary">
+              <span>Jak to działa?</span>
+              <ArrowRight size={18} strokeWidth={1.8} aria-hidden="true" />
             </Link>
+          </div>
+          <div className="materialy-visual-stats" aria-label="Zawartość katalogu">
+            <span><strong>20</strong> finalnych PDF-ów</span>
+            <span><strong>10</strong> bezpłatnych</span>
+            <span><strong>10</strong> po 19 zł</span>
           </div>
         </div>
 
-        <div className="summary-card tree-backed-card regulski-web-summary-card materialy-home-sidecard">
-          <RegulskiWebHero variant="materialy" priority />
-          <div className="section-eyebrow">Dostęp</div>
-          <h3>Podgląd, pobranie i bezpieczny powrót do pliku</h3>
-          <p>
-            Bezpłatny PDF pobierzesz po wpisaniu e-maila. Przy materiale za 19 zł przejdziesz do płatności,
-            a po jej potwierdzeniu otrzymasz dostęp do pliku.
-          </p>
-        </div>
+        <figure className="materialy-visual-art">
+          <Image
+            src="/branding/materialy/materialy-hero-guardian-pets-v1.webp"
+            alt="Opiekunka siedząca spokojnie z psem i kotem pośród notatek i delikatnych roślin"
+            fill
+            priority
+            sizes="(max-width: 860px) 92vw, 48vw"
+          />
+        </figure>
+
+        <aside className="materialy-visual-featured" aria-label="Polecany początek">
+          <span className="materialy-visual-featured-kicker">Polecany początek</span>
+          <div className="materialy-visual-featured-product">
+            <div className="materialy-visual-mini-covers" aria-hidden="true">
+              {featuredGuides.map((guide) => (
+                <span key={guide.slug}>
+                  <Image
+                    src={getMaterialyGuideCoverSrc(guide)}
+                    alt=""
+                    fill
+                    sizes="92px"
+                    className="materialy-visual-mini-cover"
+                    unoptimized
+                  />
+                </span>
+              ))}
+            </div>
+            <div>
+              <strong>10 bezpłatnych materiałów</strong>
+              <small>5 dla psa · 5 dla kota</small>
+            </div>
+          </div>
+          <ul>
+            <li>
+              <Check size={17} strokeWidth={2} aria-hidden="true" />
+              <span>Podgląd przed pobraniem</span>
+            </li>
+            <li>
+              <Check size={17} strokeWidth={2} aria-hidden="true" />
+              <span>Konkretne wskazówki na start</span>
+            </li>
+            <li>
+              <Check size={17} strokeWidth={2} aria-hidden="true" />
+              <span>Plik do spokojnego powrotu</span>
+            </li>
+          </ul>
+          <Link href="#bezplatne" prefetch={false}>
+            Zacznij od bezpłatnych PDF-ów <ArrowRight size={16} strokeWidth={1.8} aria-hidden="true" />
+          </Link>
+        </aside>
       </section>
 
-      <section id="bezplatne" className="compact-home-section materialy-home-section">
-        <NotatnikSectionHead index="I." kicker="Bezpłatne" title="10 krótkich PDF-ów na konkretne sytuacje." />
-        <p style={{ maxWidth: '720px', color: 'var(--ink-quiet)' }}>
-          Materiały dla opiekunów psów i kotów. Każdy możesz przejrzeć i pobrać bez płatności.
-        </p>
-        <div className="notatnik-material-grid top-gap-small">
-          {freeGuides.map((guide) => (
-            <MaterialyGuideCard key={guide.slug} guide={guide} />
-          ))}
-        </div>
-      </section>
-
-      <section id="p19" className="compact-home-section materialy-home-section materialy-home-section-alt">
-        <NotatnikSectionHead index="II." kicker="19 zł" title="10 rozszerzonych planów pierwszego działania." />
-        <p style={{ maxWidth: '720px', color: 'var(--ink-quiet)' }}>
-          Konkretne materiały o samotności, spacerach, gościach, zasobach, kuwecie, napięciu i relacjach między kotami.
-        </p>
-        <div className="notatnik-material-grid top-gap-small">
-          {p19Guides.map((guide) => (
-            <MaterialyGuideCard key={guide.slug} guide={guide} />
-          ))}
-        </div>
-      </section>
-
-      <section id="jak-to-dziala" className="compact-home-section materialy-home-section">
-        <NotatnikSectionHead index="III." kicker="Jak to działa" title="Pobranie w 3 krokach." />
-        <div className="notatnik-steps">
-          <article className="notatnik-step">
-            <div className="notatnik-step-number">01</div>
-            <p>Otwierasz stronę wybranego PDF-u i sprawdzasz opis oraz podgląd jego wnętrza.</p>
-          </article>
-          <article className="notatnik-step">
-            <div className="notatnik-step-number">02</div>
-            <p>Przy bezpłatnym materiale wpisujesz e-mail. Przy PDF-ie za 19 zł uzupełniasz formularz i przechodzisz do płatności.</p>
-          </article>
-          <article className="notatnik-step">
-            <div className="notatnik-step-number">03</div>
-            <p>Bezpłatny plik pobiera się od razu. Po płatności dostajesz kod do pokoju, z którego pobierzesz kupiony PDF.</p>
-          </article>
-        </div>
-      </section>
-
-      <NotatnikFinalCta
-        title="Jeśli materiał nie wystarczy, <em>Kwadrans porządkuje temat w 15 minut.</em>"
-        copy="PDF jest dobry jako spokojny start. Gdy objaw wraca albo łączy się z innymi wątkami, rozmowa szybciej ustawia priorytet."
-        primaryHref={quickHref}
-        primaryLabel={`Umów spokojny pierwszy krok / ${quickPriceLabel}`}
+      <MaterialyShelf
+        id="bezplatne"
+        eyebrow="Materiały · bezpłatne"
+        title="10 krótkich PDF‑ów na konkretne sytuacje."
+        copy="Szybko porządkują najważniejsze informacje i pomagają bezpiecznie zacząć działać."
+        guides={freeGuides}
       />
+
+      <MaterialyShelf
+        id="p19"
+        eyebrow="Rozszerzone plany · 19 zł"
+        title="10 planów pierwszego działania."
+        copy="Więcej kontekstu, obserwacji i kolejnych kroków przy trudniejszych, powtarzających się sytuacjach."
+        guides={p19Guides}
+        tone="sage"
+      />
+
+      <section id="jak-to-dziala" className="materialy-process" aria-labelledby="materialy-process-title">
+        <header>
+          <span>Jak to działa</span>
+          <h2 id="materialy-process-title">Pobranie w 3 krokach.</h2>
+        </header>
+        <div className="materialy-process-grid">
+          <article>
+            <strong>01</strong>
+            <span className="materialy-process-icon" aria-hidden="true">
+              <ShoppingCart size={22} strokeWidth={1.6} />
+            </span>
+            <p>Wybierz materiał i otwórz jego stronę z opisem oraz podglądem.</p>
+          </article>
+          <article>
+            <strong>02</strong>
+            <span className="materialy-process-icon" aria-hidden="true">
+              <CreditCard size={22} strokeWidth={1.6} />
+            </span>
+            <p>Przy bezpłatnym PDF-ie podaj e-mail. Przy planie za 19 zł opłać zamówienie.</p>
+          </article>
+          <article>
+            <strong>03</strong>
+            <span className="materialy-process-icon" aria-hidden="true">
+              <CloudDownload size={22} strokeWidth={1.6} />
+            </span>
+            <p>Pobierz plik i wracaj do niego wtedy, gdy Ty i Twoje zwierzę potrzebujecie wsparcia.</p>
+          </article>
+        </div>
+      </section>
+
+      <section className="materialy-consultation-band" aria-labelledby="materialy-consultation-title">
+        <div className="materialy-consultation-mark" aria-hidden="true">
+          <PawPrint size={54} strokeWidth={1.25} />
+        </div>
+        <div>
+          <h2 id="materialy-consultation-title">
+            Jeśli materiał nie wystarczy, <em>Kwadrans porządkuje temat w 15 minut.</em>
+          </h2>
+          <p>PDF to dobry start, ale czasem rozmowa jest najprostszym sposobem na ustalenie priorytetu.</p>
+        </div>
+        <Link href={quickHref} prefetch={false}>
+          <span>Zobacz konsultację online</span>
+          <ArrowRight size={18} strokeWidth={1.8} aria-hidden="true" />
+        </Link>
+      </section>
     </NotatnikPageShell>
   )
 }

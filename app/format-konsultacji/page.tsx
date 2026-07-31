@@ -18,7 +18,7 @@ import {
 import { NotatnikPageShell, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
 import { Schema } from '@/components/schema'
 import type { BookingServiceType } from '@/lib/booking-services'
-import { buildBookHref, readProblemTypeSearchParam, type BookingSpecies } from '@/lib/booking-routing'
+import { buildBookHref, readClinicFlowSearchParam, readProblemTypeSearchParam, type BookingSpecies } from '@/lib/booking-routing'
 import { getBreadcrumbJsonLd } from '@/lib/schema'
 import { buildTechnicalMetadata } from '@/lib/seo'
 import type { ProblemType } from '@/lib/types'
@@ -164,26 +164,28 @@ function readAnimal(value: string | string[] | undefined): Animal {
   return raw === 'cat' || raw === 'kot' ? 'cat' : 'dog'
 }
 
-function buildFormatHref(problem: ProblemType, species: BookingSpecies, service: BookingServiceType | null) {
-  return buildBookHref(problem, service, false, species)
+function buildFormatHref(problem: ProblemType, species: BookingSpecies, service: BookingServiceType | null, clinicFlow: boolean) {
+  return buildBookHref(problem, service, false, species, clinicFlow)
 }
 
 export default async function ConsultationFormatPage(
   props: {
-    searchParams?: Promise<{ animal?: string | string[]; problem?: string | string[] }>
+    searchParams?: Promise<{ animal?: string | string[]; problem?: string | string[]; clinic?: string | string[] }>
   }
 ) {
   const searchParams = await props.searchParams;
   const animal = readAnimal(searchParams?.animal)
+  const clinicFlow = readClinicFlowSearchParam(searchParams?.clinic)
   const problem = readProblemTypeSearchParam(searchParams?.problem)
   const topicTitle = problem ? topicTitles[animal][problem] : null
 
   if (!problem || !topicTitle) {
-    redirect(`/wybor?animal=${animal}`)
+    redirect(`/wybor?animal=${animal}${clinicFlow ? '&clinic=1' : ''}`)
   }
 
   const copy = animalCopy[animal]
-  const backHref = `/wybor?animal=${animal}`
+  const visibleFormatChoices = clinicFlow ? formatChoices.filter((format) => format.service === null) : formatChoices
+  const backHref = `/wybor?animal=${animal}${clinicFlow ? '&clinic=1' : ''}`
 
   return (
     <NotatnikPageShell
@@ -227,9 +229,9 @@ export default async function ConsultationFormatPage(
               </span>
               <div className={styles.heroCopy}>
                 <span className={styles.eyebrow}>Format konsultacji</span>
-                <h1 id="format-title">{copy.title}</h1>
+                <h1 id="format-title">{clinicFlow ? 'Wybierz bezpłatny Kwadrans' : copy.title}</h1>
                 <p>
-                  Temat: <strong>{topicTitle}</strong>. {copy.lead}
+                  Temat: <strong>{topicTitle}</strong>. {clinicFlow ? 'Kod z lecznicy obejmuje 15-minutową konsultację bez dodatkowej opłaty.' : copy.lead}
                 </p>
               </div>
             </div>
@@ -255,7 +257,7 @@ export default async function ConsultationFormatPage(
             </div>
 
             <div className={styles.formatTopGrid}>
-              {formatChoices
+              {visibleFormatChoices
                 .filter((format) => !format.wide)
                 .map((format) => {
                   const Icon = format.icon
@@ -263,7 +265,7 @@ export default async function ConsultationFormatPage(
                   return (
                     <Link
                       key={format.id}
-                      href={buildFormatHref(problem, copy.species, format.service)}
+                      href={buildFormatHref(problem, copy.species, format.service, clinicFlow)}
                       prefetch={false}
                       className={`${styles.formatChoiceCard} ${format.featured ? styles.featuredFormatCard : ''}`}
                     >
@@ -275,7 +277,7 @@ export default async function ConsultationFormatPage(
                         <strong>{format.title}</strong>
                         <span className={styles.formatPriceRow}>
                           <small>{format.badge}</small>
-                          <span className={styles.formatPrice}>{format.price}</span>
+                          <span className={styles.formatPrice}>{clinicFlow ? '0 zł z kodem' : format.price}</span>
                         </span>
                         <p>{format.desc}</p>
                       </span>
@@ -296,7 +298,7 @@ export default async function ConsultationFormatPage(
             </div>
 
             <div className={styles.formatBottomGrid}>
-              {formatChoices
+              {visibleFormatChoices
                 .filter((format) => format.wide)
                 .map((format) => {
                   const Icon = format.icon
@@ -304,7 +306,7 @@ export default async function ConsultationFormatPage(
                   return (
                     <Link
                       key={format.id}
-                      href={buildFormatHref(problem, copy.species, format.service)}
+                      href={buildFormatHref(problem, copy.species, format.service, clinicFlow)}
                       prefetch={false}
                       className={styles.fullFormatCard}
                     >
@@ -315,7 +317,7 @@ export default async function ConsultationFormatPage(
                         <strong>{format.title}</strong>
                         <span className={styles.formatPriceRow}>
                           <small>{format.badge}</small>
-                          <span className={styles.formatPrice}>{format.price}</span>
+                          <span className={styles.formatPrice}>{clinicFlow ? '0 zł z kodem' : format.price}</span>
                         </span>
                         <p>{format.desc}</p>
                         <span className={styles.formatCheckList}>

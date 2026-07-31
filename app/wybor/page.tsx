@@ -7,6 +7,7 @@ import {
   Cat,
   ChevronRight,
   CloudLightning,
+  Dog,
   Footprints,
   Home,
   MessageCircle,
@@ -18,6 +19,7 @@ import {
 } from 'lucide-react'
 import { NotatnikPageShell, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
 import { Schema } from '@/components/schema'
+import { readClinicFlowSearchParam } from '@/lib/booking-routing'
 import { getBreadcrumbJsonLd } from '@/lib/schema'
 import { buildMarketingMetadata } from '@/lib/seo'
 import type { ProblemType } from '@/lib/types'
@@ -187,24 +189,43 @@ const catChoices: Choice[] = [
   },
 ]
 
-function getAnimal(searchParams?: { animal?: string | string[] }): Animal {
+function readAnimal(searchParams?: { animal?: string | string[] }): Animal | null {
   const raw = Array.isArray(searchParams?.animal) ? searchParams.animal[0] : searchParams?.animal
 
-  return raw === 'cat' || raw === 'kot' ? 'cat' : 'dog'
+  if (raw === 'cat' || raw === 'kot') return 'cat'
+  if (raw === 'dog' || raw === 'pies') return 'dog'
+  return null
 }
 
-function buildChoiceHref(choice: Choice, animal: Animal) {
-  return `/format-konsultacji?animal=${animal}&problem=${choice.problem}`
+function getAnimal(searchParams?: { animal?: string | string[] }): Animal {
+  return readAnimal(searchParams) ?? 'dog'
+}
+
+function buildChoiceHref(choice: Choice, animal: Animal, clinicFlow: boolean) {
+  return `/format-konsultacji?animal=${animal}&problem=${choice.problem}${clinicFlow ? '&clinic=1' : ''}`
 }
 
 export default async function ChoicePage(
   props: {
-    searchParams?: Promise<{ animal?: string | string[] }>
+    searchParams?: Promise<{ animal?: string | string[]; clinic?: string | string[] }>
   }
 ) {
   const searchParams = await props.searchParams;
   const animal = getAnimal(searchParams)
-  const copy = animalCopy[animal]
+  const selectedAnimal = readAnimal(searchParams)
+  const clinicFlow = readClinicFlowSearchParam(searchParams?.clinic)
+  const showClinicAnimalChoice = clinicFlow && !selectedAnimal
+  const copy = showClinicAnimalChoice
+    ? {
+        eyebrow: 'Program dla klientów lecznic',
+        title: 'Wybierz psa albo kota',
+        lead: 'Kod jest aktywny. Wybierz zwierzę, którego dotyczy rozmowa, a potem przejdziemy do właściwych tematów.',
+        noteTitle: 'Wybierz najbliższy temat',
+        noteCopy: 'Po wyborze psa albo kota zobaczysz krótką listę sytuacji, od których możesz zacząć.',
+        heroImage: '/branding/regulski-web/hero/hero-home.png',
+        heroAlt: 'Spokojny pies i kot w domu',
+      }
+    : animalCopy[animal]
   const choices = animal === 'cat' ? catChoices : dogChoices
   return (
     <NotatnikPageShell
@@ -214,8 +235,8 @@ export default async function ChoicePage(
       ctaLabel="Mapa zachowania"
       footerPrimaryHref="/"
       footerPrimaryLabel="Wróć do strony głównej"
-      sideVisualVariant={animal === 'cat' ? 'cat' : 'dog'}
-      pageClassName={`homepage-shell ${styles.page} ${animal === 'cat' ? styles.catPage : styles.dogPage}`}
+      sideVisualVariant={showClinicAnimalChoice ? 'home' : animal === 'cat' ? 'cat' : 'dog'}
+      pageClassName={`homepage-shell ${styles.page} ${showClinicAnimalChoice ? '' : animal === 'cat' ? styles.catPage : styles.dogPage}`}
       shellClassName={`homepage-main ${styles.shell}`}
       showFooterReviews={false}
     >
@@ -255,48 +276,82 @@ export default async function ChoicePage(
           </section>
 
           <section className={styles.choiceSection} aria-label="Wybierz temat konsultacji">
-            <div className={styles.unknownCard}>
-              <span className={styles.unknownIcon} aria-hidden="true">
-                <MessageCircle size={25} strokeWidth={1.8} />
-              </span>
-              <div>
-                <h2>{copy.noteTitle}</h2>
-                <p>{copy.noteCopy}</p>
-              </div>
-            </div>
-
-            <div className={styles.choiceGrid}>
-              {choices.map((choice) => {
-                const Icon = choice.icon
-                const href = buildChoiceHref(choice, animal)
-
-                return (
-                  <Link
-                    key={choice.id}
-                    className={`${styles.choiceCard} ${choice.image ? styles.photoCard : styles.textOnlyCard}`}
-                    data-choice={choice.id}
-                    href={href}
-                    prefetch={false}
-                  >
-                    {choice.image ? (
-                      <span className={styles.choicePhoto} aria-hidden="true">
-                        <Image src={choice.image} alt={choice.imageAlt ?? ''} fill sizes="(max-width: 520px) 100vw, 220px" />
-                      </span>
-                    ) : null}
-                    <span className={styles.choiceBody}>
-                      <span className={styles.choiceIcon} aria-hidden="true">
-                        <Icon size={24} strokeWidth={1.9} />
-                      </span>
-                      <span className={styles.choiceText}>
-                        <h3>{choice.title}</h3>
-                        <p>{choice.desc}</p>
-                      </span>
-                      <ChevronRight className={styles.choiceArrow} size={22} strokeWidth={2} aria-hidden="true" />
+            {showClinicAnimalChoice ? (
+              <div className={styles.clinicAnimalChoice} data-clinic-animal-choice="true">
+                <div>
+                  <span className={styles.eyebrow}>Kod z lecznicy aktywny</span>
+                  <h2>Najpierw wybierz zwierzę</h2>
+                  <p>Dobiorę potem właściwe tematy i poprowadzę Cię do terminu Kwadransa.</p>
+                </div>
+                <div className={styles.clinicAnimalGrid} aria-label="Wybierz zwierzę">
+                  <Link href="/wybor?animal=dog&clinic=1" className={styles.clinicAnimalCard} prefetch={false}>
+                    <span className={styles.clinicAnimalCardImage} aria-hidden="true">
+                      <Image src="/wybor/dog-choice-avatar.png" alt="" fill sizes="90px" />
+                    </span>
+                    <span className={styles.clinicAnimalCardCopy}>
+                      <strong><Dog size={18} strokeWidth={1.8} aria-hidden="true" />Mam psa</strong>
+                      <small>Spacer, dom, lęk i relacje</small>
+                      <ChevronRight size={20} strokeWidth={2} aria-hidden="true" />
                     </span>
                   </Link>
-                )
-              })}
-            </div>
+                  <Link href="/wybor?animal=cat&clinic=1" className={styles.clinicAnimalCard} prefetch={false}>
+                    <span className={styles.clinicAnimalCardImage} aria-hidden="true">
+                      <Image src="/wybor/cat-choice-avatar.png" alt="" fill sizes="90px" />
+                    </span>
+                    <span className={styles.clinicAnimalCardCopy}>
+                      <strong><Cat size={18} strokeWidth={1.8} aria-hidden="true" />Mam kota</strong>
+                      <small>Kuweta, stres, relacje i wokalizacja</small>
+                      <ChevronRight size={20} strokeWidth={2} aria-hidden="true" />
+                    </span>
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className={styles.unknownCard}>
+                  <span className={styles.unknownIcon} aria-hidden="true">
+                    <MessageCircle size={25} strokeWidth={1.8} />
+                  </span>
+                  <div>
+                    <h2>{copy.noteTitle}</h2>
+                    <p>{copy.noteCopy}</p>
+                  </div>
+                </div>
+
+                <div className={styles.choiceGrid}>
+                  {choices.map((choice) => {
+                    const Icon = choice.icon
+                    const href = buildChoiceHref(choice, animal, clinicFlow)
+
+                    return (
+                      <Link
+                        key={choice.id}
+                        className={`${styles.choiceCard} ${choice.image ? styles.photoCard : styles.textOnlyCard}`}
+                        data-choice={choice.id}
+                        href={href}
+                        prefetch={false}
+                      >
+                        {choice.image ? (
+                          <span className={styles.choicePhoto} aria-hidden="true">
+                            <Image src={choice.image} alt={choice.imageAlt ?? ''} fill sizes="(max-width: 520px) 100vw, 220px" />
+                          </span>
+                        ) : null}
+                        <span className={styles.choiceBody}>
+                          <span className={styles.choiceIcon} aria-hidden="true">
+                            <Icon size={24} strokeWidth={1.9} />
+                          </span>
+                          <span className={styles.choiceText}>
+                            <h3>{choice.title}</h3>
+                            <p>{choice.desc}</p>
+                          </span>
+                          <ChevronRight className={styles.choiceArrow} size={22} strokeWidth={2} aria-hidden="true" />
+                        </span>
+                      </Link>
+                    )
+                  })}
+                </div>
+              </>
+            )}
           </section>
         </div>
     </NotatnikPageShell>

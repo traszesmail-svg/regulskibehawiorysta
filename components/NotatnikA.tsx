@@ -229,7 +229,7 @@ export function NotatnikSideVisuals({ variant = 'mixed' }: { variant?: NotatnikS
           aria-hidden="true"
           style={{
             backgroundImage: `url(${visuals.left})`,
-            backgroundPosition: 'right center',
+            backgroundPosition: 'right 18%',
             backgroundSize: 'cover',
           }}
         />
@@ -243,7 +243,7 @@ export function NotatnikSideVisuals({ variant = 'mixed' }: { variant?: NotatnikS
           aria-hidden="true"
           style={{
             backgroundImage: `url(${visuals.right})`,
-            backgroundPosition: 'left center',
+            backgroundPosition: 'left 18%',
             backgroundSize: 'cover',
           }}
         />

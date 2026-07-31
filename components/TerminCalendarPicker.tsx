@@ -55,6 +55,7 @@ export type TerminCalendarSummary = {
   serviceType: BookingServiceType
   problemType: ProblemType
   problemLabel: string
+  clinicFlow: boolean
   species: 'pies' | 'kot' | 'inne'
   animalType: AnimalType
   modeLabel: string
@@ -443,7 +444,7 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, pay
         <div className="termin-calendar-summary-note">
           <Check size={18} strokeWidth={2} aria-hidden="true" />
           <div>
-            <strong>W ramach konsultacji otrzymasz:</strong>
+            <strong>{summary.clinicFlow ? 'W ramach bezpłatnej konsultacji otrzymasz:' : 'W ramach konsultacji otrzymasz:'}</strong>
             <ul>
               <li>{summary.slotSummary}</li>
               <li>Indywidualne wskazówki</li>
@@ -457,7 +458,7 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, pay
           </Link>
         ) : null}
         {!selectedSlot ? (
-          <small>Dane i płatność pojawią się niżej, bez otwierania osobnego ekranu.</small>
+          <small>{summary.clinicFlow ? 'Dane i potwierdzenie pojawią się niżej, bez otwierania osobnego ekranu.' : 'Dane i płatność pojawią się niżej, bez otwierania osobnego ekranu.'}</small>
         ) : null}
       </aside>
 
@@ -472,15 +473,17 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, pay
         <div className="termin-inline-flow-head">
           <div>
             <span className="termin-inline-flow-eyebrow">Rezerwacja bez przeładowania strony</span>
-            <h2>{createdBooking ? 'Wybierz płatność albo wpisz kod' : 'Uzupełnij dane do wybranego terminu'}</h2>
+            <h2>{createdBooking ? (summary.clinicFlow ? 'Potwierdź bezpłatną konsultację' : 'Wybierz płatność albo wpisz kod') : 'Uzupełnij dane do wybranego terminu'}</h2>
             <p>
               {selectedSlot
-                ? `${selectedSlot.dateLabel}, ${selectedSlot.time}. Dane uzupełnisz poniżej. Po ich wysłaniu przejdziesz do wyboru płatności.`
+                ? summary.clinicFlow
+                  ? `${selectedSlot.dateLabel}, ${selectedSlot.time}. Dane uzupełnisz poniżej, a potem aktywujesz kod lecznicy bez dodatkowej opłaty.`
+                  : `${selectedSlot.dateLabel}, ${selectedSlot.time}. Dane uzupełnisz poniżej. Po ich wysłaniu przejdziesz do wyboru płatności.`
                 : 'Wybierz dzień i godzinę, a formularz pojawi się tutaj.'}
             </p>
           </div>
           <div className="termin-inline-flow-steps" aria-label="Etapy rezerwacji w tym widoku">
-            {['Termin', 'Dane', 'Płatność'].map((step, index) => (
+            {(summary.clinicFlow ? ['Termin', 'Dane', 'Potwierdzenie'] : ['Termin', 'Dane', 'Płatność']).map((step, index) => (
               <span key={step} className={index === inlineFlowStep ? 'is-active' : index < inlineFlowStep ? 'is-complete' : ''}>
                 <strong>{index + 1}</strong>
                 {step}
@@ -494,8 +497,9 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, pay
             {createdBooking ? (
               <div className="termin-inline-payment-panel">
                 <div className="notatnik-callout">
-                  Termin jest zapisany i trzymany na czas płatności. Jeśli masz kod przekazany przez lecznicę, wpisz go poniżej.
-                  W przeciwnym razie wybierz dostępną metodę płatności.
+                  {summary.clinicFlow
+                    ? 'Termin jest zapisany. Kod lecznicy pokrywa koszt konsultacji; potwierdź go poniżej, aby dokończyć rezerwację.'
+                    : 'Termin jest zapisany i trzymany na czas płatności. Jeśli masz kod przekazany przez lecznicę, wpisz go poniżej. W przeciwnym razie wybierz dostępną metodę płatności.'}
                 </div>
                 <PaymentActions
                   bookingId={createdBooking.bookingId}
@@ -529,6 +533,7 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, pay
                 slotId={selectedSlot.id}
                 slotLabel={`${selectedSlot.dateLabel}, ${selectedSlot.time}`}
                 amountLabel={summary.priceLabel}
+                clinicFlow={summary.clinicFlow}
                 qaBooking={summary.qaBooking}
                 sourcePage="/book"
                 submitLabel="Dalej"

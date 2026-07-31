@@ -5,6 +5,9 @@ import Image from 'next/image'
 import Link from 'next/link'
 import {
   BookOpen,
+  CalendarDays,
+  Check,
+  ClipboardCheck,
   Download,
   History,
   LogIn,
@@ -394,6 +397,11 @@ export function AccountRoomApp({ initialView = 'start', initialSessionHint = fal
   }
 
   const roomMaterialGuides = getRoomMaterialGuides(account?.pets[0]?.species === 'kot' ? 'kot' : 'pies')
+  const roomSetupCompleted = [
+    Boolean(account?.pets.length),
+    Boolean(account?.bookings.length),
+    caseMaps.length > 0,
+  ].filter(Boolean).length
 
   return (
     <section className="account-room-panel account-room-panel-shell">
@@ -523,6 +531,79 @@ export function AccountRoomApp({ initialView = 'start', initialSessionHint = fal
               )}
             </article>
           </div>
+
+          <section className="account-room-card account-room-setup" aria-labelledby="account-room-setup-title">
+            <div className="account-room-setup-header">
+              <div>
+                <span className="account-card-kicker">Spokojny start</span>
+                <h2 id="account-room-setup-title">Ułóż swój pierwszy krok</h2>
+                <p>Trzy krótkie rzeczy wystarczą, żeby Pokój zaczął pracować razem z Tobą.</p>
+              </div>
+              <div className="account-room-setup-count" aria-label={`${roomSetupCompleted} z 3 kroków gotowe`}>
+                <strong>{roomSetupCompleted}/3</strong>
+                <span>gotowe</span>
+              </div>
+            </div>
+
+            <div className="account-room-setup-progress" role="progressbar" aria-valuemin={0} aria-valuemax={3} aria-valuenow={roomSetupCompleted}>
+              <span style={{ width: `${(roomSetupCompleted / 3) * 100}%` }} />
+            </div>
+
+            <div className="account-room-setup-grid">
+              <button
+                type="button"
+                className={`account-room-setup-item${account?.pets.length ? ' is-complete' : ''}`}
+                onClick={() => setActiveView('pupil')}
+              >
+                <span className="account-room-setup-icon"><PawPrint size={20} aria-hidden="true" /></span>
+                <span className="account-room-setup-copy">
+                  <strong>Uzupełnij profil pupila</strong>
+                  <small>{account?.pets[0]?.name ? `${account.pets[0].name} jest już zapisany.` : 'Imię, gatunek i krótka historia pomogą zacząć od faktów.'}</small>
+                </span>
+                <span className="account-room-setup-state">{account?.pets.length ? <Check size={18} aria-hidden="true" /> : 'Otwórz'}</span>
+              </button>
+
+              {account?.bookings.length ? (
+                <button type="button" className="account-room-setup-item is-complete" onClick={() => setActiveView('historia')}>
+                  <span className="account-room-setup-icon"><CalendarDays size={20} aria-hidden="true" /></span>
+                  <span className="account-room-setup-copy">
+                    <strong>Sprawdź najbliższy termin</strong>
+                    <small>{account.bookings[0]?.dateLabel ?? 'Termin jest zapisany w historii.'}</small>
+                  </span>
+                  <span className="account-room-setup-state"><Check size={18} aria-hidden="true" /></span>
+                </button>
+              ) : (
+                <Link href="/cennik" className="account-room-setup-item">
+                  <span className="account-room-setup-icon"><CalendarDays size={20} aria-hidden="true" /></span>
+                  <span className="account-room-setup-copy">
+                    <strong>Wybierz spokojny termin</strong>
+                    <small>Po rezerwacji termin i link do rozmowy pojawią się tutaj.</small>
+                  </span>
+                  <span className="account-room-setup-state">Otwórz</span>
+                </Link>
+              )}
+
+              {caseMaps[0] ? (
+                <Link href={`/mapa-sprawy?resume=${encodeURIComponent(caseMaps[0].id)}`} className="account-room-setup-item is-complete">
+                  <span className="account-room-setup-icon"><ClipboardCheck size={20} aria-hidden="true" /></span>
+                  <span className="account-room-setup-copy">
+                    <strong>Wróć do Mapy sprawy</strong>
+                    <small>Masz zapisane podsumowanie do dalszej rozmowy.</small>
+                  </span>
+                  <span className="account-room-setup-state"><Check size={18} aria-hidden="true" /></span>
+                </Link>
+              ) : (
+                <Link href="/mapa-sprawy" className="account-room-setup-item">
+                  <span className="account-room-setup-icon"><ClipboardCheck size={20} aria-hidden="true" /></span>
+                  <span className="account-room-setup-copy">
+                    <strong>Zacznij Mapę sprawy</strong>
+                    <small>Uporządkuj, co dzieje się przed zachowaniem i jaki jest pierwszy sygnał.</small>
+                  </span>
+                  <span className="account-room-setup-state">Otwórz</span>
+                </Link>
+              )}
+            </div>
+          </section>
         </div>
       ) : null}
 

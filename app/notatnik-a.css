@@ -27021,6 +27021,12 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
   object-position: center !important;
 }
 
+.termin-pies-page .termin-hero-photo img,
+.termin-kot-page .termin-hero-photo img {
+  object-fit: contain !important;
+  object-position: center !important;
+}
+
 .termin-dog-page .termin-calendar-pet-visual img {
   object-fit: contain !important;
   object-position: center !important;
@@ -30082,6 +30088,12 @@ main.notatnik-page.reference-faq-page .reference-faq-hero-image {
   main.notatnik-page.termin-page .termin-hero-photo img {
     object-fit: cover !important;
     object-position: center top !important;
+  }
+
+  main.notatnik-page.termin-page.termin-pies-page .termin-hero-photo img,
+  main.notatnik-page.termin-page.termin-kot-page .termin-hero-photo img {
+    object-fit: contain !important;
+    object-position: center !important;
   }
 
   main.notatnik-page.termin-page .termin-step-track[data-urgent='true'] {
@@ -36141,6 +36153,159 @@ html[data-theme='dark'] input[type="checkbox"] {
   transform: translateX(3px);
 }
 
+.pokoj-page .account-room-setup {
+  display: grid;
+  gap: 20px;
+  padding: clamp(22px, 3vw, 30px);
+  border-radius: 25px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(194, 215, 159, 0.22), transparent 32%),
+    rgba(255, 254, 250, 0.88);
+}
+
+.pokoj-page .account-room-setup-header {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.pokoj-page .account-room-setup-header h2 {
+  margin: 0;
+  color: #1a3927;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(1.7rem, 3vw, 2.45rem);
+  line-height: 1.04;
+}
+
+.pokoj-page .account-room-setup-header p {
+  max-width: 56ch;
+  margin: 8px 0 0;
+  color: rgba(31, 51, 37, 0.66);
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.pokoj-page .account-room-setup-count {
+  display: grid;
+  flex: 0 0 auto;
+  min-width: 72px;
+  padding: 10px 13px;
+  color: #285d3c;
+  border: 1px solid rgba(58, 106, 65, 0.14);
+  border-radius: 16px;
+  background: #edf1df;
+  text-align: center;
+}
+
+.pokoj-page .account-room-setup-count strong {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.pokoj-page .account-room-setup-count span {
+  margin-top: 4px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.pokoj-page .account-room-setup-progress {
+  height: 7px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e5e9d9;
+}
+
+.pokoj-page .account-room-setup-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #2d7048, #8baa65);
+  transition: width 220ms ease;
+}
+
+.pokoj-page .account-room-setup-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.pokoj-page .account-room-setup-item {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  gap: 11px;
+  align-items: center;
+  min-width: 0;
+  min-height: 86px;
+  padding: 13px;
+  color: #294b35;
+  border: 1px solid rgba(42, 72, 47, 0.12);
+  border-radius: 17px;
+  background: rgba(247, 246, 237, 0.74);
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+}
+
+.pokoj-page .account-room-setup-item:hover {
+  border-color: rgba(42, 104, 66, 0.3);
+  background: #fffefa;
+  transform: translateY(-2px);
+}
+
+.pokoj-page .account-room-setup-item.is-complete {
+  border-color: rgba(64, 119, 72, 0.18);
+  background: rgba(237, 243, 225, 0.78);
+}
+
+.pokoj-page .account-room-setup-icon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  color: #2f6c44;
+  border: 1px solid rgba(64, 108, 67, 0.14);
+  border-radius: 13px;
+  background: #e9efdb;
+}
+
+.pokoj-page .account-room-setup-copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.pokoj-page .account-room-setup-copy strong {
+  color: #244531;
+  font-size: 0.82rem;
+  line-height: 1.25;
+}
+
+.pokoj-page .account-room-setup-copy small {
+  display: -webkit-box;
+  overflow: hidden;
+  color: rgba(31, 51, 37, 0.62);
+  font-size: 0.72rem;
+  line-height: 1.4;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.pokoj-page .account-room-setup-state {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  color: #347247;
+  font-size: 0.68rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
 /* Conversation workspace */
 .pokoj-page .account-chat-layout {
   display: grid;
@@ -36577,6 +36742,10 @@ html[data-theme='dark'] input[type="checkbox"] {
 
   .pokoj-page .account-room-card.account-quick-card {
     min-height: 0;
+  }
+
+  .pokoj-page .account-room-setup-grid {
+    grid-template-columns: 1fr;
   }
 
   .pokoj-page .account-room-card.account-chat-aside {

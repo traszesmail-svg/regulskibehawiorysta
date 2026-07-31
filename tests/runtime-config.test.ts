@@ -960,6 +960,12 @@ test('qa booking schema fallback keeps public booking inserts alive', () => {
   assert.match(supabaseStoreSource, /applyLegacyBookingSelectFallback/)
 })
 
+test('production availability reads past Supabase default pagination', () => {
+  const supabaseStoreSource = readSource('lib', 'server', 'supabase-store.ts')
+
+  assert.match(supabaseStoreSource, /\.from\('availability'\)[\s\S]*?\.range\(0, 9999\)/)
+})
+
 test('booking form shows normalized slot conflict copy instead of raw api errors', () => {
   const bookingFormSource = readSource('components', 'BookingForm.tsx')
   const bookingApiErrorsSource = readSource('lib', 'server', 'booking-api-errors.ts')

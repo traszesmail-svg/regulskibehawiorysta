@@ -969,6 +969,7 @@ async function listAvailabilityRows(): Promise<AvailabilityRow[]> {
     .select('*')
     .order('booking_date', { ascending: true })
     .order('booking_time', { ascending: true })
+    .range(0, 9999)
 
   if (error) {
     throw error

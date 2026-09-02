@@ -1,13 +1,13 @@
-# Jak się przygotować do Kwadransa na już
+# Jak się przygotować do Zapytaj teraz
 
-**Usługa:** Kwadrans na już (15 minut · tryb priorytetowy)
-**Format:** Rozmowa audio online · potwierdzenie terminu w ciągu 15 minut
+**Usługa:** Zapytaj teraz (do 15 minut · dostępność na żywo)
+**Format:** Rozmowa telefoniczna · po ręcznym potwierdzeniu wpłaty
 
 ---
 
 ## Zaraz dostajesz termin — oto co warto mieć gotowe
 
-Kwadrans na już to tryb pilny. Za chwilę dostaniesz propozycję terminu i link do rozmowy. Przygotuj się teraz, żeby nie tracić czasu na start.
+Zapytaj teraz to dostępne na żywo okno tej samej krótkiej rozmowy. Po potwierdzeniu wpłaty dostaniesz link do rozmowy. Przygotuj się teraz, żeby nie tracić czasu na start.
 
 ---
 

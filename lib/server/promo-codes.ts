@@ -4,17 +4,27 @@ import path from 'node:path'
 import { createClient } from '@supabase/supabase-js'
 import { resolveBookingServiceType, type BookingServiceType } from '@/lib/booking-services'
 import { DEFAULT_PROMO_CODE_COUNT, MAX_PROMO_CODE_COUNT, PROMO_CODE_SERVICE_TYPE } from '@/lib/promo-codes'
-import { markBookingPaid } from '@/lib/server/db'
+import { createPendingBooking, markBookingExpired, markBookingPaid } from '@/lib/server/db'
 import { getLocalStoreDataDir } from '@/lib/server/local-store-path'
-import type { BookingRecord, ConsultationMode } from '@/lib/types'
+import { ZAPYTAJ_SERVICE_TYPE } from '@/lib/zapytaj-flow'
+import type { AnimalType, BookingRecord, ConsultationMode, ProblemType } from '@/lib/types'
 
 export { DEFAULT_PROMO_CODE_COUNT, MAX_PROMO_CODE_COUNT, PROMO_CODE_SERVICE_TYPE }
 
 const PROMO_STORE_FILE = 'promo-codes.json'
 const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
 
+export class PromoCodeValidationError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'PromoCodeValidationError'
+    Object.setPrototypeOf(this, new.target.prototype)
+  }
+}
+
 type PromoCampaignStatus = 'active' | 'paused' | 'archived'
 type PromoCodeStatus = 'active' | 'used' | 'revoked' | 'expired'
+export type PromoCampaignKind = 'clinic' | 'community'
 
 export type PromoCampaignRecord = {
   id: string
@@ -22,6 +32,8 @@ export type PromoCampaignRecord = {
   logoSrc: string | null
   serviceType: BookingServiceType
   codeCount: number
+  kind: PromoCampaignKind
+  promotionPricePln: number
   status: PromoCampaignStatus
   expiresAt: string | null
   createdAt: string
@@ -50,6 +62,7 @@ type PromoRedemptionRecord = {
   bookingId: string
   customerEmail: string
   serviceType: BookingServiceType
+  campaignKind: PromoCampaignKind
   redeemedAt: string
   releasedAt: string | null
   meta: Record<string, string | number | boolean | null>
@@ -67,6 +80,8 @@ type PromoCampaignRow = {
   logo_src?: string | null
   service_type: string
   code_count: number
+  campaign_kind?: string | null
+  promotion_price?: number | string | null
   status: string
   expires_at: string | null
   created_at: string
@@ -95,6 +110,7 @@ type PromoRedemptionRow = {
   booking_id: string
   customer_email: string
   service_type: string
+  campaign_kind?: string | null
   redeemed_at: string
   released_at: string | null
   meta: Record<string, string | number | boolean | null> | null
@@ -129,6 +145,8 @@ type PromoCodeClaim = {
   redemptionId: string
   clinicName: string
   paymentReference: string
+  kind: PromoCampaignKind
+  promotionPricePln: number
 }
 
 type CreatePromoCampaignInput = {
@@ -136,6 +154,7 @@ type CreatePromoCampaignInput = {
   logoSrc?: string | null
   codeCount?: number | string | null
   expiresAt?: string | null
+  kind?: PromoCampaignKind | null
 }
 
 let queue = Promise.resolve()
@@ -166,6 +185,8 @@ async function readLocalStore(): Promise<PromoStoreShape> {
       campaigns: Array.isArray(parsed.campaigns)
         ? parsed.campaigns.map((campaign) => ({
             ...campaign,
+            kind: campaign.kind === 'community' ? 'community' : 'clinic',
+            promotionPricePln: campaign.kind === 'community' ? 39.99 : 0,
             logoSrc: sanitizeClinicLogoSrc(campaign.logoSrc),
           }))
         : [],
@@ -215,9 +236,9 @@ function codeLabel(code: string) {
   return `...${normalized.slice(-4)}`
 }
 
-function generatePromoCode() {
+function generatePromoCode(prefix: 'VET' | 'GRP' = 'VET') {
   const chars = Array.from({ length: 8 }, () => CODE_ALPHABET[randomBytes(1)[0] % CODE_ALPHABET.length]).join('')
-  return `VET-${chars.slice(0, 4)}-${chars.slice(4)}`
+  return `${prefix}-${chars.slice(0, 4)}-${chars.slice(4)}`
 }
 
 function normalizeCodeCount(value: CreatePromoCampaignInput['codeCount']) {
@@ -275,12 +296,17 @@ function paymentReferenceForClaim(campaign: Pick<PromoCampaignRecord, 'clinicNam
 }
 
 function mapCampaignRow(row: PromoCampaignRow): PromoCampaignRecord {
+  const kind: PromoCampaignKind = row.campaign_kind === 'community' ? 'community' : 'clinic'
+  const storedPrice = Number(row.promotion_price)
+
   return {
     id: row.id,
     clinicName: row.clinic_name,
     logoSrc: sanitizeClinicLogoSrc(row.logo_src),
     serviceType: resolveBookingServiceType(row.service_type, 0),
     codeCount: Number(row.code_count),
+    kind,
+    promotionPricePln: kind === 'community' ? (storedPrice === 39.99 ? storedPrice : 39.99) : 0,
     status: row.status === 'paused' || row.status === 'archived' ? row.status : 'active',
     expiresAt: row.expires_at,
     createdAt: row.created_at,
@@ -315,6 +341,7 @@ function mapRedemptionRow(row: PromoRedemptionRow): PromoRedemptionRecord {
     bookingId: row.booking_id,
     customerEmail: row.customer_email,
     serviceType: resolveBookingServiceType(row.service_type, 0),
+    campaignKind: row.campaign_kind === 'community' ? 'community' : 'clinic',
     redeemedAt: row.redeemed_at,
     releasedAt: row.released_at,
     meta: row.meta ?? {},
@@ -361,10 +388,61 @@ function buildLocalCampaignSummary(store: PromoStoreShape, campaign: PromoCampai
   return buildCampaignSummary(campaign, store.codes)
 }
 
+function normalizeCustomerEmail(value: string) {
+  return value.trim().toLowerCase()
+}
+
+function assertLocalCustomerHasNoCommunityRedemption(store: PromoStoreShape, campaign: PromoCampaignRecord, email: string) {
+  if (campaign.kind !== 'community') {
+    return
+  }
+
+  const normalizedEmail = normalizeCustomerEmail(email)
+  const alreadyRedeemed = store.redemptions.some(
+    (redemption) =>
+      redemption.campaignId === campaign.id &&
+      !redemption.releasedAt &&
+      normalizeCustomerEmail(redemption.customerEmail) === normalizedEmail,
+  )
+
+  if (alreadyRedeemed) {
+    throw new PromoCodeValidationError('W tej kampanii mozesz wykorzystac tylko jeden kod.')
+  }
+}
+
+async function assertSupabaseCustomerHasNoCommunityRedemption(campaign: PromoCampaignRecord, email: string) {
+  if (campaign.kind !== 'community') {
+    return
+  }
+
+  const supabase = getSupabaseClient()
+  if (!supabase) {
+    return
+  }
+
+  const { data, error } = await supabase
+    .from('promo_redemptions')
+    .select('id')
+    .eq('campaign_id', campaign.id)
+    .eq('customer_email', normalizeCustomerEmail(email))
+    .is('released_at', null)
+    .limit(1)
+
+  if (error) {
+    throw error
+  }
+
+  if (data?.length) {
+    throw new PromoCodeValidationError('W tej kampanii mozesz wykorzystac tylko jeden kod.')
+  }
+}
+
 async function createLocalPromoCampaign(input: Required<Pick<CreatePromoCampaignInput, 'clinicName'>> & {
   logoSrc: string | null
   codeCount: number
   expiresAt: string | null
+  kind: PromoCampaignKind
+  promotionPricePln: number
 }): Promise<PromoCampaignCreationResult> {
   return withLock(async () => {
     const store = await readLocalStore()
@@ -375,6 +453,8 @@ async function createLocalPromoCampaign(input: Required<Pick<CreatePromoCampaign
       logoSrc: input.logoSrc,
       serviceType: PROMO_CODE_SERVICE_TYPE,
       codeCount: input.codeCount,
+      kind: input.kind,
+      promotionPricePln: input.promotionPricePln,
       status: 'active',
       expiresAt: input.expiresAt,
       createdAt,
@@ -385,7 +465,7 @@ async function createLocalPromoCampaign(input: Required<Pick<CreatePromoCampaign
     const codeRecords: PromoCodeRecord[] = []
 
     while (plainCodes.length < input.codeCount) {
-      const code = generatePromoCode()
+      const code = generatePromoCode(input.kind === 'community' ? 'GRP' : 'VET')
       const codeHash = hashPromoCode(code)
 
       if (existingHashes.has(codeHash)) {
@@ -425,13 +505,16 @@ async function createSupabasePromoCampaign(input: Required<Pick<CreatePromoCampa
   logoSrc: string | null
   codeCount: number
   expiresAt: string | null
+  kind: PromoCampaignKind
+  promotionPricePln: number
 }): Promise<PromoCampaignCreationResult | null> {
   const supabase = getSupabaseClient()
   if (!supabase) return null
 
   const createdAt = nowIso()
   const campaignId = randomUUID()
-  const plainCodes = Array.from({ length: input.codeCount }, generatePromoCode)
+  const codePrefix = input.kind === 'community' ? 'GRP' : 'VET'
+  const plainCodes = Array.from({ length: input.codeCount }, () => generatePromoCode(codePrefix))
   const codeRows = plainCodes.map((code) => ({
     id: randomUUID(),
     campaign_id: campaignId,
@@ -454,6 +537,8 @@ async function createSupabasePromoCampaign(input: Required<Pick<CreatePromoCampa
       logo_src: input.logoSrc,
       service_type: PROMO_CODE_SERVICE_TYPE,
       code_count: input.codeCount,
+      campaign_kind: input.kind,
+      promotion_price: input.promotionPricePln,
       status: 'active',
       expires_at: input.expiresAt,
       created_at: createdAt,
@@ -489,16 +574,19 @@ async function createSupabasePromoCampaign(input: Required<Pick<CreatePromoCampa
 
 export async function createPromoCampaign(input: CreatePromoCampaignInput): Promise<PromoCampaignCreationResult> {
   const clinicName = sanitizeClinicName(input.clinicName)
+  const kind: PromoCampaignKind = input.kind === 'community' ? 'community' : 'clinic'
 
   if (!clinicName) {
-    throw new Error('Podaj nazwe lecznicy.')
+    throw new PromoCodeValidationError('Podaj nazwe lecznicy lub nazwe kampanii.')
   }
 
   const payload = {
     clinicName,
     logoSrc: sanitizeClinicLogoSrc(input.logoSrc),
-    codeCount: normalizeCodeCount(input.codeCount),
+    codeCount: normalizeCodeCount(input.codeCount ?? (kind === 'community' ? 10 : DEFAULT_PROMO_CODE_COUNT)),
     expiresAt: normalizeExpiresAt(input.expiresAt),
+    kind,
+    promotionPricePln: kind === 'community' ? 39.99 : 0,
   }
 
   return (await createSupabasePromoCampaign(payload)) ?? createLocalPromoCampaign(payload)
@@ -537,31 +625,35 @@ function assertPromoCodeCanBeUsed(
   serviceType: BookingServiceType,
 ) {
   if (!campaign || !code) {
-    throw new Error('Kod jest nieprawidlowy albo juz wykorzystany.')
+    throw new PromoCodeValidationError('Kod jest nieprawidlowy albo juz wykorzystany.')
   }
 
   if (campaign.status !== 'active') {
-    throw new Error('Ta pula kodow nie jest aktywna.')
+    throw new PromoCodeValidationError('Ta pula kodow nie jest aktywna.')
   }
 
   if (campaign.serviceType !== serviceType || code.serviceType !== serviceType) {
-    throw new Error('Ten kod dziala tylko dla uslugi Kwadrans z behawiorysta.')
+    throw new PromoCodeValidationError('Ten kod działa tylko dla usługi Zapytaj behawiorystę.')
   }
 
   if (isExpired(code.expiresAt ?? campaign.expiresAt)) {
-    throw new Error('Ten kod promocyjny wygasl.')
+    throw new PromoCodeValidationError('Ten kod promocyjny wygasl.')
   }
 
   if (code.status !== 'active' || code.usageCount >= code.usageLimit) {
-    throw new Error('Ten kod zostal juz wykorzystany.')
+    throw new PromoCodeValidationError('Ten kod zostal juz wykorzystany.')
   }
 }
 
-export async function validatePromoCodeForService(rawCode: string, serviceType: BookingServiceType = PROMO_CODE_SERVICE_TYPE) {
+export async function validatePromoCodeForService(
+  rawCode: string,
+  serviceType: BookingServiceType = PROMO_CODE_SERVICE_TYPE,
+  options?: { customerEmail?: string | null },
+) {
   const code = normalizePromoCode(rawCode)
 
   if (!code) {
-    throw new Error('Wpisz kod promocyjny.')
+    throw new PromoCodeValidationError('Wpisz kod promocyjny.')
   }
 
   const supabase = getSupabaseClient()
@@ -583,7 +675,16 @@ export async function validatePromoCodeForService(rawCode: string, serviceType: 
       if (!campaignError) {
         const campaign = campaignRow ? mapCampaignRow(campaignRow as PromoCampaignRow) : null
         assertPromoCodeCanBeUsed(campaign, codeRecord, serviceType)
-        return { ok: true as const, clinicName: campaign?.clinicName ?? null, clinicLogoSrc: campaign?.logoSrc ?? null }
+        if (campaign && options?.customerEmail) {
+          await assertSupabaseCustomerHasNoCommunityRedemption(campaign, options.customerEmail)
+        }
+        return {
+          ok: true as const,
+          clinicName: campaign?.clinicName ?? null,
+          clinicLogoSrc: campaign?.logoSrc ?? null,
+          campaignKind: campaign?.kind ?? 'clinic',
+          promotionPricePln: campaign?.promotionPricePln ?? 0,
+        }
       }
     } else if (codeError) {
       console.warn('[promo-codes] Supabase code validation failed, using local fallback', codeError.message)
@@ -595,7 +696,16 @@ export async function validatePromoCodeForService(rawCode: string, serviceType: 
   const codeRecord = store.codes.find((item) => item.codeHash === codeHash) ?? null
   const campaign = codeRecord ? store.campaigns.find((item) => item.id === codeRecord.campaignId) ?? null : null
   assertPromoCodeCanBeUsed(campaign, codeRecord, serviceType)
-  return { ok: true as const, clinicName: campaign?.clinicName ?? null, clinicLogoSrc: campaign?.logoSrc ?? null }
+  if (campaign && options?.customerEmail) {
+    assertLocalCustomerHasNoCommunityRedemption(store, campaign, options.customerEmail)
+  }
+  return {
+    ok: true as const,
+    clinicName: campaign?.clinicName ?? null,
+    clinicLogoSrc: campaign?.logoSrc ?? null,
+    campaignKind: campaign?.kind ?? 'clinic',
+    promotionPricePln: campaign?.promotionPricePln ?? 0,
+  }
 }
 async function claimLocalPromoCode(input: {
   code: string
@@ -610,6 +720,7 @@ async function claimLocalPromoCode(input: {
     const campaign = code ? store.campaigns.find((item) => item.id === code.campaignId) ?? null : null
 
     assertPromoCodeCanBeUsed(campaign, code, input.serviceType)
+    assertLocalCustomerHasNoCommunityRedemption(store, campaign!, input.customerEmail)
 
     const now = nowIso()
     const redemption: PromoRedemptionRecord = {
@@ -617,8 +728,9 @@ async function claimLocalPromoCode(input: {
       codeId: code!.id,
       campaignId: code!.campaignId,
       bookingId: input.bookingId,
-      customerEmail: input.customerEmail.toLowerCase(),
+      customerEmail: normalizeCustomerEmail(input.customerEmail),
       serviceType: input.serviceType,
+      campaignKind: campaign!.kind,
       redeemedAt: now,
       releasedAt: null,
       meta: {},
@@ -637,6 +749,8 @@ async function claimLocalPromoCode(input: {
       redemptionId: redemption.id,
       clinicName: campaign!.clinicName,
       paymentReference: paymentReferenceForClaim(campaign!, code!),
+      kind: campaign!.kind,
+      promotionPricePln: campaign!.promotionPricePln,
     }
   })
 }
@@ -662,7 +776,7 @@ async function claimSupabasePromoCode(input: {
   }
 
   if (!codeRow) {
-    throw new Error('Kod jest nieprawidlowy albo juz wykorzystany.')
+    throw new PromoCodeValidationError('Kod jest nieprawidlowy albo juz wykorzystany.')
   }
 
   const code = mapCodeRow(codeRow as PromoCodeRow)
@@ -679,6 +793,7 @@ async function claimSupabasePromoCode(input: {
 
   const campaign = campaignRow ? mapCampaignRow(campaignRow as PromoCampaignRow) : null
   assertPromoCodeCanBeUsed(campaign, code, input.serviceType)
+  await assertSupabaseCustomerHasNoCommunityRedemption(campaign!, input.customerEmail)
 
   const now = nowIso()
   const nextUsageCount = code.usageCount + 1
@@ -704,7 +819,7 @@ async function claimSupabasePromoCode(input: {
   }
 
   if (!updatedCodeRow) {
-    throw new Error('Ten kod zostal juz wykorzystany.')
+    throw new PromoCodeValidationError('Ten kod zostal juz wykorzystany.')
   }
 
   const updatedCode = mapCodeRow(updatedCodeRow as PromoCodeRow)
@@ -716,8 +831,9 @@ async function claimSupabasePromoCode(input: {
       code_id: updatedCode.id,
       campaign_id: updatedCode.campaignId,
       booking_id: input.bookingId,
-      customer_email: input.customerEmail.toLowerCase(),
+      customer_email: normalizeCustomerEmail(input.customerEmail),
       service_type: input.serviceType,
+      campaign_kind: campaign!.kind,
       redeemed_at: now,
       released_at: null,
       meta: {},
@@ -727,6 +843,9 @@ async function claimSupabasePromoCode(input: {
 
   if (redemptionError || !redemptionRow) {
     await releaseSupabasePromoCodeClaim(redemptionId, updatedCode.id)
+    if (redemptionError?.code === '23505') {
+      throw new PromoCodeValidationError('W tej kampanii mozesz wykorzystac tylko jeden kod.')
+    }
     throw new Error('Nie udalo sie zapisac uzycia kodu. Sprobuj ponownie.')
   }
 
@@ -736,6 +855,8 @@ async function claimSupabasePromoCode(input: {
     redemptionId: mapRedemptionRow(redemptionRow as PromoRedemptionRow).id,
     clinicName: campaign!.clinicName,
     paymentReference: paymentReferenceForClaim(campaign!, updatedCode),
+    kind: campaign!.kind,
+    promotionPricePln: campaign!.promotionPricePln,
   }
 }
 
@@ -805,6 +926,37 @@ async function releasePromoCodeClaim(claim: PromoCodeClaim) {
   await releaseLocalPromoCodeClaim(claim.redemptionId)
 }
 
+export async function releasePromoClaimsForBooking(bookingId: string) {
+  const supabase = getSupabaseClient()
+
+  if (supabase) {
+    const { data, error } = await supabase
+      .from('promo_redemptions')
+      .select('id, code_id')
+      .eq('booking_id', bookingId)
+      .is('released_at', null)
+
+    if (error) {
+      throw error
+    }
+
+    for (const redemption of data ?? []) {
+      await releaseSupabasePromoCodeClaim(redemption.id, redemption.code_id)
+    }
+
+    return
+  }
+
+  const store = await readLocalStore()
+  const redemptionIds = store.redemptions
+    .filter((redemption) => redemption.bookingId === bookingId && !redemption.releasedAt)
+    .map((redemption) => redemption.id)
+
+  for (const redemptionId of redemptionIds) {
+    await releaseLocalPromoCodeClaim(redemptionId)
+  }
+}
+
 async function claimPromoCode(input: {
   code: string
   bookingId: string
@@ -819,15 +971,15 @@ export async function redeemPromoCodeForBooking(booking: BookingRecord, rawCode:
   const serviceType = resolveBookingServiceType(booking.serviceType, booking.amount)
 
   if (!code) {
-    throw new Error('Wpisz kod promocyjny.')
+    throw new PromoCodeValidationError('Wpisz kod promocyjny.')
   }
 
   if (serviceType !== PROMO_CODE_SERVICE_TYPE) {
-    throw new Error('Kod przekazany przez lecznice dziala tylko dla uslugi Kwadrans z behawiorysta.')
+    throw new PromoCodeValidationError('Kod przekazany przez lecznicę działa tylko dla usługi Zapytaj behawiorystę.')
   }
 
   if (!(booking.bookingStatus === 'pending' && booking.paymentStatus === 'unpaid')) {
-    throw new Error('Ten termin nie czeka juz na platnosc.')
+    throw new PromoCodeValidationError('Ten termin nie czeka juz na platnosc.')
   }
 
   const claim = await claimPromoCode({
@@ -838,6 +990,10 @@ export async function redeemPromoCodeForBooking(booking: BookingRecord, rawCode:
   })
 
   try {
+    if (claim.kind === 'community') {
+      throw new PromoCodeValidationError('Ten kod grupowy działa przez osobny link promocyjny.')
+    }
+
     const updatedBooking = await markBookingPaid(booking.id, {
       paymentMethod: 'promo',
       paymentReference: claim.paymentReference,
@@ -856,6 +1012,64 @@ export async function redeemPromoCodeForBooking(booking: BookingRecord, rawCode:
   } catch (error) {
     await releasePromoCodeClaim(claim).catch((releaseError) => {
       console.error('[promo-codes] failed to release promo claim after booking error', releaseError)
+    })
+    throw error
+  }
+}
+
+export async function createCommunityPromoBooking(input: {
+  code: string
+  ownerName: string
+  problemType: ProblemType
+  animalType: AnimalType
+  petAge: string
+  durationNotes: string
+  description: string
+  phone: string
+  email: string
+  slotId: string
+}) {
+  const promotion = await validatePromoCodeForService(input.code, PROMO_CODE_SERVICE_TYPE, {
+    customerEmail: input.email,
+  })
+
+  if (promotion.campaignKind !== 'community' || promotion.promotionPricePln !== 39.99) {
+    throw new PromoCodeValidationError('Ten kod nie jest kodem grupowym dla tej strony.')
+  }
+
+  const created = await createPendingBooking({
+    ownerName: input.ownerName,
+    serviceType: ZAPYTAJ_SERVICE_TYPE,
+    consultationMode: 'phone',
+    problemType: input.problemType,
+    animalType: input.animalType,
+    petAge: input.petAge,
+    durationNotes: input.durationNotes,
+    description: input.description,
+    phone: input.phone,
+    email: normalizeCustomerEmail(input.email),
+    slotId: input.slotId,
+    liveMode: false,
+    amountOverridePln: promotion.promotionPricePln,
+  })
+
+  try {
+    const claim = await claimPromoCode({
+      code: input.code,
+      bookingId: created.booking.id,
+      customerEmail: input.email,
+      serviceType: PROMO_CODE_SERVICE_TYPE,
+    })
+
+    if (claim.kind !== 'community' || claim.promotionPricePln !== 39.99) {
+      await releasePromoCodeClaim(claim)
+      throw new PromoCodeValidationError('Ten kod nie jest kodem grupowym dla tej strony.')
+    }
+
+    return { ...created, promotion, claim }
+  } catch (error) {
+    await markBookingExpired(created.booking.id).catch((expiryError) => {
+      console.error('[promo-codes] failed to expire booking after campaign claim error', expiryError)
     })
     throw error
   }

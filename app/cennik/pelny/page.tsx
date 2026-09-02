@@ -14,7 +14,7 @@ export const metadata: Metadata = buildMarketingMetadata({
   title: 'Pełny cennik rozmów behawioralnych',
   path: '/cennik/pelny',
   description:
-    `Pełna tabela rozmów: Kwadrans ${PUBLIC_OFFER_PRICE_LABELS.quick}, Kwadrans na już ${PUBLIC_OFFER_PRICE_LABELS.urgent}, Dwa kwadranse ${PUBLIC_OFFER_PRICE_LABELS.bridge} i Pełna konsultacja ${PUBLIC_OFFER_PRICE_LABELS.premium}.`,
+    `Oferta rozmów: Zapytaj behawiorystę ${PUBLIC_OFFER_PRICE_LABELS.quick}, Zapytaj teraz ${PUBLIC_OFFER_PRICE_LABELS.urgent} i Pełna konsultacja ${PUBLIC_OFFER_PRICE_LABELS.premium}.`,
 })
 
 export default function FullPricingPage() {
@@ -30,7 +30,7 @@ export default function FullPricingPage() {
           getServiceJsonLd({
             name: 'Pełny cennik rozmów behawioralnych - psy i koty',
             description:
-              'Pełna tabela rozmów: Kwadrans, Kwadrans na już, Dwa kwadranse i Pełna konsultacja online.',
+              'Oferta rozmów: Zapytaj behawiorystę, Zapytaj teraz i Pełna konsultacja online.',
             serviceUrl: '/cennik/pelny',
             offerCatalog: getPricingOfferCatalog(),
           }),

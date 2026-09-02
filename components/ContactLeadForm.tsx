@@ -32,7 +32,7 @@ type SubmissionPayload = {
 const MESSAGE_MAX_LENGTH = 500
 const CONTACT_SUCCESS_MESSAGE = 'Dziękuję za wiadomość. Wiadomość trafiła do mnie. Odpowiem na podany adres e-mail.'
 const URGENT_CONTACT_SUCCESS_MESSAGE =
-  'Dziękuję. Prośba o Kwadrans na już została przyjęta. Odpowiem priorytetowo na podany adres e-mail z realną propozycją terminu.'
+  'Dziękuję. Prośba o Zapytaj teraz została przyjęta. Odpowiem priorytetowo na podany adres e-mail z realną propozycją terminu.'
 
 function createInitialForm(species: SelectedSpecies = ''): SubmissionPayload {
   return {
@@ -236,7 +236,7 @@ export function ContactLeadForm({ searchParams }: ContactLeadFormProps) {
           phone: normalizeShortText(form.phone),
           species: selectedSpecies,
           topicId: 'inne',
-          topic: isUrgentNow ? 'Kwadrans na już - prośba o termin' : 'Wiadomość z formularza kontaktowego',
+          topic: isUrgentNow ? 'Zapytaj teraz - prośba o termin' : 'Wiadomość z formularza kontaktowego',
           message: normalizedMessage,
           requestedDate: isUrgentNow ? form.requestedDate : null,
           requestedTime: isUrgentNow ? form.requestedTime : null,

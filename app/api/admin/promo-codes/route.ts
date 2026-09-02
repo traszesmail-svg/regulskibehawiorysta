@@ -22,6 +22,7 @@ export async function POST(request: Request) {
           ? body.codeCount
           : DEFAULT_PROMO_CODE_COUNT,
       expiresAt: typeof body.expiresAt === 'string' ? body.expiresAt : null,
+      kind: body.kind === 'community' ? 'community' : 'clinic',
     })
 
     return NextResponse.json(result)

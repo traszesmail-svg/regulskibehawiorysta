@@ -20,7 +20,7 @@ const latestReportPath = path.join(reportDir, 'latest-release-checklist.md')
 
 const REQUIRED_PACKAGE_SCRIPTS: Record<string, string> = {
   lint: 'eslint . --no-cache',
-  test: 'node --import tsx --test tests/runtime-config.test.ts tests/customer-emails.test.ts tests/google-calendar.test.ts tests/reschedule-route.test.ts tests/account-room-access.test.ts tests/account-auth-errors.test.ts tests/growth-marketing-opt-in.test.ts tests/funnel-metrics.test.ts tests/booking-api-errors.test.ts tests/scheduling-rules.test.ts tests/promo-codes.test.ts tests/voip-chat-limits.test.ts tests/quiz-first-step.test.ts tests/quiz-booking-handoff.test.ts tests/case-map.test.ts tests/case-map-questions.test.ts tests/case-map-handoff.test.ts tests/case-map-analytics.test.ts tests/commerce-payment-security.test.ts',
+  test: 'node --import tsx --test tests/runtime-config.test.ts tests/customer-emails.test.ts tests/google-calendar.test.ts tests/reschedule-route.test.ts tests/account-room-access.test.ts tests/account-auth-errors.test.ts tests/growth-marketing-opt-in.test.ts tests/funnel-metrics.test.ts tests/booking-api-errors.test.ts tests/scheduling-rules.test.ts tests/promo-codes.test.ts tests/voip-chat-limits.test.ts tests/zapytaj-call-flow.test.ts tests/consultation-access.test.ts tests/quiz-first-step.test.ts tests/quiz-booking-handoff.test.ts tests/case-map.test.ts tests/case-map-questions.test.ts tests/case-map-icons.test.ts tests/case-map-handoff.test.ts tests/case-map-analytics.test.ts tests/commerce-payment-security.test.ts tests/blog-cover-sources.test.ts tests/public-menu-parity.test.ts',
   build: 'npm run lint && next build --no-lint',
   'schema-audit': 'node scripts/schema-audit.js',
   'live-smoke': 'node --import tsx scripts/live-smoke.ts',

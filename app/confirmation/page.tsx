@@ -141,7 +141,7 @@ function getConfirmedFlowCards(
   return [
     {
       title: 'Termin jest zapisany',
-      body: 'Kwadrans z behawiorystą jest potwierdzony. Wróć do tego linku kilka minut przed rozmową.',
+      body: 'Zapytaj behawiorystę jest potwierdzone. Wróć do tego linku kilka minut przed rozmową.',
     },
     {
       title: 'Dalszy link i instrukcja',
@@ -387,7 +387,7 @@ export default async function ConfirmationPage(
       lead={confirmationLead}
       variant="compact"
       summaryRows={confirmationSummaryRows}
-      lineItemLabel={bookingServiceTitle ?? 'Konsultacja behawioralna'}
+      lineItemLabel={bookingServiceTitle ?? 'Zapytaj behawiorystę'}
       lineItemAmount={confirmationAmount}
       totalLabel={confirmationTotalLabel}
       summarySafety={confirmationSummarySafety}

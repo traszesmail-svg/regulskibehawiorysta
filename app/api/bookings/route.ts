@@ -2,14 +2,14 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 import { NextResponse } from 'next/server'
-import { isBookingServiceType } from '@/lib/booking-services'
+import { isBookingServiceType, normalizeBookingServiceType } from '@/lib/booking-services'
 import { buildPaymentHref } from '@/lib/booking-routing'
 import { formatCommercePrice, getManualAmountForProduct } from '@/lib/commerce'
 import { getProblemSpecies, isProblemType } from '@/lib/data'
 import { formatPricePln } from '@/lib/pricing'
 import { normalizeCaseMapProfileSnapshot, type CaseMapProfileSnapshot } from '@/lib/case-map'
 import { getCaseMapBookingProblemType } from '@/lib/case-map-booking-handoff'
-import { createPendingBooking } from '@/lib/server/db'
+import { consumeConsultationAccessCode, createPendingBooking, getConsultationAccessByCode } from '@/lib/server/db'
 import { getAccountUser } from '@/lib/server/account-auth'
 import { linkCaseMapToBookingForUser } from '@/lib/server/case-map-store'
 import { createPendingCaseMapProfileClaim } from '@/lib/server/case-map-profile-claims'
@@ -63,6 +63,10 @@ function buildFormErrorRedirect(request: Request, body: Record<string, unknown>,
 
   if (typeof body.serviceType === 'string') {
     url.searchParams.set('service', body.serviceType)
+  }
+
+  if (typeof body.consultationAccessCode === 'string' && body.consultationAccessCode.trim()) {
+    url.searchParams.set('consultationCode', body.consultationAccessCode.trim())
   }
 
   if (isTruthyFormValue(body.qaBooking)) {
@@ -131,6 +135,7 @@ export async function POST(request: Request) {
     const slotId = body.slotId
     const consentTerms = isTruthyFormValue(body.consentTerms)
     const consentEarlyStart = isTruthyFormValue(body.consentEarlyStart)
+    const consultationAccessCode = typeof body.consultationAccessCode === 'string' ? body.consultationAccessCode.trim() : ''
     let caseMapProfileSnapshot: CaseMapProfileSnapshot | null = null
 
     if (saveCaseMapToProfile) {
@@ -189,6 +194,33 @@ export async function POST(request: Request) {
       )
     }
 
+    const normalizedServiceType = normalizeBookingServiceType(serviceType)
+    if (normalizedServiceType === 'konsultacja-behawioralna-online') {
+      const accessBooking = consultationAccessCode
+        ? await getConsultationAccessByCode(consultationAccessCode)
+        : null
+
+      if (!accessBooking) {
+        return bookingErrorResponse(
+          request,
+          body,
+          shouldRedirect,
+          'Pełna konsultacja jest dostępna wyłącznie po indywidualnym kodzie od behawiorysty.',
+          403,
+        )
+      }
+
+      if (accessBooking.email.trim().toLowerCase() !== email.trim().toLowerCase()) {
+        return bookingErrorResponse(
+          request,
+          body,
+          shouldRedirect,
+          'Kod konsultacji jest przypisany do adresu e-mail użytego przy pierwszej rozmowie.',
+          403,
+        )
+      }
+    }
+
     const problemSpecies = getProblemSpecies(problemType)
 
     if ((problemSpecies === 'kot' && animalType !== 'Kot') || (problemSpecies === 'pies' && animalType !== 'Pies')) {
@@ -213,7 +245,17 @@ export async function POST(request: Request) {
       email,
       slotId,
       qaBooking,
+      consultationAccessCode: consultationAccessCode || null,
     })
+
+    if (normalizedServiceType === 'konsultacja-behawioralna-online' && consultationAccessCode) {
+      const consumedAccess = await consumeConsultationAccessCode(consultationAccessCode)
+      if (!consumedAccess) {
+        console.warn('[regulski-behawiorysta][booking-api] consultation access was consumed concurrently', {
+          bookingId: result.booking.id,
+        })
+      }
+    }
     let caseMapLinked = false
     if (shareCaseMap && caseMapId) {
       try {

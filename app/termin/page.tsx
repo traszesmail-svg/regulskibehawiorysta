@@ -21,5 +21,5 @@ export default async function TerminRedirectPage(
   }
 ) {
   const searchParams = await props.searchParams;
-  redirect(appendSearchParams('/book', searchParams))
+  redirect(appendSearchParams('/zapytaj', searchParams))
 }

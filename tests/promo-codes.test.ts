@@ -1,7 +1,14 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { createPendingBooking, getBookingById, listAvailabilityAdmin, markBookingClinicPhoneUpgrade } from '@/lib/server/db'
-import { createPromoCampaign, listPromoCampaigns, redeemPromoCodeForBooking, validatePromoCodeForService } from '@/lib/server/promo-codes'
+import {
+  createCommunityPromoBooking,
+  createPromoCampaign,
+  listPromoCampaigns,
+  PromoCodeValidationError,
+  redeemPromoCodeForBooking,
+  validatePromoCodeForService,
+} from '@/lib/server/promo-codes'
 import { isAvailabilitySlotBookableForService } from '@/lib/scheduling/rules'
 import { createLocalDataSandbox } from '@/scripts/lib/local-data-sandbox'
 
@@ -169,6 +176,96 @@ test('clinic code keeps Jitsi until a paid phone upgrade supplies a valid phone'
         const upgraded = await markBookingClinicPhoneUpgrade(created.booking.id, '500 600 700')
         assert.equal(upgraded?.consultationMode, 'phone')
         assert.equal(upgraded?.customerPhoneNormalized, '+48500600700')
+      } finally {
+        await sandbox.cleanup()
+      }
+    },
+  )
+})
+
+test('community campaign prices Zapytaj at 39.99, allows one email, and releases a code after expiry', async () => {
+  await withEnv(
+    {
+      APP_DATA_MODE: 'local',
+      CUSTOMER_EMAIL_MODE: 'disabled',
+      ADMIN_NOTIFICATION_EMAIL: null,
+      RESEND_API_KEY: null,
+    },
+    async () => {
+      const sandbox = await createLocalDataSandbox('promo-community', process.cwd())
+
+      try {
+        const slots = (await listAvailabilityAdmin()).filter((slot) =>
+          isAvailabilitySlotBookableForService(slot, 'szybka-konsultacja-15-min'),
+        )
+        assert.ok(slots.length >= 3, 'Expected at least three seeded Kwadrans slots.')
+
+        const campaign = await createPromoCampaign({
+          clinicName: 'Grupa FB — wrzesień',
+          kind: 'community',
+          codeCount: 2,
+          expiresAt: '2035-12-31',
+        })
+
+        assert.equal(campaign.campaign.kind, 'community')
+        assert.equal(campaign.campaign.promotionPricePln, 39.99)
+        assert.match(campaign.codes[0], /^GRP-/)
+
+        const first = await createCommunityPromoBooking({
+          code: campaign.codes[0],
+          ownerName: 'Klient Grupy',
+          problemType: 'inne',
+          animalType: 'Pies',
+          petAge: '',
+          durationNotes: '',
+          description: 'Pies reaguje szczekaniem na codzienne sytuacje.',
+          phone: '500 600 700',
+          email: 'community@example.com',
+          slotId: slots[0].id,
+        })
+
+        assert.equal(first.booking.amount, 39.99)
+        assert.equal(first.booking.paymentStatus, 'unpaid')
+        assert.equal(first.claim.kind, 'community')
+
+        await assert.rejects(
+          () =>
+            createCommunityPromoBooking({
+              code: campaign.codes[1],
+              ownerName: 'Klient Grupy',
+              problemType: 'inne',
+              animalType: 'Pies',
+              petAge: '',
+              durationNotes: '',
+              description: 'Drugi opis tej samej osoby w kampanii.',
+              phone: '500 600 700',
+              email: 'community@example.com',
+              slotId: slots[1].id,
+            }),
+          (error) => {
+            assert.ok(error instanceof PromoCodeValidationError)
+            assert.match((error as Error).message, /jeden kod/i)
+            return true
+          },
+        )
+
+        await (await import('@/lib/server/db')).markBookingExpired(first.booking.id)
+
+        const reused = await createCommunityPromoBooking({
+          code: campaign.codes[0],
+          ownerName: 'Klient Grupy',
+          problemType: 'inne',
+          animalType: 'Pies',
+          petAge: '',
+          durationNotes: '',
+          description: 'Po wygaśnięciu rezerwacji kod wraca do puli.',
+          phone: '500 600 700',
+          email: 'community@example.com',
+          slotId: slots[1].id,
+        })
+
+        assert.equal(reused.booking.amount, 39.99)
+        assert.equal((await listPromoCampaigns())[0]?.usedCount, 1)
       } finally {
         await sandbox.cleanup()
       }

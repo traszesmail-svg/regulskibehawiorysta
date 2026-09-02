@@ -62,7 +62,7 @@ type PaymentReferenceLayoutProps = {
 
 const navItems = [
   { href: '/o-mnie', label: 'O mnie' },
-  { href: '/cennik', label: 'Cennik' },
+  { href: '/zapytaj', label: 'Zapytaj' },
   { href: '/blog', label: 'Blog' },
   { href: '/kontakt', label: 'Kontakt' },
 ] as const

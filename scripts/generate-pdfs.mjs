@@ -270,9 +270,9 @@ await makePdf('30-zachowan.pdf', async (doc, fonts) => {
   y -= 20;
   accentBox(page, 30, y - 10, 535, 80);
   page.drawText('Umów spokojny pierwszy krok', { x: 40, y: y - 20, size: 13, font: fonts.bold, color: C.accent });
-  page.drawText('Kwadrans 69 zl  -  Dwa kwadranse 169 zl  -  Pelna konsultacja 470 zl', { x: 40, y: y - 38, size: 9, font: fonts.regular, color: C.ink });
+  page.drawText('Zapytaj behawiorystę 79 zl  -  Zapytaj teraz 104 zl  -  Pełna konsultacja 475 zl', { x: 40, y: y - 38, size: 9, font: fonts.regular, color: C.ink });
   page.drawText('Bez kary, bez przymusu. Pierwszy krok nie musi być duży.', { x: 40, y: y - 53, size: 9, font: fonts.regular, color: C.muted });
-  page.drawText('regulskibehawiorysta.pl/book', { x: 40, y: y - 68, size: 10, font: fonts.bold, color: C.accent });
+  page.drawText('regulskibehawiorysta.pl/zapytaj', { x: 40, y: y - 68, size: 10, font: fonts.bold, color: C.accent });
   footer(page, fonts, 7);
 
   // Tylna okladka
@@ -382,7 +382,7 @@ await makePdf('pies-sam-w-domu.pdf', async (doc, fonts) => {
   accentBox(page, 30, y - 10, 535, 80);
   page.drawText('Potrzebujesz indywidualnego planu?', { x: 40, y: y - 22, size: 12, font: fonts.bold, color: C.accent });
   page.drawText('Jeśli po 14 dniach nie widzisz poprawy - to czas na konsultację.', { x: 40, y: y - 40, size: 9, font: fonts.regular, color: C.ink });
-  page.drawText('regulskibehawiorysta.pl/book', { x: 40, y: y - 58, size: 10, font: fonts.bold, color: C.accent });
+  page.drawText('regulskibehawiorysta.pl/zapytaj', { x: 40, y: y - 58, size: 10, font: fonts.bold, color: C.accent });
   footer(page, fonts, 5);
 });
 
@@ -459,7 +459,7 @@ await makePdf('pierwszy-tydzien-z-kotem.pdf', async (doc, fonts) => {
   page.drawText('Kot który byl zmuszany - może potrzebowac miesięcy.', { x: 40, y: y - 52, size: 9, font: fonts.regular, color: C.ink });
   y -= 100;
   page.drawText('Pytania? Umów spokojny pierwszy krok:', { x: 30, y, size: 11, font: fonts.bold, color: C.ink });
-  page.drawText('regulskibehawiorysta.pl/book', { x: 30, y: y - 18, size: 11, font: fonts.bold, color: C.accent });
+  page.drawText('regulskibehawiorysta.pl/zapytaj', { x: 30, y: y - 18, size: 11, font: fonts.bold, color: C.accent });
   footer(page, fonts, 3);
 });
 

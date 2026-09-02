@@ -94,7 +94,7 @@ export function renderOgImage({ title, subtitle }: OgImageInput) {
             }}
           >
             <div>Behawiorysta psów i kotów online</div>
-            <div>15-minutowa konsultacja behawioralna / konsultacje / blog</div>
+            <div>Zapytaj behawiorystę / pełna konsultacja / blog</div>
           </div>
           <div
             style={{

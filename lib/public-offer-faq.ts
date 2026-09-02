@@ -4,39 +4,39 @@ import { PUBLIC_OFFER_PRICE_LABELS } from '@/lib/public-offer-copy'
 
 export const PUBLIC_OFFER_FAQ_ITEMS: TrustFaqItem[] = [
   {
-    question: `Czym różni się Kwadrans za ${PUBLIC_OFFER_PRICE_LABELS.quick} od Kwadransu na już za ${PUBLIC_OFFER_PRICE_LABELS.urgent}?`,
+    question: `Czym różni się Zapytaj behawiorystę za ${PUBLIC_OFFER_PRICE_LABELS.quick} od Zapytaj teraz za ${PUBLIC_OFFER_PRICE_LABELS.urgent}?`,
     answer:
       'Forma połączenia telefonicznego jest ta sama. Przy wyższej cenie płacisz za priorytet i możliwie szybki termin, a nie za dłuższą konsultację.',
   },
   {
-    question: `Kiedy wybrać Dwa kwadranse za ${PUBLIC_OFFER_PRICE_LABELS.bridge}?`,
+    question: 'Co dostaję po Zapytaj behawiorystę?',
     answer:
-      'Wtedy, gdy 15 minut to za mało, temat ma 2-3 wątki albo chcesz spokojniej uporządkować sytuację przed decyzja o Pełnej konsultacji.',
+      'Po rozmowie dostajesz pierwszy kierunek działania i dwa pytania uzupełniające. Jeśli temat wymaga szerszego procesu, otrzymasz rekomendację pełnej konsultacji.',
   },
   {
     question: `Co obejmuje Pełna konsultacja ${PUBLIC_OFFER_PRICE_LABELS.premium}?`,
     answer:
-      'Około 2h przez Jitsi, analizę zachowania, prawdopodobną przyczynę problemu, plan działania i 14 dni komunikacji w pokoju klienta przy wdrażaniu zaleceń. W tym czasie można zadawać pytania, wysyłać filmy i konsultować kolejne kroki.',
+      'Około 90 minut przez Jitsi, analizę zachowania, prawdopodobną przyczynę problemu, plan działania i 14 dni komunikacji w pokoju klienta przy wdrażaniu zaleceń. W tym czasie można zadawać pytania, wysyłać filmy i konsultować kolejne kroki.',
   },
   {
-    question: 'Kiedy nie warto zaczynac od Kwadransu?',
+    question: 'Kiedy nie warto zaczynać od Zapytaj behawiorystę?',
     answer:
-      'Nie wtedy, gdy od razu widzisz, że temat jest złożony, trwa długo albo dotyczy kilku obszarów naraz. W takiej sytuacji lepiej od razu wejść w Dwa kwadranse albo Pełną konsultację.',
+      'Jeśli wiesz już, że temat wymaga szerokiego wywiadu i dłuższej pracy, możesz zapoznać się z pełną konsultacją. Jej termin jest udostępniany indywidualnie po pierwszym kroku.',
   },
   {
-    question: 'Co jeśli wybiore za maly format?',
+    question: 'Co jeśli nie wiem, co robić dalej?',
     answer:
-      'W trakcie wyboru i po pierwszym opisie sytuacji powiem wprost, czy wystarczy Kwadrans, czy lepiej od razu przejść do Dwóch kwadransów albo Pełnej konsultacji.',
+      'Właśnie po to jest Zapytaj behawiorystę. Opisujesz sytuację, a po rozmowie dostajesz pierwszy klucz i jasną rekomendację dalszego kroku albo materiału PDF.',
   },
   {
-    question: 'Jak działa Kwadrans na już?',
+    question: 'Jak działa Zapytaj teraz?',
     answer:
-      'To ten sam 15-minutowy format co zwykły Kwadrans, ale z priorytetem i możliwie szybkim terminem. Różnica dotyczy czasu wejścia, nie zakresu rozmowy.',
+      'To ten sam zakres co Zapytaj behawiorystę, ale dostępny tylko wtedy, gdy ręcznie włączę najbliższe okno. Cena wynosi 104 zł i dotyczy szybszego wejścia, nie dłuższej analizy.',
   },
   {
     question: 'Co jeśli nie wiem, od czego zacząć?',
     answer:
-      `Najprostszy start to zwykły Kwadrans za ${PUBLIC_OFFER_PRICE_LABELS.quick}. Jeśli potrzebujesz tego samego formatu szybciej, wybierz Kwadrans na już. Jeśli temat jest szerszy, wejdź w Dwa kwadranse. Jeśli sprawa jest złożona albo przewlekła, wybierz Pełną konsultację.`,
+      `Najprostszy start to Zapytaj behawiorystę za ${PUBLIC_OFFER_PRICE_LABELS.quick}. Jeśli akurat jestem dostępny, możesz wybrać Zapytaj teraz za ${PUBLIC_OFFER_PRICE_LABELS.urgent}. Pełna konsultacja za ${PUBLIC_OFFER_PRICE_LABELS.premium} jest kolejnym krokiem udostępnianym indywidualnie po rozmowie.`,
   },
 ]
 

@@ -59,19 +59,19 @@ export type QuizResult = {
 
 export const QUIZ_SERVICE_LABELS: Record<QuizServiceKey, { label: string; price: string; duration: string }> = {
   kwadrans: {
-    label: 'Kwadrans',
+    label: 'Zapytaj behawiorystę',
     price: PUBLIC_OFFER_PRICE_LABELS.quick,
-    duration: '15 min telefonicznie',
+    duration: 'do 15 min telefonicznie',
   },
   'dwa-kwadranse': {
-    label: 'Konsultacja 30 min',
-    price: PUBLIC_OFFER_PRICE_LABELS.bridge,
-    duration: '30 min telefonicznie',
+    label: 'Zapytaj behawiorystę',
+    price: PUBLIC_OFFER_PRICE_LABELS.quick,
+    duration: 'do 15 min telefonicznie',
   },
   'pelna-konsultacja': {
     label: 'Pełna konsultacja',
     price: PUBLIC_OFFER_PRICE_LABELS.premium,
-    duration: 'ok. 2h przez Jitsi',
+    duration: 'około 90 minut przez Jitsi',
   },
 }
 
@@ -613,15 +613,15 @@ function resultForService(topic: QuizTopic | null, impact: string | undefined): 
 
   if (impact === 'recurring') {
     return {
-      route: 'observe_first',
-      serviceKey: 'dwa-kwadranse',
-      title: 'Najpierw uporządkujmy kilka ważnych wątków',
-      summary: 'Sytuacja wraca regularnie. Dłuższa krótka rozmowa pozwoli połączyć obserwacje i wybrać bezpieczny kierunek bez zaczynania od pełnej analizy.',
+      route: 'short_consultation',
+      serviceKey: 'kwadrans',
+      title: 'Zacznijmy od Zapytaj behawiorystę',
+      summary: 'Sytuacja wraca regularnie. Krótka rozmowa pomoże połączyć najważniejsze obserwacje, wybrać pierwszy kierunek i ocenić, czy potrzebna będzie pełna konsultacja.',
       firstStep: guidance.firstStep,
       avoid: guidance.avoid,
       observe: guidance.observe,
       reasons: ['temat wraca i potrzebuje uporządkowania kilku informacji', 'warto najpierw zebrać konkretny obraz sytuacji'],
-      note: 'Jeśli w rozmowie wyjdzie szerszy problem, dalszy krok będzie można dobrać na podstawie realnego kontekstu.',
+      note: 'Po rozmowie dostaniesz pierwszy klucz i dwa pytania. Jeśli temat wymaga szerszego procesu, dalszy krok dobierzemy na podstawie realnego kontekstu.',
     }
   }
 
@@ -634,7 +634,7 @@ function resultForService(topic: QuizTopic | null, impact: string | undefined): 
     avoid: guidance.avoid,
     observe: guidance.observe,
     reasons: ['sytuacja ma na razie jeden, dość czytelny kontekst', 'nie ma wskazanej czerwonej flagi bezpieczeństwa ani zdrowia'],
-    note: 'To propozycja pierwszego kroku, nie diagnoza. Możesz wrócić i zmienić odpowiedzi, jeśli coś pominąłeś.',
+    note: 'To propozycja pierwszego kroku, nie diagnoza. Zapytaj behawiorystę daje pierwszy klucz i pozwala dobrać dalszy proces bez zgadywania.',
   }
 }
 

@@ -39,6 +39,8 @@ interface BookingFormProps {
   sourcePage?: string
   submitLabel?: string
   submittingLabel?: string
+  consultationAccessCode?: string | null
+  defaultEmail?: string | null
   onBookingCreated?: (booking: BookingCreatedPayload) => void
 }
 
@@ -102,6 +104,8 @@ export function BookingForm({
   sourcePage = '/form',
   submitLabel,
   submittingLabel,
+  consultationAccessCode = null,
+  defaultEmail = null,
   onBookingCreated,
 }: BookingFormProps) {
   const router = useRouter()
@@ -109,7 +113,7 @@ export function BookingForm({
   const trackedStartRef = useRef(false)
   const [ownerName, setOwnerName] = useState('')
   const [description, setDescription] = useState('')
-  const [email, setEmail] = useState('')
+  const [email, setEmail] = useState(defaultEmail ?? '')
   const [termsAccepted, setTermsAccepted] = useState(false)
   const [earlyStartAccepted, setEarlyStartAccepted] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -221,6 +225,7 @@ export function BookingForm({
           email,
           slotId,
           qaBooking,
+          consultationAccessCode: consultationAccessCode || undefined,
           consentTerms: termsAccepted,
           consentEarlyStart: earlyStartAccepted,
         }),
@@ -317,6 +322,7 @@ export function BookingForm({
       <input type="hidden" name="animalType" value={animalType} />
       <input type="hidden" name="problemType" value={problemType} />
       <input type="hidden" name="serviceType" value={serviceType} />
+      {consultationAccessCode ? <input type="hidden" name="consultationAccessCode" value={consultationAccessCode} /> : null}
       <input type="hidden" name="slotId" value={slotId} />
       <input type="hidden" name="slotLabel" value={slotLabel} />
       <input type="hidden" name="petAge" value="Nie podano w formularzu rezerwacji." />
@@ -455,8 +461,8 @@ export function BookingForm({
         <LockKeyhole size={13} strokeWidth={1.9} aria-hidden="true" />
         <span>
           {clinicFlow
-            ? 'Po wysłaniu danych trzymamy wybrany termin przez 15 minut i aktywujemy kod lecznicy. Potwierdzenie dostaniesz e-mailem. Do zapłaty: 0 zł.'
-            : `Po wysłaniu danych trzymamy wybrany termin przez 15 minut na czas płatności. Po opłaceniu dostaniesz e-mail z potwierdzeniem. Do zapłaty w kolejnym kroku: ${amountLabel}.`}
+            ? 'Po wysłaniu danych trzymamy wybrany termin przez 5 minut i aktywujemy kod lecznicy. Potwierdzenie dostaniesz e-mailem. Do zapłaty: 0 zł.'
+            : `Po wysłaniu danych trzymamy wybrany termin przez 5 minut na czas płatności. Po opłaceniu dostaniesz e-mail z potwierdzeniem. Do zapłaty w kolejnym kroku: ${amountLabel}.`}
         </span>
       </div>
     </form>

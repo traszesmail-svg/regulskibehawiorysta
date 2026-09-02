@@ -122,7 +122,8 @@ type SocialProofSectionProps = {
 }
 
 export function SocialProofSection({ showSubmissionForm = true }: SocialProofSectionProps) {
-  const hasTestimonials = TESTIMONIALS.length > 0
+  const publishedTestimonials = TESTIMONIALS.filter((testimonial) => testimonial.consent)
+  const hasTestimonials = publishedTestimonials.length > 0
 
   return (
     <section className="panel section-panel" id="historie" aria-labelledby="historie-heading">
@@ -193,7 +194,7 @@ export function SocialProofSection({ showSubmissionForm = true }: SocialProofSec
           </div>
 
           <div className="summary-grid top-gap">
-            {TESTIMONIALS.map((testimonial) => {
+            {publishedTestimonials.map((testimonial) => {
               const displayName = getTestimonialDisplayName(testimonial)
               const subjectLine = getTestimonialSubjectLine(testimonial)
 
@@ -225,7 +226,6 @@ export function SocialProofSection({ showSubmissionForm = true }: SocialProofSec
                     </div>
                   </div>
                   <strong>{testimonial.quote}</strong>
-                  {!testimonial.consent ? <span>Dane szczegółowe zostaną uzupełnione po osobnej zgodzie na publikację.</span> : null}
                 </article>
               )
             })}
@@ -260,7 +260,7 @@ export function SocialProofSection({ showSubmissionForm = true }: SocialProofSec
             <Link href="/opinie" prefetch={false} className="button button-primary big-button">
               Zobacz pełną sekcję opinii
             </Link>
-            <Link href="/book" prefetch={false} className="button button-ghost big-button">
+            <Link href="/zapytaj" prefetch={false} className="button button-ghost big-button">
               {FUNNEL_CTA_LABELS.primary}
             </Link>
             <Link href="/materialy" prefetch={false} className="button button-ghost big-button">

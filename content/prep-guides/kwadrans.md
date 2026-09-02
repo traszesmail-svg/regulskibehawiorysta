@@ -1,6 +1,6 @@
-# Jak się przygotować do Kwadransa z behawiorystą
+# Jak się przygotować do Zapytaj behawiorystę
 
-**Usługa:** Kwadrans z behawiorystą (15 minut)
+**Usługa:** Zapytaj behawiorystę (do 15 minut)
 **Format:** Rozmowa audio online
 
 ---

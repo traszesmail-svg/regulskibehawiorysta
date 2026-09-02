@@ -1,5 +1,5 @@
-export const DEFAULT_PRICE_PLN = 74
-export const MIN_CONSULTATION_PRICE_PLN = 74
+export const DEFAULT_PRICE_PLN = 79
+export const MIN_CONSULTATION_PRICE_PLN = 79
 export const CLINIC_PHONE_UPGRADE_PRICE_PLN = 9
 export const PRE_TOPIC_PRICE_CONFIRMATION_COPY = 'Dokładną kwotę poznasz po wyborze tematu konsultacji.'
 

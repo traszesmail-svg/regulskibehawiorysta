@@ -36,7 +36,7 @@ export const metadata: Metadata = buildMarketingMetadata({
   title: 'Cennik konsultacji behawioralnych',
   path: '/cennik',
   description:
-    `Kwadrans ${PUBLIC_OFFER_PRICE_LABELS.quick}, Kwadrans na już ${PUBLIC_OFFER_PRICE_LABELS.urgent}, Dwa kwadranse ${PUBLIC_OFFER_PRICE_LABELS.bridge} i Pełna konsultacja ${PUBLIC_OFFER_PRICE_LABELS.premium}. W każdej usłudze analiza zachowania oparta na danych od opiekuna.`,
+    `Zapytaj behawiorystę ${PUBLIC_OFFER_PRICE_LABELS.quick}, Zapytaj teraz ${PUBLIC_OFFER_PRICE_LABELS.urgent} i Pełna konsultacja ${PUBLIC_OFFER_PRICE_LABELS.premium}. W każdej usłudze analiza zachowania oparta na danych od opiekuna.`,
 })
 
 type PricingVisual = {
@@ -48,24 +48,24 @@ type PricingVisual = {
 
 const offerVisuals: Partial<Record<PublicBookingServiceType, PricingVisual>> = {
   'szybka-konsultacja-15-min': {
-    title: 'Kwadrans',
-    copy: '15 min połączenia telefonicznego na jedno główne pytanie. Szybko porządkujesz sytuację i dostajesz pierwszy kierunek działania.',
+    title: 'Zapytaj behawiorystę',
+    copy: 'Rozmowa telefoniczna do 15 minut. Szybko porządkujesz sytuację i dostajesz pierwszy kierunek działania oraz dwa pytania po rozmowie.',
     icon: Clock,
   },
   'kwadrans-na-juz': {
-    title: 'Kwadrans na już',
-    copy: 'Ten sam zakres co Kwadrans, ale z priorytetową odpowiedzią i najbliższym realnym terminem telefonicznym. Dla spraw pilnych, które nie wymagają dłuższej analizy.',
+    title: 'Zapytaj teraz',
+    copy: 'Ten sam zakres co Zapytaj behawiorystę, ale z priorytetową odpowiedzią i najbliższym realnym terminem telefonicznym.',
     icon: Clock,
     featured: true,
   },
   'konsultacja-30-min': {
-    title: 'Dwa kwadranse',
-    copy: '30 min połączenia telefonicznego, gdy temat ma kilka wątków. Więcej czasu na kontekst, spokojniejsze zalecenia i decyzję, czy potrzebna jest pełna konsultacja.',
+    title: 'Starszy wariant rozmowy',
+    copy: 'Wariant historyczny zachowany wyłącznie dla zgodności technicznej. Aktualny pierwszy krok to Zapytaj behawiorystę.',
     icon: Clock,
   },
   'konsultacja-behawioralna-online': {
     title: 'Pełna konsultacja',
-    copy: 'Około 2h przez Jitsi dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni komunikacji w pokoju klienta.',
+    copy: 'Około 90 minut przez Jitsi dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni komunikacji w pokoju klienta.',
     icon: Leaf,
   },
 }
@@ -102,7 +102,7 @@ export default function PricingPage() {
           getServiceJsonLd({
             name: 'Cennik rozmów behawioralnych - psy i koty',
             description:
-              'Formaty rozmowy: Kwadrans, Kwadrans na już, Dwa kwadranse i Pełna konsultacja online.',
+              'Oferta rozmów: Zapytaj behawiorystę, Zapytaj teraz i Pełna konsultacja online.',
             serviceUrl: '/cennik',
             offerCatalog: getPricingOfferCatalog(),
           }),
@@ -135,11 +135,11 @@ export default function PricingPage() {
             </div>
             <MobileFirstStepCta
               eyebrow="Najprostszy start"
-              title={`Kwadrans / ${PUBLIC_OFFER_PRICE_LABELS.quick}`}
-              copy="Jeśli chcesz szybko uporządkować jedno pytanie, zacznij od 15-minutowego połączenia telefonicznego."
+              title={`Zapytaj behawiorystę / ${PUBLIC_OFFER_PRICE_LABELS.quick}`}
+              copy="Jeśli chcesz szybko uporządkować sytuację, zacznij od rozmowy telefonicznej do 15 minut."
               meta="Dla psa i kota. Połączenie telefoniczne."
               primaryHref={getDirectBookingHref('szybka-konsultacja-15-min')}
-              primaryLabel="Wybieram Kwadrans"
+              primaryLabel="Wybieram Zapytaj behawiorystę"
               secondaryHref="/#wybór"
               secondaryLabel="Pomóż mi wybrać"
             />
@@ -204,14 +204,14 @@ export default function PricingPage() {
           })}
           <p className="pricing-2026-online-note">
             <CheckCircle2 aria-hidden="true" />
-            Kwadrans i Dwa kwadranse odbywają się telefonicznie. Pełna konsultacja odbywa się przez Jitsi.
+            Zapytaj behawiorystę i Zapytaj teraz odbywają się telefonicznie. Pełna konsultacja odbywa się przez Jitsi.
           </p>
         </section>
 
         <section className="pricing-2026-clinic-program" aria-labelledby="clinic-program-pricing-title">
           <div>
             <span className="pricing-2026-pill">Program dla klientów lecznic</span>
-            <h2 id="clinic-program-pricing-title">Masz jednorazowy kod do Kwadransa?</h2>
+            <h2 id="clinic-program-pricing-title">Masz jednorazowy kod do Zapytaj behawiorystę?</h2>
             <p>Wpisz kod, a następnie wybierz gatunek, temat i termin. Sposób rozmowy wybierzesz później, po potwierdzeniu kodu.</p>
           </div>
           <Link href="/lecznica" prefetch={false} className="pricing-2026-btn pricing-2026-btn-secondary">

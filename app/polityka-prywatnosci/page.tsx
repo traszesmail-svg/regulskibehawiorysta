@@ -14,11 +14,11 @@ export const metadata: Metadata = buildLegalMetadata(
 const summaryItems: LegalSummaryItem[] = [
   {
     label: 'Punkty styku danych',
-    value: 'Formularz kontaktowy, Mapa zachowania, rezerwacja, płatność, prywatny Pokój, potwierdzenie, materiały przygotowawcze, materiały bezpłatne oraz newsletter.',
+    value: 'Formularz kontaktowy, Mapa zachowania, rezerwacja, płatność, prywatny Pokój, potwierdzenie, materiały przygotowawcze oraz materiały bezpłatne.',
   },
   {
     label: 'Podstawowe narzędzia',
-    value: 'Supabase, Resend, Jitsi, Zadarma, WhatsApp/Meta, Naffy, obsługa BLIK na telefon oraz narzędzia analityczne uruchamiane wyłącznie po wyrażeniu zgody.',
+    value: 'Supabase, Resend, Jitsi, Zadarma, WhatsApp/Meta, ręczna obsługa BLIK na telefon oraz narzędzia analityczne uruchamiane wyłącznie po wyrażeniu zgody.',
   },
   {
     label: 'Publiczny kontakt',
@@ -49,8 +49,8 @@ const sections: LegalSection[] = [
           <li>Przy realizacji usługi: dane potrzebne do potwierdzenia rezerwacji, wysyłki wiadomości oraz dostępu do pokoju rozmowy.</li>
           <li>W materiałach przygotowawczych: notatki, linki i pliki dodane dobrowolnie przez klienta.</li>
           <li>
-            W formularzach materiałów bezpłatnych i newslettera: adres e-mail, segment tematyczny, identyfikator
-            materiału lub źródła zapisu, status i czas zgody oraz techniczny identyfikator rezygnacji.
+            W formularzach materiałów bezpłatnych: adres e-mail, temat materiału, identyfikator materiału lub źródła
+            zapisu oraz status i czas zgody.
           </li>
         </ul>
       </>
@@ -67,7 +67,7 @@ const sections: LegalSection[] = [
           <li>potwierdzenia płatności i obsługi strony potwierdzenia,</li>
           <li>realizacji konsultacji oraz przygotowania się do rozmowy na podstawie przekazanych materiałów,</li>
           <li>prywatnego zapisania pełnej Mapy zachowania w Pokoju po osobnej zgodzie i zalogowaniu na ten sam adres e-mail,</li>
-          <li>obsługi formularzy materiałów bezpłatnych i newslettera,</li>
+          <li>obsługi formularzy materiałów bezpłatnych,</li>
           <li>zapewnienia bezpieczeństwa serwisu, rozliczeń oraz dochodzenia lub obrony roszczeń.</li>
         </ul>
       </>
@@ -113,11 +113,11 @@ const sections: LegalSection[] = [
           e-mailowy jako alternatywny kanał pisemny.
         </p>
         <p>
-          Przy płatnościach dane mogą być przetwarzane przez operatora płatności online (Naffy) albo w ramach ręcznej
-          obsługi BLIK na telefon, zależnie od metody aktywnej dla danej rezerwacji lub zamówienia materiału.
+          Przy płatnościach dane mogą być przetwarzane w ramach ręcznej obsługi BLIK na telefon, zgodnie z aktualnym
+          modelem przyjmowania wpłat.
         </p>
         <p>
-          Część dostawców, w szczególności Meta, Naffy lub narzędzia analityczne, może przetwarzać dane poza Europejskim
+          Część dostawców, w szczególności Meta lub narzędzia analityczne, może przetwarzać dane poza Europejskim
           Obszarem Gospodarczym. W takim przypadku podstawą przekazania są mechanizmy stosowane przez danego dostawcę,
           w szczególności standardowe klauzule umowne albo inne zabezpieczenia przewidziane w RODO.
         </p>
@@ -160,23 +160,12 @@ const sections: LegalSection[] = [
     ),
   },
   {
-    title: '8. Materiały bezpłatne, newsletter i analityka',
+    title: '8. Materiały bezpłatne i analityka',
     body: (
       <>
         <p>
-          Formularze materiałów bezpłatnych i newslettera służą do przyjęcia zgłoszenia, przypisania go do właściwej
-          strony, materiału lub segmentu tematycznego oraz obsługi dalszego kroku wynikającego z danego formularza.
-        </p>
-        <p>
-          Zapis do newslettera odbywa się na podstawie dobrowolnej zgody. Adres może zostać przekazany dostawcy listy
-          mailingowej w celu prowadzenia wysyłki, a wiadomość z materiałem startowym może zostać obsłużona przez
-          skonfigurowanego dostawcę poczty transakcyjnej. Dane nie są przekazywane do innych celów niż wskazane przy
-          zapisie.
-        </p>
-        <p>
-          Zgodę na newsletter można wycofać w każdym czasie przez link rezygnacji w wiadomości albo przez kontakt z
-          administratorem. Wycofanie zgody jest bezpłatne, nie powoduje negatywnych konsekwencji i nie wpływa na
-          zgodność z prawem przetwarzania wykonanego przed jej wycofaniem.
+          Formularze materiałów bezpłatnych służą do przyjęcia zgłoszenia, przypisania go do właściwej strony lub
+          materiału oraz wysłania wybranego materiału startowego.
         </p>
         <p>
           Serwis zapisuje decyzję dotyczącą analityki w pamięci przeglądarki (localStorage) i pliku cookie. Narzędzia analityczne nie są
@@ -250,7 +239,7 @@ export default function PrivacyPolicyPage() {
     <LegalPageLayout
       eyebrow="Polityka prywatności"
       title="Polityka prywatności"
-      intro="Dokument opisuje zasady przetwarzania danych osobowych w związku z korzystaniem z serwisu, formularza kontaktowego, rezerwacji usług, potwierdzeń, materiałów przygotowawczych oraz formularzy materiałów bezpłatnych i newslettera."
+      intro="Dokument opisuje zasady przetwarzania danych osobowych w związku z korzystaniem z serwisu, formularza kontaktowego, rezerwacji usług, potwierdzeń, materiałów przygotowawczych oraz formularzy materiałów bezpłatnych."
       summaryItems={summaryItems}
       sections={sections}
       structuredData={[

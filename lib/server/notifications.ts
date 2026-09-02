@@ -604,6 +604,27 @@ function buildBookingViewerUrl(pathname: '/payment' | '/confirmation', bookingId
   return buildAbsoluteUrl(`${pathname}?${searchParams.toString()}`)
 }
 
+export async function sendZapytajLiveAvailabilityEmail(email: string): Promise<DeliveryResult> {
+  const zapytajUrl = buildAbsoluteUrl('/zapytaj')
+  const intro = 'Właśnie włączyłem dostępność rozmowy „Zapytaj teraz”.'
+  const outro = 'To powiadomienie nie rezerwuje miejsca. Rozmowę otrzyma osoba, której płatność zostanie potwierdzona.'
+
+  return deliverEmail(
+    {
+      to: email,
+      subject: 'Dostępna rozmowa teraz — Regulski Behawiorysta',
+      html: renderEmailShell(
+        'Rozmowa jest teraz dostępna',
+        intro,
+        `<p>Jeśli nadal chcesz krótko opisać problem i porozmawiać z behawiorystą, przejdź do usługi:</p>${renderEmailActionButton({ href: zapytajUrl, label: 'Sprawdź dostępność i zapytaj' })}<p style="color:#776b60;font-size:13px;line-height:1.5;">Powiadomienie wysłane jednorazowo na Twoją prośbę.</p>`,
+        outro,
+      ),
+      text: `${intro}\n\n${outro}\n\nSprawdź: ${zapytajUrl}\n\nPowiadomienie wysłane jednorazowo na Twoją prośbę.`,
+    },
+    'customer',
+  )
+}
+
 type BookingEmailFact = {
   label: string
   htmlValue: string
@@ -919,8 +940,8 @@ export async function sendBookingOwnerNotificationEmail(booking: BookingRecord):
     bookingServiceLabel === 'konsultacja-behawioralna-online'
       ? 'Pełna konsultacja behawioralna'
       : bookingServiceLabel === 'konsultacja-30-min'
-        ? 'Dwa kwadranse'
-        : '15-minutowa konsultacja behawioralna'
+        ? 'Starszy wariant rozmowy'
+        : 'Zapytaj behawiorystę'
   const summary = formatDateTimeLabel(booking.bookingDate, booking.bookingTime)
   const subject = `[Rezerwacja] ${serviceTitle} - ${booking.ownerName} ${speciesLabel}`
   const replyTo = isValidPublicEmail(booking.email) ? booking.email : undefined
@@ -1164,7 +1185,7 @@ export async function sendContactLeadAutoReplyEmail(submission: ContactLeadSubmi
   }
 
   const subject = 'Dostałem Twoją wiadomość - Regulski'
-  const quickStartHref = 'https://regulskibehawiorysta.pl/book?service=szybka-konsultacja-15-min'
+  const quickStartHref = 'https://regulskibehawiorysta.pl/zapytaj'
   const html = renderEmailShell(
     `Cześć ${submission.name}, dostałem Twoją wiadomość.`,
     'Odpowiem na podany adres e-mail w ciągu 1-2 dni roboczych.',
@@ -1178,8 +1199,8 @@ export async function sendContactLeadAutoReplyEmail(submission: ContactLeadSubmi
         ],
         'contact-reply',
       )}
-      <p>Jeśli sytuacja wymaga szybszego wejścia, możesz od razu umówić 15-minutową konsultację behawioralną.</p>
-      ${renderEmailActionButton({ href: quickStartHref, label: 'Umów Kwadrans' })}
+      <p>Jeśli sytuacja wymaga szybszego wejścia, możesz od razu umówić Zapytaj behawiorystę.</p>
+      ${renderEmailActionButton({ href: quickStartHref, label: 'Zapytaj behawiorystę' })}
       ${renderContactBlockHtml()}
     `,
     'Jeśli chcesz doprecyzować temat, po prostu odpowiedz na tego maila.',
@@ -1190,7 +1211,7 @@ export async function sendContactLeadAutoReplyEmail(submission: ContactLeadSubmi
     'Dostałem Twoją wiadomość i odpowiem w ciągu 1-2 dni roboczych.',
     '',
     `Temat: ${submission.topic}`,
-    'Jeśli sytuacja wymaga szybszego wejścia, możesz od razu umówić 15-minutową konsultację behawioralną:',
+    'Jeśli sytuacja wymaga szybszego wejścia, możesz od razu umówić Zapytaj behawiorystę:',
     quickStartHref,
     '',
     'Jeśli chcesz doprecyzować temat, po prostu odpowiedz na tego maila.',
@@ -1386,12 +1407,12 @@ export async function sendBookRequestEmail(submission: BookRequestSubmission): P
     : null
   const subject =
     submission.service === 'kwadrans-na-juz'
-      ? `PILNE - Kwadrans na już: ${submission.name}`
+      ? `PILNE - Zapytaj teraz: ${submission.name}`
       : `REZERWACJA [${submission.serviceLabel}] - ${submission.name} (${speciesLabel})`
   const html = renderEmailShell(
     'Nowa prośba o rezerwację',
     submission.service === 'kwadrans-na-juz'
-      ? 'Klient wysłał pilną prośbę o Kwadrans na już. Wróć z odpowiedzią priorytetowo i odeślij potwierdzenie terminu z PayPal albo instrukcją BLIK po e-mailu.'
+      ? 'Klient wysłał pilną prośbę o Zapytaj teraz. Wróć z odpowiedzią priorytetowo i odeślij potwierdzenie terminu z instrukcją BLIK po e-mailu.'
       : 'Klient wysłał prośbę o rezerwację konsultacji. Odpowiedz z potwierdzonym terminem i preferuj BLIK po instrukcji e-mail bez eksponowania numeru publicznie.',
     `
       ${renderEmailDataTable(
@@ -1574,7 +1595,7 @@ export async function sendLeadMagnetDownloadEmail(email: string, magnet: LeadMag
       <p>${escapeHtml(magnet.thankYouHint)}</p>
       ${renderContactBlockHtml()}
     `,
-    'Jeśli materiał nie wystarczy, odpowiedz na tego maila albo przejdź do Kwadransu.',
+    'Jeśli materiał nie wystarczy, odpowiedz na tego maila albo przejdź do Zapytaj behawiorystę.',
   )
   const text = [
     `Twój PDF jest gotowy: ${magnet.title}`,
@@ -1583,7 +1604,7 @@ export async function sendLeadMagnetDownloadEmail(email: string, magnet: LeadMag
     `Strona potwierdzenia: ${thankYouHref}`,
     magnet.thankYouHint,
     '',
-    'Jeśli materiał nie wystarczy, odpowiedz na tego maila albo przejdź do Kwadransu.',
+    'Jeśli materiał nie wystarczy, odpowiedz na tego maila albo przejdź do Zapytaj behawiorystę.',
     renderContactBlockText(),
   ].join('\n')
 
@@ -1638,7 +1659,7 @@ export async function sendLeadMagnetDirectDownloadEmail(
       ${renderEmailActionButton({ href: payload.downloadUrl, label: 'Pobierz PDF' })}
       ${renderContactBlockHtml()}
     `,
-    'Jeśli materiał nie wystarczy, odpowiedz na tego maila albo przejdź do Kwadransu.',
+    'Jeśli materiał nie wystarczy, odpowiedz na tego maila albo przejdź do Zapytaj behawiorystę.',
   )
   const text = [
     'Twój PDF jest gotowy.',
@@ -1646,7 +1667,7 @@ export async function sendLeadMagnetDirectDownloadEmail(
     `Materiał: ${payload.title}`,
     `Pobierz PDF: ${payload.downloadUrl}`,
     '',
-    'Jeśli materiał nie wystarczy, odpowiedz na tego maila albo przejdź do Kwadransu.',
+    'Jeśli materiał nie wystarczy, odpowiedz na tego maila albo przejdź do Zapytaj behawiorystę.',
     renderContactBlockText(),
   ].join('\n')
 
@@ -1757,14 +1778,14 @@ export async function sendLeadMagnetFollowUpSevenEmail(
     }
   }
 
-  const bookingHref = 'https://regulskibehawiorysta.pl/book?service=szybka-konsultacja-15-min'
+  const bookingHref = 'https://regulskibehawiorysta.pl/zapytaj'
   const subject = `Jeśli dalej coś się nie układa - ${magnet.shortTitle}`
   const html = renderEmailShell(
     'Jeśli dalej coś się nie układa',
     'Po kilku dniach materiał powinien już porządkować pierwsze obserwacje. Jeśli nadal nie wiesz, co zrobić dalej, najprostszy kolejny krok to krótka rozmowa.',
     `
-      ${renderEmailActionButton({ href: bookingHref, label: 'Umów Kwadrans' })}
-      <p>15-minutowa konsultacja behawioralna zostaje najlżejszym startem, gdy chcesz przejść od obserwacji do konkretnej decyzji.</p>
+      ${renderEmailActionButton({ href: bookingHref, label: 'Zapytaj behawiorystę' })}
+      <p>Zapytaj behawiorystę zostaje najlżejszym startem, gdy chcesz przejść od obserwacji do konkretnej decyzji.</p>
       ${renderGrowthUnsubscribeHtml(unsubscribeUrl)}
       ${renderContactBlockHtml()}
     `,
@@ -1774,7 +1795,7 @@ export async function sendLeadMagnetFollowUpSevenEmail(
       'Jeśli dalej coś się nie układa, najprostszy kolejny krok to krótka rozmowa.',
     '',
     `Najprostszy kolejny krok: ${bookingHref}`,
-    '15-minutowa konsultacja behawioralna zostaje najlżejszym startem, gdy chcesz przejść od obserwacji do konkretnej decyzji.',
+    'Zapytaj behawiorystę zostaje najlżejszym startem, gdy chcesz przejść od obserwacji do konkretnej decyzji.',
     '',
     renderGrowthUnsubscribeText(unsubscribeUrl),
     '',
@@ -1805,10 +1826,10 @@ type UrgentNowResponseEmailPayload = {
 }
 
 export async function sendUrgentNowResponseEmail(payload: UrgentNowResponseEmailPayload): Promise<DeliveryResult> {
-  const subject = `Kwadrans na już - propozycja terminu - ${EMAIL_BRAND_NAME}`
+  const subject = `Zapytaj teraz - propozycja terminu - ${EMAIL_BRAND_NAME}`
   const paymentHref = /^https?:\/\//i.test(payload.bookingHref) ? payload.bookingHref : buildAbsoluteUrl(payload.bookingHref)
   const html = renderEmailShell(
-    'Mam dla Ciebie termin Kwadransu na już',
+    'Mam dla Ciebie termin Zapytaj teraz',
     'Dodałem proponowany termin do terminarza. Możesz od razu przejść do płatności i dokończyć rezerwację.',
     `
       ${renderEmailDataTable(
@@ -1831,7 +1852,7 @@ export async function sendUrgentNowResponseEmail(payload: UrgentNowResponseEmail
     'Jeśli termin przestał pasować, odpowiedz na tego maila albo napisz przez formularz kontaktu.',
   )
   const text = [
-    `Mam dla Ciebie termin Kwadransu na już.`,
+    `Mam dla Ciebie termin Zapytaj teraz.`,
     `Temat: ${payload.topic}`,
     `Proponowany termin: ${payload.proposedDate} ${payload.proposedTime}`,
     `Link do płatności: ${paymentHref}`,
@@ -1940,6 +1961,98 @@ export async function sendBookingConfirmationEmail(booking: BookingRecord): Prom
     },
     'customer',
   )
+}
+
+export async function sendZapytajNoAnswerRecoveryEmail(
+  booking: BookingRecord,
+  recoveryUrl: string,
+): Promise<DeliveryResult> {
+  const subject = `Mozesz wybrac dodatkowy termin rozmowy - ${EMAIL_BRAND_NAME}`
+  const html = renderEmailShell(
+    'Wybierz dodatkowy termin rozmowy',
+    'Nie udało się połączyć z Tobą w dwóch próbach. Zamiast zamykać sprawę, zostawiam Ci jedną możliwość wybrania nowego terminu bez ponownej opłaty.',
+    `
+      ${renderEmailTextPanel('Co się stało', 'Wykonaliśmy dwie próby połączenia w odstępie około minuty. Ponieważ rozmowa nie została odebrana, pierwotny termin jest zamknięty.')}
+      ${renderEmailActionButton({ href: recoveryUrl, label: 'Wybierz dodatkowy termin' })}
+      <p>Link jest jednorazowy i działa przez 48 godzin. Jeśli sytuacja się powtórzy, napisz bezpośrednio do behawiorysty.</p>
+      ${renderContactBlockHtml()}
+    `,
+    'Dodatkowy termin jest jedną możliwością organizacyjną, a nie kolejną płatnością.',
+  )
+  const text = [
+    'Nie udało się połączyć z Tobą w dwóch próbach.',
+    'Możesz wybrać jeden dodatkowy termin rozmowy bez ponownej opłaty.',
+    `Wybierz termin: ${recoveryUrl}`,
+    'Link jest jednorazowy i działa przez 48 godzin.',
+    renderContactBlockText(),
+  ].join('\n')
+
+  return deliverEmail({ to: booking.email, subject, html, text }, 'customer')
+}
+
+export async function sendZapytajRecoveryConfirmationEmail(
+  booking: BookingRecord,
+  accessToken?: string,
+): Promise<DeliveryResult> {
+  const subject = `Dodatkowy termin rozmowy potwierdzony - ${EMAIL_BRAND_NAME}`
+  const roomPath = `/call/${encodeURIComponent(booking.id)}${accessToken ? `?access=${encodeURIComponent(accessToken)}` : ''}`
+  const roomUrl = buildAbsoluteUrl(roomPath)
+  const html = renderEmailShell(
+    'Dodatkowy termin jest zapisany',
+    'Wybrałeś nowy termin rozmowy „Zapytaj behawiorystę”.',
+    `
+      ${renderEmailDataTable([
+        { label: 'Termin', htmlValue: escapeHtml(formatDateTimeLabel(booking.bookingDate, booking.bookingTime)) },
+      ], 'recovery-confirmation')}
+      ${renderEmailActionButton({ href: roomUrl, label: 'Otwórz pokój rezerwacji' })}
+      <p>System wykona połączenie na numer zapisany przy rezerwacji. W razie problemu z numerem skontaktuj się przed terminem.</p>
+      ${renderContactBlockHtml()}
+    `,
+    'To ten sam opłacony kontakt — nie wykonuj ponownej płatności.',
+  )
+  const text = [
+    'Dodatkowy termin rozmowy jest zapisany.',
+    `Termin: ${formatDateTimeLabel(booking.bookingDate, booking.bookingTime)}`,
+    `Pokój rezerwacji: ${roomUrl}`,
+    'To ten sam opłacony kontakt — nie wykonuj ponownej płatności.',
+    renderContactBlockText(),
+  ].join('\n')
+
+  return deliverEmail({ to: booking.email, subject, html, text }, 'customer')
+}
+
+export async function sendConsultationAccessCodeEmail(
+  booking: BookingRecord,
+  code: string,
+  expiresAt: string,
+): Promise<DeliveryResult> {
+  const accessUrl = buildAbsoluteUrl(`/konsultacja?code=${encodeURIComponent(code)}`)
+  const subject = `Dostęp do konsultacji behawioralnej - ${EMAIL_BRAND_NAME}`
+  const expiryLabel = formatDateTimeLabel(expiresAt.slice(0, 10), expiresAt.slice(11, 16))
+  const html = renderEmailShell(
+    'Dostęp do pełnej konsultacji',
+    'Po naszej rozmowie możesz przejść do opisu pełnej konsultacji i wybrać termin z ukrytego terminarza.',
+    `
+      ${renderEmailDataTable([
+        { label: 'Kod dostępu', htmlValue: `<strong style="font-size:18px;letter-spacing:0.12em;">${escapeHtml(code)}</strong>` },
+        { label: 'Ważny do', htmlValue: escapeHtml(expiryLabel) },
+      ], 'consultation-access')}
+      ${renderEmailActionButton({ href: accessUrl, label: 'Otwórz konsultację i terminarz' })}
+      <p>Link i kod są indywidualne. Pełna konsultacja kosztuje 475 zł i jest opłacana osobno po wyborze terminu.</p>
+      ${renderContactBlockHtml()}
+    `,
+    'Jeśli nie rekomendowaliśmy pełnej konsultacji, nie musisz niczego kupować — ten dostęp służy wyłącznie do kolejnego, uzgodnionego etapu.',
+  )
+  const text = [
+    'Otrzymujesz indywidualny dostęp do pełnej konsultacji behawioralnej.',
+    `Kod dostępu: ${code}`,
+    `Ważny do: ${expiryLabel}`,
+    `Otwórz konsultację i terminarz: ${accessUrl}`,
+    'Pełna konsultacja kosztuje 475 zł i jest opłacana osobno po wyborze terminu.',
+    renderContactBlockText(),
+  ].join('\n')
+
+  return deliverEmail({ to: booking.email, subject, html, text }, 'customer')
 }
 
 function buildCalendarAttachmentFilename(booking: Pick<BookingRecord, 'bookingDate' | 'bookingTime'>) {
@@ -2623,9 +2736,9 @@ export async function sendUrgentNowCustomerAckEmail(submission: UrgentNowSubmiss
     return { status: 'skipped', reason: 'customer email missing or invalid' }
   }
 
-  const subject = 'Kwadrans na już - dostałem Twoją prośbę'
+  const subject = 'Zapytaj teraz - dostałem Twoją prośbę'
   const html = renderEmailShell(
-    `Cześć ${submission.name.split(' ')[0]}, dostałem Twoją prośbę o Kwadrans na już.`,
+    `Cześć ${submission.name.split(' ')[0]}, dostałem Twoją prośbę o Zapytaj teraz.`,
     'Odpiszę priorytetowo na ten adres e-mail z konkretną godziną albo najbliższym realnym terminem i linkiem do płatności.',
     `
       ${renderEmailDataTable(
@@ -2651,7 +2764,7 @@ export async function sendUrgentNowCustomerAckEmail(submission: UrgentNowSubmiss
   const text = [
     `Cześć ${submission.name.split(' ')[0]},`,
     '',
-    'Dostałem Twoją prośbę o Kwadrans na już. Odpiszę priorytetowo z konkretną godziną albo najbliższym realnym terminem i linkiem do płatności.',
+    'Dostałem Twoją prośbę o Zapytaj teraz. Odpiszę priorytetowo z konkretną godziną albo najbliższym realnym terminem i linkiem do płatności.',
     '',
     `Temat: ${submission.topic}`,
     submission.requestedSlotsSummary ? `Wybrane godziny: ${submission.requestedSlotsSummary}` : null,
@@ -2677,9 +2790,9 @@ export async function sendUrgentNowAdminAlertEmail(submission: UrgentNowSubmissi
 
   const replyTo = isValidPublicEmail(submission.email) ? submission.email : undefined
   const adminConfirmHref = buildAbsoluteUrl(`/admin/urgent-confirm/${submission.requestId}`)
-  const subject = `KWADRANS NA JUZ: ${submission.name} - ${submission.topic} [ID: ${submission.requestId.slice(0, 8)}]`
+  const subject = `ZAPYTAJ TERAZ: ${submission.name} - ${submission.topic} [ID: ${submission.requestId.slice(0, 8)}]`
   const html = renderEmailShell(
-    'Nowe zgłoszenie Kwadrans na już',
+    'Nowe zgłoszenie Zapytaj teraz',
     'Klient wybrał ścieżkę priorytetową. Wybierz godzinę na dziś albo podaj najbliższy realny termin.',
     `
       ${renderEmailDataTable(
@@ -2724,10 +2837,10 @@ export async function sendUrgentNowAdminAlertEmail(submission: UrgentNowSubmissi
       ${renderEmailTextPanel('Opis', formatMultilineHtml(submission.message))}
       ${renderEmailActionButton({ href: adminConfirmHref, label: 'Wybierz godzinę i wyślij link do płatności' })}
     `,
-    'Po zatwierdzeniu system utworzy rezerwację Kwadransu na już i wyśle klientowi link do płatności.',
+    'Po zatwierdzeniu system utworzy rezerwację Zapytaj teraz i wyśle klientowi link do płatności.',
   )
   const text = [
-    'KWADRANS NA JUZ - nowe zgłoszenie.',
+    'ZAPYTAJ TERAZ - nowe zgłoszenie.',
     `Imię: ${submission.name}`,
     `E-mail: ${submission.email}`,
     submission.phone ? `Telefon: ${submission.phone}` : null,

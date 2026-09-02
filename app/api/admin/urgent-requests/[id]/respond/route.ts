@@ -38,7 +38,7 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
     const urgentRequest = requests.find((item) => item.id === params.id)
 
     if (!urgentRequest) {
-      return NextResponse.json({ error: 'Nie znaleziono prośby o Kwadrans na już.' }, { status: 404 })
+      return NextResponse.json({ error: 'Nie znaleziono prośby o Zapytaj teraz.' }, { status: 404 })
     }
 
     const slotId = `${proposedDate}-${proposedTime}`
@@ -54,7 +54,7 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
       serviceType: 'kwadrans-na-juz',
       problemType: urgentRequest.topicId,
       animalType: urgentRequest.species === 'kot' ? 'Kot' : 'Pies',
-      petAge: 'Nie podano w prośbie o Kwadrans na już.',
+      petAge: 'Nie podano w prośbie o Zapytaj teraz.',
       durationNotes: 'Pilny termin wybrany przez opiekuna i potwierdzony przez admina.',
       description: stripUrgentRequestedSlotsFromMessage(urgentRequest.message),
       phone: urgentRequest.phone ?? null,

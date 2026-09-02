@@ -1,14 +1,14 @@
 ﻿import { FUNNEL_CTA_LABELS } from '@/lib/funnel'
 
 export const COPY_SERVICE_NAMES = {
-  primary: '15-minutowa konsultacja behawioralna',
-  primaryShort: 'Kwadrans',
-  primaryDescriptor: '15 min połączenia telefonicznego',
-  primaryOperational: '15-minutowa konsultacja behawioralna: połączenie telefoniczne',
-  bridge: 'Dwa kwadranse z behawiorysta',
-  bridgeOperational: 'Dwa kwadranse z behawiorystą: 30 min połączenia telefonicznego',
+  primary: 'Zapytaj behawiorystę',
+  primaryShort: 'Zapytaj behawiorystę',
+  primaryDescriptor: 'do 15 min połączenia telefonicznego',
+  primaryOperational: 'Zapytaj behawiorystę: rozmowa telefoniczna do 15 minut',
+  bridge: 'Zapytaj teraz',
+  bridgeOperational: 'Zapytaj teraz: rozmowa telefoniczna do 15 minut',
   consultation: 'pełna konsultacja behawioralna',
-  consultationOperational: 'pełna konsultacja behawioralna przez Jitsi: około 2h, analiza zachowania, plan działania + 14 dni komunikacji w pokoju klienta',
+  consultationOperational: 'pełna konsultacja behawioralna przez Jitsi: około 90 minut, analiza zachowania, plan działania + 14 dni komunikacji w pokoju klienta',
   toolkit: 'Materiały PDF',
   toolkitOperational: 'Materiały PDF do samodzielnej pracy',
   contact: 'wiadomość',
@@ -23,10 +23,10 @@ export const COPY_CTA = {
 } as const
 
 export const COPY_HELPERS = {
-  primaryLead: '15-minutowa konsultacja behawioralna to połączenie telefoniczne na jedno główne pytanie.',
-  startFromAudio: 'Jeśli nie wiesz, od czego zacząć, wybierz 15-minutowa konsultacja behawioralna.',
+  primaryLead: 'Zapytaj behawiorystę to rozmowa telefoniczna do 15 minut: opisujesz sytuację, a dostajesz pierwszy kierunek i dwa pytania po rozmowie.',
+  startFromAudio: 'Jeśli nie wiesz, od czego zacząć, wybierz Zapytaj behawiorystę.',
   startComparison:
-    '15-minutowa konsultacja behawioralna to telefoniczne omówienie jednego głównego pytania. Kwadrans na już to ta sama rozmowa, ale z priorytetem. Dwa kwadranse dają więcej czasu telefonicznie, a pełna konsultacja przez Jitsi obejmuje około 2h, plan działania i 14 dni komunikacji w pokoju klienta.',
+    'Zapytaj behawiorystę to rozmowa telefoniczna do 15 minut. Zapytaj teraz ma ten sam zakres, ale działa tylko przy ręcznie włączonej dostępności. Pełna konsultacja przez Jitsi obejmuje około 90 minut, plan działania i 14 dni komunikacji w pokoju klienta.',
   contactResponseWindow: 'Staram się odpowiadać w ciągu 1-2 dni roboczych.',
   toolkitIntro:
     'Materiały PDF to zasoby, do których możesz wrócić przed rozmową, po rozmowie albo wtedy, gdy chcesz spokojnie uporządkować temat.',

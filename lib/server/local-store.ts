@@ -15,11 +15,19 @@ import { normalizePolishPhone } from '@/lib/phone'
 import { createActiveConsultationPrice, DEFAULT_PRICE_PLN, parseConsultationPriceInput } from '@/lib/pricing'
 import { buildSeedAvailabilitySlots } from '@/lib/server/availability-seed'
 import { createCustomerAccessToken, hasValidCustomerAccessToken } from '@/lib/server/customer-access'
+import {
+  createConsultationAccessCode,
+  getConsultationAccessExpiry,
+  hashConsultationAccessCode,
+  isConsultationAccessValid,
+  normalizeConsultationAccessCode,
+} from '@/lib/server/consultation-access'
 import { getReservationWindowMinutes } from '@/lib/server/env'
 import { createMeetingUrl, normalizeMeetingUrl } from '@/lib/server/jitsi'
 import { getLocalStoreDataDir } from '@/lib/server/local-store-path'
-import { getManualPaymentConfig } from '@/lib/server/payment-options'
+import { getManualPaymentConfig, getZapytajManualPaymentConfig } from '@/lib/server/payment-options'
 import { isAvailabilitySlotBookableForService } from '@/lib/scheduling/rules'
+import { isZapytajLiveSlot, ZAPYTAJ_LIVE_PRICE_PLN, ZAPYTAJ_SERVICE_TYPE } from '@/lib/zapytaj-flow'
 import {
   createUrgentNowRequest as createUrgentNowRequestRecord,
   listUrgentNowRequests as listUrgentNowRequestRecords,
@@ -32,6 +40,7 @@ import {
   sendBookingReservationCreatedEmail,
   sendBookingManualPaymentPendingEmail,
   sendBookingStatusOutcomeEmail,
+  sendConsultationAccessCodeEmail,
   shouldSendBookingConfirmationAfterPayment,
 } from '@/lib/server/notifications'
 import { sendPaymentConfirmationSms } from '@/lib/server/sms'
@@ -170,9 +179,13 @@ function releaseSlot(slot: AvailabilitySlot, nowIso: string) {
 }
 
 function normalizeBookingRecord(booking: BookingRecord): BookingRecord {
+  const liveMode = Boolean(booking.liveMode || isZapytajLiveSlot(booking.slotId))
+  const serviceType = liveMode ? ZAPYTAJ_SERVICE_TYPE : resolveBookingServiceType(booking.serviceType, booking.amount)
+
   return {
     ...booking,
-    serviceType: resolveBookingServiceType(booking.serviceType, booking.amount),
+    serviceType,
+    liveMode,
     customerAccessTokenHash: booking.customerAccessTokenHash ?? '',
     paymentMethod: booking.paymentMethod ?? null,
     paymentReference: booking.paymentReference ?? null,
@@ -197,6 +210,22 @@ function normalizeBookingRecord(booking: BookingRecord): BookingRecord {
     prepLinkUrl: booking.prepLinkUrl ?? null,
     prepNotes: booking.prepNotes ?? null,
     prepUploadedAt: booking.prepUploadedAt ?? null,
+    callAttempt: Number.isFinite(booking.callAttempt) ? Math.max(0, Number(booking.callAttempt)) : 0,
+    callAnsweredAt: booking.callAnsweredAt ?? null,
+    callNextAttemptAt: booking.callNextAttemptAt ?? null,
+    callLastError: booking.callLastError ?? null,
+    callRecoveryUsed: booking.callRecoveryUsed ?? false,
+    callRecoveryTokenHash: booking.callRecoveryTokenHash ?? null,
+    callRecoveryExpiresAt: booking.callRecoveryExpiresAt ?? null,
+    consultationAccessCodeHash: booking.consultationAccessCodeHash ?? null,
+    consultationAccessExpiresAt: booking.consultationAccessExpiresAt ?? null,
+    consultationAccessUsedAt: booking.consultationAccessUsedAt ?? null,
+    questionsRemaining:
+      booking.questionsRemaining === undefined || booking.questionsRemaining === null
+        ? serviceType === ZAPYTAJ_SERVICE_TYPE || serviceType === 'kwadrans-na-juz'
+          ? 2
+          : null
+        : booking.questionsRemaining,
   }
 }
 
@@ -304,9 +333,26 @@ async function readStore(): Promise<LocalStoreData> {
 
   const source = { availability, bookings, funnelEvents, pricingSettings, users }
   const normalized = ensureFutureLocalAvailability(normalizeExpiredReservations(source))
+  const newlyExpiredBookingIds = normalized.bookings
+    .filter((booking) => {
+      const previous = source.bookings.find((item) => item.id === booking.id)
+      return booking.bookingStatus === 'expired' && previous?.bookingStatus !== 'expired'
+    })
+    .map((booking) => booking.id)
 
   if (JSON.stringify(normalized) !== JSON.stringify(source)) {
     await persistStore(normalized)
+  }
+
+  if (newlyExpiredBookingIds.length > 0) {
+    try {
+      const { releasePromoClaimsForBooking } = await import('@/lib/server/promo-codes')
+      for (const bookingId of newlyExpiredBookingIds) {
+        await releasePromoClaimsForBooking(bookingId)
+      }
+    } catch (error) {
+      console.error('[regulski-behawiorysta][promo-codes] failed to release claims during local cleanup', error)
+    }
   }
 
   return normalized
@@ -341,7 +387,12 @@ function groupAvailability(slots: AvailabilitySlot[]): GroupedAvailability[] {
   const grouped = new Map<string, AvailabilitySlot[]>()
 
   for (const slot of slots) {
-    if (slot.isBooked || slot.lockedByBookingId || !isFutureAvailabilitySlot(slot.bookingDate, slot.bookingTime)) {
+    if (
+      isZapytajLiveSlot(slot.id) ||
+      slot.isBooked ||
+      slot.lockedByBookingId ||
+      !isFutureAvailabilitySlot(slot.bookingDate, slot.bookingTime)
+    ) {
       continue
     }
 
@@ -462,7 +513,11 @@ export async function getAvailabilitySlot(slotId: string): Promise<AvailabilityS
   })
 }
 
-export async function createAvailabilitySlot(bookingDate: string, bookingTime: string): Promise<AvailabilitySlot> {
+export async function createAvailabilitySlot(
+  bookingDate: string,
+  bookingTime: string,
+  slotId?: string,
+): Promise<AvailabilitySlot> {
   return withLock(async () => {
     if (!isFutureAvailabilitySlot(bookingDate, bookingTime)) {
       throw new Error('Możesz dodać tylko przyszły termin.')
@@ -470,7 +525,7 @@ export async function createAvailabilitySlot(bookingDate: string, bookingTime: s
 
     const store = await readStore()
     const existing = store.availability.find(
-      (slot) => slot.bookingDate === bookingDate && slot.bookingTime === bookingTime,
+      (slot) => slot.id === (slotId ?? `${bookingDate}-${bookingTime}`) || (slot.bookingDate === bookingDate && slot.bookingTime === bookingTime),
     )
 
     if (existing) {
@@ -479,7 +534,7 @@ export async function createAvailabilitySlot(bookingDate: string, bookingTime: s
 
     const nowIso = new Date().toISOString()
     const slot: AvailabilitySlot = {
-      id: `${bookingDate}-${bookingTime}`,
+      id: slotId ?? `${bookingDate}-${bookingTime}`,
       bookingDate,
       bookingTime,
       isBooked: false,
@@ -518,8 +573,13 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
   return withLock(async () => {
     const store = await readStore()
     const pricing = createActiveConsultationPrice(store.pricingSettings.amount, store.pricingSettings.updatedAt)
-    const serviceType = normalizeBookingServiceType(form.serviceType)
-    const slotWindow = getBookableServiceAvailabilityWindow(store.availability, form.slotId, serviceType)
+    const liveMode = Boolean(form.liveMode || isZapytajLiveSlot(form.slotId))
+    const serviceType = liveMode ? ZAPYTAJ_SERVICE_TYPE : normalizeBookingServiceType(form.serviceType)
+    const slotWindow = liveMode
+      ? store.availability.find((item) => item.id === form.slotId)
+        ? [store.availability.find((item) => item.id === form.slotId)!]
+        : null
+      : getBookableServiceAvailabilityWindow(store.availability, form.slotId, serviceType)
     const slot = slotWindow?.[0] ?? null
 
     if (!slotWindow || !slot || slot.isBooked || slot.lockedByBookingId) {
@@ -530,7 +590,7 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
       throw new Error('Wybrany termin jest już przeszły. Wybierz nową godzinę rozmowy.')
     }
 
-    if (!isAvailabilitySlotBookableForService(slot, serviceType)) {
+    if (!liveMode && !isAvailabilitySlotBookableForService(slot, serviceType)) {
       throw new Error('Wybrany termin nie jest dostępny dla tej usługi.')
     }
 
@@ -540,9 +600,12 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
     const accessToken = createCustomerAccessToken()
     const reservationExpiresAt = new Date(Date.now() + getReservationWindowMinutes() * 60 * 1000).toISOString()
     const customerPhone = form.phone?.trim() ?? ''
+    const amount = liveMode
+      ? ZAPYTAJ_LIVE_PRICE_PLN
+      : form.amountOverridePln ?? getBookingServicePrice(serviceType, pricing.amount)
     console.info('[regulski-behawiorysta][pricing] booking-created', {
       bookingId,
-      amount: getBookingServicePrice(serviceType, pricing.amount),
+      amount,
       summary: `${pricing.summary} Service: ${serviceType}`,
     })
 
@@ -552,6 +615,7 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
       customerAccessTokenHash: accessToken.tokenHash,
       ownerName: form.ownerName,
       serviceType,
+      liveMode,
       problemType: form.problemType,
       animalType: form.animalType,
       petAge: form.petAge,
@@ -564,12 +628,12 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
       bookingDate: slot.bookingDate,
       bookingTime: slot.bookingTime,
       slotId: slot.id,
-      amount: getBookingServicePrice(serviceType, pricing.amount),
+      amount,
       bookingStatus: 'pending',
       paymentStatus: 'unpaid',
       paymentMethod: null,
       paymentReference: null,
-      consultationMode: null,
+      consultationMode: form.consultationMode ?? null,
       meetingUrl: createMeetingUrl(bookingId),
       createdAt: nowIso,
       updatedAt: nowIso,
@@ -590,6 +654,7 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
       expiredAt: null,
       refundedAt: null,
       recommendedNextStep: null,
+      recommendedMaterialSlug: null,
       reminderSent: false,
       prepVideoPath: null,
       prepVideoFilename: null,
@@ -597,6 +662,17 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
       prepLinkUrl: null,
       prepNotes: null,
       prepUploadedAt: null,
+      callAttempt: 0,
+      callAnsweredAt: null,
+      callNextAttemptAt: null,
+      callLastError: null,
+      callRecoveryUsed: false,
+      callRecoveryTokenHash: null,
+      callRecoveryExpiresAt: null,
+      consultationAccessCodeHash: null,
+      consultationAccessExpiresAt: null,
+      consultationAccessUsedAt: null,
+      questionsRemaining: serviceType === ZAPYTAJ_SERVICE_TYPE || serviceType === 'kwadrans-na-juz' ? 2 : null,
     }
 
     holdSlots(slotWindow, booking.id, reservationExpiresAt, nowIso)
@@ -606,6 +682,82 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
     await sendBookingReservationCreatedEmail(booking, accessToken.rawToken)
 
     return { booking, slot: { ...slot }, accessToken: accessToken.rawToken }
+  })
+}
+
+export async function issueConsultationAccessCode(bookingId: string) {
+  const result = await withLock(async () => {
+    const store = await readStore()
+    const booking = store.bookings.find((item) => item.id === bookingId)
+
+    if (!booking) {
+      throw new Error('Nie znaleziono rezerwacji.')
+    }
+
+    const serviceType = resolveBookingServiceType(booking.serviceType, booking.amount)
+    if (
+      booking.paymentStatus !== 'paid' ||
+      booking.bookingStatus !== 'done' ||
+      serviceType === 'konsultacja-behawioralna-online'
+    ) {
+      throw new Error('Kod konsultacji można wydać dopiero po opłaconym pierwszym etapie.')
+    }
+
+    const access = createConsultationAccessCode()
+    const expiresAt = getConsultationAccessExpiry()
+    booking.consultationAccessCodeHash = access.codeHash
+    booking.consultationAccessExpiresAt = expiresAt
+    booking.consultationAccessUsedAt = null
+    booking.updatedAt = new Date().toISOString()
+    await persistStore(store)
+
+    return { booking, code: access.rawCode, expiresAt }
+  })
+
+  const email = await sendConsultationAccessCodeEmail(result.booking, result.code, result.expiresAt)
+  return { ...result, email }
+}
+
+export async function getConsultationAccessByCode(code: string): Promise<BookingRecord | null> {
+  return withLock(async () => {
+    const normalizedCode = normalizeConsultationAccessCode(code)
+    if (!normalizedCode) {
+      return null
+    }
+
+    const store = await readStore()
+    const booking = store.bookings.find(
+      (item) => item.consultationAccessCodeHash === hashConsultationAccessCode(normalizedCode),
+    )
+
+    if (!booking || !isConsultationAccessValid(booking.consultationAccessExpiresAt, booking.consultationAccessUsedAt)) {
+      return null
+    }
+
+    return booking
+  })
+}
+
+export async function consumeConsultationAccessCode(code: string): Promise<BookingRecord | null> {
+  return withLock(async () => {
+    const normalizedCode = normalizeConsultationAccessCode(code)
+    if (!normalizedCode) {
+      return null
+    }
+
+    const store = await readStore()
+    const booking = store.bookings.find(
+      (item) => item.consultationAccessCodeHash === hashConsultationAccessCode(normalizedCode),
+    )
+
+    if (!booking || !isConsultationAccessValid(booking.consultationAccessExpiresAt, booking.consultationAccessUsedAt)) {
+      return null
+    }
+
+    booking.consultationAccessUsedAt = new Date().toISOString()
+    booking.updatedAt = new Date().toISOString()
+    await persistStore(store)
+    return booking
   })
 }
 
@@ -630,6 +782,22 @@ export async function getBookingByCustomerAccess(id: string, accessToken: string
     }
 
     return hasValidCustomerAccessToken(accessToken, booking.customerAccessTokenHash) ? booking : null
+  })
+}
+
+export async function getBookingByRecoveryAccess(id: string, accessToken: string): Promise<BookingRecord | null> {
+  return withLock(async () => {
+    const booking = (await readStore()).bookings.find((item) => item.id === id)
+
+    if (!booking || !booking.callRecoveryExpiresAt) {
+      return null
+    }
+
+    if (Date.parse(booking.callRecoveryExpiresAt) <= Date.now()) {
+      return null
+    }
+
+    return hasValidCustomerAccessToken(accessToken, booking.callRecoveryTokenHash) ? booking : null
   })
 }
 
@@ -745,7 +913,18 @@ export async function attachCheckoutSession(bookingId: string, checkoutSessionId
 
 export async function updateBookingCallState(
   bookingId: string,
-  patch: { callId?: string | null; callStatus?: string | null; startedAt?: string | null },
+  patch: {
+    callId?: string | null
+    callStatus?: string | null
+    startedAt?: string | null
+    callAttempt?: number | null
+    callAnsweredAt?: string | null
+    callNextAttemptAt?: string | null
+    callLastError?: string | null
+    callRecoveryUsed?: boolean
+    callRecoveryTokenHash?: string | null
+    callRecoveryExpiresAt?: string | null
+  },
 ): Promise<BookingRecord | null> {
   return withLock(async () => {
     const store = await readStore()
@@ -754,7 +933,83 @@ export async function updateBookingCallState(
     if (patch.callId !== undefined) booking.callId = patch.callId
     if (patch.callStatus !== undefined) booking.callStatus = patch.callStatus
     if (patch.startedAt !== undefined) booking.startedAt = patch.startedAt
+    if (patch.callAttempt !== undefined) booking.callAttempt = patch.callAttempt
+    if (patch.callAnsweredAt !== undefined) booking.callAnsweredAt = patch.callAnsweredAt
+    if (patch.callNextAttemptAt !== undefined) booking.callNextAttemptAt = patch.callNextAttemptAt
+    if (patch.callLastError !== undefined) booking.callLastError = patch.callLastError
+    if (patch.callRecoveryUsed !== undefined) booking.callRecoveryUsed = patch.callRecoveryUsed
+    if (patch.callRecoveryTokenHash !== undefined) booking.callRecoveryTokenHash = patch.callRecoveryTokenHash
+    if (patch.callRecoveryExpiresAt !== undefined) booking.callRecoveryExpiresAt = patch.callRecoveryExpiresAt
     booking.updatedAt = new Date().toISOString()
+    await persistStore(store)
+    return booking
+  })
+}
+
+export async function moveBookingToRecoverySlot(
+  bookingId: string,
+  recoveryToken: string,
+  targetSlotId: string,
+): Promise<BookingRecord | null> {
+  return withLock(async () => {
+    const store = await readStore()
+    const booking = store.bookings.find((item) => item.id === bookingId)
+
+    if (
+      !booking ||
+      booking.paymentStatus !== 'paid' ||
+      booking.consultationMode !== 'phone' ||
+      booking.callRecoveryUsed ||
+      !booking.callRecoveryExpiresAt ||
+      Date.parse(booking.callRecoveryExpiresAt) <= Date.now() ||
+      !hasValidCustomerAccessToken(recoveryToken, booking.callRecoveryTokenHash)
+    ) {
+      return null
+    }
+
+    const serviceType = resolveBookingServiceType(booking.serviceType, booking.amount)
+    if (booking.liveMode || serviceType === 'konsultacja-behawioralna-online') {
+      throw new Error('Dodatkowy termin nie jest dostępny dla tej rezerwacji.')
+    }
+
+    const targetSlot = store.availability.find((item) => item.id === targetSlotId)
+    if (!targetSlot || isZapytajLiveSlot(targetSlot.id) || !isFutureAvailabilitySlot(targetSlot.bookingDate, targetSlot.bookingTime)) {
+      throw new Error('Wybrany dodatkowy termin nie jest dostępny.')
+    }
+
+    const oldSlots = resolveBookingSlots(store.availability, booking)
+    const oldSlotIds = new Set(oldSlots.map((slot) => slot.id))
+    const candidateSlots = getBookableServiceAvailabilityWindow(store.availability, targetSlotId, serviceType)
+
+    if (!candidateSlots?.length) {
+      throw new Error('Wybrany dodatkowy termin nie jest dostępny dla tej usługi.')
+    }
+
+    const unavailable = candidateSlots.some(
+      (slot) => !oldSlotIds.has(slot.id) && (slot.isBooked || Boolean(slot.lockedByBookingId)),
+    )
+    if (unavailable || !isAvailabilitySlotBookableForService(candidateSlots[0], serviceType)) {
+      throw new Error('Wybrany dodatkowy termin został już zajęty.')
+    }
+
+    const nowIso = new Date().toISOString()
+    releaseBookingSlots(oldSlots, nowIso)
+    bookSlots(candidateSlots, booking.id, nowIso)
+
+    booking.bookingDate = candidateSlots[0].bookingDate
+    booking.bookingTime = candidateSlots[0].bookingTime
+    booking.slotId = candidateSlots[0].id
+    booking.callId = null
+    booking.callStatus = 'scheduled'
+    booking.startedAt = null
+    booking.callAttempt = 0
+    booking.callAnsweredAt = null
+    booking.callNextAttemptAt = null
+    booking.callLastError = null
+    booking.callRecoveryUsed = true
+    booking.bookingStatus = 'confirmed'
+    booking.updatedAt = nowIso
+
     await persistStore(store)
     return booking
   })
@@ -802,7 +1057,9 @@ export async function markBookingManualPaymentPending(
     }
 
     const nowIso = new Date().toISOString()
-    const holdUntil = new Date(Date.now() + getManualPaymentConfig().holdMinutes * 60 * 1000).toISOString()
+    const isZapytajBooking = booking.serviceType === ZAPYTAJ_SERVICE_TYPE || booking.liveMode || booking.consultationMode === 'phone'
+    const holdConfig = isZapytajBooking ? getZapytajManualPaymentConfig() : getManualPaymentConfig()
+    const holdUntil = new Date(Date.now() + holdConfig.holdMinutes * 60 * 1000).toISOString()
     const paymentReportedAt = booking.paymentReportedAt ?? nowIso
     const slots = resolveBookingSlots(store.availability, booking)
     const shouldSendManualReviewEmail =
@@ -1207,7 +1464,11 @@ export async function markBookingExpired(bookingId: string): Promise<BookingReco
   })
 }
 
-export async function markBookingDone(bookingId: string, recommendedNextStep?: string): Promise<BookingRecord | null> {
+export async function markBookingDone(
+  bookingId: string,
+  recommendedNextStep?: string,
+  recommendedMaterialSlug?: string | null,
+): Promise<BookingRecord | null> {
   return withLock(async () => {
     const store = await readStore()
     const booking = store.bookings.find((item) => item.id === bookingId)
@@ -1223,6 +1484,7 @@ export async function markBookingDone(bookingId: string, recommendedNextStep?: s
     booking.bookingStatus = 'done'
     booking.paymentStatus = booking.paymentStatus === 'paid' ? 'paid' : booking.paymentStatus
     booking.recommendedNextStep = recommendedNextStep ?? booking.recommendedNextStep ?? null
+    booking.recommendedMaterialSlug = recommendedMaterialSlug ?? booking.recommendedMaterialSlug ?? null
     booking.updatedAt = new Date().toISOString()
     await persistStore(store)
     return booking

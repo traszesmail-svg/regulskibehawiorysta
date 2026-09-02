@@ -240,7 +240,7 @@ test('book metadata is indexable and keeps the canonical booking path', async ()
 
   assert.equal(metadata.alternates?.canonical, '/book')
   assert.equal(robots, null)
-  assert.match(String(metadata.title ?? ''), /Rezerwacja Kwadransa behawioralnego/)
+  assert.match(String(metadata.title ?? ''), /Rezerwacja: Zapytaj behawiorystę/)
 })
 
 test('case map metadata keeps its own canonical public path', () => {
@@ -398,35 +398,18 @@ test('release redirect evaluator accepts a same-origin cache-busted redirect and
   assert.match(wrongStatus.issues.join(' | '), /HTTP 302/)
 })
 
-test('home keeps animal category choices problem-first without price badges', () => {
-  const selectorSource = readSource('components', 'HomepageServiceSelector.tsx')
+test('home starts with one paid Zapytaj service and keeps the map optional', () => {
+  const homeSource = readSource('app', 'page.tsx')
+  const heroSource = readSource('components', 'HomepageZapytajHero.tsx')
   const introPopupSource = readSource('components', 'HomepageIntroPopup.tsx')
-  const bookPageSource = readSource('app', 'book', 'page.tsx')
-  const choicePageSource = readSource('app', 'wybor', 'page.tsx')
-  const pricingPageSource = readSource('app', 'cennik', 'page.tsx')
-  const pricingCssSource = readSource('app', 'notatnik-a.css')
 
-  assert.match(selectorSource, /title: 'Mam psa'/)
-  assert.match(selectorSource, /title: 'Mam kota'/)
-  assert.match(selectorSource, /title: 'Nie wiem, co wybrać'/)
-  assert.doesNotMatch(selectorSource, /Umów pierwszy krok 69 zł/)
-  assert.match(selectorSource, /href="\/kwadrans-na-juz"/)
-  assert.match(selectorSource, /Znajdź termin dla spraw pilnych!/)
-  assert.doesNotMatch(selectorSource, /router-choice-price/)
-  assert.doesNotMatch(selectorSource, /od 69 z/)
+  assert.match(homeSource, /<HomepageZapytajHero \/>/)
+  assert.doesNotMatch(homeSource, /<HomepageServiceSelector \/>/)
+  assert.match(heroSource, /Zapytaj behawiorystę —/)
+  assert.match(heroSource, /pricePln/)
   assert.match(introPopupSource, /To właściwe miejsce/)
-  assert.match(introPopupSource, /Nie wiem, od czego zacząć/)
+  assert.match(introPopupSource, /Nie wiesz, jak to nazwać\? Otwórz mapę/)
   assert.doesNotMatch(introPopupSource, /Ĺ|Ä|Ă|ďż˝/)
-  assert.doesNotMatch(choicePageSource, /entryPriceLabel/)
-  assert.doesNotMatch(choicePageSource, /pricingStrip/)
-  assert.doesNotMatch(choicePageSource, /choicePrice/)
-  assert.match(pricingPageSource, /pricing-2026-offer-action/)
-  assert.match(pricingCssSource, /grid-template-columns: 72px minmax\(0, 1fr\) minmax\(156px, 172px\)/)
-  assert.match(pricingCssSource, /\.router-urgent-cta\s*{[\s\S]*text-align: center/)
-  assert.match(pricingCssSource, /\.router-urgent-cta span\s*{[\s\S]*width: 100%/)
-  assert.match(bookPageSource, /generateMetadata/)
-  assert.match(bookPageSource, /index: false/)
-  assert.match(bookPageSource, /follow: true/)
 })
 
 test('audit priority fixes keep booking copy, no-js contact and technical SEO aligned', () => {
@@ -439,13 +422,13 @@ test('audit priority fixes keep booking copy, no-js contact and technical SEO al
   const nextConfigSource = readSource('next.config.mjs')
 
   assert.doesNotMatch(`${pricingPageSource}\n${pricingContentSource}`, /Kwadrans priorytetowy/)
-  assert.match(`${pricingPageSource}\n${pricingContentSource}`, /Kwadrans na już/)
+  assert.match(`${pricingPageSource}\n${pricingContentSource}`, /Zapytaj teraz/)
   assert.match(pricingPageSource, /Potwierdzenie płatności na życzenie/)
   assert.match(pricingPageSource, /Link do rozmowy po potwierdzeniu płatności/)
 
   assert.doesNotMatch(blogCostSource, /Pełna godzinna konsultacja|od razu godzinna konsultacja/)
-  assert.match(blogCostSource, /około 2h/)
-  assert.match(blogCostSource, /około 2-godzinna konsultacja/)
+  assert.match(blogCostSource, /około 90 minut/)
+  assert.match(blogCostSource, /około 90-minutowa konsultacja/)
 
   assert.match(bookingCalendarSource, /Kiedy termin jest pewny\?/)
   assert.match(bookingCalendarSource, /Jitsi albo pokoju rozmowy/)
@@ -538,7 +521,7 @@ test('service-page architecture keeps one broad online landing and redirects hel
   assert.match(uiSmokeSource, /if \(!hasExpectedDestination\(page\.url\(\)\)\)/)
 })
 
-test('copy governance keeps Kwadrans as the primary service name and format as supporting detail', () => {
+test('copy governance keeps Zapytaj behawiorystę as the primary service and live option as supporting detail', () => {
   const copyGovernanceSource = readSource('lib', 'copy-governance.ts')
   const offerEntrySource = readSource('components', 'OfferEntrySection.tsx')
   const bookingServiceInfoCardSource = readSource('components', 'BookingServiceInfoCard.tsx')
@@ -546,12 +529,12 @@ test('copy governance keeps Kwadrans as the primary service name and format as s
   const bookSource = readSource('app', 'book', 'page.tsx')
   const seoSource = readSource('lib', 'seo.ts')
 
-  assert.match(copyGovernanceSource, /primary: '15-minutowa konsultacja behawioralna'/)
-  assert.match(copyGovernanceSource, /primaryDescriptor: '15 min połączenia telefonicznego'/)
-  assert.match(copyGovernanceSource, /primaryLead: '15-minutowa konsultacja behawioralna to połączenie telefoniczne/)
+  assert.match(copyGovernanceSource, /primary: 'Zapytaj behawiorystę'/)
+  assert.match(copyGovernanceSource, /primaryDescriptor: 'do 15 min połączenia telefonicznego'/)
+  assert.match(copyGovernanceSource, /primaryLead: 'Zapytaj behawiorystę to rozmowa telefoniczna/)
 
   assert.match(offerEntrySource, /COPY_SERVICE_NAMES\.primaryDescriptor/)
-  assert.match(offerEntrySource, /Kwadrans zostaje nazwą usługi/)
+  assert.match(offerEntrySource, /Ten sam zakres co zwykłe Zapytaj behawiorystę/)
 
   assert.match(bookingServiceInfoCardSource, /const isPhoneService = service\.mode === 'phone'/)
   assert.match(bookingServiceInfoCardSource, /połączenie telefoniczne/)
@@ -561,7 +544,7 @@ test('copy governance keeps Kwadrans as the primary service name and format as s
   assert.doesNotMatch(contactSource, /<h3>Kwadrans z behawiorysta<\/h3>/)
   assert.doesNotMatch(contactSource, /contact-booking-panel/)
   assert.match(bookSource, /BookingSlotCalendar/)
-  assert.match(seoSource, /15-minutowego połączenia telefonicznego/)
+  assert.match(seoSource, /Zarezerwuj Zapytaj behawiorystę/)
 })
 
 test('book page keeps a distinct jump-to-form CTA for explicit services', () => {
@@ -574,7 +557,7 @@ test('book page keeps a distinct jump-to-form CTA for explicit services', () => 
   assert.match(bookSource, /return <BookingSlotCalendar searchParams=\{searchParams\} \/>/)
   assert.match(bookSource, /buildBookMetadata/)
   assert.match(seoSource, /path: '\/book'/)
-  assert.match(bookingCalendarSource, /Dwóch kwadrans/)
+  assert.match(bookingCalendarSource, /Zapytaj behawiorystę/)
   assert.match(funnelSource, /Pełna konsultacja/)
 })
 
@@ -596,9 +579,9 @@ test('Mapa zachowania speaks to the owner instead of exposing internal funnel la
   assert.match(mapSource, /Zbierzmy fakty\.<br \/>Potem wybierzmy krok\./)
   assert.match(mapSource, /Przygotowanie do rozmowy/)
   assert.match(mapSource, /Twoje odpowiedzi pozwolą nam od razu skupić się na sytuacji/)
-  assert.match(mapSource, /Wybierz termin · Konsultacja 15 min/)
-  assert.match(mapSource, /Najważniejsze odpowiedzi dołączymy do rezerwacji/)
-  assert.match(mapSource, /Jeśli chcesz, Pełną Mapę możesz zapisać prywatnie w swoim Pokoju/)
+  assert.match(mapSource, /Zapytaj behawiorystę — 79 zł/)
+  assert.match(mapSource, /Twoje odpowiedzi dołączymy do rezerwacji/)
+  assert.match(mapSource, /Zapisz mapę w swoim Pokoju/)
   assert.doesNotMatch(mapSource, /Jedna decyzja na ekran/)
   assert.doesNotMatch(mapSource, /Mapa do zakupu konsultacji/)
   assert.doesNotMatch(mapSource, /gotowy brief do formularza zakupu/)
@@ -637,13 +620,14 @@ test('booking form intro follows the selected service instead of a generic booki
   assert.match(bookingFormSource, /function getSelectedServiceIntro/)
   assert.match(bookingFormSource, /Wybrana rozmowa: \$\{option\.label\} \/ \$\{option\.price\}\./)
   assert.match(bookingFormSource, /30 min połączenia telefonicznego, gdy temat ma kilka wątków/)
-  assert.match(bookingFormSource, /Około 2h przez Jitsi.*14 dni komunikacji/)
+  assert.match(bookingFormSource, /Około 90 minut przez Jitsi.*14 dni komunikacji/)
   assert.doesNotMatch(bookingFormSource, /PUBLIC_OFFER_BOOKING_LEAD/)
   assert.doesNotMatch(bookingFormSource, /PUBLIC_OFFER_BOOKING_REASSURANCE/)
 })
 
 test('home, dogs and cats pages keep canonical service routing and current entry layouts', () => {
   const homeSource = readSource('app', 'page.tsx')
+  const homeHeroSource = readSource('components', 'HomepageZapytajHero.tsx')
   const nextConfigSource = readSource('next.config.mjs')
   const funnelActionsSource = readSource('components', 'FunnelPrimaryActions.tsx')
   const serviceDecisionSource = readSource('components', 'ServiceDecisionSection.tsx')
@@ -652,8 +636,11 @@ test('home, dogs and cats pages keep canonical service routing and current entry
   assert.match(funnelActionsSource, /serviceHref\?: string/)
   assert.match(funnelActionsSource, /Jeśli chcesz najpierw zobaczyć pełny opis usługi/)
 
-  assert.match(homeSource, /serviceLandingHref = '\/'/)
-  assert.doesNotMatch(homeSource, /href=\{serviceLandingHref\}/)
+  assert.match(homeSource, /HomepageZapytajHero/)
+  assert.match(homeHeroSource, /href="\/zapytaj"/)
+  assert.match(homeHeroSource, /Zapytaj behawiorystę/)
+  assert.doesNotMatch(homeSource, /homepage-clinic-entry/)
+  assert.doesNotMatch(homeSource, /ClinicCodeEntry/)
   assert.doesNotMatch(homeSource, /pelnego opisu konsultacji online/)
   assert.doesNotMatch(homeSource, /<ServiceDecisionSection/)
   assert.match(homeSource, /Behawiorysta ps/)
@@ -1797,6 +1784,7 @@ test('local JSON store gives concurrent writes unique atomic temp paths', () => 
 
 test('stage 9 performance guardrails keep priority images, lazy media, layout checks, and screenshots wired', () => {
   const homeSource = readSource('app', 'page.tsx')
+  const homeHeroSource = readSource('components', 'HomepageZapytajHero.tsx')
   const opinionsSource = readSource('app', 'opinie', 'page.tsx')
   const reviewGridSource = readSource('components', 'OpinionsReviewGrid.tsx')
   const pricingSource = readSource('app', 'cennik', 'page.tsx')
@@ -1806,7 +1794,9 @@ test('stage 9 performance guardrails keep priority images, lazy media, layout ch
   const browserPathSource = readSource('scripts', 'lib', 'browser-path.ts')
 
   assert.doesNotMatch(homeSource, /quality=\{100\}/)
-  assert.match(homeSource, /quality=\{86\}/)
+  assert.match(homeHeroSource, /quality=\{86\}/)
+  assert.match(homeHeroSource, /priority/)
+  assert.match(homeHeroSource, /sizes="\(max-width: 760px\) 100vw, 46vw"/)
   assert.match(homeSource, /loading="lazy"/)
   assert.match(opinionsSource, /home-bg-cat-1to1\.webp" alt="" fill loading="lazy"/)
   assert.match(reviewGridSource, /fill loading="lazy" sizes="58px"/)
@@ -2085,8 +2075,10 @@ test('clinic code funnel reveals phone surcharge only after validation and keeps
   const callRoomSource = readSource('components', 'CallRoom.tsx')
   const orderRouteSource = readSource('app', 'api', 'orders', 'route.ts')
 
-  assert.match(homeSource, /homepage-clinic-entry/)
-  assert.match(homeSource, /href="\/lecznica"/)
+  assert.match(homeSource, /HomepageZapytajHero/)
+  assert.doesNotMatch(homeSource, /homepage-clinic-entry/)
+  assert.doesNotMatch(homeSource, /ClinicCodeEntry/)
+  assert.doesNotMatch(homeSource, /href="\/lecznica"/)
   assert.match(pricingSource, /Program dla klientów lecznic/)
   assert.doesNotMatch(pricingSource, /clinic-program-pricing-title[\s\S]{0,600}9 zł/)
   assert.match(clinicPageSource, /Lecznice uczestniczące w programie/)
@@ -2110,7 +2102,7 @@ test('clinic code funnel reveals phone surcharge only after validation and keeps
   assert.match(paymentSource, /consultationMode: 'jitsi'/)
   assert.match(orderRouteSource, /body\.kind === 'clinic-phone-upgrade'/)
   assert.match(callRoomSource, /consultationMode === 'phone'/)
-  assert.match(termsSource, /Brak zapłaty albo brak potwierdzenia dopłaty telefonicznej nie odbiera prawa do wariantu Jitsi/)
+  assert.match(termsSource, /Kod nie omija terminarza ani zasad dostępności/)
   assert.match(privacySource, /Numer telefonu jest wymagany i zapisywany wyłącznie wtedy/)
   assert.match(privacySource, /nie otrzymuje automatycznie danych klienta/)
 })

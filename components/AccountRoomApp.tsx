@@ -21,8 +21,8 @@ import type { AccountHomePayload, AccountPet, AccountPetSpecies } from '@/lib/ac
 import type { CaseMapSummary } from '@/lib/case-map'
 import {
   PRICE_LABEL,
-  getMaterialyGuideBySlug,
   getMaterialyGuideCoverSrc,
+  getPublishedMaterialyGuideBySlug,
   type MaterialyGuide,
 } from '@/lib/materialy-catalog'
 
@@ -47,13 +47,13 @@ const ACCOUNT_VIEWS: Array<{ id: AccountView; label: string; icon: typeof PawPri
 ]
 
 const ROOM_MATERIAL_SLUGS: Record<AccountPetSpecies, string[]> = {
-  pies: ['pies-sam-w-domu', 'pies-zostaje-sam-plan-pierwszych-krokow', 'pies-reaktywny-na-spacerze'],
-  kot: ['pierwszy-tydzien-z-kotem', 'kot-i-kuweta-pierwszy-plan-dzialania', 'konflikt-miedzy-kotami-w-domu'],
+  pies: ['pies-sam-w-domu', 'pies-reaktywny-na-spacerze', 'pies-burza-nagly-halas'],
+  kot: ['kot-kuweta-pierwszy-plan', 'konflikt-miedzy-kotami', 'kot-drapie-meble'],
 }
 
 function getRoomMaterialGuides(species: AccountPetSpecies): MaterialyGuide[] {
   return ROOM_MATERIAL_SLUGS[species]
-    .map((slug) => getMaterialyGuideBySlug(slug))
+    .map((slug) => getPublishedMaterialyGuideBySlug(slug))
     .filter((guide): guide is MaterialyGuide => Boolean(guide))
 }
 
@@ -166,9 +166,14 @@ export function AccountRoomApp({ initialView = 'start', initialSessionHint = fal
   const [messageBody, setMessageBody] = useState('')
   const [messageFile, setMessageFile] = useState<File | null>(null)
   const [caseMaps, setCaseMaps] = useState<CaseMapSummary[]>([])
+  const [orderingRecommendation, setOrderingRecommendation] = useState(false)
 
   const activeConversationId = useMemo(() => pickFirstConversation(account), [account])
   const primaryPetId = account?.pets[0]?.id ?? ''
+  const latestAccountBooking = account?.bookings[0] ?? null
+  const recommendedMaterial = latestAccountBooking?.recommendedMaterialSlug
+    ? getPublishedMaterialyGuideBySlug(latestAccountBooking.recommendedMaterialSlug)
+    : null
 
   const loadAccount = useCallback(async () => {
     setError('')
@@ -396,6 +401,36 @@ export function AccountRoomApp({ initialView = 'start', initialSessionHint = fal
     )
   }
 
+  async function orderRecommendedMaterial() {
+    if (!latestAccountBooking?.id || !recommendedMaterial) return
+
+    setOrderingRecommendation(true)
+    setError('')
+    setNotice('')
+
+    try {
+      const response = await fetch('/api/account/materials/recommendation', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          bookingId: latestAccountBooking.id,
+          productSlug: recommendedMaterial.slug,
+        }),
+      })
+      const payload = (await response.json()) as { ok?: boolean; redirectTo?: string; error?: string }
+
+      if (!response.ok || !payload.ok || !payload.redirectTo) {
+        throw new Error(payload.error ?? 'Nie udało się przygotować zamówienia PDF.')
+      }
+
+      window.location.assign(payload.redirectTo)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Nie udało się przygotować zamówienia PDF.')
+    } finally {
+      setOrderingRecommendation(false)
+    }
+  }
+
   const roomMaterialGuides = getRoomMaterialGuides(account?.pets[0]?.species === 'kot' ? 'kot' : 'pies')
   const roomSetupCompleted = [
     Boolean(account?.pets.length),
@@ -479,12 +514,34 @@ export function AccountRoomApp({ initialView = 'start', initialSessionHint = fal
                   Zobacz szczegóły
                 </button>
               ) : (
-                <Link href="/cennik" className="button button-primary">
+                <Link href="/zapytaj" className="button button-primary">
                   Wybierz konsultację
                 </Link>
               )}
             </div>
           </section>
+
+          {account?.bookings[0]?.recommendedNextStep || recommendedMaterial ? (
+            <section className="account-room-card account-recommendation-card" aria-labelledby="account-recommendation-title">
+              <div>
+                <span className="account-card-kicker">Po rozmowie</span>
+                <h2 id="account-recommendation-title">Co robić dalej</h2>
+                {latestAccountBooking?.recommendedNextStep ? <p>{latestAccountBooking.recommendedNextStep}</p> : null}
+                {recommendedMaterial ? (
+                  <div className="account-recommended-material">
+                    <strong>{recommendedMaterial.title} · 19 zł</strong>
+                    <span>Materiał dobrany do tej rozmowy. Kupisz go tutaj, w swoim Pokoju.</span>
+                    <button type="button" className="button button-primary" onClick={() => void orderRecommendedMaterial()} disabled={orderingRecommendation}>
+                      {orderingRecommendation ? 'Przygotowuję…' : 'Przejdź do zakupu PDF'}
+                    </button>
+                  </div>
+                ) : null}
+              </div>
+              <button type="button" className="button button-ghost" onClick={() => setActiveView('rozmowa')}>
+                Otwórz rozmowę
+              </button>
+            </section>
+          ) : null}
 
           <div className="account-room-quick-grid">
             <article className="account-room-card account-quick-card">
@@ -573,7 +630,7 @@ export function AccountRoomApp({ initialView = 'start', initialSessionHint = fal
                   <span className="account-room-setup-state"><Check size={18} aria-hidden="true" /></span>
                 </button>
               ) : (
-                <Link href="/cennik" className="account-room-setup-item">
+                <Link href="/zapytaj" className="account-room-setup-item">
                   <span className="account-room-setup-icon"><CalendarDays size={20} aria-hidden="true" /></span>
                   <span className="account-room-setup-copy">
                     <strong>Wybierz spokojny termin</strong>
@@ -702,6 +759,12 @@ export function AccountRoomApp({ initialView = 'start', initialSessionHint = fal
                     : `Komunikacja w pokoju jest aktywna do ${new Intl.DateTimeFormat('pl-PL', { dateStyle: 'long', timeStyle: 'short' }).format(new Date(fullSupportEndsAt))}.`}
                 </div>
               ) : null}
+              {latestBooking?.recommendedNextStep ? (
+                <div className="account-chat-recommendation">
+                  <span className="account-card-kicker">Co robić dalej</span>
+                  <p>{latestBooking.recommendedNextStep}</p>
+                </div>
+              ) : null}
             </aside>
 
             <section className="account-room-card account-chat-panel">
@@ -790,7 +853,7 @@ export function AccountRoomApp({ initialView = 'start', initialSessionHint = fal
             <div>
               <span className="account-card-kicker">Twoja biblioteka</span>
               <h2>Materiały do spokojnej pracy w domu</h2>
-              <p>Bezpłatny materiał otworzysz od razu. Płatne poradniki prowadzą bezpośrednio do zamówienia.</p>
+              <p>Bezpłatny materiał otworzysz od razu. Płatny PDF pojawi się tutaj dopiero wtedy, gdy zostanie dobrany do Twojej rozmowy.</p>
             </div>
             <Link href="/materialy" className="button button-ghost">Zobacz wszystkie materiały</Link>
           </header>
@@ -828,12 +891,12 @@ export function AccountRoomApp({ initialView = 'start', initialSessionHint = fal
                 <span className="account-card-kicker">Wybrane dla Ciebie</span>
                 <h3 id="account-materials-recommended-title">Zacznij od jednego konkretnego tematu</h3>
               </div>
-              <p>Pierwszy materiał jest bezpłatny.</p>
+              <p>Bezpłatny na start albo jeden dobrany po rozmowie.</p>
             </div>
             <div className="account-materials-grid">
               {roomMaterialGuides.map((guide) => {
                 const isFree = guide.priceCode === 'free'
-                const href = isFree ? `/poradniki/${guide.pdfFile}` : buildRoomMaterialOrderHref(guide.slug)
+                const href = buildRoomMaterialOrderHref(guide.slug)
 
                 return (
                   <article key={guide.slug} className={`account-material-card${isFree ? ' is-free' : ''}`}>
@@ -851,9 +914,9 @@ export function AccountRoomApp({ initialView = 'start', initialSessionHint = fal
                       <span className="account-card-kicker">{guide.category === 'cat' ? 'Dla kota' : guide.category === 'dog' ? 'Dla psa' : 'Dla psa i kota'}</span>
                       <h4>{guide.title}</h4>
                       <p>{guide.shortPromise}</p>
-                      <Link href={href} className={`button ${isFree ? 'button-primary' : 'button-ghost'}`} target={isFree ? '_blank' : undefined} rel={isFree ? 'noopener noreferrer' : undefined}>
+                      <Link href={href} className={`button ${isFree ? 'button-primary' : 'button-ghost'}`}>
                         {isFree ? <Download size={17} aria-hidden="true" /> : <BookOpen size={17} aria-hidden="true" />}
-                        {isFree ? 'Pobierz bezpłatnie' : `Zobacz i kup · ${PRICE_LABEL[guide.priceCode]}`}
+                        {isFree ? 'Zobacz i pobierz' : 'Zobacz opis · po rozmowie'}
                       </Link>
                     </div>
                   </article>

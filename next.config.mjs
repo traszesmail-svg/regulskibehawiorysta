@@ -81,8 +81,28 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        source: '/cennik/pelny',
+        destination: '/konsultacja',
+        statusCode: 301,
+      },
+      {
+        source: '/cennik',
+        destination: '/zapytaj',
+        statusCode: 301,
+      },
+      {
+        source: '/kwadrans-na-juz',
+        destination: '/zapytaj',
+        statusCode: 301,
+      },
+      {
+        source: '/konsultacja-behawioralna-online',
+        destination: '/konsultacja',
+        statusCode: 301,
+      },
+      {
         source: '/termin',
-        destination: '/book',
+        destination: '/zapytaj',
         statusCode: 301,
       },
       {
@@ -96,8 +116,8 @@ const nextConfig = {
         statusCode: 301,
       },
       {
-        source: '/konsultacja-behawioralna-online',
-        destination: '/',
+        source: '/newsletter',
+        destination: '/materialy',
         statusCode: 301,
       },
       {
@@ -126,6 +146,21 @@ const nextConfig = {
         statusCode: 301,
       },
       {
+        source: '/oferta/konsultacja-behawioralna-online',
+        destination: '/konsultacja',
+        statusCode: 301,
+      },
+      {
+        source: '/oferta/poradniki-pdf',
+        destination: '/materialy',
+        statusCode: 301,
+      },
+      {
+        source: '/oferta/poradniki-pdf/:path*',
+        destination: '/materialy',
+        statusCode: 301,
+      },
+      {
         source: '/urgent',
         destination: '/wybor',
         statusCode: 301,
@@ -142,12 +177,12 @@ const nextConfig = {
       },
       {
         source: '/oferta',
-        destination: '/cennik',
+        destination: '/zapytaj',
         statusCode: 301,
       },
       {
         source: '/oferta/:path*',
-        destination: '/cennik',
+        destination: '/zapytaj',
         statusCode: 301,
       },
       {
@@ -217,7 +252,7 @@ const nextConfig = {
       },
       {
         source: '/oferta/konsultacja-behawioralna-online',
-        destination: '/',
+        destination: '/konsultacja',
         statusCode: 301,
       },
       {

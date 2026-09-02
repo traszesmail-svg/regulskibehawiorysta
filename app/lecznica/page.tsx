@@ -8,24 +8,24 @@ import { buildMarketingMetadata } from '@/lib/seo'
 export const metadata: Metadata = buildMarketingMetadata({
   title: 'Kod przekazany przez lecznicę',
   path: '/lecznica',
-  description: 'Wejście do Kwadransa dla opiekunów, którzy otrzymali jednorazowy kod w lecznicy.',
+  description: 'Wejście do Zapytaj behawiorystę dla opiekunów, którzy otrzymali jednorazowy kod w lecznicy.',
 })
 
 export default function ClinicCodePage() {
   return (
-    <ReferencePageShell className="clinic-program-page" ctaHref="/book">
+    <ReferencePageShell className="clinic-program-page" ctaHref="/zapytaj">
       <section className="clinic-program-hero">
         <span className="section-eyebrow">Program dla klientów lecznic</span>
         <h1>Masz kod przekazany przez lecznicę?</h1>
         <p>
-          Wpisz go poniżej. Następnie wybierzesz psa lub kota, temat sprawy oraz dostępny termin Kwadransa.
+          Wpisz go poniżej. Następnie wybierzesz psa lub kota, temat sprawy oraz dostępny termin Zapytaj behawiorystę.
         </p>
         <ClinicCodeEntry />
       </section>
 
       <section className="clinic-program-steps" aria-label="Jak skorzystać z kodu">
         <article><strong>1. Wpisz kod</strong><span>Sprawdzimy, czy jest aktywny. Samo sprawdzenie nie zużywa kodu.</span></article>
-        <article><strong>2. Wybierz gatunek i temat</strong><span>Przejdziesz przez zwykły formularz Kwadransa.</span></article>
+        <article><strong>2. Wybierz gatunek i temat</strong><span>Przejdziesz przez formularz Zapytaj behawiorystę.</span></article>
         <article><strong>3. Wybierz termin</strong><span>Kod nie omija terminarza ani zasad dostępności.</span></article>
       </section>
 

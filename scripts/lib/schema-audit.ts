@@ -59,8 +59,28 @@ const REQUIRED_SCHEMA_MARKERS: SchemaMarker[] = [
     expectedCount: 1,
   },
   {
+    label: 'promo_campaigns.campaign_kind',
+    needle: "campaign_kind text not null default 'clinic' check (campaign_kind in ('clinic', 'community'))",
+    expectedCount: 1,
+  },
+  {
+    label: 'promo_campaigns.promotion_price',
+    needle: 'promotion_price numeric(10,2) not null default 0 check (',
+    expectedCount: 1,
+  },
+  {
+    label: 'promo_redemptions.campaign_kind',
+    needle: "campaign_kind text not null default 'clinic' check (campaign_kind in ('clinic', 'community'))",
+    expectedCount: 2,
+  },
+  {
     label: 'push_subscriptions',
     needle: 'create table if not exists public.push_subscriptions',
+    expectedCount: 1,
+  },
+  {
+    label: 'zapytaj_live_notifications',
+    needle: 'create table if not exists public.zapytaj_live_notifications',
     expectedCount: 1,
   },
   {
@@ -81,6 +101,26 @@ const REQUIRED_SCHEMA_MARKERS: SchemaMarker[] = [
   {
     label: 'bookings.sms_confirmation_status',
     needle: 'sms_confirmation_status text check (',
+    expectedCount: 1,
+  },
+  {
+    label: 'bookings.call_attempt',
+    needle: 'call_attempt integer not null default 0',
+    expectedCount: 1,
+  },
+  {
+    label: 'bookings.call_recovery_token_hash',
+    needle: 'call_recovery_token_hash text',
+    expectedCount: 1,
+  },
+  {
+    label: 'bookings.consultation_access_code_hash',
+    needle: 'consultation_access_code_hash text',
+    expectedCount: 1,
+  },
+  {
+    label: 'bookings.recommended_material_slug',
+    needle: 'recommended_material_slug text',
     expectedCount: 1,
   },
   {
@@ -131,6 +171,15 @@ const REQUIRED_FILES = [
   'supabase/migrations/20260714002_case_map_consultant_handoff.sql',
   'supabase/migrations/20260717001_case_map_analytics_and_profile_claims.sql',
   'supabase/migrations/20260717002_case_map_profile_claim_tokens.sql',
+  'supabase/migrations/20260901001_zapytaj_flow.sql',
+  'supabase/migrations/20260901002_zapytaj_live_notifications.sql',
+  'supabase/migrations/20260901003_zapytaj_call_recovery.sql',
+  'supabase/migrations/20260901004_zapytaj_zadarma_scheduler.sql',
+  'supabase/migrations/20260901005_consultation_access_codes.sql',
+  'supabase/migrations/20260901006_reconcile_booking_sms_columns.sql',
+  'supabase/migrations/20260901007_recommendation_material.sql',
+  'supabase/migrations/20260901008_community_promo_campaigns.sql',
+  'supabase/migrations/20260326_sms_payment_confirmation.sql',
 ]
 
 function normalizeSchemaText(schemaText: string) {

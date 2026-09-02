@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
-import { getBookingForViewer, updateBookingCallState } from '@/lib/server/db'
-import { triggerZadarmaCallback } from '@/lib/server/zadarma'
+import { getBookingForViewer } from '@/lib/server/db'
+import { triggerZapytajCall } from '@/lib/server/zapytaj-call'
 
 export async function POST(request: Request) {
   let body: Record<string, unknown>
@@ -20,19 +20,21 @@ export async function POST(request: Request) {
     if (booking.paymentStatus !== 'paid' || booking.consultationMode !== 'phone') {
       return NextResponse.json({ error: 'Połączenie telefoniczne nie jest opłaconym kanałem tej rezerwacji.' }, { status: 400 })
     }
-    if (!booking.phone) return NextResponse.json({ error: 'Brak numeru telefonu w rezerwacji.' }, { status: 400 })
-    if (booking.callId) return NextResponse.json({ ok: true, callId: booking.callId, status: booking.callStatus })
 
-    const from = process.env.ZADARMA_BEHAWIORYSTA_SIP?.trim()
-    if (!from) return NextResponse.json({ error: 'Telefon jest chwilowo niedostępny.' }, { status: 503 })
-
-    const result = await triggerZadarmaCallback(from, booking.phone)
-    if (result.status !== 'success' || !result.call_id) {
-      return NextResponse.json({ error: result.message ?? 'Nie udało się uruchomić połączenia.' }, { status: 502 })
+    const result = await triggerZapytajCall(booking)
+    if (result.status === 'ignored') {
+      return NextResponse.json({ error: result.reason }, { status: 400 })
+    }
+    if (result.status === 'manual_required') {
+      return NextResponse.json({ error: result.reason }, { status: 503 })
     }
 
-    await updateBookingCallState(booking.id, { callId: result.call_id, callStatus: 'calling' })
-    return NextResponse.json({ ok: true, callId: result.call_id, status: 'calling' })
+    return NextResponse.json({
+      ok: true,
+      status: result.status,
+      callId: 'callId' in result ? result.callId : undefined,
+      startsAt: 'startsAt' in result ? result.startsAt : undefined,
+    })
   } catch (error) {
     console.error('[ZADARMA MAIN TRIGGER] failed', error)
     return NextResponse.json({ error: error instanceof Error ? error.message : 'Błąd połączenia.' }, { status: 500 })

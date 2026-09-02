@@ -6,7 +6,9 @@ export function getCanonicalPublicHref(href: string): string {
   const value = href.trim()
 
   if (value === '/behawiorysta-online-polska') return '/'
-  if (value === '/konsultacja-behawioralna-online') return '/cennik/pelny'
+  if (value === '/konsultacja-behawioralna-online') return '/konsultacja'
+  if (value === '/book' || value.startsWith('/book?')) return '/zapytaj'
+  if (value === '/call' || value.startsWith('/call?')) return '/zapytaj'
   if (value === '/psy') return '/problemy#pies'
   if (value === '/koty') return '/problemy#kot'
   if (value === '/psy/reaktywnosc-na-smyczy') return '/problemy/pies-szczeka-na-psy'

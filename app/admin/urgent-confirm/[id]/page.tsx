@@ -32,11 +32,11 @@ export default async function UrgentConfirmPage(props: { params: Promise<{ id: s
       <section style={{ marginTop: 18, display: 'grid', gap: 18 }}>
         <div>
           <div style={{ color: '#2f7667', fontSize: 12, fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-            Kwadrans na już
+            Zapytaj teraz
           </div>
           <h1 style={{ margin: '8px 0 8px', fontSize: 28, lineHeight: 1.1 }}>Wybierz godzinę i wyślij link do płatności</h1>
           <p style={{ margin: 0, color: '#5d5750', lineHeight: 1.5 }}>
-            Po zatwierdzeniu system tworzy rezerwację `kwadrans-na-juz`, blokuje termin i wysyła klientowi link do płatności.
+            Po zatwierdzeniu system tworzy rezerwację `Zapytaj teraz`, blokuje termin i wysyła klientowi link do płatności.
           </p>
         </div>
 

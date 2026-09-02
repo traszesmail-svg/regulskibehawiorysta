@@ -34,7 +34,7 @@ export function SpeciesShopPage({
   const bundleCardsOnly = pdfCards.filter((card) => card.kind === 'pakiet')
   const pdfShelfHref = '/materialy'
   const speciesAnchors = [
-    { href: `#${species}-konsultacja`, label: 'Konsultacja 15 min' },
+    { href: `#${species}-konsultacja`, label: 'Zapytaj behawiorystę' },
     { href: `#${species}-pdf`, label: 'Materiały PDF' },
     { href: `#${species}-pakiety`, label: 'Pakiety PDF' },
     { href: '#ksiazki', label: 'Książki' },
@@ -223,17 +223,17 @@ export function SpeciesShopPage({
 
         <section className="panel section-panel shop-consult-panel site-help-cta top-gap" id={`${species}-konsultacja`}>
           <div className="site-help-cta-copy shop-consult-copy">
-            <div className="section-eyebrow">Konsultacja 15 min</div>
-            <h2>Jeśli temat wraca, jest złożony albo trwa długo, przejdź do szerszej konsultacji.</h2>
+            <div className="section-eyebrow">Zapytaj behawiorystę</div>
+            <h2>Jeśli temat wraca, jest złożony albo trwa długo, przejdź do pełnej konsultacji.</h2>
             <p className="hero-text">
-              15 min porządkuje pierwszy kierunek. Gdy problemów jest kilka, temat wraca mimo prób albo potrzeba szerszego planu, lepszy
-              będzie 30 min / pełna konsultacja.
+              Zapytaj behawiorystę porządkuje pierwszy kierunek. Gdy problemów jest kilka, temat wraca mimo prób albo potrzeba szerszego
+              planu, lepsza będzie pełna konsultacja.
             </p>
-            <strong className="site-help-cta-note">Najpierw konsultacja 15 min, potem PDF, a przy większej złożoności 30 min / pełna.</strong>
-            <span className="site-help-cta-support">Wybierz 15 min, jeśli chcesz szybko sprawdzić kierunek. PDF jest materiałem wspierającym, a dłuższy format pojawia się przy większej złożoności.</span>
+            <strong className="site-help-cta-note">Najpierw Zapytaj behawiorystę, potem PDF, a przy większej złożoności pełna konsultacja.</strong>
+            <span className="site-help-cta-support">Wybierz Zapytaj behawiorystę, jeśli chcesz szybko sprawdzić kierunek. PDF jest materiałem wspierającym, a pełna konsultacja pojawia się przy większej złożoności.</span>
             <div className="hero-actions site-help-cta-actions top-gap">
               <Link href={consultHref} prefetch={false} className="button button-primary">
-                Umów 15 min
+                Zapytaj behawiorystę
               </Link>
               <Link href={`#${species}-pdf`} prefetch={false} className="button button-ghost">
                 Zobacz materiały PDF

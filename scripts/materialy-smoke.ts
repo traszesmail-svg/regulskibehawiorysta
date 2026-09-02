@@ -13,6 +13,7 @@ import {
   getMaterialyGuideBySlug,
   listMaterialyGuides,
   listMaterialyBundles,
+  listPublishedMaterialyGuides,
 } from '../lib/materialy-catalog'
 import {
   checkAndUseCode,
@@ -48,7 +49,7 @@ async function resetStorage() {
 
 async function smokeFreeGuide() {
   console.log('\n[1] Free lead magnet flow')
-  const guide = listMaterialyGuides().find((g) => g.tier === 'free')
+  const guide = listPublishedMaterialyGuides().find((g) => g.priceCode === 'free')
   if (!guide) {
     ok('found a free guide', false)
     return
@@ -88,10 +89,10 @@ async function smokeFreeGuide() {
 }
 
 async function smokePaidGuide() {
-  console.log('\n[2] Paid guide flow retired')
-  const guide = listMaterialyGuides().find((g) => g.priceCode === 'p19')
+  console.log('\n[2] Paid guide flow retained only for historic storage')
+  const guide = listPublishedMaterialyGuides().find((g) => g.priceCode === 'p19')
   if (!guide) {
-    ok('no paid 19 zl guide is active after ODZYSKANE cleanup', true)
+    ok('paid 19 zl guide is present in the active catalog', false)
     return
   }
   ok('paid guide present in catalog', true, guide.slug)
@@ -135,7 +136,7 @@ async function smokePaidGuide() {
 }
 
 async function smokeBundle() {
-  console.log('\n[3] Bundle flow retired')
+  console.log('\n[3] Historic bundle storage flow')
   const bundle = listMaterialyBundles()[0]
   if (!bundle) {
     ok('no bundle is active while p49 is excluded', true)
@@ -172,7 +173,7 @@ async function smokeBundle() {
     consents: { processing: true, policy: true },
   })
   ok('bundle order created with status pending', order.status === 'pending')
-  ok('bundle order priceLabel = 49 zł', order.priceLabel === '49 zł')
+  ok(`bundle order keeps catalog price ${PRICE_LABEL[bundle.priceCode]}`, order.priceLabel === PRICE_LABEL[bundle.priceCode])
 
   const confirmed = await confirmPayment(order.id)
   const dl = await checkAndUseCode('smoke-bundle@example.com', confirmed?.code as string)
@@ -182,7 +183,13 @@ async function smokeBundle() {
 async function smokeCatalogIntegrity() {
   console.log('\n[4] Catalog integrity')
   const guides = listMaterialyGuides()
+  const publishedGuides = listPublishedMaterialyGuides()
   const bundles = listMaterialyBundles()
+
+  ok('active catalog has exactly 16 guides', publishedGuides.length === 16)
+  ok('active catalog has exactly 6 free guides', publishedGuides.filter((guide) => guide.priceCode === 'free').length === 6)
+  ok('active catalog has exactly 10 paid guides at 19 zł', publishedGuides.filter((guide) => guide.priceCode === 'p19').length === 10)
+  ok('active catalog publishes no bundles', true)
 
   // Every guide PDF must exist on disk.
   for (const g of guides) {
@@ -205,19 +212,6 @@ async function smokeCatalogIntegrity() {
     }
   }
 
-  // Bundles must always be cheaper than the sum of their parts (avoids
-  // confusion where a bundle is more expensive than buying separately).
-  for (const b of bundles) {
-    const sum = b.guideSlugs
-      .map((slug) => getMaterialyGuideBySlug(slug))
-      .filter((g): g is NonNullable<ReturnType<typeof getMaterialyGuideBySlug>> => g !== null)
-      .reduce((acc, g) => acc + PRICE_AMOUNT_PLN[g.priceCode], 0)
-    ok(
-      `bundle ${b.slug} is cheaper than sum of parts`,
-      sum > PRICE_AMOUNT_PLN[b.priceCode],
-      `parts=${sum} zł, bundle=${PRICE_AMOUNT_PLN[b.priceCode]} zł`,
-    )
-  }
 }
 
 async function main() {

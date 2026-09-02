@@ -14,23 +14,23 @@ interface FAQ {
 const defaultFAQs: FAQ[] = [
   {
     icon: 'help-circle',
-    question: `Czym różni się Kwadrans ${PUBLIC_OFFER_PRICE_LABELS.quick} od Kwadransu na już ${PUBLIC_OFFER_PRICE_LABELS.urgent}?`,
-    answer: 'Forma połączenia telefonicznego jest taka sama. Przy wyższej cenie otrzymujesz priorytet i możliwie szybki termin.',
+    question: `Czym różni się Zapytaj behawiorystę ${PUBLIC_OFFER_PRICE_LABELS.quick} od Zapytaj teraz ${PUBLIC_OFFER_PRICE_LABELS.urgent}?`,
+    answer: 'Zakres rozmowy telefonicznej jest taki sam. Zapytaj teraz pojawia się tylko wtedy, gdy ręcznie włączę dostępność i pozwala wejść w najbliższe wolne okno.',
   },
   {
     icon: 'clock',
-    question: 'Kiedy wybrać Dwa kwadranse?',
-    answer: 'Gdy 15 minut to za mało, temat ma kilka wątków lub chcesz spokojnie uporządkować sytuację.',
+    question: 'Co dzieje się po Zapytaj behawiorystę?',
+    answer: 'Dostajesz pierwszy kierunek i dwa pytania po rozmowie. Jeśli potrzebujesz szerszego procesu, otrzymasz rekomendację Pełnej konsultacji.',
   },
   {
     icon: 'clipboard-list',
     question: `Co obejmuje Pełna konsultacja ${PUBLIC_OFFER_PRICE_LABELS.premium}?`,
-    answer: 'Około 2h przez Jitsi, analizę zachowania, prawdopodobną przyczynę problemu, plan działania i 14 dni komunikacji w pokoju klienta.',
+    answer: 'Około 90 minut przez Jitsi, analizę zachowania, prawdopodobną przyczynę problemu, plan działania i 14 dni komunikacji w pokoju klienta.',
   },
   {
     icon: 'lightbulb',
     question: 'Co jeśli nie wiem, od czego zacząć?',
-    answer: `Najprostszy start to Kwadrans ${PUBLIC_OFFER_PRICE_LABELS.quick} albo materiał PDF. Po krótkim opisie sytuacji wybierzemy najrozsądniejszy krok na ten moment.`,
+    answer: `Najprostszy start to Zapytaj behawiorystę ${PUBLIC_OFFER_PRICE_LABELS.quick} albo darmowy materiał PDF. Po krótkim opisie sytuacji wybierzemy najrozsądniejszy krok na ten moment.`,
   },
 ];
 

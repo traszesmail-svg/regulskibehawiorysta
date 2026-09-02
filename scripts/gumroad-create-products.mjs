@@ -63,9 +63,9 @@ Jak to działa:
 Dla kogo: problem trwa od jakiegoś czasu lub chcesz spokojnie przejść przez sytuację bez pośpiechu 15-minutowego formatu.`,
   },
   {
-    name: 'Pełna konsultacja behawioralna online — ok. 2 godziny',
-    price: '470',
-    description: `Kompleksowe spotkanie online trwające ok. 2 godzin — od historii zwierzęcia do gotowego planu działania.
+    name: 'Pełna konsultacja behawioralna online — około 90 minut',
+    price: '475',
+    description: `Kompleksowe spotkanie online trwające około 90 minut — od historii zwierzęcia do gotowego planu działania.
 
 Co dostaniesz:
 — Pełny wywiad behawioralny

@@ -73,8 +73,8 @@ export default async function ContactPage(
           tag="Kontakt"
           navItems={PUBLIC_SITE_NAV_ITEMS}
           showUtilityLinks={false}
-          ctaHref="/cennik"
-          ctaLabel="Umów konsultację"
+          ctaHref="/zapytaj"
+          ctaLabel="Zapytaj behawiorystę"
         />
         <ReferenceHeroLeaf />
 
@@ -91,11 +91,11 @@ export default async function ContactPage(
             <MobileFirstStepCta
               eyebrow="Nie musisz znać nazwy problemu"
               title="Opisz sytuację w kilku zdaniach"
-              copy="Jeśli nie wiesz, czy wybrać Kwadrans, dłuższą rozmowę czy najpierw doprecyzować temat, zacznij od formularza."
+              copy="Jeśli nie wiesz, co robić dalej, zacznij od formularza Zapytaj behawiorystę. Krótki opis wystarczy, żeby uporządkować pierwszy krok."
               primaryHref="#formularz"
               primaryLabel="Przejdź do formularza"
-              secondaryHref="/cennik"
-              secondaryLabel="Zobacz cennik"
+              secondaryHref="/zapytaj"
+              secondaryLabel="Zapytaj behawiorystę"
             />
           </div>
           <div className="contact-reference-photo-wrap">
@@ -157,8 +157,8 @@ export default async function ContactPage(
                 <PenLine size={22} strokeWidth={1.8} aria-hidden="true" />
                 <span>Przejdź do formularza</span>
               </Link>
-              <Link href="/cennik" prefetch={false} className="contact-reference-secondary">
-                Umów konsultację
+              <Link href="/zapytaj" prefetch={false} className="contact-reference-secondary">
+                Zapytaj behawiorystę
               </Link>
             </div>
           </div>

@@ -13,7 +13,7 @@ import {
 import { getProblemLabel } from '@/lib/data'
 import { FUNNEL_CTA_LABELS } from '@/lib/funnel'
 import { canEditPreparationMaterials } from '@/lib/preparation'
-import { getBookingForViewer } from '@/lib/server/db'
+import { getBookingByRecoveryAccess, getBookingForViewer } from '@/lib/server/db'
 import { getDataModeStatus } from '@/lib/server/env'
 import { buildTechnicalMetadata } from '@/lib/seo'
 
@@ -112,7 +112,7 @@ export default async function CallPage(
                 {flowError} Jeśli chcesz, przejdź do krótkiej wiadomości i wróć do rezerwacji później.
               </div>
               <div className="hero-actions centered-actions">
-                <Link href="/book" className="button button-primary big-button">
+                <Link href="/zapytaj" className="button button-primary big-button">
                   {FUNNEL_CTA_LABELS.primary}
                 </Link>
                 <Link href="/kontakt#formularz" className="button button-ghost big-button">
@@ -136,7 +136,7 @@ export default async function CallPage(
             <div className="stack-gap">
               <div className="error-box">Ten link do rozmowy jest nieprawidłowy albo wygasł.</div>
               <div className="hero-actions centered-actions">
-                <Link href="/book" className="button button-primary big-button">
+                <Link href="/zapytaj" className="button button-primary big-button">
                   {FUNNEL_CTA_LABELS.primary}
                 </Link>
                 <Link href="/kontakt#formularz" className="button button-ghost big-button">
@@ -158,6 +158,10 @@ export default async function CallPage(
       ? 'rozmowa telefoniczna'
       : getBookingServiceRoomAccessLabel(serviceType)
   const qaBooking = Boolean(booking.qaBooking)
+  const recoveryAccess = accessToken ? await getBookingByRecoveryAccess(booking.id, accessToken) : null
+  const recoveryHref = recoveryAccess
+    ? `/zapytaj/dodatkowy?bookingId=${encodeURIComponent(booking.id)}&token=${encodeURIComponent(accessToken ?? '')}`
+    : null
 
   return (
     <main className="page-wrap" data-analytics-disabled={qaBooking ? 'true' : undefined} data-qa-booking={qaBooking ? 'true' : 'false'}>
@@ -189,6 +193,7 @@ export default async function CallPage(
               problemType={booking.problemType}
               serviceType={serviceType}
               consultationMode={booking.consultationMode ?? null}
+              liveMode={Boolean(booking.liveMode)}
               qaBooking={qaBooking}
               callId={booking.callId ?? null}
               callStatus={booking.callStatus ?? null}
@@ -198,6 +203,7 @@ export default async function CallPage(
               petAge={booking.petAge}
               durationNotes={booking.durationNotes}
               description={booking.description}
+              recoveryHref={recoveryHref}
             />
             <PreparationMaterialsCard
               bookingId={booking.id}

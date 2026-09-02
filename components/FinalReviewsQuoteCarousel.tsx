@@ -172,7 +172,8 @@ export function FinalReviewsQuoteCarousel({
                 <footer>
                   <strong>{itemAuthor}</strong>
                   <span aria-hidden="true">&middot;</span>
-                  <span>{item.problem}</span>
+                  <span>Usługa: {item.service}</span>
+                  {item.problem ? <><span aria-hidden="true">&middot;</span><span>Temat: {item.problem}</span></> : null}
                 </footer>
               </blockquote>
             )
@@ -195,13 +196,14 @@ export function FinalReviewsQuoteCarousel({
       <div className="notatnik-final-review-track" ref={trackRef} tabIndex={0} aria-label="Przewijane opinie opiekunów">
         {visibleReviews.map((item, itemIndex) => {
           const itemAuthor = item.petName ? `${item.author} i ${item.petName}` : item.author
-          const itemSignature = item.problem ? `${itemAuthor} - ${item.problem}` : itemAuthor
 
           return (
             <blockquote key={item.id} className={`notatnik-final-review-quote${itemIndex === index ? ' is-active' : ''}`}>
               <p>&ldquo;{item.text}&rdquo;</p>
               <footer>
-                <strong>{itemSignature}</strong>
+                <strong>{itemAuthor}</strong>
+                <span>Usługa: {item.service}</span>
+                {item.problem ? <span>Temat: {item.problem}</span> : null}
               </footer>
             </blockquote>
           )

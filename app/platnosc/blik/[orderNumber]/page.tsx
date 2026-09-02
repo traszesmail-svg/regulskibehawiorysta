@@ -84,7 +84,7 @@ export default async function BlikPaymentPage(props: {
                 Termin wrócił do kalendarza. Jeśli wpłata została już wysłana, nie wysyłaj jej drugi raz — opisz krótko sytuację przez formularz kontaktowy.
               </div>
               <div className="hero-actions centered-actions">
-                <Link href="/book" className="button button-primary big-button">
+                <Link href="/zapytaj" className="button button-primary big-button">
                   Wybierz nowy termin
                 </Link>
                 <Link href="/kontakt#formularz" className="button button-ghost big-button">

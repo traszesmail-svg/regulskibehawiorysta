@@ -58,7 +58,7 @@ function buildSelectorHref(answers: HomepageSelectorAnswers, resultKey: Homepage
     params.set('species', species)
   }
 
-  return `/book?${params.toString()}`
+  return `/zapytaj?${params.toString()}`
 }
 
 function buildProblemQuestion(animal: HomepageSelectorAnimal | null): HomepageSelectorQuestion {
@@ -259,7 +259,7 @@ export function HomepageServiceSelector({ mode = 'home', initialAnimal = null, a
             </div>
             <div className="router-hero-service-actions" aria-label="Szybki wybór rozmowy">
               <Link
-                href="/kwadrans-na-juz"
+                href="/zapytaj"
                 prefetch={false}
                 className="notatnik-btn notatnik-btn-urgent router-methodology-cta router-service-cta router-urgent-cta"
                 onClick={() =>

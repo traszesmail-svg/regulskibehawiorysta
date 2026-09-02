@@ -52,7 +52,7 @@ export const REAL_CASE_STUDIES = [
       'Anonimowa sytuacja startowa psa reagującego na spacerze: wyzwalacze, próg reakcji, pierwszy krok i dalszy kierunek konsultacji.',
     proof: {
       problemType: 'reaktywność na smyczy i pobudzenie spacerowe',
-      serviceFormat: 'Kwadrans + pełna konsultacja online',
+      serviceFormat: 'Zapytaj behawiorystę + pełna konsultacja online',
       cooperationStage: 'po uporządkowaniu pierwszego etapu',
       timeHorizon: 'pierwsze decyzje po rozmowie, dalsza praca w kolejnych tygodniach',
       sourceContext: 'anonimizowany opis sytuacji startowej opiekuna',
@@ -89,7 +89,7 @@ export const REAL_CASE_STUDIES = [
       'Anonimowa sytuacja startowa psa z problemami separacyjnymi: napięcie przy wyjściu, zostawanie samemu i pierwszy bezpieczny krok.',
     proof: {
       problemType: 'problemy separacyjne i napięcie przy rozstaniu',
-      serviceFormat: 'Kwadrans + pełna konsultacja online',
+      serviceFormat: 'Zapytaj behawiorystę + pełna konsultacja online',
       cooperationStage: 'po rozróżnieniu protestu i realnego napięcia',
       timeHorizon: 'pierwszy etap rozpisany na kolejne tygodnie spokojnej pracy',
       sourceContext: 'anonimizowany opis po zmianie trybu pracy opiekuna',
@@ -126,7 +126,7 @@ export const REAL_CASE_STUDIES = [
       'Anonimowa sytuacja startowa psa ciągnącego na smyczy: pobudzenie, rytm spaceru i pierwszy kierunek pracy.',
     proof: {
       problemType: 'ciągnięcie na smyczy i wysokie pobudzenie',
-      serviceFormat: 'start od Kwadransa',
+      serviceFormat: 'start od Zapytaj behawiorystę',
       cooperationStage: 'po pierwszym ustawieniu ćwiczenia i kryteriów dalszej pracy',
       timeHorizon: 'pierwszy ruch od razu, dalsze decyzje po obserwacji',
       sourceContext: 'anonimizowany opis po wielu krótkotrwałych próbach treningowych',
@@ -163,7 +163,7 @@ export const REAL_CASE_STUDIES = [
       'Anonimowa sytuacja startowa po adopcji psa: pierwsze dni, bezpieczna przestrzeń i sygnały do obserwacji.',
     proof: {
       problemType: 'start po adopcji i trudna adaptacja',
-      serviceFormat: 'start od Kwadransa',
+      serviceFormat: 'start od Zapytaj behawiorystę',
       cooperationStage: 'po ustawieniu pierwszych 72 godzin',
       timeHorizon: 'najważniejsze decyzje podjęte na początku adaptacji',
       sourceContext: 'anonimizowany opis pierwszych dni po adopcji',
@@ -200,7 +200,7 @@ export const REAL_CASE_STUDIES = [
       'Anonimowa sytuacja startowa kota załatwiającego się poza kuwetą: zdrowie, stres, kuweta i środowisko.',
     proof: {
       problemType: 'załatwianie poza kuwetą po zmianie w domu',
-      serviceFormat: 'Kwadrans + pełna konsultacja online',
+      serviceFormat: 'Zapytaj behawiorystę + pełna konsultacja online',
       cooperationStage: 'po uporządkowaniu tła i wejściu w analizę środowiska',
       timeHorizon: 'pierwsze decyzje po rozmowie, korekty po obserwacji',
       sourceContext: 'anonimizowany opis po zmianach żwirku i ustawienia kuwety',
@@ -274,7 +274,7 @@ export const REAL_CASE_STUDIES = [
       'Anonimowa sytuacja startowa kota chowającego się przed gośćmi: bezpieczna strefa, stres i spokojny plan.',
     proof: {
       problemType: 'lęk kota przy gościach i po przeprowadzce',
-      serviceFormat: 'start od Kwadransa',
+      serviceFormat: 'start od Zapytaj behawiorystę',
       cooperationStage: 'po ustawieniu bezpiecznej strefy',
       timeHorizon: 'pierwsze decyzje po rozmowie, obserwacja przy kolejnych wizytach',
       sourceContext: 'anonimizowany opis nieudanych prób oswajania z gośćmi',

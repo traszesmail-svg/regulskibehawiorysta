@@ -2,17 +2,10 @@
 
 import { useMemo, useState } from 'react'
 import Image from 'next/image'
-import { ChevronDown, Quote, Star } from 'lucide-react'
+import { ChevronDown, Quote } from 'lucide-react'
+import { getOpinionServiceLabel, type OpinionReview } from '@/lib/opinion-reviews'
 
 const COLLAPSED_REVIEW_COUNT = 6
-
-export type OpinionReview = {
-  name: string
-  service: string
-  text: string
-  avatar: string
-  categories: string[]
-}
 
 type OpinionsReviewGridProps = {
   filters: string[]
@@ -52,7 +45,7 @@ export function OpinionsReviewGrid({ filters, reviews }: OpinionsReviewGridProps
         <span>Opinie po konsultacjach</span>
         <h1>Historie, które pokazują, jak zaczyna się spokojniejsza codzienność</h1>
         <p>
-          Krótkie, anonimowe fragmenty opinii opiekunów psów i kotów. Pokazują, jak wygląda proces i co realnie pomaga po
+          Krótkie wypowiedzi opiekunów psów i kotów, udostępnione za zgodą. Pokazują, jak wygląda proces i co realnie pomaga po
           rozmowie.
         </p>
       </div>
@@ -88,25 +81,25 @@ export function OpinionsReviewGrid({ filters, reviews }: OpinionsReviewGridProps
 
             return (
               <article
-                key={`${review.name}-${review.service}`}
+                key={`${review.name}-${review.service}-${review.topic}`}
                 className="opinions-review-card"
                 data-opinion-review="true"
                 data-review-species={species}
               >
-                <div className="opinions-review-stars" aria-label="Ocena 5 na 5">
-                  {Array.from({ length: 5 }).map((_, index) => (
-                    <Star key={index} size={18} fill="currentColor" strokeWidth={1.4} />
-                  ))}
-                </div>
                 <Quote className="opinions-review-quote" size={34} strokeWidth={2} aria-hidden="true" />
                 <p>{review.text}</p>
                 <footer>
                   <span className="opinions-review-avatar">
-                    <Image src={review.avatar} alt="" fill loading="lazy" sizes="58px" />
+                    {review.photoApproved && review.avatar ? (
+                      <Image src={review.avatar} alt="" fill loading="lazy" sizes="58px" />
+                    ) : (
+                      <span aria-hidden="true">{review.name.slice(0, 1).toUpperCase()}</span>
+                    )}
                   </span>
                   <span>
                     <strong>{review.name}</strong>
-                    <small>{review.service}</small>
+                    <small className="opinions-review-service">Usługa: {getOpinionServiceLabel(review.service)}</small>
+                    <small className="opinions-review-topic">Temat: {review.topic}</small>
                   </span>
                 </footer>
               </article>

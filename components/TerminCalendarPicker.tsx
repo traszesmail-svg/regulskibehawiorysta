@@ -65,6 +65,8 @@ export type TerminCalendarSummary = {
   contactHref: string
   roomAccessLabel: string
   qaBooking: boolean
+  consultationAccessCode?: string | null
+  consultationAccessEmail?: string | null
 }
 
 export type TerminCalendarPaymentConfig = {
@@ -538,6 +540,8 @@ export function TerminCalendarPicker({ monthLabel, slotCount, days, summary, pay
                 sourcePage="/book"
                 submitLabel="Dalej"
                 submittingLabel="Zapisuję termin..."
+                consultationAccessCode={summary.consultationAccessCode}
+                defaultEmail={summary.consultationAccessEmail}
                 onBookingCreated={handleBookingCreated}
               />
             )}

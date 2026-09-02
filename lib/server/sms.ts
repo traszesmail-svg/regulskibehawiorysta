@@ -378,7 +378,7 @@ export async function sendUrgentCustomerAckSms(
   customerName: string,
   phone: string | null | undefined,
 ): Promise<PaymentConfirmationSmsResult> {
-  const message = `Cześć ${customerName.split(' ')[0]}, dostałem Twoją prośbę o Kwadrans na już. Odpowiem priorytetowo z realnym terminem. Krzysztof Regulski`
+  const message = `Cześć ${customerName.split(' ')[0]}, dostałem Twoją prośbę o Zapytaj teraz. Odpowiem priorytetowo z realnym terminem. Krzysztof Regulski`
   return sendRawSms(`urgent-ack-${requestId}`, phone, message, 'urgent-customer-ack')
 }
 
@@ -391,7 +391,7 @@ export async function sendUrgentPaymentLinkSms(
   paymentUrl: string,
 ): Promise<PaymentConfirmationSmsResult> {
   const firstName = customerName.split(' ')[0] || customerName
-  const message = `Cześć ${firstName}, mam termin Kwadransu na już: ${proposedDate} ${proposedTime}. Opłać tutaj: ${paymentUrl} Krzysztof Regulski`
+  const message = `Cześć ${firstName}, mam termin Zapytaj teraz: ${proposedDate} ${proposedTime}. Opłać tutaj: ${paymentUrl} Krzysztof Regulski`
   return sendRawSms(`urgent-payment-${requestId}`, phone, message, 'urgent-payment-link')
 }
 
@@ -404,12 +404,20 @@ export async function sendManualPaymentPendingSms(
   return sendRawSms(`manual-pending-${booking.id}`, booking.customerPhoneNormalized ?? booking.phone, message, 'manual-payment-pending')
 }
 
+export async function sendZapytajLiveAvailabilitySms(
+  notificationId: string,
+  phone: string | null | undefined,
+): Promise<PaymentConfirmationSmsResult> {
+  const message = `Zapytaj behawiorystę jest teraz dostępne. To nie jest rezerwacja. Sprawdź: ${SITE_PRODUCTION_URL}/zapytaj Krzysztof Regulski`
+  return sendRawSms(`zapytaj-live-availability-${notificationId}`, phone, message, 'zapytaj-live-availability')
+}
+
 export async function sendAdminUrgentReminderSms(
   requestId: string,
   customerName: string,
   topic: string,
 ): Promise<PaymentConfirmationSmsResult> {
   const adminPhone = process.env.ADMIN_PHONE?.trim() || null
-  const message = `KWADRANS NA JUŻ: ${customerName} (${topic}). Pozostało 5 minut na odpowiedź. ID: ${requestId.slice(0, 8)}`
+  const message = `ZAPYTAJ TERAZ: ${customerName} (${topic}). Pozostało 5 minut na odpowiedź. ID: ${requestId.slice(0, 8)}`
   return sendRawSms(`urgent-reminder-${requestId}`, adminPhone, message, 'urgent-admin-reminder')
 }

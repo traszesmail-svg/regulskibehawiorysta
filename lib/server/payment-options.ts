@@ -3,7 +3,8 @@ import { normalizePolishPhone } from '@/lib/phone'
 import type { BookingRecord, QaCheckoutEligibility } from '@/lib/types'
 import { getPaymentModeStatus } from '@/lib/server/env'
 
-const DEFAULT_MANUAL_PAYMENT_HOLD_MINUTES = 15
+const DEFAULT_MANUAL_PAYMENT_HOLD_MINUTES = 60
+const DEFAULT_ZAPYTAJ_MANUAL_PAYMENT_HOLD_MINUTES = 24 * 60
 
 function readEnv(name: string): string | null {
   const value = process.env[name]?.trim()
@@ -255,13 +256,20 @@ export function getManualPaymentReference(bookingId: string): string {
   return `B15-${compactId}`
 }
 
-export function getManualPaymentConfig(): ManualPaymentConfig {
+type ManualPaymentConfigOptions = {
+  holdEnvName?: string
+  defaultHoldMinutes?: number
+}
+
+export function getManualPaymentConfig(options: ManualPaymentConfigOptions = {}): ManualPaymentConfig {
   const phone = readEnv('MANUAL_PAYMENT_BLIK_PHONE') ?? null
   const instructions = readEnv('MANUAL_PAYMENT_INSTRUCTIONS')
   const accountName = readEnv('MANUAL_PAYMENT_ACCOUNT_NAME') ?? SPECIALIST_NAME
-  const holdMinutesRaw = Number(readEnv('MANUAL_PAYMENT_HOLD_MINUTES'))
+  const holdMinutesRaw = Number(readEnv(options.holdEnvName ?? 'MANUAL_PAYMENT_HOLD_MINUTES'))
   const holdMinutes =
-    Number.isFinite(holdMinutesRaw) && holdMinutesRaw > 0 ? holdMinutesRaw : DEFAULT_MANUAL_PAYMENT_HOLD_MINUTES
+    Number.isFinite(holdMinutesRaw) && holdMinutesRaw > 0
+      ? holdMinutesRaw
+      : options.defaultHoldMinutes ?? DEFAULT_MANUAL_PAYMENT_HOLD_MINUTES
 
   if (!phone) {
     return {
@@ -290,6 +298,13 @@ export function getManualPaymentConfig(): ManualPaymentConfig {
     holdMinutes,
     summary: `${getManualPaymentAvailabilityLabel(phone)}.`,
   }
+}
+
+export function getZapytajManualPaymentConfig(): ManualPaymentConfig {
+  return getManualPaymentConfig({
+    holdEnvName: 'ZAPYTAJ_MANUAL_PAYMENT_HOLD_MINUTES',
+    defaultHoldMinutes: DEFAULT_ZAPYTAJ_MANUAL_PAYMENT_HOLD_MINUTES,
+  })
 }
 
 export function getPublicManualPaymentConfig(): ManualPaymentConfig {

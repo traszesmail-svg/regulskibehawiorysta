@@ -210,7 +210,7 @@ function getBaseScheduleState(date: string, time: string, serviceType: BookingSe
       time,
       state: 'unavailable',
       statusLabel: 'Niedostępne',
-      reasonLabel: 'Kwadranse nie odbywają się w weekendy, święta ani dni wolne od pracy.',
+      reasonLabel: 'Zapytaj behawiorystę nie odbywa się w weekendy, święta ani dni wolne od pracy.',
       isBookable: false,
     }
   }
@@ -221,7 +221,7 @@ function getBaseScheduleState(date: string, time: string, serviceType: BookingSe
       time,
       state: 'reserved_for_urgent',
       statusLabel: 'Niedostępne',
-      reasonLabel: 'Najbliższe dwa dni są zarezerwowane dla Kwadransa na już.',
+      reasonLabel: 'Najbliższe dwa dni są zarezerwowane dla Zapytaj teraz.',
       isBookable: false,
     }
   }

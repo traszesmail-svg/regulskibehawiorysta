@@ -44,25 +44,25 @@ function getAudioDescription(species?: BookingSpecies | null) {
 
 function getFullConsultationDescription(species?: BookingSpecies | null) {
   if (species === 'pies') {
-    return 'Około 2h online dla psa przy temacie bardziej złożonym, dłużej trwającym albo obejmującym kilka wątków.'
+    return 'Około 90 minut online dla psa przy temacie bardziej złożonym, dłużej trwającym albo obejmującym kilka wątków.'
   }
 
   if (species === 'kot') {
-    return 'Około 2h online dla kota przy temacie szerszym, dłużej trwającym albo obejmującym kilka obszarów naraz.'
+    return 'Około 90 minut online dla kota przy temacie szerszym, dłużej trwającym albo obejmującym kilka obszarów naraz.'
   }
 
-  return 'Około 2h online dla sytuacji bardziej złożonych, dłużej trwających albo wielowątkowych.'
+  return 'Około 90 minut online dla sytuacji bardziej złożonych, dłużej trwających albo wielowątkowych.'
 }
 
 export function OfferEntrySection({
   species = null,
   sectionId,
   eyebrow = 'Oferta',
-  title = 'Trzy główne rozmowy: Kwadrans, Dwa kwadranse i Pełna konsultacja.',
+  title = 'Dwie drogi pierwszego kontaktu i Pełna konsultacja po rekomendacji.',
   description = PUBLIC_OFFER_BOOKING_LEAD,
 }: OfferEntrySectionProps) {
   const audioHref = buildBookHref(null, 'szybka-konsultacja-15-min', false, species)
-  const bridgeHref = buildBookHref(null, 'konsultacja-30-min', false, species)
+  const liveHref = buildBookHref(null, 'kwadrans-na-juz', false, species)
   const fullConsultationHref = buildBookHref(null, 'konsultacja-behawioralna-online', false, species)
   const messageHref = species ? `/kontakt?species=${species}#formularz` : '/kontakt#formularz'
   const speciesLabel = getSpeciesLabel(species)
@@ -81,7 +81,7 @@ export function OfferEntrySection({
         <Link href={audioHref} prefetch={false} className="button button-primary big-button">
           {COPY_CTA.primary}
         </Link>
-        <Link href="/cennik" prefetch={false} className="prep-inline-link">
+        <Link href="/zapytaj" prefetch={false} className="prep-inline-link">
           Zobacz cennik
         </Link>
       </div>
@@ -92,10 +92,9 @@ export function OfferEntrySection({
           <h3>{COPY_SERVICE_NAMES.primary}</h3>
           <p>{getAudioDescription(species)}</p>
           <div className="editorial-hero-meta" aria-label="Parametry usługi">
-            {/* Kwadrans zostaje nazwą usługi, a format idzie w descriptorze. */}
             <span>{COPY_SERVICE_NAMES.primaryDescriptor}</span>
             <span>{formatPricePln(PUBLIC_OFFER_PRICES.quick)}</span>
-            <span>{formatPricePln(PUBLIC_OFFER_PRICES.quick)} / 15 min</span>
+            <span>{formatPricePln(PUBLIC_OFFER_PRICES.quick)} / do 15 min</span>
           </div>
           <p className="muted">Dla {speciesLabel}, gdy temat jest jeden albo chcesz spokojnie ustalić kierunek bez przechodzenia od razu do dłuższej konsultacji.</p>
           <p className="muted">{PUBLIC_OFFER_PRIORITY_VARIANT_NOTE}</p>
@@ -109,15 +108,15 @@ export function OfferEntrySection({
         <article className="summary-card tree-backed-card">
           <div className="section-eyebrow">{COPY_SERVICE_NAMES.bridge}</div>
           <h3>{COPY_SERVICE_NAMES.bridge}</h3>
-          <p>Format dla tematów szerszych, gdy 15 minut to za mało, ale pełna konsultacja byłaby jeszcze zbyt szerokim startem.</p>
-          <div className="editorial-hero-meta" aria-label="Parametry usługi pośredniej">
-            <span>30 min telefonicznie</span>
-            <span>{formatPricePln(PUBLIC_OFFER_PRICES.bridge)}</span>
-            <span>szerszy zakres</span>
+          <p>Ten sam zakres co zwykłe Zapytaj behawiorystę, ale w najbliższym wolnym oknie. Opcja pojawia się tylko wtedy, gdy jestem dostępny.</p>
+          <div className="editorial-hero-meta" aria-label="Parametry rozmowy teraz">
+            <span>do 15 min telefonicznie</span>
+            <span>{formatPricePln(PUBLIC_OFFER_PRICES.urgent)}</span>
+            <span>tylko przy dostępności</span>
           </div>
-          <p className="muted">Dla {speciesLabel}, gdy chcesz uporządkować 2-3 wątki i po rozmowie dostać krótką notatkę.</p>
+          <p className="muted">Dla {speciesLabel}, gdy chcesz porozmawiać od razu i widzisz aktywne okno.</p>
           <div className="hero-actions top-gap-small">
-            <Link href={bridgeHref} prefetch={false} className="button button-ghost">
+            <Link href={liveHref} prefetch={false} className="button button-ghost">
               {COPY_CTA.bridge}
             </Link>
           </div>
@@ -125,10 +124,10 @@ export function OfferEntrySection({
 
         <article className="summary-card tree-backed-card">
           <div className="section-eyebrow">Pełna konsultacja</div>
-          <h3>Pełna konsultacja behawioralna</h3>
+          <h3>Pełna konsultacja</h3>
           <p>{getFullConsultationDescription(species)} Dostajesz analizę zachowania, prawdopodobną przyczynę problemu, plan działania i 14 dni komunikacji w pokoju klienta przy wdrażaniu zaleceń.</p>
           <div className="editorial-hero-meta" aria-label="Parametry usługi">
-            <span>ok. 2h przez Jitsi</span>
+            <span>około 90 minut przez Jitsi</span>
             <span>{formatPricePln(PUBLIC_OFFER_PRICES.premium)}</span>
             <span>plan + 14 dni w pokoju klienta</span>
           </div>

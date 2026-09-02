@@ -55,7 +55,7 @@ export const referenceFaqItems: ReferenceFaqItem[] = [
     category: 'konsultacje',
     question: 'Kiedy pełna konsultacja ma więcej sensu niż szybka rozmowa?',
     answer:
-      'Gdy zachowanie trwa długo, dotyczy kilku sytuacji albo mocno wpływa na życie domowników. Wtedy potrzebne jest około 2h online, analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni komunikacji w pokoju klienta.',
+      'Gdy zachowanie trwa długo, dotyczy kilku sytuacji albo mocno wpływa na życie domowników. Wtedy potrzebne jest około 90 minut online, analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni komunikacji w pokoju klienta.',
   },
   {
     id: 'problemy-kot',
@@ -97,7 +97,7 @@ export const referenceFaqItems: ReferenceFaqItem[] = [
     category: 'wspolpraca',
     question: 'Czy dostanę plan pracy po konsultacji?',
     answer:
-      'Po pełnej konsultacji otrzymujesz plan działania i 14 dni komunikacji w pokoju klienta przy wdrażaniu zaleceń. Po Kwadransie dostajesz przede wszystkim priorytet i najbliższy sensowny krok.',
+      'Po pełnej konsultacji otrzymujesz plan działania i 14 dni komunikacji w pokoju klienta przy wdrażaniu zaleceń. Po Zapytaj behawiorystę dostajesz przede wszystkim pierwszy kierunek i najbliższy sensowny krok.',
   },
   {
     id: 'nie-zachowanie',
@@ -132,7 +132,7 @@ export const referenceFaqItems: ReferenceFaqItem[] = [
     category: 'konsultacje',
     question: 'Czy zakres analizy zależy od długości rozmowy?',
     answer:
-      'Tak. W Kwadransie dostajesz pierwszy kierunek działania na podstawie informacji od opiekuna. Przy sprawach złożonych pełniejsza analiza wymaga około 2h online, formularza, historii zachowania i czasem nagrań.',
+      'Tak. W Zapytaj behawiorystę dostajesz pierwszy kierunek działania na podstawie informacji od opiekuna. Przy sprawach złożonych pełniejsza analiza wymaga około 90 minut online, formularza, historii zachowania i czasem nagrań.',
   },
   {
     id: 'pies-reaktywny-na-spacerze',
@@ -188,7 +188,7 @@ export const referenceFaqItems: ReferenceFaqItem[] = [
     category: 'płatności',
     question: 'Jak mogę zapłacić za konsultację?',
     answer:
-      'Opłaty możesz dokonać przez płatność online (Naffy: karta, Apple/Google Pay, szybki przelew) lub wybierając BLIK na telefon. Po rezerwacji dostajesz dalszy krok i potwierdzenie.',
+      'Na ten moment opłacasz rozmowę ręcznie przez BLIK na telefon. Najpierw wybierasz termin, a rezerwacja czeka na moje potwierdzenie wpłaty maksymalnie 24 godziny.',
   },
   {
     id: 'platnosc-kiedy-potwierdzenie',
@@ -223,7 +223,7 @@ export const referenceFaqItems: ReferenceFaqItem[] = [
     category: 'techniczne',
     question: 'Czy muszę mieć włączoną kamerę?',
     answer:
-      'Nie zawsze. Kwadrans jest rozmową audio. Przy pełnej konsultacji kamera lub nagrania mogą pomóc, ale forma zależy od sytuacji i możliwości opiekuna.',
+      'Nie zawsze. Zapytaj behawiorystę jest rozmową audio. Przy pełnej konsultacji kamera lub nagrania mogą pomóc, ale forma zależy od sytuacji i możliwości opiekuna.',
   },
   {
     id: 'techniczne-nagrania',

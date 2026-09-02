@@ -73,6 +73,20 @@ export function buildBookHref(
   species?: BookingSpecies | null,
   clinicFlow?: boolean,
 ): string {
+  // Public booking now starts with "Zapytaj behawiorystę". Keep the old
+  // /book route only for QA and clinic-specific legacy flows that still need
+  // their own query contract.
+  if (!qaBooking && !clinicFlow && serviceType === 'konsultacja-behawioralna-online') {
+    return '/konsultacja'
+  }
+
+  if (!qaBooking && !clinicFlow) {
+    return buildQueryHref('/zapytaj', {
+      problem: problem ?? null,
+      species: species ?? null,
+    })
+  }
+
   return buildQueryHref('/book', {
     problem: problem ?? null,
     service: serviceType ?? null,
@@ -89,6 +103,13 @@ export function buildSlotHref(
   species?: BookingSpecies | null,
   clinicFlow?: boolean,
 ): string {
+  if (!qaBooking && !clinicFlow) {
+    return buildQueryHref('/zapytaj', {
+      problem,
+      species: species ?? null,
+    })
+  }
+
   return buildQueryHref('/book', {
     problem,
     service: serviceType ?? null,
@@ -106,6 +127,13 @@ export function buildFormHref(
   species?: BookingSpecies | null,
   clinicFlow?: boolean,
 ): string {
+  if (!qaBooking && !clinicFlow) {
+    return buildQueryHref('/zapytaj', {
+      problem,
+      species: species ?? null,
+    })
+  }
+
   return buildQueryHref('/form', {
     problem,
     slotId,
@@ -129,6 +157,14 @@ export function buildPaymentHref(
     service: serviceType ?? null,
     qa: qaBooking ? '1' : null,
     clinic: clinicFlow ? '1' : null,
+  })
+}
+
+export function buildZapytajPaymentHref(bookingId: string, accessToken?: string | null): string {
+  return buildQueryHref('/payment', {
+    bookingId,
+    access: accessToken ?? null,
+    flow: 'zapytaj',
   })
 }
 

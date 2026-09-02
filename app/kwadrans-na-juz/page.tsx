@@ -14,9 +14,9 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 export const metadata: Metadata = buildMarketingMetadata({
-  title: 'Kwadrans na już',
+  title: 'Zapytaj teraz',
   path: '/kwadrans-na-juz',
-  description: 'Pilny Kwadrans na już: wyślij zgłoszenie, a ja skontaktuję się w celu szybkiego ustalenia terminu.',
+  description: 'Zapytaj teraz: wybierz najbliższe okno rozmowy telefonicznej, jeśli ręcznie włączona jest dostępność.',
 })
 
 export default async function KwadransNaJuzPage(
@@ -29,14 +29,14 @@ export default async function KwadransNaJuzPage(
   const email = contact.email ?? 'kontakt@regulskibehawiorysta.pl'
   const fallbackMailHref = buildMailtoHref(
     email,
-    'Prośba o pilny Kwadrans na już',
+    'Prośba o Zapytaj teraz',
     'Imię:\nTelefon:\nGatunek (Pies/Kot):\nOpis sytuacji:\n',
   )
 
   const structuredData = [
     getBreadcrumbJsonLd([
       { name: 'Strona główna', path: '/' },
-      { name: 'Kwadrans na już', path: '/kwadrans-na-juz' },
+      { name: 'Zapytaj teraz', path: '/kwadrans-na-juz' },
     ]),
   ]
 
@@ -50,14 +50,14 @@ export default async function KwadransNaJuzPage(
     <main className="notatnik-page contact-page contact-page-redesign contact-page-reference">
       <Schema data={structuredData} />
       <div className="notatnik-shell contact-shell">
-        <NotatnikTopbar tag="Kwadrans na już" navItems={PUBLIC_SITE_NAV_ITEMS} showUtilityLinks={false} />
+        <NotatnikTopbar tag="Zapytaj teraz" navItems={PUBLIC_SITE_NAV_ITEMS} showUtilityLinks={false} />
         <ReferenceHeroLeaf />
 
         <section className="contact-reference-hero" aria-labelledby="urgent-title">
           <div className="contact-reference-hero-copy">
             <span className="reference-pill">Usługa pilna</span>
             <h1 id="urgent-title">
-              Potrzebujesz szybkiej porady? Kwadrans na już.
+              Potrzebujesz rozmowy w najbliższym oknie? Zapytaj teraz.
             </h1>
             <p>
               Jeśli sprawa jest pilna i nie wymaga pełnej konsultacji, wypełnij poniższy formularz. 
@@ -66,8 +66,8 @@ export default async function KwadransNaJuzPage(
             </p>
             <MobileFirstStepCta
               eyebrow="Pilny pierwszy krok"
-              title="Wyślij zgłoszenie Kwadransa na już"
-              copy="To ten sam 15-minutowy format co Kwadrans, ale z priorytetem terminu."
+              title="Wyślij zgłoszenie Zapytaj teraz"
+              copy="To ten sam zakres co Zapytaj behawiorystę, ale w najbliższym dostępnym oknie."
               meta={`${PUBLIC_OFFER_PRICE_LABELS.urgent} po ustaleniu realnej godziny.`}
               primaryHref="#formularz"
               primaryLabel="Wyślij zgłoszenie"
@@ -83,7 +83,7 @@ export default async function KwadransNaJuzPage(
               <MessageSquare size={26} strokeWidth={1.8} />
             </span>
             <div>
-              <h2 id="urgent-form-title">Zgłoszenie Kwadransa na już</h2>
+              <h2 id="urgent-form-title">Zgłoszenie Zapytaj teraz</h2>
               <p>Podaj swoje dane i krótko opisz sytuację. Opcjonalnie podaj numer telefonu, abym mógł oddzwonić.</p>
             </div>
           </div>

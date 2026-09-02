@@ -30,9 +30,9 @@ export default async function LeadMagnetThankYouPage(
       tag="Materiał pobrany"
       navItems={PUBLIC_SITE_NAV_ITEMS}
       ctaHref={audioHref}
-      ctaLabel="Kwadrans"
+      ctaLabel="Zapytaj behawiorystę"
       footerPrimaryHref={audioHref}
-      footerPrimaryLabel="15-minutowa konsultacja behawioralna"
+      footerPrimaryLabel="Zapytaj behawiorystę"
       sideVisualVariant="materials"
     >
       <div className="container editorial-stack">
@@ -87,7 +87,7 @@ export default async function LeadMagnetThankYouPage(
               },
               {
                 title: 'Jeśli temat zostaje chaotyczny, przejdź do rozmowy',
-                copy: '15-minutowa konsultacja behawioralna pozostaje najprostszym sposobem na ustawienie priorytetu, gdy sam materiał nie wystarcza.',
+                copy: 'Zapytaj behawiorystę pozostaje najprostszym sposobem na ustawienie priorytetu, gdy sam materiał nie wystarcza.',
               },
             ]}
           />
@@ -96,7 +96,7 @@ export default async function LeadMagnetThankYouPage(
         <TrustSignalSection
           eyebrow="Po pobraniu"
           title="Materiał pomaga uporządkować temat przed rozmową"
-          description="Jeśli po lekturze nadal potrzebujesz odniesienia do swojej sytuacji, najprostszym kolejnym krokiem jest 15-minutowa konsultacja behawioralna."
+          description="Jeśli po lekturze nadal potrzebujesz odniesienia do swojej sytuacji, najprostszym kolejnym krokiem jest Zapytaj behawiorystę."
           items={TRUST_SIGNAL_SETS.toolkit}
         />
 

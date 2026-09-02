@@ -638,7 +638,7 @@ const SHOP_ENTRANCES: ShopEntranceCard[] = [
     eyebrow: 'Konsultacja 15 min',
     title: 'Konsultacja 15 min',
     summary: 'Najprostszy pierwszy krok, gdy chcesz szybko sprawdzić kierunek i następny ruch.',
-    href: '/book',
+    href: '/zapytaj',
     cta: 'Umów 15 min',
   },
   {

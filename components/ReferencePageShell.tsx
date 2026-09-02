@@ -148,8 +148,10 @@ export function ReferenceFooter() {
       </Link>
 
       <nav className="reference-footer-nav" aria-label="Nawigacja w stopce">
-        <Link href="/mapa-sprawy" prefetch={false}>Mapa zachowania</Link>
-        <Link href="/cennik" prefetch={false}>Cennik</Link>
+        <Link href="/zapytaj" prefetch={false}>Zapytaj</Link>
+        <Link href="/konsultacja" prefetch={false}>Konsultacja</Link>
+        <Link href="/terapia" prefetch={false}>Terapia</Link>
+        <Link href="/materialy" prefetch={false}>Materiały</Link>
         <Link href="/o-mnie" prefetch={false}>O mnie</Link>
         <Link href="/blog" prefetch={false}>Blog</Link>
         <Link href="/kontakt" prefetch={false}>Kontakt</Link>

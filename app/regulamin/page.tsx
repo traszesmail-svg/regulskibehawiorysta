@@ -9,13 +9,13 @@ export const dynamic = 'force-dynamic'
 export const metadata: Metadata = buildLegalMetadata(
   'Regulamin',
   '/regulamin',
-  'Regulamin serwisu, newslettera, materiałów bezpłatnych, rezerwacji, płatności, zmian terminu i reklamacji w serwisie Regulski.',
+  'Regulamin serwisu, materiałów bezpłatnych, rezerwacji, płatności, zmian terminu i reklamacji w serwisie Regulski.',
 )
 
 const summaryItems: LegalSummaryItem[] = [
   {
     label: 'Usługi objęte dokumentem',
-    value: 'Kwadrans, Kwadrans na już, Dwa kwadranse, newsletter, materiały bezpłatne oraz podstawowe zasady korzystania z serwisu.',
+    value: 'Zapytaj behawiorystę, Zapytaj teraz, Pełna konsultacja, materiały bezpłatne oraz podstawowe zasady korzystania z serwisu.',
   },
   {
     label: 'Model płatności',
@@ -48,10 +48,9 @@ const sections: LegalSection[] = [
     body: (
       <>
         <ul className="premium-bullet-list">
-          <li>Kwadrans to 15 min połączenia telefonicznego na jedno główne pytanie.</li>
-          <li>Kwadrans na już ma ten sam zakres co Kwadrans, ale z priorytetem i najbliższym realnym terminem.</li>
-          <li>Dwa kwadranse to 30 min połączenia telefonicznego dla tematów szerszych niż sam Kwadrans.</li>
-          <li>Pełna konsultacja ma osobny regulamin i osobną stronę warunków.</li>
+          <li>Zapytaj behawiorystę to rozmowa telefoniczna do 15 minut, pierwszy kierunek działania i dwa pytania po rozmowie.</li>
+          <li>Zapytaj teraz ma ten sam zakres, ale jest dostępne tylko w czasie ręcznie włączonej dostępności.</li>
+          <li>Pełna konsultacja ma osobny regulamin i jest udostępniana indywidualnie po pierwszym kroku.</li>
         </ul>
         <p>
           Usługi mają charakter konsultacji behawioralnych świadczonych na odległość. W uzasadnionych przypadkach klient
@@ -91,7 +90,7 @@ const sections: LegalSection[] = [
         </p>
         <p>
           Po wysłaniu danych w formularzu wybrany slot jest wstępnie blokowany na czas przejścia do płatności. Standardowe
-          okno blokady wynosi 15 minut. Rezerwacja staje się pewna dopiero po potwierdzeniu płatności.
+          okno blokady wynosi 5 minut. Rezerwacja staje się pewna dopiero po potwierdzeniu płatności.
         </p>
         <p>Wiadomość wysłana przez formularz kontaktowy ma charakter wstępny i nie zastępuje rezerwacji usługi.</p>
       </>
@@ -102,13 +101,12 @@ const sections: LegalSection[] = [
     body: (
       <>
         <p>
-          Publicznie komunikowany model płatności to {PUBLIC_OFFER_PAYMENT_METHODS}. Jeżeli aktywna jest płatność online,
-          klient przechodzi do niej bezpośrednio po utworzeniu rezerwacji. Jeżeli aktywna jest płatność BLIK według
-          instrukcji, klient otrzymuje dane potrzebne do wykonania wpłaty.
+          Publicznie komunikowany model płatności to {PUBLIC_OFFER_PAYMENT_METHODS}. Po utworzeniu rezerwacji klient
+          otrzymuje dane potrzebne do wykonania wpłaty i może przesłać potwierdzenie zgodnie z instrukcją.
         </p>
         <p>
-          Termin zostaje ostatecznie zablokowany dopiero po potwierdzeniu płatności. Przy płatności BLIK według instrukcji
-          wpłatę potwierdza usługodawca w godzinach 9-21, poza dniami ustawowo wolnymi od pracy.
+          Termin zostaje ostatecznie zablokowany dopiero po potwierdzeniu płatności. Wpłatę potwierdzam albo odrzucam
+          maksymalnie w ciągu 24 godzin.
         </p>
         <p>Nieopłacona lub niepotwierdzona rezerwacja może wygasnąć, a termin może wrócić do puli dostępnych terminów.</p>
       </>
@@ -119,18 +117,16 @@ const sections: LegalSection[] = [
     body: (
       <>
         <p>
-          Jednorazowy kod przekazany przez lecznicę dotyczy tej samej usługi Kwadrans i nie tworzy odrębnej usługi ani
+          Jednorazowy kod przekazany przez lecznicę dotyczy bezpłatnego Zapytaj behawiorystę i nie tworzy odrębnej usługi ani
           nie omija terminarza. Po sprawdzeniu kodu klient wybiera gatunek, temat, dostępny termin i uzupełnia formularz rezerwacji.
         </p>
         <p>
-          Po potwierdzeniu kodu klient wybiera kanał realizacji: rozmowę przez Jitsi bez dopłaty albo rozmowę telefoniczną
-          jako odpłatną usługę dodatkową. Wysokość dopłaty jest pokazywana przed wyborem telefonu i przed złożeniem zamówienia.
-          Dla wariantu telefonicznego podanie prawidłowego numeru telefonu jest obowiązkowe.
+          Po potwierdzeniu kodu klient wybiera dogodny termin rozmowy telefonicznej. Prawidłowy numer telefonu jest
+          obowiązkowy, ponieważ służy do realizacji usługi.
         </p>
         <p>
-          Brak zapłaty albo brak potwierdzenia dopłaty telefonicznej nie odbiera prawa do wariantu Jitsi uzyskanego kodem.
-          Kanał zostaje zmieniony na telefon dopiero po potwierdzeniu dopłaty. Połączenie telefoniczne może być realizowane
-          technicznie przez Zadarma na numer podany przez klienta.
+          Kod nie omija terminarza ani zasad dostępności. Połączenie może być realizowane technicznie przez Zadarma na
+          numer podany przez klienta.
         </p>
         <p>
           Kod jest zużywany przy potwierdzeniu rezerwacji, ma limit jednego użycia i może mieć termin ważności. W razie
@@ -219,31 +215,20 @@ const sections: LegalSection[] = [
     ),
   },
   {
-    title: '13. Newsletter i materiały bezpłatne',
+    title: '13. Materiały bezpłatne',
     body: (
       <>
         <p>
-          Zapis do newslettera jest dobrowolny i bezpłatny. Wymaga podania aktywnego adresu e-mail, wybrania
-          segmentu tematycznego oraz potwierdzenia zgody na otrzymywanie wiadomości.
+          Materiały bezpłatne są udostępniane po podaniu aktywnego adresu e-mail i zaakceptowaniu zasad przetwarzania
+          danych opisanych w Polityce prywatności.
         </p>
         <p>
-          Newsletter jest planowany co do zasady raz w miesiącu. Może zawierać wskazówki dotyczące zachowania psów
-          i kotów, odnośniki do artykułów, informacje o aktualnych materiałach oraz treści związane z ofertą serwisu.
-          Częstotliwość może zostać czasowo zmieniona z przyczyn redakcyjnych lub technicznych.
+          Materiał startowy może być dobrany do wybranego tematu i udostępniony przez bezpośredni link pokazany po
+          wysłaniu formularza albo przez wiadomość e-mail.
         </p>
         <p>
-          Po prawidłowym zapisie użytkownik może otrzymać materiał startowy dobrany do wybranego segmentu: pies,
-          kot albo oba. Materiał jest dostępny także przez bezpośredni link pokazany po zapisie, jeżeli dodatkowa
-          wiadomość e-mail nie zostanie dostarczona.
-        </p>
-        <p>
-          Materiały i newsletter mają charakter edukacyjny. Nie stanowią diagnozy medycznej, porady weterynaryjnej
-          ani indywidualnego planu terapii i nie zastępują konsultacji dotyczącej konkretnego zwierzęcia.
-        </p>
-        <p>
-          Z newslettera można zrezygnować w każdym czasie, bez opłat i bez negatywnych konsekwencji, korzystając
-          z linku rezygnacji umieszczonego w wiadomości albo kontaktując się przez formularz lub e-mail. Wycofanie
-          zgody nie wpływa na zgodność z prawem działań wykonanych przed jej wycofaniem.
+          Materiały mają charakter edukacyjny. Nie stanowią diagnozy medycznej, porady weterynaryjnej ani indywidualnego
+          planu terapii i nie zastępują konsultacji dotyczącej konkretnego zwierzęcia.
         </p>
       </>
     ),
@@ -264,7 +249,7 @@ export default function TermsPage() {
     <LegalPageLayout
       eyebrow="Regulamin"
       title="Regulamin świadczenia usług"
-      intro="Dokument określa zasady korzystania z serwisu, newslettera, materiałów bezpłatnych, rezerwacji usług, dokonywania płatności, potwierdzeń, zmian terminu oraz trybu składania reklamacji."
+      intro="Dokument określa zasady korzystania z serwisu, materiałów bezpłatnych, rezerwacji usług, dokonywania płatności, potwierdzeń, zmian terminu oraz trybu składania reklamacji."
       summaryItems={summaryItems}
       sections={sections}
       structuredData={[

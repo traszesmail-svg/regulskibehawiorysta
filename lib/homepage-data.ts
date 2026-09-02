@@ -82,28 +82,28 @@ export const homepageSelectorRecommendations: Record<
   }
 > = {
   quarter: {
-    title: 'Kwadrans',
-    summary: 'Szybki pierwszy krok: na podstawie przekazanych informacji dostajesz wstępną analizę zachowania i kierunek działania.',
-    ctaLabel: 'Chcę zacząć od Kwadransa',
+    title: 'Zapytaj behawiorystę',
+    summary: 'Szybki pierwszy krok: na podstawie przekazanych informacji dostajesz pierwszy kierunek działania i dwa pytania po rozmowie.',
+    ctaLabel: 'Chcę zacząć od Zapytaj behawiorystę',
     service: 'szybka-konsultacja-15-min',
     price: PUBLIC_OFFER_PRICE_LABELS.quick,
-    duration: '15 min telefonicznie',
+    duration: 'do 15 min telefonicznie',
   },
   double: {
-    title: 'Dwa kwadranse',
-    summary: 'Dobry wybór, gdy temat ma kilka wątków i potrzebuje szerszej analizy opartej na większej ilości danych.',
+    title: 'Zapytaj behawiorystę',
+    summary: 'Dobry pierwszy wybór, gdy temat ma kilka wątków: podczas rozmowy uporządkujemy sytuację i ustalimy, czy potrzebny jest dalszy proces.',
     ctaLabel: 'Chcę spokojniej omówić temat',
-    service: 'konsultacja-30-min',
-    price: PUBLIC_OFFER_PRICE_LABELS.bridge,
-    duration: '30 min telefonicznie',
+    service: 'szybka-konsultacja-15-min',
+    price: PUBLIC_OFFER_PRICE_LABELS.quick,
+    duration: 'do 15 min telefonicznie',
   },
   full: {
     title: 'Pełna konsultacja',
-    summary: 'Około 2h przez Jitsi dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni komunikacji w pokoju klienta.',
+    summary: 'Około 90 minut przez Jitsi dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni komunikacji w pokoju klienta.',
     ctaLabel: 'Chcę pełną konsultację',
     service: 'konsultacja-behawioralna-online',
     price: PUBLIC_OFFER_PRICE_LABELS.premium,
-    duration: 'ok. 2h przez Jitsi',
+    duration: 'około 90 minut przez Jitsi',
   },
 }
 

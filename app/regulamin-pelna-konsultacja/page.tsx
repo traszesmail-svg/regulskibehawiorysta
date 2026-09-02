@@ -13,7 +13,7 @@ export const metadata: Metadata = buildLegalMetadata(
 const summaryItems: LegalSummaryItem[] = [
   {
     label: 'Produkt objęty dokumentem',
-    value: `Pełna konsultacja behawioralna przez Jitsi: ${PUBLIC_OFFER_PRICE_LABELS.premium}, około 2h, analiza zachowania, plan działania i 14 dni komunikacji w pokoju klienta.`,
+    value: `Pełna konsultacja behawioralna przez Jitsi: ${PUBLIC_OFFER_PRICE_LABELS.premium}, około 90 minut, analiza zachowania, plan działania i 14 dni komunikacji w pokoju klienta.`,
   },
   {
     label: 'Płatność',
@@ -42,7 +42,7 @@ const sections: LegalSection[] = [
     body: (
       <>
         <ul className="premium-bullet-list">
-          <li>Konsultacja trwa około 2h i odbywa się przez Jitsi w formie rozmowy audio lub audio/wideo.</li>
+          <li>Konsultacja trwa około 90 minut i odbywa się przez Jitsi w formie rozmowy audio lub audio/wideo.</li>
           <li>W ramach konsultacji usługodawca analizuje opisaną sytuację psa lub kota, porządkuje priorytety i przekazuje analizę zachowania opartą na danych od klienta.</li>
           <li>Po konsultacji klient otrzymuje analizę zachowania opartą na danych od klienta i indywidualny plan działania.</li>
           <li>Przez 14 dni od konsultacji klient może w pokoju klienta zadawać pytania, wysyłać wiadomości tekstowe i filmy oraz konsultować wdrażanie planu.</li>
@@ -61,8 +61,8 @@ const sections: LegalSection[] = [
     body: (
       <>
         <p>Cena konsultacji: {PUBLIC_OFFER_PRICE_LABELS.premium} brutto.</p>
-        <p>Metody płatności: {PUBLIC_OFFER_PAYMENT_METHODS}. Jeżeli aktywna jest płatność online, klient przechodzi do niej bezpośrednio po utworzeniu rezerwacji. Jeżeli aktywna jest płatność BLIK według instrukcji, klient otrzymuje dane potrzebne do wykonania wpłaty.</p>
-        <p>Termin jest wstępnie blokowany na czas płatności. Standardowe okno blokady wynosi 15 minut.</p>
+        <p>Metoda płatności: {PUBLIC_OFFER_PAYMENT_METHODS}. Klient otrzymuje dane potrzebne do wykonania wpłaty zgodnie z instrukcją.</p>
+        <p>Termin jest wstępnie blokowany na czas płatności. Standardowe okno blokady wynosi 5 minut.</p>
         <p>Termin zostaje ostatecznie zablokowany dopiero po potwierdzeniu płatności. Przy płatności BLIK według instrukcji wpłatę potwierdza usługodawca w godzinach 9:00-21:00, poza dniami ustawowo wolnymi od pracy.</p>
         <p>Rezerwacja bez dokonanej lub potwierdzonej płatności nie jest wiążąca, a termin może wrócić do puli dostępnych terminów.</p>
       </>
@@ -76,7 +76,7 @@ const sections: LegalSection[] = [
           Konsultacja odbywa się przez Jitsi Meet — nie wymaga instalacji aplikacji ani konta. Wystarczy kliknąć link przesłany e-mailem przed rozmową.
         </p>
         <p>
-          Przy formacie 15 i 30 minut potrzebne jest tylko audio (mikrofon i głośnik albo słuchawki). Przy Pełnej konsultacji kamera może pomóc, ale nie jest obowiązkowa.
+          Przy Zapytaj behawiorystę potrzebne jest tylko audio (mikrofon i głośnik albo słuchawki). Przy Pełnej konsultacji kamera może pomóc, ale nie jest obowiązkowa.
         </p>
         <p>Wymagany jest dostęp do internetu, aktualna przeglądarka (Chrome, Firefox, Safari, Edge) oraz aktywny adres e-mail.</p>
       </>
@@ -86,8 +86,8 @@ const sections: LegalSection[] = [
     title: '5. Rezerwacja terminu',
     body: (
       <>
-          <p>Klient inicjuje rezerwację przez formularz na stronie /book, wybierając dostępny termin i opisując sytuację.</p>
-          <p>Po wysłaniu danych w formularzu wybrany slot jest wstępnie blokowany na czas płatności. Standardowe okno blokady wynosi 15 minut.</p>
+          <p>Klient otrzymuje indywidualny link do rezerwacji po wcześniejszym Zapytaj behawiorystę i rekomendacji Pełnej konsultacji.</p>
+          <p>Po wysłaniu danych w formularzu wybrany slot jest wstępnie blokowany na czas płatności. Standardowe okno blokady wynosi 5 minut.</p>
           <p>Konsultacja jest zarezerwowana dopiero po potwierdzeniu płatności.</p>
           <p>Na 24 godziny przed konsultacją klient otrzymuje e-mail z linkiem do rozmowy i listą materiałów do przygotowania, jeżeli są potrzebne.</p>
           <p>Po zakończeniu konsultacji dalszy 14-dniowy kontakt tekstowy odbywa się w pokoju klienta, chyba że strony ustalą inny kanał pisemny.</p>
@@ -165,7 +165,7 @@ export default function FullConsultationTermsPage() {
     <LegalPageLayout
       eyebrow="Regulamin / pełna konsultacja"
       title="Regulamin Pełnej konsultacji behawioralnej online"
-      intro="Dokument opisuje zasady rezerwacji, płatności, zmian terminu, realizacji około 2h online, 14 dni komunikacji w pokoju klienta i reklamacji dla Pełnej konsultacji online."
+      intro="Dokument opisuje zasady rezerwacji, płatności, zmian terminu, realizacji około 90 minut online, 14 dni komunikacji w pokoju klienta i reklamacji dla Pełnej konsultacji online."
       summaryItems={summaryItems}
       sections={sections}
       structuredData={[

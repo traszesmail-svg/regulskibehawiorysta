@@ -10,7 +10,7 @@ interface Step {
 }
 
 const steps: Step[] = [
-  { num: 1, icon: 'layout-list', title: 'Pomóż mi dobrać rozmowę', desc: 'Kwadrans, Dwa kwadranse lub Pełna konsultacja - zależnie od tego, ile kontekstu wymaga sytuacja.' },
+  { num: 1, icon: 'layout-list', title: 'Opisz, co się dzieje', desc: 'Zacznij od Zapytaj behawiorystę. Jeśli sytuacja wymaga szerszego procesu, pełna konsultacja jest kolejnym krokiem.' },
   { num: 2, icon: 'message-square-text', title: 'Opisz sytuację', desc: 'Krótko: co dzieje się w domu lub na spacerze i jak reaguje pupil.' },
   { num: 3, icon: 'headphones', title: 'Rozmowa audio', desc: 'Słuchawki w uszach, kamera wyłączona - spokojnie i bez stresu.', withVideoOff: true },
   { num: 4, icon: 'check', title: 'Wiesz co dalej', desc: 'Konkretny pierwszy krok, który możesz zacząć od razu.', highlight: true },

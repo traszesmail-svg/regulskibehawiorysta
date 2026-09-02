@@ -25,14 +25,14 @@ type ValidatedBookPayload = {
 }
 
 const SERVICES: Record<BookingServiceId, { label: string; price: string }> = {
-  'kwadrans-na-juz': { label: 'Kwadrans na już', price: PUBLIC_OFFER_PRICE_LABELS.urgent },
-  'szybka-konsultacja-15-min': { label: '15-minutowa konsultacja behawioralna', price: PUBLIC_OFFER_PRICE_LABELS.quick },
-  'konsultacja-30-min': { label: 'Dwa kwadranse', price: PUBLIC_OFFER_PRICE_LABELS.bridge },
+  'kwadrans-na-juz': { label: 'Zapytaj teraz', price: PUBLIC_OFFER_PRICE_LABELS.urgent },
+  'szybka-konsultacja-15-min': { label: 'Zapytaj behawiorystę', price: PUBLIC_OFFER_PRICE_LABELS.quick },
+  'konsultacja-30-min': { label: 'Starszy wariant rozmowy', price: PUBLIC_OFFER_PRICE_LABELS.bridge },
   'konsultacja-behawioralna-online': { label: 'Pełna konsultacja', price: PUBLIC_OFFER_PRICE_LABELS.premium },
 }
 
 const SUCCESS_MESSAGE = 'Dostałem Twoją rezerwację. Wysłałem też kopię na podany adres e-mail.'
-const URGENT_SUCCESS_MESSAGE = 'Twoja prośba o Kwadrans na już dotarła. Wysłałem też kopię na podany adres e-mail.'
+const URGENT_SUCCESS_MESSAGE = 'Twoja prośba o Zapytaj teraz dotarła. Wysłałem też kopię na podany adres e-mail.'
 const GENERIC_ERROR_MESSAGE = 'Nie udało się wysłać prośby o rezerwację. Spróbuj ponownie później.'
 const UNAVAILABLE_MESSAGE = 'Rezerwacja mailowa jest chwilowo niedostępna. Spróbuj później albo napisz przez formularz kontaktowy.'
 
@@ -73,7 +73,7 @@ function validatePayload(body: Record<string, unknown>): { payload?: ValidatedBo
   const species = speciesValue === 'pies' || speciesValue === 'kot' ? speciesValue : null
 
   if (service === 'kwadrans-na-juz') {
-    return { error: 'Kwadrans na już ma osobny formularz z wyborem godzin na dziś.' }
+    return { error: 'Zapytaj teraz ma osobny formularz z wyborem najbliższych godzin.' }
   }
 
   if (!serviceConfig || !name || !email || !species || !description || !preferredSlots) {

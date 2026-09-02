@@ -21,14 +21,14 @@ const homeNavItems: NavItem[] = [
 
 const dogNavItems: NavItem[] = [
   { href: '/problemy#pies', label: 'Problemy psa' },
-  { href: '/cennik/pelny', label: 'Konsultacja' },
+  { href: '/konsultacja', label: 'Konsultacja' },
   { href: '/opinie', label: 'Opinie' },
   { href: '/faq', label: 'FAQ' },
 ]
 
 const catNavItems: NavItem[] = [
   { href: '/problemy#kot', label: 'Problemy kota' },
-  { href: '/cennik/pelny', label: 'Konsultacja' },
+  { href: '/konsultacja', label: 'Konsultacja' },
   { href: '/opinie', label: 'Opinie' },
   { href: '/faq', label: 'FAQ' },
 ]
@@ -53,7 +53,7 @@ const materialNavItems: NavItem[] = [
 ]
 
 const faqNavItems: NavItem[] = [
-  { href: '/cennik/pelny', label: 'Konsultacja' },
+  { href: '/konsultacja', label: 'Konsultacja' },
   { href: '/o-mnie#faq', label: 'Podejście' },
   { href: '/faq#kontakt', label: 'Kontakt', sectionId: 'kontakt' },
 ]
@@ -61,7 +61,7 @@ const faqNavItems: NavItem[] = [
 const aboutNavItems: NavItem[] = [
   { href: '/o-mnie#kim-jestem', label: 'Kim jestem', sectionId: 'kim-jestem' },
   { href: '/o-mnie#metodyka', label: 'Metodyka', sectionId: 'metodyka' },
-  { href: '/cennik', label: 'Cennik' },
+  { href: '/zapytaj', label: 'Zapytaj' },
   { href: '/o-mnie#opinie', label: 'Opinie', sectionId: 'opinie' },
   { href: '/o-mnie#faq', label: 'FAQ', sectionId: 'faq' },
 ]

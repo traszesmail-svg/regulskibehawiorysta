@@ -19,7 +19,6 @@ import {
 } from '@/lib/case-map-questions'
 import {
   CASE_MAP_ICON_SOURCES,
-  CASE_MAP_PATH_ICONS,
   CASE_MAP_SPECIES_ICONS,
   CASE_MAP_TOPIC_ICONS,
   getCaseMapQuestionOptionIcon,
@@ -142,7 +141,7 @@ function getStepInsight(sceneId: string, selection: string): StepInsight {
   if (sceneId === 'scope') {
     return {
       observation: `Na dziś wybierasz: ${selection}.`,
-      bridge: 'Na końcu podpowiemy konsultację, od której warto zacząć.',
+      bridge: 'Na końcu zbierzemy najważniejsze obserwacje i pokażemy Ci rozsądny następny krok.',
     }
   }
 
@@ -242,21 +241,21 @@ export function ShortBehaviorMapFlow({
     },
     {
       id: 'species',
-      eyebrow: path === 'long' ? 'Pełniejsza mapa' : 'Szybka mapa',
+      eyebrow: 'Mapa zachowania',
       title: 'Kogo dotyczy ta sytuacja?',
       helper: 'Zaczniemy od prostego kontekstu, bez szukania idealnej odpowiedzi.',
       kind: 'species',
     },
     {
       id: 'topic',
-      eyebrow: path === 'long' ? 'Pełniejsza mapa' : 'Szybka mapa',
+      eyebrow: 'Mapa zachowania',
       title: 'Co jest dziś najbliżej tego, co się dzieje?',
       helper: 'Wybierz najbliższy temat. Resztę doprecyzujesz po drodze.',
       kind: 'topic',
     },
     {
       id: CASE_MAP_FOCUS_QUESTION.id,
-      eyebrow: path === 'long' ? 'Pełniejsza mapa' : 'Szybka mapa',
+      eyebrow: 'Mapa zachowania',
       title: CASE_MAP_FOCUS_QUESTION.title,
       helper: CASE_MAP_FOCUS_QUESTION.helper ?? '',
       kind: 'question',
@@ -264,14 +263,14 @@ export function ShortBehaviorMapFlow({
     },
     ...questionScenes.map(({ question, sectionTitle }) => ({
       id: question.id,
-      eyebrow: path === 'long' ? 'Pełniejsza mapa' : 'Szybka mapa',
+      eyebrow: 'Mapa zachowania',
       title: question.title,
       helper: question.helper ?? 'Jedna krótka odpowiedź pomoże ułożyć sensowny następny krok.',
       kind: 'question' as const,
       question,
       sectionTitle,
     })),
-  ], [path, questionScenes])
+  ], [questionScenes])
 
   const currentScene = scenes[sceneIndex]
   const currentQuestion = currentScene?.question
@@ -291,12 +290,10 @@ export function ShortBehaviorMapFlow({
       ? currentQuestion?.id ?? null
       : currentScene?.id ?? null
   const priorityConversation = answers.fast_goal === 'safety' || answers.fast_impact === 4
-  const extendedConversation = path === 'long' || answers.fast_goal === 'full_plan'
-  const recommendedServiceType: CaseMapBookingServiceType = priorityConversation
-    ? 'kwadrans-na-juz'
-    : extendedConversation
-      ? 'konsultacja-30-min'
-      : 'szybka-konsultacja-15-min'
+  // Mapa porządkuje opis, ale nie wybiera samodzielnie droższej usługi
+  // ani wariantu "teraz". O dalszym zakresie decyduje rozmowa z behawiorystą.
+  const extendedConversation = false
+  const recommendedServiceType: CaseMapBookingServiceType = 'szybka-konsultacja-15-min'
   const recommendedService = getBookingServiceConfig(recommendedServiceType)
   const report = species && topic
     ? buildCaseMapReport({ species, topic, path: path ?? 'fast', triageState: 'PROCEED', answers })
@@ -316,29 +313,7 @@ export function ShortBehaviorMapFlow({
     currentQuestionId,
   })
   const bookingHref = appendSearchParams(
-    bookingHandoff ? buildBookHref(bookingHandoff.problemType, bookingHandoff.serviceType, false, bookingHandoff.species) : '/book',
-    marketingParams,
-  )
-  const alternateServiceType: CaseMapBookingServiceType = priorityConversation || extendedConversation
-    ? 'szybka-konsultacja-15-min'
-    : 'konsultacja-30-min'
-  const alternateService = getBookingServiceConfig(alternateServiceType)
-  const alternateBookingHandoff = createCaseMapBookingHandoff({
-    species: species || null,
-    topic: topic || null,
-    path,
-    answers,
-    triageState: 'PROCEED',
-    serviceType: alternateServiceType,
-    caseMapId: savedCaseMap?.id ?? null,
-    shareWithConsultant: false,
-    source,
-    problemKey: initialProblemKey ?? null,
-    triage: UNASSESSED_TRIAGE,
-    currentQuestionId,
-  })
-  const alternateBookingHref = appendSearchParams(
-    alternateBookingHandoff ? buildBookHref(alternateBookingHandoff.problemType, alternateBookingHandoff.serviceType, false, alternateBookingHandoff.species) : '/book',
+    bookingHandoff ? buildBookHref(bookingHandoff.problemType, bookingHandoff.serviceType, false, bookingHandoff.species) : '/zapytaj',
     marketingParams,
   )
   const contactHref = appendSearchParams('/kontakt', marketingParams)
@@ -352,7 +327,7 @@ export function ShortBehaviorMapFlow({
   const progressSegmentCount = path === 'long' ? 10 : SHORT_FLOW_STEP_COUNT
   const completedSegments = path && totalSteps ? Math.round((activeStep / totalSteps) * progressSegmentCount) : 0
   const currentSelection = currentScene?.kind === 'scope'
-    ? path === 'long' ? 'Pełniejsza mapa' : path === 'fast' ? 'Szybka mapa' : null
+    ? path ? 'Mapa zachowania' : null
     : currentScene?.kind === 'species'
       ? species === 'pies' ? 'Pies' : species === 'kot' ? 'Kot' : null
       : currentScene?.kind === 'topic' && species && topic
@@ -538,34 +513,19 @@ export function ShortBehaviorMapFlow({
   const impactLabel = answerLabel(shortQuestions[2], answers[shortQuestions[2]?.id ?? ''])
   const patternLabel = answerLabel(topicQuestion, answers[topicQuestion?.id ?? ''])
   const goalLabel = answerLabel(shortQuestions[4], answers[shortQuestions[4]?.id ?? '']) ?? answerExcerpt(answers.intake_goal)
-  const resultTitle = priorityConversation
-    ? 'Ta sytuacja zasługuje na szybszy następny krok.'
-    : extendedConversation
-      ? 'Ta sytuacja zasługuje na więcej niż krótką odpowiedź.'
-      : 'Masz obraz sytuacji. Zmieńmy go w konkretny kierunek.'
-  const resultLead = priorityConversation
-    ? 'Mapa wskazuje, że najważniejsze jest teraz szybkie uporządkowanie sytuacji. Nie musisz dalej zbierać odpowiedzi samodzielnie.'
-    : extendedConversation
-      ? 'Twoje odpowiedzi pokazują więcej niż jeden wątek. Dłuższa konsultacja pozwoli połączyć je w spokojną kolejność działań.'
-      : 'Twoje odpowiedzi pokazują, od czego warto zacząć. Podczas konsultacji wspólnie przełożymy je na pierwszy sensowny krok.'
+  const resultTitle = 'Masz punkt wyjścia do rozmowy.'
+  const resultLead = 'Mapa nie jest diagnozą. Pomaga zebrać obserwacje, żeby podczas krótkiej rozmowy szybciej przejść do tego, co możesz zrobić dalej.'
   const resultSignals = [
     { label: 'Co już widać', value: patternLabel ? `${topicLabel}: ${patternLabel}.` : `Wybrany obszar: ${topicLabel}.` },
     { label: 'Co doprecyzujemy', value: `${impactLabel ? `Wpływ na codzienność: ${impactLabel}. ` : ''}${longOnsetLabel ? `Opis początku: ${longOnsetLabel}.` : onsetLabel ? `Kontekst i to, dlaczego sytuacja ${onsetLabel.toLowerCase()}.` : 'Kontekst domu, rytmu i warunków, których nie widać po jednej odpowiedzi.'}` },
     { label: 'Cel rozmowy', value: goalLabel ?? (extendedConversation ? 'Ułożenie pełniejszego planu.' : 'Wybranie pierwszego sensownego kierunku.') },
   ]
-  const offerBenefits = priorityConversation
-    ? ['Nie zaczynamy od całej historii od zera.', 'Zaczynamy od najważniejszego fragmentu sytuacji.', 'Wychodzisz z uporządkowanym następnym krokiem.']
-    : extendedConversation
-      ? ['Łączymy obserwacje z różnych momentów dnia.', 'Ustalamy, co jest tłem, a co priorytetem.', 'Budujemy kierunek dalszego planu, nie pojedynczą poradę.']
-      : ['Nie zaczynamy od zera — Mapa jest punktem startu.', 'Porządkujemy, co w tej sytuacji jest najważniejsze.', 'Wybieramy pierwszy kierunek działania dla jednego tematu.']
-  const purchaseLabel = priorityConversation
-    ? 'Wybierz termin · Kwadrans na już'
-    : extendedConversation
-      ? 'Wybierz termin · Dwa kwadranse'
-      : 'Wybierz termin · Konsultacja 15 min'
-  const alternateLabel = alternateServiceType === 'konsultacja-30-min'
-    ? `Potrzebuję więcej czasu · ${alternateService.shortTitle}`
-    : `Wolę zwykłą konsultację · ${alternateService.shortTitle}`
+  const offerBenefits = [
+    'Nie zaczynasz rozmowy od zera.',
+    'Porządkujesz najważniejsze obserwacje.',
+    'Otrzymujesz pierwszy kierunek działania.',
+  ]
+  const purchaseLabel = 'Zapytaj behawiorystę — 79 zł'
   const resultVisual = priorityConversation
     ? '/images/mapa-zachowania/result-priority-v1.png'
     : '/images/mapa-zachowania/result-plan-v1.png'
@@ -573,9 +533,9 @@ export function ShortBehaviorMapFlow({
   return (
     <section className={styles.root} aria-labelledby="short-behavior-map-title">
       <header className={styles.flowHeader}>
-        <Link href="/" className={styles.flowIdentity}><span className={styles.directionGlyph} aria-hidden="true">←</span><span>{path === 'long' ? 'Pełniejsza mapa' : path === 'fast' ? 'Szybka mapa' : 'Mapa zachowania'}</span></Link>
-        <div className={styles.flowProgress} aria-label={path && totalSteps ? `Krok ${activeStep} z ${totalSteps}` : path ? 'Początek wybranej Mapy zachowania' : 'Wybór wersji Mapy zachowania'}>
-          <strong>{path && totalSteps ? <>{activeStep} <span>/ {totalSteps}</span></> : path ? 'Start' : 'Wybierz wersję'}</strong>
+        <Link href="/" className={styles.flowIdentity}><span className={styles.directionGlyph} aria-hidden="true">←</span><span>Mapa zachowania</span></Link>
+        <div className={styles.flowProgress} aria-label={path && totalSteps ? `Krok ${activeStep} z ${totalSteps}` : path ? 'Początek Mapy zachowania' : 'Zacznij od kilku pytań'}>
+          <strong>{path && totalSteps ? <>{activeStep} <span>/ {totalSteps}</span></> : 'Start'}</strong>
           <div className={styles.progressTrack} style={{ gridTemplateColumns: `repeat(${progressSegmentCount}, minmax(0, 1fr))` }} aria-hidden="true">
             {Array.from({ length: progressSegmentCount }, (_, index) => <span key={index} className={mode === 'result' || index < completedSegments ? styles.progressDone : path && index === completedSegments ? styles.progressCurrent : undefined} />)}
           </div>
@@ -618,13 +578,7 @@ export function ShortBehaviorMapFlow({
               {currentScene.kind === 'scope' ? (
                 <div className={styles.answerGrid}>
                   <button type="button" className={styles.answer} onClick={() => choosePath('fast')}>
-                    <MapIcon name={CASE_MAP_PATH_ICONS.fast} className={styles.answerIcon} />
-                    <span className={styles.answerCopy}><strong>Szybka mapa</strong><small>Kilka krótkich pytań i jasny kierunek rozmowy.</small></span>
-                    <span className={styles.rowArrow} aria-hidden="true">›</span>
-                  </button>
-                  <button type="button" className={styles.answer} onClick={() => choosePath('long')}>
-                    <MapIcon name={CASE_MAP_PATH_ICONS.long} className={styles.answerIcon} />
-                    <span className={styles.answerCopy}><strong>Pełniejsza mapa</strong><small>Więcej miejsca na opis sytuacji, gdy chcesz poruszyć kilka wątków.</small></span>
+                    <span className={styles.answerCopy}><strong>Zacznij Mapę zachowania</strong><small>Kilka prostych pytań pomoże uporządkować sytuację przed rozmową.</small></span>
                     <span className={styles.rowArrow} aria-hidden="true">›</span>
                   </button>
                 </div>
@@ -737,16 +691,16 @@ export function ShortBehaviorMapFlow({
               <div className={styles.purchaseCardHeading}>
                 <MapIcon name={priorityConversation ? 'safety-shield' : extendedConversation ? 'map-full' : 'route-plan'} className={styles.purchaseIcon} />
                 <div>
-                  <span>Proponowana konsultacja</span>
+                  <span>Pierwszy krok</span>
                   <strong>{recommendedService.title}</strong>
                 </div>
               </div>
-              <p>{priorityConversation ? 'Ta sytuacja zasługuje na szybszą rozmowę. Wybierz najbliższy termin — najważniejsze odpowiedzi dołączymy do tej rezerwacji.' : extendedConversation ? 'Wybierz termin dłuższej konsultacji. Najważniejsze odpowiedzi dołączymy do rezerwacji, aby rozmowa zaczęła się od Twojej sytuacji.' : 'Wybierz termin konsultacji. Najważniejsze odpowiedzi dołączymy do rezerwacji, aby rozmowa zaczęła się od Twojej sytuacji.'}</p>
+              <p>Jeśli chcesz omówić sytuację z behawiorystą, wybierz termin krótkiej rozmowy. Twoje odpowiedzi dołączymy do rezerwacji.</p>
               <ul>
                 {offerBenefits.map((benefit) => <li key={benefit}><span aria-hidden="true">✓</span>{benefit}</li>)}
               </ul>
               <Link href={bookingHref} className={priorityConversation ? styles.priorityButton : styles.purchaseButton} onClick={() => prepareBookingHandoff(bookingHandoff, 'primary')}>{purchaseLabel} <span className={styles.directionGlyph} aria-hidden="true">→</span></Link>
-              <small>Przy wyborze terminu wpiszesz e-mail. Najważniejsze odpowiedzi dołączymy do rezerwacji. Jeśli chcesz, Pełną Mapę możesz zapisać prywatnie w swoim Pokoju.</small>
+              <small>Przy wyborze terminu wpiszesz e-mail. Mapa zostaje pomocniczym zapisem, a zakres dalszej pracy ustalamy dopiero po rozmowie.</small>
             </div>
 
             <div className={styles.beforePurchaseCard}>
@@ -758,8 +712,7 @@ export function ShortBehaviorMapFlow({
             </div>
 
             <div className={styles.alternativeActions}>
-              <Link href={alternateBookingHref} className={styles.alternativeButton} onClick={() => prepareBookingHandoff(alternateBookingHandoff, 'alternate')}>{alternateLabel}</Link>
-              <Link href={contactHref} className={styles.contactButton}>Nie wiesz, co wybrać? Kontakt</Link>
+              <Link href={contactHref} className={styles.contactButton}>Chcesz najpierw coś doprecyzować? Napisz</Link>
             </div>
 
             {!savedCaseMap ? (

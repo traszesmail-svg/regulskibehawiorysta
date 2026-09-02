@@ -5,23 +5,20 @@ import { listProblemPagePaths } from '@/lib/problem-pages'
 
 const STATIC_ROUTES: Array<{ path: string; priority: number; changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency'] }> = [
   { path: '/', priority: 1, changeFrequency: 'weekly' },
+  { path: '/zapytaj', priority: 0.95, changeFrequency: 'weekly' },
+  { path: '/konsultacja', priority: 0.82, changeFrequency: 'monthly' },
+  { path: '/terapia', priority: 0.68, changeFrequency: 'monthly' },
+  { path: '/materialy', priority: 0.76, changeFrequency: 'weekly' },
+  { path: '/blog', priority: 0.76, changeFrequency: 'weekly' },
   { path: '/o-mnie', priority: 0.7, changeFrequency: 'monthly' },
-  { path: '/cennik', priority: 0.8, changeFrequency: 'weekly' },
-  { path: '/cennik/pelny', priority: 0.72, changeFrequency: 'weekly' },
-  { path: '/book', priority: 0.9, changeFrequency: 'weekly' },
   { path: '/kontakt', priority: 0.8, changeFrequency: 'monthly' },
   { path: '/faq', priority: 0.7, changeFrequency: 'monthly' },
-  { path: '/blog', priority: 0.8, changeFrequency: 'weekly' },
   { path: '/problemy', priority: 0.82, changeFrequency: 'weekly' },
-  { path: '/kwadrans-na-juz', priority: 0.82, changeFrequency: 'weekly' },
   { path: '/mapa-sprawy', priority: 0.74, changeFrequency: 'monthly' },
   { path: '/instagram', priority: 0.7, changeFrequency: 'weekly' },
   { path: '/regulamin', priority: 0.4, changeFrequency: 'yearly' },
   { path: '/regulamin-pelna-konsultacja', priority: 0.35, changeFrequency: 'yearly' },
   { path: '/polityka-prywatnosci', priority: 0.4, changeFrequency: 'yearly' },
-  { path: '/newsletter', priority: 0.5, changeFrequency: 'monthly' },
-  { path: '/wybor', priority: 0.7, changeFrequency: 'monthly' },
-  { path: '/materialy', priority: 0.8, changeFrequency: 'weekly' },
   { path: '/opinie', priority: 0.6, changeFrequency: 'monthly' },
 ]
 

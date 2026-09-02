@@ -22,10 +22,10 @@ const SLUGS = [
 ]
 
 const SERVICE_LABELS = {
-  'kwadrans': 'Kwadrans z behawiorystą (15 min)',
-  'kwadrans-na-juz': 'Kwadrans na już (15 min · priorytetowy)',
-  'konsultacja-30-min': 'Dwa Kwadranse (30 min)',
-  'konsultacja-behawioralna-online': 'Pełna Konsultacja Behawioralna (~2 h)',
+  'kwadrans': 'Zapytaj behawiorystę (do 15 min)',
+  'kwadrans-na-juz': 'Zapytaj teraz (do 15 min · dostępność na żywo)',
+  'konsultacja-30-min': 'Starszy wariant rozmowy (materiał archiwalny)',
+  'konsultacja-behawioralna-online': 'Pełna konsultacja behawioralna (około 90 min)',
 }
 
 function mdToHtml(md) {

@@ -1,6 +1,6 @@
 'use client';
 
-import { Star, Quote, MapPin } from 'lucide-react';
+import { Quote, MapPin } from 'lucide-react';
 import type { Review } from '@/lib/reviews.config';
 
 interface ReviewCardProps {
@@ -11,6 +11,7 @@ interface ReviewCardProps {
 export function ReviewCard({ review, variant = 'default' }: ReviewCardProps) {
   const isFeatured = variant === 'featured';
   const isCompact = variant === 'compact';
+  const rating = review.rating;
 
   return (
     <article
@@ -26,15 +27,11 @@ export function ReviewCard({ review, variant = 'default' }: ReviewCardProps) {
         strokeWidth={1.5}
       />
 
-      <div className="flex items-center gap-1 mb-4">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <Star
-            key={i}
-            size={isFeatured ? 20 : 16}
-            className={i < review.rating ? 'fill-amber-400 text-amber-400' : 'text-neutral-300'}
-          />
-        ))}
-      </div>
+      {typeof rating === 'number' ? (
+        <div className="mb-4 text-sm text-neutral-600" aria-label={`Ocena: ${rating} na 5`}>
+          Ocena: {rating}/5
+        </div>
+      ) : null}
 
       <blockquote
         className={`
@@ -45,11 +42,12 @@ export function ReviewCard({ review, variant = 'default' }: ReviewCardProps) {
         &bdquo;{review.text}&rdquo;
       </blockquote>
 
-      {!isCompact && review.problem && (
-        <div className="inline-flex items-center gap-1.5 bg-accent-light text-accent-dark text-xs font-medium px-3 py-1 rounded-full mb-4">
-          {review.problem}
+      {!isCompact ? (
+        <div className="review-card-meta" aria-label="Szczegóły opinii">
+          <span className="review-card-service"><strong>Usługa</strong>{review.service}</span>
+          {review.problem ? <span className="review-card-topic"><strong>Temat</strong>{review.problem}</span> : null}
         </div>
-      )}
+      ) : null}
 
       <footer className="flex items-center gap-3 pt-4 border-t border-neutral-100">
         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-accent to-accent-dark flex items-center justify-center text-white font-bold text-sm flex-shrink-0">

@@ -384,19 +384,19 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
 
 export const QUIZ_SERVICE_LABELS: Record<QuizServiceKey, { label: string; price: string; duration: string }> = {
   kwadrans: {
-    label: 'Kwadrans',
+    label: 'Zapytaj behawiorystę',
     price: PUBLIC_OFFER_PRICE_LABELS.quick,
-    duration: '15 min telefonicznie',
+    duration: 'do 15 min telefonicznie',
   },
   'dwa-kwadranse': {
-    label: 'Konsultacja 30 min',
-    price: PUBLIC_OFFER_PRICE_LABELS.bridge,
-    duration: '30 min telefonicznie',
+    label: 'Zapytaj behawiorystę',
+    price: PUBLIC_OFFER_PRICE_LABELS.quick,
+    duration: 'do 15 min telefonicznie',
   },
   'pelna-konsultacja': {
     label: 'Pełna konsultacja',
     price: PUBLIC_OFFER_PRICE_LABELS.premium,
-    duration: 'ok. 2h przez Jitsi',
+    duration: 'około 90 minut przez Jitsi',
   },
 }
 
@@ -491,9 +491,9 @@ export function resolveQuizResult(answers: QuizAnswers): QuizResult {
   } else if (score >= 4) {
     result = {
       serviceKey: 'dwa-kwadranse',
-      title: 'Najlepszy pierwszy krok: konsultacja 30 min',
+      title: 'Najlepszy pierwszy krok: Zapytaj behawiorystę',
       summary:
-        'To dobry wybór, gdy jest kilka wątków i 15 minut może być za krótkie. Wystarczy czasu, żeby dopytać o tło sytuacji i ustalić najbliższy kierunek.',
+        'To dobry pierwszy wybór, gdy jest kilka wątków. Podczas rozmowy uporządkujemy tło sytuacji i ustalimy, czy potrzebna jest pełna konsultacja.',
       reasons:
         reasons.length > 0
           ? reasons.slice(0, 4)
@@ -503,15 +503,15 @@ export function resolveQuizResult(answers: QuizAnswers): QuizResult {
   } else {
     result = {
       serviceKey: 'kwadrans',
-      title: 'Najlepszy pierwszy krok: Kwadrans',
+      title: 'Najlepszy pierwszy krok: Zapytaj behawiorystę',
       summary:
-        'To spokojny start, gdy chcesz ustalić pierwszy priorytet bez wchodzenia od razu w dużą konsultację. Kwadrans pomaga sprawdzić, co zrobić najpierw.',
+        'To spokojny start, gdy chcesz ustalić pierwszy priorytet bez wchodzenia od razu w pełną konsultację. Zapytaj behawiorystę pomaga sprawdzić, co zrobić najpierw.',
       reasons: [
         duration === 'fresh' ? 'sytuacja wygląda na świeżą' : 'nie trzeba od razu zaczynać od pełnej analizy',
         predictability === 'clear' ? 'wyzwalacz jest dość czytelny' : 'najważniejsze jest wybranie pierwszego priorytetu',
         'można zacząć od krótkiego połączenia telefonicznego',
       ],
-      note: 'Kwadrans nie musi zamykać sprawy. Ma pomóc wybrać najprostszy następny krok.',
+      note: 'Zapytaj behawiorystę nie musi zamykać sprawy. Ma dać pierwszy klucz i pomóc wybrać najrozsądniejszy następny krok.',
     }
   }
 

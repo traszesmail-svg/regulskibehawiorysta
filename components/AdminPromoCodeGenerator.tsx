@@ -10,13 +10,15 @@ type CreatedPromoCampaign = {
     logoSrc: string | null
     expiresAt: string | null
     generatedCount: number
+    kind: 'clinic' | 'community'
+    promotionPricePln: number
   }
   codes: string[]
 }
 
-function defaultExpiryDate() {
+function defaultExpiryDate(days = 60) {
   const date = new Date()
-  date.setDate(date.getDate() + 60)
+  date.setDate(date.getDate() + days)
   return date.toISOString().slice(0, 10)
 }
 
@@ -24,6 +26,7 @@ export function AdminPromoCodeGenerator() {
   const router = useRouter()
   const [clinicName, setClinicName] = useState('')
   const [logoSrc, setLogoSrc] = useState('')
+  const [campaignKind, setCampaignKind] = useState<'clinic' | 'community'>('clinic')
   const [codeCount, setCodeCount] = useState(String(DEFAULT_PROMO_CODE_COUNT))
   const [expiresAt, setExpiresAt] = useState(defaultExpiryDate)
   const [created, setCreated] = useState<CreatedPromoCampaign | null>(null)
@@ -35,6 +38,7 @@ export function AdminPromoCodeGenerator() {
   function handleReset() {
     setClinicName('')
     setLogoSrc('')
+    setCampaignKind('clinic')
     setCodeCount(String(DEFAULT_PROMO_CODE_COUNT))
     setExpiresAt(defaultExpiryDate())
     setCreated(null)
@@ -72,6 +76,7 @@ export function AdminPromoCodeGenerator() {
           logoSrc,
           codeCount,
           expiresAt,
+          kind: campaignKind,
         }),
       })
       const payload = (await response.json()) as CreatedPromoCampaign & { error?: string }
@@ -81,7 +86,11 @@ export function AdminPromoCodeGenerator() {
       }
 
       setCreated(payload)
-      setSuccess(`Wygenerowano ${payload.codes.length} kodow dla: ${payload.campaign.clinicName}.`)
+      setSuccess(
+        campaignKind === 'community'
+          ? `Wygenerowano ${payload.codes.length} kodow grupowych po ${payload.campaign.promotionPricePln.toFixed(2).replace('.', ',')} zl.`
+          : `Wygenerowano ${payload.codes.length} kodow dla: ${payload.campaign.clinicName}.`,
+      )
       router.refresh()
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : 'Wystapil blad generatora.')
@@ -108,19 +117,40 @@ export function AdminPromoCodeGenerator() {
       </div>
 
       <form className="form-grid" onSubmit={handleSubmit}>
+        <div className="full-width">
+          <label>Typ kampanii</label>
+          <select
+            value={campaignKind}
+            onChange={(event) => {
+              const nextKind = event.target.value === 'community' ? 'community' : 'clinic'
+              setCampaignKind(nextKind)
+              if (nextKind === 'community') {
+                setCodeCount('10')
+                setExpiresAt(defaultExpiryDate(14))
+                setClinicName((current) => current || 'Grupa FB')
+              } else {
+                setCodeCount(String(DEFAULT_PROMO_CODE_COUNT))
+                setExpiresAt(defaultExpiryDate())
+              }
+            }}
+          >
+            <option value="clinic">Lecznica — bezpłatna rozmowa</option>
+            <option value="community">Grupa FB — Zapytaj za 39,99 zł</option>
+          </select>
+        </div>
         <div>
-          <label>Nazwa lecznicy</label>
+          <label>{campaignKind === 'community' ? 'Nazwa kampanii / źródło' : 'Nazwa lecznicy'}</label>
           <input
             type="text"
             value={clinicName}
             onChange={(event) => setClinicName(event.target.value)}
-            placeholder="np. Przychodnia Vet..."
+            placeholder={campaignKind === 'community' ? 'np. Grupa FB — wrzesień' : 'np. Przychodnia Vet...'}
             maxLength={120}
             required
           />
         </div>
         <div>
-          <label>Logo lecznicy (URL lub ścieżka publiczna)</label>
+          <label>{campaignKind === 'community' ? 'Logo (opcjonalne)' : 'Logo lecznicy (URL lub ścieżka publiczna)'}</label>
           <input
             type="text"
             value={logoSrc}
@@ -130,7 +160,7 @@ export function AdminPromoCodeGenerator() {
           />
         </div>
         <div>
-          <label>Liczba kodow</label>
+          <label>Liczba kodów</label>
           <input
             type="number"
             value={codeCount}
@@ -142,7 +172,7 @@ export function AdminPromoCodeGenerator() {
           />
         </div>
         <div>
-          <label>Wazne do</label>
+          <label>Ważne do</label>
           <input type="date" value={expiresAt} onChange={(event) => setExpiresAt(event.target.value)} />
         </div>
         <div className="full-width">
@@ -155,6 +185,7 @@ export function AdminPromoCodeGenerator() {
       {created ? (
         <div className="list-card tree-backed-card">
           <strong>Kody dla: {created.campaign.clinicName}</strong>
+          {created.campaign.kind === 'community' ? <span>Oferta: {created.campaign.promotionPricePln.toFixed(2).replace('.', ',')} zł / kod, tylko przez /zapytaj/promocja</span> : null}
           <span>Liczba kodow: {created.campaign.generatedCount}</span>
           <textarea className="promo-code-output" value={codeList} readOnly rows={Math.min(10, Math.max(3, created.codes.length))} />
           <button type="button" className="button button-ghost small-button" onClick={copyCodes} disabled={!codeList}>

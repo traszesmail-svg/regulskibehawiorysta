@@ -74,7 +74,7 @@ export function PetTopicsSection() {
   return (
     <section className="notatnik-pet-topic-grid">
       <PetTopicCard
-        href="/book?species=pies"
+        href="/zapytaj"
         icon="dog"
         heading="Pies"
         links={[
@@ -85,7 +85,7 @@ export function PetTopicsSection() {
         ]}
       />
       <PetTopicCard
-        href="/book?species=kot"
+        href="/zapytaj"
         icon="cat"
         heading="Kot"
         links={[

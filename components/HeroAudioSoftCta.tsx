@@ -56,7 +56,7 @@ export function HeroAudioSoftCta({
   analyticsEvent = 'funnel_entry_15_min',
   className,
   ariaLabel = 'Otwórz 15-minutową konsultację behawioralną',
-  kicker = '15-minutowa konsultacja behawioralna',
+  kicker = 'Zapytaj behawiorystę',
   title = 'Krótka rozmowa, po której łatwiej ustalić pierwszy krok.',
   copy = 'Bez kamery. Po rozmowie wiesz, co zrobić teraz i czy potrzebujesz czegoś więcej.',
 }: HeroAudioSoftCtaProps) {

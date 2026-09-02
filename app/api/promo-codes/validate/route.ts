@@ -15,6 +15,11 @@ export async function POST(request: Request) {
   const code = typeof body.code === 'string' ? body.code : ''
   try {
     const result = await validatePromoCodeForService(code, PROMO_CODE_SERVICE_TYPE)
+
+    if (result.campaignKind !== 'clinic') {
+      return NextResponse.json({ error: 'Ten kod działa przez osobny link kampanii grupowej.' }, { status: 400 })
+    }
+
     return NextResponse.json(result)
   } catch (error) {
     return NextResponse.json(

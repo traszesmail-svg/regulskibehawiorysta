@@ -5804,6 +5804,31 @@ select:focus-visible {
   align-items: flex-end;
 }
 
+.admin-recommendation-field {
+  display: grid;
+  gap: 5px;
+  width: 100%;
+  color: var(--muted-strong);
+  font-size: 11px;
+  font-weight: 700;
+  text-align: left;
+}
+
+.admin-recommendation-field textarea {
+  width: 100%;
+  min-width: 190px;
+  min-height: 74px;
+  padding: 9px 10px;
+  border: 1px solid rgba(92, 76, 58, 0.16);
+  border-radius: 12px;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.84);
+  font: inherit;
+  font-weight: 500;
+  line-height: 1.4;
+  resize: vertical;
+}
+
 .admin-topbar {
   position: sticky;
   top: 12px;
@@ -5971,6 +5996,32 @@ select:focus-visible {
 .admin-booking-chip-warn {
   background: rgba(176, 123, 63, 0.12);
   color: #8a5f2c;
+}
+
+.admin-booking-description-preview {
+  display: grid;
+  gap: 4px;
+  margin-top: 5px;
+  padding: 12px 13px;
+  border-left: 3px solid rgba(176, 123, 63, 0.46);
+  border-radius: 0 12px 12px 0;
+  background: rgba(176, 123, 63, 0.07);
+}
+
+.admin-booking-description-preview strong {
+  color: rgba(31, 26, 23, 0.58);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.admin-booking-description-preview p {
+  margin: 0;
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
 }
 
 .admin-row-details {

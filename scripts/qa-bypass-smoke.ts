@@ -168,7 +168,7 @@ async function startRoomTimerWithRetry(page: Page) {
       return
     }
 
-    const startButton = page.getByRole('button', { name: /Uruchom licznik 15 minut/i })
+    const startButton = page.getByRole('button', { name: /Uruchom licznik 17 minut/i })
 
     if (await isVisible(startButton)) {
       try {

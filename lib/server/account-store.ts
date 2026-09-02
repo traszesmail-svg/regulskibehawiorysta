@@ -365,10 +365,16 @@ function formatDateLabel(date: string | null | undefined, time?: string | null) 
 }
 
 function bookingToSummary(booking: BookingRecord): AccountBookingSummary {
+  const serviceTitle = booking.serviceType === 'konsultacja-behawioralna-online'
+    ? 'Pełna konsultacja'
+    : booking.serviceType === 'kwadrans-na-juz'
+      ? 'Zapytaj teraz'
+      : 'Zapytaj behawiorystę'
+
   return {
     id: booking.id,
     source: 'booking',
-    title: 'Konsultacja behawioralna',
+    title: serviceTitle,
     species: booking.animalType,
     description: booking.description,
     dateLabel: formatDateLabel(booking.bookingDate, booking.bookingTime),
@@ -383,6 +389,8 @@ function bookingToSummary(booking: BookingRecord): AccountBookingSummary {
     callStatus: booking.callStatus ?? null,
     startedAt: booking.startedAt ?? null,
     questionsRemaining: booking.questionsRemaining ?? null,
+    recommendedNextStep: booking.recommendedNextStep ?? null,
+    recommendedMaterialSlug: booking.recommendedMaterialSlug ?? null,
     serviceType: booking.serviceType ?? null,
     supportEndsAt: booking.serviceType === 'konsultacja-behawioralna-online'
       ? new Date(new Date(`${booking.bookingDate}T${booking.bookingTime}:00`).getTime() + 14 * 86400000).toISOString()
@@ -395,11 +403,18 @@ function leadBookingToSummary(booking: LeadBookingRecord): AccountBookingSummary
   const meetingUrl = isAudio
     ? `/call/${booking.id}?access=${booking.accessToken}`
     : booking.callRoomUrl;
+  const serviceTitle = booking.service === 'konsultacja-behawioralna-online'
+    ? 'Pełna konsultacja'
+    : booking.service === 'kwadrans-na-juz'
+      ? 'Zapytaj teraz'
+      : booking.service === 'szybka-konsultacja-15-min'
+        ? 'Zapytaj behawiorystę'
+        : booking.serviceLabel
 
   return {
     id: booking.id,
     source: 'lead_booking',
-    title: booking.serviceLabel,
+    title: serviceTitle,
     species: booking.species === 'kot' ? 'Kot' : 'Pies',
     description: booking.description,
     dateLabel: booking.confirmedDate
@@ -418,6 +433,8 @@ function leadBookingToSummary(booking: LeadBookingRecord): AccountBookingSummary
     callStatus: booking.callStatus ?? null,
     startedAt: booking.startedAt ?? null,
     questionsRemaining: booking.questionsRemaining ?? null,
+    recommendedNextStep: null,
+    recommendedMaterialSlug: null,
     serviceType: booking.service,
     supportEndsAt: booking.service === 'konsultacja-behawioralna-online' && booking.confirmedDate
       ? new Date(new Date(`${booking.confirmedDate}T${booking.confirmedTime ?? '12:00'}:00`).getTime() + 14 * 86400000).toISOString()

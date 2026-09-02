@@ -5,7 +5,7 @@ import { FUNNEL_SERVICE_CONFIG, type PublicBookingServiceType } from '@/lib/funn
 import { PUBLIC_OFFER_PRICE_LABELS } from '@/lib/public-offer-copy'
 import { PRICE_PROMOTION_LABEL, WEEKLY_PRICE_VALIDITY_COPY } from '@/lib/pricing'
 
-export const bookHref = '/#wybór'
+export const bookHref = '/zapytaj'
 export const contactHref = '/kontakt#formularz'
 export const fullPricingHref = '/cennik/pelny'
 
@@ -24,73 +24,63 @@ export const pricingCards: Array<{
   {
     service: 'szybka-konsultacja-15-min',
     badge: 'najprostszy start',
-    title: 'Kwadrans - gdy potrzebujesz pierwszego kierunku',
-    summaryTitle: 'Kwadrans  gdy potrzebujesz pierwszego kierunku',
+    title: 'Zapytaj behawiorystę - gdy potrzebujesz pierwszego kierunku',
+    summaryTitle: 'Zapytaj behawiorystę',
     price: PUBLIC_OFFER_PRICE_LABELS.quick,
-    copy: '15 min połączenia telefonicznego na jedno główne pytanie. Szybko porządkujesz sytuację i dostajesz pierwszy kierunek działania.',
+    copy: 'Rozmowa telefoniczna do 15 minut. Opowiadasz, co się dzieje, a dostajesz pierwszy kierunek działania i dwa pytania po rozmowie.',
     supportCopy:
-      'Dostajesz wstępną analizę zachowania na podstawie przekazanych informacji: co może być głównym mechanizmem zachowania, co warto sprawdzić i czego nie robić na ślepo.',
-    features: ['jedno główne pytanie', 'połączenie telefoniczne', 'pierwszy kierunek działania', 'decyzja, czy potrzebny jest szerszy format'],
-    cta: 'Chcę zacząć od Kwadransa',
+      'Dostajesz pierwszą ocenę sytuacji na podstawie przekazanych informacji: co warto sprawdzić i czego na razie nie dokładać na ślepo.',
+    features: ['do 15 minut telefonicznie', 'pierwszy kierunek działania', '2 pytania po rozmowie', 'brak presji na zakup kolejnej usługi'],
+    cta: 'Zapytaj behawiorystę',
     featured: true,
   },
   {
     service: 'kwadrans-na-juz',
-    badge: 'priorytet',
-    title: 'Kwadrans na już - gdy nie chcesz czekać',
-    summaryTitle: 'Kwadrans na już  gdy nie chcesz czekać',
+    badge: 'tylko przy dostępności',
+    title: 'Zapytaj teraz - gdy widzisz aktywne okno',
+    summaryTitle: 'Zapytaj teraz',
     price: PUBLIC_OFFER_PRICE_LABELS.urgent,
-    copy: 'Ten sam zakres co Kwadrans, ale z priorytetową odpowiedzią i najbliższym realnym terminem. Dla spraw pilnych, które nie wymagają dłuższej analizy.',
+    copy: 'Ten sam zakres co Zapytaj behawiorystę, ale w najbliższym dostępnym oknie telefonicznym. Opcja znika, gdy nie jestem dostępny.',
     supportCopy:
-      'Nie kupujesz dłuższej analizy, tylko priorytet terminu. Zakres rozmowy zostaje taki sam jak w zwykłym Kwadransie.',
-    features: ['ten sam zakres co Kwadrans', 'priorytetowa odpowiedź', 'pierwszy kierunek działania', 'dla tematów pilnych, ale krótkich'],
-    cta: 'Chcę szybszy termin',
-  },
-  {
-    service: 'konsultacja-30-min',
-    badge: 'więcej czasu',
-    title: 'Dwa kwadranse - gdy z jednego pytania robi się kilka',
-    summaryTitle: 'Dwa kwadranse  gdy z jednego pytania robi się kilka',
-    price: PUBLIC_OFFER_PRICE_LABELS.bridge,
-    copy: '30 min połączenia telefonicznego, gdy temat ma kilka wątków. Więcej czasu na kontekst, spokojniejsze zalecenia i decyzję, czy potrzebna jest pełna konsultacja.',
-    supportCopy:
-      'Wspólnie układamy fakty, szukamy najbardziej prawdopodobnej przyczyny zachowania i tworzę analizę behawioralną opartą na Twoim opisie, formularzu i kontekście domu, spacerów albo relacji między zwierzętami.',
-    features: ['więcej czasu na kontekst', 'spokojniejsze zalecenia', 'dwa-trzy wątki naraz', 'bez 14-dniowej komunikacji w pokoju klienta'],
-    cta: 'Chcę spokojniej omówić temat',
+      'Nie kupujesz dłuższej analizy. Płacisz za możliwość wejścia w najbliższe wolne okno, kiedy ręcznie włączę dostępność.',
+    features: ['do 15 minut telefonicznie', 'najbliższe wolne okno', 'ten sam zakres co Zapytaj behawiorystę', '2 pytania po rozmowie'],
+    cta: 'Zapytaj teraz',
   },
   {
     service: 'konsultacja-behawioralna-online',
-    badge: 'ok. 2h przez Jitsi',
+    badge: 'około 90 minut przez Jitsi',
     title: 'Pełna konsultacja - gdy potrzebny jest plan i wsparcie wdrożenia',
-    summaryTitle: 'Pełna konsultacja  gdy potrzebny jest plan, nie tylko podpowiedź',
+    summaryTitle: 'Pełna konsultacja',
     price: PUBLIC_OFFER_PRICE_LABELS.premium,
-    copy: 'Około 2h przez Jitsi dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni komunikacji w pokoju klienta przy wdrażaniu zaleceń.',
+    copy: 'Około 90 minut przez Jitsi dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni komunikacji w pokoju klienta przy wdrażaniu zaleceń.',
     supportCopy:
       'To najlepszy wybór, gdy zachowanie trwa długo, ma kilka warstw albo wpływa na życie całego domu. Analiza powstaje na podstawie formularza, rozmowy, historii zachowania, kontekstu zdrowia, diety, środowiska, nagrań i danych, które przekażesz przed konsultacją.',
     features: ['sprawy złożone albo trwające długo', 'prawdopodobna przyczyna problemu', 'plan działania', '14 dni komunikacji w pokoju klienta'],
-    cta: 'Chcę pełną konsultację',
+    cta: 'Zobacz pełną konsultację',
   },
 ]
 
 export function getDirectBookingHref(service: PublicBookingServiceType) {
+  if (service === 'konsultacja-behawioralna-online') return '/konsultacja'
+
   return buildBookHref(null, service)
 }
 
 export const pricingFaqItems = [
   {
-    question: 'Czy w Kwadransie też dostanę analizę behawioralną?',
+    question: 'Czy w Zapytaj behawiorystę dostanę analizę sytuacji?',
     answer:
-      'Tak, ale zakres analizy zależy od ilości informacji. W Kwadransie dostajesz wstępną analizę zachowania i pierwszy kierunek działania. Przy sprawach złożonych pełniejsza analiza wymaga dłuższej rozmowy, formularza, historii zachowania i czasem nagrań.',
+      'Dostaniesz pierwszy kierunek oparty na Twoim opisie i dwa pytania po rozmowie. Przy sprawach złożonych pełniejsza analiza wymaga około 90 minut, formularza, historii zachowania i czasem nagrań.',
   },
   {
-    question: 'Kiedy wybrać Dwa kwadranse?',
+    question: 'Czym różni się Zapytaj teraz?',
     answer:
-      'Gdy jedno pytanie zaczyna łączyć się z kilkoma rzeczami: spacerem, emocjami, domem, relacją, dietą albo zdrowiem. 30 minut daje więcej miejsca na uporządkowanie faktów i spokojniejszą analizę zachowania opartą na danych.',
+      'Zakres jest taki sam jak przy Zapytaj behawiorystę, ale rozmowa odbywa się w najbliższym wolnym oknie. Opcja jest widoczna tylko przy ręcznie włączonej dostępności.',
   },
   {
     question: 'Kiedy od razu pełna konsultacja?',
     answer:
-      'Gdy zachowanie trwa długo, wraca mimo prób, wpływa na życie domowników albo dotyczy kilku obszarów naraz. Pełna konsultacja trwa około 2h przez Jitsi i ma sens wtedy, gdy potrzebujesz analizy, planu oraz 14 dni komunikacji w pokoju klienta przy wdrażaniu zaleceń.',
+      'Gdy zachowanie trwa długo, wraca mimo prób, wpływa na życie domowników albo dotyczy kilku obszarów naraz. Pełna konsultacja trwa około 90 minut przez Jitsi i ma sens wtedy, gdy potrzebujesz analizy, planu oraz 14 dni komunikacji w pokoju klienta przy wdrażaniu zaleceń.',
   },
   {
     question: 'Czy analiza zachowania zastępuje wizytę u lekarza weterynarii?',

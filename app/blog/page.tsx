@@ -10,7 +10,6 @@ import {
   Dog,
   Heart,
   Home,
-  Mail,
   PawPrint,
   UsersRound,
   type LucideIcon,
@@ -323,7 +322,7 @@ export default async function BlogPage(props: { searchParams?: Promise<BlogSearc
           tag="Regulski"
           navItems={PUBLIC_SITE_NAV_ITEMS}
           showUtilityLinks={false}
-          ctaHref="/cennik"
+          ctaHref="/zapytaj"
           ctaLabel="Umów konsultację"
         />
         <ReferenceHeroLeaf />
@@ -498,23 +497,6 @@ export default async function BlogPage(props: { searchParams?: Promise<BlogSearc
                 </Link>
               </section>
 
-              <section className="blog-newsletter-card">
-                <span className="blog-newsletter-card-icon" aria-hidden="true">
-                  <Mail size={27} strokeWidth={1.65} />
-                </span>
-                <small>Raz w miesiącu</small>
-                <h2>Spokojna wiedza i materiał na start</h2>
-                <p>Jedna praktyczna wiadomość, sezonowy temat i PDF dopasowany do psa, kota albo obu.</p>
-                <ul>
-                  <li>bez codziennego spamu</li>
-                  <li>wypisanie jednym kliknięciem</li>
-                </ul>
-                <Link href="/newsletter" prefetch={false}>
-                  Zobacz newsletter
-                  <ArrowRight size={15} strokeWidth={1.9} aria-hidden="true" />
-                </Link>
-              </section>
-
               <section className="blog-popular-topics-card">
                 <h2>Popularne tematy</h2>
                 <div>
@@ -537,7 +519,7 @@ export default async function BlogPage(props: { searchParams?: Promise<BlogSearc
               <h2>Potrzebujesz indywidualnej pomocy?</h2>
               <p>Każde zwierzę jest inne. Jeśli artykuł pomaga nazwać problem, konsultacja pomaga ułożyć pierwszy plan działania.</p>
             </div>
-            <Link href="/cennik" prefetch={false}>
+            <Link href="/zapytaj" prefetch={false}>
               Umów konsultację
               <ArrowRight size={17} strokeWidth={1.9} aria-hidden="true" />
             </Link>

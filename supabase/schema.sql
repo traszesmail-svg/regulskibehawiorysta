@@ -29,6 +29,8 @@ create table if not exists public.bookings (
   booking_time text not null,
   slot_id text not null,
   qa_booking boolean not null default false,
+  service_type text not null default 'szybka-konsultacja-15-min',
+  live_mode boolean not null default false,
   booking_status text not null check (booking_status in ('pending', 'pending_manual_payment', 'confirmed', 'done', 'cancelled', 'expired')),
   payment_status text not null check (payment_status in ('unpaid', 'pending_manual_review', 'paid', 'failed', 'rejected', 'refunded')),
   payment_method text check (payment_method in ('manual', 'payu', 'stripe', 'mock', 'promo')),
@@ -63,6 +65,7 @@ create table if not exists public.bookings (
   expired_at timestamptz,
   refunded_at timestamptz,
   recommended_next_step text,
+  recommended_material_slug text,
   reminder_sent boolean not null default false,
   prep_video_path text,
   prep_video_filename text,
@@ -73,7 +76,17 @@ create table if not exists public.bookings (
   call_id text,
   call_status text,
   started_at timestamptz,
+  call_attempt integer not null default 0,
+  call_answered_at timestamptz,
+  call_next_attempt_at timestamptz,
+  call_last_error text,
+  call_recovery_used boolean not null default false,
+  call_recovery_token_hash text,
+  call_recovery_expires_at timestamptz,
   questions_remaining integer,
+  consultation_access_code_hash text,
+  consultation_access_expires_at timestamptz,
+  consultation_access_used_at timestamptz,
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now())
 );
@@ -182,6 +195,11 @@ create table if not exists public.promo_campaigns (
   logo_src text,
   service_type text not null default 'szybka-konsultacja-15-min',
   code_count integer not null default 5 check (code_count between 1 and 100),
+  campaign_kind text not null default 'clinic' check (campaign_kind in ('clinic', 'community')),
+  promotion_price numeric(10,2) not null default 0 check (
+    (campaign_kind = 'clinic' and promotion_price = 0)
+    or (campaign_kind = 'community' and promotion_price = 39.99)
+  ),
   status text not null default 'active' check (status in ('active', 'paused', 'archived')),
   expires_at timestamptz,
   created_at timestamptz not null default timezone('utc', now()),
@@ -210,6 +228,7 @@ create table if not exists public.promo_redemptions (
   booking_id uuid not null references public.bookings(id) on delete cascade,
   customer_email text not null,
   service_type text not null,
+  campaign_kind text not null default 'clinic' check (campaign_kind in ('clinic', 'community')),
   redeemed_at timestamptz not null default timezone('utc', now()),
   released_at timestamptz,
   meta jsonb not null default '{}'::jsonb
@@ -232,6 +251,24 @@ create table if not exists public.push_subscriptions (
     (user_role = 'owner' and booking_id is null)
     or
     (user_role = 'customer' and booking_id is not null)
+  )
+);
+
+create table if not exists public.zapytaj_live_notifications (
+  id uuid primary key default gen_random_uuid(),
+  notification_key text not null unique,
+  phone text,
+  email text,
+  channel text not null check (channel in ('sms', 'email')),
+  source_page text,
+  status text not null default 'subscribed' check (status in ('subscribed', 'notified', 'unsubscribed')),
+  created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now()),
+  notified_at timestamptz,
+  check (
+    (channel = 'sms' and phone is not null)
+    or
+    (channel = 'email' and email is not null)
   )
 );
 
@@ -303,12 +340,17 @@ create index if not exists promo_codes_campaign_id_idx on public.promo_codes(cam
 create index if not exists promo_codes_status_idx on public.promo_codes(status, expires_at);
 create index if not exists promo_redemptions_booking_id_idx on public.promo_redemptions(booking_id);
 create index if not exists promo_redemptions_campaign_id_idx on public.promo_redemptions(campaign_id, redeemed_at desc);
+create unique index if not exists promo_redemptions_community_campaign_email_active_idx
+  on public.promo_redemptions(campaign_id, lower(customer_email))
+  where campaign_kind = 'community' and released_at is null;
 create index if not exists push_subscriptions_booking_active_idx
   on public.push_subscriptions(booking_id)
   where unsubscribed_at is null;
 create index if not exists push_subscriptions_owner_active_idx
   on public.push_subscriptions(user_role)
   where user_role = 'owner' and unsubscribed_at is null;
+create index if not exists zapytaj_live_notifications_status_idx
+  on public.zapytaj_live_notifications(status, created_at);
 create index if not exists urgent_now_requests_created_at_idx on public.urgent_now_requests(created_at desc);
 create index if not exists urgent_now_requests_status_idx on public.urgent_now_requests(status, created_at desc);
 create index if not exists pending_testimonials_created_at_idx on public.pending_testimonials(created_at desc);
@@ -318,18 +360,21 @@ alter table public.promo_campaigns enable row level security;
 alter table public.promo_codes enable row level security;
 alter table public.promo_redemptions enable row level security;
 alter table public.push_subscriptions enable row level security;
+alter table public.zapytaj_live_notifications enable row level security;
 alter table public.growth_signups enable row level security;
 
 revoke all on table public.promo_campaigns from anon, authenticated;
 revoke all on table public.promo_codes from anon, authenticated;
 revoke all on table public.promo_redemptions from anon, authenticated;
 revoke all on table public.push_subscriptions from anon, authenticated;
+revoke all on table public.zapytaj_live_notifications from anon, authenticated;
 revoke all on table public.growth_signups from anon, authenticated;
 
 grant all on table public.promo_campaigns to service_role;
 grant all on table public.promo_codes to service_role;
 grant all on table public.promo_redemptions to service_role;
 grant all on table public.push_subscriptions to service_role;
+grant all on table public.zapytaj_live_notifications to service_role;
 grant all on table public.growth_signups to service_role;
 
 drop policy if exists "service role full access promo_campaigns" on public.promo_campaigns;

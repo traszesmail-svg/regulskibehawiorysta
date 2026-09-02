@@ -5,6 +5,7 @@ import { AdminBookingList } from '@/components/AdminBookingList'
 import { AdminLazyDetails } from '@/components/AdminLazyDetails'
 import { AdminPricingManager } from '@/components/AdminPricingManager'
 import { AdminUrgentRequestActions } from '@/components/AdminUrgentRequestActions'
+import { AdminZapytajLiveControl } from '@/components/AdminZapytajLiveControl'
 import { BookingReminderOptIn } from '@/components/BookingReminderOptIn'
 import { getBuildMarkerSnapshot } from '@/lib/build-marker'
 import { UNPAID_BOOKING_EXPIRY_HOURS, isUnpaidBookingExpired } from '@/lib/booking-expiry'
@@ -303,7 +304,7 @@ export default async function AdminPage() {
       href: '#terminy',
       label: 'Pilne zgłoszenia',
       value: pendingUrgentCount,
-      note: 'Kwadrans na już do odpowiedzi',
+      note: 'Zapytaj teraz do odpowiedzi',
     },
     {
       href: '/admin/pokoj',
@@ -349,7 +350,7 @@ export default async function AdminPage() {
               <Link href="/admin/pokoj" className="button button-ghost">
                 Pokoje opiekunów
               </Link>
-              <Link href="/book" className="button button-primary">
+              <Link href="/zapytaj" className="button button-primary">
               Przejdź do ścieżki klienta
               </Link>
             </div>
@@ -483,14 +484,14 @@ export default async function AdminPage() {
           </AdminLazyDetails>
 
           <div className="top-gap">
-            <div className="section-eyebrow">Kwadrans na już</div>
+            <div className="section-eyebrow">Zapytaj teraz</div>
             <h2>Prośby o pilny termin</h2>
             <p className="muted paragraph-gap">
               Klient wpisuje preferowaną datę i godzinę przez formularz. Tutaj dodajesz termin do kalendarza i od razu odsyłasz mu gotowy link.
             </p>
 
             {urgentRequests.length === 0 ? (
-              <div className="list-card tree-backed-card">Brak aktywnych próśb o Kwadrans na już.</div>
+              <div className="list-card tree-backed-card">Brak aktywnych próśb o Zapytaj teraz.</div>
             ) : (
               <div className="booking-list">
                 {urgentRequests.map((request) => {
@@ -683,6 +684,7 @@ export default async function AdminPage() {
         </section>
 
         <section className="panel section-panel" id="terminy">
+          <AdminZapytajLiveControl />
           <AdminLazyDetails
             className="admin-disclosure"
             dataAttribute="data-admin-availability-panel"

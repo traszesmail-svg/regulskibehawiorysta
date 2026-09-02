@@ -39,6 +39,8 @@ export type AccountBookingSummary = {
   callStatus: string | null
   startedAt: string | null
   questionsRemaining: number | null
+  recommendedNextStep: string | null
+  recommendedMaterialSlug: string | null
   serviceType: string | null
   supportEndsAt: string | null
 }

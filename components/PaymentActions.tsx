@@ -41,6 +41,7 @@ interface PaymentActionsProps {
   bookingStatus: BookingStatus
   qaBooking?: boolean
   qaEligibility?: QaCheckoutEligibility | null
+  directManualFlow?: boolean
   sourcePage?: string
 }
 
@@ -63,6 +64,7 @@ export function PaymentActions({
   manualAvailable,
   onlinePayment,
   manualPhoneDisplay,
+  manualAccountName,
   manualInstructions,
   amount,
   serviceType,
@@ -71,6 +73,7 @@ export function PaymentActions({
   bookingStatus,
   qaBooking = false,
   qaEligibility = null,
+  directManualFlow = false,
   sourcePage = '/payment',
 }: PaymentActionsProps) {
   const [error, setError] = useState('')
@@ -172,7 +175,7 @@ export function PaymentActions({
 
   async function handlePromoSubmit() {
     if (!promoAvailable) {
-      setError('Kod przekazany przez lecznicę działa tylko dla usługi Kwadrans z behawiorystą.')
+      setError('Kod przekazany przez lecznicę działa tylko dla usługi Zapytaj behawiorystę.')
       return
     }
 
@@ -337,6 +340,36 @@ export function PaymentActions({
     }
   }
 
+  async function handleDirectManualPayment() {
+    if (!manualAvailable) {
+      setError('Wpłata ręczna jest chwilowo niedostępna. Spróbuj ponownie za moment.')
+      return
+    }
+
+    setError('')
+    setCommerceLoading(true)
+    trackPaymentStart('manual')
+
+    try {
+      const response = await fetch('/api/payments/manual', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookingId, accessToken }),
+      })
+      const payload = (await response.json()) as { redirectTo?: string; error?: string }
+
+      if (!response.ok || !payload.redirectTo) {
+        throw new Error(payload.error ?? 'Nie udało się zapisać zgłoszenia wpłaty.')
+      }
+
+      window.location.assign(payload.redirectTo)
+    } catch (paymentError) {
+      console.error('[regulski-behawiorysta][payment] direct manual payment failed', paymentError)
+      setError(paymentError instanceof Error ? paymentError.message : 'Wystąpił błąd zgłoszenia wpłaty.')
+      setCommerceLoading(false)
+    }
+  }
+
   if (qaBooking) {
     return (
       <div className="stack-gap top-gap" data-payment-method-selected={qaAvailable ? 'qa' : 'none'}>
@@ -399,6 +432,42 @@ export function PaymentActions({
         <div className="disclaimer">
           Ta ścieżka pozostaje odseparowana od normalnej sprzedaży. Jeśli to ma być test, sprawdź flagę QA, TEST_CHECKOUT_ENABLED i allowlistę kontaktu.
         </div>
+      </div>
+    )
+  }
+
+  if (directManualFlow) {
+    return (
+      <div className="stack-gap top-gap" data-payment-method-selected="manual" data-direct-manual-flow="true">
+        {error ? <div className="error-box">{error}</div> : null}
+        <div className="payment-ref-method-lead">
+          <LockKeyhole aria-hidden="true" />
+          <span>Wpłać dokładnie {amountLabel} przez BLIK, a następnie zgłoś wpłatę. Termin i rozmowa zostaną potwierdzone dopiero po ręcznym sprawdzeniu.</span>
+        </div>
+        <div className="summary-grid">
+          <div className="summary-card tree-backed-card">
+            <div className="stat-label">Kwota</div>
+            <div className="summary-value">{amountLabel}</div>
+          </div>
+          <div className="summary-card tree-backed-card">
+            <div className="stat-label">BLIK na numer</div>
+            <div className="summary-value payment-summary-value">{manualPhoneDisplay ?? 'Numer chwilowo niewidoczny'}</div>
+          </div>
+          <div className="summary-card tree-backed-card">
+            <div className="stat-label">Tytuł przelewu</div>
+            <div className="summary-value payment-reference-value">{paymentReference}</div>
+          </div>
+        </div>
+        <div className="list-card tree-backed-card">
+          <strong>{manualAccountName ?? 'Regulski Behawiorysta'}</strong>
+          <span>{manualInstructions ?? 'W tytule wpłaty wpisz podaną referencję. Nie wysyłaj potwierdzenia wrażliwych danych — wystarczy kliknięcie po wykonaniu BLIK.'}</span>
+        </div>
+        <div className="payment-ref-submit-row">
+          <button type="button" className="payment-ref-submit" data-payment-submit="manual-direct" onClick={() => void handleDirectManualPayment()} disabled={commerceLoading || !manualAvailable}>
+            {commerceLoading ? 'Zapisuję zgłoszenie…' : 'Wpłaciłem/am — zgłoś do sprawdzenia'}
+          </button>
+        </div>
+        <p className="disclaimer">Po zgłoszeniu rezerwacja pozostaje zablokowana do potwierdzenia lub odrzucenia, maksymalnie przez 24 godziny.</p>
       </div>
     )
   }
@@ -480,7 +549,7 @@ export function PaymentActions({
           <TicketCheck aria-hidden="true" />
           <span>
             <strong>Mam kod przekazany przez lecznicę</strong>
-            <em>{promoAvailable ? 'Kod promocyjny zastępuje płatność dla Kwadransa' : 'Dostępne tylko dla Kwadransa'}</em>
+            <em>{promoAvailable ? 'Kod promocyjny zastępuje płatność dla Zapytaj behawiorystę' : 'Dostępne tylko dla Zapytaj behawiorystę'}</em>
           </span>
         </button>
         </div>

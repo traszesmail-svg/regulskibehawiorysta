@@ -27,7 +27,7 @@ export function RouteFallbackPage({
   description,
   highlights,
   actions,
-  footerCtaHref = '/book',
+  footerCtaHref = '/zapytaj',
   footerCtaLabel = FUNNEL_CTA_LABELS.primary,
   footerHeadline = 'Wróć do sprawdzonego punktu startu',
   footerDescription = 'Najprościej wrócić do strony głównej, wejść na stronę psa lub kota albo wybrać 15-minutową konsultację behawioralną.',

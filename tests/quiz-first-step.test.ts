@@ -130,7 +130,7 @@ test('completed quiz teaches before it sells a service', () => {
   assert.equal(result.problemHref, '/problemy/pies-szczeka-na-psy')
 })
 
-test('a recurring issue recommends enough time to connect the observations', () => {
+test('a recurring issue starts with Zapytaj before any fuller process', () => {
   const result = resolveQuizResult({
     species: 'kot',
     topic: 'cat_change',
@@ -140,8 +140,8 @@ test('a recurring issue recommends enough time to connect the observations', () 
     impact: 'recurring',
   })
 
-  assert.equal(result.route, 'observe_first')
-  assert.equal(result.serviceKey, 'dwa-kwadranse')
+  assert.equal(result.route, 'short_consultation')
+  assert.equal(result.serviceKey, 'kwadrans')
 })
 
 test('daily or multi-context issues recommend a fuller interview without a numeric score', () => {

@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { MaterialyOrderForm } from '@/components/MaterialyOrderForm'
 import { NotatnikFinalCta, NotatnikPageShell, NotatnikSectionHead, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
-import { buildBookHref } from '@/lib/booking-routing'
 import {
   PRICE_AMOUNT_PLN,
   PRICE_LABEL,
@@ -23,7 +22,7 @@ type MaterialyGuidePageProps = {
   }>
 }
 
-const quickHref = buildBookHref(null, 'szybka-konsultacja-15-min', false)
+const quickHref = '/zapytaj#formularz'
 const quickPriceLabel = PUBLIC_OFFER_PRICE_LABELS.quick
 
 export function generateStaticParams() {
@@ -60,7 +59,7 @@ export default async function MaterialyGuidePage({ params }: MaterialyGuidePageP
       tag="Materiały / PDF"
       navItems={PUBLIC_SITE_NAV_ITEMS}
       ctaHref={quickHref}
-      ctaLabel={`Kwadrans / ${quickPriceLabel}`}
+      ctaLabel={`Zapytaj / ${quickPriceLabel}`}
       footerPrimaryHref="/materialy"
       footerPrimaryLabel="Wróć do wszystkich PDF-ów"
       sideVisualVariant="materials"
@@ -125,30 +124,39 @@ export default async function MaterialyGuidePage({ params }: MaterialyGuidePageP
       <section id="zamow" className="compact-home-section materialy-home-section">
         <NotatnikSectionHead
           index="II."
-          kicker={isFree ? 'Pobranie' : 'Zamówienie'}
-          title={isFree ? 'Pobierz bezpłatny PDF.' : 'Zamów PDF za 19 zł.'}
+          kicker={isFree ? 'Pobranie' : 'Po rozmowie'}
+          title={isFree ? 'Pobierz bezpłatny PDF.' : 'Ten PDF dobieramy po rozmowie.'}
         />
         <p style={{ maxWidth: '760px', color: 'var(--ink-quiet)' }}>
           {isFree
             ? 'Wpisz e-mail. Pobieranie rozpocznie się od razu, a na skrzynkę otrzymasz również zapasowy kod dostępu.'
-            : 'Uzupełnij dane, przejdź do płatności i po jej potwierdzeniu pobierz materiał przez bezpieczny pokój dostępu.'}
+            : 'Płatne materiały są dostępne po wcześniejszym Zapytaj behawiorystę. Po rozmowie otrzymasz w Pokoju jedną rekomendację dopasowaną do sytuacji; tam kupisz PDF za 19 zł.'}
         </p>
         <div className="top-gap-small">
-          <MaterialyOrderForm
-            productKind="guide"
-            productSlug={guide.slug}
-            productTitle={guide.title}
-            priceLabel={PRICE_LABEL[guide.priceCode]}
-            priceAmount={PRICE_AMOUNT_PLN[guide.priceCode]}
-          />
+          {isFree ? (
+            <MaterialyOrderForm
+              productKind="guide"
+              productSlug={guide.slug}
+              productTitle={guide.title}
+              priceLabel={PRICE_LABEL[guide.priceCode]}
+              priceAmount={PRICE_AMOUNT_PLN[guide.priceCode]}
+            />
+          ) : (
+            <div className="account-room-card">
+              <p><strong>Najpierw porozmawiajmy.</strong> Jeśli ten temat będzie wymagał materiału, zobaczysz go po rozmowie w swoim Pokoju.</p>
+              <Link href={quickHref} className="button button-primary">
+                Najpierw Zapytaj behawiorystę
+              </Link>
+            </div>
+          )}
         </div>
       </section>
 
       <NotatnikFinalCta
-        title="Jeśli PDF nie wystarczy, <em>Kwadrans pomoże ustawić następny krok.</em>"
+        title="Jeśli PDF nie wystarczy, <em>krótka rozmowa pomoże ustawić następny krok.</em>"
         copy="Materiał porządkuje pierwsze działania. Gdy sytuacja wraca, eskaluje albo dotyczy bezpieczeństwa, krótka rozmowa pomaga dobrać dalsze wsparcie."
         primaryHref={quickHref}
-        primaryLabel={`Umów spokojny pierwszy krok / ${quickPriceLabel}`}
+        primaryLabel={`Zapytaj behawiorystę / ${quickPriceLabel}`}
       />
     </NotatnikPageShell>
   )

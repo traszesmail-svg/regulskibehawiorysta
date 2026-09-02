@@ -98,20 +98,20 @@ const topicTitles: Record<Animal, Partial<Record<ProblemType, string>>> = {
 const formatChoices: FormatChoice[] = [
   {
     id: 'kwadrans',
-    title: 'Kwadrans',
-    badge: '15 min',
+    title: 'Zapytaj behawiorystę',
+    badge: 'do 15 min',
     price: PUBLIC_OFFER_PRICE_LABELS.quick,
-    desc: '15 min połączenia telefonicznego na jedno główne pytanie. Po rozmowie masz prawo do 2 dopytań w swoim pokoju konsultacji.',
+    desc: 'Rozmowa telefoniczna do 15 minut. Po rozmowie masz prawo do 2 dopytań w swoim pokoju.',
     checks: ['Jedno główne pytanie', 'Do 2 pytań w pokoju po rozmowie'],
     icon: Clock3,
     service: null,
   },
   {
     id: 'kwadrans-na-juz',
-    title: 'Kwadrans na już',
-    badge: '15 min',
+    title: 'Zapytaj teraz',
+    badge: 'do 15 min',
     price: PUBLIC_OFFER_PRICE_LABELS.urgent,
-    desc: 'Ten sam zakres co Kwadrans (w tym prawo do 2 dopytań w pokoju), ale z priorytetem i najbliższym realnym terminem.',
+    desc: 'Ten sam zakres co Zapytaj behawiorystę, ale w najbliższym dostępnym oknie.',
     checks: ['Wariant priorytetowy', 'Do 2 pytań w pokoju po rozmowie'],
     icon: Zap,
     service: 'kwadrans-na-juz',
@@ -119,10 +119,10 @@ const formatChoices: FormatChoice[] = [
   },
   {
     id: 'dwa-kwadranse',
-    title: 'Dwa kwadranse',
-    badge: '30 min',
+    title: 'Starszy wariant rozmowy',
+    badge: 'historyczny',
     price: PUBLIC_OFFER_PRICE_LABELS.bridge,
-    desc: '30 min połączenia telefonicznego, gdy temat ma kilka wątków. Po rozmowie masz prawo do 4 dopytań w swoim pokoju konsultacji.',
+    desc: 'Wariant nie jest obecnie dostępny w ofercie publicznej.',
     checks: ['Więcej czasu na kontekst', 'Do 4 pytań w pokoju po rozmowie'],
     icon: Hourglass,
     service: 'konsultacja-30-min',
@@ -130,9 +130,9 @@ const formatChoices: FormatChoice[] = [
   {
     id: 'pelna-konsultacja',
     title: 'Pełna konsultacja',
-    badge: 'ok. 2h przez Jitsi',
+    badge: 'około 90 minut przez Jitsi',
     price: PUBLIC_OFFER_PRICE_LABELS.premium,
-    desc: 'Około 2h przez Jitsi dla spraw złożonych: analiza zachowania, plan działania i 14 dni komunikacji w pokoju klienta.',
+    desc: 'Około 90 minut przez Jitsi dla spraw złożonych: analiza zachowania, plan działania i 14 dni komunikacji w pokoju klienta.',
     checks: ['Analiza i plan działania', 'Czat w pokoju (w miarę czasu)'],
     icon: Star,
     service: 'konsultacja-behawioralna-online',
@@ -178,6 +178,13 @@ export default async function ConsultationFormatPage(
   const clinicFlow = readClinicFlowSearchParam(searchParams?.clinic)
   const problem = readProblemTypeSearchParam(searchParams?.problem)
   const topicTitle = problem ? topicTitles[animal][problem] : null
+
+  // The old public format selector is no longer a public offer. Keep this
+  // route only for the conditional clinic-code flow, which still needs its
+  // own zero-price booking contract.
+  if (!clinicFlow) {
+    redirect('/zapytaj')
+  }
 
   if (!problem || !topicTitle) {
     redirect(`/wybor?animal=${animal}${clinicFlow ? '&clinic=1' : ''}`)
@@ -229,9 +236,9 @@ export default async function ConsultationFormatPage(
               </span>
               <div className={styles.heroCopy}>
                 <span className={styles.eyebrow}>Format konsultacji</span>
-                <h1 id="format-title">{clinicFlow ? 'Wybierz bezpłatny Kwadrans' : copy.title}</h1>
+                <h1 id="format-title">{clinicFlow ? 'Wybierz bezpłatne Zapytaj behawiorystę' : copy.title}</h1>
                 <p>
-                  Temat: <strong>{topicTitle}</strong>. {clinicFlow ? 'Kod z lecznicy obejmuje 15-minutową konsultację bez dodatkowej opłaty.' : copy.lead}
+                  Temat: <strong>{topicTitle}</strong>. {clinicFlow ? 'Kod z lecznicy obejmuje rozmowę do 15 minut bez dodatkowej opłaty.' : copy.lead}
                 </p>
               </div>
             </div>

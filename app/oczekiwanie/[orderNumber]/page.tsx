@@ -86,9 +86,9 @@ export default async function WaitingPage(props: {
       tag="Status płatności"
       navItems={PUBLIC_BOOKING_FLOW_NAV_ITEMS}
       topbarProfile="flow"
-      ctaHref={consultationReady ? readyUrl ?? '/book' : '/dostep'}
+      ctaHref={consultationReady ? readyUrl ?? '/zapytaj' : '/dostep'}
       ctaLabel={consultationReady ? 'Wejdź do pokoju' : 'Wpisz kod'}
-      footerPrimaryHref={consultationReady ? readyUrl ?? '/book' : '/dostep'}
+      footerPrimaryHref={consultationReady ? readyUrl ?? '/zapytaj' : '/dostep'}
       footerPrimaryLabel={consultationReady ? 'Wejdź do pokoju rozmowy' : 'Wpisz kod dostępu'}
       pageClassName="commerce-flow-page"
     >

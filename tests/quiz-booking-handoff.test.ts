@@ -68,7 +68,7 @@ test('handoff expires, validates its booking target and can be cleared', () => {
   assert.equal(
     readQuizBookingHandoff({
       problemType: 'separacja',
-      serviceType: 'konsultacja-30-min',
+      serviceType: 'szybka-konsultacja-15-min',
       species: 'pies',
       storage,
       now: 1_001,

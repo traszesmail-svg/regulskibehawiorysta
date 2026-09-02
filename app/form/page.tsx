@@ -65,6 +65,10 @@ export default async function FormPage(
   const requestedSpecies = readBookingSpeciesSearchParam(searchParams?.species)
   const clinicFlow = readClinicFlowSearchParam(searchParams?.clinic)
 
+  if (!clinicFlow && !qaBooking) {
+    redirect('/zapytaj')
+  }
+
   if (!problem || !slotId) {
     redirect(buildBookHref(null, serviceQuery, qaBooking, requestedSpecies, clinicFlow))
   }

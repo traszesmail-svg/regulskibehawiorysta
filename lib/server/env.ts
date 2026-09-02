@@ -2,7 +2,7 @@ import { SITE_PRODUCTION_URL } from '@/lib/site'
 
 const DEFAULT_APP_URL = 'http://localhost:3000'
 const DEFAULT_JITSI_BASE_URL = 'https://meet.jit.si'
-const DEFAULT_RESERVATION_WINDOW_MINUTES = 15
+const DEFAULT_RESERVATION_WINDOW_MINUTES = 5
 
 const DATA_MODE_VALUES = ['auto', 'supabase', 'local'] as const
 const PAYMENT_MODE_VALUES = ['auto', 'manual', 'mock'] as const

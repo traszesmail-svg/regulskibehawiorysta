@@ -17,7 +17,6 @@ interface LeadMagnetFormProps {
 export function LeadMagnetForm({ magnetId, source, onSuccess, layout = 'vertical' }: LeadMagnetFormProps) {
   const [email, setEmail] = useState('');
   const [consentGdpr, setConsentGdpr] = useState(false);
-  const [consentNewsletter, setConsentNewsletter] = useState(false);
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -38,7 +37,6 @@ export function LeadMagnetForm({ magnetId, source, onSuccess, layout = 'vertical
           email,
           magnetId,
           source,
-          consentNewsletter,
         }),
       });
 
@@ -107,16 +105,6 @@ export function LeadMagnetForm({ magnetId, source, onSuccess, layout = 'vertical
           Wyrażam zgodę na przetwarzanie mojego adresu email w celu wysłania PDF.{' '}
           <a href="/polityka-prywatnosci" className="underline hover:text-accent">Polityka prywatności</a>
         </span>
-      </label>
-
-      <label className="flex items-start gap-2.5 text-xs text-muted cursor-pointer">
-        <input
-          type="checkbox"
-          checked={consentNewsletter}
-          onChange={(e) => setConsentNewsletter(e.target.checked)}
-          className="mt-0.5 accent-accent shrink-0"
-        />
-        <span>(opcjonalnie) Chcę otrzymywać newsletter. Raz w miesiącu spokojna porcja wiedzy o psach, kotach i pierwszych krokach w trudnych sytuacjach.</span>
       </label>
 
       {status === 'error' && (

@@ -17,6 +17,7 @@ export type CommerceManualPaymentNotificationState = 'pending' | 'sending' | 'se
 
 export type CommerceProductMeta = {
   bookingId?: string
+  sourceBookingId?: string
   bookingAccessToken?: string | null
   serviceType?: string
   productKind?: 'guide' | 'bundle'

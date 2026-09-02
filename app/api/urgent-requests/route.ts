@@ -176,7 +176,7 @@ function validate(body: Record<string, unknown>): { payload?: ValidatedUrgentPay
   if (!requestedDate || !requestedTime) return { error: 'Podaj preferowaną datę i godzinę.' }
   if (requestedSlots.length < 3 || requestedSlots.length > 5) return { error: 'Wybierz od 3 do 5 godzin na dziś.' }
   if (new Set(requestedSlots.map((slot) => slot.date)).size !== 1) return { error: 'Wybierz godziny z jednego dnia.' }
-  if (requestedSlots.some((slot) => slot.date !== todayDate)) return { error: 'Kwadrans na już przyjmuje tylko godziny na dzisiaj.' }
+  if (requestedSlots.some((slot) => slot.date !== todayDate)) return { error: 'Zapytaj teraz przyjmuje tylko najbliższe godziny na dzisiaj.' }
   if (requestedSlots.some((slot) => !isHalfHourTime(slot.time))) return { error: 'Wybierz półgodzinne okna czasowe.' }
   if (requestedSlots.some((slot) => getTimeMinutes(slot.time) > 18 * 60)) return { error: 'Wybierz godziny najpóźniej do 18:00.' }
   if (requestedSlots.some((slot) => getTimeMinutes(slot.time) < earliestSlotMinutes)) {

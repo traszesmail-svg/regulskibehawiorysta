@@ -36,8 +36,8 @@ export async function getAvailabilitySlot(slotId: string) {
   return getProvider().getAvailabilitySlot(slotId)
 }
 
-export async function createAvailabilitySlot(bookingDate: string, bookingTime: string) {
-  return getProvider().createAvailabilitySlot(bookingDate, bookingTime)
+export async function createAvailabilitySlot(bookingDate: string, bookingTime: string, slotId?: string) {
+  return getProvider().createAvailabilitySlot(bookingDate, bookingTime, slotId)
 }
 
 export async function deleteAvailabilitySlot(slotId: string) {
@@ -54,6 +54,22 @@ export async function getBookingById(id: string) {
 
 export async function getBookingByCustomerAccess(id: string, accessToken: string) {
   return getProvider().getBookingByCustomerAccess(id, accessToken)
+}
+
+export async function getBookingByRecoveryAccess(id: string, accessToken: string) {
+  return getProvider().getBookingByRecoveryAccess(id, accessToken)
+}
+
+export async function issueConsultationAccessCode(bookingId: string) {
+  return getProvider().issueConsultationAccessCode(bookingId)
+}
+
+export async function getConsultationAccessByCode(code: string) {
+  return getProvider().getConsultationAccessByCode(code)
+}
+
+export async function consumeConsultationAccessCode(code: string) {
+  return getProvider().consumeConsultationAccessCode(code)
 }
 
 function mapLeadBookingToBookingRecord(lead: any): BookingRecord {
@@ -120,7 +136,10 @@ export async function getBookingForViewer(
     return null
   }
 
-  return getBookingByCustomerAccess(id, accessToken)
+  const customerBooking = await getBookingByCustomerAccess(id, accessToken)
+  if (customerBooking) return customerBooking
+
+  return getBookingByRecoveryAccess(id, accessToken)
 }
 
 export async function listBookings() {
@@ -166,6 +185,14 @@ export async function updateBookingCallState(
 ) {
   return getProvider().updateBookingCallState(bookingId, patch)
 }
+
+export async function moveBookingToRecoverySlot(
+  bookingId: string,
+  recoveryToken: string,
+  targetSlotId: string,
+) {
+  return getProvider().moveBookingToRecoverySlot(bookingId, recoveryToken, targetSlotId)
+}
 export async function attachPayuOrder(
   bookingId: string,
   paymentData: Parameters<StoreProvider['attachPayuOrder']>[1],
@@ -192,11 +219,33 @@ export async function markBookingPaid(
 }
 
 export async function markBookingPaymentFailed(bookingId: string) {
-  return getProvider().markBookingPaymentFailed(bookingId)
+  const booking = await getProvider().markBookingPaymentFailed(bookingId)
+
+  if (booking && booking.paymentStatus !== 'paid') {
+    try {
+      const { releasePromoClaimsForBooking } = await import('@/lib/server/promo-codes')
+      await releasePromoClaimsForBooking(booking.id)
+    } catch (error) {
+      console.error('[regulski-behawiorysta][promo-codes] failed to release claims after payment failure', error)
+    }
+  }
+
+  return booking
 }
 
 export async function markBookingManualPaymentRejected(bookingId: string, reason?: string) {
-  return getProvider().markBookingManualPaymentRejected(bookingId, reason)
+  const booking = await getProvider().markBookingManualPaymentRejected(bookingId, reason)
+
+  if (booking && booking.paymentStatus !== 'paid') {
+    try {
+      const { releasePromoClaimsForBooking } = await import('@/lib/server/promo-codes')
+      await releasePromoClaimsForBooking(booking.id)
+    } catch (error) {
+      console.error('[regulski-behawiorysta][promo-codes] failed to release claims after manual rejection', error)
+    }
+  }
+
+  return booking
 }
 
 export async function markBookingRefunded(bookingId: string) {
@@ -204,11 +253,22 @@ export async function markBookingRefunded(bookingId: string) {
 }
 
 export async function markBookingExpired(bookingId: string) {
-  return getProvider().markBookingExpired(bookingId)
+  const booking = await getProvider().markBookingExpired(bookingId)
+
+  if (booking) {
+    try {
+      const { releasePromoClaimsForBooking } = await import('@/lib/server/promo-codes')
+      await releasePromoClaimsForBooking(booking.id)
+    } catch (error) {
+      console.error('[regulski-behawiorysta][promo-codes] failed to release claims after booking expiry', error)
+    }
+  }
+
+  return booking
 }
 
-export async function markBookingDone(bookingId: string, recommendedNextStep?: string) {
-  return getProvider().markBookingDone(bookingId, recommendedNextStep)
+export async function markBookingDone(bookingId: string, recommendedNextStep?: string, recommendedMaterialSlug?: string | null) {
+  return getProvider().markBookingDone(bookingId, recommendedNextStep, recommendedMaterialSlug)
 }
 
 export async function markBookingReminderSent(bookingId: string) {

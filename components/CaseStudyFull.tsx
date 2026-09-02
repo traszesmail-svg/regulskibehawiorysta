@@ -110,7 +110,7 @@ export function CaseStudyFull({ caseStudy, bookingHref }: CaseStudyFullProps) {
             <div className="notatnik-mono">Podobna sytuacja?</div>
             <p>Nie musisz idealnie dopasować historii do swojego problemu. Wystarczy krótki opis tego, co dzieje się teraz.</p>
             <Link href={bookingHref} prefetch={false} className="notatnik-btn">
-              <span>Zacznij od Kwadransa</span>
+              <span>Zacznij od Zapytaj behawiorystę</span>
               <span className="notatnik-btn-arrow" aria-hidden="true">
                 &rarr;
               </span>

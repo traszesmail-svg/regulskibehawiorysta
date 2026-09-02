@@ -94,7 +94,7 @@ export default function AboutPage() {
   const faqItems = FAQ_SHORTLISTS.consultation.slice(0, 2)
 
   return (
-    <ReferencePageShell className="reference-about-page reference-about-redesign-page" ctaHref="/cennik">
+    <ReferencePageShell className="reference-about-page reference-about-redesign-page" ctaHref="/zapytaj">
       <Schema
         data={[
           getPersonJsonLd(),
@@ -275,7 +275,7 @@ export default function AboutPage() {
             <h2>Zróbmy pierwszy krok spokojnie</h2>
             <p>Umów konsultację i uporządkujmy sytuację Twojego psa lub kota. Wspólnie wybierzemy plan, który naprawdę ma sens.</p>
             <div className="site-help-cta-actions">
-              <Link href="/cennik" prefetch={false}>
+              <Link href="/zapytaj" prefetch={false}>
                 Umów konsultację
                 <ChevronRight size={19} strokeWidth={1.8} aria-hidden="true" />
               </Link>

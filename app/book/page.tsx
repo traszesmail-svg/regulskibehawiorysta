@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
+import { redirect } from 'next/navigation'
 import { BookingSlotCalendar } from '@/components/BookingSlotCalendar'
 import { normalizeBookingServiceType } from '@/lib/booking-services'
-import { readBookingServiceSearchParam } from '@/lib/booking-routing'
+import { readBookingServiceSearchParam, readClinicFlowSearchParam, readQaBookingSearchParam } from '@/lib/booking-routing'
 import { buildBookMetadata } from '@/lib/seo'
 
 export const dynamic = 'force-dynamic'
@@ -40,5 +41,12 @@ export default async function BookPage(
   }
 ) {
   const searchParams = await props.searchParams;
+  const clinicFlow = readClinicFlowSearchParam(searchParams?.clinic)
+  const qaBooking = readQaBookingSearchParam(searchParams?.qa)
+
+  if (!clinicFlow && !qaBooking) {
+    redirect('/zapytaj')
+  }
+
   return <BookingSlotCalendar searchParams={searchParams} />
 }

@@ -1,13 +1,13 @@
 # Jak się przygotować do Pełnej Konsultacji Behawioralnej
 
-**Usługa:** Pełna konsultacja behawioralna online (ok. 2 godziny)
+**Usługa:** Pełna konsultacja behawioralna online (około 90 minut)
 **Format:** Rozmowa video + audio online
 
 ---
 
 ## To jest czas wyłącznie na Ciebie i Twoje zwierzę
 
-Dwie godziny to wystarczająco dużo, żeby przejść przez wszystko porządnie — od historii, przez diagnozę, po gotowy plan. Im lepiej jesteś przygotowany/przygotowana, tym więcej czasu zostanie na rozwiązania zamiast na zbieranie faktów.
+Około 90 minut to wystarczająco dużo, żeby przejść przez wszystko porządnie — od historii, przez analizę, po gotowy plan. Im lepiej jesteś przygotowany/przygotowana, tym więcej czasu zostanie na rozwiązania zamiast na zbieranie faktów.
 
 ---
 

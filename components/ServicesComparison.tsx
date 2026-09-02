@@ -12,42 +12,42 @@ type ServicesComparisonProps = {
 const SERVICES = [
   {
     id: 'szybka-konsultacja-15-min',
-    title: '15-minutowa konsultacja behawioralna',
+    title: 'Zapytaj behawiorystę',
     badge: 'Najprostszy start',
     price: PUBLIC_OFFER_PRICES.quick,
-    duration: '15 min',
-    mode: 'połączenie telefoniczne',
-    who: 'jedno główne pytanie i szybkie uporządkowanie sytuacji',
-    plan: 'pierwszy kierunek działania i decyzja, czy potrzebny jest szerszy format',
-    materials: 'bez wsparcia po rozmowie; to krótki pierwszy krok',
+    duration: 'do 15 min',
+    mode: 'rozmowa telefoniczna',
+    who: 'opisanie sytuacji i szybkie uporządkowanie pierwszego kroku',
+    plan: 'pierwszy kierunek działania i dwa pytania po rozmowie',
+    materials: 'pokój klienta z możliwością 2 dopytań',
     refund: PUBLIC_OFFER_CANCELLATION_COPY,
-    cta: 'Chcę zacząć od Kwadransa',
+    cta: 'Zapytaj behawiorystę',
   },
   {
-    id: 'konsultacja-30-min',
-    title: 'Dwa kwadranse',
-    badge: null,
-    price: PUBLIC_OFFER_PRICES.bridge,
-    duration: '30 min',
-    mode: 'połączenie telefoniczne',
-    who: 'gdy temat ma kilka wątków i 15 minut to za mało',
-    plan: 'więcej czasu na kontekst, spokojniejsze zalecenia i decyzję, czy potrzebna jest pełna konsultacja',
-    materials: 'bez 14-dniowej komunikacji w pokoju klienta po rozmowie',
+    id: 'kwadrans-na-juz',
+    title: 'Zapytaj teraz',
+    badge: 'Tylko przy dostępności',
+    price: PUBLIC_OFFER_PRICES.urgent,
+    duration: 'do 15 min',
+    mode: 'rozmowa telefoniczna',
+    who: 'gdy widzisz, że behawiorysta jest właśnie dostępny',
+    plan: 'ten sam pierwszy kierunek i dwa pytania, bez czekania na zwykły termin',
+    materials: 'pokój klienta z możliwością 2 dopytań',
     refund: PUBLIC_OFFER_CANCELLATION_COPY,
-    cta: 'Chcę spokojniej omówić temat',
+    cta: 'Zapytaj teraz',
   },
   {
     id: 'konsultacja-behawioralna-online',
     title: 'Pełna konsultacja',
     badge: null,
     price: PUBLIC_OFFER_PRICES.premium,
-    duration: 'ok. 2h przez Jitsi',
+    duration: 'około 90 minut przez Jitsi',
     mode: 'Jitsi (audio lub wideo)',
-    who: 'gdy sytuacja jest złożona, trwa długo albo obejmuje kilka obszarów naraz',
+    who: 'gdy po pierwszej rozmowie potrzebny jest szerszy, indywidualny proces',
     plan: 'analiza zachowania, prawdopodobna przyczyna problemu i plan działania',
     materials: '14 dni komunikacji w pokoju klienta przy wdrażaniu zaleceń',
     refund: 'Osobny regulamin dla pełnej konsultacji.',
-    cta: 'Chcę pełną konsultację',
+    cta: 'Zobacz pełną konsultację',
   },
 ] as const
 
@@ -63,6 +63,8 @@ const ROWS = [
 ] as const
 
 function getHref(serviceId: (typeof SERVICES)[number]['id'], species?: BookingSpecies | null, qaBooking?: boolean) {
+  if (serviceId === 'konsultacja-behawioralna-online') return '/konsultacja'
+
   return buildBookHref(null, serviceId === 'szybka-konsultacja-15-min' ? null : serviceId, qaBooking ?? false, species ?? null)
 }
 

@@ -99,14 +99,11 @@ export function HomepageIntroPopup() {
           </p>
 
           <div className="homepage-intro-popup-actions" aria-label="Wybierz pierwszy kierunek">
-            <Link href="/wybor?animal=dog" prefetch={false} onClick={() => dismiss('dog')}>
-              Mam problem z psem
-            </Link>
-            <Link href="/wybor?animal=cat" prefetch={false} onClick={() => dismiss('cat')}>
-              Mam problem z kotem
+            <Link href="/zapytaj" prefetch={false} onClick={() => dismiss('zapytaj')}>
+              Zapytaj behawiorystę — 79 zł
             </Link>
             <Link href="/mapa-sprawy" prefetch={false} className="is-secondary" onClick={() => dismiss('quiz')}>
-              Nie wiem, od czego zacząć
+              Nie wiesz, jak to nazwać? Otwórz mapę
             </Link>
           </div>
         </div>

@@ -12,7 +12,6 @@ import {
   ShoppingCart,
 } from 'lucide-react'
 import { NotatnikPageShell, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
-import { buildBookHref } from '@/lib/booking-routing'
 import { buildMarketingMetadata } from '@/lib/seo'
 import { PUBLIC_OFFER_PRICE_LABELS } from '@/lib/public-offer-copy'
 import {
@@ -30,7 +29,7 @@ export const metadata: Metadata = buildMarketingMetadata({
     'Praktyczne materiały PDF dla opiekunów psów i kotów: obserwacja zachowań, napięcie, zostawanie samemu i przygotowanie do konsultacji.',
 })
 
-const quickHref = buildBookHref(null, 'szybka-konsultacja-15-min', false)
+const quickHref = '/zapytaj#formularz'
 const quickPriceLabel = PUBLIC_OFFER_PRICE_LABELS.quick
 
 function MaterialyGuideCard({ guide }: { guide: MaterialyGuide }) {
@@ -66,7 +65,7 @@ function MaterialyGuideCard({ guide }: { guide: MaterialyGuide }) {
         </span>
 
         <span className="materialy-showcase-card-footer">
-          <span>PDF · {guide.previewPageCount} strony podglądu</span>
+          <span>{isFree ? 'Bezpłatny PDF' : 'Wymaga wcześniejszej rozmowy'} · {guide.previewPageCount} strony podglądu</span>
           <span className="materialy-showcase-card-action" aria-hidden="true">
             {isFree ? <ArrowDownToLine size={18} strokeWidth={1.8} /> : <ArrowRight size={18} strokeWidth={1.8} />}
           </span>
@@ -102,7 +101,10 @@ function MaterialyShelf({
           <PawPrint size={18} strokeWidth={1.6} />
           <i />
         </div>
-        <small>5 materiałów dla psów · 5 materiałów dla kotów</small>
+        <small>
+          {guides.filter((guide) => guide.category === 'dog').length} materiałów dla psów ·{' '}
+          {guides.filter((guide) => guide.category === 'cat').length} materiałów dla kotów
+        </small>
       </header>
 
       <p className="materialy-showcase-swipe">Przesuń, aby zobaczyć kolejne materiały →</p>
@@ -128,9 +130,9 @@ export default function MaterialyLandingPage() {
       tag="Materiały / PDF"
       navItems={PUBLIC_SITE_NAV_ITEMS}
       ctaHref={quickHref}
-      ctaLabel={`Kwadrans / ${quickPriceLabel}`}
+      ctaLabel={`Zapytaj / ${quickPriceLabel}`}
       footerPrimaryHref={quickHref}
-      footerPrimaryLabel="Kwadrans z behawiorystą"
+      footerPrimaryLabel="Zapytaj behawiorystę"
       pageClassName="homepage-shell materialy-page materialy-showcase-page"
       shellClassName="homepage-main materialy-shell materialy-showcase-shell"
     >
@@ -143,12 +145,12 @@ export default function MaterialyLandingPage() {
           <h1 id="materialy-title">Materiały PDF dla opiekunów psów i kotów</h1>
           <p className="materialy-visual-lead">Praktyczne wsparcie przed rozmową i na co dzień.</p>
           <p className="materialy-visual-copy">
-            Wybierz krótki bezpłatny poradnik albo rozszerzony plan za 19 zł. Proste wskazówki,
-            gotowe do wdrożenia wtedy, gdy potrzebujesz spokojnego pierwszego kroku.
+            Wybierz bezpłatny materiał na start albo zobacz płatne PDF-y za 19 zł, które dobieram po rozmowie.
+            Proste wskazówki, gotowe do wdrożenia wtedy, gdy potrzebujesz spokojnego pierwszego kroku.
           </p>
           <div className="materialy-visual-actions">
-            <Link href="#bezplatne" prefetch={false} className="materialy-visual-primary">
-              <span>Przeglądaj materiały</span>
+            <Link href="#p19" prefetch={false} className="materialy-visual-primary">
+              <span>Zobacz plany po rozmowie</span>
               <ArrowDownToLine size={18} strokeWidth={1.8} aria-hidden="true" />
             </Link>
             <Link href="#jak-to-dziala" prefetch={false} className="materialy-visual-secondary">
@@ -157,8 +159,8 @@ export default function MaterialyLandingPage() {
             </Link>
           </div>
           <div className="materialy-visual-stats" aria-label="Zawartość katalogu">
-            <span><strong>20</strong> finalnych PDF-ów</span>
-            <span><strong>10</strong> bezpłatnych</span>
+            <span><strong>16</strong> aktywnych PDF-ów</span>
+            <span><strong>6</strong> bezpłatnych</span>
             <span><strong>10</strong> po 19 zł</span>
           </div>
         </div>
@@ -191,8 +193,8 @@ export default function MaterialyLandingPage() {
               ))}
             </div>
             <div>
-              <strong>10 bezpłatnych materiałów</strong>
-              <small>5 dla psa · 5 dla kota</small>
+              <strong>6 bezpłatnych materiałów</strong>
+              <small>3 dla psa · 3 dla kota</small>
             </div>
           </div>
           <ul>
@@ -216,20 +218,20 @@ export default function MaterialyLandingPage() {
       </section>
 
       <MaterialyShelf
-        id="bezplatne"
-        eyebrow="Materiały · bezpłatne"
-        title="10 krótkich PDF‑ów na konkretne sytuacje."
-        copy="Szybko porządkują najważniejsze informacje i pomagają bezpiecznie zacząć działać."
-        guides={freeGuides}
+        id="p19"
+        eyebrow="Plany po rozmowie · 19 zł"
+        title="10 konkretnych PDF-ów do wdrożenia."
+        copy="Po Zapytaj behawiorysta może wskazać jeden materiał dopasowany do sprawy. Kupisz go później w swoim Pokoju — bez otwartego sklepu i przypadkowego wyboru."
+        guides={p19Guides}
+        tone="sage"
       />
 
       <MaterialyShelf
-        id="p19"
-        eyebrow="Rozszerzone plany · 19 zł"
-        title="10 planów pierwszego działania."
-        copy="Więcej kontekstu, obserwacji i kolejnych kroków przy trudniejszych, powtarzających się sytuacjach."
-        guides={p19Guides}
-        tone="sage"
+        id="bezplatne"
+        eyebrow="Materiały · bezpłatne"
+        title="6 krótkich PDF-ów na spokojny początek."
+        copy="Szybko porządkują najważniejsze informacje i pomagają bezpiecznie zacząć działać."
+        guides={freeGuides}
       />
 
       <section id="jak-to-dziala" className="materialy-process" aria-labelledby="materialy-process-title">
@@ -250,7 +252,7 @@ export default function MaterialyLandingPage() {
             <span className="materialy-process-icon" aria-hidden="true">
               <CreditCard size={22} strokeWidth={1.6} />
             </span>
-            <p>Przy bezpłatnym PDF-ie podaj e-mail. Przy planie za 19 zł opłać zamówienie.</p>
+            <p>Bezpłatny PDF pobierzesz od razu. Płatny materiał kupisz dopiero po wcześniejszym Zapytaj, gdy pojawi się rekomendacja w Pokoju.</p>
           </article>
           <article>
             <strong>03</strong>
@@ -268,12 +270,12 @@ export default function MaterialyLandingPage() {
         </div>
         <div>
           <h2 id="materialy-consultation-title">
-            Jeśli materiał nie wystarczy, <em>Kwadrans porządkuje temat w 15 minut.</em>
+            Jeśli materiał nie wystarczy, <em>Zapytaj behawiorystę i uporządkuj temat w 15 minut.</em>
           </h2>
-          <p>PDF to dobry start, ale czasem rozmowa jest najprostszym sposobem na ustalenie priorytetu.</p>
+          <p>PDF to dobry start, ale rozmowa jest najprostszym sposobem na ustalenie priorytetu i ewentualnego dalszego materiału.</p>
         </div>
         <Link href={quickHref} prefetch={false}>
-          <span>Zobacz konsultację online</span>
+          <span>Zapytaj behawiorystę</span>
           <ArrowRight size={18} strokeWidth={1.8} aria-hidden="true" />
         </Link>
       </section>

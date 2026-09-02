@@ -13,17 +13,26 @@ import { createActiveConsultationPrice, DEFAULT_PRICE_PLN, parseConsultationPric
 import { normalizePolishPhone } from '@/lib/phone'
 import { createFunnelEventRecord, normalizeFunnelEventProperties } from '@/lib/server/funnel-events'
 import { buildSeedAvailabilitySlots } from '@/lib/server/availability-seed'
-import { createCustomerAccessToken, hashCustomerAccessToken } from '@/lib/server/customer-access'
+import { createCustomerAccessToken, hashCustomerAccessToken, hasValidCustomerAccessToken } from '@/lib/server/customer-access'
+import {
+  createConsultationAccessCode,
+  getConsultationAccessExpiry,
+  hashConsultationAccessCode,
+  isConsultationAccessValid,
+  normalizeConsultationAccessCode,
+} from '@/lib/server/consultation-access'
 import { getReservationWindowMinutes, getSupabaseServerConfig } from '@/lib/server/env'
 import { createMeetingUrl, normalizeMeetingUrl } from '@/lib/server/jitsi'
-import { getManualPaymentConfig } from '@/lib/server/payment-options'
+import { getManualPaymentConfig, getZapytajManualPaymentConfig } from '@/lib/server/payment-options'
 import { isAvailabilitySlotBookableForService } from '@/lib/scheduling/rules'
+import { isZapytajLiveSlot, ZAPYTAJ_LIVE_PRICE_PLN, ZAPYTAJ_SERVICE_TYPE } from '@/lib/zapytaj-flow'
 import {
   sendBookingConfirmationEmail,
   sendBookingPaymentConfirmedOwnerEmail,
   sendBookingReservationCreatedEmail,
   sendBookingManualPaymentPendingEmail,
   sendBookingStatusOutcomeEmail,
+  sendConsultationAccessCodeEmail,
   shouldSendBookingConfirmationAfterPayment,
 } from '@/lib/server/notifications'
 import { sendPaymentConfirmationSms } from '@/lib/server/sms'
@@ -82,6 +91,7 @@ type BookingRow = {
   slot_id: string
   qa_booking?: boolean | null
   service_type?: string | null
+  live_mode?: boolean | null
   booking_status: string
   payment_status: string
   payment_method?: string | null
@@ -109,6 +119,7 @@ type BookingRow = {
   sms_error_code?: string | null
   sms_error_message?: string | null
   recommended_next_step: string | null
+  recommended_material_slug?: string | null
   reminder_sent: boolean | null
   prep_video_path: string | null
   prep_video_filename: string | null
@@ -119,6 +130,16 @@ type BookingRow = {
   call_id?: string | null
   call_status?: string | null
   started_at?: string | null
+  call_attempt?: number | null
+  call_answered_at?: string | null
+  call_next_attempt_at?: string | null
+  call_last_error?: string | null
+  call_recovery_used?: boolean | null
+  call_recovery_token_hash?: string | null
+  call_recovery_expires_at?: string | null
+  consultation_access_code_hash?: string | null
+  consultation_access_expires_at?: string | null
+  consultation_access_used_at?: string | null
   questions_remaining?: number | null
 }
 
@@ -205,6 +226,8 @@ let smsSchemaMode: 'unknown' | 'modern' | 'legacy' = 'unknown'
 const LEGACY_QA_BOOKING_COLUMN_NAMES = ['qa_booking'] as const
 
 let qaSchemaMode: 'unknown' | 'modern' | 'legacy' = 'unknown'
+const LEGACY_SERVICE_COLUMN_NAMES = ['service_type', 'live_mode'] as const
+let serviceSchemaMode: 'unknown' | 'modern' | 'legacy' = 'unknown'
 
 const BASE_BOOKING_SELECT_COLUMNS = [
   'id',
@@ -232,6 +255,7 @@ const BASE_BOOKING_SELECT_COLUMNS = [
   'expired_at',
   'refunded_at',
   'recommended_next_step',
+  'recommended_material_slug',
   'reminder_sent',
   'prep_video_path',
   'prep_video_filename',
@@ -244,10 +268,21 @@ const BASE_BOOKING_SELECT_COLUMNS = [
   'call_id',
   'call_status',
   'started_at',
+  'call_attempt',
+  'call_answered_at',
+  'call_next_attempt_at',
+  'call_last_error',
+  'call_recovery_used',
+  'call_recovery_token_hash',
+  'call_recovery_expires_at',
+  'consultation_access_code_hash',
+  'consultation_access_expires_at',
+  'consultation_access_used_at',
   'questions_remaining',
 ] as const
 
 const QA_BOOKING_SELECT_COLUMNS = ['qa_booking'] as const
+const SERVICE_SELECT_COLUMNS = ['service_type', 'live_mode'] as const
 const PAYMENT_SELECT_COLUMNS = [
   'payment_method',
   'payment_reference',
@@ -271,6 +306,7 @@ function buildBookingSelectColumns() {
   return [
     ...BASE_BOOKING_SELECT_COLUMNS,
     ...(qaSchemaMode === 'legacy' ? [] : QA_BOOKING_SELECT_COLUMNS),
+    ...(serviceSchemaMode === 'legacy' ? [] : SERVICE_SELECT_COLUMNS),
     ...(paymentSchemaMode === 'legacy' ? [] : PAYMENT_SELECT_COLUMNS),
     ...(smsSchemaMode === 'legacy' ? [] : SMS_SELECT_COLUMNS),
   ].join(', ')
@@ -294,6 +330,11 @@ function setSmsSchemaMode(mode: typeof smsSchemaMode) {
 
 function setQaSchemaMode(mode: typeof qaSchemaMode) {
   qaSchemaMode = mode
+  refreshBookingSelectColumns()
+}
+
+function setServiceSchemaMode(mode: typeof serviceSchemaMode) {
+  serviceSchemaMode = mode
   refreshBookingSelectColumns()
 }
 
@@ -330,6 +371,21 @@ function isLegacyQaBookingColumnError(error: unknown): boolean {
   return LEGACY_QA_BOOKING_COLUMN_NAMES.some((column) => text.includes(column))
 }
 
+function isLegacyServiceColumnError(error: unknown): boolean {
+  const text = getErrorText(error)
+
+  return LEGACY_SERVICE_COLUMN_NAMES.some((column) => text.includes(column))
+}
+
+function shouldRetryWithLegacyServiceSchema(error: unknown): boolean {
+  if (isLegacyServiceColumnError(error)) {
+    setServiceSchemaMode('legacy')
+    return true
+  }
+
+  return false
+}
+
 function isLegacyManualStatusError(error: unknown): boolean {
   const text = getErrorText(error)
 
@@ -360,6 +416,7 @@ function applyLegacyBookingSelectFallback(error: unknown): boolean {
   const previousSelectColumns = BOOKING_SELECT_COLUMNS
 
   shouldRetryWithoutQaBooking(error)
+  shouldRetryWithLegacyServiceSchema(error)
   shouldRetryWithLegacySmsSchema(error)
   shouldRetryWithLegacyPaymentSchema(error, true)
 
@@ -393,6 +450,16 @@ function shouldRetryWithoutQaBooking(error: unknown): boolean {
 
 function withoutQaBooking<T extends { qa_booking?: boolean }>(row: T): Omit<T, 'qa_booking'> {
   const { qa_booking: _qaBooking, ...rest } = row
+  return rest
+}
+
+function withoutQaColumnRecord(row: Record<string, unknown>) {
+  const { qa_booking: _qaBooking, ...rest } = row
+  return rest
+}
+
+function withoutServiceColumnRecord(row: Record<string, unknown>) {
+  const { service_type: _serviceType, live_mode: _liveMode, ...rest } = row
   return rest
 }
 
@@ -505,7 +572,8 @@ function mapBookingRow(row: BookingRow): BookingRecord {
   const legacyPaymentMeta = decodeLegacyPaymentMeta(row.recommended_next_step)
   const paymentMethod = inferPaymentMethod(row, legacyPaymentMeta)
   const amount = typeof row.amount === 'string' ? Number(row.amount) : row.amount
-  const serviceType = resolveBookingServiceType(row.service_type ?? null, amount)
+  const liveMode = Boolean(row.live_mode ?? isZapytajLiveSlot(row.slot_id))
+  const serviceType = liveMode ? ZAPYTAJ_SERVICE_TYPE : resolveBookingServiceType(row.service_type ?? null, amount)
   let bookingStatus = row.booking_status as BookingRecord['bookingStatus']
   let paymentStatus = row.payment_status as BookingRecord['paymentStatus']
   const paymentReference = row.payment_reference ?? legacyPaymentMeta?.paymentReference ?? null
@@ -544,6 +612,7 @@ function mapBookingRow(row: BookingRow): BookingRecord {
     bookingTime: row.booking_time,
     slotId: row.slot_id,
     qaBooking,
+    liveMode,
     bookingStatus,
     paymentStatus,
     paymentMethod,
@@ -570,6 +639,7 @@ function mapBookingRow(row: BookingRow): BookingRecord {
     smsErrorCode: row.sms_error_code,
     smsErrorMessage: row.sms_error_message,
     recommendedNextStep: legacyPaymentMeta ? null : row.recommended_next_step,
+    recommendedMaterialSlug: row.recommended_material_slug ?? null,
     reminderSent: row.reminder_sent ?? false,
     prepVideoPath: row.prep_video_path,
     prepVideoFilename: row.prep_video_filename,
@@ -580,7 +650,22 @@ function mapBookingRow(row: BookingRow): BookingRecord {
     callId: row.call_id ?? null,
     callStatus: row.call_status ?? null,
     startedAt: row.started_at ?? null,
-    questionsRemaining: row.questions_remaining ?? null,
+    callAttempt: Number.isFinite(row.call_attempt) ? Math.max(0, Number(row.call_attempt)) : 0,
+    callAnsweredAt: row.call_answered_at ?? null,
+    callNextAttemptAt: row.call_next_attempt_at ?? null,
+    callLastError: row.call_last_error ?? null,
+    callRecoveryUsed: row.call_recovery_used ?? false,
+    callRecoveryTokenHash: row.call_recovery_token_hash ?? null,
+    callRecoveryExpiresAt: row.call_recovery_expires_at ?? null,
+    consultationAccessCodeHash: row.consultation_access_code_hash ?? null,
+    consultationAccessExpiresAt: row.consultation_access_expires_at ?? null,
+    consultationAccessUsedAt: row.consultation_access_used_at ?? null,
+    questionsRemaining:
+      row.questions_remaining === undefined || row.questions_remaining === null
+        ? serviceType === ZAPYTAJ_SERVICE_TYPE || serviceType === 'kwadrans-na-juz'
+          ? 2
+          : null
+        : row.questions_remaining,
   }
 }
 
@@ -777,9 +862,26 @@ async function updateBookingAvailabilityWindow(
   }
 }
 
+async function releasePromoClaimsAfterCleanup(bookingIds: string[]) {
+  const uniqueBookingIds = [...new Set(bookingIds.filter(Boolean))]
+  if (uniqueBookingIds.length === 0) {
+    return
+  }
+
+  try {
+    const { releasePromoClaimsForBooking } = await import('@/lib/server/promo-codes')
+    for (const bookingId of uniqueBookingIds) {
+      await releasePromoClaimsForBooking(bookingId)
+    }
+  } catch (error) {
+    console.error('[regulski-behawiorysta][promo-codes] failed to release claims during Supabase cleanup', error)
+  }
+}
+
 async function cleanupExpiredReservations() {
   const supabase = getSupabaseAdmin()
   const nowIso = new Date().toISOString()
+  const expiredBookingIds = new Set<string>()
 
   const expired = await supabase
     .from('availability')
@@ -795,6 +897,7 @@ async function cleanupExpiredReservations() {
   if (expired.data.length) {
     const availabilityIds = expired.data.map((row) => row.id)
     const bookingIds = expired.data.map((row) => row.locked_by_booking_id).filter(Boolean) as string[]
+    bookingIds.forEach((bookingId) => expiredBookingIds.add(bookingId))
 
     const expiredAvailabilityCleanup = await supabase
       .from('availability')
@@ -868,8 +971,10 @@ async function cleanupExpiredReservations() {
 
   const staleRows = ((staleBookings.data ?? []) as unknown as BookingRow[])
   const staleIds = staleRows.map((row) => row.id)
+  staleIds.forEach((bookingId) => expiredBookingIds.add(bookingId))
 
   if (!staleIds.length) {
+    await releasePromoClaimsAfterCleanup([...expiredBookingIds])
     return
   }
 
@@ -960,6 +1065,8 @@ async function cleanupExpiredReservations() {
       }
     }
   }
+
+  await releasePromoClaimsAfterCleanup([...expiredBookingIds])
 }
 
 async function listAvailabilityRows(): Promise<AvailabilityRow[]> {
@@ -1134,7 +1241,11 @@ export async function getAvailabilitySlot(slotId: string): Promise<AvailabilityS
     : slot
 }
 
-export async function createAvailabilitySlot(bookingDate: string, bookingTime: string): Promise<AvailabilitySlot> {
+export async function createAvailabilitySlot(
+  bookingDate: string,
+  bookingTime: string,
+  slotId?: string,
+): Promise<AvailabilitySlot> {
   if (!isFutureAvailabilitySlot(bookingDate, bookingTime)) {
     throw new Error('Możesz dodać tylko przyszły termin.')
   }
@@ -1142,7 +1253,7 @@ export async function createAvailabilitySlot(bookingDate: string, bookingTime: s
   const supabase = getSupabaseAdmin()
   const nowIso = new Date().toISOString()
   const payload = {
-    id: `${bookingDate}-${bookingTime}`,
+    id: slotId ?? `${bookingDate}-${bookingTime}`,
     booking_date: bookingDate,
     booking_time: bookingTime,
     is_booked: false,
@@ -1197,18 +1308,19 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
   }
 
   const slot = mapAvailabilityRow(slotData as AvailabilityRow)
-  const serviceType = normalizeBookingServiceType(form.serviceType)
+  const liveMode = Boolean(form.liveMode || isZapytajLiveSlot(form.slotId))
+  const serviceType = liveMode ? ZAPYTAJ_SERVICE_TYPE : normalizeBookingServiceType(form.serviceType)
 
   if (!isFutureAvailabilitySlot(slot.bookingDate, slot.bookingTime)) {
     throw new Error('Wybrany termin jest już przeszły. Wybierz nową godzinę rozmowy.')
   }
 
-  if (!isAvailabilitySlotBookableForService(slot, serviceType)) {
+  if (!liveMode && !isAvailabilitySlotBookableForService(slot, serviceType)) {
     throw new Error('Wybrany termin nie jest dostępny dla tej usługi.')
   }
 
   const dayAvailability = (await listAvailabilityRowsForDate(slot.bookingDate)).map(mapAvailabilityRow)
-  const slotWindow = getBookableServiceAvailabilityWindow(dayAvailability, form.slotId, serviceType)
+  const slotWindow = liveMode ? [slot] : getBookableServiceAvailabilityWindow(dayAvailability, form.slotId, serviceType)
 
   if (!slotWindow?.length) {
     throw new Error('Wybrany termin nie jest już dostępny.')
@@ -1219,9 +1331,12 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
   const accessToken = createCustomerAccessToken()
   const reservationExpiresAt = new Date(Date.now() + getReservationWindowMinutes() * 60 * 1000).toISOString()
   const customerPhone = form.phone?.trim() ?? ''
+  const amount = liveMode
+    ? ZAPYTAJ_LIVE_PRICE_PLN
+    : form.amountOverridePln ?? getBookingServicePrice(serviceType, pricing.amount)
   console.info('[regulski-behawiorysta][pricing] booking-created', {
     bookingId,
-    amount: getBookingServicePrice(serviceType, pricing.amount),
+    amount,
     summary: `${pricing.summary} Service: ${serviceType}`,
   })
   const commonInsertPayload = {
@@ -1240,17 +1355,31 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
     booking_time: slot.bookingTime,
     slot_id: slot.id,
     qa_booking: form.qaBooking ?? false,
+    service_type: serviceType,
+    live_mode: liveMode,
     booking_status: 'pending',
     payment_status: 'unpaid',
-    amount: getBookingServicePrice(serviceType, pricing.amount),
+    amount,
     meeting_url: createMeetingUrl(bookingId),
     recommended_next_step: null,
+    recommended_material_slug: null,
     prep_video_path: null,
     prep_video_filename: null,
     prep_video_size_bytes: null,
     prep_link_url: null,
     prep_notes: null,
     prep_uploaded_at: null,
+    call_attempt: 0,
+    call_answered_at: null,
+    call_next_attempt_at: null,
+    call_last_error: null,
+    call_recovery_used: false,
+    call_recovery_token_hash: null,
+    call_recovery_expires_at: null,
+    consultation_access_code_hash: null,
+    consultation_access_expires_at: null,
+    consultation_access_used_at: null,
+    questions_remaining: serviceType === ZAPYTAJ_SERVICE_TYPE || serviceType === 'kwadrans-na-juz' ? 2 : null,
     created_at: nowIso,
     updated_at: nowIso,
   }
@@ -1272,7 +1401,7 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
     ...bookingInsertPayload,
     payment_method: null,
     payment_reference: null,
-    consultation_mode: null,
+    consultation_mode: form.consultationMode ?? null,
     payment_reported_at: null,
     payment_rejected_at: null,
     payment_rejected_reason: null,
@@ -1289,24 +1418,25 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
     sms_error_message: null,
   }
 
-  function withQaSchema<T extends { qa_booking?: boolean }>(payload: T): T | Omit<T, 'qa_booking'> {
-    return qaSchemaMode === 'legacy' ? withoutQaBooking(payload) : payload
-  }
-
   function getBookingInsertPayload() {
-    if (paymentSchemaMode === 'legacy' && smsSchemaMode === 'legacy') {
-      return withQaSchema(bookingInsertPayload)
+    let payload: Record<string, unknown> =
+      paymentSchemaMode === 'legacy' && smsSchemaMode === 'legacy'
+        ? bookingInsertPayload
+        : paymentSchemaMode === 'legacy'
+          ? smsInsertPayload
+          : smsSchemaMode === 'legacy'
+            ? paymentOnlyInsertPayload
+            : paymentModernInsertPayload
+
+    if (qaSchemaMode === 'legacy') {
+      payload = withoutQaColumnRecord(payload)
     }
 
-    if (paymentSchemaMode === 'legacy') {
-      return withQaSchema(smsInsertPayload)
+    if (serviceSchemaMode === 'legacy') {
+      payload = withoutServiceColumnRecord(payload)
     }
 
-    if (smsSchemaMode === 'legacy') {
-      return withQaSchema(paymentOnlyInsertPayload)
-    }
-
-    return withQaSchema(paymentModernInsertPayload)
+    return payload
   }
 
   let inserted
@@ -1323,6 +1453,9 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
       }
       if (smsSchemaMode !== 'legacy') {
         setSmsSchemaMode('modern')
+      }
+      if (serviceSchemaMode !== 'legacy') {
+        setServiceSchemaMode('modern')
       }
       break
     }
@@ -1385,6 +1518,93 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
   }
 }
 
+export async function issueConsultationAccessCode(bookingId: string) {
+  const current = await getBookingById(bookingId)
+
+  if (!current) {
+    throw new Error('Nie znaleziono rezerwacji.')
+  }
+
+  const serviceType = resolveBookingServiceType(current.serviceType, current.amount)
+  if (
+    current.paymentStatus !== 'paid' ||
+    current.bookingStatus !== 'done' ||
+    serviceType === 'konsultacja-behawioralna-online'
+  ) {
+    throw new Error('Kod konsultacji można wydać dopiero po opłaconym pierwszym etapie.')
+  }
+
+  const access = createConsultationAccessCode()
+  const expiresAt = getConsultationAccessExpiry()
+  const { data, error } = await getSupabaseAdmin()
+    .from('bookings')
+    .update({
+      consultation_access_code_hash: access.codeHash,
+      consultation_access_expires_at: expiresAt,
+      consultation_access_used_at: null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', bookingId)
+    .select(BOOKING_SELECT_COLUMNS)
+    .single()
+
+  if (error) {
+    throw error
+  }
+
+  const booking = mapBookingRow(data as unknown as BookingRow)
+  const email = await sendConsultationAccessCodeEmail(booking, access.rawCode, expiresAt)
+  return { booking, code: access.rawCode, expiresAt, email }
+}
+
+export async function getConsultationAccessByCode(code: string): Promise<BookingRecord | null> {
+  const normalizedCode = normalizeConsultationAccessCode(code)
+  if (!normalizedCode) {
+    return null
+  }
+
+  const { data, error } = await getSupabaseAdmin()
+    .from('bookings')
+    .select(BOOKING_SELECT_COLUMNS)
+    .eq('consultation_access_code_hash', hashConsultationAccessCode(normalizedCode))
+    .maybeSingle()
+
+  if (error) {
+    throw error
+  }
+
+  const booking = data ? mapBookingRow(data as unknown as BookingRow) : null
+  return booking && isConsultationAccessValid(booking.consultationAccessExpiresAt, booking.consultationAccessUsedAt)
+    ? booking
+    : null
+}
+
+export async function consumeConsultationAccessCode(code: string): Promise<BookingRecord | null> {
+  const normalizedCode = normalizeConsultationAccessCode(code)
+  if (!normalizedCode) {
+    return null
+  }
+
+  const nowIso = new Date().toISOString()
+  const { data, error } = await getSupabaseAdmin()
+    .from('bookings')
+    .update({
+      consultation_access_used_at: nowIso,
+      updated_at: nowIso,
+    })
+    .eq('consultation_access_code_hash', hashConsultationAccessCode(normalizedCode))
+    .is('consultation_access_used_at', null)
+    .gt('consultation_access_expires_at', nowIso)
+    .select(BOOKING_SELECT_COLUMNS)
+    .maybeSingle()
+
+  if (error) {
+    throw error
+  }
+
+  return data ? mapBookingRow(data as unknown as BookingRow) : null
+}
+
 export async function getBookingById(id: string): Promise<BookingRecord | null> {
   await cleanupExpiredReservations()
   const supabase = getSupabaseAdmin()
@@ -1427,6 +1647,130 @@ export async function getBookingByCustomerAccess(id: string, accessToken: string
   }
 
   return null
+}
+
+export async function getBookingByRecoveryAccess(id: string, accessToken: string): Promise<BookingRecord | null> {
+  const booking = await getBookingById(id)
+
+  if (
+    !booking ||
+    !booking.callRecoveryExpiresAt ||
+    Date.parse(booking.callRecoveryExpiresAt) <= Date.now() ||
+    !hasValidCustomerAccessToken(accessToken, booking.callRecoveryTokenHash)
+  ) {
+    return null
+  }
+
+  return booking
+}
+
+export async function moveBookingToRecoverySlot(
+  bookingId: string,
+  recoveryToken: string,
+  targetSlotId: string,
+): Promise<BookingRecord | null> {
+  const current = await getBookingByRecoveryAccess(bookingId, recoveryToken)
+
+  if (!current || current.paymentStatus !== 'paid' || current.consultationMode !== 'phone') {
+    return null
+  }
+
+  const serviceType = resolveBookingServiceType(current.serviceType, current.amount)
+  if (current.liveMode || serviceType === 'konsultacja-behawioralna-online') {
+    throw new Error('Dodatkowy termin nie jest dostępny dla tej rezerwacji.')
+  }
+
+  const targetDay = (await listAvailabilityRowsForDate(current.bookingDate)).map(mapAvailabilityRow)
+  const targetSlot = targetDay.find((slot) => slot.id === targetSlotId)
+  if (!targetSlot || isZapytajLiveSlot(targetSlot.id)) {
+    const otherDay = (await getSupabaseAdmin().from('availability').select('*').eq('id', targetSlotId).maybeSingle()).data as AvailabilityRow | null
+    if (!otherDay) throw new Error('Wybrany dodatkowy termin nie jest dostępny.')
+    const targetDate = mapAvailabilityRow(otherDay).bookingDate
+    const dateSlots = (await listAvailabilityRowsForDate(targetDate)).map(mapAvailabilityRow)
+    const resolvedTarget = dateSlots.find((slot) => slot.id === targetSlotId)
+    if (!resolvedTarget || isZapytajLiveSlot(resolvedTarget.id)) throw new Error('Wybrany dodatkowy termin nie jest dostępny.')
+    return moveBookingToRecoverySlotWithTarget(current, recoveryToken, targetSlotId, dateSlots, resolvedTarget, serviceType)
+  }
+
+  return moveBookingToRecoverySlotWithTarget(current, recoveryToken, targetSlotId, targetDay, targetSlot, serviceType)
+}
+
+async function moveBookingToRecoverySlotWithTarget(
+  current: BookingRecord,
+  recoveryToken: string,
+  targetSlotId: string,
+  targetDay: AvailabilitySlot[],
+  targetSlot: AvailabilitySlot,
+  serviceType: ReturnType<typeof resolveBookingServiceType>,
+) {
+  if (!isFutureAvailabilitySlot(targetSlot.bookingDate, targetSlot.bookingTime)) {
+    throw new Error('Wybrany dodatkowy termin jest już przeszły.')
+  }
+
+  const candidateSlots = getServiceAvailabilityWindow(targetDay, targetSlotId, serviceType)
+  if (!candidateSlots?.length || !isAvailabilitySlotBookableForService(candidateSlots[0], serviceType)) {
+    throw new Error('Wybrany dodatkowy termin nie jest dostępny dla tej usługi.')
+  }
+
+  const oldSlots = await resolveBookingAvailabilityWindow(current)
+  const oldSlotIds = new Set(oldSlots.map((slot) => slot.id))
+  const unavailable = candidateSlots.some((slot) => !oldSlotIds.has(slot.id) && (slot.isBooked || slot.lockedByBookingId))
+  if (unavailable) throw new Error('Wybrany dodatkowy termin został już zajęty.')
+
+  const supabase = getSupabaseAdmin()
+  const nowIso = new Date().toISOString()
+  await updateBookingAvailabilityWindow(current, {
+    isBooked: false,
+    lockedByBookingId: null,
+    lockedUntil: null,
+    updatedAt: nowIso,
+  })
+
+  const targetIds = candidateSlots.map((slot) => slot.id)
+  const claimed = await supabase
+    .from('availability')
+    .update({ is_booked: true, locked_by_booking_id: current.id, locked_until: null, updated_at: nowIso })
+    .in('id', targetIds)
+    .eq('is_booked', false)
+    .is('locked_by_booking_id', null)
+    .select('id')
+
+  if (claimed.error || !claimed.data || claimed.data.length !== targetIds.length) {
+    await supabase.from('availability').update({ is_booked: false, locked_by_booking_id: null, locked_until: null, updated_at: nowIso }).in('id', targetIds).eq('locked_by_booking_id', current.id)
+    await updateBookingAvailabilityWindow(current, { isBooked: true, lockedByBookingId: current.id, lockedUntil: null, updatedAt: nowIso })
+    throw claimed.error ?? new Error('Wybrany dodatkowy termin został właśnie zajęty.')
+  }
+
+  const { data, error } = await supabase
+    .from('bookings')
+    .update({
+      booking_date: candidateSlots[0].bookingDate,
+      booking_time: candidateSlots[0].bookingTime,
+      slot_id: candidateSlots[0].id,
+      call_id: null,
+      call_status: 'scheduled',
+      started_at: null,
+      call_attempt: 0,
+      call_answered_at: null,
+      call_next_attempt_at: null,
+      call_last_error: null,
+      call_recovery_used: true,
+      booking_status: 'confirmed',
+      updated_at: nowIso,
+    })
+    .eq('id', current.id)
+    .eq('call_recovery_used', false)
+    .eq('call_recovery_token_hash', hashCustomerAccessToken(recoveryToken))
+    .select(BOOKING_SELECT_COLUMNS)
+    .maybeSingle()
+
+  if (error || !data) {
+    await supabase.from('availability').update({ is_booked: false, locked_by_booking_id: null, locked_until: null, updated_at: nowIso }).in('id', targetIds).eq('locked_by_booking_id', current.id)
+    await updateBookingAvailabilityWindow(current, { isBooked: true, lockedByBookingId: current.id, lockedUntil: null, updatedAt: nowIso })
+    throw error ?? new Error('Nie udało się zapisać dodatkowego terminu.')
+  }
+
+  return mapBookingRow(data as unknown as BookingRow)
 }
 
 export async function listBookings(): Promise<BookingRecord[]> {
@@ -1615,12 +1959,30 @@ export async function attachCheckoutSession(bookingId: string, checkoutSessionId
 
 export async function updateBookingCallState(
   bookingId: string,
-  patch: { callId?: string | null; callStatus?: string | null; startedAt?: string | null },
+  patch: {
+    callId?: string | null
+    callStatus?: string | null
+    startedAt?: string | null
+    callAttempt?: number | null
+    callAnsweredAt?: string | null
+    callNextAttemptAt?: string | null
+    callLastError?: string | null
+    callRecoveryUsed?: boolean
+    callRecoveryTokenHash?: string | null
+    callRecoveryExpiresAt?: string | null
+  },
 ): Promise<BookingRecord | null> {
-  const update: Record<string, string | null> = { updated_at: new Date().toISOString() }
+  const update: Record<string, string | number | boolean | null> = { updated_at: new Date().toISOString() }
   if (patch.callId !== undefined) update.call_id = patch.callId
   if (patch.callStatus !== undefined) update.call_status = patch.callStatus
   if (patch.startedAt !== undefined) update.started_at = patch.startedAt
+  if (patch.callAttempt !== undefined) update.call_attempt = patch.callAttempt
+  if (patch.callAnsweredAt !== undefined) update.call_answered_at = patch.callAnsweredAt
+  if (patch.callNextAttemptAt !== undefined) update.call_next_attempt_at = patch.callNextAttemptAt
+  if (patch.callLastError !== undefined) update.call_last_error = patch.callLastError
+  if (patch.callRecoveryUsed !== undefined) update.call_recovery_used = patch.callRecoveryUsed
+  if (patch.callRecoveryTokenHash !== undefined) update.call_recovery_token_hash = patch.callRecoveryTokenHash
+  if (patch.callRecoveryExpiresAt !== undefined) update.call_recovery_expires_at = patch.callRecoveryExpiresAt
   const { data, error } = await getSupabaseAdmin()
     .from('bookings')
     .update(update)
@@ -1710,7 +2072,9 @@ export async function markBookingManualPaymentPending(
   }
 
   const nowIso = new Date().toISOString()
-  const holdUntil = new Date(Date.now() + getManualPaymentConfig().holdMinutes * 60 * 1000).toISOString()
+  const isZapytajBooking = current.serviceType === ZAPYTAJ_SERVICE_TYPE || current.liveMode || current.consultationMode === 'phone'
+  const holdConfig = isZapytajBooking ? getZapytajManualPaymentConfig() : getManualPaymentConfig()
+  const holdUntil = new Date(Date.now() + holdConfig.holdMinutes * 60 * 1000).toISOString()
   const paymentReference = paymentData?.paymentReference ?? current.paymentReference ?? null
   const paymentReportedAt = current.paymentReportedAt ?? nowIso
   const shouldSendManualReviewEmail =
@@ -2475,7 +2839,11 @@ export async function markBookingExpired(bookingId: string): Promise<BookingReco
   return updatedBooking
 }
 
-export async function markBookingDone(bookingId: string, recommendedNextStep?: string): Promise<BookingRecord | null> {
+export async function markBookingDone(
+  bookingId: string,
+  recommendedNextStep?: string,
+  recommendedMaterialSlug?: string | null,
+): Promise<BookingRecord | null> {
   const supabase = getSupabaseAdmin()
   const current = await getBookingById(bookingId)
 
@@ -2492,6 +2860,9 @@ export async function markBookingDone(bookingId: string, recommendedNextStep?: s
     .update({
       booking_status: 'done',
       recommended_next_step: recommendedNextStep ?? null,
+      recommended_material_slug: recommendedMaterialSlug === undefined
+        ? current.recommendedMaterialSlug ?? null
+        : recommendedMaterialSlug,
       updated_at: new Date().toISOString(),
     })
     .eq('id', bookingId)

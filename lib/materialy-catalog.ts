@@ -486,15 +486,11 @@ const RAW_BUNDLES: MaterialyBundle[] = [
 const guidesBySlug = new Map(RAW_GUIDES.map((guide) => [guide.slug, guide] as const))
 const bundlesBySlug = new Map(RAW_BUNDLES.map((bundle) => [bundle.slug, bundle] as const))
 const PUBLISHED_GUIDE_SLUGS = [
-  'pies-w-upal',
   'pies-burza-nagly-halas',
   'wakacyjna-opieka-nad-psem',
   'pies-powrot-do-rutyny',
-  'pies-warczal-lub-ugryzl',
-  'kot-w-upal',
   'kot-opieka-podczas-urlopu',
   'kot-transporter-bez-paniki',
-  'kot-po-zmianie-w-domu',
   'kot-drapie-meble',
   'pies-sam-w-domu',
   'pies-reaktywny-na-spacerze',
@@ -529,6 +525,10 @@ export function getMaterialyGuideBySlug(slug: string): MaterialyGuide | null {
 export function getPublishedMaterialyGuideBySlug(slug: string): MaterialyGuide | null {
   const guide = guidesBySlug.get(slug)
   return guide && PUBLISHED_GUIDE_SLUGS.includes(slug as (typeof PUBLISHED_GUIDE_SLUGS)[number]) ? guide : null
+}
+
+export function materialRequiresPreviousZapytaj(guide: Pick<MaterialyGuide, 'priceCode'>) {
+  return guide.priceCode !== 'free'
 }
 
 export function getMaterialyBundleBySlug(slug: string): MaterialyBundle | null {

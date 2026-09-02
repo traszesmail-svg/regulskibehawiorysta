@@ -2,6 +2,7 @@ import { getBookingById, getBookingForViewer, markBookingManualPaymentPending, m
 import { buildManualPaymentReviewUrl } from '@/lib/server/manual-payment-review'
 import { sendManualPaymentReportedAdminEmail } from '@/lib/server/notifications'
 import { getManualPaymentConfig, getManualPaymentReference } from '@/lib/server/payment-options'
+import { triggerZapytajCall } from '@/lib/server/zapytaj-call'
 
 const MANUAL_PAYMENT_ADMIN_NOTIFICATION_TIMEOUT_MS = 3_000
 
@@ -47,6 +48,10 @@ export async function reportManualPayment(
 
   if (!booking) {
     throw new Error('Nie znaleziono rezerwacji albo link wygasł.')
+  }
+
+  if (booking.liveMode) {
+    throw new Error('Rozmowa live wymaga automatycznej płatności. Tryb live jest obecnie niedostępny.')
   }
 
   const manualPayment = getManualPaymentConfig()
@@ -103,12 +108,30 @@ export async function approveManualPayment(bookingId: string) {
   const updatedBooking = await markBookingPaid(booking.id, {
     paymentMethod: 'manual',
     paymentReference: booking.paymentReference ?? getManualPaymentReference(booking.id),
+    consultationMode: booking.consultationMode ?? (booking.liveMode ? 'phone' : undefined),
     triggerPaymentConfirmationSms: false,
   })
 
   if (!updatedBooking) {
     throw new Error('Nie udało się potwierdzić płatności.')
   }
+  if (updatedBooking.consultationMode === 'phone') {
+    try {
+      const callAttempt = await triggerZapytajCall(updatedBooking)
+      if (callAttempt.status === 'manual_required') {
+        console.warn('[regulski-behawiorysta][zapytaj] automatic call unavailable', {
+          bookingId: updatedBooking.id,
+          reason: callAttempt.reason,
+        })
+      }
+    } catch (error) {
+      console.warn('[regulski-behawiorysta][zapytaj] automatic call fallback failed', {
+        bookingId: updatedBooking.id,
+        reason: error instanceof Error ? error.message : String(error),
+      })
+    }
+  }
+
   return updatedBooking
 }
 

@@ -23,6 +23,7 @@ import { readClinicFlowSearchParam } from '@/lib/booking-routing'
 import { getBreadcrumbJsonLd } from '@/lib/schema'
 import { buildMarketingMetadata } from '@/lib/seo'
 import type { ProblemType } from '@/lib/types'
+import { redirect } from 'next/navigation'
 import styles from './wybor.module.css'
 
 export const metadata: Metadata = buildMarketingMetadata({
@@ -214,6 +215,11 @@ export default async function ChoicePage(
   const animal = getAnimal(searchParams)
   const selectedAnimal = readAnimal(searchParams)
   const clinicFlow = readClinicFlowSearchParam(searchParams?.clinic)
+
+  if (!clinicFlow) {
+    redirect('/zapytaj')
+  }
+
   const showClinicAnimalChoice = clinicFlow && !selectedAnimal
   const copy = showClinicAnimalChoice
     ? {
@@ -281,7 +287,7 @@ export default async function ChoicePage(
                 <div>
                   <span className={styles.eyebrow}>Kod z lecznicy aktywny</span>
                   <h2>Najpierw wybierz zwierzę</h2>
-                  <p>Dobiorę potem właściwe tematy i poprowadzę Cię do terminu Kwadransa.</p>
+                  <p>Dobiorę potem właściwy temat i poprowadzę Cię do terminu rozmowy.</p>
                 </div>
                 <div className={styles.clinicAnimalGrid} aria-label="Wybierz zwierzę">
                   <Link href="/wybor?animal=dog&clinic=1" className={styles.clinicAnimalCard} prefetch={false}>

@@ -15,7 +15,7 @@ export function ReviewsSection({
   showBadge = true,
   limit = 8,
   title = 'Co mówią klienci',
-  subtitle = 'Opinie po konsultacjach zapisane w lokalnym pliku opinii',
+  subtitle = 'Wypowiedzi opiekunów po konsultacjach, udostępnione za zgodą',
 }: ReviewsSectionProps) {
   const displayReviews = reviews.slice(0, limit)
 
@@ -27,7 +27,7 @@ export function ReviewsSection({
             {title}
           </h2>
           <p className="text-neutral-600 text-lg mb-6 max-w-xl mx-auto">{subtitle}</p>
-          {showBadge ? (
+          {showBadge && aggregateRating.reviewCount > 0 ? (
             <div className="flex justify-center">
               <div className="inline-flex items-center gap-3 rounded-2xl border-2 border-neutral-200 bg-white px-5 py-3">
                 <strong style={{ color: 'var(--ink, #1c1a18)' }}>{aggregateRating.ratingValue.toFixed(1)} / 5</strong>

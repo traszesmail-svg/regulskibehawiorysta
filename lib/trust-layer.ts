@@ -15,12 +15,12 @@ export type TrustSignalItem = {
 export const FAQ_SHORTLISTS = {
   home: [
     {
-      question: 'Czym jest 15-minutowa konsultacja behawioralna?',
+      question: 'Czym jest Zapytaj behawiorystę?',
       answer:
-        'To 15 minut połączenia telefonicznego. Mówisz, co naprawdę się dzieje, ustalamy priorytet i wybieramy pierwszy konkretny krok.',
+        'To rozmowa telefoniczna do 15 minut. Mówisz, co naprawdę się dzieje, ustalamy priorytet i wybieramy pierwszy konkretny krok.',
     },
     {
-      question: 'Czy Kwadrans wystarczy?',
+      question: 'Czy Zapytaj behawiorystę wystarczy?',
       answer:
         'Przy jednym pytaniu albo przy pierwszym uporządkowaniu tematu często tak. Przy sprawie złożonej pomaga zdecydować, czy potrzebujesz szerszej konsultacji.',
     },
@@ -125,8 +125,8 @@ export const FAQ_SHORTLISTS = {
         'Nie. To krótka wiadomość, po której wskażę, czy lepsza będzie 15-minutowa konsultacja behawioralna, pełna konsultacja czy jeszcze samo doprecyzowanie tematu.',
     },
     {
-      question: 'Czy 15-minutowa konsultacja behawioralna wymaga kamery?',
-      answer: 'Nie. To połączenie telefoniczne przeznaczone do krótkiego omówienia sprawy przed dalszą decyzją.',
+      question: 'Czy Zapytaj behawiorystę wymaga kamery?',
+      answer: 'Nie. To połączenie telefoniczne przeznaczone do krótkiego omówienia sprawy i ustalenia, co robić dalej.',
     },
     {
       question: 'Czy mogę ustalić inny format, jeśli rozmowa głosowa jest dla mnie trudna?',
@@ -136,19 +136,19 @@ export const FAQ_SHORTLISTS = {
   ] satisfies TrustFaqItem[],
   pricing: [
     {
-      question: 'Czym jest 15-minutowa konsultacja behawioralna?',
+      question: 'Czym jest Zapytaj behawiorystę?',
       answer:
-        'To samodzielny format: 15 min połączenia telefonicznego na jedno główne pytanie. Szybko porządkujesz sytuację i dostajesz pierwszy kierunek działania.',
+        'To pierwszy, płatny kontakt: rozmowa telefoniczna do 15 minut. Opisujesz sytuację, dostajesz pierwszy kierunek działania i dwa pytania po rozmowie.',
     },
     {
-      question: 'Czy Kwadrans to próbna konsultacja?',
+      question: 'Czy Zapytaj behawiorystę to próbna konsultacja?',
       answer:
-        'Nie. To osobna usługa z własnym zastosowaniem. Dla wielu osób ten format w pełni wystarcza na start.',
+        'Nie. To samodzielna usługa pierwszego kontaktu. Jej celem jest podzielenie się problemem z profesjonalistą i otrzymanie pierwszego klucza.',
     },
     {
-      question: 'Kiedy wybrać pełną konsultację zamiast Kwadransu?',
+      question: 'Kiedy wybrać pełną konsultację zamiast Zapytaj behawiorystę?',
       answer:
-        'Gdy problem trwa dłużej, ma kilka wątków albo od razu wiesz, że potrzebujesz około 2h online, analizy zachowania, planu i 14 dni komunikacji w pokoju klienta.',
+        'Gdy problem trwa dłużej, ma kilka wątków albo po pierwszej rozmowie okaże się, że potrzebujesz około 90 minut online, analizy zachowania, planu i 14 dni komunikacji w pokoju klienta.',
     },
     {
       question: 'Co dostaję po pełnej konsultacji?',
@@ -157,7 +157,7 @@ export const FAQ_SHORTLISTS = {
     },
     {
       question: 'Czy mogę od razu wejść w pełną konsultację?',
-      answer: 'Tak. Nie ma obowiązku zaczynania od Kwadransu, jeśli wiesz, że temat wymaga szerszej pracy.',
+      answer: 'Tak. Możesz zapoznać się z pełną konsultacją, ale jej termin jest udostępniany indywidualnie po pierwszym kroku.',
     },
   ] satisfies TrustFaqItem[],
   consultation: [
@@ -203,7 +203,7 @@ export const FAQ_SHORTLISTS = {
   ] satisfies TrustFaqItem[],
   dogBehaviorist: [
     {
-      question: 'Czy Kwadrans ma sens przy psie, jeśli nie umiem nazwać problemu?',
+      question: 'Czy Zapytaj behawiorystę ma sens przy psie, jeśli nie umiem nazwać problemu?',
       answer:
         'Tak. Wystarczy opis tego, co widzisz. Pomagam nazwać temat, ocenić priorytet i wybrać właściwy pierwszy ruch.',
     },
@@ -225,7 +225,7 @@ export const FAQ_SHORTLISTS = {
   ] satisfies TrustFaqItem[],
   catBehaviorist: [
     {
-      question: 'Czy Kwadrans ma sens przy problemie kota?',
+      question: 'Czy Zapytaj behawiorystę ma sens przy problemie kota?',
       answer:
         'Tak. To dobry format, gdy chcesz ustalić, czy temat jest behawioralnay, środowiskowy czy wymaga najpierw weterynarza.',
     },
@@ -298,7 +298,7 @@ export const TRUST_SIGNAL_SETS = {
     },
     {
       title: 'Szczera rekomendacja',
-      copy: 'Jeśli temat wymaga od razu Kwadransu z behawiorystą albo pełnej konsultacji, mówię to wprost.',
+      copy: 'Jeśli temat wymaga od razu pełnej konsultacji albo najpierw weterynarza, mówię to wprost po zapoznaniu się z sytuacją.',
     },
     {
       title: 'Więcej o mnie',
@@ -309,12 +309,12 @@ export const TRUST_SIGNAL_SETS = {
   ] satisfies TrustSignalItem[],
   pricing: [
     {
-      title: 'Dwa formaty, nie lepszy i gorszy',
-      copy: 'Kwadrans, Dwa kwadranse i Pełna konsultacja rozwiązują różne potrzeby. Wybór zależy od złożoności tematu.',
+      title: 'Dwa sposoby pierwszego kontaktu',
+      copy: 'Zapytaj behawiorystę jest dostępne w wybranym terminie, a Zapytaj teraz pojawia się tylko przy ręcznie włączonej dostępności. Pełna konsultacja jest kolejnym procesem.',
     },
     {
       title: 'Bez kamery, jeśli nie chcesz',
-      copy: 'Kwadrans jest zawsze rozmową głosową. Przy pełnej konsultacji kamera pozostaje opcjonalna.',
+      copy: 'Zapytaj behawiorystę i Zapytaj teraz są rozmowami telefonicznymi. Przy pełnej konsultacji kamera pozostaje opcjonalna.',
     },
     {
       title: 'Bez obietnic na zapas',
@@ -346,7 +346,7 @@ export const TRUST_SIGNAL_SETS = {
     },
     {
       title: 'Spokojny next step',
-      copy: 'Po materiale możesz wrócić do Kwadransu z behawiorystą, jeśli temat wymaga dopasowania do Twojej sytuacji.',
+      copy: 'Po materiale możesz przejść do Zapytaj behawiorystę, jeśli temat wymaga dopasowania do Twojej sytuacji.',
     },
   ] satisfies TrustSignalItem[],
   dogBehaviorist: [
@@ -355,8 +355,8 @@ export const TRUST_SIGNAL_SETS = {
       copy: 'Przy psich problemach ważniejsze od samego objawu bywa to, co go napędza: napięcie, frustracja, lęk albo codzienny chaos.',
     },
     {
-      title: '15-minutowa konsultacja behawioralna ma własne miejsce',
-      copy: 'To osobna forma pomocy dla jednego pytania albo spokojnego uporządkowania tematu.',
+      title: 'Zapytaj behawiorystę ma własne miejsce',
+      copy: 'To osobna forma pomocy dla osoby, która chce opisać problem i dostać konkretny pierwszy kierunek.',
     },
     {
       title: 'Jeśli online nie wystarczy, powiem to wprost',

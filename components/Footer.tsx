@@ -1,7 +1,7 @@
 import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { CircleHelp, Mail, PenLine, Tag, UserRound } from 'lucide-react'
+import { BookOpen, PenLine, Route, ShieldCheck, UserRound } from 'lucide-react'
 import { FinalReviewsQuoteCarousel } from '@/components/FinalReviewsQuoteCarousel'
 import { getBuildMarkerSnapshot } from '@/lib/build-marker'
 import { REGULSKI_WEB_LOGO } from '@/lib/regulski-web-assets'
@@ -26,11 +26,11 @@ type FooterProps = {
 }
 
 const FOOTER_NAV_ITEMS = [
-  { href: '/cennik', label: 'Cennik', icon: Tag },
-  { href: '/o-mnie', label: 'O mnie', icon: UserRound },
-  { href: '/faq', label: 'FAQ', icon: CircleHelp },
+  { href: '/zapytaj', label: 'Zapytaj', icon: ShieldCheck },
+  { href: '/konsultacja', label: 'Konsultacja', icon: Route },
+  { href: '/terapia', label: 'Terapia', icon: UserRound },
+  { href: '/materialy', label: 'Materiały', icon: BookOpen },
   { href: '/blog', label: 'Blog', icon: PenLine },
-  { href: '/kontakt', label: 'Kontakt', icon: Mail },
 ] as const
 
 const FOOTER_LEGAL_LINKS = [

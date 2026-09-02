@@ -68,7 +68,7 @@ export const PROBLEM_PAGE_CONFIGS: ProblemPageConfig[] = [
     firstStep:
       'Przez 3-5 spacerów notuj dystans, miejsce, porę dnia i to, kiedy pies jeszcze może jeść, węszyć albo spojrzeć na Ciebie. To pokaże próg pobudzenia.',
     whenKwadrans:
-      'Kwadrans wystarczy, gdy chcesz ustalić pierwszy bezpieczny dystans, prostą zmianę trasy i priorytet na najbliższe spacery.',
+      'Zapytaj behawiorystę wystarczy, gdy chcesz ustalić pierwszy bezpieczny dystans, prostą zmianę trasy i priorytet na najbliższe spacery.',
     whenFullConsultation:
       'Pełna konsultacja ma większy sens, gdy były ataki, pies jest duży i trudny do utrzymania albo reakcje pojawiają się codziennie.',
     blogLinks: [
@@ -121,7 +121,7 @@ export const PROBLEM_PAGE_CONFIGS: ProblemPageConfig[] = [
     firstStep:
       'Wybierz jeden krótki odcinek spaceru, na którym celem jest spokojne tempo i kontakt, a nie przejście jak najdalej. Resztę spaceru potraktuj jako zarządzanie emocjami.',
     whenKwadrans:
-      'Kwadrans jest dobry, gdy chcesz ustalić prosty plan spaceru i odróżnić problem smyczy od przeciążenia.',
+      'Zapytaj behawiorystę jest dobrym początkiem, gdy chcesz ustalić prosty plan spaceru i odróżnić problem smyczy od przeciążenia.',
     whenFullConsultation:
       'Pełna konsultacja jest lepsza, gdy ciągnięcie łączy się ze szczekaniem, agresją, lękiem albo brakiem odpoczynku w domu.',
     blogLinks: [
@@ -174,7 +174,7 @@ export const PROBLEM_PAGE_CONFIGS: ProblemPageConfig[] = [
     firstStep:
       'Nagraj 20-30 minut po wyjściu i zapisz, kiedy pojawia się pierwszy objaw. To decyduje, czy zaczynamy od rutyny, wyciszenia, czy planu separacyjnego.',
     whenKwadrans:
-      'Kwadrans wystarczy, gdy potrzebujesz ocenić nagranie, ustalić pierwszą granicę czasu i uniknąć pogłębiania problemu.',
+      'Zapytaj behawiorystę wystarczy, gdy potrzebujesz ustalić pierwszy kierunek i uniknąć pogłębiania problemu.',
     whenFullConsultation:
       'Pełna konsultacja jest lepsza, gdy pies panikuje, niszczy drzwi, robi sobie krzywdę albo temat trwa długo.',
     blogLinks: [
@@ -227,7 +227,7 @@ export const PROBLEM_PAGE_CONFIGS: ProblemPageConfig[] = [
     firstStep:
       'Zacznij od kontroli zdrowia, a równolegle spisz: liczbę kuwet, miejsca zdarzeń, zmiany w domu, żwirek i relacje między zwierzętami.',
     whenKwadrans:
-      'Kwadrans pomaga szybko uporządkować, co sprawdzić najpierw i czy temat wygląda bardziej środowiskowo czy alarmowo.',
+      'Zapytaj behawiorystę pomaga szybko uporządkować, co sprawdzić najpierw i czy temat wygląda bardziej środowiskowo czy wymaga najpierw weterynarza.',
     whenFullConsultation:
       'Pełna konsultacja jest lepsza, gdy problem wraca, w domu jest kilka kotów albo równolegle widać konflikt i stres.',
     blogLinks: [
@@ -280,7 +280,7 @@ export const PROBLEM_PAGE_CONFIGS: ProblemPageConfig[] = [
     firstStep:
       'Skróć kontakt do kilku sekund, kończ zanim kot się napnie i obserwuj trzy sygnały: ogon, uszy, skórę/grzbiet. Przy nagłej zmianie sprawdź zdrowie.',
     whenKwadrans:
-      'Kwadrans wystarczy, gdy chcesz nauczyć się czytać sygnały i ustalić prosty protokół kontaktu.',
+      'Zapytaj behawiorystę wystarczy, gdy chcesz nauczyć się czytać sygnały i ustalić prosty pierwszy krok.',
     whenFullConsultation:
       'Pełna konsultacja jest lepsza, gdy gryzienie jest silne, narasta albo łączy się z unikaniem, bólem czy agresją wobec domowników.',
     blogLinks: [
@@ -333,7 +333,7 @@ export const PROBLEM_PAGE_CONFIGS: ProblemPageConfig[] = [
     firstStep:
       'Zmapuj zasoby: kuwety, miski, wodę, pion, kryjówki i przejścia. Sprawdź, czy każdy kot może korzystać z nich bez mijania drugiego kota na wąsko.',
     whenKwadrans:
-      'Kwadrans pomaga szybko ustalić, które zasoby i przejścia są pierwszym punktem do poprawy.',
+      'Zapytaj behawiorystę pomaga szybko ustalić, które zasoby i przejścia są pierwszym punktem do poprawy.',
     whenFullConsultation:
       'Pełna konsultacja jest lepsza, gdy są ataki, mocny stres, problem z kuwetą albo konflikt trwa od dawna.',
     blogLinks: [
@@ -492,10 +492,10 @@ export function ProblemDetailPage({ slug, searchParams }: { slug: string; search
                   href={audioHref}
                   prefetch={false}
                   className="button button-ghost big-button"
-                  {...analyticsAttrs(page, `${page.slug}-hero-kwadrans`, 'Umów Kwadrans')}
+                  {...analyticsAttrs(page, `${page.slug}-hero-zapytaj`, 'Zapytaj behawiorystę')}
                   data-analytics-service="szybka-konsultacja-15-min"
                 >
-                  Umów Kwadrans
+                  Zapytaj behawiorystę
                 </Link>
               </div>
             </div>
@@ -518,7 +518,7 @@ export function ProblemDetailPage({ slug, searchParams }: { slug: string; search
             </div>
             <div className="problem-detail-plan-split">
               <article>
-                <h3>Kiedy wystarczy Kwadrans</h3>
+                <h3>Kiedy wystarczy Zapytaj behawiorystę</h3>
                 <p>{page.whenKwadrans}</p>
               </article>
               <article>

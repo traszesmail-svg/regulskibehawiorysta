@@ -10,7 +10,6 @@ import { FunnelPrimaryActions } from '@/components/FunnelPrimaryActions'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
 import { NotatnikFooter, NotatnikSideVisuals, NotatnikTopbar, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
 import { LeadMagnetSignup } from '@/components/LeadMagnetSignup'
-import { NewsletterSignup } from '@/components/NewsletterSignup'
 import { TrustSignalSection } from '@/components/TrustSignalSection'
 import { buildBookHref } from '@/lib/booking-routing'
 import { FUNNEL_CTA_LABELS } from '@/lib/funnel'
@@ -722,7 +721,7 @@ export function ProblemLandingPage({ routePath }: { routePath: string }) {
           tag={`${landing.categoryLabel} / problem`}
           navItems={PUBLIC_SITE_NAV_ITEMS}
           ctaHref={landing.audioHref}
-          ctaLabel={`Kwadrans / ${PUBLIC_OFFER_PRICE_LABELS.quick}`}
+          ctaLabel={`Zapytaj behawiorystę / ${PUBLIC_OFFER_PRICE_LABELS.quick}`}
         />
         <Breadcrumbs items={[
           { name: landing.categoryLabel, url: landing.categoryHref },
@@ -863,7 +862,7 @@ export function ProblemLandingPage({ routePath }: { routePath: string }) {
                 <span>{cluster.serviceLink.copy}</span>
               </Link>
             ) : null}
-            <Link href="/book" prefetch={false} className="summary-card tree-backed-card blog-related-card">
+            <Link href="/zapytaj" prefetch={false} className="summary-card tree-backed-card blog-related-card">
               <strong>Rezerwacja</strong>
               <span>Zobacz dostępne warianty i przejdź do właściwego startu.</span>
             </Link>
@@ -900,7 +899,7 @@ export function ProblemLandingPage({ routePath }: { routePath: string }) {
               <div className="section-eyebrow">Materiały</div>
               <h2>Jeśli wolisz zacząć od czytania</h2>
             </div>
-            <p className="editorial-section-lead">Bezpłatny materiał startowy i newsletter zostają tutaj niżej, jako spokojne uzupełnienie.</p>
+            <p className="editorial-section-lead">Bezpłatny materiał startowy zostaje tutaj jako spokojne uzupełnienie rozmowy.</p>
           </div>
 
           <div className="premium-two-column-grid top-gap-small">
@@ -911,14 +910,13 @@ export function ProblemLandingPage({ routePath }: { routePath: string }) {
                 <LeadMagnetSignup magnet={magnet} location={`${landing.slug}-lead-magnet`} sourcePage={landing.path} />
               ) : null
             })()}
-            <NewsletterSignup location={`${landing.slug}-newsletter`} sourcePage={landing.path} />
           </div>
         </section>
 
         <section className="panel cta-panel editorial-final-panel" id="final-cta">
           <div className="editorial-final-copy">
             <div className="section-eyebrow">Pierwszy krok</div>
-            <h2>Zacznij od Kwadransu z behawiorystą</h2>
+            <h2>Zacznij od Zapytaj behawiorystę</h2>
             <p>Jeśli to brzmi jak Twoja sytuacja, jedna krótka rozmowa wystarczy, żeby ustalić, od czego zacząć i co ma sens dalej.</p>
 
             <FunnelPrimaryActions

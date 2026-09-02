@@ -9,11 +9,11 @@ import {
   ShieldCheck,
 } from 'lucide-react'
 import { NotatnikPageShell, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
-import { OpinionsReviewGrid, type OpinionReview } from '@/components/OpinionsReviewGrid'
+import { OpinionsReviewGrid } from '@/components/OpinionsReviewGrid'
 import { buildBookHref } from '@/lib/booking-routing'
 import { getBreadcrumbJsonLd } from '@/lib/schema'
 import { buildMarketingMetadata } from '@/lib/seo'
-import { opinionReviews } from '@/lib/opinion-reviews'
+import { getOpinionServiceLabel, publicOpinionReviews } from '@/lib/opinion-reviews'
 import { getCanonicalBaseUrl } from '@/lib/server/env'
 import { SITE_NAME, SITE_TAGLINE } from '@/lib/site'
 
@@ -68,11 +68,11 @@ export default function OpinionsPage() {
       inLanguage: 'pl-PL',
       mainEntity: {
         '@type': 'ItemList',
-        numberOfItems: opinionReviews.length,
-        itemListElement: opinionReviews.map((review, index) => ({
+        numberOfItems: publicOpinionReviews.length,
+        itemListElement: publicOpinionReviews.map((review, index) => ({
           '@type': 'ListItem',
           position: index + 1,
-          name: `${review.name} — ${review.service}`,
+          name: `${review.name} — ${getOpinionServiceLabel(review.service)} — ${review.topic}`,
           description: review.text,
         })),
       },
@@ -97,7 +97,7 @@ export default function OpinionsPage() {
       showFooterReviews={false}
     >
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
-      <OpinionsReviewGrid filters={[...filters]} reviews={opinionReviews} />
+      <OpinionsReviewGrid filters={[...filters]} reviews={publicOpinionReviews} />
 
         <section className="opinions-story-band">
           <div className="opinions-story-copy">

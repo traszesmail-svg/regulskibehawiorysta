@@ -129,6 +129,25 @@ const GENERIC_AUDIO_HREF = buildBookHref(null, 'szybka-konsultacja-15-min')
 const BLOG_COVER_WIDTH = 1600
 const BLOG_COVER_HEIGHT = 1000
 
+function repairBlogPublicCopy(value: string): string {
+  return repairCopy(value)
+    .replaceAll('Umów Kwadrans z behawiorystą', 'Zapytaj behawiorystę')
+    .replaceAll('Zarezerwuj Kwadrans', 'Zapytaj behawiorystę')
+    .replaceAll('Zamów 15 min audio', 'Zapytaj behawiorystę')
+    .replaceAll('Kwadransu z behawiorystą', 'rozmowy z behawiorystą')
+    .replaceAll('Kwadransie z behawiorystą', 'rozmowie z behawiorystą')
+    .replaceAll('Kwadrans z behawiorystą', 'Zapytaj behawiorystę')
+    .replaceAll('Po Kwadransie', 'Po rozmowie')
+    .replaceAll('Kwadransie', 'rozmowie')
+    .replaceAll('Dwa kwadranse', 'Starszy wariant rozmowy')
+    .replaceAll('15 min audio', 'rozmowa telefoniczna do 15 minut')
+    .replaceAll('15-min audio', 'rozmowa telefoniczna do 15 minut')
+    .replaceAll('169 zł', '475 zł')
+    .replaceAll('470 zł', '475 zł')
+    .replaceAll('350 zł', '475 zł')
+    .replaceAll('69 zł', '79 zł')
+}
+
 const BLOG_COVER_BY_SLUG: Record<string, BlogPostCover> = {
   'pies-boi-sie-burzy-i-fajerwerkow': {
     src: 'https://images.pexels.com/photos/18948630/pexels-photo-18948630.jpeg?auto=compress&cs=tinysrgb&w=1600&h=1000&fit=crop',
@@ -326,7 +345,7 @@ const SERVICE_LANDING_LINK: BlogSupportLink = {
 
 const CONSULTATION_PAGE_LINK: BlogSupportLink = {
   label: 'Konsultacja behawioralna online',
-  href: '/cennik/pelny',
+  href: '/konsultacja',
     description: 'Opis pełnej konsultacji, przebiegu rozmowy i tego, kiedy warto wejść w szerszą konsultację.',
 }
 
@@ -474,7 +493,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
       {
         label: 'Mapa zachowania',
         href: '/mapa-sprawy',
-        description: 'Mapa zachowania, jeśli wahasz się między Kwadransem a szerszą rozmową.',
+        description: 'Mapa zachowania, jeśli wahasz się, od czego zacząć i co robić dalej.',
       },
     ],
   },
@@ -576,7 +595,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     fileName: '05-wpis-jak-wyglada-konsultacja-behawioralna-online.md',
     publishedAt: '2025-12-03',
     categoryLabel: 'Konsultacja',
-    categoryHref: '/konsultacja-behawioralna-online',
+    categoryHref: '/konsultacja',
     topic: 'konsultacja',
     audioHref: buildBookHref(null, 'szybka-konsultacja-15-min'),
     supportLinks: [
@@ -700,7 +719,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     fileName: '10-wpis-kiedy-behawiorysta-kiedy-trener.md',
     publishedAt: '2025-08-13',
     categoryLabel: 'Konsultacja',
-    categoryHref: '/konsultacja-behawioralna-online',
+    categoryHref: '/konsultacja',
     topic: 'konsultacja',
     audioHref: buildBookHref(null, 'szybka-konsultacja-15-min'),
     supportLinks: [
@@ -731,7 +750,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     fileName: '11-wpis-behawiorysta-zoopsycholog-trener.md',
     publishedAt: '2025-07-09',
     categoryLabel: 'Konsultacja',
-    categoryHref: '/konsultacja-behawioralna-online',
+    categoryHref: '/konsultacja',
     topic: 'konsultacja',
     audioHref: buildBookHref(null, 'szybka-konsultacja-15-min'),
     supportLinks: [
@@ -762,18 +781,18 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     fileName: '12-wpis-ile-kosztuje-konsultacja-behawioralna.md',
     publishedAt: '2025-06-04',
     categoryLabel: 'Cennik',
-    categoryHref: '/cennik',
+    categoryHref: '/zapytaj',
     topic: 'konsultacja',
     audioHref: buildBookHref(null, 'szybka-konsultacja-15-min'),
     supportLinks: [
       {
         label: 'Cennik',
-        href: '/cennik',
+        href: '/zapytaj',
         description: 'Aktualne ceny i publiczne warianty pomocy.',
       },
       {
         label: 'Konsultacja online',
-        href: '/konsultacja-behawioralna-online',
+        href: '/konsultacja',
         description: 'Szczegóły dłuższej konsultacji online.',
       },
       {
@@ -824,7 +843,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     fileName: '14-wpis-jak-przygotowac-sie-do-konsultacji-online.md',
     publishedAt: '2025-04-02',
     categoryLabel: 'Konsultacja',
-    categoryHref: '/konsultacja-behawioralna-online',
+    categoryHref: '/konsultacja',
     topic: 'konsultacja',
     audioHref: GENERIC_AUDIO_HREF,
     supportLinks: [
@@ -832,7 +851,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
       PREP_GUIDE_LINK,
       {
         label: 'Cennik',
-        href: '/cennik',
+        href: '/zapytaj',
         description: 'Jeśli po przygotowaniu chcesz od razu porównać dostępne formaty przed rezerwacją.',
       },
       SERVICE_LANDING_LINK,
@@ -1195,6 +1214,10 @@ function normalizeBlogHref(href: string, audioHref: string): string | null {
     return audioHref
   }
 
+  if (trimmed === '/book' || trimmed.toLowerCase().startsWith('/book?')) {
+    return '/zapytaj'
+  }
+
   if (isSafeHref(trimmed)) {
     return trimmed.startsWith('/') ? getCanonicalPublicHref(trimmed) : trimmed
   }
@@ -1203,7 +1226,7 @@ function normalizeBlogHref(href: string, audioHref: string): string | null {
 }
 
 function renderInlineMarkdown(text: string, audioHref: string): string {
-  let html = escapeHtml(repairCopy(text))
+  let html = escapeHtml(repairBlogPublicCopy(text))
 
   html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, label: string, href: string) => {
     const normalizedHref = normalizeBlogHref(href, audioHref)
@@ -1441,7 +1464,7 @@ function isLegacyCtaLinkBlock(block: BlogMarkdownBlock): boolean {
     return false
   }
 
-  const text = repairCopy(block.text)
+  const text = repairBlogPublicCopy(block.text)
   const lowerText = text.toLowerCase()
   const legacyMaterialPath = `/${'materialy'}`
   const legacyToolkitPath = `/${'niez' + 'bednik'}`
@@ -1589,15 +1612,15 @@ function renderBlogContentBlocks(post: BlogPost): ReactNode[] {
 function buildBlogPostFromConfig(config: BlogPostConfig): BlogPost {
   const source = readBlogFile(config)
   const { frontmatter, body } = parseFrontmatter(source)
-  const repairedBody = repairCopy(body)
+  const repairedBody = repairBlogPublicCopy(body)
   const blocks = parseMarkdownBlocks(repairedBody)
   const slug = frontmatter.slug ?? config.slug
-  const title = repairCopy(frontmatter.h1 ?? frontmatter.title_seo ?? config.slug)
-  const seoTitle = repairCopy(frontmatter.title_seo ?? title)
-  const metaDescription = repairCopy(frontmatter.meta_description ?? `Wpis blogowy marki ${SITE_SHORT_NAME}.`)
+  const title = repairBlogPublicCopy(frontmatter.h1 ?? frontmatter.title_seo ?? config.slug)
+  const seoTitle = repairBlogPublicCopy(frontmatter.title_seo ?? title)
+  const metaDescription = repairBlogPublicCopy(frontmatter.meta_description ?? `Wpis blogowy marki ${SITE_SHORT_NAME}.`)
   const excerpt = metaDescription
   const publishedAt = frontmatter.publishedAt ?? config.publishedAt
-  const author = repairCopy(frontmatter.author ?? BLOG_AUTHOR_NAME)
+  const author = repairBlogPublicCopy(frontmatter.author ?? BLOG_AUTHOR_NAME)
   const bodyWordCount = countWords(
     repairedBody
       .replace(/^##\s+Linkowanie wewnętrzne[\s\S]*$/im, '')
@@ -1611,21 +1634,21 @@ function buildBlogPostFromConfig(config: BlogPostConfig): BlogPost {
     seoTitle,
     metaDescription,
     excerpt,
-    h1: repairCopy(frontmatter.h1 ?? title),
+    h1: repairBlogPublicCopy(frontmatter.h1 ?? title),
     author,
     publishedAt,
     publishedAtLabel: formatDateLabel(publishedAt),
     readingTimeMinutes: estimateReadingTimeMinutes(bodyWordCount),
     wordCount: bodyWordCount,
-    categoryLabel: repairCopy(config.categoryLabel),
+    categoryLabel: repairBlogPublicCopy(config.categoryLabel),
     categoryHref: config.categoryHref,
     topic: config.topic,
     audioHref: config.audioHref,
     supportLinks: config.supportLinks.map((link) => ({
       ...link,
       href: getCanonicalPublicHref(link.href),
-      label: repairCopy(link.label),
-      description: repairCopy(link.description),
+      label: repairBlogPublicCopy(link.label),
+      description: repairBlogPublicCopy(link.description),
     })),
     cover: getBlogPostCover({ slug, categoryHref: config.categoryHref }),
     path: `${BLOG_ROUTE_BASE}/${slug}`,

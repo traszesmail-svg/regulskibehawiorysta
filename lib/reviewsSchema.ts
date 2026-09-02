@@ -8,7 +8,7 @@ import type { Review } from './reviews.config'
  */
 export function generateReviewsSchema(
   reviews: Review[],
-  _aggregateRating: { ratingValue: number; reviewCount: number; bestRating: number; worstRating: number },
+  _aggregateRating: { ratingValue: number; reviewCount: number; bestRating: number; worstRating: number } | null,
   business: { name: string; url: string; image?: string } = {
     name: 'Krzysztof Regulski — Behawiorysta zwierzęcy',
     url: 'https://regulskibehawiorysta.pl/opinie',

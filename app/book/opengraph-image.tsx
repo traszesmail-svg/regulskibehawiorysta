@@ -6,7 +6,7 @@ export const contentType = 'image/png'
 
 export default function OpenGraphImage() {
   return renderOgImage({
-    title: 'Rezerwacja Kwadransu z behawiorysta',
+    title: 'Rezerwacja: Zapytaj behawiorystę',
     subtitle: 'Wybierz gatunek, temat i przejdź do spokojnej rezerwacji online.',
   })
 }

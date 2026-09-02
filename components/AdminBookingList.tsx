@@ -278,6 +278,10 @@ export function AdminBookingList({ bookings, enableFilters = true }: AdminBookin
                   {booking.qaBooking ? <span className="admin-booking-chip admin-booking-chip-warn">QA</span> : null}
                   {hasPreparationMaterials(booking) ? <span className="admin-booking-chip">materiały</span> : null}
                 </div>
+                <div className="admin-booking-description-preview">
+                  <strong>Opis klienta</strong>
+                  <p>{booking.description || 'Brak opisu.'}</p>
+                </div>
               </div>
 
               <div className="admin-booking-state">
@@ -364,6 +368,11 @@ export function AdminBookingList({ bookings, enableFilters = true }: AdminBookin
                 paymentStatus={booking.paymentStatus}
                 meetingUrl={booking.meetingUrl}
                 qaBooking={Boolean(booking.qaBooking)}
+                liveMode={Boolean(booking.liveMode)}
+                callId={booking.callId}
+                callStatus={booking.callStatus}
+                serviceType={booking.serviceType}
+                hasConsultationAccess={Boolean(booking.consultationAccessCodeHash && booking.consultationAccessExpiresAt && !booking.consultationAccessUsedAt)}
               />
             </article>
           ))}

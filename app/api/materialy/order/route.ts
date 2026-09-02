@@ -1,8 +1,6 @@
-// POST /api/materiały/order — accepts a customer order for a guide or bundle.
-// Free items: code is generated immediately and emailed to the customer.
-// Paid items: order is queued as 'pending'; owner gets a notification, customer
-// receives payment instructions. After manual payment confirmation the owner triggers
-// /api/materiały/confirm to release the unlock code.
+// POST /api/materiały/order — legacy free-material endpoint.
+// Paid materials are released only through a specialist recommendation in the
+// client's Room; historic paid orders remain readable by the old confirmation flow.
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -11,10 +9,7 @@ import { NextResponse } from 'next/server'
 import {
   PRICE_AMOUNT_PLN,
   PRICE_LABEL,
-  getMaterialyBundleBySlug,
-  getMaterialyGuideBySlug,
-  type MaterialyBundle,
-  type MaterialyGuide,
+  getPublishedMaterialyGuideBySlug,
 } from '@/lib/materialy-catalog'
 import { createOrder } from '@/lib/server/materialy-storage'
 import {
@@ -70,11 +65,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Brakuje identyfikatora produktu.' }, { status: 400 })
   }
 
-  const guide = productKindRaw === 'guide' ? getMaterialyGuideBySlug(productSlug) : null
-  const bundle = productKindRaw === 'bundle' ? getMaterialyBundleBySlug(productSlug) : null
-  const item: MaterialyGuide | MaterialyBundle | null = guide ?? bundle
+  if (productKindRaw === 'bundle') {
+    return NextResponse.json({ error: 'Pakiety nie są dostępne w aktualnej ofercie.' }, { status: 403 })
+  }
+
+  const guide = getPublishedMaterialyGuideBySlug(productSlug)
+  const item = guide
   if (!item) {
     return NextResponse.json({ error: 'Ten produkt nie jest już dostępny.' }, { status: 400 })
+  }
+  if (item.priceCode !== 'free') {
+    return NextResponse.json({ error: 'Płatny PDF jest dostępny dopiero po wcześniejszym Zapytaj behawiorystę.' }, { status: 403 })
   }
 
   const order = await createOrder({

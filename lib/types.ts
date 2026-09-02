@@ -144,6 +144,7 @@ export interface AvailabilitySlot {
 export interface BookingFormData {
   ownerName: string
   serviceType?: BookingServiceType
+  consultationMode?: ConsultationMode
   problemType: ProblemType
   animalType: AnimalType
   petAge: string
@@ -153,6 +154,10 @@ export interface BookingFormData {
   email: string
   slotId: string
   qaBooking?: boolean
+  liveMode?: boolean
+  consultationAccessCode?: string | null
+  /** Server-side override for a validated campaign price. Never accept this from a public client directly. */
+  amountOverridePln?: number | null
 }
 
 export interface UserRecord {
@@ -179,6 +184,7 @@ export interface BookingRecord {
   bookingTime: string
   slotId: string
   qaBooking?: boolean
+  liveMode?: boolean
   amount: number
   bookingStatus: BookingStatus
   paymentStatus: PaymentStatus
@@ -206,6 +212,7 @@ export interface BookingRecord {
   smsErrorCode?: string | null
   smsErrorMessage?: string | null
   recommendedNextStep?: string | null
+  recommendedMaterialSlug?: string | null
   reminderSent?: boolean
   prepVideoPath?: string | null
   prepVideoFilename?: string | null
@@ -216,6 +223,16 @@ export interface BookingRecord {
   callId?: string | null
   callStatus?: string | null
   startedAt?: string | null
+  callAttempt?: number | null
+  callAnsweredAt?: string | null
+  callNextAttemptAt?: string | null
+  callLastError?: string | null
+  callRecoveryUsed?: boolean
+  callRecoveryTokenHash?: string | null
+  callRecoveryExpiresAt?: string | null
+  consultationAccessCodeHash?: string | null
+  consultationAccessExpiresAt?: string | null
+  consultationAccessUsedAt?: string | null
   questionsRemaining?: number | null
 }
 

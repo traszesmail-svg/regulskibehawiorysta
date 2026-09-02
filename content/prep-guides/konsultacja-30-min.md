@@ -1,13 +1,13 @@
-# Jak się przygotować do Dwóch Kwadransów
+# Materiał archiwalny: starszy wariant rozmowy
 
-**Usługa:** Dwa Kwadranse (30 minut)
+**Usługa:** Starszy wariant rozmowy (materiał archiwalny)
 **Format:** Rozmowa audio online
 
 ---
 
-## Masz 30 minut — to czas na głębszy wgląd
+## Ten materiał nie opisuje aktualnej oferty
 
-Dwa Kwadranse to więcej niż szybka odpowiedź. Mamy czas, żeby przejść przez problem od początku do końca i razem ułożyć plan. Żeby ten czas był jak najbardziej wartościowy, poniżej kilka pytań, które warto przemyśleć wcześniej.
+Ten wariant nie jest obecnie dostępny w ofercie publicznej. Jeśli potrzebujesz pierwszego kierunku, wybierz Zapytaj behawiorystę. Pełna konsultacja jest udostępniana indywidualnie po pierwszym kroku.
 
 ---
 

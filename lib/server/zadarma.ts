@@ -1,7 +1,5 @@
 import crypto from 'node:crypto'
 
-const USER_KEY = process.env.ZADARMA_USER_KEY ?? ''
-const SECRET_KEY = process.env.ZADARMA_SECRET_KEY ?? ''
 const BASE_URL = 'https://api.zadarma.com'
 
 function generateSignature(method: string, params: Record<string, string>, secretKey: string): string {
@@ -13,7 +11,10 @@ function generateSignature(method: string, params: Record<string, string>, secre
 }
 
 async function callApi(method: string, params: Record<string, string> = {}, httpMethod = 'POST') {
-  if (!USER_KEY || !SECRET_KEY) {
+  const userKey = process.env.ZADARMA_USER_KEY?.trim() ?? ''
+  const secretKey = process.env.ZADARMA_SECRET_KEY?.trim() ?? ''
+
+  if (!userKey || !secretKey) {
     console.warn('[ZADARMA] Missing ZADARMA_USER_KEY or ZADARMA_SECRET_KEY')
     return { error: 'Missing API credentials' }
   }
@@ -24,13 +25,13 @@ async function callApi(method: string, params: Record<string, string> = {}, http
     stringParams[key] = String(params[key])
   }
 
-  const signature = generateSignature(method, stringParams, SECRET_KEY)
+  const signature = generateSignature(method, stringParams, secretKey)
   const sortedKeys = Object.keys(stringParams).sort()
   const sortedParams = sortedKeys.map(key => `${key}=${encodeURIComponent(stringParams[key])}`).join('&')
 
   const url = `${BASE_URL}${method}${httpMethod === 'GET' && sortedParams ? `?${sortedParams}` : ''}`
   const headers: Record<string, string> = {
-    'Authorization': `${USER_KEY}:${signature}`
+    'Authorization': `${userKey}:${signature}`
   }
 
   const options: RequestInit = {

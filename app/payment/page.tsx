@@ -31,6 +31,7 @@ import { getDataModeStatus, getPublicFeatureUnavailableMessage } from '@/lib/ser
 import { getCustomerEmailDeliveryStatus } from '@/lib/server/notifications'
 import {
   getManualPaymentReference,
+  getZapytajManualPaymentConfig,
   getPublicManualPaymentConfig,
   getQaCheckoutEligibility,
 } from '@/lib/server/payment-options'
@@ -76,12 +77,13 @@ export default async function PaymentPage(
   const bookingId = readSearchParam(searchParams?.bookingId)
   const accessToken = readSearchParam(searchParams?.access)
   const cancelled = readSearchParam(searchParams?.cancelled)
+  const flow = readSearchParam(searchParams?.flow)
   const qaBookingHint = readQaBookingSearchParam(searchParams?.qa)
   const dataMode = getDataModeStatus()
   const authorizationHeader = (await headers()).get('authorization')
-  const manualPayment = getPublicManualPaymentConfig()
+  const publicManualPayment = getPublicManualPaymentConfig()
   const manualPaymentCopy = getManualPaymentDisplayCopy({
-    phoneDisplay: manualPayment.phoneDisplay,
+    phoneDisplay: publicManualPayment.phoneDisplay,
   })
   let booking: Awaited<ReturnType<typeof getBookingForViewer>> = null
   let flowError: string | null = null
@@ -98,6 +100,8 @@ export default async function PaymentPage(
   }
 
   const qaBooking = Boolean(booking?.qaBooking ?? qaBookingHint)
+  const isZapytajFlow = Boolean(flow === 'zapytaj' && booking?.serviceType === 'szybka-konsultacja-15-min' && !qaBooking)
+  const manualPayment = isZapytajFlow ? getZapytajManualPaymentConfig() : publicManualPayment
   const qaEligibility = booking ? getQaCheckoutEligibility(booking) : null
 
   if (!flowError && qaBooking && qaEligibility && !qaEligibility.isAllowed) {
@@ -105,7 +109,11 @@ export default async function PaymentPage(
   }
 
   const bookingPriceLabel = booking ? formatPricePln(booking.amount) : null
-  const bookingManualPriceLabel = booking ? formatCommercePrice(getManualAmountForProduct('consultation', booking.amount)) : null
+  const bookingManualPriceLabel = booking
+    ? isZapytajFlow
+      ? formatPricePln(booking.amount)
+      : formatCommercePrice(getManualAmountForProduct('consultation', booking.amount))
+    : null
   const bookingServiceType = booking ? resolveBookingServiceType(booking.serviceType, booking.amount) : null
   const onlinePayment = bookingServiceType
     ? getOnlinePaymentRuntimeForConsultation(bookingServiceType)
@@ -113,7 +121,7 @@ export default async function PaymentPage(
   const bookingServiceTitle = bookingServiceType ? getBookingServiceTitle(bookingServiceType) : null
   const bookingServiceSummary = bookingServiceType ? getBookingServiceRoomSummary(bookingServiceType) : null
   const roomAccessLabel = bookingServiceType ? getBookingServiceRoomAccessLabel(bookingServiceType) : 'pokój rozmowy'
-  const quickAudioHref = buildBookHref(null, 'szybka-konsultacja-15-min', qaBooking)
+  const quickAudioHref = isZapytajFlow ? '/zapytaj#formularz' : buildBookHref(null, 'szybka-konsultacja-15-min', qaBooking)
   const customerEmailStatus = booking ? getCustomerEmailDeliveryStatus(booking.email) : null
   const customerEmailAvailable = customerEmailStatus?.state === 'ready'
   const isConfirmed = booking?.paymentStatus === 'paid' && (booking.bookingStatus === 'confirmed' || booking.bookingStatus === 'done')
@@ -138,6 +146,8 @@ export default async function PaymentPage(
     ? 'Ta rezerwacja jest testowa i przejdzie przez bezpieczną ścieżkę bez realnego obciążenia klienta.'
     : isWaitingManual
       ? `Wpłata jest już zgłoszona. Potwierdzimy ją ręcznie w godzinach obsługi. Po zmianie statusu zobaczysz ${roomAccessLabel} i dalszą instrukcję.`
+      : isZapytajFlow
+        ? 'Wpłać dokładnie podaną kwotę przez BLIK. Termin zostanie potwierdzony dopiero po ręcznym sprawdzeniu wpłaty, najpóźniej w ciągu 24 godzin.'
       : manualPayment.isAvailable
         ? onlinePayment.available
           ? `Termin jest wstępnie zablokowany na czas płatności. Wybierz BLIK po instrukcji e-mail albo płatność online; po potwierdzeniu wpłaty rezerwacja staje się pewna.`
@@ -194,7 +204,9 @@ export default async function PaymentPage(
     ? 'Bezpieczny test płatności.'
     : isWaitingManual
       ? 'Czekamy na potwierdzenie wpłaty.'
-      : 'Płatność i potwierdzenie terminu.'
+      : isZapytajFlow
+        ? 'Opłać rozmowę „Zapytaj”.'
+        : 'Płatność i potwierdzenie terminu.'
 
   return (
     <PaymentReferenceLayout
@@ -203,7 +215,7 @@ export default async function PaymentPage(
       heroImage={booking?.animalType === 'Kot' ? 'cat' : 'dog'}
       variant="compact"
       summaryRows={paymentSummaryRows}
-      lineItemLabel={bookingServiceTitle ?? 'Konsultacja behawioralna'}
+      lineItemLabel={bookingServiceTitle ?? 'Zapytaj behawiorystę'}
       lineItemAmount={bookingManualPriceLabel ?? bookingPriceLabel ?? 'Do ustalenia'}
       totalLabel={bookingManualPriceLabel ? 'BLIK po instrukcji' : undefined}
     >
@@ -244,14 +256,16 @@ export default async function PaymentPage(
         ) : null}
 
         {booking && !isClosed && !isConfirmed && !isWaitingManual ? (
-          <BookingTimer createdAt={booking.createdAt} />
+          <BookingTimer createdAt={booking.createdAt} holdMinutes={isZapytajFlow ? 5 : undefined} />
         ) : null}
 
         <PaymentReferenceCardTitle
-          title={qaBooking ? 'Kontrolowany test płatności' : isWaitingManual ? 'Wpłata została zgłoszona' : 'Wybierz płatność'}
+          title={qaBooking ? 'Kontrolowany test płatności' : isWaitingManual ? 'Wpłata została zgłoszona' : isZapytajFlow ? 'Wpłać i zgłoś wpłatę' : 'Wybierz płatność'}
         >
           {qaBooking
             ? 'To kontrolowana ścieżka testowa bez realnego obciążenia.'
+            : isZapytajFlow
+              ? 'To jest jedna, prosta wpłata za rozmowę. Po wpłacie kliknij zgłoszenie, a ja ręcznie potwierdzę termin.'
             : onlinePayment.available
               ? 'BLIK po instrukcji e-mail jest najtańszy, bo nie przechodzi przez prowizyjnego pośrednika. Karta, Apple Pay i Google Pay są dostępne jako płatność online. Jeśli płatność nie zostanie potwierdzona w czasie blokady, termin wróci do kalendarza.'
               : 'BLIK po instrukcji e-mail jest najtańszy, bo nie przechodzi przez prowizyjnego pośrednika. Płatność online jest chwilowo niedostępna. Jeśli płatność nie zostanie potwierdzona w czasie blokady, termin wróci do kalendarza.'}
@@ -363,7 +377,8 @@ export default async function PaymentPage(
                   bookingStatus={booking.bookingStatus}
                   qaBooking={qaBooking}
                   qaEligibility={qaEligibility}
-                  roomAccessLabel={roomAccessLabel}
+                   roomAccessLabel={roomAccessLabel}
+                   directManualFlow={isZapytajFlow}
                 />
             )}
 

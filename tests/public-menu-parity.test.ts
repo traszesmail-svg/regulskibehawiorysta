@@ -8,7 +8,9 @@ const read = (...segments: string[]) => readFileSync(path.join(process.cwd(), ..
 test('public pages resolve one canonical topbar CTA and utility set', () => {
   const source = read('components', 'NotatnikA.tsx')
 
-  assert.match(source, /PUBLIC_SITE_TOPBAR_CTA = \{\s*href: '\/mapa-sprawy',\s*label: 'Mapa zachowania'/)
+  assert.match(source, /PUBLIC_SITE_TOPBAR_CTA = \{\s*href: '\/zapytaj',\s*label: 'Zapytaj'/)
+  assert.match(source, /href: '\/konsultacja', label: 'Konsultacja'/)
+  assert.match(source, /href: '\/terapia', label: 'Terapia'/)
   assert.match(source, /profile = 'site'/)
   assert.match(source, /profile === 'site' \? PUBLIC_SITE_TOPBAR_CTA\.href/)
   assert.match(source, /profile === 'site' \? PUBLIC_SITE_TOPBAR_CTA\.label/)

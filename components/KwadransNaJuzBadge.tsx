@@ -15,7 +15,7 @@ export function KwadransNaJuzBadge({ variant = 'box', showPrice = true }: Kwadra
     return (
       <span className="inline-flex items-center gap-1.5 text-accent-dark font-semibold">
         <Icon name="zap" size={16} className="text-accent" strokeWidth={3} />
-        Kwadrans na już{showPrice && ` · ${PUBLIC_OFFER_PRICE_LABELS.urgent}`}
+        Zapytaj teraz{showPrice && ` · ${PUBLIC_OFFER_PRICE_LABELS.urgent}`}
       </span>
     );
   }
@@ -24,7 +24,7 @@ export function KwadransNaJuzBadge({ variant = 'box', showPrice = true }: Kwadra
     <div className="flex items-center gap-3 bg-accent-light border-l-4 border-accent rounded-r-lg px-4 py-3.5 max-w-xl">
       <Icon name="zap" size={20} className="text-accent shrink-0" strokeWidth={3} />
       <span className="text-sm text-accent-dark">
-        <strong>Kwadrans na już</strong> — priorytet i najbliższy realny termin
+        <strong>Zapytaj teraz</strong> — najbliższy realny termin przy włączonej dostępności
         {showPrice && <span className="opacity-80"> · {PUBLIC_OFFER_PRICE_LABELS.urgent}</span>}
       </span>
     </div>

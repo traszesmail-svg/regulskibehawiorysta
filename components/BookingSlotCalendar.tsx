@@ -66,7 +66,7 @@ const bookingFaqItems = [
   {
     question: 'Jak wygląda konsultacja online?',
     answer:
-      'Kwadrans i Dwa kwadranse odbywają się jako połączenie telefoniczne. Pełna konsultacja odbywa się przez Jitsi; kamera nie jest obowiązkowa.',
+      'Zapytaj behawiorystę i Zapytaj teraz odbywają się jako połączenie telefoniczne. Pełna konsultacja odbywa się przez Jitsi; kamera nie jest obowiązkowa.',
   },
   {
     question: 'Czy muszę instalować jakąś aplikację?',
@@ -76,7 +76,7 @@ const bookingFaqItems = [
   {
     question: 'Kiedy termin jest pewny?',
     answer:
-      'Wybrany termin trzymamy przez 15 minut na dokończenie rezerwacji. Termin jest pewny po opłaceniu i potwierdzeniu płatności. Przy płatności BLIK po instrukcji e-mail potwierdzenie wymaga obsługi w godzinach 9-21.',
+      'Wybrany termin trzymamy przez 5 minut na dokończenie rezerwacji. Termin jest pewny po opłaceniu i potwierdzeniu płatności. Przy płatności BLIK po instrukcji e-mail potwierdzenie wymaga obsługi w godzinach 9-21.',
   },
   {
     question: 'Czy mogę zmienić lub odwołać termin?',
@@ -234,17 +234,27 @@ function getServiceQuery(serviceType: BookingServiceType) {
 
 export async function BookingSlotCalendar({
   searchParams,
+  consultationAccessCode = null,
+  consultationAccessEmail = null,
+  consultationProblem = null,
+  consultationSpecies = null,
 }: {
   searchParams?: Record<string, string | string[] | undefined>
+  consultationAccessCode?: string | null
+  consultationAccessEmail?: string | null
+  consultationProblem?: ProblemType | null
+  consultationSpecies?: 'pies' | 'kot' | null
 }) {
   noStore()
 
   const requestedProblem = readProblemTypeSearchParam(searchParams?.problem)
-  const problem = requestedProblem ?? 'szczeniak'
-  const serviceType = normalizeBookingServiceType(readBookingServiceSearchParam(searchParams?.service))
+  const problem = requestedProblem ?? consultationProblem ?? 'szczeniak'
+  const serviceType = consultationAccessCode
+    ? 'konsultacja-behawioralna-online'
+    : normalizeBookingServiceType(readBookingServiceSearchParam(searchParams?.service))
   const serviceQuery = getServiceQuery(serviceType)
   const qaBooking = readQaBookingSearchParam(searchParams?.qa)
-  const requestedSpecies = readBookingSpeciesSearchParam(searchParams?.species)
+  const requestedSpecies = readBookingSpeciesSearchParam(searchParams?.species) ?? consultationSpecies
   const clinicFlow = readClinicFlowSearchParam(searchParams?.clinic)
   const marketingParams = getMarketingParams(searchParams)
   const serviceConfig = FUNNEL_SERVICE_CONFIG[serviceType]
@@ -301,8 +311,8 @@ export async function BookingSlotCalendar({
     serviceType === 'konsultacja-behawioralna-online'
       ? 'W pełnej konsultacji dostajesz analizę zachowania, prawdopodobną przyczynę problemu, plan działania i 14 dni komunikacji w pokoju klienta.'
       : serviceType === 'konsultacja-30-min'
-        ? 'W Dwóch kwadransach masz więcej czasu na kontekst, spokojniejsze zalecenia i decyzję, czy potrzebna jest pełna konsultacja.'
-        : 'W Kwadransie porządkujesz jedno główne pytanie i dostajesz pierwszy kierunek działania.'
+        ? 'Ten starszy wariant nie jest obecnie częścią oferty publicznej. Aktualny pierwszy krok to Zapytaj behawiorystę.'
+        : 'W Zapytaj behawiorystę porządkujesz sytuację i dostajesz pierwszy kierunek działania oraz dwa pytania po rozmowie.'
   const calendarDays: PickerCalendarDay[] = calendar.days
   const bookingAmount = getBookingServicePrice(serviceType, serviceConfig.priceAmount)
   const manualPayment = getPublicManualPaymentConfig()
@@ -364,7 +374,7 @@ export async function BookingSlotCalendar({
               <span>Wybór terminu</span>
             </div>
             {isUrgentBooking ? (
-              <h1>Rezerwacja Kwadrans na już</h1>
+              <h1>Rezerwacja Zapytaj teraz</h1>
             ) : (
               <h1>{clinicFlow ? 'Wybierz termin z lecznicy' : 'Wybierz termin konsultacji'}</h1>
             )}
@@ -383,7 +393,7 @@ export async function BookingSlotCalendar({
               meta={clinicFlow ? `0 zł / ${getBookingServiceDurationLabel(serviceType)} online` : `${formatPricePln(serviceConfig.priceAmount)} / ${getBookingServiceDurationLabel(serviceType)}`}
               primaryHref="#najblizsze-terminy"
               primaryLabel="Zobacz terminy"
-              secondaryHref={clinicFlow ? '/wybor?clinic=1' : '/cennik'}
+              secondaryHref={clinicFlow ? '/wybor?clinic=1' : '/zapytaj'}
               secondaryLabel={clinicFlow ? 'Zmień wybór' : 'Porównaj opcje'}
             />
           </div>
@@ -406,7 +416,7 @@ export async function BookingSlotCalendar({
               {clinicFlow
                 ? 'Prosty proces: wybierasz termin, wpisujesz dane i aktywujesz kod lecznicy. Nie pobieramy płatności; potwierdzenie rezerwacji dostaniesz e-mailem.'
                 : 'Prosty proces: wybierasz termin, wpisujesz dane, przechodzisz do płatności i dostajesz potwierdzenie e-mailem.'}{' '}
-              Wybrany termin trzymamy przez 15 minut na czas spokojnego dokończenia rezerwacji.
+              Wybrany termin trzymamy przez 5 minut na czas spokojnego dokończenia rezerwacji.
             </div>
 
             {publicFlowMessage ? (
@@ -475,6 +485,8 @@ export async function BookingSlotCalendar({
                 contactHref,
                 roomAccessLabel: getBookingServiceRoomAccessLabel(serviceType),
                 qaBooking,
+                consultationAccessCode,
+                consultationAccessEmail,
               }}
               paymentConfig={{
                 manualAvailable: manualPayment.isAvailable,
@@ -484,7 +496,7 @@ export async function BookingSlotCalendar({
                 manualSummary: manualPayment.summary,
                 onlinePayment,
               }}
-              choicePanel={inlineChoicePanel}
+              choicePanel={consultationAccessCode ? null : inlineChoicePanel}
             />
           </div>
         </section>

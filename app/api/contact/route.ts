@@ -11,7 +11,7 @@ import { isUrgentNowIntent } from '@/lib/urgent-now'
 import type { ProblemType } from '@/lib/types'
 
 const SUCCESS_MESSAGE = 'Dziękuję za wiadomość. Wiadomość trafiła do mnie. Odpowiem na podany adres e-mail.'
-const URGENT_SUCCESS_MESSAGE = 'Dziękuję. Prośba o Kwadrans na już trafiła do mnie. Odpowiem priorytetowo na podany adres e-mail z realną propozycją terminu.'
+const URGENT_SUCCESS_MESSAGE = 'Dziękuję. Prośba o Zapytaj teraz trafiła do mnie. Odpowiem priorytetowo na podany adres e-mail z realną propozycją terminu.'
 const UNAVAILABLE_MESSAGE = 'Formularz kontaktowy jest chwilowo niedostępny. Spróbuj później lub napisz bezpośrednio.'
 const GENERIC_ERROR_MESSAGE = 'Nie udało się wysłać wiadomości. Spróbuj ponownie później.'
 const RATE_LIMIT_MESSAGE = 'Za dużo prób w krótkim czasie. Spróbuj ponownie za godzinę.'
@@ -270,7 +270,7 @@ function validatePayload(body: Record<string, unknown>): { payload?: ValidatedCo
       topic,
       message,
       contextLabel,
-      serviceLabel: isUrgentNowIntent(intent) ? 'Kwadrans na już' : null,
+      serviceLabel: isUrgentNowIntent(intent) ? 'Zapytaj teraz' : null,
       requestedDate,
       requestedTime,
       intent,

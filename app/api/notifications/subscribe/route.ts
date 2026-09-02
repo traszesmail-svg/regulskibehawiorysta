@@ -7,7 +7,7 @@ export async function POST() {
   return NextResponse.json(
     {
       error:
-        'Powiadomienia SMS i WhatsApp są wyłączone dla nowych zapisów. Skorzystaj z formularza kontaktowego albo newslettera e-mail.',
+        'Powiadomienia SMS i WhatsApp są wyłączone dla nowych zapisów. Skorzystaj z formularza kontaktowego.',
     },
     { status: 410 },
   )

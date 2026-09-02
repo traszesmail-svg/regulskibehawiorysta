@@ -177,7 +177,7 @@ export const LOCAL_SEO_PAGES: LocalSeoPage[] = [
   {
     path: '/',
     title: 'Behawiorysta psów i kotów online - cała Polska',
-    description: 'Behawiorysta psów i kotów online dla opiekunów z całej Polski. 15 min połączenia telefonicznego na start, pełna konsultacja przez Jitsi około 2h przy sprawach szerszych.',
+    description: 'Behawiorysta psów i kotów online dla opiekunów z całej Polski. 15 min połączenia telefonicznego na start, pełna konsultacja przez Jitsi około 90 minut przy sprawach szerszych.',
     h1: 'Behawiorysta psów i kotów online',
     intro: [
       'Pracuję online z opiekunami psów i kotów z całej Polski.',
@@ -193,13 +193,13 @@ export const LOCAL_SEO_PAGES: LocalSeoPage[] = [
     supportTitle: 'Jak wygląda taka pomoc online',
     supportBody: [
       'W pracy behawioralnej najważniejsze są kontekst, historia problemu, środowisko i codzienne sytuacje, w których zachowanie wraca. To właśnie porządkujemy na rozmowie.',
-      'Do startu wystarczy krótki opis. Nagrania bywają pomocne, ale nie są warunkiem; Kwadrans odbywa się telefonicznie.',
+      'Do startu wystarczy krótki opis. Nagrania bywają pomocne, ale nie są warunkiem; Zapytaj behawiorystę odbywa się telefonicznie.',
       'Opis procesu pełnej konsultacji znajduje się na osobnej stronie usługi. Tutaj najpierw ustalasz, czy pracujemy o psie, o kocie, czy od razu potrzebujesz szerszej rozmowy przez Jitsi.',
     ],
     firstStepCards: [
       { title: '15 min telefonicznie', copy: 'Krótka rozmowa telefoniczna. Dobra na jedno pytanie, pierwszy ogląd sytuacji i ustalenie priorytetu.' },
       { title: 'Materiały PDF', copy: 'Materiały startowe, jeśli chcesz najpierw coś spokojnie przeczytać i uporządkować obserwacje.' },
-      { title: 'Pełna konsultacja', copy: 'Około 2h online, analiza zachowania, plan działania i 14 dni komunikacji w pokoju klienta przy sprawach złożonych.' },
+      { title: 'Pełna konsultacja', copy: 'Około 90 minut online, analiza zachowania, plan działania i 14 dni komunikacji w pokoju klienta przy sprawach złożonych.' },
     ],
     faq: [
       { question: 'Czy konsultacja online jest dostępna dla całej Polski?', answer: 'Tak. Pracuję online z opiekunami z całej Polski, w tej samej formule niezależnie od miejsca.' },
@@ -211,8 +211,8 @@ export const LOCAL_SEO_PAGES: LocalSeoPage[] = [
     relatedLinks: [
       { href: '/problemy#pies', label: 'Pomoc dla opiekunów psów', copy: 'Jeśli problem dotyczy psa, tutaj znajdziesz szerszy opis najczęstszych tematów i problemów.' },
       { href: '/problemy#kot', label: 'Pomoc dla opiekunów kotów', copy: 'Jeśli problem dotyczy kota, tutaj znajdziesz szerszy opis najczęstszych tematów i problemów.' },
-      { href: '/cennik/pelny', label: 'Jak wygląda pełna konsultacja', copy: 'Osobna strona procesu i przebiegu dłuższej konsultacji przez Jitsi.' },
-      { href: '/cennik', label: 'Cennik', copy: 'Porównanie krótkiego połączenia telefonicznego i pełnej konsultacji.' },
+      { href: '/konsultacja', label: 'Jak wygląda pełna konsultacja', copy: 'Osobna strona procesu i przebiegu dłuższej konsultacji przez Jitsi.' },
+      { href: '/zapytaj', label: 'Zapytaj', copy: 'Krótka rozmowa na pierwszy konkretny kierunek.' },
       { href: '/kontakt', label: 'Kontakt', copy: 'Krótka wiadomość, jeśli chcesz coś doprecyzować przed rezerwacja.' },
     ],
   },

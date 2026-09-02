@@ -12,7 +12,7 @@ export const metadata: Metadata = buildMarketingMetadata({
   description: 'FAQ o konsultacjach behawioralnych online, pierwszym kontakcie, płatnościach, psach i kotach.',
 })
 
-const bookHref = '/cennik'
+const bookHref = '/zapytaj'
 const contactHref = '/kontakt#formularz'
 
 export default function FaqPage() {

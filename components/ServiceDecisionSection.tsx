@@ -41,7 +41,7 @@ export function ServiceDecisionSection({
           <div className="notatnik-mono">{COPY_SERVICE_NAMES.primary}</div>
           <h3>{PUBLIC_OFFER_DECISION_COPY.quick}</h3>
           <p>{serviceLead}</p>
-          <div className="notatnik-service-meta" aria-label="Parametry Kwadransu">
+          <div className="notatnik-service-meta" aria-label="Parametry Zapytaj behawiorystę">
             <span>{COPY_SERVICE_NAMES.primaryDescriptor}</span>
             <span>{getPublicServicePriceLabel('szybka-konsultacja-15-min')}</span>
             <span>najprostszy start</span>
@@ -63,7 +63,7 @@ export function ServiceDecisionSection({
           <h3>{PUBLIC_OFFER_DECISION_COPY.premium}</h3>
           <p>{PUBLIC_OFFER_FULL_CONSULTATION_VALUE}</p>
           <div className="notatnik-service-meta" aria-label="Parametry pełnej konsultacji">
-            <span>ok. 2h przez Jitsi</span>
+            <span>około 90 minut przez Jitsi</span>
             <span>{getPublicServicePriceLabel('konsultacja-behawioralna-online')}</span>
             <span>plan + 14 dni w pokoju klienta</span>
           </div>

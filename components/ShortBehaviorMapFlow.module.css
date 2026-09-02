@@ -409,6 +409,12 @@
   background-color: #dcebd6;
 }
 
+/* Public flow starts with one clear action; the old two-path choice is no longer shown. */
+.answerGrid > .answer:only-child {
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding-left: 19px;
+}
+
 .selectionMark,
 .rowArrow,
 .directionGlyph {

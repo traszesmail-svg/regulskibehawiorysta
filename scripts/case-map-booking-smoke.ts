@@ -50,7 +50,7 @@ async function completeFastMap(page: Page, appUrl: string) {
   const dogButton = page.getByRole('button', { name: /Pies/i }).first()
   let advanced = false
   for (let attempt = 0; attempt < 20; attempt += 1) {
-    await page.getByRole('button', { name: /Szybka mapa/i }).click()
+    await page.getByRole('button', { name: /Zacznij Mapę zachowania/i }).click()
     if (await dogButton.isVisible().catch(() => false)) {
       advanced = true
       break

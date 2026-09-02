@@ -17,7 +17,6 @@ import {
   Home,
   Leaf,
   ListChecks,
-  Mail,
   MessageCircle,
   PawPrint,
   Search,
@@ -305,7 +304,7 @@ export default function EssentialsPage() {
               <div>
                 <h2>Potrzebujesz indywidualnego wsparcia?</h2>
                 <p>Materiały to świetny start, ale czasem warto skonsultować sytuację 1 na 1.</p>
-                <Link href="/cennik" prefetch={false}>
+                <Link href="/zapytaj" prefetch={false}>
                   Umów konsultację
                   <ArrowRight size={16} strokeWidth={1.8} aria-hidden="true" />
                 </Link>
@@ -404,22 +403,6 @@ export default function EssentialsPage() {
               </p>
               <cite>- Ania i Luno</cite>
             </blockquote>
-
-            <section className="essentials-showcase-newsletter" aria-labelledby="essentials-newsletter-title">
-              <span aria-hidden="true">
-                <Mail size={28} strokeWidth={1.7} />
-              </span>
-              <h2 id="essentials-newsletter-title">Bądź na bieżąco</h2>
-              <p>Zapisz się, a poinformujemy Cię o nowych materiałach.</p>
-              <form action="/newsletter">
-                <label className="sr-only" htmlFor="essentials-newsletter-email">
-                  Twój e-mail
-                </label>
-                <input id="essentials-newsletter-email" name="email" type="email" placeholder="Twój e-mail" />
-                <button type="submit">Zapisz się</button>
-              </form>
-              <small>Bez spamu. W każdej chwili możesz się wypisać.</small>
-            </section>
 
             <section className="essentials-showcase-topic-card">
               <h2>Masz pomysł na temat?</h2>

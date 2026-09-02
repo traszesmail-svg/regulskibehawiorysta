@@ -12,7 +12,7 @@ import {
   getBookingServiceTitle,
   isAudioOnlyBookingService,
 } from '@/lib/booking-services'
-import { formatDateTimeLabel, getSecondsUntilRoomUnlock } from '@/lib/data'
+import { formatDateTimeLabel, getSecondsUntilBookingStart, getSecondsUntilRoomUnlock } from '@/lib/data'
 import { createMeetingEmbedUrl } from '@/lib/server/jitsi'
 import { CAPBT_LOGO, COAPE_LOGO, SITE_NAME, COAPE_ORG_URL, CAPBT_PROFILE_URL } from '@/lib/site'
 import { AnimalType, BookingRecord, type ConsultationMode, ProblemType } from '@/lib/types'
@@ -90,11 +90,11 @@ function getCallRoomCopy(serviceType: BookingServiceType, roomAccessLabel: strin
       'Spokojne miejsce, słuchawki albo głośnik oraz 2-3 najważniejsze obserwacje o zwierzęciu, żeby rozmowę wykorzystać konkretnie.',
     activeAfterLabel: 'Po rozmowie',
     activeAfterCopy:
-      'Jeśli po rozmowie temat okaże się szerszy, kolejnym krokiem mogą być Dwa kwadranse albo pełna konsultacja behawioralna.',
+      'Po rozmowie dostajesz dwa pytania uzupełniające. Jeśli temat okaże się szerszy, mogę zarekomendować Pełną konsultację behawioralną.',
     lockedAfterLabel: 'Co stanie się dalej',
     lockedAfterCopy: `Gdy nadejdzie czas wejścia, ${roomAccessLabel} stanie się aktywny i będzie można uruchomić licznik rozmowy.`,
     completionNextStep:
-      'Jeśli po rozmowie temat okaże się szerszy, kolejnym krokiem mogą być Dwa kwadranse albo pełna konsultacja behawioralna.',
+      'Po rozmowie dostajesz dwa pytania uzupełniające. Jeśli temat okaże się szerszy, mogę zarekomendować Pełną konsultację behawioralną.',
   }
 }
 
@@ -114,6 +114,7 @@ interface CallRoomProps {
   problemType: ProblemType
   serviceType: BookingServiceType
   consultationMode?: ConsultationMode | null
+  liveMode?: boolean
   qaBooking?: boolean
   callId?: string | null
   callStatus?: string | null
@@ -123,6 +124,7 @@ interface CallRoomProps {
   petAge?: string | null
   durationNotes?: string | null
   description?: string | null
+  recoveryHref?: string | null
 }
 
 export function CallRoom({
@@ -137,6 +139,7 @@ export function CallRoom({
   problemType,
   serviceType,
   consultationMode = null,
+  liveMode = false,
   qaBooking = false,
   callId = null,
   callStatus = null,
@@ -146,11 +149,11 @@ export function CallRoom({
   petAge = null,
   durationNotes = null,
   description = null,
+  recoveryHref = null,
 }: CallRoomProps) {
   const router = useRouter()
   const trackedEntryRef = useRef(false)
   const zadarmaTriggerRef = useRef(false)
-  const roomDurationMinutes = getBookingServiceRoomDurationMinutes(serviceType)
   const serviceTitle = getBookingServiceTitle(serviceType)
   const roomAccessLabel = consultationMode === 'jitsi'
     ? 'pokój rozmowy Jitsi'
@@ -158,6 +161,10 @@ export function CallRoom({
       ? 'rozmowa telefoniczna'
       : getBookingServiceRoomAccessLabel(serviceType)
   const roomCopy = getCallRoomCopy(serviceType, roomAccessLabel)
+  const isPhoneCall = consultationMode
+    ? consultationMode === 'phone'
+    : serviceType === 'szybka-konsultacja-15-min' || serviceType === 'kwadrans-na-juz' || serviceType === 'konsultacja-30-min'
+  const roomDurationMinutes = isPhoneCall ? 17 : getBookingServiceRoomDurationMinutes(serviceType)
   const [secondsLeft, setSecondsLeft] = useState(roomDurationMinutes * 60)
   const [running, setRunning] = useState(false)
   const [finished, setFinished] = useState(bookingStatus === 'done')
@@ -166,9 +173,6 @@ export function CallRoom({
   const [unlockInSeconds, setUnlockInSeconds] = useState(() =>
     Math.max(0, getSecondsUntilRoomUnlock(bookingDate, bookingTime)),
   )
-  const isPhoneCall = consultationMode
-    ? consultationMode === 'phone'
-    : serviceType === 'szybka-konsultacja-15-min' || serviceType === 'kwadrans-na-juz' || serviceType === 'konsultacja-30-min'
   const [callSecondsLeft, setCallSecondsLeft] = useState(roomDurationMinutes * 60)
   const [emergencyReason, setEmergencyReason] = useState('')
   const [emergencySubmitted, setEmergencySubmitted] = useState(false)
@@ -199,7 +203,8 @@ export function CallRoom({
   )
 
   useEffect(() => {
-    if (!isPhoneCall || !roomUnlocked || finished || callId || zadarmaTriggerRef.current) return
+    if (!isPhoneCall || finished || callId || zadarmaTriggerRef.current) return
+    if (getSecondsUntilBookingStart(bookingDate, bookingTime) > 60) return
     zadarmaTriggerRef.current = true
 
     void fetch('/api/zadarma/trigger-booking', {
@@ -218,7 +223,7 @@ export function CallRoom({
         console.error('[regulski-behawiorysta][zadarma] trigger failed', triggerError)
         setError(triggerError instanceof Error ? triggerError.message : 'Nie udało się uruchomić połączenia telefonicznego.')
       })
-  }, [accessToken, bookingId, callId, finished, isPhoneCall, roomUnlocked, router])
+  }, [accessToken, bookingDate, bookingId, bookingTime, callId, finished, isPhoneCall, router, unlockInSeconds])
   useEffect(() => {
     if (qaBooking) {
       return
@@ -370,7 +375,7 @@ export function CallRoom({
       return
     }
     const updateTimer = () => {
-      const elapsed = Math.floor((Date.now() - Date.parse(startedAt)) / 1000)
+      const elapsed = Math.max(0, Math.floor((Date.now() - Date.parse(startedAt)) / 1000))
       const left = Math.max(0, roomDurationMinutes * 60 - elapsed)
       setCallSecondsLeft(left)
     }
@@ -467,6 +472,12 @@ export function CallRoom({
       ? 'Rozmowa zakończona'
       : activeCall
         ? 'Połączenie aktywne'
+        : callStatus === 'retry_scheduled' || callStatus === 'calling_retry'
+          ? 'Druga próba połączenia za chwilę'
+          : callStatus === 'recovery_pending' || callStatus === 'additional_slot_available'
+            ? 'Wybierz dodatkowy termin'
+            : callStatus === 'manual_required'
+              ? 'Wymaga ręcznego kontaktu'
         : callStatus === 'calling'
           ? 'Łączenie telefoniczne...'
           : 'Oczekiwanie na telefon'
@@ -484,7 +495,7 @@ export function CallRoom({
             <h3 style={{ margin: '0 0 1rem' }}>Jak to działa?</h3>
             <ul style={{ margin: 0, paddingLeft: '1.2rem', lineHeight: '1.6' }}>
               <li>O ustalonej godzinie ({bookingTime}) system automatycznie połączy Behawiorystę z Twoim numerem.</li>
-              <li>Wykonujemy maksymalnie <strong>2 próby połączenia co minutę</strong>. Jeśli nie odbierzesz, konsultacja przepada.</li>
+              <li>Wykonujemy maksymalnie <strong>2 próby połączenia, drugą po około minucie</strong>. Jeśli obie próby będą nieudane, dostaniesz jednorazową możliwość wyboru dodatkowego terminu.</li>
               <li>Upewnij się, że nie blokujesz połączeń z numerów zastrzeżonych.</li>
               <li>Rozmowa zostanie automatycznie rozłączona po upływie {roomDurationMinutes} minut.</li>
               <li><strong>Minutę przed końcem otrzymasz SMS ostrzegawczy</strong>.</li>
@@ -560,6 +571,16 @@ export function CallRoom({
         <div className="panel section-panel room-sidebar">
           <div className="timer-box tree-backed-card">{activeCallTimerLabel}</div>
           <div className="status-box tree-backed-card">{activeCallStatusLabel}</div>
+
+          {recoveryHref && (callStatus === 'recovery_pending' || callStatus === 'additional_slot_available') ? (
+            <div className="list-card accent-outline tree-backed-card top-gap">
+              <strong>Nie udało się połączyć?</strong>
+              <span>Masz jeden dodatkowy termin do wyboru. Link jest aktywny przez 48 godzin.</span>
+              <a href={recoveryHref} className="button button-primary small-button top-gap-small">
+                Wybierz dodatkowy termin
+              </a>
+            </div>
+          ) : null}
 
           <div className="stack-gap top-gap">
             <div className="list-card tree-backed-card">

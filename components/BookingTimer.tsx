@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from 'react'
 
-export function BookingTimer({ createdAt }: { createdAt: string }) {
+export function BookingTimer({ createdAt, holdMinutes = 5 }: { createdAt: string; holdMinutes?: number }) {
   const [timeLeft, setTimeLeft] = useState<number | null>(null)
 
   useEffect(() => {
     const createdTime = new Date(createdAt).getTime()
-    const expiryTime = createdTime + 15 * 60 * 1000 // 15 mins
+    const expiryTime = createdTime + holdMinutes * 60 * 1000
 
     const updateTimer = () => {
       const now = Date.now()
@@ -18,7 +18,7 @@ export function BookingTimer({ createdAt }: { createdAt: string }) {
     updateTimer()
     const interval = setInterval(updateTimer, 1000)
     return () => clearInterval(interval)
-  }, [createdAt])
+  }, [createdAt, holdMinutes])
 
   if (timeLeft === null) return null
 

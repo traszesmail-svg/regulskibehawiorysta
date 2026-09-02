@@ -1,9 +1,8 @@
-import { getBookingForViewer, markBookingClinicPhoneUpgrade, markBookingPaid } from '@/lib/server/db'
+import { getBookingById, getBookingForViewer, markBookingClinicPhoneUpgrade, markBookingPaid } from '@/lib/server/db'
 import { getBaseUrl, isProductionDeployment } from '@/lib/server/env'
 import {
   PRICE_AMOUNT_PLN,
-  getMaterialyBundleBySlug,
-  getMaterialyGuideBySlug,
+  getPublishedMaterialyGuideBySlug,
 } from '@/lib/materialy-catalog'
 import {
   getBookingServiceTitle,
@@ -131,7 +130,7 @@ export async function createClinicPhoneUpgradeCommerceOrder(
     customerPhone: normalizedPhone.e164,
     productType: 'consultation',
     productId,
-    productName: 'Dopłata do rozmowy telefonicznej — Kwadrans z kodem od lecznicy',
+    productName: 'Dopłata do rozmowy telefonicznej — Zapytaj behawiorystę z kodem od lecznicy',
     amount: CLINIC_PHONE_UPGRADE_PRICE_PLN,
     onlineAmount: CLINIC_PHONE_UPGRADE_PRICE_PLN,
     manualAmount: CLINIC_PHONE_UPGRADE_PRICE_PLN,
@@ -156,15 +155,18 @@ export async function createEbookCommerceOrder(input: EbookOrderInput) {
     throw new Error('Podaj imię i poprawny adres e-mail.')
   }
 
-  const guide = input.productKind === 'guide' ? getMaterialyGuideBySlug(productSlug) : null
-  const bundle = input.productKind === 'bundle' ? getMaterialyBundleBySlug(productSlug) : null
-  const item = guide ?? bundle
+  const guide = input.productKind === 'guide' ? getPublishedMaterialyGuideBySlug(productSlug) : null
+  const item = guide
 
   if (!item) {
     throw new Error('Ten materiał nie jest już dostępny.')
   }
 
   const priceAmount = PRICE_AMOUNT_PLN[item.priceCode]
+  if (priceAmount > 0) {
+    throw new Error('Płatny PDF jest dostępny dopiero po wcześniejszym Zapytaj behawiorystę.')
+  }
+
   const productId = `ebook:${input.productKind}:${productSlug}:${email}:${Date.now()}`
 
   return createCommerceOrder({
@@ -181,9 +183,62 @@ export async function createEbookCommerceOrder(input: EbookOrderInput) {
       productSlug,
       downloadSlug: productSlug,
       pdfFile: guide?.pdfFile,
-      bundleGuideSlugs: bundle?.guideSlugs,
-      animalType: guide?.category === 'cat' || bundle?.category === 'cat' ? 'Kot' : 'Pies',
+      animalType: guide?.category === 'cat' ? 'Kot' : 'Pies',
       notes,
+    },
+  })
+}
+
+type RecommendedEbookOrderInput = {
+  bookingId: string
+  productSlug: string
+}
+
+export async function createRecommendedEbookCommerceOrder(input: RecommendedEbookOrderInput) {
+  const bookingId = trim(input.bookingId, 120)
+  const productSlug = trim(input.productSlug, 120)
+  const booking = await getBookingById(bookingId)
+
+  if (!booking) {
+    throw new Error('Nie znaleziono rozmowy.')
+  }
+
+  if (booking.paymentStatus !== 'paid' || booking.bookingStatus !== 'done') {
+    throw new Error('Materiał będzie dostępny po zakończeniu opłaconej rozmowy.')
+  }
+
+  if (booking.recommendedMaterialSlug !== productSlug) {
+    throw new Error('Ten materiał nie został przypisany do Twojej rozmowy.')
+  }
+
+  const guide = getPublishedMaterialyGuideBySlug(productSlug)
+  if (!guide || guide.priceCode !== 'p19') {
+    throw new Error('Ten materiał nie jest już dostępny.')
+  }
+
+  const productId = `ebook:recommendation:${booking.id}:${productSlug}`
+  const existing = await findCommerceOrderByProduct('ebook', productId)
+
+  if (existing) {
+    return ensureCommerceOrderViewerToken(existing)
+  }
+
+  return createCommerceOrder({
+    customerEmail: booking.email,
+    customerName: booking.ownerName,
+    customerPhone: null,
+    productType: 'ebook',
+    productId,
+    productName: guide.title,
+    amount: PRICE_AMOUNT_PLN[guide.priceCode],
+    manualAmount: PRICE_AMOUNT_PLN[guide.priceCode],
+    meta: {
+      productKind: 'guide',
+      productSlug: guide.slug,
+      downloadSlug: guide.slug,
+      pdfFile: guide.pdfFile,
+      animalType: guide.category === 'cat' ? 'Kot' : 'Pies',
+      sourceBookingId: booking.id,
     },
   })
 }

@@ -35,14 +35,14 @@ type BookingRequestPayload = {
 }
 
 const PRIMARY_SERVICE_OPTIONS: Array<{ value: Exclude<BookingServiceType, 'kwadrans-na-juz'>; label: string; price: string }> = [
-  { value: 'szybka-konsultacja-15-min', label: '15-minutowa konsultacja behawioralna', price: PUBLIC_OFFER_PRICE_LABELS.quick },
-  { value: 'konsultacja-30-min', label: 'Dwa kwadranse', price: PUBLIC_OFFER_PRICE_LABELS.bridge },
+  { value: 'szybka-konsultacja-15-min', label: 'Zapytaj behawiorystę', price: PUBLIC_OFFER_PRICE_LABELS.quick },
+  { value: 'konsultacja-30-min', label: 'Starszy wariant rozmowy', price: PUBLIC_OFFER_PRICE_LABELS.bridge },
   { value: 'konsultacja-behawioralna-online', label: 'Pełna konsultacja', price: PUBLIC_OFFER_PRICE_LABELS.premium },
 ]
 
 const URGENT_SERVICE_OPTION = {
   value: 'kwadrans-na-juz' as const,
-  label: 'Kwadrans na już',
+  label: 'Zapytaj teraz',
   price: PUBLIC_OFFER_PRICE_LABELS.urgent,
 }
 
@@ -93,18 +93,18 @@ function getSelectedServiceIntro(service: BookingServiceType) {
     case 'konsultacja-behawioralna-online':
       return {
         title: `Wybrana rozmowa: ${option.label} / ${option.price}.`,
-        copy: 'Około 2h przez Jitsi dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni komunikacji w pokoju klienta przy wdrażaniu zaleceń.',
+        copy: 'Około 90 minut przez Jitsi dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni komunikacji w pokoju klienta przy wdrażaniu zaleceń.',
       }
     case 'kwadrans-na-juz':
       return {
         title: `Wybrana rozmowa: ${option.label} / ${option.price}.`,
-        copy: 'To ten sam zakres co Kwadrans, ale z priorytetową odpowiedzią i najbliższym realnym terminem. Dla spraw pilnych, które nie wymagają dłuższej analizy.',
+        copy: 'To ten sam zakres co Zapytaj behawiorystę, ale z priorytetową odpowiedzią i najbliższym realnym terminem.',
       }
     case 'szybka-konsultacja-15-min':
     default:
       return {
         title: `Wybrana rozmowa: ${option.label} / ${option.price}.`,
-        copy: 'Kwadrans to 15 min połączenia telefonicznego na jedno główne pytanie. Szybko porządkujesz sytuację i dostajesz pierwszy kierunek działania.',
+        copy: 'Zapytaj behawiorystę to rozmowa telefoniczna do 15 minut. Szybko porządkujesz sytuację i dostajesz pierwszy kierunek działania oraz dwa pytania po rozmowie.',
       }
   }
 }
@@ -224,10 +224,10 @@ export function BookRequestForm({ initialService, initialSpecies, entryService }
     return (
       <div className="contact-form-card top-gap" role="status">
         <div className="notatnik-mono notatnik-kicker-spaced">Rezerwacja przyjęta</div>
-        <h2>{isUrgentNow ? 'Dostałem Twoją prośbę o Kwadrans na już.' : 'Dostałem Twoją rezerwację.'}</h2>
+        <h2>{isUrgentNow ? 'Dostałem Twoją prośbę o Zapytaj teraz.' : 'Dostałem Twoją rezerwację.'}</h2>
         <p>
           {isUrgentNow
-            ? 'Twoja prośba o Kwadrans na już dotarła. Odpowiem priorytetowo z realną propozycją terminu i dalszym krokiem płatności. Sprawdź skrzynkę - wysłałem Ci kopię.'
+            ? 'Twoja prośba o Zapytaj teraz dotarła. Odpowiem priorytetowo z realną propozycją terminu i dalszym krokiem płatności. Sprawdź skrzynkę - wysłałem Ci kopię.'
             : 'W ciągu kilku godzin, między 9 a 21, odezwę się z potwierdzeniem terminu i dalszym krokiem płatności. Sprawdź skrzynkę - wysłałem Ci kopię.'}
         </p>
         <div className="notatnik-steps top-gap-small">
@@ -281,13 +281,13 @@ export function BookRequestForm({ initialService, initialSpecies, entryService }
           <strong>
             Wybrany tryb: {URGENT_SERVICE_OPTION.label} / {URGENT_SERVICE_OPTION.price}.
           </strong>{' '}
-          To ten sam 15-minutowy format co zwykły Kwadrans, ale z priorytetem i szybszym terminem.{' '}
+          To ten sam zakres co Zapytaj behawiorystę, ale z priorytetem i szybszym terminem.{' '}
           <button
             type="button"
             className="notatnik-inline-link"
             onClick={() => updateField('service', 'szybka-konsultacja-15-min')}
           >
-            Wróć do zwykłego Kwadransu
+            Wróć do zwykłego Zapytaj behawiorystę
           </button>
         </div>
       ) : null}
@@ -310,7 +310,7 @@ export function BookRequestForm({ initialService, initialSpecies, entryService }
             </span>
           </label>
         ))}
-        <Link className="checkbox-card" href="/kwadrans-na-juz" prefetch={false}>
+        <Link className="checkbox-card" href="/zapytaj" prefetch={false}>
           <span>
             âšˇ {URGENT_SERVICE_OPTION.label} / {URGENT_SERVICE_OPTION.price} — termin na dziś, sytuacje kryzysowe
           </span>
@@ -320,8 +320,8 @@ export function BookRequestForm({ initialService, initialSpecies, entryService }
       {showPriorityPrompt ? (
         <div className="info-box full-width">
           <strong>Chcesz szybciej?</strong> {PUBLIC_OFFER_BOOKING_PRIORITY_PROMPT}{' '}
-          <Link href="/kwadrans-na-juz" prefetch={false} className="notatnik-inline-link">
-            Przejdź do Kwadransu na już
+      <Link href="/zapytaj" prefetch={false} className="notatnik-inline-link">
+            Przejdź do Zapytaj teraz
           </Link>
           <div className="field-help top-gap-small">{PUBLIC_OFFER_BOOKING_PRIORITY_NOTE}</div>
         </div>

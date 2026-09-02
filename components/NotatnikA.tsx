@@ -13,19 +13,18 @@ export type NotatnikNavItem = {
 }
 
 export const PUBLIC_SITE_NAV_ITEMS: readonly NotatnikNavItem[] = [
-  { href: '/o-mnie', label: 'O mnie' },
-  { href: '/cennik', label: 'Cennik' },
-  { href: '/faq', label: 'FAQ' },
+  { href: '/konsultacja', label: 'Konsultacja' },
+  { href: '/terapia', label: 'Terapia' },
+  { href: '/materialy', label: 'Materiały' },
   { href: '/blog', label: 'Blog' },
-  { href: '/kontakt', label: 'Kontakt' },
-  { href: '/pokoj', label: 'Twój pokój' },
+  { href: '/o-mnie', label: 'O mnie' },
 ]
 
 export const PUBLIC_BOOKING_FLOW_NAV_ITEMS: readonly NotatnikNavItem[] = PUBLIC_SITE_NAV_ITEMS
 
 export const PUBLIC_SITE_TOPBAR_CTA = {
-  href: '/mapa-sprawy',
-  label: 'Mapa zachowania',
+  href: '/zapytaj',
+  label: 'Zapytaj',
 } as const
 
 export type NotatnikTopbarProfile = 'site' | 'flow'

@@ -29,8 +29,8 @@ export default async function AdminPromoCodesPage() {
 
   return (
     <AdminPageShell
-      eyebrow="Promocje dla lecznic"
-      title="Kody na Kwadrans z behawiorystą"
+      eyebrow="Kampanie promocyjne"
+      title="Kody dla lecznic i grup"
       actions={
         <>
           <Link href="/admin" className="button button-ghost">
@@ -77,6 +77,9 @@ export default async function AdminPromoCodesPage() {
               <div key={campaign.id} className="booking-row" data-promo-campaign-id={campaign.id}>
                 <div>
                   <div className="booking-title">{campaign.clinicName}</div>
+                  <div className="booking-meta">
+                    {campaign.kind === 'community' ? `Grupa FB · ${campaign.promotionPricePln.toFixed(2).replace('.', ',')} zł` : 'Lecznica · bezpłatna rozmowa'}
+                  </div>
                   <div className="booking-meta">Status: {campaign.status}</div>
                   <div className="booking-meta">Ważne do: {formatDateTime(campaign.expiresAt)}</div>
                 </div>

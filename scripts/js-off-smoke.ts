@@ -49,7 +49,9 @@ async function checkContactFallback(page: Page, baseUrl: string) {
 }
 
 async function checkBookingFallback(page: Page, baseUrl: string) {
-  await page.goto(`${baseUrl}/book`, { waitUntil: 'networkidle', timeout: 45_000 })
+  // The public entry now lives at /zapytaj. Keep the no-JS contract on the
+  // contextual booking route used by clinic/legacy flows.
+  await page.goto(`${baseUrl}/book?clinic=1`, { waitUntil: 'networkidle', timeout: 45_000 })
 
   const firstSlotHref = await page
     .locator('a[data-nearest-slot-link="true"], a[data-selected-slot-link="true"]')
@@ -58,7 +60,7 @@ async function checkBookingFallback(page: Page, baseUrl: string) {
     .catch(() => null)
 
   if (!firstSlotHref) {
-    return [fail('booking slot link without JS', 'missing nearest/selected slot link on /book')]
+    return [fail('booking slot link without JS', 'missing nearest/selected slot link on /book?clinic=1')]
   }
 
   const formUrl = new URL(firstSlotHref, `${baseUrl}/`).toString()

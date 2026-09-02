@@ -1747,9 +1747,9 @@ test('build script keeps explicit no-cache lint before next build', () => {
   assert.equal(packageJson.scripts?.['lighthouse:report'], 'node --import tsx scripts/lighthouse-report.ts')
   assert.equal(packageJson.scripts?.['full-public-crawl'], 'node --import tsx scripts/full-public-crawl.ts')
   assert.equal(packageJson.scripts?.['release-checklist'], 'node --import tsx scripts/release-checklist.ts')
-  assert.equal(packageJson.dependencies?.next, '^15.5.18')
+  assert.equal(packageJson.dependencies?.next, '^15.5.25')
   assert.equal(packageJson.dependencies?.nodemailer, '^9.0.3')
-  assert.equal(packageJson.devDependencies?.['eslint-config-next'], '^15.5.18')
+  assert.equal(packageJson.devDependencies?.['eslint-config-next'], '^15.5.25')
   assert.equal(packageJson.devDependencies?.lighthouse, '^13.4.0')
 })
 

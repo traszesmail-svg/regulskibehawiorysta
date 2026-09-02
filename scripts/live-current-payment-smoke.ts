@@ -8,6 +8,7 @@ type SmokeResult = {
   baseUrl: string
   bookingId: string | null
   accessTokenPresent: boolean
+  directManualFlow: boolean
   orderNumber: string | null
   viewerTokenPresent: boolean
   slotLabel: string | null
@@ -56,19 +57,6 @@ function createBasicAuthHeader(password: string) {
   return `Basic ${Buffer.from(`admin:${password}`).toString('base64')}`
 }
 
-async function submitBookingForm(page: Page) {
-  await page.evaluate(() => {
-    const form = document.querySelector('[data-booking-form="details"]') as HTMLFormElement | null
-    const button = document.querySelector('[data-booking-submit="payment"]') as HTMLButtonElement | null
-
-    if (!form || !button) {
-      throw new Error('Missing booking form or submit button.')
-    }
-
-    form.requestSubmit(button)
-  })
-}
-
 async function main() {
   loadEnvConfig(process.cwd())
 
@@ -78,6 +66,7 @@ async function main() {
     baseUrl,
     bookingId: null,
     accessTokenPresent: false,
+    directManualFlow: false,
     orderNumber: null,
     viewerTokenPresent: false,
     slotLabel: null,
@@ -102,33 +91,34 @@ async function main() {
     })
     const page = await context.newPage()
 
-    await page.goto(`${baseUrl}/book?problem=szczeniak&species=pies&service=szybka-konsultacja-15-min`, {
+    await page.goto(`${baseUrl}/zapytaj`, {
       waitUntil: 'domcontentloaded',
     })
-    await page.getByRole('heading', { name: /Wybierz termin konsultacji/i }).waitFor({ timeout: 30000 })
+    await page.locator('#zapytaj-page-title').waitFor({ timeout: 30000 })
 
-    const firstSlot = page.locator('a.slot-link:visible, [data-selected-slot-link="true"]:visible, [data-nearest-slot-link="true"]:visible').first()
+    const firstSlot = page.locator('.zapytaj-slot-option:visible').first()
     await firstSlot.waitFor({ timeout: 30000 })
     result.slotLabel = (await firstSlot.innerText()).replace(/\s+/g, ' ').trim()
-    await Promise.all([
-      page.waitForURL((url) => url.pathname === '/form', { timeout: 30000, waitUntil: 'domcontentloaded' }),
-      firstSlot.click(),
-    ])
+    await firstSlot.click()
 
-    await page.locator('[data-booking-form="details"]').waitFor({ timeout: 30000 })
-    await page.locator('[data-booking-field="owner-name"]').fill(`QA live payment ${timestamp}`)
-    await page.locator('[data-booking-field="email"]').fill(`qa-live-payment-${timestamp}@example.com`)
+    await page.locator('form.zapytaj-form').waitFor({ timeout: 30000 })
+    await page.locator('#zapytaj-name').fill(`QA live payment ${timestamp}`)
+    await page.locator('#zapytaj-phone').fill('500600700')
+    await page.locator('#zapytaj-email').fill(`qa-live-payment-${timestamp}@example.com`)
+    await page.locator('input[name="species"][value="pies"]').check()
     await page
-      .locator('[data-booking-field="description"]')
+      .locator('#zapytaj-description')
       .fill('Kontrolny test produkcyjnego lejka: rezerwacja, wybor platnosci, BLIK i sprzatanie testu.')
-    await page.locator('#booking-privacy').check()
-    await page.locator('#booking-early-start').check()
+    const consentCheckboxes = page.locator('.zapytaj-consents input[type="checkbox"]')
+    for (let index = 0; index < await consentCheckboxes.count(); index += 1) {
+      await consentCheckboxes.nth(index).check()
+    }
 
     const bookingResponsePromise = page.waitForResponse(
-      (response) => response.url().includes('/api/bookings') && response.request().method() === 'POST',
+      (response) => new URL(response.url()).pathname === '/api/zapytaj' && response.request().method() === 'POST',
       { timeout: 45000 },
     )
-    await submitBookingForm(page)
+    await page.locator('form.zapytaj-form button[type="submit"]').click()
     const bookingResponse = await bookingResponsePromise
     assert.equal(bookingResponse.ok(), true, `POST /api/bookings returned ${bookingResponse.status()}`)
 
@@ -138,11 +128,48 @@ async function main() {
     })
     const paymentUrl = new URL(page.url())
     result.bookingId = paymentUrl.searchParams.get('bookingId')
+    const accessToken = paymentUrl.searchParams.get('access')
     result.accessTokenPresent = Boolean(paymentUrl.searchParams.get('access'))
     assert.ok(result.bookingId, 'Payment URL did not include bookingId.')
     assert.equal(result.accessTokenPresent, true, 'Payment URL did not include access token.')
     await page.locator('[data-payment-state="payment-selection"]').waitFor({ timeout: 30000 })
 
+    result.directManualFlow = (await page.locator('[data-direct-manual-flow="true"]').count()) === 1
+
+    if (result.directManualFlow) {
+      assert.equal(await page.locator('[data-payment-submit="manual-direct"]').count(), 1, 'Zapytaj payment page did not expose direct manual payment action.')
+
+      const manualResponsePromise = page.waitForResponse(
+        (response) => new URL(response.url()).pathname === '/api/payments/manual' && response.request().method() === 'POST',
+        { timeout: 45000 },
+      )
+      await page.locator('[data-payment-submit="manual-direct"]').click()
+      const manualResponse = await manualResponsePromise
+      result.reportPaymentStatus = manualResponse.status()
+      assert.equal(manualResponse.ok(), true, `POST /api/payments/manual returned ${manualResponse.status()}`)
+
+      await page.waitForURL(
+        (url) => url.pathname === '/confirmation' && url.searchParams.get('bookingId') === result.bookingId && url.searchParams.get('manual') === 'reported',
+        { timeout: 30000, waitUntil: 'domcontentloaded' },
+      )
+      result.waitingUrl = page.url()
+      await page.locator('[data-confirmation-state="pending-manual-review"]').waitFor({ timeout: 30000 })
+      result.testAdminConfirmUrlExposed = (await page.locator('a[href*="/api/admin/confirm-payment/"]').count()) > 0
+      assert.equal(result.testAdminConfirmUrlExposed, false, 'Production confirmation exposed a test admin confirmation URL.')
+
+      const statusResponse = await page.request.get(
+        `${baseUrl}/api/bookings/${encodeURIComponent(result.bookingId)}/status?access=${encodeURIComponent(accessToken ?? '')}`,
+      )
+      assert.equal(statusResponse.ok(), true, `Booking status API returned ${statusResponse.status()}`)
+      const statusPayload = (await statusResponse.json()) as {
+        bookingStatus?: string
+        paymentStatus?: string
+        paymentMethod?: string | null
+      }
+      result.orderStatusAfterReport = `${statusPayload.bookingStatus ?? 'unknown'}:${statusPayload.paymentStatus ?? 'unknown'}`
+      assert.equal(result.orderStatusAfterReport, 'pending_manual_payment:pending_manual_review', 'Manual BLIK report did not remain pending for admin confirmation.')
+      assert.equal(statusPayload.paymentMethod ?? null, 'manual', 'Manual BLIK report did not retain payment method.')
+    } else {
     const methods = await page.locator('[data-payment-method]').evaluateAll((nodes) =>
       nodes
         .map((node) => node.getAttribute('data-payment-method'))
@@ -213,6 +240,7 @@ async function main() {
     assert.equal(result.orderStatusAfterReport, 'payment_reported', 'Manual BLIK report was mutated before explicit admin POST confirmation.')
     assert.equal(statusPayload.testAdminConfirmUrl ?? null, null, 'Production status API exposed testAdminConfirmUrl.')
     assert.equal(statusPayload.testAdminRejectUrl ?? null, null, 'Production status API exposed testAdminRejectUrl.')
+    }
 
     const adminSecret = process.env.ADMIN_ACCESS_SECRET?.trim()
 

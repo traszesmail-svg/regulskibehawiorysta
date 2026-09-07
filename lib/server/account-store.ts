@@ -17,6 +17,7 @@ import {
   getPaymentStatusLabel,
 } from '@/lib/account'
 import { normalizeCommerceEmail } from '@/lib/commerce'
+import { isQuestionsAccessExpired, resolveQuestionsExpiresAt } from '@/lib/question-access'
 import { listBookings, updateBookingQuiz } from '@/lib/server/db'
 import { listLeadBookings, updateLeadBooking, type LeadBookingRecord } from '@/lib/server/lead-bookings'
 import { listCommerceOrdersByEmail } from '@/lib/server/commerce-store'
@@ -389,6 +390,12 @@ function bookingToSummary(booking: BookingRecord): AccountBookingSummary {
     callStatus: booking.callStatus ?? null,
     startedAt: booking.startedAt ?? null,
     questionsRemaining: booking.questionsRemaining ?? null,
+    questionsExpiresAt: resolveQuestionsExpiresAt({
+      serviceType: booking.serviceType,
+      bookingStatus: booking.bookingStatus,
+      questionsExpiresAt: booking.questionsExpiresAt,
+      updatedAt: booking.updatedAt,
+    }),
     recommendedNextStep: booking.recommendedNextStep ?? null,
     recommendedMaterialSlug: booking.recommendedMaterialSlug ?? null,
     serviceType: booking.serviceType ?? null,
@@ -433,6 +440,7 @@ function leadBookingToSummary(booking: LeadBookingRecord): AccountBookingSummary
     callStatus: booking.callStatus ?? null,
     startedAt: booking.startedAt ?? null,
     questionsRemaining: booking.questionsRemaining ?? null,
+    questionsExpiresAt: booking.questionsExpiresAt ?? null,
     recommendedNextStep: null,
     recommendedMaterialSlug: null,
     serviceType: booking.service,
@@ -821,6 +829,12 @@ export async function createAccountMessage(user: User, input: CreateAccountMessa
       createdAt: booking.createdAt,
       serviceType: booking.serviceType,
       questionsRemaining: booking.questionsRemaining ?? null,
+      questionsExpiresAt: resolveQuestionsExpiresAt({
+        serviceType: booking.serviceType,
+        bookingStatus: booking.bookingStatus,
+        questionsExpiresAt: booking.questionsExpiresAt,
+        updatedAt: booking.updatedAt,
+      }),
       isLead: false,
       supportEndsAt:
         booking.serviceType === 'konsultacja-behawioralna-online'
@@ -832,6 +846,7 @@ export async function createAccountMessage(user: User, input: CreateAccountMessa
       createdAt: booking.createdAt,
       serviceType: booking.service || null,
       questionsRemaining: booking.questionsRemaining ?? null,
+      questionsExpiresAt: booking.questionsExpiresAt ?? null,
       isLead: true,
       supportEndsAt:
         booking.service === 'konsultacja-behawioralna-online' && booking.confirmedDate
@@ -846,7 +861,10 @@ export async function createAccountMessage(user: User, input: CreateAccountMessa
     latestBooking.supportEndsAt !== null &&
     Date.now() > latestBooking.supportEndsAt
   ) {
-    throw new Error('14-dniowy okres komunikacji w pokoju po pełnej konsultacji już się zakończył.')
+    throw new Error('14-dniowe wsparcie przez WhatsApp po pełnej konsultacji już się zakończyło. Historia pozostaje dostępna w Pokoju.')
+  }
+  if (latestBooking?.serviceType === 'konsultacja-behawioralna-online') {
+    throw new Error('Bieżące wsparcie po pełnej konsultacji odbywa się przez WhatsApp. Pokój służy do podsumowania i historii.')
   }
   if (
     latestBooking &&
@@ -855,6 +873,14 @@ export async function createAccountMessage(user: User, input: CreateAccountMessa
       latestBooking.serviceType === 'konsultacja-30-min') &&
     latestBooking.questionsRemaining !== null
   ) {
+    if (!latestBooking.questionsExpiresAt) {
+      throw new Error('Pytania uzupełniające będą dostępne po zakończeniu rozmowy i opublikowaniu podsumowania.')
+    }
+
+    if (isQuestionsAccessExpired(latestBooking.questionsExpiresAt)) {
+      throw new Error('Siedmiodniowy okres pytań po tej konsultacji już się zakończył.')
+    }
+
     if (latestBooking.questionsRemaining <= 0) {
       throw new Error('Wykorzystałeś już limit pytań na czacie po tej konsultacji. Jeśli potrzebujesz dalszej pomocy, wybierz kolejną usługę.')
     }

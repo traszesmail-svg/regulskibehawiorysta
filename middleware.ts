@@ -14,11 +14,24 @@ function createUnauthorizedResponse(message: string, status: number) {
 }
 
 export function middleware(request: NextRequest) {
+  if (request.nextUrl.pathname === '/slot') {
+    const destination = new URL('/zapytaj', request.url)
+
+    for (const key of ['problem', 'species']) {
+      const value = request.nextUrl.searchParams.get(key)
+      if (value) {
+        destination.searchParams.set(key, value)
+      }
+    }
+
+    return NextResponse.redirect(destination, 307)
+  }
+
   if (request.nextUrl.pathname === '/form') {
     const hasBookingContext = request.nextUrl.searchParams.has('problem') && request.nextUrl.searchParams.has('slotId')
 
     if (!hasBookingContext) {
-      const destination = new URL('/book', request.url)
+      const destination = new URL('/zapytaj', request.url)
 
       for (const key of ['service', 'qa', 'species']) {
         const value = request.nextUrl.searchParams.get(key)
@@ -51,5 +64,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/form', '/admin/:path*', '/__internal/:path*', '/api/admin/:path*', '/api/availability/:path*'],
+  matcher: ['/slot', '/form', '/admin/:path*', '/__internal/:path*', '/api/admin/:path*', '/api/availability/:path*'],
 }

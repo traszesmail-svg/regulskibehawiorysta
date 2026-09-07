@@ -16,7 +16,7 @@ export const PUBLIC_OFFER_FAQ_ITEMS: TrustFaqItem[] = [
   {
     question: `Co obejmuje Pełna konsultacja ${PUBLIC_OFFER_PRICE_LABELS.premium}?`,
     answer:
-      'Około 90 minut przez Jitsi, analizę zachowania, prawdopodobną przyczynę problemu, plan działania i 14 dni komunikacji w pokoju klienta przy wdrażaniu zaleceń. W tym czasie można zadawać pytania, wysyłać filmy i konsultować kolejne kroki.',
+      'Około 90 minut przez Jitsi, analizę zachowania, prawdopodobną przyczynę problemu, plan działania i 14 dni wsparcia przez WhatsApp przy wdrażaniu zaleceń. Pokój przechowuje podsumowanie i historię. Wsparcie dotyczy tej samej sprawy, a odpowiedź otrzymasz maksymalnie w ciągu 48 godzin.',
   },
   {
     question: 'Kiedy nie warto zaczynać od Zapytaj behawiorystę?',

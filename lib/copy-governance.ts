@@ -8,7 +8,7 @@ export const COPY_SERVICE_NAMES = {
   bridge: 'Zapytaj teraz',
   bridgeOperational: 'Zapytaj teraz: rozmowa telefoniczna do 15 minut',
   consultation: 'pełna konsultacja behawioralna',
-  consultationOperational: 'pełna konsultacja behawioralna przez Jitsi: około 90 minut, analiza zachowania, plan działania + 14 dni komunikacji w pokoju klienta',
+  consultationOperational: 'pełna konsultacja behawioralna przez Jitsi: około 90 minut, analiza zachowania, plan działania + 14 dni wsparcia przez WhatsApp; Pokój przechowuje podsumowanie i historię',
   toolkit: 'Materiały PDF',
   toolkitOperational: 'Materiały PDF do samodzielnej pracy',
   contact: 'wiadomość',
@@ -26,7 +26,7 @@ export const COPY_HELPERS = {
   primaryLead: 'Zapytaj behawiorystę to rozmowa telefoniczna do 15 minut: opisujesz sytuację, a dostajesz pierwszy kierunek i dwa pytania po rozmowie.',
   startFromAudio: 'Jeśli nie wiesz, od czego zacząć, wybierz Zapytaj behawiorystę.',
   startComparison:
-    'Zapytaj behawiorystę to rozmowa telefoniczna do 15 minut. Zapytaj teraz ma ten sam zakres, ale działa tylko przy ręcznie włączonej dostępności. Pełna konsultacja przez Jitsi obejmuje około 90 minut, plan działania i 14 dni komunikacji w pokoju klienta.',
+    'Zapytaj behawiorystę to rozmowa telefoniczna do 15 minut. Zapytaj teraz ma ten sam zakres, ale działa tylko przy ręcznie włączonej dostępności. Pełna konsultacja przez Jitsi obejmuje około 90 minut, plan działania i 14 dni wsparcia przez WhatsApp; Pokój przechowuje podsumowanie i historię.',
   contactResponseWindow: 'Staram się odpowiadać w ciągu 1-2 dni roboczych.',
   toolkitIntro:
     'Materiały PDF to zasoby, do których możesz wrócić przed rozmową, po rozmowie albo wtedy, gdy chcesz spokojnie uporządkować temat.',

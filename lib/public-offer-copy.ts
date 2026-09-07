@@ -32,7 +32,7 @@ export const PUBLIC_OFFER_DECISION_COPY = {
   bridge:
     'Ten starszy wariant nie jest obecnie częścią oferty publicznej. Jego identyfikator pozostaje w systemie wyłącznie dla zgodności technicznej.',
   premium:
-    'Pełna konsultacja to około 90 minut przez Jitsi dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni komunikacji w pokoju klienta przy wdrażaniu zaleceń. Termin otrzymujesz indywidualnie po pierwszym kroku.',
+    'Pełna konsultacja to około 90 minut przez Jitsi dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni wsparcia przez WhatsApp przy wdrażaniu zaleceń. Pokój przechowuje podsumowanie i historię. Termin otrzymujesz indywidualnie po pierwszym kroku.',
 } as const
 
 export const PUBLIC_OFFER_START_GUIDE = [
@@ -71,7 +71,7 @@ export const PUBLIC_OFFER_BOOKING_PAYMENT =
   `Najpierw wybierasz termin, a system blokuje go na 5 minut. Następnie otrzymujesz instrukcję ${PUBLIC_OFFER_PAYMENT_METHODS}. Po ręcznym potwierdzeniu wpłaty, maksymalnie w ciągu 24 godzin, dostajesz potwierdzenie i link do rozmowy.`
 
 export const PUBLIC_OFFER_FULL_CONSULTATION_VALUE =
-  'Pełna konsultacja nie jest po prostu dłuższą rozmową. To osobny proces dla sytuacji, które wymagają więcej czasu, szerszego tła i wsparcia po rozmowie. Obejmuje około 90 minut przez Jitsi, analizę zachowania, prawdopodobną przyczynę problemu, plan działania i 14 dni komunikacji w pokoju klienta przy wdrażaniu zaleceń. Dostęp do terminu otrzymujesz indywidualnie po pierwszym kroku.'
+  'Pełna konsultacja nie jest po prostu dłuższą rozmową. To osobny proces dla sytuacji, które wymagają więcej czasu, szerszego tła i wsparcia po rozmowie. Obejmuje około 90 minut przez Jitsi, analizę zachowania, prawdopodobną przyczynę problemu, plan działania i 14 dni wsparcia przez WhatsApp przy wdrażaniu zaleceń. Pokój przechowuje podsumowanie i historię. Dostęp do terminu otrzymujesz indywidualnie po pierwszym kroku.'
 
 export const PUBLIC_OFFER_CANCELLATION_COPY =
   'Krótkie formaty mają 24 godziny na bezpłatną rezygnację po potwierdzeniu wpłaty. Zmianę terminu ustalamy w tym samym oknie. Pełna konsultacja ma osobny regulamin.'
@@ -79,12 +79,12 @@ export const PUBLIC_OFFER_CANCELLATION_COPY =
 export const PUBLIC_OFFER_PRICING_DECISION_COPY = [
   `Zapytaj behawiorystę za ${PUBLIC_OFFER_PRICE_LABELS.quick} to rozmowa telefoniczna do 15 minut, pierwszy kierunek działania i dwa pytania po rozmowie.`,
   `Zapytaj teraz za ${PUBLIC_OFFER_PRICE_LABELS.urgent} to ten sam zakres w najbliższym dostępnym oknie, gdy ręcznie włączę dostępność.`,
-  `Pełna konsultacja za ${PUBLIC_OFFER_PRICE_LABELS.premium} to około 90 minut przez Jitsi, analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni komunikacji w pokoju klienta.`,
+  `Pełna konsultacja za ${PUBLIC_OFFER_PRICE_LABELS.premium} to około 90 minut przez Jitsi, analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni wsparcia przez WhatsApp. Pokój przechowuje podsumowanie i historię.`,
 ] as const
 
 export const PUBLIC_OFFER_FULL_VALUE_POINTS = [
   'Około 90 minut przez Jitsi (audio lub wideo)',
   'analiza zachowania i prawdopodobna przyczyna problemu',
   'plan działania po rozmowie',
-  '14 dni komunikacji w pokoju klienta przy wdrażaniu zaleceń',
+  '14 dni wsparcia przez WhatsApp przy wdrażaniu zaleceń; podsumowanie i historia w Pokoju',
 ] as const

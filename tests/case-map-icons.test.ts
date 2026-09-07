@@ -14,6 +14,7 @@ import {
 import {
   CASE_MAP_FOCUS_QUESTION,
   CASE_MAP_PATH_OPTIONS,
+  CASE_MAP_PUBLIC_SAFETY_QUESTIONS,
   getCaseMapPublicLongSections,
   getCaseMapShortFlowQuestions,
   type CaseMapQuestion,
@@ -38,6 +39,7 @@ function publicChoiceQuestions() {
 
   for (const topic of topics) {
     const questions = [
+      ...CASE_MAP_PUBLIC_SAFETY_QUESTIONS,
       CASE_MAP_FOCUS_QUESTION,
       ...getCaseMapShortFlowQuestions(topic),
       ...getCaseMapPublicLongSections(topic).flatMap((section) => section.questions),
@@ -53,7 +55,7 @@ function publicChoiceQuestions() {
 
 test('public Mapa zachowania gives every choice an explicit, semantic icon', () => {
   const questions = publicChoiceQuestions()
-  assert.equal(questions.length, 32)
+  assert.equal(questions.length, 34)
 
   for (const question of questions) {
     for (const option of question.options ?? []) {
@@ -76,7 +78,7 @@ test('question-mark is never assigned to a non-unknown option', () => {
 
 test('entry choices use named, covered icon assets', () => {
   for (const option of CASE_MAP_PATH_OPTIONS) {
-    assert.ok(CASE_MAP_PATH_ICONS[option.id])
+    assert.ok(CASE_MAP_PATH_ICONS[option.id as keyof typeof CASE_MAP_PATH_ICONS])
   }
 
   assert.deepEqual(Object.keys(CASE_MAP_SPECIES_ICONS).sort(), ['kot', 'pies'])

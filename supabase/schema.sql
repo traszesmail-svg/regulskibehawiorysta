@@ -84,6 +84,7 @@ create table if not exists public.bookings (
   call_recovery_token_hash text,
   call_recovery_expires_at timestamptz,
   questions_remaining integer,
+  questions_expires_at timestamptz,
   consultation_access_code_hash text,
   consultation_access_expires_at timestamptz,
   consultation_access_used_at timestamptz,
@@ -413,7 +414,7 @@ create policy "service role full access growth_signups" on public.growth_signups
   with check (true);
 
 insert into public.pricing_settings (id, consultation_price)
-values ('consultation', 39.00)
+values ('consultation', 79.00)
 on conflict (id) do nothing;
 
 insert into storage.buckets (id, name, public)

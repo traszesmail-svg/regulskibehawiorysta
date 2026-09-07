@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import {
+  CASE_MAP_PUBLIC_SAFETY_QUESTIONS,
   CASE_MAP_TRIAGE_QUESTIONS,
   getCaseMapFastQuestions,
   getCaseMapLongSections,
@@ -43,7 +44,20 @@ test('litter and safety questions do not hide urgent uncertainty behind a sales 
   assert.ok(CASE_MAP_TRIAGE_QUESTIONS.some((question) => question.id === 'emergency_health'))
 })
 
-test('the public short map is compact and contains no health or injury triage fields', () => {
+test('the public Map starts with exactly two explicit safety questions', () => {
+  assert.deepEqual(
+    CASE_MAP_PUBLIC_SAFETY_QUESTIONS.map((question) => question.id),
+    ['active_danger', 'emergency_health'],
+  )
+
+  for (const question of CASE_MAP_PUBLIC_SAFETY_QUESTIONS) {
+    assert.equal(question.kind, 'choice')
+    assert.deepEqual(question.options?.map((option) => option.id), ['yes', 'no'])
+    assert.equal(question.options?.some((option) => option.id === 'unknown'), false)
+  }
+})
+
+test('the legacy fast question catalogue is compact and contains no health or injury triage fields', () => {
   const excludedIds = new Set([
     'active_danger',
     'injury',
@@ -67,7 +81,7 @@ test('the public short map is compact and contains no health or injury triage fi
   }
 })
 
-test('the public fuller map omits health, injury and triage sections for every topic', () => {
+test('the legacy fuller question catalogue omits health, injury and triage sections for every topic', () => {
   const excludedSectionIds = new Set(['health-and-history'])
   const excludedQuestionIds = new Set([
     'active_danger',

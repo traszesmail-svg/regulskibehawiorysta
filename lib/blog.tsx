@@ -350,9 +350,9 @@ const CONSULTATION_PAGE_LINK: BlogSupportLink = {
 }
 
 const PREP_GUIDE_LINK: BlogSupportLink = {
-  label: 'Umów pierwszy krok',
-  href: '/',
-  description: 'Przejdź do strony głównej i wybierz pierwszy krok pomocy.',
+  label: FUNNEL_CTA_LABELS.primary,
+  href: '/zapytaj',
+  description: 'Opisz krótko sytuację i wybierz termin rozmowy z behawiorystą.',
 }
 
 const REACTIVITY_LANDING_LINK: BlogSupportLink = {
@@ -362,9 +362,9 @@ const REACTIVITY_LANDING_LINK: BlogSupportLink = {
 }
 
 const REACTIVITY_GUIDE_LINK: BlogSupportLink = {
-  label: 'Umów pierwszy krok',
-  href: '/',
-  description: 'Przejdź do strony głównej i wybierz pierwszy krok pomocy.',
+  label: FUNNEL_CTA_LABELS.primary,
+  href: '/zapytaj',
+  description: 'Opisz krótko sytuację i wybierz termin rozmowy z behawiorystą.',
 }
 
 const SEPARATION_LANDING_LINK: BlogSupportLink = {
@@ -374,9 +374,9 @@ const SEPARATION_LANDING_LINK: BlogSupportLink = {
 }
 
 const SEPARATION_GUIDE_LINK: BlogSupportLink = {
-  label: 'Umów pierwszy krok',
-  href: '/',
-  description: 'Przejdź do strony głównej i wybierz pierwszy krok pomocy.',
+  label: FUNNEL_CTA_LABELS.primary,
+  href: '/zapytaj',
+  description: 'Opisz krótko sytuację i wybierz termin rozmowy z behawiorystą.',
 }
 
 const LITTER_LANDING_LINK: BlogSupportLink = {
@@ -386,9 +386,9 @@ const LITTER_LANDING_LINK: BlogSupportLink = {
 }
 
 const LITTER_GUIDE_LINK: BlogSupportLink = {
-  label: 'Umów pierwszy krok',
-  href: '/',
-  description: 'Przejdź do strony głównej i wybierz pierwszy krok pomocy.',
+  label: FUNNEL_CTA_LABELS.primary,
+  href: '/zapytaj',
+  description: 'Opisz krótko sytuację i wybierz termin rozmowy z behawiorystą.',
 }
 
 const CAT_CONFLICT_LANDING_LINK: BlogSupportLink = {
@@ -398,9 +398,9 @@ const CAT_CONFLICT_LANDING_LINK: BlogSupportLink = {
 }
 
 const CAT_CONFLICT_GUIDE_LINK: BlogSupportLink = {
-  label: 'Umów pierwszy krok',
-  href: '/',
-  description: 'Przejdź do strony głównej i wybierz pierwszy krok pomocy.',
+  label: FUNNEL_CTA_LABELS.primary,
+  href: '/zapytaj',
+  description: 'Opisz krótko sytuację i wybierz termin rozmowy z behawiorystą.',
 }
 
 const BLOG_POST_CONFIGS: BlogPostConfig[] = [
@@ -481,9 +481,9 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
         description: 'Hub tematów psich, jeśli pierwsza noc łączy się z gryzieniem, pobudzeniem albo separacją.',
       },
       {
-        label: 'Umów pierwszy krok',
-        href: '/',
-        description: 'Przejdź do strony głównej i wybierz pierwszy krok pomocy.',
+        label: FUNNEL_CTA_LABELS.primary,
+        href: '/zapytaj',
+        description: 'Opisz krótko sytuację i wybierz termin rozmowy z behawiorystą.',
       },
       {
         label: FUNNEL_CTA_LABELS.primary,
@@ -522,9 +522,9 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
         description: 'Dobry start, jeśli chcesz odnieść ten temat do swojego psa.',
       },
       {
-        label: 'Umów pierwszy krok',
-        href: '/',
-        description: 'Przejdź do strony głównej i wybierz pierwszy krok pomocy.',
+        label: FUNNEL_CTA_LABELS.primary,
+        href: '/zapytaj',
+        description: 'Opisz krótko sytuację i wybierz termin rozmowy z behawiorystą.',
       },
     ],
   },
@@ -553,9 +553,9 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
         description: 'Jeśli chcesz ustalić pierwszy plan dla swojego psa.',
       },
       {
-        label: 'Umów pierwszy krok',
-        href: '/',
-        description: 'Przejdź do strony głównej i wybierz pierwszy krok pomocy.',
+        label: FUNNEL_CTA_LABELS.primary,
+        href: '/zapytaj',
+        description: 'Opisz krótko sytuację i wybierz termin rozmowy z behawiorystą.',
       },
     ],
   },
@@ -584,9 +584,9 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
         description: 'Jeśli chcesz ustalić, od czego zacząć w swojej sytuacji.',
       },
       {
-        label: 'Umów pierwszy krok',
-        href: '/',
-        description: 'Przejdź do strony głównej i wybierz pierwszy krok pomocy.',
+        label: FUNNEL_CTA_LABELS.primary,
+        href: '/zapytaj',
+        description: 'Opisz krótko sytuację i wybierz termin rozmowy z behawiorystą.',
       },
     ],
   },
@@ -677,9 +677,9 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
         description: 'Jeśli chcesz uporządkować, co stoi za zachowaniem kota.',
       },
       {
-        label: 'Umów pierwszy krok',
-        href: '/',
-        description: 'Przejdź do strony głównej i wybierz pierwszy krok pomocy.',
+        label: FUNNEL_CTA_LABELS.primary,
+        href: '/zapytaj',
+        description: 'Opisz krótko sytuację i wybierz termin rozmowy z behawiorystą.',
       },
     ],
   },
@@ -708,9 +708,9 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
         description: 'Dobry start, jeśli chcesz ustalić plan na pierwsze dni z psem.',
       },
       {
-        label: 'Umów pierwszy krok',
-        href: '/',
-        description: 'Przejdź do strony głównej i wybierz pierwszy krok pomocy.',
+        label: FUNNEL_CTA_LABELS.primary,
+        href: '/zapytaj',
+        description: 'Opisz krótko sytuację i wybierz termin rozmowy z behawiorystą.',
       },
     ],
   },
@@ -1526,7 +1526,7 @@ function renderBlogSection(
       React.createElement(
         'div',
         { key: `${section.key}-primary-cta`, className: 'blog-content-cta-actions' },
-        React.createElement('a', { className: 'blog-content-primary-cta', href: '/' }, 'Umów pierwszy krok'),
+        React.createElement('a', { className: 'blog-content-primary-cta', href: '/zapytaj' }, FUNNEL_CTA_LABELS.primary),
       ),
     )
   }

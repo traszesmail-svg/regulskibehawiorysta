@@ -26,6 +26,12 @@ import { getReservationWindowMinutes } from '@/lib/server/env'
 import { createMeetingUrl, normalizeMeetingUrl } from '@/lib/server/jitsi'
 import { getLocalStoreDataDir } from '@/lib/server/local-store-path'
 import { getManualPaymentConfig, getZapytajManualPaymentConfig } from '@/lib/server/payment-options'
+import {
+  FOLLOW_UP_QUESTION_COUNT,
+  FOLLOW_UP_QUESTION_WINDOW_MS,
+  getInitialQuestionsRemaining,
+  resolveQuestionsExpiresAt,
+} from '@/lib/question-access'
 import { isAvailabilitySlotBookableForService } from '@/lib/scheduling/rules'
 import { isZapytajLiveSlot, ZAPYTAJ_LIVE_PRICE_PLN, ZAPYTAJ_SERVICE_TYPE } from '@/lib/zapytaj-flow'
 import {
@@ -222,10 +228,14 @@ function normalizeBookingRecord(booking: BookingRecord): BookingRecord {
     consultationAccessUsedAt: booking.consultationAccessUsedAt ?? null,
     questionsRemaining:
       booking.questionsRemaining === undefined || booking.questionsRemaining === null
-        ? serviceType === ZAPYTAJ_SERVICE_TYPE || serviceType === 'kwadrans-na-juz'
-          ? 2
-          : null
+        ? getInitialQuestionsRemaining(serviceType)
         : booking.questionsRemaining,
+    questionsExpiresAt: resolveQuestionsExpiresAt({
+      serviceType,
+      bookingStatus: booking.bookingStatus,
+      questionsExpiresAt: booking.questionsExpiresAt,
+      updatedAt: booking.updatedAt,
+    }),
   }
 }
 
@@ -672,7 +682,8 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
       consultationAccessCodeHash: null,
       consultationAccessExpiresAt: null,
       consultationAccessUsedAt: null,
-      questionsRemaining: serviceType === ZAPYTAJ_SERVICE_TYPE || serviceType === 'kwadrans-na-juz' ? 2 : null,
+      questionsRemaining: getInitialQuestionsRemaining(serviceType),
+      questionsExpiresAt: null,
     }
 
     holdSlots(slotWindow, booking.id, reservationExpiresAt, nowIso)
@@ -1485,7 +1496,13 @@ export async function markBookingDone(
     booking.paymentStatus = booking.paymentStatus === 'paid' ? 'paid' : booking.paymentStatus
     booking.recommendedNextStep = recommendedNextStep ?? booking.recommendedNextStep ?? null
     booking.recommendedMaterialSlug = recommendedMaterialSlug ?? booking.recommendedMaterialSlug ?? null
-    booking.updatedAt = new Date().toISOString()
+    const completedAt = new Date().toISOString()
+    booking.questionsExpiresAt = booking.questionsExpiresAt ?? (
+      getInitialQuestionsRemaining(booking.serviceType) === FOLLOW_UP_QUESTION_COUNT
+        ? new Date(Date.parse(completedAt) + FOLLOW_UP_QUESTION_WINDOW_MS).toISOString()
+        : null
+    )
+    booking.updatedAt = completedAt
     await persistStore(store)
     return booking
   })
@@ -1509,7 +1526,7 @@ export async function markBookingReminderSent(bookingId: string): Promise<Bookin
 
 export async function updateBookingQuiz(
   bookingId: string,
-  patch: { petAge?: string; durationNotes?: string; description?: string; questionsRemaining?: number | null },
+  patch: { petAge?: string; durationNotes?: string; description?: string; questionsRemaining?: number | null; questionsExpiresAt?: string | null },
 ): Promise<BookingRecord | null> {
   return withLock(async () => {
     const store = await readStore()
@@ -1523,6 +1540,7 @@ export async function updateBookingQuiz(
     if (patch.durationNotes !== undefined) booking.durationNotes = patch.durationNotes
     if (patch.description !== undefined) booking.description = patch.description
     if (patch.questionsRemaining !== undefined) booking.questionsRemaining = patch.questionsRemaining
+    if (patch.questionsExpiresAt !== undefined) booking.questionsExpiresAt = patch.questionsExpiresAt
 
     booking.updatedAt = new Date().toISOString()
     await persistStore(store)

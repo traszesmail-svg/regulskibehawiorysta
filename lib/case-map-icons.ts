@@ -71,6 +71,14 @@ export const CASE_MAP_TOPIC_ICONS = {
  * Pytajnik pojawia się wyłącznie przy rzeczywistej odpowiedzi "Nie wiem".
  */
 export const CASE_MAP_QUESTION_OPTION_ICONS = {
+  active_danger: {
+    yes: 'safety-shield',
+    no: 'observe-eye',
+  },
+  emergency_health: {
+    yes: 'safety-shield',
+    no: 'observe-eye',
+  },
   case_focus: {
     one_pet: 'observe-eye',
     relationship: 'bond-pair',

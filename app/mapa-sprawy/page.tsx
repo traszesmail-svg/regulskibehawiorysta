@@ -65,6 +65,19 @@ export default async function BehaviorMapPage(props: { searchParams?: Promise<Se
         <div id="mapa-zachowania-start" className={styles.flow}>
           <h1 className={styles.screenReaderTitle}>Mapa zachowania — spokojny następny krok dla psa lub kota</h1>
           <ShortBehaviorMapFlow initialProblemKey={context?.problemKey} initialCaseMapId={initialCaseMapId || null} marketingParams={marketingParams} source={source} />
+          <noscript>
+            <section className={styles.noScriptNotice} aria-labelledby="mapa-no-script-title">
+              <p className={styles.noScriptKicker}>Najpierw bezpieczeństwo</p>
+              <h2 id="mapa-no-script-title">Zanim przejdziesz dalej</h2>
+              <p>Ta mapa potrzebuje JavaScriptu, aby zapisać odpowiedzi i dobrać kolejny krok. Sprawdź teraz:</p>
+              <ol>
+                <li>Czy istnieje bezpośrednie zagrożenie dla człowieka lub zwierzęcia?</li>
+                <li>Czy doszło do pogryzienia, urazu albo nagłego pogorszenia zdrowia?</li>
+              </ol>
+              <p>Jeśli nie możesz przejść mapy albo sytuacja jest pilna, opisz ją bezpośrednio.</p>
+              <Link href="/zapytaj" prefetch={false} className={styles.noScriptLink}>Zapytaj behawiorystę</Link>
+            </section>
+          </noscript>
         </div>
       </section>
     </main>

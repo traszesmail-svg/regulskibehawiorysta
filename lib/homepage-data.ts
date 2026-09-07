@@ -99,7 +99,7 @@ export const homepageSelectorRecommendations: Record<
   },
   full: {
     title: 'Pełna konsultacja',
-    summary: 'Około 90 minut przez Jitsi dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni komunikacji w pokoju klienta.',
+    summary: 'Około 90 minut przez Jitsi dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni wsparcia przez WhatsApp; Pokój przechowuje podsumowanie i historię.',
     ctaLabel: 'Chcę pełną konsultację',
     service: 'konsultacja-behawioralna-online',
     price: PUBLIC_OFFER_PRICE_LABELS.premium,

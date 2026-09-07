@@ -309,7 +309,7 @@ export async function BookingSlotCalendar({
   const modeLabel = clinicFlow ? 'Jitsi (audio lub wideo)' : serviceConfig.mode === 'phone' ? 'Połączenie telefoniczne' : 'Jitsi (audio lub wideo)'
   const processOutcomeCopy =
     serviceType === 'konsultacja-behawioralna-online'
-      ? 'W pełnej konsultacji dostajesz analizę zachowania, prawdopodobną przyczynę problemu, plan działania i 14 dni komunikacji w pokoju klienta.'
+      ? 'W pełnej konsultacji dostajesz analizę zachowania, prawdopodobną przyczynę problemu, plan działania i 14 dni wsparcia przez WhatsApp. Podsumowanie i historia zostają w Pokoju.'
       : serviceType === 'konsultacja-30-min'
         ? 'Ten starszy wariant nie jest obecnie częścią oferty publicznej. Aktualny pierwszy krok to Zapytaj behawiorystę.'
         : 'W Zapytaj behawiorystę porządkujesz sytuację i dostajesz pierwszy kierunek działania oraz dwa pytania po rozmowie.'

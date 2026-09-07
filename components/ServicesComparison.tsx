@@ -45,7 +45,7 @@ const SERVICES = [
     mode: 'Jitsi (audio lub wideo)',
     who: 'gdy po pierwszej rozmowie potrzebny jest szerszy, indywidualny proces',
     plan: 'analiza zachowania, prawdopodobna przyczyna problemu i plan działania',
-    materials: '14 dni komunikacji w pokoju klienta przy wdrażaniu zaleceń',
+    materials: '14 dni wsparcia przez WhatsApp; podsumowanie i historia w Pokoju',
     refund: 'Osobny regulamin dla pełnej konsultacji.',
     cta: 'Zobacz pełną konsultację',
   },

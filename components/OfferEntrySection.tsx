@@ -125,11 +125,11 @@ export function OfferEntrySection({
         <article className="summary-card tree-backed-card">
           <div className="section-eyebrow">Pełna konsultacja</div>
           <h3>Pełna konsultacja</h3>
-          <p>{getFullConsultationDescription(species)} Dostajesz analizę zachowania, prawdopodobną przyczynę problemu, plan działania i 14 dni komunikacji w pokoju klienta przy wdrażaniu zaleceń.</p>
+          <p>{getFullConsultationDescription(species)} Dostajesz analizę zachowania, prawdopodobną przyczynę problemu, plan działania i 14 dni wsparcia przez WhatsApp przy wdrażaniu zaleceń. Pokój przechowuje podsumowanie i historię.</p>
           <div className="editorial-hero-meta" aria-label="Parametry usługi">
             <span>około 90 minut przez Jitsi</span>
             <span>{formatPricePln(PUBLIC_OFFER_PRICES.premium)}</span>
-            <span>plan + 14 dni w pokoju klienta</span>
+            <span>plan + 14 dni WhatsApp</span>
           </div>
           <p className="muted">Dla {speciesLabel}, gdy sytuacja trwa dłużej, wraca albo obejmuje kilka obszarów naraz.</p>
           <p className="muted">{PUBLIC_OFFER_FULL_CONSULTATION_VALUE}</p>

@@ -97,6 +97,7 @@ function mapLeadBookingToBookingRecord(lead: any): BookingRecord {
     callStatus: lead.callStatus ?? null,
     startedAt: lead.startedAt ?? null,
     questionsRemaining: lead.questionsRemaining ?? null,
+    questionsExpiresAt: lead.questionsExpiresAt ?? null,
   }
 }
 
@@ -277,7 +278,7 @@ export async function markBookingReminderSent(bookingId: string) {
 
 export async function updateBookingQuiz(
   bookingId: string,
-  patch: { petAge?: string; durationNotes?: string; description?: string; questionsRemaining?: number | null },
+  patch: { petAge?: string; durationNotes?: string; description?: string; questionsRemaining?: number | null; questionsExpiresAt?: string | null },
 ): Promise<BookingRecord | null> {
   const b = await getBookingById(bookingId)
   if (b) {
@@ -294,6 +295,9 @@ export async function updateBookingQuiz(
     }
     if (patch.questionsRemaining !== undefined) {
       updatePayload.questionsRemaining = patch.questionsRemaining
+    }
+    if (patch.questionsExpiresAt !== undefined) {
+      updatePayload.questionsExpiresAt = patch.questionsExpiresAt
     }
     const updatedLb = await updateLeadBooking({ id: bookingId, ...updatePayload })
     if (updatedLb) {

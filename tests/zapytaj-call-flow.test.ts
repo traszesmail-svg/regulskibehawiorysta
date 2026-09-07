@@ -87,7 +87,7 @@ test('Zapytaj telefon wykonuje dwie proby i udostepnia jeden termin odzyskiwania
         const firstEnd = new FormData()
         firstEnd.set('event', 'NO_ANSWER')
         firstEnd.set('call_id', 'test-call-1')
-        await zadarmaWebhook(new Request('http://localhost/api/zadarma/webhook', { method: 'POST', body: firstEnd }))
+        await zadarmaWebhook(new Request('http://localhost/api/zadarma/webhook', { method: 'POST', body: firstEnd }) as never)
         current = await getBookingById(created.booking.id)
         assert.equal(current?.callStatus, 'retry_scheduled')
         assert.equal(current?.callAttempt, 1)
@@ -102,7 +102,7 @@ test('Zapytaj telefon wykonuje dwie proby i udostepnia jeden termin odzyskiwania
         const secondEnd = new FormData()
         secondEnd.set('event', 'END')
         secondEnd.set('call_id', 'test-call-2')
-        await zadarmaWebhook(new Request('http://localhost/api/zadarma/webhook', { method: 'POST', body: secondEnd }))
+        await zadarmaWebhook(new Request('http://localhost/api/zadarma/webhook', { method: 'POST', body: secondEnd }) as never)
         await updateBookingCallState(created.booking.id, { callNextAttemptAt: new Date(Date.now() - 1_000).toISOString() })
         await zadarmaCron(new Request('http://localhost/api/zadarma/cron', { headers: { authorization: 'Bearer cron-test-secret' } }) as never)
 

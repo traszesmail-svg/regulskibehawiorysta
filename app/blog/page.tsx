@@ -323,7 +323,7 @@ export default async function BlogPage(props: { searchParams?: Promise<BlogSearc
           navItems={PUBLIC_SITE_NAV_ITEMS}
           showUtilityLinks={false}
           ctaHref="/zapytaj"
-          ctaLabel="Umów konsultację"
+          ctaLabel="Zapytaj behawiorystę"
         />
         <ReferenceHeroLeaf />
 
@@ -520,7 +520,7 @@ export default async function BlogPage(props: { searchParams?: Promise<BlogSearc
               <p>Każde zwierzę jest inne. Jeśli artykuł pomaga nazwać problem, konsultacja pomaga ułożyć pierwszy plan działania.</p>
             </div>
             <Link href="/zapytaj" prefetch={false}>
-              Umów konsultację
+              Zapytaj behawiorystę
               <ArrowRight size={17} strokeWidth={1.9} aria-hidden="true" />
             </Link>
           </section>

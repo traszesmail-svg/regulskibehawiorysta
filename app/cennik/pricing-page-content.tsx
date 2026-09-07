@@ -52,10 +52,10 @@ export const pricingCards: Array<{
     title: 'Pełna konsultacja - gdy potrzebny jest plan i wsparcie wdrożenia',
     summaryTitle: 'Pełna konsultacja',
     price: PUBLIC_OFFER_PRICE_LABELS.premium,
-    copy: 'Około 90 minut przez Jitsi dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni komunikacji w pokoju klienta przy wdrażaniu zaleceń.',
+    copy: 'Około 90 minut przez Jitsi dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni wsparcia przez WhatsApp przy wdrażaniu zaleceń. Podsumowanie i historia zostają w Pokoju.',
     supportCopy:
       'To najlepszy wybór, gdy zachowanie trwa długo, ma kilka warstw albo wpływa na życie całego domu. Analiza powstaje na podstawie formularza, rozmowy, historii zachowania, kontekstu zdrowia, diety, środowiska, nagrań i danych, które przekażesz przed konsultacją.',
-    features: ['sprawy złożone albo trwające długo', 'prawdopodobna przyczyna problemu', 'plan działania', '14 dni komunikacji w pokoju klienta'],
+    features: ['sprawy złożone albo trwające długo', 'prawdopodobna przyczyna problemu', 'plan działania', '14 dni wsparcia przez WhatsApp'],
     cta: 'Zobacz pełną konsultację',
   },
 ]
@@ -80,7 +80,7 @@ export const pricingFaqItems = [
   {
     question: 'Kiedy od razu pełna konsultacja?',
     answer:
-      'Gdy zachowanie trwa długo, wraca mimo prób, wpływa na życie domowników albo dotyczy kilku obszarów naraz. Pełna konsultacja trwa około 90 minut przez Jitsi i ma sens wtedy, gdy potrzebujesz analizy, planu oraz 14 dni komunikacji w pokoju klienta przy wdrażaniu zaleceń.',
+      'Gdy zachowanie trwa długo, wraca mimo prób, wpływa na życie domowników albo dotyczy kilku obszarów naraz. Pełna konsultacja trwa około 90 minut przez Jitsi i ma sens wtedy, gdy potrzebujesz analizy, planu oraz 14 dni wsparcia przez WhatsApp przy wdrażaniu zaleceń. Podsumowanie i historia zostają w Pokoju.',
   },
   {
     question: 'Czy analiza zachowania zastępuje wizytę u lekarza weterynarii?',

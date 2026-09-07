@@ -79,6 +79,7 @@ function assertCaseMapId(value: string) {
 function triageAnswersToStoredAnswers(triage: CaseMapTriageAnswers): CaseMapAnswers {
   return {
     triage_assessed: triage.assessed !== false,
+    triage_scope: triage.scope ?? 'full',
     active_danger: triage.activeDanger,
     injury: triage.injury,
     emergency_health: triage.emergencyHealth,
@@ -92,6 +93,7 @@ function triageAnswersToStoredAnswers(triage: CaseMapTriageAnswers): CaseMapAnsw
 function triageFromStoredAnswers(answers: CaseMapAnswers): CaseMapTriageAnswers {
   return normalizeCaseMapTriage({
     assessed: answers.triage_assessed !== false,
+    scope: answers.triage_scope === 'public_safety' ? 'public_safety' : 'full',
     activeDanger: answers.active_danger ?? 'unknown',
     injury: answers.injury ?? 'unknown',
     emergencyHealth: answers.emergency_health ?? 'unknown',

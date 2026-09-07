@@ -148,12 +148,12 @@ export const FAQ_SHORTLISTS = {
     {
       question: 'Kiedy wybrać pełną konsultację zamiast Zapytaj behawiorystę?',
       answer:
-        'Gdy problem trwa dłużej, ma kilka wątków albo po pierwszej rozmowie okaże się, że potrzebujesz około 90 minut online, analizy zachowania, planu i 14 dni komunikacji w pokoju klienta.',
+        'Gdy problem trwa dłużej, ma kilka wątków albo po pierwszej rozmowie okaże się, że potrzebujesz około 90 minut online, analizy zachowania, planu i 14 dni wsparcia przez WhatsApp; Pokój przechowuje podsumowanie i historię.',
     },
     {
       question: 'Co dostaję po pełnej konsultacji?',
       answer:
-        'Analizę zachowania, prawdopodobną przyczynę problemu, plan działania i 14 dni komunikacji w pokoju klienta przy wdrażaniu zaleceń.',
+        'Analizę zachowania, prawdopodobną przyczynę problemu, plan działania i 14 dni wsparcia przez WhatsApp przy wdrażaniu zaleceń; Pokój przechowuje podsumowanie i historię.',
     },
     {
       question: 'Czy mogę od razu wejść w pełną konsultację?',
@@ -332,7 +332,7 @@ export const TRUST_SIGNAL_SETS = {
     },
     {
       title: 'Podsumowanie po pełnej konsultacji',
-      copy: 'Po pełnej konsultacji dostajesz plan działania i 14 dni komunikacji w pokoju klienta przy wdrażaniu zaleceń.',
+      copy: 'Po pełnej konsultacji dostajesz plan działania i 14 dni wsparcia przez WhatsApp przy wdrażaniu zaleceń; Pokój przechowuje podsumowanie i historię.',
     },
   ] satisfies TrustSignalItem[],
   toolkit: [

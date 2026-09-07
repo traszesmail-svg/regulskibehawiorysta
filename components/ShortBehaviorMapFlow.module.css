@@ -304,6 +304,50 @@
   margin-top: clamp(26px, 3.4vw, 39px);
 }
 
+.safetyAnswerArea {
+  margin-top: clamp(24px, 3vw, 34px);
+}
+
+.safetyQuestions {
+  display: grid;
+  gap: 19px;
+}
+
+.safetyQuestion {
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+
+.safetyQuestion legend {
+  max-width: 650px;
+  padding: 0;
+  color: #2d312c;
+  font-size: clamp(15px, 1.45vw, 18px);
+  font-weight: 820;
+  line-height: 1.28;
+}
+
+.safetyQuestion > p {
+  max-width: 620px;
+  margin: 6px 0 10px;
+  color: #6a7168;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.safetyOptions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.safetyOptions .answer,
+.safetyOptions .answerSelected {
+  min-height: 64px;
+}
+
 .stepInsight {
   position: relative;
   z-index: 1;
@@ -927,6 +971,20 @@
   color: #55744c;
 }
 
+.urgentAdviceCard {
+  border-color: rgba(174, 89, 62, .35);
+  background: linear-gradient(135deg, #fff0e8, #fbf6ed);
+  color: #864b37;
+}
+
+.urgentAdviceCard strong {
+  color: #8a4b35;
+}
+
+.urgentAdviceCard p {
+  color: #71574c;
+}
+
 .adviceIcon {
   width: 36px;
   height: 36px;
@@ -1095,6 +1153,10 @@
     min-height: 67px;
     gap: 11px;
     padding: 9px 12px 9px 10px;
+  }
+
+  .safetyOptions {
+    grid-template-columns: 1fr;
   }
 
   .answerIcon {

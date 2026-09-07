@@ -199,7 +199,7 @@ export const LOCAL_SEO_PAGES: LocalSeoPage[] = [
     firstStepCards: [
       { title: '15 min telefonicznie', copy: 'Krótka rozmowa telefoniczna. Dobra na jedno pytanie, pierwszy ogląd sytuacji i ustalenie priorytetu.' },
       { title: 'Materiały PDF', copy: 'Materiały startowe, jeśli chcesz najpierw coś spokojnie przeczytać i uporządkować obserwacje.' },
-      { title: 'Pełna konsultacja', copy: 'Około 90 minut online, analiza zachowania, plan działania i 14 dni komunikacji w pokoju klienta przy sprawach złożonych.' },
+      { title: 'Pełna konsultacja', copy: 'Około 90 minut online, analiza zachowania, plan działania i 14 dni wsparcia przez WhatsApp; podsumowanie i historia w Pokoju przy sprawach złożonych.' },
     ],
     faq: [
       { question: 'Czy konsultacja online jest dostępna dla całej Polski?', answer: 'Tak. Pracuję online z opiekunami z całej Polski, w tej samej formule niezależnie od miejsca.' },

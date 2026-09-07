@@ -1,6 +1,6 @@
 # PDF5POLEK — demonstratory systemu
 
-Ten folder jest pierwszym etapem planu `PLAN_PDF5POLEK.md`. Zawiera wspólny system czterech półek oraz demonstratory do akceptacji, nie finalną serię 40 materiałów.
+Ten folder zawiera odziedziczony system czterech półek oraz demonstratory do akceptacji, nie finalną serię 40 materiałów. Nie jest aktywnym planem wdrożenia; aktualne decyzje projektowe znajdują się w `PLAN-GLOWNY.md`.
 
 ## Półki
 
@@ -29,4 +29,3 @@ npm.cmd run pdf5polek-audit-system
 ```
 
 Wynik trafia do `do-przegladu\system-pdf5polek-2026-07-22\`.
-

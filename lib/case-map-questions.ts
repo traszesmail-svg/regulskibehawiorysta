@@ -40,6 +40,35 @@ const yesNoUnknown = (yesLabel: string, noLabel: string): CaseMapQuestionOption[
   unknown,
 ]
 
+/**
+ * The public Map starts with a short safety gate. These are deliberately
+ * separate from the longer private triage set: both answers must be explicit
+ * and neither question may offer an "unknown" escape hatch.
+ */
+export const CASE_MAP_PUBLIC_SAFETY_QUESTIONS: CaseMapQuestion[] = [
+  {
+    id: 'active_danger',
+    title: 'Czy teraz istnieje bezpośrednie zagrożenie dla człowieka lub zwierzęcia?',
+    helper: 'Jeśli sytuacja dzieje się w tej chwili i nie da się jej bezpiecznie przerwać, wybierz „Tak”.',
+    kind: 'choice',
+    options: [
+      { id: 'yes', label: 'Tak, jest zagrożenie' },
+      { id: 'no', label: 'Nie, teraz jest bezpiecznie' },
+    ],
+  },
+  {
+    id: 'emergency_health',
+    title: 'Czy u zwierzęcia doszło do pogryzienia, urazu albo nagłego pogorszenia zdrowia?',
+    helper: 'To pytanie obejmuje także nagły ból, omdlenie, duszność lub inne gwałtowne objawy u zwierzęcia.',
+    kind: 'choice',
+    options: [
+      { id: 'yes', label: 'Tak, coś takiego się wydarzyło' },
+      { id: 'no', label: 'Nie, nie widzę takiego sygnału' },
+    ],
+  },
+]
+
+/** Compatibility catalogue retained for saved or historical Map data. It is not rendered by the public flow. */
 export const CASE_MAP_PATH_OPTIONS: CaseMapQuestionOption[] = [
   {
     id: 'fast',
@@ -53,6 +82,7 @@ export const CASE_MAP_PATH_OPTIONS: CaseMapQuestionOption[] = [
   },
 ]
 
+/** Compatibility question retained for saved or historical Map data. It is not rendered by the public flow. */
 export const CASE_MAP_FOCUS_QUESTION: CaseMapQuestion = {
   id: 'case_focus',
   title: 'Czego dotyczy ta sprawa?',

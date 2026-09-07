@@ -119,11 +119,11 @@ export const FUNNEL_SERVICE_CONFIG: Record<AnyBookingServiceType, FunnelServiceC
     pricePrefix: null,
     mode: 'online',
     slotSpan: 3,
-    slotSummary: 'Pełna konsultacja: około 90 minut przez Jitsi, analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni komunikacji w pokoju klienta.',
+    slotSummary: 'Pełna konsultacja: około 90 minut przez Jitsi, analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni wsparcia przez WhatsApp; Pokój przechowuje podsumowanie i historię.',
     slotBadge: 'około 90 minut przez Jitsi',
-    roomSummary: 'Pełna konsultacja: około 90 minut przez Jitsi, analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni komunikacji w pokoju klienta.',
+    roomSummary: 'Pełna konsultacja: około 90 minut przez Jitsi, analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni wsparcia przez WhatsApp; Pokój przechowuje podsumowanie i historię.',
     publicSummary:
-      'Około 90 minut przez Jitsi dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni komunikacji w pokoju klienta przy wdrażaniu zaleceń.',
+      'Około 90 minut przez Jitsi dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni wsparcia przez WhatsApp przy wdrażaniu zaleceń. Pokój przechowuje podsumowanie i historię.',
     bookingLead: 'Wybierz gatunek i temat. Potem zobaczysz najbliższe dostępne terminy pełnej konsultacji.',
     availabilityLabel: 'Najbliższe dostępne terminy pokażą się po wyborze tematu.',
     noAvailabilityMessage:

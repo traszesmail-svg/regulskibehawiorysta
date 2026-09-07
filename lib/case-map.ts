@@ -26,6 +26,8 @@ export type CaseMapTriageAnswers = {
    * negative answers.
    */
   assessed?: boolean
+  /** The public Map records which safety scope was actually screened. */
+  scope?: 'full' | 'public_safety'
   activeDanger: 'yes' | 'no' | 'unknown'
   injury: 'yes' | 'no' | 'unknown'
   emergencyHealth: 'yes' | 'no' | 'unknown'
@@ -125,6 +127,7 @@ const CASE_MAP_ANSWER_KEYS = new Set([
   'vulnerable_context',
   'vet_status',
   'triage_assessed',
+  'triage_scope',
   'fast_age_stage',
   'fast_onset',
   'fast_frequency',
@@ -281,15 +284,20 @@ export function normalizeCaseMapTriage(value: unknown): CaseMapTriageAnswers {
 
   const vetStatus = value.vetStatus
   const assessed = value.assessed
+  const scope = value.scope
   if (typeof vetStatus !== 'string' || !['seen', 'not_seen', 'unknown'].includes(vetStatus)) {
     throw new CaseMapInputError('Nieprawidłowy status konsultacji weterynaryjnej.')
   }
   if (assessed !== undefined && typeof assessed !== 'boolean') {
     throw new CaseMapInputError('Nieprawidłowy status triage Mapy zachowania.')
   }
+  if (scope !== undefined && scope !== 'full' && scope !== 'public_safety') {
+    throw new CaseMapInputError('Nieprawidłowy zakres triage Mapy zachowania.')
+  }
 
   return {
     assessed: assessed !== false,
+    scope: scope === 'public_safety' ? 'public_safety' : 'full',
     activeDanger: normalizeChoice(value.activeDanger, 'activeDanger'),
     injury: normalizeChoice(value.injury, 'injury'),
     emergencyHealth: normalizeChoice(value.emergencyHealth, 'emergencyHealth'),
@@ -301,8 +309,18 @@ export function normalizeCaseMapTriage(value: unknown): CaseMapTriageAnswers {
 }
 
 export function resolveCaseMapTriage(triage: CaseMapTriageAnswers): CaseMapTriageState {
-  if (triage.assessed === false) return 'PROCEED'
+  if (triage.assessed === false) return 'SAFETY_PRIORITY'
   if (triage.activeDanger === 'yes') return 'SAFETY_NOW'
+
+  // The public Map intentionally screens only the two questions in its
+  // safety gate. Do not turn the other, unasked full-triage fields into an
+  // artificial "unknown" block or pretend they were answered negatively.
+  if (triage.scope === 'public_safety') {
+    if (triage.emergencyHealth === 'yes') return 'VET_URGENT'
+    if (triage.emergencyHealth === 'unknown') return 'SAFETY_PRIORITY'
+    return 'PROCEED'
+  }
+
   if (triage.injury === 'yes') return 'HUMAN_MEDICAL'
   if (triage.emergencyHealth === 'yes') return 'VET_URGENT'
   if (triage.healthChange === 'yes') return 'VET_FIRST'
@@ -330,7 +348,7 @@ export function resolveCaseMapTriageWithAnswers(
   triage: CaseMapTriageAnswers,
   answers: CaseMapAnswers,
 ): CaseMapTriageState {
-  if (triage.assessed === false) return 'PROCEED'
+  if (triage.assessed === false) return 'SAFETY_PRIORITY'
   const baseState = resolveCaseMapTriage(triage)
 
   if (baseState === 'SAFETY_NOW' || baseState === 'HUMAN_MEDICAL' || baseState === 'VET_URGENT') {

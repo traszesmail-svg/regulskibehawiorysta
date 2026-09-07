@@ -25,7 +25,7 @@ const defaultFAQs: FAQ[] = [
   {
     icon: 'clipboard-list',
     question: `Co obejmuje Pełna konsultacja ${PUBLIC_OFFER_PRICE_LABELS.premium}?`,
-    answer: 'Około 90 minut przez Jitsi, analizę zachowania, prawdopodobną przyczynę problemu, plan działania i 14 dni komunikacji w pokoju klienta.',
+    answer: 'Około 90 minut przez Jitsi, analizę zachowania, prawdopodobną przyczynę problemu, plan działania i 14 dni wsparcia przez WhatsApp. Podsumowanie i historia zostają w Pokoju.',
   },
   {
     icon: 'lightbulb',

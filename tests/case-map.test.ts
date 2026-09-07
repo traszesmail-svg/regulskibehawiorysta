@@ -206,6 +206,31 @@ test('case map keeps a conservative safety gate when a critical triage answer is
   assert.equal(resolveCaseMapTriage(triage), 'SAFETY_PRIORITY')
 })
 
+test('public safety scope resolves two explicit negative gate answers without inventing full-triage answers', () => {
+  const triage = normalizeCaseMapTriage({
+    scope: 'public_safety',
+    activeDanger: 'no',
+    injury: 'unknown',
+    emergencyHealth: 'no',
+    healthChange: 'unknown',
+    escapeSelfharm: 'unknown',
+    vulnerableContext: 'unknown',
+    vetStatus: 'unknown',
+  })
+
+  assert.equal(resolveCaseMapTriage(triage), 'PROCEED')
+})
+
+test('unassessed triage never resolves to a normal service path', () => {
+  const triage = normalizeCaseMapTriage({
+    ...neutralTriage,
+    assessed: false,
+  })
+
+  assert.equal(resolveCaseMapTriage(triage), 'SAFETY_PRIORITY')
+  assert.equal(resolveCaseMapTriageWithAnswers(triage, {}), 'SAFETY_PRIORITY')
+})
+
 test('case map escalates late topic-specific safety signals before a normal next step', () => {
   const triage = normalizeCaseMapTriage(neutralTriage)
 

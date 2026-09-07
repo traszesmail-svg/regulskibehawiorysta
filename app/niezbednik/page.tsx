@@ -305,7 +305,7 @@ export default function EssentialsPage() {
                 <h2>Potrzebujesz indywidualnego wsparcia?</h2>
                 <p>Materiały to świetny start, ale czasem warto skonsultować sytuację 1 na 1.</p>
                 <Link href="/zapytaj" prefetch={false}>
-                  Umów konsultację
+                  Zapytaj behawiorystę
                   <ArrowRight size={16} strokeWidth={1.8} aria-hidden="true" />
                 </Link>
               </div>

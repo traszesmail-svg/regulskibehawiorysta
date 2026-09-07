@@ -1928,7 +1928,7 @@ export async function sendBookingConfirmationEmail(booking: BookingRecord): Prom
       ${roomSetupBlock}
       ${renderEmailActionButton({ href: calendarUrl, label: 'Dodaj do Google Calendar', tone: 'secondary' })}
       ${prepGuideBlock}
-      <p><strong>Co dalej:</strong> wejdź 3–5 minut przed czasem.${isFullConsultation ? ' Po pełnej konsultacji pokój klienta pozostaje aktywny przez 14 dni.' : ''} Plik kalendarza ma przypomnienie 15 minut przed rozmową.</p>
+      <p><strong>Co dalej:</strong> wejdź 3–5 minut przed czasem.${isFullConsultation ? ' Po pełnej konsultacji wsparcie przez WhatsApp pozostaje aktywne przez 14 dni, a podsumowanie i historia zostają w Pokoju.' : ''} Plik kalendarza ma przypomnienie 15 minut przed rozmową.</p>
       ${renderContactBlockHtml()}
     `,
     'Jeśli będzie potrzebny kolejny krok po rozmowie, dostaniesz jasną rekomendację zamiast ogólnych porad.',
@@ -1941,7 +1941,7 @@ export async function sendBookingConfirmationEmail(booking: BookingRecord): Prom
     roomSetupUrl ? `Ustaw hasło do pokoju klienta: ${roomSetupUrl}` : '',
     `Dodaj do Google Calendar: ${calendarUrl}`,
     prepGuideText,
-    `Co dalej: wejdź 3–5 minut przed czasem.${isFullConsultation ? ' Po pełnej konsultacji pokój klienta pozostaje aktywny przez 14 dni.' : ''} Plik kalendarza ma przypomnienie 15 minut przed rozmową.`,
+    `Co dalej: wejdź 3–5 minut przed czasem.${isFullConsultation ? ' Po pełnej konsultacji wsparcie przez WhatsApp pozostaje aktywne przez 14 dni, a podsumowanie i historia zostają w Pokoju.' : ''} Plik kalendarza ma przypomnienie 15 minut przed rozmową.`,
     renderContactBlockText(),
   ].filter(Boolean).join('\n')
 

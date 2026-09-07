@@ -66,7 +66,7 @@ export function serviceSchema() {
         {
           '@type': 'Offer',
           name: 'Pełna konsultacja',
-          description: 'Około 90 minut przez Jitsi, analiza zachowania, plan działania i 14 dni komunikacji w pokoju klienta',
+          description: 'Około 90 minut przez Jitsi, analiza zachowania, plan działania i 14 dni wsparcia przez WhatsApp; podsumowanie i historia w Pokoju',
           price: String(PUBLIC_SERVICE_PRICE_AMOUNTS['konsultacja-behawioralna-online']),
           priceCurrency: 'PLN',
         },

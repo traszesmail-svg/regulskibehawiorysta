@@ -39,8 +39,8 @@ const offers: Offer[] = [
     icon: 'clipboard-list',
     title: 'Pełna konsultacja',
     price: PUBLIC_OFFER_PRICE_LABELS.premium,
-    desc: 'Około 90 minut przez Jitsi dla spraw złożonych: analiza zachowania, plan działania i 14 dni komunikacji w pokoju klienta.',
-    features: ['około 90 minut przez Jitsi', 'plan działania', '14 dni w pokoju klienta'],
+    desc: 'Około 90 minut przez Jitsi dla spraw złożonych: analiza zachowania, plan działania i 14 dni wsparcia przez WhatsApp. Podsumowanie i historia zostają w Pokoju.',
+    features: ['około 90 minut przez Jitsi', 'plan działania', '14 dni wsparcia przez WhatsApp'],
     bookUrl: '/konsultacja',
   },
 ]

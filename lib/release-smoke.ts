@@ -212,7 +212,7 @@ export function getDefaultReleaseSmokeRules(): ReleaseSmokeRule[] {
     },
     {
       path: '/mapa-sprawy',
-      required: ['Uporządkuj sytuację psa lub kota krok po kroku', 'Zacznij Mapę zachowania'],
+      required: ['Zanim zaczniemy', 'Odpowiedz na dwa krótkie pytania'],
       forbidden: ['Szybka mapa', 'Pełniejsza mapa', 'Jedna decyzja', 'Mapa do zakupu konsultacji', 'Mapa → zakup'],
       requireBuildMarker: true,
     },

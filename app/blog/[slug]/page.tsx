@@ -135,9 +135,9 @@ export default async function BlogArticlePage(props: BlogArticlePageProps) {
             <div className="blog-article-help-rail">
               <PawPrint size={24} strokeWidth={1.6} aria-hidden="true" />
               <strong>Potrzebujesz indywidualnej pomocy?</strong>
-              <p>Umów konsultację i pracujmy razem nad rozwiązaniem problemu.</p>
+              <p>Opisz krótko sytuację i sprawdźmy spokojnie, co robić dalej.</p>
               <Link href="/zapytaj" prefetch={false}>
-                Umów konsultację
+                Zapytaj behawiorystę
               </Link>
             </div>
           </aside>
@@ -180,10 +180,10 @@ export default async function BlogArticlePage(props: BlogArticlePageProps) {
         <section className="blog-article-bottom-cta">
           <div>
             <h2>Nie wiesz, od czego zacząć?</h2>
-            <p>Przejdź przez Mapę sprawy albo umów konsultację. Dobierzemy pierwszy krok do realnej sytuacji Twojego psa lub kota.</p>
+            <p>Przejdź przez Mapę sprawy albo opisz krótko sytuację. Dobierzemy pierwszy krok do realnej sytuacji Twojego psa lub kota.</p>
           </div>
           <Link href="/zapytaj" prefetch={false}>
-            Umów konsultację
+            Zapytaj behawiorystę
             <ArrowRight size={17} strokeWidth={1.9} aria-hidden="true" />
           </Link>
         </section>

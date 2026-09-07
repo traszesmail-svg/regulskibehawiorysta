@@ -98,6 +98,11 @@ const REQUIRED_SCHEMA_MARKERS = [
     expectedCount: 1,
   },
   {
+    label: 'bookings.questions_expires_at',
+    needle: 'questions_expires_at timestamptz',
+    expectedCount: 1,
+  },
+  {
     label: 'bookings.customer_access_token_hash',
     needle: "customer_access_token_hash text not null default ''",
     expectedCount: 1,
@@ -168,6 +173,7 @@ const REQUIRED_FILES = [
   'supabase/migrations/20260901006_reconcile_booking_sms_columns.sql',
   'supabase/migrations/20260901007_recommendation_material.sql',
   'supabase/migrations/20260901008_community_promo_campaigns.sql',
+  'supabase/migrations/20260902001_questions_expiry.sql',
   'supabase/migrations/20260326_sms_payment_confirmation.sql',
   'supabase/migrations/20260718001_growth_signup_marketing_opt_in.sql',
   'supabase/migrations/20260718002_repair_reminder_scheduler.sql',

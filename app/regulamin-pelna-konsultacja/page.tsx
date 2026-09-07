@@ -13,7 +13,7 @@ export const metadata: Metadata = buildLegalMetadata(
 const summaryItems: LegalSummaryItem[] = [
   {
     label: 'Produkt objęty dokumentem',
-    value: `Pełna konsultacja behawioralna przez Jitsi: ${PUBLIC_OFFER_PRICE_LABELS.premium}, około 90 minut, analiza zachowania, plan działania i 14 dni komunikacji w pokoju klienta.`,
+    value: `Pełna konsultacja behawioralna przez Jitsi: ${PUBLIC_OFFER_PRICE_LABELS.premium}, około 90 minut, analiza zachowania, plan działania i 14 dni wsparcia przez WhatsApp. Pokój przechowuje podsumowanie i historię.`,
   },
   {
     label: 'Płatność',
@@ -45,7 +45,7 @@ const sections: LegalSection[] = [
           <li>Konsultacja trwa około 90 minut i odbywa się przez Jitsi w formie rozmowy audio lub audio/wideo.</li>
           <li>W ramach konsultacji usługodawca analizuje opisaną sytuację psa lub kota, porządkuje priorytety i przekazuje analizę zachowania opartą na danych od klienta.</li>
           <li>Po konsultacji klient otrzymuje analizę zachowania opartą na danych od klienta i indywidualny plan działania.</li>
-          <li>Przez 14 dni od konsultacji klient może w pokoju klienta zadawać pytania, wysyłać wiadomości tekstowe i filmy oraz konsultować wdrażanie planu.</li>
+          <li>Przez 14 dni od konsultacji klient otrzymuje wsparcie przez WhatsApp dotyczące tej samej sprawy i wdrażania planu. Pokój przechowuje podsumowanie i historię; nie zastępuje WhatsAppa.</li>
           <li>Jeśli po 14 dniach brak postępu albo nie ma poczucia, że to skuteczna droga do rozwiązania, usługodawca może wskazać zasadność wizyty domowej i terapii ustalanej indywidualnie.</li>
           <li>Konsultacja nie obejmuje diagnostyki weterynaryjnej, zaleceń farmakologicznych ani interwencji w stanach nagłych.</li>
         </ul>
@@ -90,7 +90,7 @@ const sections: LegalSection[] = [
           <p>Po wysłaniu danych w formularzu wybrany slot jest wstępnie blokowany na czas płatności. Standardowe okno blokady wynosi 5 minut.</p>
           <p>Konsultacja jest zarezerwowana dopiero po potwierdzeniu płatności.</p>
           <p>Na 24 godziny przed konsultacją klient otrzymuje e-mail z linkiem do rozmowy i listą materiałów do przygotowania, jeżeli są potrzebne.</p>
-          <p>Po zakończeniu konsultacji dalszy 14-dniowy kontakt tekstowy odbywa się w pokoju klienta, chyba że strony ustalą inny kanał pisemny.</p>
+          <p>Po zakończeniu konsultacji dalsze 14-dniowe wsparcie tekstowe odbywa się przez WhatsApp. Kontakt WhatsApp jest ustalany indywidualnie po konsultacji, a Pokój przechowuje podsumowanie, historię i informacje o uprawnieniach.</p>
         </>
       ),
   },
@@ -165,7 +165,7 @@ export default function FullConsultationTermsPage() {
     <LegalPageLayout
       eyebrow="Regulamin / pełna konsultacja"
       title="Regulamin Pełnej konsultacji behawioralnej online"
-      intro="Dokument opisuje zasady rezerwacji, płatności, zmian terminu, realizacji około 90 minut online, 14 dni komunikacji w pokoju klienta i reklamacji dla Pełnej konsultacji online."
+      intro="Dokument opisuje zasady rezerwacji, płatności, zmian terminu, realizacji około 90 minut online, 14 dni wsparcia przez WhatsApp oraz reklamacji dla Pełnej konsultacji online. Pokój przechowuje podsumowanie i historię."
       summaryItems={summaryItems}
       sections={sections}
       structuredData={[

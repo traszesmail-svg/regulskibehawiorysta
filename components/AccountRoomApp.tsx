@@ -19,6 +19,8 @@ import {
 } from 'lucide-react'
 import type { AccountHomePayload, AccountPet, AccountPetSpecies } from '@/lib/account'
 import type { CaseMapSummary } from '@/lib/case-map'
+import { isQuestionsAccessExpired } from '@/lib/question-access'
+import { normalizeWhatsAppSupportUrl } from '@/lib/whatsapp'
 import {
   PRICE_LABEL,
   getMaterialyGuideCoverSrc,
@@ -50,6 +52,8 @@ const ROOM_MATERIAL_SLUGS: Record<AccountPetSpecies, string[]> = {
   pies: ['pies-sam-w-domu', 'pies-reaktywny-na-spacerze', 'pies-burza-nagly-halas'],
   kot: ['kot-kuweta-pierwszy-plan', 'konflikt-miedzy-kotami', 'kot-drapie-meble'],
 }
+
+const WHATSAPP_SUPPORT_URL = normalizeWhatsAppSupportUrl(process.env.NEXT_PUBLIC_WHATSAPP_SUPPORT_URL)
 
 function getRoomMaterialGuides(species: AccountPetSpecies): MaterialyGuide[] {
   return ROOM_MATERIAL_SLUGS[species]
@@ -715,21 +719,33 @@ export function AccountRoomApp({ initialView = 'start', initialSessionHint = fal
 
       {activeView === 'rozmowa' ? (() => {
         const latestBooking = account?.bookings?.[0]
-        const isLimited = latestBooking && (latestBooking.serviceType === 'szybka-konsultacja-15-min' || latestBooking.serviceType === 'kwadrans-na-juz' || latestBooking.serviceType === 'konsultacja-30-min')
-        const questionsRemaining = isLimited ? latestBooking.questionsRemaining : null
-        const isChatBlocked = isLimited && questionsRemaining !== null && questionsRemaining <= 0
-        const fullSupportEndsAt = latestBooking?.serviceType === 'konsultacja-behawioralna-online' ? latestBooking.supportEndsAt : null
+        const isLimited = Boolean(latestBooking && (latestBooking.serviceType === 'szybka-konsultacja-15-min' || latestBooking.serviceType === 'kwadrans-na-juz' || latestBooking.serviceType === 'konsultacja-30-min'))
+        const isFullConsultation = latestBooking?.serviceType === 'konsultacja-behawioralna-online'
+        const questionsExpiresAt = isLimited ? latestBooking?.questionsExpiresAt ?? null : null
+        const hasPublishedQuestions = Boolean(isLimited && questionsExpiresAt)
+        const questionsRemaining = hasPublishedQuestions ? latestBooking?.questionsRemaining ?? null : null
+        const isQuestionWindowExpired = isQuestionsAccessExpired(questionsExpiresAt)
+        const isChatBlocked = Boolean(isLimited && (
+          !hasPublishedQuestions ||
+          (questionsRemaining !== null && questionsRemaining <= 0) ||
+          isQuestionWindowExpired
+        ))
+        const fullSupportEndsAt = isFullConsultation ? latestBooking?.supportEndsAt ?? null : null
         const isFullSupportExpired = Boolean(fullSupportEndsAt && Date.now() > Date.parse(fullSupportEndsAt))
-        const isMessageBlocked = isChatBlocked || isFullSupportExpired
+        const isMessageBlocked = isChatBlocked || isFullSupportExpired || isFullConsultation
 
         return (
           <div className="account-chat-layout">
             <aside className="account-room-card account-chat-aside">
               <span className="account-quick-icon"><MessageCircle size={22} aria-hidden="true" /></span>
-              <span className="account-card-kicker">Prywatna rozmowa</span>
+              <span className="account-card-kicker">{isFullConsultation ? 'Historia i wsparcie' : isLimited ? 'Pytania uzupełniające' : 'Prywatna rozmowa'}</span>
               <h2>{account?.pets[0]?.name ? `Sprawa: ${account.pets[0].name}` : 'Twoja rozmowa z behawiorystą'}</h2>
               <p>
-                Opisz sytuację własnymi słowami. Możesz dołączyć zdjęcie, krótki film albo PDF — odpowiedź zostanie w tym Pokoju.
+                {isFullConsultation
+                  ? 'Pokój przechowuje podsumowanie, historię i zalecenia. Bieżące wsparcie po pełnej konsultacji odbywa się przez WhatsApp.'
+                  : isLimited
+                    ? 'Po zakończeniu rozmowy możesz zadać dwa krótkie pytania dotyczące tej samej sytuacji. Odpowiedź zostanie w tym Pokoju.'
+                    : 'Opisz sytuację własnymi słowami. Możesz dołączyć zdjęcie, krótki film albo PDF — odpowiedź zostanie w tym Pokoju.'}
               </p>
 
               <div className="account-chat-context">
@@ -745,18 +761,45 @@ export function AccountRoomApp({ initialView = 'start', initialSessionHint = fal
 
               {isLimited && questionsRemaining !== null ? (
                 <div className={`account-chat-access-notice${isChatBlocked ? ' is-blocked' : ''}`}>
-                  {isChatBlocked ? (
+                  {isQuestionWindowExpired ? (
+                    <strong>Siedmiodniowy okres pytań po tej konsultacji zakończył się.</strong>
+                  ) : questionsRemaining <= 0 ? (
                     <strong>Wykorzystałeś limit pytań uzupełniających na czacie po tej konsultacji.</strong>
                   ) : (
-                    <span>Pozostało pytań uzupełniających do Behawiorysty na czacie: <strong>{questionsRemaining}</strong>.</span>
+                    <span>
+                      Pozostało pytań uzupełniających do Behawiorysty na czacie: <strong>{questionsRemaining}</strong>.
+                      {questionsExpiresAt ? ` Możesz z nich skorzystać do ${formatDateTime(questionsExpiresAt)}.` : ''}
+                    </span>
                   )}
+                </div>
+              ) : null}
+              {isLimited && !hasPublishedQuestions ? (
+                <div className="account-chat-access-notice">
+                  <strong>Pytania uzupełniające pojawią się po zakończeniu rozmowy i opublikowaniu podsumowania.</strong>
                 </div>
               ) : null}
               {fullSupportEndsAt ? (
                 <div className={`account-chat-access-notice${isFullSupportExpired ? ' is-blocked' : ''}`}>
                   {isFullSupportExpired
-                    ? '14-dniowy okres komunikacji w pokoju po pełnej konsultacji zakończył się.'
-                    : `Komunikacja w pokoju jest aktywna do ${new Intl.DateTimeFormat('pl-PL', { dateStyle: 'long', timeStyle: 'short' }).format(new Date(fullSupportEndsAt))}.`}
+                    ? '14-dniowe wsparcie przez WhatsApp po pełnej konsultacji zakończyło się. Historia pozostaje dostępna w Pokoju.'
+                    : `Wsparcie przez WhatsApp jest aktywne do ${new Intl.DateTimeFormat('pl-PL', { dateStyle: 'long', timeStyle: 'short' }).format(new Date(fullSupportEndsAt))}. Pokój przechowuje podsumowanie i historię.`}
+                </div>
+              ) : null}
+              {isFullConsultation && fullSupportEndsAt && !isFullSupportExpired && WHATSAPP_SUPPORT_URL ? (
+                <a
+                  href={WHATSAPP_SUPPORT_URL}
+                  className="button button-ghost account-whatsapp-support-link"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <MessageCircle size={17} aria-hidden="true" />
+                  Otwórz WhatsApp
+                </a>
+              ) : null}
+              {isFullConsultation && !fullSupportEndsAt ? (
+                <div className="account-chat-access-notice">
+                  <strong>Wsparcie przez WhatsApp</strong>
+                  <span>Kontakt WhatsApp ustalam indywidualnie po konsultacji. Ten Pokój służy do podsumowania i historii.</span>
                 </div>
               ) : null}
               {latestBooking?.recommendedNextStep ? (
@@ -770,18 +813,18 @@ export function AccountRoomApp({ initialView = 'start', initialSessionHint = fal
             <section className="account-room-card account-chat-panel">
               <header className="account-chat-panel-header">
                 <div>
-                  <span className="account-card-kicker">Wiadomości</span>
-                  <h2>Rozmowa z behawiorystą</h2>
+                  <span className="account-card-kicker">{isFullConsultation ? 'Podsumowanie i historia' : 'Wiadomości'}</span>
+                  <h2>{isFullConsultation ? 'Historia sprawy' : 'Rozmowa z behawiorystą'}</h2>
                 </div>
-                <span className="account-chat-status"><span aria-hidden="true" /> Prywatny wątek</span>
+                <span className="account-chat-status"><span aria-hidden="true" /> {isFullConsultation ? 'WhatsApp + Pokój' : 'Prywatny wątek'}</span>
               </header>
 
               <div className="account-chat-thread" aria-live="polite">
                 {(account?.conversations.length ?? 0) === 0 ? (
                   <div className="account-chat-empty">
                     <span><MessageCircle size={28} aria-hidden="true" /></span>
-                    <h3>Tu zacznie się Wasza rozmowa</h3>
-                    <p>Napisz pierwszą wiadomość. Wątek zostanie automatycznie przypisany do Twojej sprawy.</p>
+                    <h3>{isFullConsultation ? 'Podsumowanie pojawi się tutaj' : 'Tu zacznie się Wasza rozmowa'}</h3>
+                    <p>{isFullConsultation ? 'Pokój pokaże tu podsumowanie i historię sprawy. Bieżący kontakt prowadzę przez WhatsApp.' : 'Napisz pierwszą wiadomość. Wątek zostanie automatycznie przypisany do Twojej sprawy.'}</p>
                   </div>
                 ) : null}
                 {account?.conversations.map((conversation) => (
@@ -813,35 +856,42 @@ export function AccountRoomApp({ initialView = 'start', initialSessionHint = fal
                 ))}
               </div>
 
-              <form className="materialy-form account-form account-chat-composer" onSubmit={sendMessage}>
-                <label className="account-chat-message-field">
-                  <span>Twoja wiadomość</span>
-                  <textarea
-                    value={messageBody}
-                    onChange={(event) => setMessageBody(event.target.value)}
-                    rows={4}
-                    disabled={isMessageBlocked}
-                    placeholder={isMessageBlocked ? 'Wysyłka wiadomości jest obecnie niedostępna.' : 'Opisz krótko, co się wydarzyło i co najbardziej Cię niepokoi…'}
-                  />
-                </label>
-                <div className="account-chat-composer-actions">
-                  <label className={`account-chat-file${messageFile ? ' has-file' : ''}`}>
-                    <Upload size={17} aria-hidden="true" />
-                    <span>{messageFile?.name ?? 'Dodaj plik'}</span>
-                    <input
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp,application/pdf,video/mp4,video/quicktime"
-                      onChange={(event) => setMessageFile(event.target.files?.[0] ?? null)}
+              {isFullConsultation ? (
+                <div className="account-chat-composer account-chat-channel-note">
+                  <strong>Bieżące wsparcie odbywa się przez WhatsApp</strong>
+                  <p>Ten Pokój nie zastępuje WhatsAppa. Zostają tu podsumowanie, historia i informacje o dostępie. Kontakt do WhatsApp ustalam indywidualnie po konsultacji.</p>
+                </div>
+              ) : (
+                <form className="materialy-form account-form account-chat-composer" onSubmit={sendMessage}>
+                  <label className="account-chat-message-field">
+                    <span>Twoje pytanie</span>
+                    <textarea
+                      value={messageBody}
+                      onChange={(event) => setMessageBody(event.target.value)}
+                      rows={4}
                       disabled={isMessageBlocked}
+                      placeholder={isMessageBlocked ? 'Pytania będą dostępne po zakończeniu rozmowy.' : 'Opisz krótko, co się wydarzyło i co najbardziej Cię niepokoi…'}
                     />
                   </label>
-                  <button type="submit" className="button button-primary" disabled={busy || isMessageBlocked}>
-                    <MessageCircle size={17} aria-hidden="true" />
-                    {busy ? 'Wysyłam...' : 'Wyślij wiadomość'}
-                  </button>
-                </div>
-                <small>Możesz dołączyć JPG, PNG, WEBP, PDF albo krótki film.</small>
-              </form>
+                  <div className="account-chat-composer-actions">
+                    <label className={`account-chat-file${messageFile ? ' has-file' : ''}`}>
+                      <Upload size={17} aria-hidden="true" />
+                      <span>{messageFile?.name ?? 'Dodaj plik'}</span>
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,application/pdf,video/mp4,video/quicktime"
+                        onChange={(event) => setMessageFile(event.target.files?.[0] ?? null)}
+                        disabled={isMessageBlocked}
+                      />
+                    </label>
+                    <button type="submit" className="button button-primary" disabled={busy || isMessageBlocked}>
+                      <MessageCircle size={17} aria-hidden="true" />
+                      {busy ? 'Wysyłam...' : 'Wyślij pytanie'}
+                    </button>
+                  </div>
+                  <small>Możesz dołączyć JPG, PNG, WEBP, PDF albo krótki film.</small>
+                </form>
+              )}
             </section>
           </div>
         )

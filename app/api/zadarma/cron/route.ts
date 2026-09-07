@@ -3,6 +3,7 @@ import { getBookingServiceRoomDurationMinutes, resolveBookingServiceType } from 
 import { listBookings, updateBookingCallState } from '@/lib/server/db'
 import { ConfigurationError } from '@/lib/server/env'
 import { listLeadBookings, updateLeadBooking } from '@/lib/server/lead-bookings'
+import { FOLLOW_UP_QUESTION_COUNT, getInitialQuestionsRemaining, getQuestionsExpiresAt } from '@/lib/question-access'
 import { getReminderAuthorizationError } from '@/lib/server/reminder-runner'
 import { finalizeZapytajRecovery, markZapytajRecoveryPending } from '@/lib/server/zapytaj-recovery'
 import {
@@ -132,7 +133,14 @@ export async function GET(req: NextRequest) {
       }
       if (elapsedSeconds >= durationLimitSeconds) {
         await hangupZadarmaCall(booking.callId)
-        await updateLeadBooking({ id: booking.id, callStatus: 'completed' })
+        await updateLeadBooking({
+          id: booking.id,
+          callStatus: 'completed',
+          questionsExpiresAt:
+            getInitialQuestionsRemaining(booking.service) === FOLLOW_UP_QUESTION_COUNT
+              ? booking.questionsExpiresAt ?? getQuestionsExpiresAt(now)
+              : booking.questionsExpiresAt,
+        })
         processed.push({ id: booking.id, action: 'lead_call_hungup' })
       }
     }

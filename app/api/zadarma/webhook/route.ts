@@ -3,6 +3,7 @@ import { listBookings, updateBookingCallState } from '@/lib/server/db'
 import { listLeadBookings, updateLeadBooking } from '@/lib/server/lead-bookings'
 import { markZapytajRecoveryPending } from '@/lib/server/zapytaj-recovery'
 import { ZAPYTAJ_CALL_RETRY_DELAY_MS } from '@/lib/server/zapytaj-call'
+import { FOLLOW_UP_QUESTION_COUNT, getInitialQuestionsRemaining, getQuestionsExpiresAt } from '@/lib/question-access'
 
 export async function GET(req: NextRequest) {
   const zdEcho = req.nextUrl.searchParams.get('zd_echo')
@@ -29,7 +30,14 @@ export async function POST(req: NextRequest) {
       if (event.includes('ANSWER') && !isCallEndEvent(event) && !leadBooking.startedAt) {
         await updateLeadBooking({ id: leadBooking.id, callStatus: 'active', startedAt: new Date().toISOString() })
       } else if (isCallEndEvent(event)) {
-        await updateLeadBooking({ id: leadBooking.id, callStatus: 'completed' })
+        await updateLeadBooking({
+          id: leadBooking.id,
+          callStatus: 'completed',
+          questionsExpiresAt:
+            leadBooking.startedAt && getInitialQuestionsRemaining(leadBooking.service) === FOLLOW_UP_QUESTION_COUNT
+              ? leadBooking.questionsExpiresAt ?? getQuestionsExpiresAt(new Date())
+              : leadBooking.questionsExpiresAt,
+        })
       }
       return NextResponse.json({ ok: true })
     }

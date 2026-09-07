@@ -93,7 +93,7 @@ function getSelectedServiceIntro(service: BookingServiceType) {
     case 'konsultacja-behawioralna-online':
       return {
         title: `Wybrana rozmowa: ${option.label} / ${option.price}.`,
-        copy: 'Około 90 minut przez Jitsi dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni komunikacji w pokoju klienta przy wdrażaniu zaleceń.',
+        copy: 'Około 90 minut przez Jitsi dla spraw złożonych: analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni wsparcia przez WhatsApp przy wdrażaniu zaleceń. Podsumowanie i historia zostają w Pokoju.',
       }
     case 'kwadrans-na-juz':
       return {

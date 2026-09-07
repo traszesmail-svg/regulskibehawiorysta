@@ -24,6 +24,12 @@ import {
 import { getReservationWindowMinutes, getSupabaseServerConfig } from '@/lib/server/env'
 import { createMeetingUrl, normalizeMeetingUrl } from '@/lib/server/jitsi'
 import { getManualPaymentConfig, getZapytajManualPaymentConfig } from '@/lib/server/payment-options'
+import {
+  FOLLOW_UP_QUESTION_COUNT,
+  FOLLOW_UP_QUESTION_WINDOW_MS,
+  getInitialQuestionsRemaining,
+  resolveQuestionsExpiresAt,
+} from '@/lib/question-access'
 import { isAvailabilitySlotBookableForService } from '@/lib/scheduling/rules'
 import { isZapytajLiveSlot, ZAPYTAJ_LIVE_PRICE_PLN, ZAPYTAJ_SERVICE_TYPE } from '@/lib/zapytaj-flow'
 import {
@@ -141,6 +147,7 @@ type BookingRow = {
   consultation_access_expires_at?: string | null
   consultation_access_used_at?: string | null
   questions_remaining?: number | null
+  questions_expires_at?: string | null
 }
 
 type FunnelEventRow = {
@@ -279,6 +286,7 @@ const BASE_BOOKING_SELECT_COLUMNS = [
   'consultation_access_expires_at',
   'consultation_access_used_at',
   'questions_remaining',
+  'questions_expires_at',
 ] as const
 
 const QA_BOOKING_SELECT_COLUMNS = ['qa_booking'] as const
@@ -662,10 +670,14 @@ function mapBookingRow(row: BookingRow): BookingRecord {
     consultationAccessUsedAt: row.consultation_access_used_at ?? null,
     questionsRemaining:
       row.questions_remaining === undefined || row.questions_remaining === null
-        ? serviceType === ZAPYTAJ_SERVICE_TYPE || serviceType === 'kwadrans-na-juz'
-          ? 2
-          : null
+        ? getInitialQuestionsRemaining(serviceType)
         : row.questions_remaining,
+    questionsExpiresAt: resolveQuestionsExpiresAt({
+      serviceType,
+      bookingStatus,
+      questionsExpiresAt: row.questions_expires_at ?? null,
+      updatedAt: row.updated_at,
+    }),
   }
 }
 
@@ -1379,7 +1391,8 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
     consultation_access_code_hash: null,
     consultation_access_expires_at: null,
     consultation_access_used_at: null,
-    questions_remaining: serviceType === ZAPYTAJ_SERVICE_TYPE || serviceType === 'kwadrans-na-juz' ? 2 : null,
+    questions_remaining: getInitialQuestionsRemaining(serviceType),
+    questions_expires_at: null,
     created_at: nowIso,
     updated_at: nowIso,
   }
@@ -2863,6 +2876,11 @@ export async function markBookingDone(
       recommended_material_slug: recommendedMaterialSlug === undefined
         ? current.recommendedMaterialSlug ?? null
         : recommendedMaterialSlug,
+      questions_expires_at: current.questionsExpiresAt ?? (
+        getInitialQuestionsRemaining(current.serviceType) === FOLLOW_UP_QUESTION_COUNT
+          ? new Date(Date.now() + FOLLOW_UP_QUESTION_WINDOW_MS).toISOString()
+          : null
+      ),
       updated_at: new Date().toISOString(),
     })
     .eq('id', bookingId)
@@ -2897,7 +2915,7 @@ export async function markBookingReminderSent(bookingId: string): Promise<Bookin
 
 export async function updateBookingQuiz(
   bookingId: string,
-  patch: { petAge?: string; durationNotes?: string; description?: string; questionsRemaining?: number | null },
+  patch: { petAge?: string; durationNotes?: string; description?: string; questionsRemaining?: number | null; questionsExpiresAt?: string | null },
 ): Promise<BookingRecord | null> {
   const supabase = getSupabaseAdmin()
   const updatePayload: Record<string, unknown> = {
@@ -2908,6 +2926,7 @@ export async function updateBookingQuiz(
   if (patch.durationNotes !== undefined) updatePayload.duration_notes = patch.durationNotes
   if (patch.description !== undefined) updatePayload.description = patch.description
   if (patch.questionsRemaining !== undefined) updatePayload.questions_remaining = patch.questionsRemaining
+  if (patch.questionsExpiresAt !== undefined) updatePayload.questions_expires_at = patch.questionsExpiresAt
 
   const { data, error } = await supabase
     .from('bookings')

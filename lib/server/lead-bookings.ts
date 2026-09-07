@@ -2,6 +2,7 @@ import { randomBytes, randomUUID } from 'node:crypto'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { createClient } from '@supabase/supabase-js'
+import { getInitialQuestionsRemaining } from '@/lib/question-access'
 import { getLocalStoreDataDir } from './local-store-path'
 
 export type LeadBookingStatus =
@@ -44,6 +45,7 @@ export type LeadBookingRecord = {
   callStatus: string | null
   startedAt: string | null
   questionsRemaining: number | null
+  questionsExpiresAt: string | null
 }
 
 export type CreateLeadBookingInput = {
@@ -73,6 +75,7 @@ export type UpdateLeadBookingInput = {
   callStatus?: string | null
   startedAt?: string | null
   questionsRemaining?: number | null
+  questionsExpiresAt?: string | null
 }
 
 // ─── Supabase row shape ────────────────────────────────────────────────────
@@ -104,6 +107,7 @@ type SupabaseRow = {
   call_status: string | null
   started_at: string | null
   questions_remaining: number | null
+  questions_expires_at?: string | null
 }
 
 function rowToRecord(row: SupabaseRow): LeadBookingRecord {
@@ -134,6 +138,7 @@ function rowToRecord(row: SupabaseRow): LeadBookingRecord {
     callStatus: row.call_status ?? null,
     startedAt: row.started_at ?? null,
     questionsRemaining: row.questions_remaining ?? null,
+    questionsExpiresAt: row.questions_expires_at ?? null,
   }
 }
 
@@ -184,14 +189,7 @@ export async function createLeadBooking(input: CreateLeadBookingInput): Promise<
   const id = randomUUID()
   const accessToken = createAccessToken()
 
-  let initialQuestions = null
-  if (input.service === 'kwadrans-na-juz' || input.service === 'szybka-konsultacja-15-min') {
-    initialQuestions = 1
-  } else if (input.service === 'konsultacja-30-min') {
-    initialQuestions = 2
-  } else if (input.service === 'konsultacja-behawioralna-online') {
-    initialQuestions = 0
-  }
+  const initialQuestions = getInitialQuestionsRemaining(input.service)
 
   if (shouldUseSupabase()) {
     const supabase = getSupabaseClient()!
@@ -216,6 +214,7 @@ export async function createLeadBooking(input: CreateLeadBookingInput): Promise<
         call_status: 'idle',
         started_at: null,
         questions_remaining: initialQuestions,
+        questions_expires_at: null,
       })
       .select()
       .single()
@@ -236,6 +235,7 @@ export async function createLeadBooking(input: CreateLeadBookingInput): Promise<
     callStatus: 'idle',
     startedAt: null,
     questionsRemaining: initialQuestions,
+    questionsExpiresAt: null,
   }
   const store = await readStore()
   store.bookings.unshift(record)
@@ -310,6 +310,7 @@ export async function updateLeadBooking(input: UpdateLeadBookingInput): Promise<
     if (input.callStatus !== undefined) patch.call_status = input.callStatus
     if (input.startedAt !== undefined) patch.started_at = input.startedAt
     if (input.questionsRemaining !== undefined) patch.questions_remaining = input.questionsRemaining
+    if (input.questionsExpiresAt !== undefined) patch.questions_expires_at = input.questionsExpiresAt
 
     const { data, error } = await supabase
       .from('lead_bookings')
@@ -338,6 +339,7 @@ export async function updateLeadBooking(input: UpdateLeadBookingInput): Promise<
   if (input.callStatus !== undefined) booking.callStatus = input.callStatus
   if (input.startedAt !== undefined) booking.startedAt = input.startedAt
   if (input.questionsRemaining !== undefined) booking.questionsRemaining = input.questionsRemaining
+  if (input.questionsExpiresAt !== undefined) booking.questionsExpiresAt = input.questionsExpiresAt
   booking.updatedAt = now
 
   await writeStore(store)

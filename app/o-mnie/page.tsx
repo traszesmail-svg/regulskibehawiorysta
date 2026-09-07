@@ -273,10 +273,10 @@ export default function AboutPage() {
         <section className="reference-about-green-cta site-help-cta">
           <div className="site-help-cta-copy">
             <h2>Zróbmy pierwszy krok spokojnie</h2>
-            <p>Umów konsultację i uporządkujmy sytuację Twojego psa lub kota. Wspólnie wybierzemy plan, który naprawdę ma sens.</p>
+            <p>Opisz krótko sytuację i uporządkujmy, co robić dalej z Twoim psem lub kotem.</p>
             <div className="site-help-cta-actions">
               <Link href="/zapytaj" prefetch={false}>
-                Umów konsultację
+                Zapytaj behawiorystę
                 <ChevronRight size={19} strokeWidth={1.8} aria-hidden="true" />
               </Link>
             </div>

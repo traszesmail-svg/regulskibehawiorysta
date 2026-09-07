@@ -234,6 +234,7 @@ export interface BookingRecord {
   consultationAccessExpiresAt?: string | null
   consultationAccessUsedAt?: string | null
   questionsRemaining?: number | null
+  questionsExpiresAt?: string | null
 }
 
 export interface BookingCreateResult {

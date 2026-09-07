@@ -65,7 +65,7 @@ export function ServiceDecisionSection({
           <div className="notatnik-service-meta" aria-label="Parametry pełnej konsultacji">
             <span>około 90 minut przez Jitsi</span>
             <span>{getPublicServicePriceLabel('konsultacja-behawioralna-online')}</span>
-            <span>plan + 14 dni w pokoju klienta</span>
+            <span>plan + 14 dni WhatsApp</span>
           </div>
           <ul className="notatnik-service-list">
             {consultationBullets.map((bullet) => (
@@ -73,7 +73,7 @@ export function ServiceDecisionSection({
             ))}
           </ul>
           <p className="notatnik-service-note">
-            Po rozmowie masz 14 dni komunikacji w pokoju klienta przy wdrażaniu zaleceń. Możesz dopytywać, wysyłać filmy i konsultować kolejne kroki planu.
+            Po rozmowie masz 14 dni wsparcia przez WhatsApp przy wdrażaniu zaleceń. Pokój przechowuje podsumowanie i historię tej sprawy.
           </p>
           <div className="notatnik-service-actions">
             <Link href={consultationHref} prefetch={false} className="notatnik-btn notatnik-btn-ghost">

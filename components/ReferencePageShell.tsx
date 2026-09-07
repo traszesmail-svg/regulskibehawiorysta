@@ -33,7 +33,13 @@ export function ReferencePageShell({
   children,
 }: ReferencePageShellProps) {
   const isCaseMapCta = ctaHref === '/mapa-sprawy' || ctaHref.startsWith('/mapa-sprawy?')
-  const resolvedCtaLabel = ctaLabel ?? (isCaseMapCta ? 'Mapa zachowania' : 'Umów konsultację')
+  const resolvedCtaLabel = ctaLabel ?? (
+    isCaseMapCta
+      ? 'Mapa zachowania'
+      : ctaHref === '/konsultacja'
+        ? 'Zobacz pełną konsultację'
+        : 'Zapytaj behawiorystę'
+  )
 
   return (
     <main className={className ? `notatnik-page reference-page ${className}` : 'notatnik-page reference-page'}>

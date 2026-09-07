@@ -108,7 +108,7 @@ const sections: LegalSection[] = [
           wiadomości.
         </p>
         <p>
-          Przy 7-dniowym wsparciu po Pełnej konsultacji dane kontaktowe i treść wiadomości mogą być przetwarzane w
+          Przy 14-dniowym wsparciu po Pełnej konsultacji dane kontaktowe i treść wiadomości mogą być przetwarzane w
           WhatsApp, czyli usłudze należącej do Meta. Jeżeli klient nie chce korzystać z WhatsAppa, może ustalić kontakt
           e-mailowy jako alternatywny kanał pisemny.
         </p>

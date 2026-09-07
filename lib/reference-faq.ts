@@ -55,7 +55,7 @@ export const referenceFaqItems: ReferenceFaqItem[] = [
     category: 'konsultacje',
     question: 'Kiedy pełna konsultacja ma więcej sensu niż szybka rozmowa?',
     answer:
-      'Gdy zachowanie trwa długo, dotyczy kilku sytuacji albo mocno wpływa na życie domowników. Wtedy potrzebne jest około 90 minut online, analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni komunikacji w pokoju klienta.',
+      'Gdy zachowanie trwa długo, dotyczy kilku sytuacji albo mocno wpływa na życie domowników. Wtedy potrzebne jest około 90 minut online, analiza zachowania, prawdopodobna przyczyna problemu, plan działania i 14 dni wsparcia przez WhatsApp; Pokój przechowuje podsumowanie i historię.',
   },
   {
     id: 'problemy-kot',
@@ -97,7 +97,7 @@ export const referenceFaqItems: ReferenceFaqItem[] = [
     category: 'wspolpraca',
     question: 'Czy dostanę plan pracy po konsultacji?',
     answer:
-      'Po pełnej konsultacji otrzymujesz plan działania i 14 dni komunikacji w pokoju klienta przy wdrażaniu zaleceń. Po Zapytaj behawiorystę dostajesz przede wszystkim pierwszy kierunek i najbliższy sensowny krok.',
+      'Po pełnej konsultacji otrzymujesz plan działania i 14 dni wsparcia przez WhatsApp przy wdrażaniu zaleceń; Pokój przechowuje podsumowanie i historię. Po Zapytaj behawiorystę dostajesz przede wszystkim pierwszy kierunek i najbliższy sensowny krok.',
   },
   {
     id: 'nie-zachowanie',

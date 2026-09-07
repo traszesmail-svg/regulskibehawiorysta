@@ -52,6 +52,16 @@ function createBasicAuthHeader(password: string) {
   return `Basic ${Buffer.from(`admin:${password}`).toString('base64')}`
 }
 
+function resolveSmokeEmail() {
+  const email = process.env.LIVE_SMOKE_EMAIL?.trim() || process.env.ADMIN_NOTIFICATION_EMAIL?.trim()
+
+  if (!email) {
+    throw new Error('Brak LIVE_SMOKE_EMAIL lub ADMIN_NOTIFICATION_EMAIL. Smoke produkcyjny wymaga prawidłowego odbiorcy e-mail.')
+  }
+
+  return email
+}
+
 async function main() {
   loadEnvConfig(process.cwd())
   const runtimeAdminSecret = process.env.ADMIN_ACCESS_SECRET?.trim()
@@ -64,6 +74,7 @@ async function main() {
 
   const baseUrl = resolveBaseUrl()
   const timestamp = getWarsawCompactTimestamp()
+  const smokeEmail = resolveSmokeEmail()
   const result: SmokeResult = {
     baseUrl,
     bookingId: null,
@@ -98,7 +109,7 @@ async function main() {
     await page.locator('form.zapytaj-form').waitFor({ timeout: 30000 })
     await page.locator('#zapytaj-name').fill(`QA live admin confirm ${timestamp}`)
     await page.locator('#zapytaj-phone').fill('500600700')
-    await page.locator('#zapytaj-email').fill(`qa-live-confirm-${timestamp}@example.com`)
+    await page.locator('#zapytaj-email').fill(smokeEmail)
     await page.locator('input[name="species"][value="pies"]').check()
     await page.locator('#zapytaj-description').fill('Kontrolny test produkcyjnego potwierdzenia admina: GET bez mutacji, POST potwierdza, powtórka nie psuje stanu.')
 

@@ -27,6 +27,7 @@ Ten dokument jest właściwym planem dla aktualnego zakresu, ponieważ obejmuje 
 - PayU i automatyczne potwierdzanie wpłat z prywatnego Revoluta pozostają wyłączone. Odczyt e-maila nie jest traktowany jak webhook płatniczy.
 - Podstawowym kanałem telefonicznym jest własny, stale zasilany telefon Android z kartą SIM i numerem firmowym. Rozmowy przychodzące trafiają bezpośrednio na ten telefon; automatyczne SMS-y potwierdzające będą wysyłane przez jego bramkę SMS. Skala pilota to kilka wiadomości dziennie.
 - Zadarma pozostaje wyłącznie kanałem awaryjnym. Nie jest warunkiem startu pilota, nie jest domyślnym numerem dla klienta i nie uruchamiamy jej automatyki przed testem awaryjnym.
+- Aplikacją właściciela jest chroniony panel `/admin`, otwierany na telefonie jako skrót do ekranu początkowego na sekcji „Terminy”. Zawiera ręczne przełączniki `Włącz live`, `Wyłącz przyjmowanie nowych` i `Odśwież`; `live` oznacza gotowość do własnoręcznego wykonania rozmowy z telefonu SIM, nie automatyczne oddzwanianie.
 
 ## 3. Kolejność prac
 
@@ -54,6 +55,8 @@ Po przygotowaniu telefonu z kartą SIM, stałym zasilaniem i kontrolą warunków
 3. wysłać pojedynczy SMS testowy przez bramkę telefonu i sprawdzić status oraz odpowiedź;
 4. ustawić monitoring zasilania, zasięgu i działania bramki;
 5. przetestować Zadarmę osobno wyłącznie jako awaryjny fallback.
+
+Przed testem bramki SMS zainstalować na telefonie aplikację **SMS Gateway for Android** w trybie cloud/private, nadać jej wyłącznie uprawnienia `SEND_SMS` (oraz `RECEIVE_SMS` tylko, jeżeli chcemy obsługiwać odpowiedzi), wyłączyć oszczędzanie baterii dla aplikacji i utworzyć osobny token integracyjny. Telefon z Androidem 7 spełnia wymaganie aplikacji Android 5+. Do konfiguracji produkcyjnej pozostają: adres API bramki, token oraz pojedynczy SMS testowy — nie wpisywać ich do repozytorium ani planu.
 
 Sam test lokalny i symulowane webhooki nie są dowodem prawdziwego połączenia.
 

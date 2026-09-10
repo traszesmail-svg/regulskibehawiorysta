@@ -33,6 +33,10 @@ function alreadyInProgress(booking: BookingRecord) {
   return booking.callStatus === 'calling' || booking.callStatus === 'calling_retry' || booking.callStatus === 'active' || booking.callStatus === 'warning_sent'
 }
 
+function isZadarmaFallbackEnabled() {
+  return process.env.PHONE_CALL_PROVIDER?.trim() === 'zadarma_fallback'
+}
+
 export async function triggerZapytajCall(
   booking: BookingRecord,
   options: { force?: boolean } = {},
@@ -73,6 +77,12 @@ export async function triggerZapytajCall(
 
   if (!options.force && millisecondsUntilStart < -ZAPYTAJ_CALL_LATE_WINDOW_MS) {
     const reason = 'Okno automatycznego połączenia już minęło.'
+    await updateBookingCallState(booking.id, { callStatus: 'manual_required', callLastError: reason })
+    return { status: 'manual_required', reason }
+  }
+
+  if (!isZadarmaFallbackEnabled()) {
+    const reason = 'Rozmowa wymaga ręcznego połączenia z podstawowego telefonu SIM.'
     await updateBookingCallState(booking.id, { callStatus: 'manual_required', callLastError: reason })
     return { status: 'manual_required', reason }
   }

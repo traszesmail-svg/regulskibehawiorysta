@@ -57,6 +57,7 @@ Najważniejsze zmienne:
 - `SMS_PROVIDER` (domyślnie `disabled`, legacy/internal)
 - `SMS_API_KEY`
 - `SMS_SENDER`
+- `PHONE_CALL_PROVIDER` (`manual_sim` domyślnie; `zadarma_fallback` tylko po osobnym teście awaryjnym)
 
 Uwaga:
 

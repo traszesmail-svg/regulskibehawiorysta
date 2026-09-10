@@ -35,6 +35,7 @@ test('Zapytaj telefon wykonuje dwie proby i udostepnia jeden termin odzyskiwania
       ZADARMA_USER_KEY: 'user-test',
       ZADARMA_SECRET_KEY: 'secret-test',
       ZADARMA_BEHAWIORYSTA_SIP: 'sip-test',
+      PHONE_CALL_PROVIDER: 'zadarma_fallback',
       CRON_SECRET: 'cron-test-secret',
     },
     async () => {

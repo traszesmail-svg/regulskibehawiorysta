@@ -86,7 +86,7 @@ export function AdminZapytajLiveControl() {
         </div>
         <span className={`status-pill ${enabled ? 'status-paid' : 'status-pending'}`}>{status?.label ?? 'Sprawdzam…'}</span>
       </div>
-      <p className="muted paragraph-gap">Włączasz ją ręcznie na minimum godzinę. Przy aktywnej rozmowie system może pokazać klientowi najwyżej jedno następne okno; nie otwiera nieograniczonej kolejki.</p>
+      <p className="muted paragraph-gap">Włączasz ją ręcznie, kiedy masz przy sobie naładowany telefon SIM i możesz samodzielnie oddzwonić. Przy aktywnej rozmowie system może pokazać klientowi najwyżej jedno następne okno; nie otwiera nieograniczonej kolejki.</p>
       <p className="admin-price-meta">{status?.message ?? 'Odczytuję status…'}{status?.enabledUntil ? ` Konfiguracja ważna do ${new Date(status.enabledUntil).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' })}.` : ''}</p>
       {notificationSummary?.waiting !== null && notificationSummary?.waiting !== undefined ? <p className="admin-price-meta">Oczekujące powiadomienia: {notificationSummary.waiting}. Przy włączeniu live SMS jest próbą główną, a e-mail może być awaryjnym fallbackiem.</p> : null}
       {notificationNote ? <div className="success-inline top-gap-small">{notificationNote}</div> : null}

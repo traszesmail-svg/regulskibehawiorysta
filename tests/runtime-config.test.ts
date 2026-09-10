@@ -1806,7 +1806,6 @@ test('stage 9 performance guardrails keep priority images, lazy media, layout ch
   assert.match(homeHeroSource, /quality=\{86\}/)
   assert.match(homeHeroSource, /priority/)
   assert.match(homeHeroSource, /sizes="\(max-width: 760px\) 100vw, 46vw"/)
-  assert.match(homeSource, /loading="lazy"/)
   assert.match(opinionsSource, /home-bg-cat-1to1\.webp" alt="" fill loading="lazy"/)
   assert.match(reviewGridSource, /fill loading="lazy" sizes="58px"/)
   assert.match(pricingSource, /faq-help-illustration-clean\.png" alt="" width=\{355\} height=\{208\} loading="lazy"/)

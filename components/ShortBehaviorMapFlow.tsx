@@ -399,7 +399,7 @@ export function ShortBehaviorMapFlow({
                           <button
                             key={option.id}
                             type="button"
-                            data-map-safety-answer={`${question.id}:${option.id}`}
+                            data-map-safety-answer={`${question.id}-${option.id}`}
                             aria-pressed={selected}
                             className={selected ? styles.answerSelected : styles.answer}
                             onClick={() => setSafetyAnswer(question.id, option.id as SafetyAnswer)}

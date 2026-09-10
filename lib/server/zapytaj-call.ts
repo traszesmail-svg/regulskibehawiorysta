@@ -1,6 +1,7 @@
 import { parseWarsawDateTime } from '@/lib/server/google-calendar'
 import { updateBookingCallState } from '@/lib/server/db'
 import { triggerZadarmaCallback } from '@/lib/server/zadarma'
+import { isAndroidPhoneAgentEnabled } from '@/lib/server/phone-agent'
 import { isZapytajLiveSlot, ZAPYTAJ_SERVICE_TYPE } from '@/lib/zapytaj-flow'
 import type { BookingRecord } from '@/lib/types'
 
@@ -11,6 +12,7 @@ export const ZAPYTAJ_CALL_MAX_ATTEMPTS = 2
 
 export type ZapytajCallAttempt =
   | { status: 'started'; callId: string; attempt: number }
+  | { status: 'queued_for_phone'; bookingId: string }
   | { status: 'scheduled'; startsAt: string }
   | { status: 'manual_required'; reason: string }
   | { status: 'already_started'; callId: string }
@@ -82,6 +84,15 @@ export async function triggerZapytajCall(
   }
 
   if (!isZadarmaFallbackEnabled()) {
+    if (isAndroidPhoneAgentEnabled()) {
+      await updateBookingCallState(booking.id, {
+        callId: null,
+        callStatus: 'phone_agent_pending',
+        callLastError: null,
+        callNextAttemptAt: null,
+      })
+      return { status: 'queued_for_phone', bookingId: booking.id }
+    }
     const reason = 'Rozmowa wymaga ręcznego połączenia z podstawowego telefonu SIM.'
     await updateBookingCallState(booking.id, { callStatus: 'manual_required', callLastError: reason })
     return { status: 'manual_required', reason }

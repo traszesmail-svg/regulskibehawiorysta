@@ -39,6 +39,12 @@ async function processMainPhoneBooking(booking: Awaited<ReturnType<typeof listBo
     return processed
   }
 
+  // Android jest wykonawcą połączenia z własnej karty SIM.
+  // Cron Zadarmy nie może powielać ani rozłączać jego zadania.
+  if (booking.callStatus?.startsWith('phone_agent_')) {
+    return processed
+  }
+
   const callAttempt = booking.callAttempt ?? 0
   if (
     booking.callId &&

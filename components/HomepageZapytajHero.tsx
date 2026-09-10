@@ -3,7 +3,6 @@ import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { HOME_HERO_PHOTO } from '@/lib/site'
 import { PUBLIC_ZAPYTAJ_OFFER, formatPublicOfferPrice } from '@/lib/public-offer'
-import { ZapytajAvailabilityStatus } from '@/components/ZapytajAvailabilityStatus'
 
 export function HomepageZapytajHero() {
   return (
@@ -23,7 +22,6 @@ export function HomepageZapytajHero() {
             <small>Rozmowa telefoniczna na pierwszy, konkretny kierunek.</small>
           </span>
         </div>
-        <ZapytajAvailabilityStatus />
         <div className="homepage-zapytaj-actions">
           <Link href="/zapytaj" prefetch={false} className="notatnik-btn homepage-zapytaj-primary">
             <span>Zapytaj behawiorystę — {formatPublicOfferPrice(PUBLIC_ZAPYTAJ_OFFER.pricePln)}</span>

@@ -293,15 +293,15 @@ export function ZapytajIntakeForm({ promotionMode = false, initialPromotionCode 
       <div className="zapytaj-availability" aria-live="polite">
         <div className="zapytaj-availability-head">
           <div>
-            <span className="zapytaj-form-card-kicker">DOSTĘPNOŚĆ ROZMOWY</span>
-            <strong>{promotionMode ? 'Zwykłe terminy rozmowy' : live?.label ?? 'Sprawdzam dostępność…'}</strong>
+            <span className="zapytaj-form-card-kicker">WOLNE TERMINY</span>
+            <strong>Zwykłe terminy rozmowy</strong>
           </div>
           <button type="button" className="zapytaj-refresh-button" onClick={() => void refreshAvailability(true)} disabled={isRefreshing}>
             <RefreshCw size={14} aria-hidden="true" />
             {isRefreshing ? 'Sprawdzam…' : 'Odśwież'}
           </button>
         </div>
-        <p>{promotionMode ? 'Kod grupowy działa tylko przy rezerwacji zwykłego terminu.' : availabilityError || live?.message || 'Za chwilę pokażę wolne opcje rozmowy.'}</p>
+        <p>{promotionMode ? 'Kod grupowy działa tylko przy rezerwacji zwykłego terminu.' : availabilityError || 'Wybierz dogodny termin rozmowy.'}</p>
         {!promotionMode && liveAvailable ? (
           <button type="button" className={`zapytaj-live-option${mode === 'live' ? ' is-selected' : ''}`} onClick={() => selectMode('live')}>
             <PhoneCall size={18} aria-hidden="true" />
@@ -326,10 +326,10 @@ export function ZapytajIntakeForm({ promotionMode = false, initialPromotionCode 
           <Clock3 size={17} aria-hidden="true" />
           <span><strong>Wybieram termin</strong><small>{promotionMode ? `${COMMUNITY_PROMO_PRICE_LABEL} · oferta z kodem` : '79 zł · zwykła rezerwacja'}</small></span>
         </button>
-        {!promotionMode ? (
-          <button type="button" role="radio" aria-checked={mode === 'live'} className={`zapytaj-mode-option${mode === 'live' ? ' is-selected' : ''}`} onClick={() => selectMode('live')} disabled={!liveAvailable}>
+        {!promotionMode && liveAvailable ? (
+          <button type="button" role="radio" aria-checked={mode === 'live'} className={`zapytaj-mode-option${mode === 'live' ? ' is-selected' : ''}`} onClick={() => selectMode('live')}>
             <PhoneCall size={17} aria-hidden="true" />
-            <span><strong>Zapytaj teraz</strong><small>{liveAvailable ? '104 zł · tylko przy realnej dostępności' : 'Obecnie niedostępne'}</small></span>
+            <span><strong>Zapytaj teraz</strong><small>104 zł · tylko przy realnej dostępności</small></span>
           </button>
         ) : null}
       </div>

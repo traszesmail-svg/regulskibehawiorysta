@@ -4,7 +4,6 @@ import { ArrowRight, Check, ShieldAlert } from 'lucide-react'
 import { Schema } from '@/components/schema'
 import { NotatnikPageShell, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
 import { ZapytajIntakeForm } from '@/components/ZapytajIntakeForm'
-import { ZapytajAvailabilityStatus } from '@/components/ZapytajAvailabilityStatus'
 import { getBreadcrumbJsonLd, getFaqPageJsonLd, getServiceJsonLd } from '@/lib/schema'
 import { buildMarketingMetadata } from '@/lib/seo'
 import { PUBLIC_ZAPYTAJ_OFFER, formatPublicOfferPrice } from '@/lib/public-offer'
@@ -91,7 +90,6 @@ export default function ZapytajPage() {
               <span>Rozmowa telefoniczna na pierwszy, konkretny kierunek.</span>
             </div>
           </div>
-          <ZapytajAvailabilityStatus />
           <div className="zapytaj-hero-actions">
             <a href="#formularz" className="notatnik-btn">
               Zapytaj behawiorystę — {formatPublicOfferPrice(PUBLIC_ZAPYTAJ_OFFER.pricePln)}

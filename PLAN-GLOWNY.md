@@ -8,7 +8,7 @@ Powiązany audyt: [AUDYT-GLOWNY-2026-09-07.md](AUDYT-GLOWNY-2026-09-07.md)
 
 Główną ścieżką serwisu jest `Zapytaj behawiorystę — 15 min`. To samodzielna, płatna rozmowa telefoniczna za **79 zł** w zwykłym terminie. Klient płaci za rozmowę i pierwszy konkretny kierunek; nie jest to zaliczka ani ukryty formularz kwalifikacyjny do pełnej konsultacji.
 
-`Zapytaj teraz` kosztuje **104 zł** wyłącznie wtedy, gdy behawiorysta rzeczywiście włączy dostępność live. Przy braku bezpiecznie potwierdzonej dostępności klient widzi prawdziwy status i zwykłe terminy. Aktualny stan produkcyjny live to `offline`, więc nie wolno obiecywać natychmiastowej rozmowy.
+`Zapytaj teraz` kosztuje **104 zł** wyłącznie wtedy, gdy behawiorysta rzeczywiście włączy dostępność live. Przy braku bezpiecznie potwierdzonej dostępności klient widzi zwykłe terminy, bez komunikatu o niedostępnym live. Aktualny stan produkcyjny live to `offline`, więc nie wolno obiecywać natychmiastowej rozmowy.
 
 Pełna konsultacja (**475 zł**) jest osobną usługą, udostępnianą indywidualnym kodem po `Zapytaj`. Terapia może być kolejnym krokiem dopiero po pełnej konsultacji. Hotel jest ścieżką warunkową po formularzu kwalifikacyjnym, a nie automatycznym terminarzem.
 
@@ -25,6 +25,8 @@ Ten dokument jest właściwym planem dla aktualnego zakresu, ponieważ obejmuje 
 - Po zakończonym `Zapytaj` behawiorysta może opublikować krótkie podsumowanie, maksymalnie dwa pytania uzupełniające ważne przez 7 dni oraz jedną trafną rekomendację materiału albo dalszej ścieżki.
 - Ręczny BLIK pozostaje aktywnym mechanizmem płatności. Zwykły termin jest blokowany na 5 minut, a zgłoszona płatność czeka na ręczną decyzję maksymalnie 24 godziny.
 - PayU i automatyczne potwierdzanie wpłat z prywatnego Revoluta pozostają wyłączone. Odczyt e-maila nie jest traktowany jak webhook płatniczy.
+- Podstawowym kanałem telefonicznym jest własny, stale zasilany telefon Android z kartą SIM i numerem firmowym. Rozmowy przychodzące trafiają bezpośrednio na ten telefon; automatyczne SMS-y potwierdzające będą wysyłane przez jego bramkę SMS. Skala pilota to kilka wiadomości dziennie.
+- Zadarma pozostaje wyłącznie kanałem awaryjnym. Nie jest warunkiem startu pilota, nie jest domyślnym numerem dla klienta i nie uruchamiamy jej automatyki przed testem awaryjnym.
 
 ## 3. Kolejność prac
 
@@ -43,15 +45,15 @@ Nie zapisywać w planie imion, telefonów, adresów e-mail ani opisów problemó
 
 Pilot zatrzymać natychmiast przy podwójnym terminie, potwierdzeniu bez pewnej wpłaty, złej cenie, niedziałającym linku, braku informacji dla klienta albo niejasności co do zakresu usługi.
 
-### Etap B — prawdziwy test telefonu
+### Etap B — prawdziwy test telefonu i bramki SMS
 
-Po zapewnieniu numeru i kontroli warunków wykonać osobny test produkcyjny:
+Po przygotowaniu telefonu z kartą SIM, stałym zasilaniem i kontrolą warunków wykonać osobny test produkcyjny:
 
-1. potwierdzić płatność i uruchomienie Zadarmy;
-2. sprawdzić opóźnienie połączenia, odebranie i statusy;
-3. zweryfikować limit techniczny 17 minut;
-4. sprawdzić brak odpowiedzi, retry, rozłączenie i ręczny fallback;
-5. nie udostępniać live publicznie przed zakończeniem całego testu.
+1. zadzwonić na opublikowany numer SIM i sprawdzić odebranie rozmowy;
+2. sprawdzić brak odpowiedzi oraz ręczny fallback;
+3. wysłać pojedynczy SMS testowy przez bramkę telefonu i sprawdzić status oraz odpowiedź;
+4. ustawić monitoring zasilania, zasięgu i działania bramki;
+5. przetestować Zadarmę osobno wyłącznie jako awaryjny fallback.
 
 Sam test lokalny i symulowane webhooki nie są dowodem prawdziwego połączenia.
 
@@ -74,15 +76,15 @@ Za wykonane można uznać tylko to, co ma dowód w aktualnym audycie i nie narus
 
 - główna oferta i CTA mówią prawdę o `Zapytaj`, cenie i kanale telefonu;
 - zwykły termin, blokada, ręczny BLIK, potwierdzenie i idempotencja zachowują właściwe statusy;
-- live jest pokazywany tylko przy realnej dostępności;
+- live jest pokazywany tylko przy realnej dostępności, a przy jej braku nie konkuruje ze zwykłą rezerwacją;
 - Mapa zatrzymuje się na bezpieczeństwie przed ścieżką usługową;
 - Pokój udostępnia dane i pytania dopiero po właściwym zakończeniu rozmowy;
 - stare adresy prowadzą do aktualnej ścieżki bez martwych stron;
 - publiczne widoki nie mają błędów konsoli, uszkodzonych obrazów ani poziomego overflow;
-- bramka produkcyjna nie ukrywa nieprzetestowanego telefonu, płatności ani automatyzacji.
+- bramka produkcyjna nie ukrywa nieprzetestowanego telefonu, SMS-ów, płatności ani automatyzacji.
 
 ## 5. Aktualny status
 
-Szczegółowe dowody z ponownego audytu znajdują się w [AUDYT-GLOWNY-2026-09-07.md](AUDYT-GLOWNY-2026-09-07.md). Decyzja operacyjna na teraz: **GO tylko dla zwykłego `Zapytaj` za 79 zł z ręcznym BLIK-iem i ręcznym potwierdzeniem; NO-GO dla `Zapytaj teraz`, prawdziwej Zadarmy i automatycznego Revoluta do czasu osobnych testów.**
+Szczegółowe dowody z ponownego audytu znajdują się w [AUDYT-GLOWNY-2026-09-07.md](AUDYT-GLOWNY-2026-09-07.md). Decyzja operacyjna na teraz: **GO tylko dla zwykłego `Zapytaj` za 79 zł z ręcznym BLIK-iem i ręcznym potwierdzeniem; NO-GO dla `Zapytaj teraz`, automatycznego Revoluta i automatycznych SMS-ów do czasu osobnych testów. Zadarma jest wyłącznie awaryjna.**
 
 Historyczne plany i stare raporty zostały skonsolidowane albo usunięte z głównego katalogu. Dokumenty treści, poradników i materiały operacyjne niezwiązane z planem projektu pozostają poza tym porządkiem.

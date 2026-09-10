@@ -4,6 +4,7 @@ import { listLeadBookings, updateLeadBooking } from '@/lib/server/lead-bookings'
 import { markZapytajRecoveryPending } from '@/lib/server/zapytaj-recovery'
 import { ZAPYTAJ_CALL_RETRY_DELAY_MS } from '@/lib/server/zapytaj-call'
 import { FOLLOW_UP_QUESTION_COUNT, getInitialQuestionsRemaining, getQuestionsExpiresAt } from '@/lib/question-access'
+import { hasValidZadarmaSignature } from '@/lib/server/zadarma-webhook'
 
 export async function GET(req: NextRequest) {
   const zdEcho = req.nextUrl.searchParams.get('zd_echo')
@@ -18,6 +19,12 @@ function isCallEndEvent(event: string) {
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData()
+    const secret = process.env.ZADARMA_SECRET_KEY?.trim()
+    if (!secret) return NextResponse.json({ error: 'Zadarma webhook is not configured' }, { status: 503 })
+    if (!hasValidZadarmaSignature(formData, secret)) {
+      return NextResponse.json({ error: 'Invalid Zadarma webhook signature' }, { status: 401 })
+    }
+
     const rawEvent = formData.get('event')
     const rawCallId = formData.get('call_id') ?? formData.get('pbx_call_id')
     const event = typeof rawEvent === 'string' ? rawEvent.toUpperCase() : ''

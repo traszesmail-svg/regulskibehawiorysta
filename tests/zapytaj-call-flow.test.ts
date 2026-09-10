@@ -4,6 +4,7 @@ import { createAvailabilitySlot, getBookingById, listAvailabilityAdmin, markBook
 import { triggerZapytajCall } from '@/lib/server/zapytaj-call'
 import { POST as zadarmaWebhook } from '@/app/api/zadarma/webhook/route'
 import { GET as zadarmaCron } from '@/app/api/zadarma/cron/route'
+import { createZadarmaWebhookSignature } from '@/lib/server/zadarma-webhook'
 import { createLocalDataSandbox } from '@/scripts/lib/local-data-sandbox'
 
 function withEnv(overrides: Record<string, string | null | undefined>, run: () => void | Promise<void>) {
@@ -85,8 +86,12 @@ test('Zapytaj telefon wykonuje dwie proby i udostepnia jeden termin odzyskiwania
         assert.equal(current?.callAttempt, 1)
 
         const firstEnd = new FormData()
-        firstEnd.set('event', 'NO_ANSWER')
-        firstEnd.set('call_id', 'test-call-1')
+        firstEnd.set('event', 'NOTIFY_OUT_END')
+        firstEnd.set('pbx_call_id', 'test-call-1')
+        firstEnd.set('internal', 'sip-test')
+        firstEnd.set('destination', '+48600700800')
+        firstEnd.set('call_start', '2030-01-15 10:00:00')
+        firstEnd.set('signature', createZadarmaWebhookSignature(firstEnd, 'secret-test')!)
         await zadarmaWebhook(new Request('http://localhost/api/zadarma/webhook', { method: 'POST', body: firstEnd }) as never)
         current = await getBookingById(created.booking.id)
         assert.equal(current?.callStatus, 'retry_scheduled')
@@ -100,8 +105,12 @@ test('Zapytaj telefon wykonuje dwie proby i udostepnia jeden termin odzyskiwania
         assert.equal(callbackCount, 2)
 
         const secondEnd = new FormData()
-        secondEnd.set('event', 'END')
-        secondEnd.set('call_id', 'test-call-2')
+        secondEnd.set('event', 'NOTIFY_OUT_END')
+        secondEnd.set('pbx_call_id', 'test-call-2')
+        secondEnd.set('internal', 'sip-test')
+        secondEnd.set('destination', '+48600700800')
+        secondEnd.set('call_start', '2030-01-15 10:02:00')
+        secondEnd.set('signature', createZadarmaWebhookSignature(secondEnd, 'secret-test')!)
         await zadarmaWebhook(new Request('http://localhost/api/zadarma/webhook', { method: 'POST', body: secondEnd }) as never)
         await updateBookingCallState(created.booking.id, { callNextAttemptAt: new Date(Date.now() - 1_000).toISOString() })
         await zadarmaCron(new Request('http://localhost/api/zadarma/cron', { headers: { authorization: 'Bearer cron-test-secret' } }) as never)

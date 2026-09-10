@@ -10,6 +10,7 @@ import { PwaRegister } from '@/components/PwaRegister'
 import { APP_THEME_ATTRIBUTE, THEME_STORAGE_KEY } from '@/lib/theme'
 import { getRootSchemaGraphJsonLd } from '@/lib/schema'
 import { getCanonicalBaseUrl, shouldBlockSearchIndexing } from '@/lib/server/env'
+import { getBuildMarkerSnapshot } from '@/lib/build-marker'
 import { SITE_DESCRIPTION, SITE_NAME, SITE_OG_IMAGE, SITE_SHORT_NAME, SITE_TAGLINE } from '@/lib/site'
 import './globals.css'
 import './notatnik-a.css'
@@ -36,7 +37,9 @@ const jetbrainsMono = JetBrains_Mono({
 
 const metadataBase = new URL(getCanonicalBaseUrl())
 const blockSearchIndexing = shouldBlockSearchIndexing()
-const RELEASE_ID = '2026-06-21-payment-fix-v1'
+// Keep the public release identifier aligned with the deployment marker.
+// A static date here can make a freshly deployed site look stale.
+const RELEASE_ID = getBuildMarkerSnapshot().value
 
 export const metadata: Metadata = {
   metadataBase,

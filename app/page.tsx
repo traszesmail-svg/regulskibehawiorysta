@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { EditorialIndexTopbar } from '@/components/EditorialIndexTopbar'
@@ -10,12 +9,6 @@ import { Schema } from '@/components/schema'
 import { homepageProcessSteps } from '@/lib/homepage-data'
 import { getBreadcrumbJsonLd, getFaqPageJsonLd, getServiceJsonLd } from '@/lib/schema'
 import { buildHomeMetadata } from '@/lib/seo'
-import { COAPE_POLSKA_LOGO, HOME_HERO_PHOTO } from '@/lib/site'
-import {
-  PUBLIC_FULL_CONSULTATION_OFFER,
-  PUBLIC_THERAPY_OFFER,
-  formatPublicOfferPrice,
-} from '@/lib/public-offer'
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildHomeMetadata()
@@ -102,81 +95,6 @@ export default function HomePage() {
                 <p>{step.copy}</p>
               </article>
             ))}
-          </div>
-        </section>
-
-        <section className="homepage-sales-paths" aria-labelledby="homepage-paths-title">
-          <div className="homepage-sales-section-heading">
-            <span>CO MOŻE BYĆ DALEJ</span>
-            <h2 id="homepage-paths-title">Jedna rozmowa nie udaje całego procesu</h2>
-            <p>
-              Jeśli po rozmowie potrzebny będzie szerszy plan, omówię z Tobą właściwą formę pracy. Nie kupujesz
-              kolejnego etapu w ciemno.
-            </p>
-          </div>
-          <div className="homepage-sales-path-grid">
-            <article className="homepage-sales-path homepage-sales-path-primary">
-              <span>PO INDYWIDUALNYM ZAPROSZENIU</span>
-              <h3>{PUBLIC_FULL_CONSULTATION_OFFER.name}</h3>
-              <p>
-                Około 90 minut na szerszy kontekst, analizę sytuacji i plan działania. Po rozmowie możesz otrzymać
-                osobny link do dostępnych terminów.
-              </p>
-              <strong>{formatPublicOfferPrice(PUBLIC_FULL_CONSULTATION_OFFER.pricePln)} · {PUBLIC_FULL_CONSULTATION_OFFER.durationLabel}</strong>
-              <Link href="/konsultacja" prefetch={false}>
-                Zobacz opis pełnej konsultacji <ArrowRight size={16} aria-hidden="true" />
-              </Link>
-            </article>
-            <article className="homepage-sales-path">
-              <span>PO PEŁNEJ KONSULTACJI</span>
-              <h3>{PUBLIC_THERAPY_OFFER.name}</h3>
-              <p>
-                Indywidualna ścieżka pracy ustalana dopiero wtedy, gdy pełna konsultacja pokaże, że regularne wsparcie
-                będzie właściwym rozwiązaniem.
-              </p>
-              <Link href="/terapia" prefetch={false}>
-                Zobacz możliwości terapii <ArrowRight size={16} aria-hidden="true" />
-              </Link>
-            </article>
-          </div>
-        </section>
-
-        <section className="homepage-sales-expert" aria-labelledby="homepage-expert-title">
-          <div className="homepage-sales-expert-copy">
-            <span>EKSPERCKIE WSPARCIE, LUDZKI JĘZYK</span>
-            <h2 id="homepage-expert-title">Pomagam zrozumieć zachowanie, bez oceniania opiekuna.</h2>
-            <p>
-              Jestem Krzysztof Regulski — technik weterynarii, behawiorysta i trener zwierząt towarzyszących COAPE.
-              W rozmowie układam fakty: emocje, zdrowie, środowisko, historię uczenia się i codzienną rutynę.
-            </p>
-            <p>
-              To nie jest porada weterynaryjna ani obietnica szybkiego rozwiązania. To spokojny, konkretny początek,
-              który pomaga przestać działać po omacku.
-            </p>
-            <Link href="/o-mnie" prefetch={false}>
-              Poznaj moje podejście <ArrowRight size={16} aria-hidden="true" />
-            </Link>
-          </div>
-          <div className="homepage-sales-expert-media">
-            <figure>
-              <Image
-                src={HOME_HERO_PHOTO.src}
-                alt={HOME_HERO_PHOTO.alt}
-                fill
-                loading="lazy"
-                sizes="(max-width: 760px) 92vw, 40vw"
-              />
-            </figure>
-            <div>
-              <Image
-                src={COAPE_POLSKA_LOGO.src}
-                alt={COAPE_POLSKA_LOGO.alt}
-                width={COAPE_POLSKA_LOGO.width}
-                height={COAPE_POLSKA_LOGO.height}
-                loading="lazy"
-              />
-              <span>Praca z psami i kotami online</span>
-            </div>
           </div>
         </section>
 

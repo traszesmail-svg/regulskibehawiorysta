@@ -26,7 +26,12 @@ ADMIN_NOTIFICATION_EMAIL=krzyre@gmail.com
 REGULSKI_CONTACT_EMAIL=kontakt@regulskibehawiorysta.pl
 MANUAL_PAYMENT_BLIK_PHONE=...
 MANUAL_PAYMENT_ACCOUNT_NAME=Krzysztof Regulski
-MANUAL_PAYMENT_HOLD_MINUTES=15
+# A selected Zapytaj slot is held for 5 minutes while the form is completed.
+RESERVATION_WINDOW_MINUTES=5
+# A reported Zapytaj BLIK payment can await manual confirmation for up to 24 hours.
+ZAPYTAJ_MANUAL_PAYMENT_HOLD_MINUTES=1440
+# This 60-minute value applies only to other manual-payment flows.
+MANUAL_PAYMENT_HOLD_MINUTES=60
 PAYU_MODE=disabled
 ```
 

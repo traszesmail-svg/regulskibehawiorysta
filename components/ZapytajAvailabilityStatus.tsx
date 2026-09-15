@@ -50,7 +50,7 @@ export function ZapytajAvailabilityStatus() {
       <span className="zapytaj-hero-live-status-dot" aria-hidden="true" />
       <span>
         <strong>{loading ? 'Sprawdzam dostępność…' : isLiveChoice ? `Zapytaj teraz · ${live!.livePricePln} zł` : 'Zapytaj w wybranym terminie · 79 zł'}</strong>
-        <small>{loading ? 'Za chwilę pokażę aktualną opcję.' : isLiveChoice ? live!.message : 'Opcja teraz pojawia się tylko wtedy, gdy behawiorysta faktycznie jest dostępny.'}</small>
+        <small>{loading ? 'Sprawdzam dostępne terminy…' : isLiveChoice ? live!.message : 'Wybierz dogodny termin w formularzu poniżej.'}</small>
       </span>
       {isLiveChoice ? <a href="#formularz">Wybierz opcję teraz</a> : null}
     </div>

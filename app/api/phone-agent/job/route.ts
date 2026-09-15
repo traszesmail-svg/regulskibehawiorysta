@@ -14,8 +14,17 @@ export async function GET(request: NextRequest) {
   if (!hasValidPhoneAgentAuthorization(request.headers.get('authorization'))) return unauthorized()
 
   try {
+    const now = Date.now()
     const job = (await listBookings())
-      .filter((booking) => isPhoneAgentCandidate(booking) && isZapytajPhoneBooking(booking) && booking.callStatus === 'phone_agent_pending')
+      .filter((booking) => {
+        if (!isPhoneAgentCandidate(booking) || !isZapytajPhoneBooking(booking) || booking.callStatus !== 'phone_agent_pending') {
+          return false
+        }
+        if (booking.callNextAttemptAt && new Date(booking.callNextAttemptAt).getTime() > now) {
+          return false
+        }
+        return true
+      })
       .sort((a, b) => `${a.bookingDate}T${a.bookingTime}`.localeCompare(`${b.bookingDate}T${b.bookingTime}`))[0]
 
     return NextResponse.json({ job: job ? toPhoneAgentCase(job) : null }, { headers: { 'Cache-Control': 'no-store' } })
@@ -46,6 +55,31 @@ export async function POST(request: NextRequest) {
       await updateBookingCallState(booking.id, { callStatus: 'phone_agent_active', startedAt: now, callAnsweredAt: now, callLastError: null })
     } else if (event === 'ended') {
       await updateBookingCallState(booking.id, { callStatus: 'phone_agent_completed', callNextAttemptAt: null, callLastError: null })
+    } else if (event === 'no_answer') {
+      const attempt = booking.callAttempt ?? 1
+      if (attempt < 2) {
+        const nextAttemptAt = new Date(Date.now() + 120_000).toISOString()
+        await updateBookingCallState(booking.id, {
+          callId: null,
+          callStatus: 'phone_agent_pending',
+          callNextAttemptAt: nextAttemptAt,
+          callLastError: 'Klient nie odebrał — zaplanowano 2. próbę za 2 minuty.',
+        })
+      } else {
+        await updateBookingCallState(booking.id, {
+          callId: null,
+          callStatus: 'phone_agent_failed',
+          callLastError: 'Brak odebrania po dwóch próbach połączenia.',
+        })
+      }
+    } else if (event === 'dropped') {
+      const nextAttemptAt = new Date(Date.now() + 30_000).toISOString()
+      await updateBookingCallState(booking.id, {
+        callId: null,
+        callStatus: 'phone_agent_pending',
+        callNextAttemptAt: nextAttemptAt,
+        callLastError: 'Połączenie przerwane technicznie — wznowienie za 30 sekund.',
+      })
     } else if (event === 'failed') {
       await updateBookingCallState(booking.id, { callId: null, callStatus: 'phone_agent_failed', callLastError: error || 'Telefon nie uruchomił połączenia.' })
     } else {

@@ -206,19 +206,74 @@ test('case map keeps a conservative safety gate when a critical triage answer is
   assert.equal(resolveCaseMapTriage(triage), 'SAFETY_PRIORITY')
 })
 
-test('public safety scope resolves two explicit negative gate answers without inventing full-triage answers', () => {
-  const triage = normalizeCaseMapTriage({
-    scope: 'public_safety',
-    activeDanger: 'no',
-    injury: 'unknown',
-    emergencyHealth: 'no',
-    healthChange: 'unknown',
-    escapeSelfharm: 'unknown',
-    vulnerableContext: 'unknown',
-    vetStatus: 'unknown',
-  })
+test('public safety scope resolves all four answer combinations correctly', () => {
+  // Variant 1: activeDanger = yes, emergencyHealth = yes -> SAFETY_NOW
+  assert.equal(
+    resolveCaseMapTriage(
+      normalizeCaseMapTriage({
+        scope: 'public_safety',
+        activeDanger: 'yes',
+        injury: 'unknown',
+        emergencyHealth: 'yes',
+        healthChange: 'unknown',
+        escapeSelfharm: 'unknown',
+        vulnerableContext: 'unknown',
+        vetStatus: 'unknown',
+      }),
+    ),
+    'SAFETY_NOW',
+  )
 
-  assert.equal(resolveCaseMapTriage(triage), 'PROCEED')
+  // Variant 2: activeDanger = yes, emergencyHealth = no -> SAFETY_NOW
+  assert.equal(
+    resolveCaseMapTriage(
+      normalizeCaseMapTriage({
+        scope: 'public_safety',
+        activeDanger: 'yes',
+        injury: 'unknown',
+        emergencyHealth: 'no',
+        healthChange: 'unknown',
+        escapeSelfharm: 'unknown',
+        vulnerableContext: 'unknown',
+        vetStatus: 'unknown',
+      }),
+    ),
+    'SAFETY_NOW',
+  )
+
+  // Variant 3: activeDanger = no, emergencyHealth = yes -> VET_URGENT
+  assert.equal(
+    resolveCaseMapTriage(
+      normalizeCaseMapTriage({
+        scope: 'public_safety',
+        activeDanger: 'no',
+        injury: 'unknown',
+        emergencyHealth: 'yes',
+        healthChange: 'unknown',
+        escapeSelfharm: 'unknown',
+        vulnerableContext: 'unknown',
+        vetStatus: 'unknown',
+      }),
+    ),
+    'VET_URGENT',
+  )
+
+  // Variant 4: activeDanger = no, emergencyHealth = no -> PROCEED
+  assert.equal(
+    resolveCaseMapTriage(
+      normalizeCaseMapTriage({
+        scope: 'public_safety',
+        activeDanger: 'no',
+        injury: 'unknown',
+        emergencyHealth: 'no',
+        healthChange: 'unknown',
+        escapeSelfharm: 'unknown',
+        vulnerableContext: 'unknown',
+        vetStatus: 'unknown',
+      }),
+    ),
+    'PROCEED',
+  )
 })
 
 test('unassessed triage never resolves to a normal service path', () => {

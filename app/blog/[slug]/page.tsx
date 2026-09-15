@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ArrowLeft, ArrowRight, BookOpen, CalendarDays, CheckCircle2, Clock3, ListChecks, PawPrint } from 'lucide-react'
+import { ArrowLeft, ArrowRight, BookOpen, CalendarDays, CheckCircle2, Clock3, ListChecks } from 'lucide-react'
 import { NotatnikPageShell, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
 import { Schema } from '@/components/schema'
 import {
@@ -131,14 +131,6 @@ export default async function BlogArticlePage(props: BlogArticlePageProps) {
                   <li key={item}>{item}</li>
                 ))}
               </ol>
-            </div>
-            <div className="blog-article-help-rail">
-              <PawPrint size={24} strokeWidth={1.6} aria-hidden="true" />
-              <strong>Potrzebujesz indywidualnej pomocy?</strong>
-              <p>Opisz krótko sytuację i sprawdźmy spokojnie, co robić dalej.</p>
-              <Link href="/zapytaj" prefetch={false}>
-                Zapytaj behawiorystę
-              </Link>
             </div>
           </aside>
 

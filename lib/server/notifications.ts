@@ -3410,3 +3410,57 @@ export async function sendAccountRoomReplyEmail(payload: {
 
   return deliverEmail({ to: recipient, subject, html, text }, 'customer')
 }
+
+export async function sendPhoneAgentOutageAlertEmail(details: {
+  lastSeenMinutes: number
+  lastHeartbeatAt: string | null
+}): Promise<DeliveryResult> {
+  const adminEmail = getAdminNotificationRecipientEmail()
+  if (!adminEmail) {
+    return { status: 'skipped', reason: 'Admin email not configured' }
+  }
+
+  const subject = `[AWARIA] Brak kontaktu z telefonem Xperia (${details.lastSeenMinutes} min) — Regulski Operator`
+  const title = 'Alert awarii telefonu Regulski Operator'
+  const intro = `Serwer odnotował brak kontaktu z dedykowanym telefonem Sony Xperia F3111 od ponad ${details.lastSeenMinutes} minut.`
+  const lastSeenLabel = details.lastHeartbeatAt
+    ? new Date(details.lastHeartbeatAt).toLocaleString('pl-PL', { timeZone: 'Europe/Warsaw' })
+    : 'brak danych (urządzenie nie połączyło się od startu)'
+
+  const facts = [
+    { label: 'Status telefonu', htmlValue: '<strong style="color:#b91c1c;">OFFLINE (Awaria)</strong>', textValue: 'OFFLINE' },
+    { label: 'Czas bez kontaktu', htmlValue: `<strong>${details.lastSeenMinutes} min</strong>`, textValue: `${details.lastSeenMinutes} min` },
+    { label: 'Ostatni meldunek', htmlValue: escapeHtml(lastSeenLabel), textValue: lastSeenLabel },
+    { label: 'Podjęta akcja', htmlValue: '<strong>Konsultacje „na już” zostały natychmiast zablokowane na stronie.</strong>', textValue: 'Konsultacje na juz zablokowane' },
+  ]
+
+  const adminUrl = buildAbsoluteUrl('/admin')
+  const payload = {
+    to: adminEmail,
+    subject,
+    html: renderEmailShell(
+      title,
+      intro,
+      `
+        ${renderEmailDataTable(facts, 'outage')}
+        <p style="margin-top:20px;"><strong>Zalecane kroki:</strong></p>
+        <ol style="margin:10px 0 20px 20px;padding:0;color:#1f1a17;font-size:14px;line-height:1.6;">
+          <li>Sprawdź, czy telefon Xperia jest podłączony do ładowarki i włączony.</li>
+          <li>Upewnij się, że ma zasięg sieci komórkowej GSM i aktywny pakiet danych/Wi-Fi.</li>
+          <li>Sprawdź aplikację Regulski Operator na telefonie.</li>
+        </ol>
+        ${renderEmailActionButton({ href: adminUrl, label: 'Otwórz panel administracyjny', tone: 'danger' })}
+      `,
+      'Powiadomienie wygenerowane automatycznie przez system watchdoga serwera.',
+    ),
+    text: [
+      intro,
+      `Czas bez kontaktu: ${details.lastSeenMinutes} min`,
+      `Ostatni meldunek: ${lastSeenLabel}`,
+      'Konsultacje na już zostały automatycznie zablokowane.',
+      `Panel admina: ${adminUrl}`,
+    ].join('\n'),
+  }
+
+  return deliverEmail(payload, 'internal')
+}

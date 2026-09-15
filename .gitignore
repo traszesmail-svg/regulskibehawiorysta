@@ -3,6 +3,11 @@ node_modules/
 .next-codex-verify/
 .tools/
 .vercel/
+android/phone-agent/.gradle/
+android/phone-agent/app/build/
+android/phone-agent/local.properties
+android/phone-agent/*.idsig
+android/phone-agent/*.apk
 
 .env*
 !.env.example

@@ -26,8 +26,8 @@ const FAQ_ITEMS = [
     answer: 'Zapytaj to krótki, płatny pierwszy kierunek. Pełna konsultacja trwa około 90 minut i jest dostępna dopiero po indywidualnym zaproszeniu oraz osobnej płatności.',
   },
   {
-    question: 'Czy mogę zapytać teraz?',
-    answer: 'Opcja „teraz” będzie widoczna tylko wtedy, gdy behawiorysta faktycznie włączy dostępność live. W innym przypadku wybierasz zwykły termin za 79 zł.',
+    question: 'Jak szybko odbędzie się rozmowa?',
+    answer: 'Rozmawiamy w wybranym i potwierdzonym terminie z kalendarza za 79 zł. Jeśli w danym momencie dostępna jest opcja natychmiastowa, formularz wyraźnie to wskaże.',
   },
   {
     question: 'A jeśli sytuacja wygląda na zdrowotną albo nagłą?',
@@ -133,7 +133,7 @@ export default function ZapytajPage() {
           <article>
             <span>03</span>
             <h3>Rozmawiasz z behawiorystą</h3>
-            <p>Do 15 minut telefonicznie, w zwykłym terminie albo live, jeśli jest realna dostępność.</p>
+            <p>Do 15 minut telefonicznie, w potwierdzonym zwykłym terminie.</p>
           </article>
           <article>
             <span>04</span>

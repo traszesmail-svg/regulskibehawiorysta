@@ -1,0 +1,391 @@
+import { mkdir, readFile, writeFile } from 'fs/promises'
+import path from 'node:path'
+import { randomUUID } from 'node:crypto'
+import { getLocalStoreDataDir } from '@/lib/server/local-store-path'
+import { disableZapytajLive } from '@/lib/server/zapytaj-live'
+import { sendPhoneAgentOutagePushToOwner } from '@/lib/server/push-notifications'
+import { sendPhoneAgentOutageAlertEmail } from '@/lib/server/notifications'
+import { listBookings } from '@/lib/server/db'
+import { isZapytajPhoneBooking } from '@/lib/server/zapytaj-call'
+import { parseWarsawDateTime } from '@/lib/server/google-calendar'
+import { getBaseUrl } from '@/lib/server/env'
+import { normalizePolishPhone } from '@/lib/phone'
+
+export const PHONE_AGENT_HEARTBEAT_TIMEOUT_MS = 180_000 // 3 minutes without heartbeat = offline
+export const WATCHDOG_ALERT_THROTTLE_MS = 30 * 60 * 1000 // Send alert at most once per 30 minutes during continuous outage
+
+export type PhoneAgentHeartbeatInput = {
+  batteryLevel?: number | null
+  isCharging?: boolean | null
+  network?: string | null
+  isDefaultDialer?: boolean | null
+  appVersion?: string | null
+  timestamp?: string | null
+}
+
+export type PhoneAgentDeviceState = {
+  lastHeartbeatAt: string | null
+  batteryLevel: number | null
+  isCharging: boolean | null
+  network: string | null
+  isDefaultDialer: boolean | null
+  appVersion: string | null
+  status: 'online' | 'offline' | 'never_connected'
+  isOnline: boolean
+  lastSeenSeconds: number | null
+  lastOutageAlertSentAt: string | null
+  updatedAt: string
+}
+
+export type SmsQueueType = 'reminder_60m' | 'reminder_15m' | 'payment_confirmed' | 'custom'
+export type SmsQueueStatus = 'pending' | 'claimed' | 'sent' | 'failed'
+
+export type SmsQueueItem = {
+  id: string
+  bookingId: string | null
+  phone: string
+  message: string
+  type: SmsQueueType
+  status: SmsQueueStatus
+  scheduledFor: string
+  createdAt: string
+  sentAt: string | null
+  error: string | null
+  idempotencyKey: string
+}
+
+export type EnqueueSmsInput = {
+  bookingId?: string | null
+  phone: string
+  message: string
+  type: SmsQueueType
+  scheduledFor?: string | null
+  idempotencyKey: string
+}
+
+let storeQueue = Promise.resolve()
+function withStoreLock<T>(work: () => Promise<T>): Promise<T> {
+  const next = storeQueue.then(work, work)
+  storeQueue = next.then(() => undefined, () => undefined)
+  return next
+}
+
+function getDeviceStatePath() {
+  return path.join(getLocalStoreDataDir(), 'phone-agent-state.json')
+}
+
+function getSmsQueuePath() {
+  return path.join(getLocalStoreDataDir(), 'phone-agent-sms-queue.json')
+}
+
+type StoredDeviceState = {
+  lastHeartbeatAt: string | null
+  batteryLevel: number | null
+  isCharging: boolean | null
+  network: string | null
+  isDefaultDialer: boolean | null
+  appVersion: string | null
+  lastOutageAlertSentAt: string | null
+  updatedAt: string
+}
+
+async function readStoredDeviceState(): Promise<StoredDeviceState> {
+  try {
+    const raw = await readFile(getDeviceStatePath(), 'utf8')
+    return JSON.parse(raw) as StoredDeviceState
+  } catch {
+    return {
+      lastHeartbeatAt: null,
+      batteryLevel: null,
+      isCharging: null,
+      network: null,
+      isDefaultDialer: null,
+      appVersion: null,
+      lastOutageAlertSentAt: null,
+      updatedAt: new Date().toISOString(),
+    }
+  }
+}
+
+async function writeStoredDeviceState(state: StoredDeviceState): Promise<void> {
+  const filePath = getDeviceStatePath()
+  await mkdir(path.dirname(filePath), { recursive: true })
+  const tempPath = `${filePath}.${process.pid}.${randomUUID()}.tmp`
+  await writeFile(tempPath, JSON.stringify(state, null, 2), 'utf8')
+  const { rename } = await import('fs/promises')
+  await rename(tempPath, filePath)
+}
+
+export async function recordPhoneAgentHeartbeat(input: PhoneAgentHeartbeatInput): Promise<PhoneAgentDeviceState> {
+  return withStoreLock(async () => {
+    const prev = await readStoredDeviceState()
+    const now = new Date().toISOString()
+    const updated: StoredDeviceState = {
+      lastHeartbeatAt: now,
+      batteryLevel: typeof input.batteryLevel === 'number' ? input.batteryLevel : prev.batteryLevel,
+      isCharging: typeof input.isCharging === 'boolean' ? input.isCharging : prev.isCharging,
+      network: typeof input.network === 'string' ? input.network : prev.network,
+      isDefaultDialer: typeof input.isDefaultDialer === 'boolean' ? input.isDefaultDialer : prev.isDefaultDialer,
+      appVersion: typeof input.appVersion === 'string' ? input.appVersion : prev.appVersion,
+      lastOutageAlertSentAt: null,
+      updatedAt: now,
+    }
+    await writeStoredDeviceState(updated)
+    return formatDeviceState(updated)
+  })
+}
+
+export async function getPhoneAgentDeviceState(): Promise<PhoneAgentDeviceState> {
+  return withStoreLock(async () => {
+    const stored = await readStoredDeviceState()
+    return formatDeviceState(stored)
+  })
+}
+
+function formatDeviceState(stored: StoredDeviceState): PhoneAgentDeviceState {
+  if (!stored.lastHeartbeatAt) {
+    return {
+      ...stored,
+      status: 'never_connected',
+      isOnline: false,
+      lastSeenSeconds: null,
+    }
+  }
+
+  const diffMs = Date.now() - new Date(stored.lastHeartbeatAt).getTime()
+  const isOnline = diffMs >= 0 && diffMs < PHONE_AGENT_HEARTBEAT_TIMEOUT_MS
+  const lastSeenSeconds = Math.max(0, Math.floor(diffMs / 1000))
+
+  return {
+    ...stored,
+    status: isOnline ? 'online' : 'offline',
+    isOnline,
+    lastSeenSeconds,
+  }
+}
+
+export async function runPhoneAgentWatchdogCheck(): Promise<{
+  isOnline: boolean
+  watchdogTriggered: boolean
+  liveDisabled: boolean
+  alertsSent: boolean
+  lastSeenMinutes: number
+}> {
+  return withStoreLock(async () => {
+    const stored = await readStoredDeviceState()
+    const now = Date.now()
+
+    if (!stored.lastHeartbeatAt) {
+      return { isOnline: false, watchdogTriggered: false, liveDisabled: false, alertsSent: false, lastSeenMinutes: 0 }
+    }
+
+    const diffMs = now - new Date(stored.lastHeartbeatAt).getTime()
+    const isOnline = diffMs >= 0 && diffMs < PHONE_AGENT_HEARTBEAT_TIMEOUT_MS
+    const lastSeenMinutes = Math.max(1, Math.round(diffMs / 60000))
+
+    if (isOnline) {
+      return { isOnline: true, watchdogTriggered: false, liveDisabled: false, alertsSent: false, lastSeenMinutes: 0 }
+    }
+
+    // Phone is OFFLINE!
+    const lastAlertMs = stored.lastOutageAlertSentAt ? now - new Date(stored.lastOutageAlertSentAt).getTime() : Infinity
+    const shouldSendAlert = lastAlertMs > WATCHDOG_ALERT_THROTTLE_MS
+
+    // 1. Disable live availability on site immediately
+    try {
+      await disableZapytajLive()
+    } catch (e) {
+      console.warn('[phone-agent-watchdog] failed to disable live:', e)
+    }
+
+    let alertsSent = false
+    if (shouldSendAlert) {
+      stored.lastOutageAlertSentAt = new Date().toISOString()
+      await writeStoredDeviceState(stored)
+
+      // 2. Send push notification to owner
+      try {
+        await sendPhoneAgentOutagePushToOwner({ lastSeenMinutes })
+      } catch (e) {
+        console.warn('[phone-agent-watchdog] push notification failed:', e)
+      }
+
+      // 3. Send outage alert email to owner
+      try {
+        await sendPhoneAgentOutageAlertEmail({
+          lastSeenMinutes,
+          lastHeartbeatAt: stored.lastHeartbeatAt,
+        })
+        alertsSent = true
+      } catch (e) {
+        console.warn('[phone-agent-watchdog] email alert failed:', e)
+      }
+    }
+
+    return {
+      isOnline: false,
+      watchdogTriggered: true,
+      liveDisabled: true,
+      alertsSent,
+      lastSeenMinutes,
+    }
+  })
+}
+
+// ---------------------------------------------------------------------------
+// SMS Queue Storage & Processing
+// ---------------------------------------------------------------------------
+
+async function readStoredSmsQueue(): Promise<SmsQueueItem[]> {
+  try {
+    const raw = await readFile(getSmsQueuePath(), 'utf8')
+    return JSON.parse(raw) as SmsQueueItem[]
+  } catch {
+    return []
+  }
+}
+
+async function writeStoredSmsQueue(items: SmsQueueItem[]): Promise<void> {
+  const filePath = getSmsQueuePath()
+  await mkdir(path.dirname(filePath), { recursive: true })
+  const tempPath = `${filePath}.${process.pid}.${randomUUID()}.tmp`
+  await writeFile(tempPath, JSON.stringify(items, null, 2), 'utf8')
+  const { rename } = await import('fs/promises')
+  await rename(tempPath, filePath)
+}
+
+export async function enqueueSms(input: EnqueueSmsInput): Promise<SmsQueueItem> {
+  return withStoreLock(async () => {
+    const items = await readStoredSmsQueue()
+    const existing = items.find((item) => item.idempotencyKey === input.idempotencyKey)
+    if (existing) {
+      return existing
+    }
+
+    const normalized = normalizePolishPhone(input.phone)
+    const targetPhone = normalized ? normalized.e164 : input.phone.trim()
+    const now = new Date().toISOString()
+
+    const newItem: SmsQueueItem = {
+      id: randomUUID(),
+      bookingId: input.bookingId ?? null,
+      phone: targetPhone,
+      message: input.message.trim(),
+      type: input.type,
+      status: 'pending',
+      scheduledFor: input.scheduledFor ?? now,
+      createdAt: now,
+      sentAt: null,
+      error: null,
+      idempotencyKey: input.idempotencyKey,
+    }
+
+    items.push(newItem)
+    await writeStoredSmsQueue(items)
+    return newItem
+  })
+}
+
+export async function claimNextPendingSms(): Promise<SmsQueueItem | null> {
+  return withStoreLock(async () => {
+    const items = await readStoredSmsQueue()
+    const now = Date.now()
+
+    const candidate = items.find((item) => item.status === 'pending' && new Date(item.scheduledFor).getTime() <= now)
+    if (!candidate) {
+      return null
+    }
+
+    candidate.status = 'claimed'
+    await writeStoredSmsQueue(items)
+    return candidate
+  })
+}
+
+export async function reportSmsResult(id: string, status: 'sent' | 'failed', error?: string): Promise<boolean> {
+  return withStoreLock(async () => {
+    const items = await readStoredSmsQueue()
+    const item = items.find((it) => it.id === id)
+    if (!item) return false
+
+    item.status = status
+    item.sentAt = status === 'sent' ? new Date().toISOString() : null
+    item.error = error ? error.slice(0, 300) : null
+    await writeStoredSmsQueue(items)
+    return true
+  })
+}
+
+export async function listSmsQueue(limit = 50): Promise<SmsQueueItem[]> {
+  return withStoreLock(async () => {
+    const items = await readStoredSmsQueue()
+    return items.slice(-limit).reverse()
+  })
+}
+
+export async function generateUpcomingBookingSmsReminders(): Promise<{
+  reminders60mCreated: number
+  reminders15mCreated: number
+}> {
+  let bookings: Awaited<ReturnType<typeof listBookings>> = []
+  try {
+    bookings = await listBookings()
+  } catch {
+    return { reminders60mCreated: 0, reminders15mCreated: 0 }
+  }
+  const now = Date.now()
+  let reminders60mCreated = 0
+  let reminders15mCreated = 0
+
+  for (const booking of bookings) {
+    if (booking.paymentStatus !== 'paid' || !isZapytajPhoneBooking(booking) || !booking.phone) {
+      continue
+    }
+
+    if (booking.bookingStatus === 'done' || booking.bookingStatus === 'cancelled' || booking.bookingStatus === 'expired') {
+      continue
+    }
+
+    let startsAt: Date
+    try {
+      startsAt = parseWarsawDateTime(booking.bookingDate, booking.bookingTime)
+    } catch {
+      continue
+    }
+
+    const diffMinutes = (startsAt.getTime() - now) / (60 * 1000)
+
+    // Window 1: 45 to 75 minutes before consultation (60m reminder with reschedule option)
+    if (diffMinutes >= 45 && diffMinutes <= 75) {
+      const idempotencyKey = `reminder_60m:${booking.id}`
+      const rescheduleUrl = `${getBaseUrl()}/confirmation?bookingId=${booking.id}`
+      const message = `Regulski Behawiorysta: Przypomnienie o rozmowie o ${booking.bookingTime}. Przelozenie terminu mozliwe do 30 min przed na: ${rescheduleUrl}. Do uslyszenia!`
+
+      const item = await enqueueSms({
+        bookingId: booking.id,
+        phone: booking.phone,
+        message,
+        type: 'reminder_60m',
+        idempotencyKey,
+      })
+      if (item.createdAt === new Date().toISOString()) reminders60mCreated++
+    }
+
+    // Window 2: 10 to 25 minutes before consultation (15m reminder)
+    if (diffMinutes >= 10 && diffMinutes <= 25) {
+      const idempotencyKey = `reminder_15m:${booking.id}`
+      const message = `Regulski Behawiorysta: Za 15 minut Krzysztof Regulski zadzwoni do Ciebie na ten numer. Prosimy o przygotowanie i trzymanie telefonu.`
+
+      const item = await enqueueSms({
+        bookingId: booking.id,
+        phone: booking.phone,
+        message,
+        type: 'reminder_15m',
+        idempotencyKey,
+      })
+      if (item.createdAt === new Date().toISOString()) reminders15mCreated++
+    }
+  }
+
+  return { reminders60mCreated, reminders15mCreated }
+}

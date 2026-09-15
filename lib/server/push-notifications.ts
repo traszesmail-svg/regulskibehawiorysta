@@ -16,7 +16,6 @@ type StoredPushSubscriptionRow = {
   customer_email: string | null
   target_url: string
 }
-
 export type PushSubscriptionInput = {
   endpoint: string
   p256dh: string
@@ -289,6 +288,53 @@ export async function sendBookingPushReminders(booking: BookingRecord): Promise<
       } else {
         summary.customerSent += 1
       }
+    } else if (result === 'expired') {
+      summary.expired += 1
+    } else {
+      summary.failed += 1
+    }
+  }
+
+  return summary
+}
+
+export async function sendPhoneAgentOutagePushToOwner(details: { lastSeenMinutes: number }): Promise<PushSendSummary> {
+  const configured = ensureWebPushConfigured()
+  const summary: PushSendSummary = {
+    configured,
+    attempted: 0,
+    sent: 0,
+    skipped: 0,
+    failed: 0,
+    expired: 0,
+    ownerSent: 0,
+    customerSent: 0,
+  }
+
+  if (!configured || !isPushPersistenceAvailable()) {
+    summary.skipped += 1
+    return summary
+  }
+
+  const ownerSubscriptions = await listActivePushSubscriptions('owner')
+  if (!ownerSubscriptions.length) {
+    summary.skipped += 1
+    return summary
+  }
+
+  const payload: PushPayload = {
+    title: `⚠️ AWARIA: Xperia offline (${details.lastSeenMinutes} min)`,
+    body: 'Brak kontaktu z telefonem Regulski Operator. Konsultacje "na już" zostały zablokowane.',
+    url: `${getBaseUrl()}/admin`,
+    tag: `phone-agent-outage-${Date.now()}`,
+  }
+
+  for (const subscription of ownerSubscriptions) {
+    summary.attempted += 1
+    const result = await sendPush(subscription, payload)
+    if (result === 'sent') {
+      summary.sent += 1
+      summary.ownerSent += 1
     } else if (result === 'expired') {
       summary.expired += 1
     } else {

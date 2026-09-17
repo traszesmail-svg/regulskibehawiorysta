@@ -120,10 +120,10 @@ export function OwnerPocketDashboard({
   const todayAppointments = upcomingBookings.filter((b) => b.bookingDate === todayIso)
 
   return (
-    <div style={{ maxWidth: 540, margin: '0 auto', padding: '12px 4px 60px 4px', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+    <div style={{ maxWidth: 540, margin: '0 auto', padding: '12px 4px 60px 4px', fontFamily: 'system-ui, -apple-system, sans-serif', display: 'flex', flexDirection: 'column' }}>
       
       {/* 1. MINIMALISTYCZNY NAGŁÓWEK */}
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, padding: '0 8px' }}>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, padding: '0 8px', order: 0 }}>
         <div>
           <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#1e5c51', fontWeight: 700 }}>
             Centrum Operacyjne
@@ -165,6 +165,7 @@ export function OwnerPocketDashboard({
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
+            order: 1,
           }}
         >
           <span>{message}</span>
@@ -179,7 +180,7 @@ export function OwnerPocketDashboard({
       ) : null}
 
       {/* ========================================================================= */}
-      {/* 2. KARTA GŁÓWNA: PRZEŁĄCZNIK LIVE                                         */}
+      {/* 4. DOSTĘPNOŚĆ LIVE                                                        */}
       {/* ========================================================================= */}
       <div
         style={{
@@ -190,6 +191,7 @@ export function OwnerPocketDashboard({
           padding: '20px 18px',
           boxShadow: isLiveActive ? '0 8px 24px rgba(30, 92, 81, 0.25)' : '0 2px 8px rgba(0,0,0,0.05)',
           marginBottom: 16,
+          order: 4,
           transition: 'all 0.3s ease',
         }}
       >
@@ -267,7 +269,7 @@ export function OwnerPocketDashboard({
       </div>
 
       {/* ========================================================================= */}
-      {/* 3. KARTA: WPŁATY DO POTWIERDZENIA (BLIK / REVOLUT) - TYLKO GDY SĄ!        */}
+      {/* 2. KARTA: WPŁATY DO POTWIERDZENIA (BLIK / REVOLUT) - TYLKO GDY SĄ!        */}
       {/* ========================================================================= */}
       {needsActionBookings.length > 0 ? (
         <div
@@ -277,6 +279,7 @@ export function OwnerPocketDashboard({
             borderRadius: 18,
             padding: '16px',
             marginBottom: 16,
+            order: 2,
             boxShadow: '0 4px 14px rgba(245, 158, 11, 0.15)',
           }}
         >
@@ -329,7 +332,7 @@ export function OwnerPocketDashboard({
       ) : null}
 
       {/* ========================================================================= */}
-      {/* 4. KARTA: NAJBLIŻSZA ROZMOWA                                              */}
+      {/* 3. KARTA: NAJBLIŻSZA ROZMOWA                                              */}
       {/* ========================================================================= */}
       <div
         style={{
@@ -339,6 +342,7 @@ export function OwnerPocketDashboard({
           border: '1px solid #e5e7eb',
           boxShadow: '0 2px 10px rgba(0,0,0,0.04)',
           marginBottom: 16,
+          order: 3,
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
@@ -418,6 +422,7 @@ export function OwnerPocketDashboard({
           padding: '16px',
           border: '1px solid #e5e7eb',
           marginBottom: 16,
+          order: 5,
         }}
       >
         <div style={{ fontWeight: 800, fontSize: '0.88rem', color: '#374151', marginBottom: 10 }}>
@@ -454,6 +459,7 @@ export function OwnerPocketDashboard({
             padding: '16px',
             border: '1px solid #e5e7eb',
             marginBottom: 16,
+            order: 6,
           }}
         >
           <div style={{ fontWeight: 700, fontSize: '0.88rem', color: '#374151', marginBottom: 10 }}>
@@ -507,6 +513,7 @@ export function OwnerPocketDashboard({
           fontSize: '0.8rem',
           color: '#4b5563',
           marginBottom: 20,
+          order: 7,
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -525,7 +532,7 @@ export function OwnerPocketDashboard({
       {/* 7. PRZYCISK PRZEŁĄCZENIA NA PEŁNY PANEL DESKTOP                           */}
       {/* ========================================================================= */}
       {onSwitchToDesktop ? (
-        <div style={{ textAlign: 'center' }}>
+        <div style={{ textAlign: 'center', order: 8 }}>
           <button
             type="button"
             onClick={onSwitchToDesktop}

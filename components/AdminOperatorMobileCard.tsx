@@ -105,8 +105,10 @@ export function AdminOperatorMobileCard({ initialData }: { initialData?: Operato
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action }),
       })
-      const payload = await res.json()
-      if (!res.ok) throw new Error(payload.error ?? 'Błąd zmiany statusu')
+      const raw = await res.text()
+      let payload: { error?: string } = {}
+      try { payload = JSON.parse(raw) as { error?: string } } catch {}
+      if (!res.ok) throw new Error(payload.error ?? (res.status === 401 ? 'Sesja panelu wygasła. Odśwież stronę i zaloguj się ponownie.' : 'Błąd zmiany statusu'))
       setActionSuccess(action === 'enable' ? 'Dostępność Live włączona na 1 godzinę.' : 'Dostępność Live wyłączona.')
       await fetchStatus()
     } catch (e) {

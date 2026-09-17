@@ -237,14 +237,6 @@ export function NotatnikMobileMenu({ navItems, ctaHref = '/mapa-sprawy', ctaLabe
             >
               🔑 Pokój opiekuna (Logowanie klienta)
             </Link>
-            <Link
-              href="/admin"
-              prefetch={false}
-              onClick={handleInternalLinkClick('/admin')}
-              style={{ fontWeight: 600, color: '#4b5563' }}
-            >
-              🛡️ Panel właściciela (Kokpit)
-            </Link>
           </div>
         </nav>
         <div className="notatnik-mobile-menu-footer">

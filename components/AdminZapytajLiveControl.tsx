@@ -29,8 +29,10 @@ export function AdminZapytajLiveControl() {
     setLoading('refresh')
     try {
       const response = await fetch('/api/admin/zapytaj/live', { cache: 'no-store' })
-      const payload = (await response.json()) as AdminZapytajLiveResponse
-      if (!response.ok) throw new Error(payload.error ?? 'Nie udało się odczytać statusu live.')
+      const raw = await response.text()
+      let payload: AdminZapytajLiveResponse = {} as AdminZapytajLiveResponse
+      try { payload = JSON.parse(raw) as AdminZapytajLiveResponse } catch {}
+      if (!response.ok) throw new Error(payload.error ?? (response.status === 401 ? 'Sesja panelu wygasła. Odśwież stronę i zaloguj się ponownie.' : 'Nie udało się odczytać statusu live.'))
       setStatus(payload)
       setNotificationSummary(payload.notificationSummary ?? null)
       setError('')
@@ -54,8 +56,10 @@ export function AdminZapytajLiveControl() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action }),
       })
-      const payload = (await response.json()) as AdminZapytajLiveResponse
-      if (!response.ok) throw new Error(payload.error ?? 'Nie udało się zmienić statusu live.')
+      const raw = await response.text()
+      let payload: AdminZapytajLiveResponse = {} as AdminZapytajLiveResponse
+      try { payload = JSON.parse(raw) as AdminZapytajLiveResponse } catch {}
+      if (!response.ok) throw new Error(payload.error ?? (response.status === 401 ? 'Sesja panelu wygasła. Odśwież stronę i zaloguj się ponownie.' : 'Nie udało się zmienić statusu live.'))
       setStatus(payload)
       setNotificationSummary(payload.notificationSummary ?? null)
       if (payload.notificationSummary?.error) {

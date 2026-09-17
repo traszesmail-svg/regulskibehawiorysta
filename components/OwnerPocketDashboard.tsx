@@ -77,8 +77,10 @@ export function OwnerPocketDashboard({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action }),
       })
-      const payload = await res.json()
-      if (!res.ok) throw new Error(payload.error ?? 'Błąd zmiany Live')
+      const raw = await res.text()
+      let payload: { error?: string } = {}
+      try { payload = JSON.parse(raw) as { error?: string } } catch {}
+      if (!res.ok) throw new Error(payload.error ?? (res.status === 401 ? 'Sesja panelu wygasła. Odśwież stronę i zaloguj się ponownie.' : 'Błąd zmiany Live'))
       setMessage(action === 'enable' ? '🟢 Tryb Live WŁĄCZONY na 1 godzinę.' : '⚪ Tryb Live wyłączony.')
       await refreshStatus()
       router.refresh()

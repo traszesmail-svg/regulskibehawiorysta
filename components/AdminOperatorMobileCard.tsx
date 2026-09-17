@@ -19,6 +19,16 @@ export type OperatorStatusData = {
       error: string | null
       createdAt: string
     }>
+    recentMessages: Array<{
+      id: string
+      phone: string
+      message: string
+      type: string
+      status: string
+      scheduledFor: string
+      sentAt: string | null
+      error: string | null
+    }>
   }
   nextUpcomingBooking: {
     id: string
@@ -29,6 +39,8 @@ export type OperatorStatusData = {
     bookingTime: string
     serviceType: string | null
     callStatus: string | null
+    description: string
+    durationNotes: string
   } | null
   pendingManualPaymentsCount: number
   updatedAt: string
@@ -351,6 +363,24 @@ export function AdminOperatorMobileCard({ initialData }: { initialData?: Operato
               <strong>Ostatni błąd SMS:</strong> {data?.smsSummary.recentErrors[0]?.error} ({data?.smsSummary.recentErrors[0]?.phone})
             </div>
           ) : null}
+
+          {(data?.smsSummary.recentMessages?.length ?? 0) > 0 ? (
+            <div style={{ display: 'grid', gap: 8, marginTop: 10 }}>
+              <strong style={{ fontSize: '0.8rem' }}>Ostatnie wiadomości</strong>
+              {data!.smsSummary.recentMessages.map((sms) => (
+                <div key={sms.id} style={{ background: '#f8faf9', borderRadius: 8, padding: '8px 10px', fontSize: '0.78rem', lineHeight: 1.4 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, marginBottom: 4 }}>
+                    <span><strong>{sms.phone}</strong> · {sms.type}</span>
+                    <span style={{ color: sms.status === 'failed' ? '#c9302c' : sms.status === 'sent' ? '#16724f' : '#6b7280', fontWeight: 700 }}>
+                      {sms.status === 'sent' ? 'WYSŁANO' : sms.status === 'failed' ? 'BŁĄD' : sms.status === 'claimed' ? 'W TRAKCIE' : 'OCZEKUJE'}
+                    </span>
+                  </div>
+                  <div style={{ whiteSpace: 'pre-wrap' }}>{sms.message}</div>
+                  {sms.error ? <div style={{ color: '#c9302c', marginTop: 4 }}>Błąd: {sms.error}</div> : null}
+                </div>
+              ))}
+            </div>
+          ) : null}
         </div>
 
         {/* Najbliższa opłacona konsultacja z bezpośrednim dzwonieniem z telefonu */}
@@ -373,6 +403,12 @@ export function AdminOperatorMobileCard({ initialData }: { initialData?: Operato
               <div style={{ color: 'var(--muted, #555)', margin: '3px 0' }}>
                 {data.nextUpcomingBooking.ownerName} • {data.nextUpcomingBooking.animalType}
               </div>
+              {data.nextUpcomingBooking.description ? (
+                <div style={{ marginTop: 8, padding: '8px 10px', background: '#f8faf9', borderRadius: 8, lineHeight: 1.4, whiteSpace: 'pre-wrap' }}>
+                  <strong>Opis rozmowy:</strong> {data.nextUpcomingBooking.description}
+                  {data.nextUpcomingBooking.durationNotes ? <div style={{ marginTop: 5 }}><strong>Dodatkowe informacje:</strong> {data.nextUpcomingBooking.durationNotes}</div> : null}
+                </div>
+              ) : null}
               <div style={{ marginTop: 8 }}>
                 <a
                   href={`tel:${data.nextUpcomingBooking.phone}`}

@@ -42,6 +42,8 @@ export async function GET() {
           bookingTime: upcomingPaid[0].bookingTime,
           serviceType: upcomingPaid[0].serviceType,
           callStatus: upcomingPaid[0].callStatus,
+          description: upcomingPaid[0].description,
+          durationNotes: upcomingPaid[0].durationNotes,
         }
       : null
 
@@ -62,6 +64,16 @@ export async function GET() {
         error: item.error,
         createdAt: item.createdAt,
       }))
+    const recentMessages = smsQueue.slice(0, 5).map((item) => ({
+      id: item.id,
+      phone: item.phone,
+      message: item.message,
+      type: item.type,
+      status: item.status,
+      scheduledFor: item.scheduledFor,
+      sentAt: item.sentAt,
+      error: item.error,
+    }))
 
     return NextResponse.json(
       {
@@ -72,6 +84,7 @@ export async function GET() {
           sentCount,
           failedCount,
           recentErrors,
+          recentMessages,
         },
         nextUpcomingBooking,
         pendingManualPaymentsCount,

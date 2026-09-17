@@ -366,6 +366,8 @@ export default async function AdminPage() {
           bookingTime: bookingGroups.upcoming[0].bookingTime,
           serviceType: bookingGroups.upcoming[0].serviceType ?? null,
           callStatus: bookingGroups.upcoming[0].callStatus ?? null,
+          description: bookingGroups.upcoming[0].description,
+          durationNotes: bookingGroups.upcoming[0].durationNotes,
         }
       : null
 
@@ -376,7 +378,17 @@ export default async function AdminPage() {
         pendingCount,
         sentCount,
         failedCount,
-        recentErrors,
+      recentErrors,
+      recentMessages: smsQueue.slice(0, 5).map((item) => ({
+        id: item.id,
+        phone: item.phone,
+        message: item.message,
+        type: item.type,
+        status: item.status,
+        scheduledFor: item.scheduledFor,
+        sentAt: item.sentAt,
+        error: item.error,
+      })),
       },
       nextUpcomingBooking: nextUpcoming,
       pendingManualPaymentsCount: bookingGroups.needsAction.length,

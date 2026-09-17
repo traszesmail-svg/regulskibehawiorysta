@@ -370,6 +370,12 @@ export function OwnerPocketDashboard({
               <div style={{ color: '#4b5563', marginBottom: 4 }}>
                 🐾 <strong>Zwierzak:</strong> {nextBooking.animalType}
               </div>
+              {nextBooking.description ? (
+                <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid #e5e7eb', color: '#374151', lineHeight: 1.45, whiteSpace: 'pre-wrap' }}>
+                  <strong>Opis rozmowy:</strong> {nextBooking.description}
+                  {nextBooking.durationNotes ? <div style={{ marginTop: 5 }}><strong>Dodatkowe informacje:</strong> {nextBooking.durationNotes}</div> : null}
+                </div>
+              ) : null}
             </div>
 
             <a
@@ -403,7 +409,42 @@ export function OwnerPocketDashboard({
       </div>
 
       {/* ========================================================================= */}
-      {/* 5. POZOSTAŁE ROZMOWY NA DZISIAJ (JEŚLI WIĘCEJ NIŻ 1)                       */}
+      {/* 5. OSTATNIE SMS-Y Z KARTY SIM                                             */}
+      {/* ========================================================================= */}
+      <div
+        style={{
+          background: '#ffffff',
+          borderRadius: 18,
+          padding: '16px',
+          border: '1px solid #e5e7eb',
+          marginBottom: 16,
+        }}
+      >
+        <div style={{ fontWeight: 800, fontSize: '0.88rem', color: '#374151', marginBottom: 10 }}>
+          📩 Ostatnie SMS-y z Motoroli
+        </div>
+        {(data?.smsSummary.recentMessages?.length ?? 0) > 0 ? (
+          <div style={{ display: 'grid', gap: 9 }}>
+            {data!.smsSummary.recentMessages.map((sms) => (
+              <div key={sms.id} style={{ background: '#f8faf9', borderRadius: 11, padding: '10px 12px', fontSize: '0.84rem', lineHeight: 1.45 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, marginBottom: 5 }}>
+                  <span><strong>{sms.phone}</strong> · {sms.type}</span>
+                  <span style={{ color: sms.status === 'failed' ? '#b91c1c' : sms.status === 'sent' ? '#16724f' : '#6b7280', fontWeight: 800 }}>
+                    {sms.status === 'sent' ? 'WYSŁANO' : sms.status === 'failed' ? 'BŁĄD' : sms.status === 'claimed' ? 'W TRAKCIE' : 'OCZEKUJE'}
+                  </span>
+                </div>
+                <div style={{ whiteSpace: 'pre-wrap' }}>{sms.message}</div>
+                {sms.error ? <div style={{ color: '#b91c1c', marginTop: 5 }}>Błąd: {sms.error}</div> : null}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div style={{ color: '#6b7280', fontSize: '0.85rem' }}>Brak SMS-ów w ostatnich wpisach kolejki.</div>
+        )}
+      </div>
+
+      {/* ========================================================================= */}
+      {/* 6. POZOSTAŁE ROZMOWY NA DZISIAJ (JEŚLI WIĘCEJ NIŻ 1)                       */}
       {/* ========================================================================= */}
       {todayAppointments.length > 1 ? (
         <div

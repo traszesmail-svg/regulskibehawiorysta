@@ -220,9 +220,10 @@ public final class MainActivity extends Activity {
     @Override protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
-        if (intent.hasExtra("speak_text")) {
+        android.util.Log.i("PhoneAgent", "onNewIntent otrzymany! has speak_text=" + (intent != null && intent.hasExtra("speak_text")));
+        if (intent != null && intent.hasExtra("speak_text")) {
             speakBriefing(intent.getStringExtra("speak_text"));
-        } else if (intent.getBooleanExtra("check_job", false)) {
+        } else if (intent != null && intent.getBooleanExtra("check_job", false)) {
             fetchCurrentJob();
         }
     }
@@ -237,9 +238,13 @@ public final class MainActivity extends Activity {
         return tv;
     }
 
+    private String pendingSpeakText = null;
+
     private void initTts() {
         try {
+            android.util.Log.i("PhoneAgent", "Inicjalizacja TTS...");
             tts = new TextToSpeech(getApplicationContext(), status -> {
+                android.util.Log.i("PhoneAgent", "TTS onInit status: " + status);
                 if (status == TextToSpeech.SUCCESS) {
                     Locale pl = new Locale("pl", "PL");
                     int res = tts.setLanguage(pl);
@@ -251,32 +256,76 @@ public final class MainActivity extends Activity {
                     }
                     if (ttsReady) {
                         tts.setSpeechRate(0.95f);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            android.media.AudioAttributes audioAttributes = new android.media.AudioAttributes.Builder()
+                                .setUsage(android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION)
+                                .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SPEECH)
+                                .build();
+                            tts.setAudioAttributes(audioAttributes);
+                        }
+                        android.util.Log.i("PhoneAgent", "TTS gotowy (język PL załadowany).");
+                        if (pendingSpeakText != null) {
+                            final String toSpeak = pendingSpeakText;
+                            pendingSpeakText = null;
+                            runOnUiThread(() -> speakBriefing(toSpeak));
+                        }
+                    } else {
+                        android.util.Log.w("PhoneAgent", "Język polski TTS niedostępny.");
                     }
                 }
             });
         } catch (Exception e) {
+            android.util.Log.e("PhoneAgent", "Błąd init TTS: " + e.getMessage(), e);
             ttsReady = false;
         }
     }
 
     private void speakBriefing(String text) {
+        android.util.Log.i("PhoneAgent", "speakBriefing żądanie: " + text + ", ttsReady=" + ttsReady);
         if (text == null || text.trim().isEmpty()) {
             status.setText("Brak tekstu briefingu do odczytania.");
             return;
         }
         if (tts == null || !ttsReady) {
-            status.setText("Silnik syntezy mowy (TTS) nie jest jeszcze gotowy.");
+            pendingSpeakText = text;
+            status.setText("Silnik syntezy mowy (TTS) oczekuje na inicjalizację...");
             return;
         }
         try {
+            android.media.AudioManager am = (android.media.AudioManager) getSystemService(Context.AUDIO_SERVICE);
+            if (am != null) {
+                // KLUCZOWE: MODE_IN_CALL bez głośnika.
+                // STREAM_VOICE_CALL w tym trybie idzie przez sprzętowy tor głosowy DSP
+                // i jest mieszany do uplinku rozmowy (rozmówca słyszy TTS).
+                // setSpeakerphoneOn(true) włącza głośnik i AEC wycisza mikrofon → rozmówca nic nie słyszy.
+                am.setMode(android.media.AudioManager.MODE_IN_CALL);
+                am.setSpeakerphoneOn(false);  // WYŁĄCZ głośnik – TTS idzie przez DSP do linii
+                int maxVol = am.getStreamMaxVolume(android.media.AudioManager.STREAM_VOICE_CALL);
+                am.setStreamVolume(android.media.AudioManager.STREAM_VOICE_CALL, maxVol, 0);
+                android.util.Log.i("PhoneAgent", "STREAM_VOICE_CALL vol=" + maxVol + " speakerphone=OFF mode=IN_CALL");
+            }
             tts.stop();
+            tts.setSpeechRate(0.85f);
+
+            // Ustaw AudioAttributes na VOICE_COMMUNICATION żeby TTS szedł w tor głosowy
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "briefing_" + System.currentTimeMillis());
+                android.media.AudioAttributes voiceAttr = new android.media.AudioAttributes.Builder()
+                    .setUsage(android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION)
+                    .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SPEECH)
+                    .build();
+                tts.setAudioAttributes(voiceAttr);
+
+                android.os.Bundle params = new android.os.Bundle();
+                params.putInt(TextToSpeech.Engine.KEY_PARAM_STREAM, android.media.AudioManager.STREAM_VOICE_CALL);
+                params.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 1.0f);
+                int speakRes = tts.speak(text, TextToSpeech.QUEUE_FLUSH, params, "briefing_" + System.currentTimeMillis());
+                android.util.Log.i("PhoneAgent", "tts.speak wynik: " + speakRes);
             } else {
                 tts.speak(text, TextToSpeech.QUEUE_FLUSH, null);
             }
-            status.setText("Lektor czyta briefing sprawy...");
+            status.setText("Lektor czyta: " + text);
         } catch (Exception e) {
+            android.util.Log.e("PhoneAgent", "Błąd odczytu lektora: " + e.getMessage(), e);
             status.setText("Błąd odczytu lektora: " + e.getMessage());
         }
     }
@@ -403,8 +452,18 @@ public final class MainActivity extends Activity {
         });
     }
 
+    private String normalizeDialNumber(String raw) {
+        String number = raw == null ? "" : raw.replaceAll("[\\s()\\-]", "");
+        if (number.matches("[0-9]{9}")) return "+48" + number;
+        if (number.matches("48[0-9]{9}")) return "+" + number;
+        if (number.matches("00[1-9][0-9]{8,14}")) return "+" + number.substring(2);
+        if (number.matches("\\+[1-9][0-9]{8,14}")) return number;
+        return null;
+    }
+
     private void dialNumber(String number) {
-        if (!number.matches("\\+?[0-9]{9,15}")) {
+        String normalizedNumber = normalizeDialNumber(number);
+        if (normalizedNumber == null) {
             status.setText("Podaj poprawny numer telefonu.");
             return;
         }
@@ -413,7 +472,7 @@ public final class MainActivity extends Activity {
             return;
         }
         try {
-            startActivity(new Intent(Intent.ACTION_CALL, android.net.Uri.fromParts("tel", number, null)));
+            startActivity(new Intent(Intent.ACTION_CALL, android.net.Uri.fromParts("tel", normalizedNumber, null)));
             status.setText("Nawiązywanie połączenia z " + number);
         } catch (Exception error) {
             status.setText("Nie udało się rozpocząć połączenia: " + error.getMessage());

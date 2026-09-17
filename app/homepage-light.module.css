@@ -62,7 +62,13 @@
   stroke-width: 1.9;
 }
 
-.page :global(.offer-fact > span) {
+.page :global(.offer-fact__icon) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.page :global(.offer-fact > span:not(.offer-fact__icon)) {
   color: var(--ink);
   font-size: 14px;
   font-weight: 650;

@@ -228,6 +228,24 @@ export function NotatnikMobileMenu({ navItems, ctaHref = '/mapa-sprawy', ctaLabe
               {item.label}
             </Link>
           ))}
+          <div style={{ borderTop: '1px solid rgba(0,0,0,0.08)', marginTop: 12, paddingTop: 10, display: 'grid', gap: 8 }}>
+            <Link
+              href="/login"
+              prefetch={false}
+              onClick={handleInternalLinkClick('/login')}
+              style={{ fontWeight: 600, color: '#1e5c51' }}
+            >
+              🔑 Pokój opiekuna (Logowanie klienta)
+            </Link>
+            <Link
+              href="/admin"
+              prefetch={false}
+              onClick={handleInternalLinkClick('/admin')}
+              style={{ fontWeight: 600, color: '#4b5563' }}
+            >
+              🛡️ Panel właściciela (Kokpit)
+            </Link>
+          </div>
         </nav>
         <div className="notatnik-mobile-menu-footer">
           <ThemeToggle />

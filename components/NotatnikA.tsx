@@ -148,6 +148,19 @@ export function NotatnikTopbar({
       ) : null}
 
       <div className="notatnik-topbar-actions">
+        <Link
+          href="/login"
+          prefetch={false}
+          className="notatnik-topbar-quick-help"
+          style={{
+            background: 'transparent',
+            border: '1px solid rgba(0,0,0,0.15)',
+            color: 'var(--ink, #222)',
+            padding: '5px 11px',
+          }}
+        >
+          <span>Strefa opiekuna</span>
+        </Link>
         <Link href={resolvedCtaHref} prefetch={false} className="notatnik-topbar-quick-help">
           <Zap size={16} strokeWidth={2.1} aria-hidden="true" />
           <span>{resolvedCtaLabel}</span>

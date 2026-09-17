@@ -65,6 +65,10 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
+  if (request.nextUrl.pathname.startsWith('/admin')) {
+    return NextResponse.redirect(new URL('/admin/login', request.url), 303)
+  }
+
   return createUnauthorizedResponse('Dostęp do panelu specjalisty wymaga autoryzacji.', 401)
 }
 

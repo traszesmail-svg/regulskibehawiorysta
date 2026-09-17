@@ -1,14 +1,18 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, BadgeCheck, CalendarDays, MessageSquareText, PhoneCall } from 'lucide-react'
 import { EditorialIndexTopbar } from '@/components/EditorialIndexTopbar'
 import { FaqAccordion } from '@/components/FaqAccordion'
+import { FinalReviewsQuoteCarousel } from '@/components/FinalReviewsQuoteCarousel'
 import { HomepageZapytajHero } from '@/components/HomepageZapytajHero'
 import { NotatnikFooter } from '@/components/NotatnikA'
 import { Schema } from '@/components/schema'
-import { homepageProcessSteps } from '@/lib/homepage-data'
+import { PUBLIC_ZAPYTAJ_OFFER, formatPublicOfferPrice } from '@/lib/public-offer'
 import { getBreadcrumbJsonLd, getFaqPageJsonLd, getServiceJsonLd } from '@/lib/schema'
 import { buildHomeMetadata } from '@/lib/seo'
+import { SPECIALIST_NAME, SPECIALIST_PUBLIC_STATUS } from '@/lib/site'
+import { reviews } from '@/lib/reviews.config'
+import styles from './homepage-light.module.css'
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildHomeMetadata()
@@ -33,6 +37,12 @@ const routerFaqItems = [
   },
 ] as const
 
+const homepageSteps = [
+  { title: 'Opisujesz sytuację', copy: 'Kilka zdań o tym, co Cię niepokoi.', Icon: MessageSquareText },
+  { title: 'Rezerwujesz rozmowę', copy: 'Wybierasz dostępny termin i opłacasz rozmowę.', Icon: CalendarDays },
+  { title: 'Rozmawiamy', copy: 'Ustalamy pierwszy krok i dalsze możliwości pomocy.', Icon: PhoneCall },
+] as const
+
 export default function HomePage() {
   const structuredData = [
     getBreadcrumbJsonLd([{ name: 'Strona główna', path: '/' }]),
@@ -54,7 +64,7 @@ export default function HomePage() {
   ]
 
   return (
-    <main className="notatnik-page homepage-shell homepage-sales-page">
+    <main className={`${styles.page} notatnik-page homepage-shell homepage-sales-page`}>
       <Schema data={structuredData} />
       <div className="notatnik-shell homepage-main">
         <EditorialIndexTopbar />
@@ -63,65 +73,57 @@ export default function HomePage() {
           <HomepageZapytajHero />
         </section>
 
-        <section className="homepage-sales-proof" aria-label="Najważniejsze informacje o usłudze">
-          <div>
-            <strong>Do 15 minut</strong>
-            <span>krótka rozmowa telefoniczna</span>
-          </div>
-          <div>
-            <strong>79 zł</strong>
-            <span>jasna cena pierwszego kroku</span>
-          </div>
-          <div>
-            <strong>Co dalej?</strong>
-            <span>konkretny kierunek po rozmowie</span>
-          </div>
-        </section>
-
         <section className="homepage-sales-process" id="jak-to-działa" aria-labelledby="homepage-process-title">
           <div className="homepage-sales-section-heading">
             <span>JAK ZACZĄĆ</span>
-            <h2 id="homepage-process-title">Najpierw opowiedz. Potem ustalimy, co ma sens.</h2>
-            <p>
-              Nie musisz samodzielnie diagnozować psa ani kota. Płatna rozmowa służy temu, żeby spokojnie zebrać
-              najważniejsze fakty i wybrać następny krok.
-            </p>
+            <h2 id="homepage-process-title">Trzy proste kroki.</h2>
           </div>
           <div className="homepage-sales-process-grid">
-            {homepageProcessSteps.map((step) => (
-              <article key={step.step}>
-                <span className="homepage-sales-step-number">{step.step}</span>
-                <h3>{step.title.replace(' i szukamy przyczyny', '')}</h3>
-                <p>{step.copy}</p>
+            {homepageSteps.map(({ title, copy, Icon }) => (
+              <article key={title}>
+                <Icon aria-hidden="true" />
+                <div>
+                  <h3>{title}</h3>
+                  <p>{copy}</p>
+                </div>
               </article>
             ))}
           </div>
         </section>
 
-        <section className="homepage-sales-map-bridge" aria-labelledby="homepage-map-title">
-          <div>
-            <span>NIE WIESZ, JAK TO NAZWAĆ?</span>
-            <h2 id="homepage-map-title">Mapa zachowania pomoże uporządkować opis.</h2>
-            <p>To pomocnicze pytania, nie diagnoza i nie wybór usługi za Ciebie.</p>
-          </div>
-          <Link href="/mapa-sprawy" prefetch={false}>
-            Otwórz Mapę zachowania <ArrowRight size={17} aria-hidden="true" />
-          </Link>
+        <section className="homepage-trust-line" aria-label="Informacje o specjaliście">
+          <BadgeCheck aria-hidden="true" />
+          <span><strong>{SPECIALIST_NAME}</strong> · {SPECIALIST_PUBLIC_STATUS} · technik weterynarii</span>
+          <Link href="/o-mnie" prefetch={false}>Poznaj podejście <ArrowRight size={16} aria-hidden="true" /></Link>
         </section>
+
+        <FinalReviewsQuoteCarousel reviews={reviews} initialIndex={0} layout="editorial" />
 
         <section className="homepage-sales-faq" aria-labelledby="homepage-faq-title">
           <div className="homepage-sales-section-heading">
             <span>NAJCZĘSTSZE PYTANIA</span>
             <h2 id="homepage-faq-title">Zanim zaczniesz</h2>
+            <p>Nie wiesz, jak opisać sytuację? <Link href="/mapa-sprawy" prefetch={false}>Otwórz Mapę zachowania.</Link></p>
           </div>
           <FaqAccordion items={routerFaqItems.map((item) => ({ q: item.question, a: item.answer }))} />
+        </section>
+
+        <section className="homepage-final-cta" aria-labelledby="homepage-final-cta-title">
+          <div>
+            <h2 id="homepage-final-cta-title">Chcesz wiedzieć, od czego zacząć?</h2>
+            <p>Opowiedz, co się dzieje. W rozmowie do 15 minut ustalimy pierwszy kierunek działania.</p>
+            <Link href="/zapytaj" prefetch={false} className="notatnik-btn homepage-final-cta-button">
+              <span>Zapytaj behawiorystę — {formatPublicOfferPrice(PUBLIC_ZAPYTAJ_OFFER.pricePln)}</span>
+              <ArrowRight size={17} strokeWidth={1.9} aria-hidden="true" />
+            </Link>
+          </div>
         </section>
 
         <NotatnikFooter
           variant="home"
           primaryHref="/zapytaj#formularz"
-          primaryLabel="Zapytaj behawiorystę — 79 zł"
-          reviewLayout="editorial"
+          primaryLabel={`Zapytaj behawiorystę — ${formatPublicOfferPrice(PUBLIC_ZAPYTAJ_OFFER.pricePln)}`}
+          showReviews={false}
         />
       </div>
     </main>

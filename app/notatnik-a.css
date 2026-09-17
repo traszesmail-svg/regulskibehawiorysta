@@ -1,4 +1,4 @@
-.notatnik-page {
+﻿.notatnik-page {
   --bg: #f8f4ed;
   --bg-2: #ebe5d8;
   --paper: #faf7f0;
@@ -40682,3 +40682,4 @@ html[data-theme='dark'] .zapytaj-safety-note {
     align-items: flex-start;
   }
 }
+

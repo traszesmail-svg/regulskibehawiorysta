@@ -36,5 +36,21 @@ export default function manifest(): MetadataRoute.Manifest {
         purpose: 'maskable',
       },
     ],
+    shortcuts: [
+      {
+        name: 'Centrum Operacyjne (Właściciel)',
+        short_name: 'Operator',
+        description: 'Zarządzanie rezerwacjami, tryb Live i stan modemu Motoroli',
+        url: '/admin',
+        icons: [{ src: '/icon-192.png', sizes: '192x192' }],
+      },
+      {
+        name: 'Pokój Opiekuna',
+        short_name: 'Pokój',
+        description: 'Strefa klienta i materiały behawioralne',
+        url: '/pokoj',
+        icons: [{ src: '/icon-192.png', sizes: '192x192' }],
+      },
+    ],
   };
 }

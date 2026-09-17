@@ -39,6 +39,8 @@ export function AdminOperatorMobileCard({ initialData }: { initialData?: Operato
   const [loadingAction, setLoadingAction] = useState<'enable' | 'disable' | 'refresh' | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
   const [actionSuccess, setActionSuccess] = useState<string | null>(null)
+  const [liveCountdown, setLiveCountdown] = useState<string | null>(null)
+  const [showInstallHelp, setShowInstallHelp] = useState(false)
 
   async function fetchStatus() {
     try {
@@ -58,6 +60,29 @@ export function AdminOperatorMobileCard({ initialData }: { initialData?: Operato
     return () => clearInterval(timer)
   }, [])
 
+  useEffect(() => {
+    if (!data?.live?.enabledUntil) {
+      setLiveCountdown(null)
+      return
+    }
+
+    const updateTimer = () => {
+      const remainingMs = new Date(data.live.enabledUntil!).getTime() - Date.now()
+      if (remainingMs <= 0) {
+        setLiveCountdown('Czas minął')
+        return
+      }
+      const totalSeconds = Math.floor(remainingMs / 1000)
+      const minutes = Math.floor(totalSeconds / 60)
+      const seconds = totalSeconds % 60
+      setLiveCountdown(`${minutes}m ${seconds < 10 ? '0' : ''}${seconds}s`)
+    }
+
+    updateTimer()
+    const timer = setInterval(updateTimer, 1000)
+    return () => clearInterval(timer)
+  }, [data?.live?.enabledUntil])
+
   async function handleToggleLive(action: 'enable' | 'disable') {
     setLoadingAction(action)
     setActionError(null)
@@ -70,7 +95,7 @@ export function AdminOperatorMobileCard({ initialData }: { initialData?: Operato
       })
       const payload = await res.json()
       if (!res.ok) throw new Error(payload.error ?? 'Błąd zmiany statusu')
-      setActionSuccess(action === 'enable' ? 'Dostępność live włączona na 1 godzinę.' : 'Dostępność live wyłączona.')
+      setActionSuccess(action === 'enable' ? 'Dostępność Live włączona na 1 godzinę.' : 'Dostępność Live wyłączona.')
       await fetchStatus()
     } catch (e) {
       setActionError(e instanceof Error ? e.message : 'Nie udało się zmienić dostępności')
@@ -103,23 +128,63 @@ export function AdminOperatorMobileCard({ initialData }: { initialData?: Operato
 
   return (
     <div className="list-card operator-mobile-card top-gap-small" data-admin-operator-card>
-      <div className="section-head" style={{ marginBottom: 12 }}>
+      {/* Nagłówek z przyciskiem instalacji i odświeżenia */}
+      <div className="section-head" style={{ marginBottom: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <div className="section-eyebrow" style={{ color: 'var(--brand, #4a8d7a)', fontWeight: 700 }}>
             Centrum Operacyjne Właściciela
           </div>
-          <h2 style={{ fontSize: '1.25rem', margin: '2px 0 0 0' }}>Motorola & Dostępność Live</h2>
+          <h2 style={{ fontSize: '1.25rem', margin: '2px 0 0 0' }}>Panel Mobilny & Tryb Live</h2>
         </div>
-        <button
-          type="button"
-          className="button button-ghost"
-          style={{ fontSize: '0.85rem', padding: '6px 12px' }}
-          onClick={() => void handleRefresh()}
-          disabled={loadingAction !== null}
-        >
-          {loadingAction === 'refresh' ? '…' : 'Odśwież'}
-        </button>
+        <div style={{ display: 'flex', gap: 6 }}>
+          <button
+            type="button"
+            className="button button-ghost"
+            style={{ fontSize: '0.8rem', padding: '6px 10px' }}
+            onClick={() => setShowInstallHelp((prev) => !prev)}
+            title="Jak dodać aplikację do ekranu telefonu"
+          >
+            📲 Aplikacja
+          </button>
+          <button
+            type="button"
+            className="button button-ghost"
+            style={{ fontSize: '0.8rem', padding: '6px 10px' }}
+            onClick={() => void handleRefresh()}
+            disabled={loadingAction !== null}
+          >
+            {loadingAction === 'refresh' ? '…' : 'Odśwież'}
+          </button>
+        </div>
       </div>
+
+      {/* Pomoc dodania do ekranu telefonu (PWA) */}
+      {showInstallHelp ? (
+        <div
+          style={{
+            background: '#f4f8f7',
+            border: '1px solid #cce3dc',
+            borderRadius: 12,
+            padding: '12px 14px',
+            marginBottom: 12,
+            fontSize: '0.85rem',
+            lineHeight: 1.45,
+          }}
+        >
+          <div style={{ fontWeight: 700, marginBottom: 6, color: '#1e5c51' }}>
+            📲 Jak zainstalować ten panel jako osobną aplikację na Twoim telefonie:
+          </div>
+          <div style={{ marginBottom: 4 }}>
+            <strong>• Android (Chrome):</strong> Kliknij menu <strong>⋮</strong> w prawym górnym rogu ➔ wybierz <strong>„Zainstaluj aplikację”</strong> lub <strong>„Dodaj do ekranu głównego”</strong>.
+          </div>
+          <div style={{ marginBottom: 6 }}>
+            <strong>• iPhone (Safari):</strong> Kliknij ikonę Udostępnij <strong>⎋</strong> na dole ➔ wybierz <strong>„Do ekranu początkowego”</strong>.
+          </div>
+          <div style={{ fontSize: '0.78rem', color: '#555' }}>
+            Dzięki temu panel otwiera się jednym kliknięciem w osobnym oknie bez pasków przeglądarki.
+          </div>
+        </div>
+      ) : null}
 
       {actionError ? <div className="error-box" style={{ marginBottom: 10 }}>{actionError}</div> : null}
       {actionSuccess ? <div className="success-inline" style={{ marginBottom: 10 }}>{actionSuccess}</div> : null}
@@ -143,7 +208,7 @@ export function AdminOperatorMobileCard({ initialData }: { initialData?: Operato
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-            <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>📱 Motorola One Vision</span>
+            <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>📱 Motorola One Vision (Stacja SIM)</span>
             <span
               className={`status-pill ${isOnline ? 'status-paid' : 'status-pending'}`}
               style={{ padding: '2px 8px', fontSize: '0.75rem' }}
@@ -159,71 +224,83 @@ export function AdminOperatorMobileCard({ initialData }: { initialData?: Operato
             <div>
               <strong>Bateria:</strong>{' '}
               {device?.batteryLevel !== null && device?.batteryLevel !== undefined ? `${device.batteryLevel}%` : 'brak'}
-              {device?.isCharging ? ' ⚡ (ładowanie)' : ''}
+              {device?.isCharging ? ' ⚡ (ładowanie USB)' : ''}
             </div>
             <div>
-              <strong>Sieć:</strong> {device?.network || 'brak danych'}
+              <strong>Wersja APK:</strong> {device?.appVersion || 'v1.5.2'}
             </div>
-            {device?.isDefaultDialer === false ? (
-              <div style={{ color: '#d9534f', fontWeight: 600 }}>⚠️ Nie jest domyślnym dialerem!</div>
-            ) : null}
           </div>
         </div>
 
-        {/* Kafelek Dostępności Live */}
+        {/* Kafelek Dostępności Live z dużym przyciskiem */}
         <div
           style={{
-            background: isLiveActive ? 'rgba(40, 167, 69, 0.08)' : 'rgba(108, 117, 125, 0.08)',
-            border: `1px solid ${isLiveActive ? 'rgba(40, 167, 69, 0.3)' : 'rgba(108, 117, 125, 0.2)'}`,
+            background: isLiveActive ? 'rgba(40, 167, 69, 0.09)' : 'rgba(108, 117, 125, 0.08)',
+            border: `2px solid ${isLiveActive ? '#28a745' : 'rgba(108, 117, 125, 0.2)'}`,
             borderRadius: 14,
             padding: '12px 14px',
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-            <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>⚡ Dostępność Live</span>
+            <span style={{ fontWeight: 700, fontSize: '0.92rem' }}>⚡ Tryb Live („Zapytaj teraz”)</span>
             <span
               className={`status-pill ${isLiveActive ? 'status-paid' : 'status-pending'}`}
-              style={{ padding: '2px 8px', fontSize: '0.75rem' }}
+              style={{ padding: '2px 8px', fontSize: '0.75rem', fontWeight: 700 }}
             >
-              {live?.label ?? 'Sprawdzam…'}
+              {isLiveActive ? 'AKTYWNY' : 'WYŁĄCZONY'}
             </span>
           </div>
 
-          <div style={{ fontSize: '0.82rem', marginBottom: 10 }}>
-            {live?.message ?? 'Odczytuję status…'}
-            {live?.enabledUntil ? (
-              <div style={{ marginTop: 2, fontWeight: 600 }}>
-                Ważne do:{' '}
-                {new Date(live.enabledUntil).toLocaleTimeString('pl-PL', {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })}
+          <div style={{ fontSize: '0.82rem', marginBottom: 8 }}>
+            {isLiveActive ? (
+              <div>
+                <span style={{ color: '#155724', fontWeight: 600 }}>Jesteś widoczny dla klientów na stronie głównej!</span>
+                {liveCountdown ? (
+                  <div style={{ marginTop: 4, display: 'inline-flex', alignItems: 'center', gap: 6, background: '#28a745', color: '#fff', padding: '3px 8px', borderRadius: 6, fontSize: '0.78rem', fontWeight: 700 }}>
+                    Pozostało: {liveCountdown}
+                  </div>
+                ) : null}
               </div>
-            ) : null}
+            ) : (
+              <span style={{ color: 'var(--muted, #666)' }}>Klienci widzą tylko standardowe terminy z kalendarza.</span>
+            )}
           </div>
 
           <div style={{ display: 'flex', gap: 8 }}>
             <button
               type="button"
               className="button button-primary"
-              style={{ flex: 1, padding: '8px 12px', fontSize: '0.85rem' }}
+              style={{
+                flex: 1,
+                padding: '10px 14px',
+                fontSize: '0.88rem',
+                fontWeight: 700,
+                minHeight: 44,
+                backgroundColor: isLiveActive ? '#1e5c51' : '#28a745',
+              }}
               onClick={() => void handleToggleLive('enable')}
               disabled={loadingAction !== null}
             >
-              {loadingAction === 'enable' ? 'Włączam…' : 'Włącz (1h)'}
+              {loadingAction === 'enable' ? 'Włączam…' : isLiveActive ? 'Przedłuż (+1h)' : '🟢 Włącz Live (1h)'}
             </button>
-            <button
-              type="button"
-              className="button button-ghost"
-              style={{ flex: 1, padding: '8px 12px', fontSize: '0.85rem' }}
-              onClick={() => void handleToggleLive('disable')}
-              disabled={loadingAction !== null || !isLiveActive}
-            >
-              {loadingAction === 'disable' ? 'Wyłączam…' : 'Wyłącz'}
-            </button>
-          </div>
-          <div style={{ fontSize: '0.72rem', color: 'var(--muted, #666)', marginTop: 6, lineHeight: 1.3 }}>
-            Stan potwierdzony przez serwer. Połączenie telefonu z siecią nie oznacza automatycznie Twojej dostępności.
+            {isLiveActive ? (
+              <button
+                type="button"
+                className="button button-ghost"
+                style={{
+                  padding: '10px 14px',
+                  fontSize: '0.88rem',
+                  fontWeight: 600,
+                  minHeight: 44,
+                  borderColor: '#d9534f',
+                  color: '#d9534f',
+                }}
+                onClick={() => void handleToggleLive('disable')}
+                disabled={loadingAction !== null}
+              >
+                {loadingAction === 'disable' ? 'Wyłączam…' : 'Wyłącz'}
+              </button>
+            ) : null}
           </div>
         </div>
       </div>
@@ -246,7 +323,7 @@ export function AdminOperatorMobileCard({ initialData }: { initialData?: Operato
           }}
         >
           <div style={{ fontWeight: 600, fontSize: '0.88rem', marginBottom: 6 }}>
-            📩 Kolejka SMS Modemu Motoroli
+            📩 Kolejka SMS Karty SIM (T-Mobile)
           </div>
           <div style={{ display: 'flex', gap: 14, fontSize: '0.85rem' }}>
             <div>
@@ -271,13 +348,12 @@ export function AdminOperatorMobileCard({ initialData }: { initialData?: Operato
                 color: '#c9302c',
               }}
             >
-              <strong>Ostatni błąd SMS:</strong> {data?.smsSummary.recentErrors[0]?.error} (
-              {data?.smsSummary.recentErrors[0]?.phone})
+              <strong>Ostatni błąd SMS:</strong> {data?.smsSummary.recentErrors[0]?.error} ({data?.smsSummary.recentErrors[0]?.phone})
             </div>
           ) : null}
         </div>
 
-        {/* Najbliższa opłacona konsultacja */}
+        {/* Najbliższa opłacona konsultacja z bezpośrednim dzwonieniem z telefonu */}
         <div
           style={{
             background: 'rgba(255, 255, 255, 0.6)',
@@ -291,19 +367,30 @@ export function AdminOperatorMobileCard({ initialData }: { initialData?: Operato
           </div>
           {data?.nextUpcomingBooking ? (
             <div style={{ fontSize: '0.85rem' }}>
-              <div style={{ fontWeight: 700 }}>
+              <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#1e5c51' }}>
                 {data.nextUpcomingBooking.bookingDate} o godz. {data.nextUpcomingBooking.bookingTime}
               </div>
-              <div style={{ color: 'var(--muted, #555)', margin: '2px 0' }}>
-                {data.nextUpcomingBooking.ownerName} ({data.nextUpcomingBooking.animalType})
+              <div style={{ color: 'var(--muted, #555)', margin: '3px 0' }}>
+                {data.nextUpcomingBooking.ownerName} • {data.nextUpcomingBooking.animalType}
               </div>
-              <div style={{ marginTop: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ marginTop: 8 }}>
                 <a
                   href={`tel:${data.nextUpcomingBooking.phone}`}
-                  className="button button-ghost"
-                  style={{ padding: '4px 10px', fontSize: '0.8rem', textDecoration: 'none' }}
+                  className="button button-primary"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '8px 16px',
+                    fontSize: '0.88rem',
+                    fontWeight: 700,
+                    minHeight: 40,
+                    textDecoration: 'none',
+                    width: '100%',
+                    boxSizing: 'border-box',
+                  }}
                 >
-                  📞 Zadzwoń: {data.nextUpcomingBooking.phone}
+                  📞 Zadzwoń z tego telefonu: {data.nextUpcomingBooking.phone}
                 </a>
               </div>
             </div>
@@ -333,7 +420,7 @@ export function AdminOperatorMobileCard({ initialData }: { initialData?: Operato
           <span>
             ⚠️ <strong>{data?.pendingManualPaymentsCount}</strong> płatności czeka na weryfikację (BLIK / przelew).
           </span>
-          <Link href="#terminy" className="button button-ghost" style={{ padding: '4px 8px', fontSize: '0.78rem' }}>
+          <Link href="#terminy" className="button button-ghost" style={{ padding: '6px 10px', fontSize: '0.78rem' }}>
             Przejdź do wpłat
           </Link>
         </div>

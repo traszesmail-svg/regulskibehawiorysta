@@ -49,8 +49,12 @@ public final class MainActivity extends Activity {
         layout.setPadding(pad, pad, pad, pad);
         scroll.addView(layout);
 
+        String appVersion = "1.5.2";
+        try {
+            appVersion = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+        } catch (Exception ignored) {}
         TextView title = new TextView(this);
-        title.setText("Regulski Operator v1.5.0 (Voice)");
+        title.setText("Regulski Operator v" + appVersion);
         title.setTextSize(20);
         title.setTypeface(null, android.graphics.Typeface.BOLD);
         title.setPadding(0, 0, 0, 12);
@@ -213,16 +217,25 @@ public final class MainActivity extends Activity {
             fetchCurrentJob();
         } else if (getIntent().hasExtra("speak_text")) {
             final String textToSpeak = getIntent().getStringExtra("speak_text");
-            layout.postDelayed(() -> speakBriefing(textToSpeak), 1200L);
+            currentVoiceBriefing = textToSpeak;
+            if (jobDetailsView != null) {
+                jobDetailsView.setText("[BRIEFING SPRAWY]:\n" + textToSpeak);
+            }
+            if (speakBriefingButton != null) speakBriefingButton.setEnabled(true);
+            if (stopSpeakingButton != null) stopSpeakingButton.setEnabled(true);
         }
     }
 
     @Override protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
-        android.util.Log.i("PhoneAgent", "onNewIntent otrzymany! has speak_text=" + (intent != null && intent.hasExtra("speak_text")));
         if (intent != null && intent.hasExtra("speak_text")) {
-            speakBriefing(intent.getStringExtra("speak_text"));
+            currentVoiceBriefing = intent.getStringExtra("speak_text");
+            if (jobDetailsView != null) {
+                jobDetailsView.setText("[BRIEFING SPRAWY]:\n" + currentVoiceBriefing);
+            }
+            if (speakBriefingButton != null) speakBriefingButton.setEnabled(true);
+            if (stopSpeakingButton != null) stopSpeakingButton.setEnabled(true);
         } else if (intent != null && intent.getBooleanExtra("check_job", false)) {
             fetchCurrentJob();
         }
@@ -561,7 +574,7 @@ public final class MainActivity extends Activity {
             try {
                 JSONObject payload = new JSONObject();
                 payload.put("network", "Ręczny test");
-                String version = "1.5.0-voice";
+                String version = "1.5.2";
                 try {
                     version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
                 } catch (Exception ignored) {}

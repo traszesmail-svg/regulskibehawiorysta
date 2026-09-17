@@ -150,7 +150,7 @@ public final class SmsQueueService extends Service {
                 if (level >= 0 && scale > 0) body.put("batteryLevel", (int) (level * 100f / scale));
                 if (!running) return;
                 int charge = battery == null ? -1 : battery.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
-                String version = "1.5.0-voice";
+                String version = "1.5.2";
                 try {
                     version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
                 } catch (Exception ignored) {}

@@ -2,9 +2,7 @@ import assert from 'node:assert/strict'
 import { execSync } from 'node:child_process'
 import { loadEnvConfig } from '@next/env'
 import {
-  createBooking,
   getBookingById,
-  deleteBooking,
   updateBookingCallState,
 } from '../lib/server/db'
 import { reconcilePaymentNotification } from '../lib/server/payment-reconciliation'

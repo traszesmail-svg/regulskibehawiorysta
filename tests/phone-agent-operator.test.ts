@@ -590,7 +590,7 @@ test('sendPaymentConfirmationSms routes through phone_agent queue when configure
           customerPhoneNormalized: '+48505848889',
           bookingDate: '2026-09-20',
           bookingTime: '15:00',
-          serviceType: 'zapytaj_telefon',
+          serviceType: 'szybka-konsultacja-15-min',
           amount: 89,
         })
 

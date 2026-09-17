@@ -7,6 +7,7 @@ export type PhoneAgentCase = {
   id: string
   ownerName: string
   phone: string
+  customerPhone?: string
   animalType: string
   problemType: string
   petAge: string
@@ -51,10 +52,14 @@ export function toPhoneAgentCase(booking: BookingRecord): PhoneAgentCase {
   const descInfo = booking.description ? `. Szczegóły: ${booking.description.slice(0, 160)}` : ''
   const voiceBriefing = `Rozmowa z opiekunem: ${booking.ownerName}. ${animalInfo}${ageInfo}${problemInfo}${descInfo}`.trim()
 
+  const dialTarget = process.env.PHONE_AGENT_OPERATOR_DIAL_TARGET?.trim()
+  const phone = dialTarget ? dialTarget : booking.phone
+
   return {
     id: booking.id,
     ownerName: booking.ownerName,
-    phone: booking.phone,
+    phone,
+    customerPhone: booking.phone,
     animalType: booking.animalType,
     problemType: booking.problemType,
     petAge: booking.petAge,

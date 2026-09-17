@@ -3,6 +3,7 @@ import { updateBookingCallState } from '@/lib/server/db'
 import { triggerZadarmaCallback } from '@/lib/server/zadarma'
 import { isAndroidPhoneAgentEnabled } from '@/lib/server/phone-agent'
 import { isZapytajLiveSlot, ZAPYTAJ_SERVICE_TYPE } from '@/lib/zapytaj-flow'
+import { sendCallConnectingSms } from '@/lib/server/sms'
 import type { BookingRecord } from '@/lib/types'
 
 export const ZAPYTAJ_CALL_START_GRACE_MS = 60_000
@@ -91,6 +92,9 @@ export async function triggerZapytajCall(
         callLastError: null,
         callNextAttemptAt: null,
       })
+      await sendCallConnectingSms(booking).catch((err) =>
+        console.warn('[zapytaj-call] failed to enqueue call connecting sms', err),
+      )
       return { status: 'queued_for_phone', bookingId: booking.id }
     }
     const reason = 'Rozmowa wymaga ręcznego połączenia z podstawowego telefonu SIM.'

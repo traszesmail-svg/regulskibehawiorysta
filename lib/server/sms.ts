@@ -492,3 +492,11 @@ export async function sendAdminUrgentReminderSms(
   const message = `ZAPYTAJ TERAZ: ${customerName} (${topic}). Pozostało 5 minut na odpowiedź. ID: ${requestId.slice(0, 8)}`
   return sendRawSms(`urgent-reminder-${requestId}`, adminPhone, message, 'urgent-admin-reminder')
 }
+
+export async function sendCallConnectingSms(
+  booking: Pick<BookingRecord, 'id' | 'phone' | 'customerPhoneNormalized' | 'ownerName'>,
+): Promise<PaymentConfirmationSmsResult> {
+  const phone = booking.customerPhoneNormalized ?? booking.phone
+  const message = `Dzień dobry! Za chwilę nastąpi połączenie z behawiorystą Krzysztofem Regulskim. Prosimy o odebranie telefonu.`
+  return sendRawSms(`call-connecting-${booking.id}`, phone, message, 'call-connecting')
+}

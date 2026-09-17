@@ -1,5 +1,4 @@
 import { listBookings, markBookingPaid } from '@/lib/server/db'
-import { enqueueSms } from '@/lib/server/phone-agent-store'
 import type { BookingRecord } from '@/lib/types'
 
 export type PaymentNotificationPayload = {
@@ -24,12 +23,52 @@ export type PaymentReconciliationResult =
       reason: string
       parsedAmount?: number | null
       parsedSender?: string | null
+      requiresManualReview?: boolean
     }
+
+export function isIncomingPaymentNotification(title: string, text: string): boolean {
+  const combined = `${title} ${text}`.toLowerCase()
+
+  // Reject debit / outgoing / expense patterns
+  const outgoingPhrases = [
+    'zapłacono',
+    'płatność kartą',
+    'wysłałeś',
+    'wysłałaś',
+    'przelew wychodzący',
+    'obciążenie',
+    'wypłata z bankomatu',
+    'opłata za',
+    'sent to',
+    'payment to',
+    'card payment',
+  ]
+  if (outgoingPhrases.some((phrase) => combined.includes(phrase))) {
+    return false
+  }
+
+  // Accept incoming payment phrases
+  const incomingPhrases = [
+    'przesłał ci',
+    'przesłała ci',
+    'otrzymałeś',
+    'otrzymałaś',
+    'wpływ',
+    'przelew od',
+    'przelew na konto',
+    'doładowanie',
+    'płatność blik',
+    'pieniądze od',
+    'sent you',
+    'received',
+  ]
+  return incomingPhrases.some((phrase) => combined.includes(phrase))
+}
 
 export function extractAmountFromNotification(title: string, text: string): number | null {
   const combined = `${title} ${text}`.replace(/\s+/g, ' ')
 
-  // Look for patterns like "79,00 zł", "79.00 PLN", "79 zł", "104 zł", "475 zł"
+  // Look for patterns strictly in PLN / zł
   const match = combined.match(/(\d{2,4}(?:[.,]\d{2})?)\s*(?:zł|pln)/i)
   if (!match) return null
 
@@ -40,22 +79,51 @@ export function extractAmountFromNotification(title: string, text: string): numb
 
 export function extractSenderFromNotification(title: string, text: string): string | null {
   const combined = `${title} ${text}`
-  // Patterns like "od Jan Kowalski", "Jan Kowalski przesłał Ci", "Przelew od: Jan Kowalski"
   const match =
     combined.match(/(?:od|from|nadawca:?)\s+([A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż]+(?:\s+[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż]+)?)/i) ||
-    combined.match(/([A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż]+\s+[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż]+)\s+przesłał/i)
+    combined.match(/([A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż]+(?:\s+[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż]+)?)\s+przesłał/i)
 
   return match ? match[1].trim() : null
 }
 
-function nameMatches(bookingOwner: string, candidate: string): boolean {
+export function extractPhoneOrRefFromNotification(title: string, text: string): string | null {
+  const combined = `${title} ${text}`
+  const phoneMatch = combined.match(/(?:\+?48\s*)?([4-9]\d{2}[\s-]?\d{3}[\s-]?\d{3})/)
+  if (phoneMatch) {
+    return phoneMatch[1].replace(/[\s-]/g, '')
+  }
+
+  const uuidMatch = combined.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i)
+  if (uuidMatch) {
+    return uuidMatch[0].toLowerCase()
+  }
+
+  return null
+}
+
+export function safeNameMatches(bookingOwner: string, candidate: string): boolean {
   const normOwner = bookingOwner.toLowerCase().trim()
   const normCandidate = candidate.toLowerCase().trim()
-  if (normOwner.includes(normCandidate) || normCandidate.includes(normOwner)) return true
 
-  const ownerParts = normOwner.split(/\s+/)
-  const candidateParts = normCandidate.split(/\s+/)
-  return ownerParts.some((part) => part.length >= 3 && candidateParts.includes(part))
+  if (normOwner === normCandidate) return true
+
+  const ownerParts = normOwner.split(/\s+/).filter((p) => p.length >= 3)
+  const candidateParts = normCandidate.split(/\s+/).filter((p) => p.length >= 3)
+
+  // Must match at least 2 parts (first and last name)
+  if (ownerParts.length >= 2 && candidateParts.length >= 2) {
+    const matchingCount = ownerParts.filter((part) => candidateParts.includes(part)).length
+    return matchingCount >= 2
+  }
+
+  // If candidate has only 1 part (e.g. just surname), it must be at least 5 chars AND exact match to owner's last name
+  if (candidateParts.length === 1 && ownerParts.length >= 2) {
+    const candidateSurname = candidateParts[0]
+    const ownerSurname = ownerParts[ownerParts.length - 1]
+    return candidateSurname.length >= 5 && candidateSurname === ownerSurname
+  }
+
+  return false
 }
 
 export async function reconcilePaymentNotification(
@@ -68,12 +136,22 @@ export async function reconcilePaymentNotification(
     return { matched: false, reason: 'Powiadomienie nie zawiera treści.' }
   }
 
+  // 1. Must be incoming payment, not debit / expense
+  if (!isIncomingPaymentNotification(title, text)) {
+    return {
+      matched: false,
+      reason: 'Powiadomienie nie wskazuje na wpływ środków (wydatek lub brak słów kluczowych wpływu).',
+    }
+  }
+
+  // 2. Extract valid PLN amount
   const parsedAmount = extractAmountFromNotification(title, text)
   if (!parsedAmount) {
-    return { matched: false, reason: 'Nie rozpoznano kwoty płatności w treści powiadomienia.' }
+    return { matched: false, reason: 'Nie rozpoznano kwoty płatności w PLN w treści powiadomienia.' }
   }
 
   const parsedSender = extractSenderFromNotification(title, text)
+  const phoneOrRef = extractPhoneOrRefFromNotification(title, text)
   const allBookings = await listBookings()
 
   // Filter candidates: unpaid or pending review, matching amount, not cancelled/expired
@@ -102,41 +180,60 @@ export async function reconcilePaymentNotification(
 
   let matchedBooking: BookingRecord | null = null
 
-  // If sender name found, try to match by name
-  if (parsedSender) {
-    matchedBooking = candidates.find((b) => nameMatches(b.ownerName, parsedSender)) ?? null
+  // 3a. Direct match by UUID / booking ID or phone in title
+  if (phoneOrRef) {
+    matchedBooking =
+      candidates.find(
+        (b) =>
+          b.id.toLowerCase() === phoneOrRef.toLowerCase() ||
+          (b.phone && b.phone.replace(/\D/g, '').includes(phoneOrRef)),
+      ) ?? null
   }
 
-  // If not matched by name, pick the oldest pending (FIFO) or single candidate
-  if (!matchedBooking) {
-    if (candidates.length === 1) {
-      matchedBooking = candidates[0]
-    } else {
-      // Sort by creation time ascending
-      candidates.sort((a, b) => (a.createdAt || '').localeCompare(b.createdAt || ''))
-      matchedBooking = candidates[0]
+  // 3b. Safe name match (requires full name / 2 parts, not single common word)
+  if (!matchedBooking && parsedSender) {
+    const nameMatches = candidates.filter((b) => safeNameMatches(b.ownerName, parsedSender))
+    if (nameMatches.length === 1) {
+      matchedBooking = nameMatches[0]
+    } else if (nameMatches.length > 1) {
+      return {
+        matched: false,
+        reason: `Niejednoznaczność: znaleziono ${nameMatches.length} rezerwacji o pasującym nazwisku na kwotę ${parsedAmount} zł. Wymagana weryfikacja ręczna.`,
+        parsedAmount,
+        parsedSender,
+        requiresManualReview: true,
+      }
     }
   }
 
-  // Mark as paid
+  // 3c. Strict security rule per PLAN-OPERATOR-2026-09-16: NEVER pick oldest candidate by amount alone!
+  if (!matchedBooking) {
+    return {
+      matched: false,
+      reason: `Brak jednoznacznego dopasowania do danych klienta (nadawca: ${parsedSender || 'nieznany'}). Sprawdź wpłatę ręcznie w panelu admina.`,
+      parsedAmount,
+      parsedSender,
+      requiresManualReview: true,
+    }
+  }
+
+  // 4. Duplicate prevention: if already paid, do not process again
+  if (matchedBooking.paymentStatus === 'paid') {
+    return {
+      matched: false,
+      reason: `Rezerwacja ${matchedBooking.id} została już wcześniej opłacona.`,
+      parsedAmount,
+      parsedSender,
+    }
+  }
+
+  // 5. Mark as paid - single dispatch handles SMS confirmation via phone agent queue (no duplicate SMS)
   const ref = `revolut:${payload.packageName || 'app'}:${(title || text).slice(0, 40)}`
   await markBookingPaid(matchedBooking.id, {
     paymentMethod: 'manual',
     paymentReference: ref,
     triggerPaymentConfirmationSms: true,
   })
-
-  // Enqueue confirmation SMS for the Xperia phone agent to send
-  if (matchedBooking.phone) {
-    const smsMessage = `Regulski Behawiorysta: Wpłata ${parsedAmount} zł została zaksięgowana. Potwierdzony termin konsultacji: ${matchedBooking.bookingDate} ${matchedBooking.bookingTime}. Dziękuję!`
-    await enqueueSms({
-      bookingId: matchedBooking.id,
-      phone: matchedBooking.phone,
-      message: smsMessage,
-      type: 'payment_confirmed',
-      idempotencyKey: `payment_confirmed:${matchedBooking.id}`,
-    })
-  }
 
   return {
     matched: true,

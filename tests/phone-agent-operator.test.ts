@@ -262,7 +262,12 @@ test('revolut and blik notification is disabled by default and requires an expli
   const sandbox = await createLocalDataSandbox('phone-agent-revolut', process.cwd())
 
   try {
-    await withEnv({ APP_DATA_MODE: 'local', PHONE_AGENT_TOKEN: 'secret-token-rev', PHONE_AGENT_AUTO_PAYMENT_RECONCILIATION: null }, async () => {
+    await withEnv({
+      APP_DATA_MODE: 'local',
+      PHONE_AGENT_TOKEN: 'secret-token-rev',
+      SMS_PROVIDER: 'phone_agent',
+      PHONE_AGENT_AUTO_PAYMENT_RECONCILIATION: null,
+    }, async () => {
       const { reconcilePaymentNotification, extractAmountFromNotification } = await import('@/lib/server/payment-reconciliation')
       const { POST: postPaymentNotification } = await import('@/app/api/phone-agent/payment-notification/route')
       const { getBookingById } = await import('@/lib/server/db')
@@ -311,7 +316,25 @@ test('revolut and blik notification is disabled by default and requires an expli
 
       process.env.PHONE_AGENT_AUTO_PAYMENT_RECONCILIATION = 'true'
 
-      // Explicit pilot flag: test API route with valid auth => matches and marks paid
+      // 4. Test safety: Reject outgoing payment / expense
+      const outgoingResult = await reconcilePaymentNotification({
+        packageName: 'com.revolut.revolut',
+        title: 'Zapłacono 79,00 zł',
+        text: 'Płatność kartą w Biedronka',
+      })
+      assert.equal(outgoingResult.matched, false)
+      assert.match(outgoingResult.reason, /wpływ/)
+
+      // 5. Test safety: Foreign sender with same amount is NOT auto-matched to oldest booking
+      const foreignResult = await reconcilePaymentNotification({
+        packageName: 'com.revolut.revolut',
+        title: 'Otrzymałeś 79,00 zł',
+        text: 'Nieznajomy przelew od Zenon Obcy',
+      })
+      assert.equal(foreignResult.matched, false)
+      assert.equal(foreignResult.requiresManualReview, true)
+
+      // 6. Explicit pilot flag: test API route with valid matching sender => matches and marks paid
       const reqAuth = new NextRequest('http://localhost:3000/api/phone-agent/payment-notification', {
         method: 'POST',
         headers: {
@@ -332,17 +355,17 @@ test('revolut and blik notification is disabled by default and requires an expli
       assert.equal(dataAuth.result.bookingId, created.booking.id)
       assert.equal(dataAuth.result.amount, 79)
 
-      // 5. Verify booking in DB is now paid and confirmed
+      // 7. Verify booking in DB is now paid and confirmed
       const afterBooking = await getBookingById(created.booking.id)
       assert.equal(afterBooking?.paymentStatus, 'paid')
       assert.equal(afterBooking?.bookingStatus, 'confirmed')
 
-      // 6. Verify confirmation SMS was automatically enqueued for Xperia
+      // 8. Verify confirmation SMS was automatically enqueued via single dispatch (no duplicate)
       const smsQueue = await listSmsQueue()
-      const confSms = smsQueue.find((s) => s.bookingId === created.booking.id && s.type === 'payment_confirmed')
-      assert.ok(confSms)
-      assert.equal(confSms.status, 'pending')
-      assert.match(confSms.message, /Wpłata 79 zł została zaksięgowana/)
+      const confSms = smsQueue.filter((s) => s.bookingId === created.booking.id && s.type === 'payment_confirmed')
+      assert.equal(confSms.length, 1) // Exactly one SMS, no duplication
+      assert.equal(confSms[0].status, 'pending')
+      assert.match(confSms[0].message, /Potwierdzenie płatności/)
     })
   } finally {
     await sandbox.cleanup()

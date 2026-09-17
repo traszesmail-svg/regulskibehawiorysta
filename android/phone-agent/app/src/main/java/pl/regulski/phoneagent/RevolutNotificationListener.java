@@ -32,7 +32,8 @@ public final class RevolutNotificationListener extends NotificationListenerServi
         Bundle extras = notification.extras;
         if (extras == null) return;
 
-        String title = extras.getString(Notification.EXTRA_TITLE, "");
+        CharSequence titleSeq = extras.getCharSequence(Notification.EXTRA_TITLE);
+        String title = titleSeq != null ? titleSeq.toString() : "";
         CharSequence textSeq = extras.getCharSequence(Notification.EXTRA_TEXT);
         String text = textSeq != null ? textSeq.toString() : "";
 

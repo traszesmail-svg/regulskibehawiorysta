@@ -34,7 +34,7 @@
   object-position: center 21%;
 }
 
-.page :global(.homepage-zapytaj-facts) {
+.page :global(.offer-facts) {
   display: flex;
   flex-wrap: wrap;
   width: auto;
@@ -42,19 +42,19 @@
   border: 0;
 }
 
-.page :global(.homepage-zapytaj-facts > div),
-.page :global(.homepage-zapytaj-facts > div + div) {
+.page :global(.offer-fact),
+.page :global(.offer-fact + .offer-fact) {
   gap: 8px;
   padding: 0 15px 0 0;
   border: 0;
 }
 
-.page :global(.homepage-zapytaj-facts > div + div) {
+.page :global(.offer-fact + .offer-fact) {
   padding-left: 15px;
   border-left: 1px solid color-mix(in srgb, var(--ink) 13%, transparent);
 }
 
-.page :global(.homepage-zapytaj-facts svg) {
+.page :global(.offer-facts svg) {
   flex: 0 0 auto;
   width: 25px;
   height: 25px;
@@ -62,7 +62,7 @@
   stroke-width: 1.9;
 }
 
-.page :global(.homepage-zapytaj-facts > div > span) {
+.page :global(.offer-fact > span) {
   color: var(--ink);
   font-size: 14px;
   font-weight: 650;
@@ -207,16 +207,16 @@
     line-height: 1.48;
   }
 
-  .page :global(.homepage-zapytaj-facts) {
+  .page :global(.offer-facts) {
     gap: 10px 0;
   }
 
-  .page :global(.homepage-zapytaj-facts > div),
-  .page :global(.homepage-zapytaj-facts > div + div) {
+  .page :global(.offer-fact),
+  .page :global(.offer-fact + .offer-fact) {
     padding: 0 10px;
   }
 
-  .page :global(.homepage-zapytaj-facts > div:first-child) {
+  .page :global(.offer-fact:first-child) {
     padding-left: 0;
   }
 

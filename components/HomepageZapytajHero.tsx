@@ -13,16 +13,16 @@ export function HomepageZapytajHero() {
         <p className="homepage-zapytaj-lead">
           Opowiedz, co się dzieje. Podczas krótkiej rozmowy ustalimy pierwszy krok i to, czy potrzebna jest dalsza pomoc.
         </p>
-        <div className="homepage-zapytaj-facts" aria-label="Najważniejsze informacje">
-          <div>
+        <div className="offer-facts" aria-label="Najważniejsze informacje">
+          <div className="offer-fact">
             <Clock3 aria-hidden="true" />
             <span>Do 15 minut</span>
           </div>
-          <div>
+          <div className="offer-fact">
             <WalletCards aria-hidden="true" />
             <span>79 zł</span>
           </div>
-          <div>
+          <div className="offer-fact">
             <PhoneCall aria-hidden="true" />
             <span>Telefonicznie</span>
           </div>
@@ -32,7 +32,6 @@ export function HomepageZapytajHero() {
             <span>Zapytaj behawiorystę — {formatPublicOfferPrice(PUBLIC_ZAPYTAJ_OFFER.pricePln)}</span>
             <ArrowRight size={17} strokeWidth={1.9} aria-hidden="true" />
           </Link>
-          <p className="homepage-zapytaj-note">Rozmowa z Krzysztofem Regulskim, bez kamery.</p>
         </div>
       </div>
 

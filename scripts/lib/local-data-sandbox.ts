@@ -19,13 +19,13 @@ export async function createLocalDataSandbox(scriptName: string, rootDir = proce
   process.env.APP_LOCAL_DATA_DIR = absoluteSandboxDir
 
   const dataDir = getLocalStoreDataDir(rootDir)
-  await rm(dataDir, { recursive: true, force: true })
+  await rm(dataDir, { recursive: true, force: true, maxRetries: 5, retryDelay: 50 }).catch(() => {})
   await mkdir(dataDir, { recursive: true })
 
   return {
     dataDir,
     cleanup: async () => {
-      await rm(dataDir, { recursive: true, force: true })
+      await rm(dataDir, { recursive: true, force: true, maxRetries: 5, retryDelay: 50 }).catch(() => {})
 
       if (typeof previousValue === 'string') {
         process.env.APP_LOCAL_DATA_DIR = previousValue

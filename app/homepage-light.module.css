@@ -68,6 +68,16 @@
   }
 }
 
+@media (min-width: 601px) and (max-width: 1024px) {
+  .page :global(.offer-facts) {
+    gap: 10px 18px;
+  }
+
+  .page :global(.offer-fact) {
+    font-size: 14px;
+  }
+}
+
 .page :global(.homepage-zapytaj-actions) {
   gap: 8px;
 }

@@ -40,6 +40,9 @@ export default function LoginPage() {
           <p className="account-login-fallback">
             Masz tylko kod do PDF? <Link href="/dostep">Wpisz kod dostępu</Link>.
           </p>
+          <p className="account-login-fallback" style={{ marginTop: '0.75rem', fontSize: '0.85rem', opacity: 0.85 }}>
+            Jesteś specjalistą / właścicielem? <Link href="/admin">Przejdź do Panelu Właściciela</Link>.
+          </p>
         </section>
       </div>
     </NotatnikPageShell>

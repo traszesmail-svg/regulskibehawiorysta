@@ -267,6 +267,24 @@ export function Header() {
         </nav>
 
         <div className="header-actions">
+          <Link
+            href="/login"
+            prefetch={false}
+            className="header-account-btn"
+            style={{
+              fontSize: '0.82rem',
+              fontWeight: 600,
+              padding: '5px 11px',
+              borderRadius: '999px',
+              border: '1px solid rgba(0,0,0,0.14)',
+              textDecoration: 'none',
+              color: 'var(--ink, #222)',
+              marginRight: 6,
+            }}
+          >
+            Strefa opiekuna
+          </Link>
+
           <a
             href={INSTAGRAM_PROFILE_URL}
             target="_blank"
@@ -314,6 +332,27 @@ export function Header() {
               )
             })}
           </nav>
+
+          <div style={{ borderTop: '1px solid rgba(0,0,0,0.08)', marginTop: 12, paddingTop: 12, display: 'grid', gap: 8 }}>
+            <Link
+              href="/login"
+              prefetch={false}
+              className="header-mobile-link"
+              style={{ fontWeight: 600, color: '#1e5c51' }}
+              onClick={handleNavClick}
+            >
+              🔑 Pokój opiekuna (Logowanie klienta)
+            </Link>
+            <Link
+              href="/admin"
+              prefetch={false}
+              className="header-mobile-link"
+              style={{ fontWeight: 600, color: '#4b5563' }}
+              onClick={handleNavClick}
+            >
+              🛡️ Panel właściciela (Kokpit)
+            </Link>
+          </div>
         </div>
       ) : null}
     </header>

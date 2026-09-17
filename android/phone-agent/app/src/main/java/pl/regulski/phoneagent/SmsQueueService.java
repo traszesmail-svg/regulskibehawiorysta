@@ -150,8 +150,11 @@ public final class SmsQueueService extends Service {
                 if (level >= 0 && scale > 0) body.put("batteryLevel", (int) (level * 100f / scale));
                 if (!running) return;
                 int charge = battery == null ? -1 : battery.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
-                body.put("isCharging", charge == BatteryManager.BATTERY_STATUS_CHARGING || charge == BatteryManager.BATTERY_STATUS_FULL);
-                body.put("appVersion", "1.4.0-setup");
+                String version = "1.5.0-voice";
+                try {
+                    version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+                } catch (Exception ignored) {}
+                body.put("appVersion", version);
                 api().post("/api/phone-agent/heartbeat", body);
                 android.util.Log.i("RegulskiOperator", "Meldunek potwierdzony przez serwer.");
             } catch (Exception ignored) { android.util.Log.w("RegulskiOperator", "Brak potwierdzenia meldunku; kolejna próba za minutę."); }

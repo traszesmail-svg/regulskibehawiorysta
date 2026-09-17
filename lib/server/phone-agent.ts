@@ -21,6 +21,7 @@ export type PhoneAgentCase = {
   bookingStatus: string
   callStatus: string | null
   callLastError: string | null
+  voiceBriefing: string
 }
 
 export function getPhoneCallProvider(): PhoneCallProvider {
@@ -44,6 +45,12 @@ export function hasValidPhoneAgentAuthorization(authorization: string | null) {
 }
 
 export function toPhoneAgentCase(booking: BookingRecord): PhoneAgentCase {
+  const animalInfo = booking.animalType ? `Zwierzak: ${booking.animalType}` : ''
+  const ageInfo = booking.petAge ? `, wiek ${booking.petAge}` : ''
+  const problemInfo = booking.problemType ? `. Problem: ${booking.problemType}` : ''
+  const descInfo = booking.description ? `. Szczegóły: ${booking.description.slice(0, 160)}` : ''
+  const voiceBriefing = `Rozmowa z opiekunem: ${booking.ownerName}. ${animalInfo}${ageInfo}${problemInfo}${descInfo}`.trim()
+
   return {
     id: booking.id,
     ownerName: booking.ownerName,
@@ -62,6 +69,7 @@ export function toPhoneAgentCase(booking: BookingRecord): PhoneAgentCase {
     bookingStatus: booking.bookingStatus,
     callStatus: booking.callStatus ?? null,
     callLastError: booking.callLastError ?? null,
+    voiceBriefing,
   }
 }
 

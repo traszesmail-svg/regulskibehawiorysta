@@ -625,6 +625,7 @@ function mapBookingRow(row: BookingRow): BookingRecord {
     paymentStatus,
     paymentMethod,
     paymentReference,
+    consultationMode: (row.consultation_mode as BookingRecord['consultationMode']) ?? null,
     amount,
     meetingUrl: normalizeMeetingUrl(row.id, row.meeting_url),
     createdAt: row.created_at,

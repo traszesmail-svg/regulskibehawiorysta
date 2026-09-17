@@ -31,3 +31,4 @@ Ustalenia użytkownika z 16 września 2026 uzupełniają PLAN-GLOWNY.md. Urządz
 ## Dziennik
 
 - 16.09: zapisano uzgodniony zakres i rozpoczęto etap 1. Kolejne etapy pozostają otwarte.
+- 17.09: wygenerowano stały klucz podpisu release poza build (`operator-release.keystore`), naprawiono błędy serializacji raportu w `SmsJournal` oraz obsługę pustego wyniku w kolejce, zainstalowano nową wersję APK na Motoroli. Karta SIM doładowana. Wysłano pomyślny testowy SMS z karty SIM modemu na numer testowy +48579163241, odebrano callback Androida i potwierdzono status sent w Supabase.

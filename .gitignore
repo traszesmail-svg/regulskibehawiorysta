@@ -8,6 +8,8 @@ android/phone-agent/app/build/
 android/phone-agent/local.properties
 android/phone-agent/*.idsig
 android/phone-agent/*.apk
+android/phone-agent/*.keystore
+android/phone-agent/*.jks
 
 .env*
 !.env.example

@@ -95,8 +95,9 @@ public final class SmsQueueService extends Service {
             try {
                 if (!canSend()) return;
                 sms = new ApiClient(attemptServer, attemptToken).get("/api/phone-agent/sms-queue").optJSONObject("sms");
-                if (sms == null) return;
-                String id = sms.getString("id");
+                if (sms == null || sms.isNull("id")) return;
+                String id = sms.optString("id", "").trim();
+                if (id.isEmpty() || "null".equalsIgnoreCase(id)) return;
                 if (SmsJournal.contains(this, id)) return;
                 String phone = sms.getString("phone");
                 String message = sms.getString("message");
@@ -121,12 +122,14 @@ public final class SmsQueueService extends Service {
                     else manager.sendTextMessage(phone, null, message, results.get(0), null);
                 }
             } catch (Exception error) {
-                if (sms != null) {
-                    try {
-                        String id = sms.getString("id");
-                        SmsJournal.begin(this, id, 0, attemptServer);
-                        SmsJournal.failed(this, id, "Wysyłka przerwana; sprawdź wynik przed ponowieniem: " + error.getMessage());
-                    } catch (Exception ignored) { android.util.Log.e("RegulskiSms", "Nie zapisano błędu SMS."); }
+                if (sms != null && !sms.isNull("id")) {
+                    String id = sms.optString("id", "").trim();
+                    if (!id.isEmpty() && !"null".equalsIgnoreCase(id)) {
+                        try {
+                            SmsJournal.begin(this, id, 0, attemptServer);
+                            SmsJournal.failed(this, id, "Wysyłka przerwana; sprawdź wynik przed ponowieniem: " + error.getMessage());
+                        } catch (Exception ignored) { android.util.Log.e("RegulskiSms", "Nie zapisano błędu SMS."); }
+                    }
                 }
             }
     }

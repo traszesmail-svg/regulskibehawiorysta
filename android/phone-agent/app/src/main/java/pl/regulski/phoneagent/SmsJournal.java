@@ -13,6 +13,7 @@ final class SmsJournal {
     }
 
     static synchronized boolean begin(Context context, String id, int parts, String server) throws Exception {
+        if (id == null || id.trim().isEmpty() || "null".equalsIgnoreCase(id.trim())) return false;
         SharedPreferences entries = store(context);
         if (contains(context, id)) return false;
         JSONObject record = new JSONObject().put("parts", parts).put("server", server)
@@ -22,6 +23,7 @@ final class SmsJournal {
     }
 
     static synchronized boolean contains(Context context, String id) {
+        if (id == null || id.trim().isEmpty() || "null".equalsIgnoreCase(id.trim())) return true;
         if (store(context).contains(id)) return true;
         for (String key : context.getSharedPreferences("sms_results", Context.MODE_PRIVATE).getAll().keySet()) {
             if (key.startsWith(id + ":")) return true;
@@ -64,21 +66,28 @@ final class SmsJournal {
     /** Retries HTTP reports only, never modem sends. Network calls do not hold the journal lock. */
     static void flush(Context context, ApiClient client, String server) {
         for (Map.Entry<String, ?> entry : store(context).getAll().entrySet()) {
+            String key = entry.getKey();
+            if (key == null || key.trim().isEmpty() || "null".equalsIgnoreCase(key.trim())) {
+                store(context).edit().remove(key).commit();
+                continue;
+            }
             try {
                 JSONObject record = new JSONObject((String) entry.getValue());
                 if (record.optBoolean("reported") || !server.equals(record.optString("server"))) continue;
                 JSONObject report = record.optJSONObject("report");
                 if (report == null) continue;
+                android.util.Log.i("RegulskiSms", "Wysyłam raport SMS: " + report.toString());
                 client.post("/api/phone-agent/sms-queue", report);
                 synchronized (SmsJournal.class) {
                     JSONObject current = new JSONObject(store(context).getString(entry.getKey(), "{}"));
-                    if (report.toString().equals(current.optString("report"))) {
+                    JSONObject currentReport = current.optJSONObject("report");
+                    if (currentReport != null && report.toString().equals(currentReport.toString())) {
                         current.put("reported", true);
                         save(store(context), entry.getKey(), current);
                     }
                 }
             } catch (Exception error) {
-                android.util.Log.w("RegulskiSms", "Raport SMS czeka na ponowienie; wiadomość nie będzie wysłana ponownie.");
+                android.util.Log.w("RegulskiSms", "Raport SMS czeka na ponowienie: " + error.getClass().getSimpleName() + ": " + error.getMessage());
             }
         }
     }

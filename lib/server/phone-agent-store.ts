@@ -420,8 +420,9 @@ export async function claimNextPendingSms(): Promise<SmsQueueItem | null> {
   return withStoreLock(async () => {
     if (resolveDataMode('atomowe pobranie SMS do wysyłki') === 'supabase') {
       const { data, error } = await getPhoneAgentSupabase().rpc('claim_next_phone_agent_sms')
-      if (error) throw error
-      return data ? toPhoneAgentSmsItem(data as PhoneAgentSmsRow) : null
+      if (error) throw new Error(error.message)
+      const row = data as PhoneAgentSmsRow | null
+      return row && row.id ? toPhoneAgentSmsItem(row) : null
     }
     const items = await readStoredSmsQueue()
     const now = Date.now()
@@ -446,7 +447,7 @@ export async function reportSmsResult(id: string, status: 'sent' | 'failed', err
         .eq('id', id)
         .select('id')
         .maybeSingle()
-      if (updateError) throw updateError
+      if (updateError) throw new Error(updateError.message)
       return Boolean(data)
     }
     const items = await readStoredSmsQueue()

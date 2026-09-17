@@ -37,8 +37,12 @@ public final class MainActivity extends Activity {
         title.setPadding(0, 0, 0, 16);
         layout.addView(title);
 
-        serverInput = field("Adres serwera", preferences.getString("server", "https://regulskibehawiorysta.pl"));
-        tokenInput = field("Token telefonu", preferences.getString("token", ""));
+        String initialServer = getIntent().getStringExtra("server");
+        if (initialServer == null || initialServer.isEmpty()) initialServer = preferences.getString("server", "https://regulskibehawiorysta.pl");
+        String initialToken = getIntent().getStringExtra("token");
+        if (initialToken == null || initialToken.isEmpty()) initialToken = preferences.getString("token", "");
+        serverInput = field("Adres serwera", initialServer);
+        tokenInput = field("Token telefonu", initialToken);
         tokenInput.setInputType(0x81);
         layout.addView(serverInput);
         layout.addView(tokenInput);
@@ -116,6 +120,13 @@ public final class MainActivity extends Activity {
         status.setPadding(0, 18, 0, 0);
         layout.addView(status);
         setContentView(scroll);
+        if (getIntent().getBooleanExtra("start_sms", false)) {
+            startMonitoring(true);
+        } else if (getIntent().getBooleanExtra("start_monitor", false)) {
+            startMonitoring(false);
+        } else if (getIntent().getBooleanExtra("auto_save", false)) {
+            saveConfiguration();
+        }
     }
 
     private EditText field(String hint, String value) {

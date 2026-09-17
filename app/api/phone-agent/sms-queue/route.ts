@@ -57,9 +57,12 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ ok: true })
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Nie udało się zaktualizować statusu SMS.' },
-      { status: 503 },
-    )
+    const message =
+      error instanceof Error
+        ? error.message
+        : error && typeof error === 'object' && 'message' in error
+          ? String((error as { message: unknown }).message)
+          : 'Nie udało się zaktualizować statusu SMS.'
+    return NextResponse.json({ error: message }, { status: 503 })
   }
 }

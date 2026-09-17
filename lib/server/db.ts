@@ -192,7 +192,16 @@ export async function moveBookingToRecoverySlot(
   recoveryToken: string,
   targetSlotId: string,
 ) {
-  return getProvider().moveBookingToRecoverySlot(bookingId, recoveryToken, targetSlotId)
+  const result = await getProvider().moveBookingToRecoverySlot(bookingId, recoveryToken, targetSlotId)
+  if (result) {
+    try {
+      const { cancelPendingBookingSms } = await import('@/lib/server/phone-agent-store')
+      await cancelPendingBookingSms(bookingId, 'booking_rescheduled')
+    } catch (error) {
+      console.error('[regulski-behawiorysta][sms] failed to cancel pending sms on reschedule', error)
+    }
+  }
+  return result
 }
 export async function attachPayuOrder(
   bookingId: string,
@@ -229,6 +238,12 @@ export async function markBookingPaymentFailed(bookingId: string) {
     } catch (error) {
       console.error('[regulski-behawiorysta][promo-codes] failed to release claims after payment failure', error)
     }
+    try {
+      const { cancelPendingBookingSms } = await import('@/lib/server/phone-agent-store')
+      await cancelPendingBookingSms(booking.id, 'payment_failed')
+    } catch (error) {
+      console.error('[regulski-behawiorysta][sms] failed to cancel pending sms on payment failure', error)
+    }
   }
 
   return booking
@@ -244,13 +259,28 @@ export async function markBookingManualPaymentRejected(bookingId: string, reason
     } catch (error) {
       console.error('[regulski-behawiorysta][promo-codes] failed to release claims after manual rejection', error)
     }
+    try {
+      const { cancelPendingBookingSms } = await import('@/lib/server/phone-agent-store')
+      await cancelPendingBookingSms(booking.id, reason ? `manual_rejected: ${reason}` : 'manual_rejected')
+    } catch (error) {
+      console.error('[regulski-behawiorysta][sms] failed to cancel pending sms on manual rejection', error)
+    }
   }
 
   return booking
 }
 
 export async function markBookingRefunded(bookingId: string) {
-  return getProvider().markBookingRefunded(bookingId)
+  const booking = await getProvider().markBookingRefunded(bookingId)
+  if (booking) {
+    try {
+      const { cancelPendingBookingSms } = await import('@/lib/server/phone-agent-store')
+      await cancelPendingBookingSms(booking.id, 'booking_refunded')
+    } catch (error) {
+      console.error('[regulski-behawiorysta][sms] failed to cancel pending sms on refund', error)
+    }
+  }
+  return booking
 }
 
 export async function markBookingExpired(bookingId: string) {
@@ -262,6 +292,12 @@ export async function markBookingExpired(bookingId: string) {
       await releasePromoClaimsForBooking(booking.id)
     } catch (error) {
       console.error('[regulski-behawiorysta][promo-codes] failed to release claims after booking expiry', error)
+    }
+    try {
+      const { cancelPendingBookingSms } = await import('@/lib/server/phone-agent-store')
+      await cancelPendingBookingSms(booking.id, 'booking_expired')
+    } catch (error) {
+      console.error('[regulski-behawiorysta][sms] failed to cancel pending sms on expiry', error)
     }
   }
 

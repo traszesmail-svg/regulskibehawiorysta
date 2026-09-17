@@ -263,12 +263,12 @@ export async function runPhoneAgentWatchdogCheck(): Promise<{
   alertsSent: boolean
   lastSeenMinutes: number
 }> {
-  return withStoreLock(async () => {
+  const { isOnline, shouldSendAlert, lastSeenMinutes, stored } = await withStoreLock(async () => {
     const stored = await readStoredDeviceState()
     const now = Date.now()
 
     if (!stored.lastHeartbeatAt) {
-      return { isOnline: false, watchdogTriggered: false, liveDisabled: false, alertsSent: false, lastSeenMinutes: 0 }
+      return { isOnline: false, shouldSendAlert: false, lastSeenMinutes: 0, stored }
     }
 
     const diffMs = now - new Date(stored.lastHeartbeatAt).getTime()
@@ -276,52 +276,60 @@ export async function runPhoneAgentWatchdogCheck(): Promise<{
     const lastSeenMinutes = Math.max(1, Math.round(diffMs / 60000))
 
     if (isOnline) {
-      return { isOnline: true, watchdogTriggered: false, liveDisabled: false, alertsSent: false, lastSeenMinutes: 0 }
+      return { isOnline: true, shouldSendAlert: false, lastSeenMinutes: 0, stored }
     }
 
     // Phone is OFFLINE!
     const lastAlertMs = stored.lastOutageAlertSentAt ? now - new Date(stored.lastOutageAlertSentAt).getTime() : Infinity
     const shouldSendAlert = lastAlertMs > WATCHDOG_ALERT_THROTTLE_MS
 
-    // 1. Disable live availability on site immediately
-    try {
-      await disableZapytajLive()
-    } catch (e) {
-      console.warn('[phone-agent-watchdog] failed to disable live:', e)
-    }
-
-    let alertsSent = false
     if (shouldSendAlert) {
       stored.lastOutageAlertSentAt = new Date().toISOString()
       await writeStoredDeviceState(stored)
-
-      // 2. Send push notification to owner
-      try {
-        await sendPhoneAgentOutagePushToOwner({ lastSeenMinutes })
-      } catch (e) {
-        console.warn('[phone-agent-watchdog] push notification failed:', e)
-      }
-
-      // 3. Send outage alert email to owner
-      try {
-        await sendPhoneAgentOutageAlertEmail({
-          lastSeenMinutes,
-          lastHeartbeatAt: stored.lastHeartbeatAt,
-        })
-        alertsSent = true
-      } catch (e) {
-        console.warn('[phone-agent-watchdog] email alert failed:', e)
-      }
     }
 
-    return {
-      isOnline: false,
-      watchdogTriggered: true,
-      liveDisabled: true,
-      alertsSent,
-      lastSeenMinutes,
-    }
+    return { isOnline: false, shouldSendAlert, lastSeenMinutes, stored }
   })
+
+  if (isOnline || !stored.lastHeartbeatAt) {
+    return { isOnline, watchdogTriggered: false, liveDisabled: false, alertsSent: false, lastSeenMinutes: 0 }
+  }
+
+  // 1. Disable live availability on site immediately (outside store lock to prevent deadlocks)
+  try {
+    await disableZapytajLive()
+  } catch (e) {
+    console.warn('[phone-agent-watchdog] failed to disable live:', e)
+  }
+
+  let alertsSent = false
+  if (shouldSendAlert) {
+    // 2. Send push notification to owner
+    try {
+      await sendPhoneAgentOutagePushToOwner({ lastSeenMinutes })
+    } catch (e) {
+      console.warn('[phone-agent-watchdog] push notification failed:', e)
+    }
+
+    // 3. Send outage alert email to owner
+    try {
+      await sendPhoneAgentOutageAlertEmail({
+        lastSeenMinutes,
+        lastHeartbeatAt: stored.lastHeartbeatAt,
+      })
+      alertsSent = true
+    } catch (e) {
+      console.warn('[phone-agent-watchdog] email alert failed:', e)
+    }
+  }
+
+  return {
+    isOnline: false,
+    watchdogTriggered: true,
+    liveDisabled: true,
+    alertsSent,
+    lastSeenMinutes,
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -357,6 +365,11 @@ async function writeStoredSmsQueue(items: SmsQueueItem[]): Promise<void> {
   await rename(tempPath, filePath)
 }
 
+function isUuid(id: string | null | undefined): boolean {
+  if (!id) return false
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)
+}
+
 export async function enqueueSms(input: EnqueueSmsInput): Promise<SmsQueueItem> {
   return withStoreLock(async () => {
     if (resolveDataMode('dodanie SMS do kolejki') === 'supabase') {
@@ -367,7 +380,7 @@ export async function enqueueSms(input: EnqueueSmsInput): Promise<SmsQueueItem> 
       const { data, error } = await supabase
         .from('phone_agent_sms_queue')
         .insert({
-          booking_id: input.bookingId ?? null,
+          booking_id: isUuid(input.bookingId) ? input.bookingId : null,
           phone,
           message: input.message.trim(),
           type: input.type,
@@ -413,6 +426,71 @@ export async function enqueueSms(input: EnqueueSmsInput): Promise<SmsQueueItem> 
     items.push(newItem)
     await writeStoredSmsQueue(items)
     return newItem
+  })
+}
+
+export async function cancelPendingBookingSms(bookingId: string, reason = 'booking_cancelled'): Promise<number> {
+  return withStoreLock(async () => {
+    if (resolveDataMode('anulowanie zaplanowanych SMS dla rezerwacji') === 'supabase') {
+      if (!isUuid(bookingId)) return 0
+      const supabase = getPhoneAgentSupabase()
+      const { data, error } = await supabase
+        .from('phone_agent_sms_queue')
+        .update({
+          status: 'failed',
+          error: reason.slice(0, 300),
+        })
+        .eq('booking_id', bookingId)
+        .eq('status', 'pending')
+        .select('id')
+      if (error) throw error
+      return data?.length ?? 0
+    }
+    const items = await readStoredSmsQueue()
+    let cancelledCount = 0
+    for (const item of items) {
+      if (item.bookingId === bookingId && item.status === 'pending') {
+        item.status = 'failed'
+        item.error = reason.slice(0, 300)
+        cancelledCount++
+      }
+    }
+    if (cancelledCount > 0) {
+      await writeStoredSmsQueue(items)
+    }
+    return cancelledCount
+  })
+}
+
+export async function cancelPendingLiveAvailabilitySms(reason = 'live_availability_expired'): Promise<number> {
+  return withStoreLock(async () => {
+    if (resolveDataMode('anulowanie powiadomień live w kolejce SMS') === 'supabase') {
+      const supabase = getPhoneAgentSupabase()
+      const { data, error } = await supabase
+        .from('phone_agent_sms_queue')
+        .update({
+          status: 'failed',
+          error: reason.slice(0, 300),
+        })
+        .like('idempotency_key', 'zapytaj-live-availability-%')
+        .eq('status', 'pending')
+        .select('id')
+      if (error) throw error
+      return data?.length ?? 0
+    }
+    const items = await readStoredSmsQueue()
+    let cancelledCount = 0
+    for (const item of items) {
+      if (item.idempotencyKey.startsWith('zapytaj-live-availability-') && item.status === 'pending') {
+        item.status = 'failed'
+        item.error = reason.slice(0, 300)
+        cancelledCount++
+      }
+    }
+    if (cancelledCount > 0) {
+      await writeStoredSmsQueue(items)
+    }
+    return cancelledCount
   })
 }
 
@@ -512,7 +590,7 @@ export async function generateUpcomingBookingSmsReminders(): Promise<{
 
     // Window 1: 45 to 75 minutes before consultation (60m reminder with reschedule option)
     if (diffMinutes >= 45 && diffMinutes <= 75) {
-      const idempotencyKey = `reminder_60m:${booking.id}`
+      const idempotencyKey = `reminder_60m:${booking.id}:${booking.bookingDate}_${booking.bookingTime}`
       const rescheduleUrl = `${getBaseUrl()}/confirmation?bookingId=${booking.id}`
       const message = `Regulski Behawiorysta: Przypomnienie o rozmowie o ${booking.bookingTime}. Przelozenie terminu mozliwe do 30 min przed na: ${rescheduleUrl}. Do uslyszenia!`
 
@@ -528,7 +606,7 @@ export async function generateUpcomingBookingSmsReminders(): Promise<{
 
     // Window 2: 10 to 25 minutes before consultation (15m reminder)
     if (diffMinutes >= 10 && diffMinutes <= 25) {
-      const idempotencyKey = `reminder_15m:${booking.id}`
+      const idempotencyKey = `reminder_15m:${booking.id}:${booking.bookingDate}_${booking.bookingTime}`
       const message = `Regulski Behawiorysta: Za 15 minut Krzysztof Regulski zadzwoni do Ciebie na ten numer. Prosimy o przygotowanie i trzymanie telefonu.`
 
       const item = await enqueueSms({

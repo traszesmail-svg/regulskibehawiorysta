@@ -8,9 +8,12 @@ import {
   claimNextPendingSms,
   reportSmsResult,
   listSmsQueue,
+  cancelPendingBookingSms,
+  cancelPendingLiveAvailabilitySms,
   generateUpcomingBookingSmsReminders,
   PHONE_AGENT_HEARTBEAT_TIMEOUT_MS,
 } from '@/lib/server/phone-agent-store'
+import { sendPaymentConfirmationSms } from '@/lib/server/sms'
 import { createLocalDataSandbox } from '@/scripts/lib/local-data-sandbox'
 import { GET as getHeartbeat, POST as postHeartbeat } from '@/app/api/phone-agent/heartbeat/route'
 import { GET as getSmsQueue, POST as postSmsQueue } from '@/app/api/phone-agent/sms-queue/route'
@@ -453,6 +456,133 @@ test('phone job lifecycle: claimed, no_answer retry scheduling, and dropped reco
       const bEnded = await getBookingById(created.booking.id)
       assert.equal(bEnded?.callStatus, 'phone_agent_completed')
     })
+  } finally {
+    await sandbox.cleanup()
+  }
+})
+
+test('cancelPendingBookingSms invalidates only pending reminders for specified booking', async () => {
+  const sandbox = await createLocalDataSandbox('phone-agent-cancel-sms', process.cwd())
+
+  try {
+    await withEnv({ APP_DATA_MODE: 'local' }, async () => {
+      // 1. Pending reminder for booking-1
+      const item1 = await enqueueSms({
+        bookingId: 'booking-1',
+        phone: '500600700',
+        message: 'Reminder 60m',
+        type: 'reminder_60m',
+        idempotencyKey: 'reminder_60m:booking-1:2026-09-20_14:00',
+      })
+
+      // 2. Already sent reminder for booking-1
+      const item2 = await enqueueSms({
+        bookingId: 'booking-1',
+        phone: '500600700',
+        message: 'Previous reminder',
+        type: 'reminder_15m',
+        idempotencyKey: 'reminder_15m:booking-1:2026-09-20_14:00',
+      })
+      await reportSmsResult(item2.id, 'sent')
+
+      // 3. Pending reminder for booking-2
+      const item3 = await enqueueSms({
+        bookingId: 'booking-2',
+        phone: '500600701',
+        message: 'Reminder for booking 2',
+        type: 'reminder_60m',
+        idempotencyKey: 'reminder_60m:booking-2:2026-09-20_15:00',
+      })
+
+      // Cancel booking-1
+      const cancelledCount = await cancelPendingBookingSms('booking-1', 'booking_cancelled')
+      assert.equal(cancelledCount, 1)
+
+      const queue = await listSmsQueue(10)
+      const q1 = queue.find((i) => i.id === item1.id)
+      const q2 = queue.find((i) => i.id === item2.id)
+      const q3 = queue.find((i) => i.id === item3.id)
+
+      assert.equal(q1?.status, 'failed')
+      assert.equal(q1?.error, 'booking_cancelled')
+      assert.equal(q2?.status, 'sent') // unchanged
+      assert.equal(q3?.status, 'pending') // unchanged
+    })
+  } finally {
+    await sandbox.cleanup()
+  }
+})
+
+test('cancelPendingLiveAvailabilitySms invalidates live notifications when mode disabled', async () => {
+  const sandbox = await createLocalDataSandbox('phone-agent-cancel-live-sms', process.cwd())
+
+  try {
+    await withEnv({ APP_DATA_MODE: 'local' }, async () => {
+      const liveSms = await enqueueSms({
+        bookingId: null,
+        phone: '500600700',
+        message: 'Zapytaj live jest dostępne',
+        type: 'custom',
+        idempotencyKey: 'zapytaj-live-availability-req-123',
+      })
+
+      const normalSms = await enqueueSms({
+        bookingId: 'booking-99',
+        phone: '500600700',
+        message: 'Normalny SMS',
+        type: 'reminder_15m',
+        idempotencyKey: 'reminder_15m:booking-99:2026-09-20_16:00',
+      })
+
+      const count = await cancelPendingLiveAvailabilitySms('live_availability_expired')
+      assert.equal(count, 1)
+
+      const queue = await listSmsQueue(10)
+      const qLive = queue.find((i) => i.id === liveSms.id)
+      const qNormal = queue.find((i) => i.id === normalSms.id)
+
+      assert.equal(qLive?.status, 'failed')
+      assert.equal(qLive?.error, 'live_availability_expired')
+      assert.equal(qNormal?.status, 'pending')
+    })
+  } finally {
+    await sandbox.cleanup()
+  }
+})
+
+test('sendPaymentConfirmationSms routes through phone_agent queue when configured', async () => {
+  const sandbox = await createLocalDataSandbox('phone-agent-sms-dispatch', process.cwd())
+
+  try {
+    await withEnv(
+      {
+        APP_DATA_MODE: 'local',
+        SMS_PROVIDER: 'phone_agent',
+      },
+      async () => {
+        const result = await sendPaymentConfirmationSms({
+          id: '00000000-0000-0000-0000-000000000001',
+          phone: '505848889',
+          customerPhoneNormalized: '+48505848889',
+          bookingDate: '2026-09-20',
+          bookingTime: '15:00',
+          serviceType: 'zapytaj_telefon',
+          amount: 89,
+        })
+
+        assert.equal(result.status, 'sent')
+        assert.equal(result.normalizedPhone, '+48505848889')
+        assert.ok(result.providerMessageId)
+
+        const queue = await listSmsQueue(10)
+        const queuedItem = queue.find((i) => i.id === result.providerMessageId)
+        assert.ok(queuedItem)
+        assert.equal(queuedItem.type, 'payment_confirmed')
+        assert.equal(queuedItem.status, 'pending')
+        assert.equal(queuedItem.idempotencyKey, 'payment_confirmed:00000000-0000-0000-0000-000000000001')
+        assert.match(queuedItem.message, /Potwierdzenie płatności/)
+      },
+    )
   } finally {
     await sandbox.cleanup()
   }

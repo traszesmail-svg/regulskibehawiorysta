@@ -256,6 +256,12 @@ async function reconcileState(initialState: ZapytajLiveState, bookings: BookingR
     await ensureNextSlot(state, ZAPYTAJ_LIVE_INITIAL_LEAD_MINUTES)
   }
 
+  if (!enabled) {
+    import('@/lib/server/phone-agent-store')
+      .then((m) => m.cancelPendingLiveAvailabilitySms('live_availability_expired'))
+      .catch((e) => console.warn('[zapytaj-live] cancelPendingLiveAvailabilitySms error:', e))
+  }
+
   if (state.nextSlotId) {
     const nextSlot = await getStateSlot(state.nextSlotId)
     if (!nextSlot && enabled) {
@@ -372,6 +378,13 @@ export async function enableZapytajLive(): Promise<ZapytajLiveStatusDto> {
 
 export async function disableZapytajLive(): Promise<ZapytajLiveStatusDto> {
   return withLiveLock(async () => {
+    try {
+      const { cancelPendingLiveAvailabilitySms } = await import('@/lib/server/phone-agent-store')
+      await cancelPendingLiveAvailabilitySms('live_disabled')
+    } catch (e) {
+      console.warn('[zapytaj-live] cancelPendingLiveAvailabilitySms error:', e)
+    }
+
     const state = await readState()
     const bookings = await listBookings()
     const nextBooking = getNextSlotBooking(state, bookings)

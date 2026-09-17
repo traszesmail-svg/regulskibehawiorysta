@@ -2,10 +2,17 @@ import { getBookingServiceTitle, resolveBookingServiceType } from '@/lib/booking
 import { maskPhoneForLogs, normalizePolishPhone } from '@/lib/phone'
 import { SITE_PRODUCTION_URL } from '@/lib/site'
 import { BookingRecord, SmsConfirmationStatus } from '@/lib/types'
+import { isAndroidPhoneAgentEnabled } from '@/lib/server/phone-agent'
+import { enqueueSms, SmsQueueType } from '@/lib/server/phone-agent-store'
 
-type SmsProvider = 'smsapi' | 'webhook'
+type SmsProvider = 'phone_agent' | 'smsapi' | 'webhook'
 
 type SmsProviderConfig =
+  | {
+      provider: 'phone_agent'
+      isAvailable: boolean
+      summary: string
+    }
   | {
       provider: 'smsapi'
       isAvailable: boolean
@@ -55,20 +62,41 @@ function readEnv(name: string): string | null {
 
 function getSmsProviderConfig(): SmsProviderConfig {
   const configuredProvider = readEnv('SMS_PROVIDER')
-  const resolvedProvider =
-    configuredProvider === 'smsapi' || configuredProvider === 'webhook' || configuredProvider === 'disabled'
-      ? configuredProvider
-      : readEnv('SMS_API_KEY')
-        ? 'smsapi'
-        : readEnv('SMS_NOTIFICATION_WEBHOOK_URL')
-          ? 'webhook'
-          : 'disabled'
+
+  if (configuredProvider === 'disabled') {
+    return {
+      provider: null,
+      isAvailable: false,
+      summary: 'SMS provider is disabled.',
+    }
+  }
+
+  const resolvedProvider: 'phone_agent' | 'smsapi' | 'webhook' | 'disabled' =
+    configuredProvider === 'phone_agent'
+      ? 'phone_agent'
+      : configuredProvider === 'smsapi' || configuredProvider === 'webhook'
+        ? configuredProvider
+        : isAndroidPhoneAgentEnabled()
+          ? 'phone_agent'
+          : readEnv('SMS_API_KEY')
+            ? 'smsapi'
+            : readEnv('SMS_NOTIFICATION_WEBHOOK_URL')
+              ? 'webhook'
+              : 'disabled'
 
   if (resolvedProvider === 'disabled') {
     return {
       provider: null,
       isAvailable: false,
       summary: 'SMS provider is not configured.',
+    }
+  }
+
+  if (resolvedProvider === 'phone_agent') {
+    return {
+      provider: 'phone_agent',
+      isAvailable: true,
+      summary: 'Phone agent durable SMS queue is active.',
     }
   }
 
@@ -263,6 +291,39 @@ async function sendViaWebhook(
   }
 }
 
+async function sendViaPhoneAgent(
+  bookingId: string | null,
+  normalizedPhone: string,
+  message: string,
+  type: SmsQueueType,
+  idempotencyKey: string,
+): Promise<PaymentConfirmationSmsResult> {
+  try {
+    const item = await enqueueSms({
+      bookingId,
+      phone: normalizedPhone,
+      message,
+      type,
+      idempotencyKey,
+    })
+
+    return {
+      status: 'sent',
+      normalizedPhone,
+      providerMessageId: item.id,
+      errorCode: null,
+      errorMessage: null,
+    }
+  } catch (error) {
+    return {
+      status: 'failed',
+      normalizedPhone,
+      errorCode: 'PHONE_AGENT_QUEUE_ERROR',
+      errorMessage: error instanceof Error ? error.message : 'Unknown phone agent queue error',
+    }
+  }
+}
+
 export async function sendPaymentConfirmationSms(
   booking: Pick<BookingRecord, 'id' | 'phone' | 'customerPhoneNormalized' | 'bookingDate' | 'bookingTime' | 'serviceType' | 'amount'>,
 ): Promise<PaymentConfirmationSmsResult> {
@@ -315,9 +376,17 @@ export async function sendPaymentConfirmationSms(
 
   const message = buildPaymentConfirmationSmsMessage(booking)
   const result =
-    config.provider === 'smsapi'
-      ? await sendViaSmsApi(config, booking, normalizedPhone.digits, message)
-      : await sendViaWebhook(config, booking, normalizedPhone.e164, message)
+    config.provider === 'phone_agent'
+      ? await sendViaPhoneAgent(
+          booking.id,
+          normalizedPhone.e164,
+          message,
+          'payment_confirmed',
+          `payment_confirmed:${booking.id}`,
+        )
+      : config.provider === 'smsapi'
+        ? await sendViaSmsApi(config, booking, normalizedPhone.digits, message)
+        : await sendViaWebhook(config, booking, normalizedPhone.e164, message)
 
   const level = result.status === 'sent' ? 'info' : 'error'
   console[level]('[regulski-behawiorysta][sms] payment-confirmation', {
@@ -358,9 +427,11 @@ async function sendRawSms(
 
   const fakeBooking = { id: idempotencyKey }
   const result =
-    config.provider === 'smsapi'
-      ? await sendViaSmsApi(config, fakeBooking, normalizedPhone.digits, message)
-      : await sendViaWebhook(config, fakeBooking, normalizedPhone.e164, message)
+    config.provider === 'phone_agent'
+      ? await sendViaPhoneAgent(null, normalizedPhone.e164, message, 'custom', idempotencyKey)
+      : config.provider === 'smsapi'
+        ? await sendViaSmsApi(config, fakeBooking, normalizedPhone.digits, message)
+        : await sendViaWebhook(config, fakeBooking, normalizedPhone.e164, message)
 
   const level = result.status === 'sent' ? 'info' : 'error'
   console[level](`[regulski-behawiorysta][sms] ${logTag}`, {

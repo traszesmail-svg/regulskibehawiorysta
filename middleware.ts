@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import {
   getAdminAccessSecret,
   getAdminAuthChallengeHeaders,
+  hasValidAdminSession,
   hasValidAdminAuthorization,
 } from '@/lib/admin-auth'
 import { getPublicFeatureUnavailableMessage } from '@/lib/server/env'
@@ -13,7 +14,7 @@ function createUnauthorizedResponse(message: string, status: number) {
   })
 }
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   if (request.nextUrl.pathname === '/slot') {
     const destination = new URL('/zapytaj', request.url)
 
@@ -50,13 +51,17 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
+  if (request.nextUrl.pathname === '/admin/login' || request.nextUrl.pathname === '/api/admin/session') {
+    return NextResponse.next()
+  }
+
   const secret = getAdminAccessSecret()
 
   if (!secret) {
     return createUnauthorizedResponse(getPublicFeatureUnavailableMessage('admin'), 503)
   }
 
-  if (hasValidAdminAuthorization(request.headers.get('authorization'), secret)) {
+  if (hasValidAdminAuthorization(request.headers.get('authorization'), secret) || await hasValidAdminSession(request.cookies.get('rb_admin_session')?.value, secret)) {
     return NextResponse.next()
   }
 

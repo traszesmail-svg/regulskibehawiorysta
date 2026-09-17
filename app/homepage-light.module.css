@@ -36,43 +36,40 @@
 
 .page :global(.offer-facts) {
   display: flex;
+  align-items: center;
   flex-wrap: wrap;
-  width: auto;
+  gap: 0;
   margin: 2px 0 0;
-  border: 0;
 }
 
-.page :global(.offer-fact),
-.page :global(.offer-fact + .offer-fact) {
-  gap: 8px;
-  padding: 0 15px 0 0;
-  border: 0;
+.page :global(.offer-fact) {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 14px 0 0;
+  font-size: 14px;
+  font-weight: 650;
+  color: var(--ink);
+  white-space: nowrap;
 }
 
 .page :global(.offer-fact + .offer-fact) {
-  padding-left: 15px;
+  padding-left: 14px;
   border-left: 1px solid color-mix(in srgb, var(--ink) 13%, transparent);
-}
-
-.page :global(.offer-facts svg) {
-  flex: 0 0 auto;
-  width: 25px;
-  height: 25px;
-  color: var(--accent);
-  stroke-width: 1.9;
 }
 
 .page :global(.offer-fact__icon) {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
-.page :global(.offer-fact) {
-  font-size: 14px;
-  font-weight: 650;
-  color: var(--ink);
-  white-space: nowrap;
+.page :global(.offer-facts svg) {
+  width: 18px;
+  height: 18px;
+  color: var(--accent);
+  stroke-width: 1.9;
 }
 
 .page :global(.homepage-zapytaj-actions) {

@@ -24,8 +24,8 @@ final class ApiClient {
         HttpURLConnection connection = (HttpURLConnection) new URL(baseUrl + path).openConnection();
         try {
         connection.setRequestMethod(method);
-        connection.setConnectTimeout(10000);
-        connection.setReadTimeout(15000);
+        connection.setConnectTimeout(15000);
+        connection.setReadTimeout(20000);
         connection.setRequestProperty("Authorization", "Bearer " + token);
         connection.setRequestProperty("Accept", "application/json");
         if (payload != null) {

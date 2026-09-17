@@ -152,22 +152,44 @@ function toPhoneAgentSmsItem(row: PhoneAgentSmsRow): SmsQueueItem {
   }
 }
 
+let memoryDeviceState: StoredDeviceState | null = null
+
 async function readStoredDeviceState(): Promise<StoredDeviceState> {
   if (resolveDataMode('odczyt stanu telefonu') === 'supabase') {
-    const { data, error } = await getPhoneAgentSupabase()
-      .from('phone_agent_state')
-      .select('last_heartbeat_at, battery_level, is_charging, network, is_default_dialer, app_version, last_outage_alert_sent_at, updated_at')
-      .eq('id', 'main')
-      .maybeSingle<PhoneAgentStateRow>()
-    if (error) throw error
-    if (data) return toStoredDeviceState(data)
-    return emptyStoredDeviceState()
+    try {
+      const queryPromise = getPhoneAgentSupabase()
+        .from('phone_agent_state')
+        .select('last_heartbeat_at, battery_level, is_charging, network, is_default_dialer, app_version, last_outage_alert_sent_at, updated_at')
+        .eq('id', 'main')
+        .maybeSingle<PhoneAgentStateRow>()
+
+      const { data, error } = await Promise.race([
+        queryPromise,
+        new Promise<{ data: null; error: Error }>((_, reject) =>
+          setTimeout(() => reject(new Error('Supabase read timeout (5s)')), 5000),
+        ),
+      ])
+
+      if (error) throw error
+      if (data) {
+        const state = toStoredDeviceState(data)
+        memoryDeviceState = state
+        return state
+      }
+      return memoryDeviceState || emptyStoredDeviceState()
+    } catch (err) {
+      console.warn('[phone-agent-store] Supabase state read failed, using fallback:', err)
+      if (memoryDeviceState) return memoryDeviceState
+      return emptyStoredDeviceState()
+    }
   }
   try {
     const raw = await readFile(getDeviceStatePath(), 'utf8')
-    return JSON.parse(raw) as StoredDeviceState
+    const state = JSON.parse(raw) as StoredDeviceState
+    memoryDeviceState = state
+    return state
   } catch {
-    return emptyStoredDeviceState()
+    return memoryDeviceState || emptyStoredDeviceState()
   }
 }
 
@@ -185,19 +207,32 @@ function emptyStoredDeviceState(): StoredDeviceState {
 }
 
 async function writeStoredDeviceState(state: StoredDeviceState): Promise<void> {
+  memoryDeviceState = state
   if (resolveDataMode('zapis stanu telefonu') === 'supabase') {
-    const { error } = await getPhoneAgentSupabase().from('phone_agent_state').upsert({
-      id: 'main',
-      last_heartbeat_at: state.lastHeartbeatAt,
-      battery_level: state.batteryLevel,
-      is_charging: state.isCharging,
-      network: state.network,
-      is_default_dialer: state.isDefaultDialer,
-      app_version: state.appVersion,
-      last_outage_alert_sent_at: state.lastOutageAlertSentAt,
-      updated_at: state.updatedAt,
-    })
-    if (error) throw error
+    try {
+      const upsertPromise = getPhoneAgentSupabase().from('phone_agent_state').upsert({
+        id: 'main',
+        last_heartbeat_at: state.lastHeartbeatAt,
+        battery_level: state.batteryLevel,
+        is_charging: state.isCharging,
+        network: state.network,
+        is_default_dialer: state.isDefaultDialer,
+        app_version: state.appVersion,
+        last_outage_alert_sent_at: state.lastOutageAlertSentAt,
+        updated_at: state.updatedAt,
+      })
+
+      const { error } = await Promise.race([
+        upsertPromise,
+        new Promise<{ error: Error }>((_, reject) =>
+          setTimeout(() => reject(new Error('Supabase upsert timeout (5s)')), 5000),
+        ),
+      ])
+
+      if (error) throw error
+    } catch (err) {
+      console.warn('[phone-agent-store] Supabase state write failed or timed out:', err)
+    }
     return
   }
   const filePath = getDeviceStatePath()

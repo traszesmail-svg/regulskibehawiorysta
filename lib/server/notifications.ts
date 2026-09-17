@@ -3420,9 +3420,9 @@ export async function sendPhoneAgentOutageAlertEmail(details: {
     return { status: 'skipped', reason: 'Admin email not configured' }
   }
 
-  const subject = `[AWARIA] Brak kontaktu z telefonem Xperia (${details.lastSeenMinutes} min) — Regulski Operator`
+  const subject = `[AWARIA] Brak kontaktu z telefonem operatora (${details.lastSeenMinutes} min) — Regulski Operator`
   const title = 'Alert awarii telefonu Regulski Operator'
-  const intro = `Serwer odnotował brak kontaktu z dedykowanym telefonem Sony Xperia F3111 od ponad ${details.lastSeenMinutes} minut.`
+  const intro = `Serwer odnotował brak kontaktu z telefonem operatora (Motorola One Vision) od ponad ${details.lastSeenMinutes} minut.`
   const lastSeenLabel = details.lastHeartbeatAt
     ? new Date(details.lastHeartbeatAt).toLocaleString('pl-PL', { timeZone: 'Europe/Warsaw' })
     : 'brak danych (urządzenie nie połączyło się od startu)'
@@ -3445,7 +3445,7 @@ export async function sendPhoneAgentOutageAlertEmail(details: {
         ${renderEmailDataTable(facts, 'outage')}
         <p style="margin-top:20px;"><strong>Zalecane kroki:</strong></p>
         <ol style="margin:10px 0 20px 20px;padding:0;color:#1f1a17;font-size:14px;line-height:1.6;">
-          <li>Sprawdź, czy telefon Xperia jest podłączony do ładowarki i włączony.</li>
+          <li>Sprawdź, czy telefon Motorola jest podłączony do ładowarki i włączony.</li>
           <li>Upewnij się, że ma zasięg sieci komórkowej GSM i aktywny pakiet danych/Wi-Fi.</li>
           <li>Sprawdź aplikację Regulski Operator na telefonie.</li>
         </ol>

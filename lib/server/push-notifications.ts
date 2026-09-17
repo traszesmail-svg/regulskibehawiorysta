@@ -323,7 +323,7 @@ export async function sendPhoneAgentOutagePushToOwner(details: { lastSeenMinutes
   }
 
   const payload: PushPayload = {
-    title: `⚠️ AWARIA: Xperia offline (${details.lastSeenMinutes} min)`,
+    title: `⚠️ AWARIA: Telefon operatora offline (${details.lastSeenMinutes} min)`,
     body: 'Brak kontaktu z telefonem Regulski Operator. Konsultacje "na już" zostały zablokowane.',
     url: `${getBaseUrl()}/admin`,
     tag: `phone-agent-outage-${Date.now()}`,

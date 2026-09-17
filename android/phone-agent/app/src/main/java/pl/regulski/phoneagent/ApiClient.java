@@ -22,6 +22,7 @@ final class ApiClient {
 
     private JSONObject request(String method, String path, JSONObject payload) throws Exception {
         HttpURLConnection connection = (HttpURLConnection) new URL(baseUrl + path).openConnection();
+        try {
         connection.setRequestMethod(method);
         connection.setConnectTimeout(10000);
         connection.setReadTimeout(15000);
@@ -30,20 +31,23 @@ final class ApiClient {
         if (payload != null) {
             connection.setDoOutput(true);
             connection.setRequestProperty("Content-Type", "application/json");
-            OutputStream output = connection.getOutputStream();
-            output.write(payload.toString().getBytes("UTF-8"));
-            output.close();
+            try (OutputStream output = connection.getOutputStream()) {
+                output.write(payload.toString().getBytes("UTF-8"));
+            }
         }
         int status = connection.getResponseCode();
         InputStream stream = status >= 200 && status < 300 ? connection.getInputStream() : connection.getErrorStream();
-        BufferedReader reader = new BufferedReader(new java.io.InputStreamReader(stream, "UTF-8"));
         StringBuilder raw = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null) raw.append(line);
-        reader.close();
+        if (stream != null) {
+            try (BufferedReader reader = new BufferedReader(new java.io.InputStreamReader(stream, "UTF-8"))) {
+                String line;
+                while ((line = reader.readLine()) != null) raw.append(line);
+            }
+        }
         JSONObject response = new JSONObject(raw.length() == 0 ? "{}" : raw.toString());
         if (status < 200 || status >= 300) throw new Exception(response.optString("error", "Błąd serwera " + status));
         return response;
+        } finally { connection.disconnect(); }
     }
 
     static String casesSummary(JSONArray cases) {

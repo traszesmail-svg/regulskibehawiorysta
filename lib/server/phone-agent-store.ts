@@ -10,6 +10,8 @@ import { isZapytajPhoneBooking } from '@/lib/server/zapytaj-call'
 import { parseWarsawDateTime } from '@/lib/server/google-calendar'
 import { getBaseUrl } from '@/lib/server/env'
 import { normalizePolishPhone } from '@/lib/phone'
+import { createClient } from '@supabase/supabase-js'
+import { getSupabaseServerConfig, resolveDataMode } from '@/lib/server/env'
 
 export const PHONE_AGENT_HEARTBEAT_TIMEOUT_MS = 180_000 // 3 minutes without heartbeat = offline
 export const WATCHDOG_ALERT_THROTTLE_MS = 30 * 60 * 1000 // Send alert at most once per 30 minutes during continuous outage
@@ -89,25 +91,115 @@ type StoredDeviceState = {
   updatedAt: string
 }
 
+type PhoneAgentStateRow = {
+  last_heartbeat_at: string | null
+  battery_level: number | null
+  is_charging: boolean | null
+  network: string | null
+  is_default_dialer: boolean | null
+  app_version: string | null
+  last_outage_alert_sent_at: string | null
+  updated_at: string
+}
+
+type PhoneAgentSmsRow = {
+  id: string
+  booking_id: string | null
+  phone: string
+  message: string
+  type: SmsQueueType
+  status: SmsQueueStatus
+  scheduled_for: string
+  created_at: string
+  sent_at: string | null
+  error: string | null
+  idempotency_key: string
+}
+
+function getPhoneAgentSupabase() {
+  const config = getSupabaseServerConfig('trwały stan telefonu i kolejka SMS')
+  return createClient(config.url, config.serviceRoleKey, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  })
+}
+
+function toStoredDeviceState(row: PhoneAgentStateRow): StoredDeviceState {
+  return {
+    lastHeartbeatAt: row.last_heartbeat_at,
+    batteryLevel: row.battery_level,
+    isCharging: row.is_charging,
+    network: row.network,
+    isDefaultDialer: row.is_default_dialer,
+    appVersion: row.app_version,
+    lastOutageAlertSentAt: row.last_outage_alert_sent_at,
+    updatedAt: row.updated_at,
+  }
+}
+
+function toPhoneAgentSmsItem(row: PhoneAgentSmsRow): SmsQueueItem {
+  return {
+    id: row.id,
+    bookingId: row.booking_id,
+    phone: row.phone,
+    message: row.message,
+    type: row.type,
+    status: row.status,
+    scheduledFor: row.scheduled_for,
+    createdAt: row.created_at,
+    sentAt: row.sent_at,
+    error: row.error,
+    idempotencyKey: row.idempotency_key,
+  }
+}
+
 async function readStoredDeviceState(): Promise<StoredDeviceState> {
+  if (resolveDataMode('odczyt stanu telefonu') === 'supabase') {
+    const { data, error } = await getPhoneAgentSupabase()
+      .from('phone_agent_state')
+      .select('last_heartbeat_at, battery_level, is_charging, network, is_default_dialer, app_version, last_outage_alert_sent_at, updated_at')
+      .eq('id', 'main')
+      .maybeSingle<PhoneAgentStateRow>()
+    if (error) throw error
+    if (data) return toStoredDeviceState(data)
+    return emptyStoredDeviceState()
+  }
   try {
     const raw = await readFile(getDeviceStatePath(), 'utf8')
     return JSON.parse(raw) as StoredDeviceState
   } catch {
-    return {
-      lastHeartbeatAt: null,
-      batteryLevel: null,
-      isCharging: null,
-      network: null,
-      isDefaultDialer: null,
-      appVersion: null,
-      lastOutageAlertSentAt: null,
-      updatedAt: new Date().toISOString(),
-    }
+    return emptyStoredDeviceState()
+  }
+}
+
+function emptyStoredDeviceState(): StoredDeviceState {
+  return {
+    lastHeartbeatAt: null,
+    batteryLevel: null,
+    isCharging: null,
+    network: null,
+    isDefaultDialer: null,
+    appVersion: null,
+    lastOutageAlertSentAt: null,
+    updatedAt: new Date().toISOString(),
   }
 }
 
 async function writeStoredDeviceState(state: StoredDeviceState): Promise<void> {
+  if (resolveDataMode('zapis stanu telefonu') === 'supabase') {
+    const { error } = await getPhoneAgentSupabase().from('phone_agent_state').upsert({
+      id: 'main',
+      last_heartbeat_at: state.lastHeartbeatAt,
+      battery_level: state.batteryLevel,
+      is_charging: state.isCharging,
+      network: state.network,
+      is_default_dialer: state.isDefaultDialer,
+      app_version: state.appVersion,
+      last_outage_alert_sent_at: state.lastOutageAlertSentAt,
+      updated_at: state.updatedAt,
+    })
+    if (error) throw error
+    return
+  }
   const filePath = getDeviceStatePath()
   await mkdir(path.dirname(filePath), { recursive: true })
   const tempPath = `${filePath}.${process.pid}.${randomUUID()}.tmp`
@@ -237,6 +329,14 @@ export async function runPhoneAgentWatchdogCheck(): Promise<{
 // ---------------------------------------------------------------------------
 
 async function readStoredSmsQueue(): Promise<SmsQueueItem[]> {
+  if (resolveDataMode('odczyt kolejki SMS') === 'supabase') {
+    const { data, error } = await getPhoneAgentSupabase()
+      .from('phone_agent_sms_queue')
+      .select('id, booking_id, phone, message, type, status, scheduled_for, created_at, sent_at, error, idempotency_key')
+      .order('created_at', { ascending: false })
+    if (error) throw error
+    return (data as PhoneAgentSmsRow[] ?? []).map(toPhoneAgentSmsItem)
+  }
   try {
     const raw = await readFile(getSmsQueuePath(), 'utf8')
     return JSON.parse(raw) as SmsQueueItem[]
@@ -246,6 +346,9 @@ async function readStoredSmsQueue(): Promise<SmsQueueItem[]> {
 }
 
 async function writeStoredSmsQueue(items: SmsQueueItem[]): Promise<void> {
+  if (resolveDataMode('zapis kolejki SMS') === 'supabase') {
+    throw new Error('Nie można nadpisywać kolejki SMS jako całej tabeli w trybie Supabase.')
+  }
   const filePath = getSmsQueuePath()
   await mkdir(path.dirname(filePath), { recursive: true })
   const tempPath = `${filePath}.${process.pid}.${randomUUID()}.tmp`
@@ -256,6 +359,33 @@ async function writeStoredSmsQueue(items: SmsQueueItem[]): Promise<void> {
 
 export async function enqueueSms(input: EnqueueSmsInput): Promise<SmsQueueItem> {
   return withStoreLock(async () => {
+    if (resolveDataMode('dodanie SMS do kolejki') === 'supabase') {
+      const normalized = normalizePolishPhone(input.phone)
+      const phone = normalized ? normalized.e164 : input.phone.trim()
+      const now = new Date().toISOString()
+      const supabase = getPhoneAgentSupabase()
+      const { data, error } = await supabase
+        .from('phone_agent_sms_queue')
+        .insert({
+          booking_id: input.bookingId ?? null,
+          phone,
+          message: input.message.trim(),
+          type: input.type,
+          scheduled_for: input.scheduledFor ?? now,
+          idempotency_key: input.idempotencyKey,
+        })
+        .select('id, booking_id, phone, message, type, status, scheduled_for, created_at, sent_at, error, idempotency_key')
+        .single<PhoneAgentSmsRow>()
+      if (data) return toPhoneAgentSmsItem(data)
+      if (error?.code !== '23505') throw error
+      const { data: existing, error: existingError } = await supabase
+        .from('phone_agent_sms_queue')
+        .select('id, booking_id, phone, message, type, status, scheduled_for, created_at, sent_at, error, idempotency_key')
+        .eq('idempotency_key', input.idempotencyKey)
+        .single<PhoneAgentSmsRow>()
+      if (existingError || !existing) throw existingError ?? new Error('Brak istniejącego SMS-a po wykryciu duplikatu.')
+      return toPhoneAgentSmsItem(existing)
+    }
     const items = await readStoredSmsQueue()
     const existing = items.find((item) => item.idempotencyKey === input.idempotencyKey)
     if (existing) {
@@ -288,6 +418,11 @@ export async function enqueueSms(input: EnqueueSmsInput): Promise<SmsQueueItem> 
 
 export async function claimNextPendingSms(): Promise<SmsQueueItem | null> {
   return withStoreLock(async () => {
+    if (resolveDataMode('atomowe pobranie SMS do wysyłki') === 'supabase') {
+      const { data, error } = await getPhoneAgentSupabase().rpc('claim_next_phone_agent_sms')
+      if (error) throw error
+      return data ? toPhoneAgentSmsItem(data as PhoneAgentSmsRow) : null
+    }
     const items = await readStoredSmsQueue()
     const now = Date.now()
 
@@ -304,6 +439,16 @@ export async function claimNextPendingSms(): Promise<SmsQueueItem | null> {
 
 export async function reportSmsResult(id: string, status: 'sent' | 'failed', error?: string): Promise<boolean> {
   return withStoreLock(async () => {
+    if (resolveDataMode('zapis wyniku SMS') === 'supabase') {
+      const { data, error: updateError } = await getPhoneAgentSupabase()
+        .from('phone_agent_sms_queue')
+        .update({ status, sent_at: status === 'sent' ? new Date().toISOString() : null, error: error ? error.slice(0, 300) : null })
+        .eq('id', id)
+        .select('id')
+        .maybeSingle()
+      if (updateError) throw updateError
+      return Boolean(data)
+    }
     const items = await readStoredSmsQueue()
     const item = items.find((it) => it.id === id)
     if (!item) return false
@@ -318,6 +463,15 @@ export async function reportSmsResult(id: string, status: 'sent' | 'failed', err
 
 export async function listSmsQueue(limit = 50): Promise<SmsQueueItem[]> {
   return withStoreLock(async () => {
+    if (resolveDataMode('lista kolejki SMS') === 'supabase') {
+      const { data, error } = await getPhoneAgentSupabase()
+        .from('phone_agent_sms_queue')
+        .select('id, booking_id, phone, message, type, status, scheduled_for, created_at, sent_at, error, idempotency_key')
+        .order('created_at', { ascending: false })
+        .limit(limit)
+      if (error) throw error
+      return (data as PhoneAgentSmsRow[] ?? []).map(toPhoneAgentSmsItem)
+    }
     const items = await readStoredSmsQueue()
     return items.slice(-limit).reverse()
   })

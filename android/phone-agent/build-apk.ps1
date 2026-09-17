@@ -21,6 +21,20 @@ $agentDir = "C:\projekt\regulskibehawiorysta\android\phone-agent"
 $appDir = "$agentDir\app"
 $buildDir = "$appDir\build"
 
+# Validate before cleaning: never delete the only copy of a signing key.
+if (-not $AllowEphemeralTestSigning) {
+    if (-not $KeystorePath -or -not $KeystoreAlias -or -not $KeystorePassword) {
+        throw "Brak stałego klucza podpisu. Podaj PHONE_AGENT_KEYSTORE_PATH, PHONE_AGENT_KEYSTORE_ALIAS i PHONE_AGENT_KEYSTORE_PASSWORD."
+    }
+    if (-not (Test-Path -LiteralPath $KeystorePath)) { throw "Nie znaleziono klucza podpisu." }
+    $resolvedKey = [IO.Path]::GetFullPath($KeystorePath)
+    if ($resolvedKey.StartsWith([IO.Path]::GetFullPath($buildDir) + '\', [StringComparison]::OrdinalIgnoreCase)) {
+        throw "Klucz podpisu musi znajdować się poza katalogiem build."
+    }
+}
+$resolvedBuild = [IO.Path]::GetFullPath($buildDir)
+if ($resolvedBuild -ne [IO.Path]::GetFullPath((Join-Path $agentDir 'app\build'))) { throw "Nieprawidłowy katalog build." }
+
 Write-Host "Czyszczenie katalogu build..."
 if (Test-Path $buildDir) { Remove-Item -Recurse -Force $buildDir }
 New-Item -ItemType Directory -Path "$buildDir\gen" -Force | Out-Null

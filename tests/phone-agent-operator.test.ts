@@ -15,7 +15,7 @@ import { createLocalDataSandbox } from '@/scripts/lib/local-data-sandbox'
 import { GET as getHeartbeat, POST as postHeartbeat } from '@/app/api/phone-agent/heartbeat/route'
 import { GET as getSmsQueue, POST as postSmsQueue } from '@/app/api/phone-agent/sms-queue/route'
 import { POST as postWatchdog } from '@/app/api/phone-agent/watchdog/route'
-import { GET as getCronWatchdog } from '@/app/api/cron/phone-agent-watchdog/route'
+import { GET as getCronWatchdog, POST as postCronWatchdog } from '@/app/api/cron/phone-agent-watchdog/route'
 import { createAvailabilitySlot, createPendingBooking, markBookingPaid } from '@/lib/server/local-store'
 import { NextRequest } from 'next/server'
 
@@ -238,6 +238,16 @@ test('heartbeat and sms-queue API endpoints respond with proper auth', async () 
       // The production scheduler uses CRON_SECRET, never the phone token.
       const cronNoAuth = await getCronWatchdog(new NextRequest('http://localhost:3000/api/cron/phone-agent-watchdog'))
       assert.equal(cronNoAuth.status, 401)
+
+      // Supabase pg_net invokes cron endpoints with POST; it must use the
+      // same authorization gate and runner as Vercel's GET cron invocation.
+      const cronPost = await postCronWatchdog(new NextRequest('http://localhost:3000/api/cron/phone-agent-watchdog', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer cron-secret-456' },
+      }))
+      assert.equal(cronPost.status, 200)
+      const cronPostData = await cronPost.json()
+      assert.equal(cronPostData.ok, true)
     })
   } finally {
     await sandbox.cleanup()

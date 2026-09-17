@@ -22,3 +22,9 @@ export async function GET(request: NextRequest) {
     )
   }
 }
+
+// Supabase pg_net schedules JSON POSTs; Vercel Cron uses GET. Both use the
+// same bearer-secret gate and execute exactly the same watchdog check.
+export async function POST(request: NextRequest) {
+  return GET(request)
+}

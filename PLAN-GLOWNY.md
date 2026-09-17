@@ -1,6 +1,8 @@
 # Plan główny — Regulski Behawiorysta
 
-Data aktualizacji: 2026-09-15
+Data aktualizacji: 2026-09-16
+
+Aktualny zakres Operatora i panelu właściciela: [PLAN-OPERATOR-2026-09-16.md](PLAN-OPERATOR-2026-09-16.md). Ustalenia z 16.09 o Motoroli, automatycznych SMS-ach, dostępności online i docelowej automatyzacji Revolut zastępują starsze ograniczenia zakresu w tym dokumencie. Wykonanie i testy są rozliczane osobno; karta SIM czeka na doładowanie.
 Status: dokument kanoniczny dla dalszych decyzji i wdrożeń  
 Powiązany audyt: [AUDYT-GLOWNY-2026-09-11.md](AUDYT-GLOWNY-2026-09-11.md) (poprzedni: [AUDYT-GLOWNY-2026-09-07.md](AUDYT-GLOWNY-2026-09-07.md))
 

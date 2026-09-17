@@ -4,6 +4,7 @@ import { AdminAvailabilityManager } from '@/components/AdminAvailabilityManager'
 import { AdminBookingList } from '@/components/AdminBookingList'
 import { AdminLazyDetails } from '@/components/AdminLazyDetails'
 import { AdminOperatorMobileCard, type OperatorStatusData } from '@/components/AdminOperatorMobileCard'
+import { AdminViewSwitcher } from '@/components/AdminViewSwitcher'
 import { AdminPricingManager } from '@/components/AdminPricingManager'
 import { AdminUrgentRequestActions } from '@/components/AdminUrgentRequestActions'
 import { AdminZapytajLiveControl } from '@/components/AdminZapytajLiveControl'
@@ -388,9 +389,13 @@ export default async function AdminPage() {
   return (
     <main className="page-wrap" data-analytics-disabled="true">
       <div className="container">
-        <AdminTopbar />
-
-        <section className="panel section-panel">
+        <AdminViewSwitcher
+          operatorData={operatorInitialData}
+          upcomingBookings={bookingGroups.upcoming}
+          needsActionBookings={bookingGroups.needsAction}
+          desktopChildren={
+            <>
+              <section className="panel section-panel">
           <div className="section-head">
             <div>
               <div className="section-eyebrow">Panel specjalisty</div>
@@ -756,6 +761,9 @@ export default async function AdminPage() {
               )}
           </AdminLazyDetails>
         </section>
+            </>
+          }
+        />
       </div>
     </main>
   )

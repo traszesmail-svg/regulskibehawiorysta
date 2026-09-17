@@ -16,15 +16,15 @@ export function HomepageZapytajHero() {
         <div className="offer-facts" aria-label="Najważniejsze informacje">
           <div className="offer-fact">
             <span className="offer-fact__icon"><Clock3 aria-hidden="true" /></span>
-            <span>Do 15 minut</span>
+            Do 15 minut
           </div>
           <div className="offer-fact">
             <span className="offer-fact__icon"><WalletCards aria-hidden="true" /></span>
-            <span>79 zł</span>
+            79 zł
           </div>
           <div className="offer-fact">
             <span className="offer-fact__icon"><PhoneCall aria-hidden="true" /></span>
-            <span>Telefonicznie</span>
+            Telefonicznie
           </div>
         </div>
         <div className="homepage-zapytaj-actions">

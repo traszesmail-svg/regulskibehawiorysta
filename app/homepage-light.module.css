@@ -68,11 +68,10 @@
   justify-content: center;
 }
 
-.page :global(.offer-fact > span:not(.offer-fact__icon)) {
-  color: var(--ink);
+.page :global(.offer-fact) {
   font-size: 14px;
   font-weight: 650;
-  line-height: 1.2;
+  color: var(--ink);
   white-space: nowrap;
 }
 

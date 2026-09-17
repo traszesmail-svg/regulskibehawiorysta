@@ -11,7 +11,7 @@ import { parseWarsawDateTime } from '@/lib/server/google-calendar'
 import { getBaseUrl } from '@/lib/server/env'
 import { normalizePolishPhone } from '@/lib/phone'
 import { createClient } from '@supabase/supabase-js'
-import { getSupabaseServerConfig, resolveDataMode } from '@/lib/server/env'
+import { getDataModeStatus, getSupabaseServerConfig, resolveDataMode } from '@/lib/server/env'
 
 export const PHONE_AGENT_HEARTBEAT_TIMEOUT_MS = 180_000 // 3 minutes without heartbeat = offline
 export const WATCHDOG_ALERT_THROTTLE_MS = 30 * 60 * 1000 // Send alert at most once per 30 minutes during continuous outage
@@ -67,6 +67,9 @@ export type EnqueueSmsInput = {
 
 let storeQueue = Promise.resolve()
 function withStoreLock<T>(work: () => Promise<T>): Promise<T> {
+  if (getDataModeStatus().active === 'supabase') {
+    return work()
+  }
   const next = storeQueue.then(work, work)
   storeQueue = next.then(() => undefined, () => undefined)
   return next
@@ -532,10 +535,24 @@ export async function cancelPendingLiveAvailabilitySms(reason = 'live_availabili
 export async function claimNextPendingSms(): Promise<SmsQueueItem | null> {
   return withStoreLock(async () => {
     if (resolveDataMode('atomowe pobranie SMS do wysyłki') === 'supabase') {
-      const { data, error } = await getPhoneAgentSupabase().rpc('claim_next_phone_agent_sms')
-      if (error) throw new Error(error.message)
-      const row = data as PhoneAgentSmsRow | null
-      return row && row.id ? toPhoneAgentSmsItem(row) : null
+      try {
+        const queryPromise = getPhoneAgentSupabase().rpc('claim_next_phone_agent_sms')
+        const { data, error } = await Promise.race([
+          queryPromise,
+          new Promise<{ data: null; error: Error }>((_, reject) =>
+            setTimeout(() => reject(new Error('Supabase claim SMS timeout (5s)')), 5000),
+          ),
+        ])
+        if (error) {
+          console.warn('[phone-agent-store] Supabase claim SMS error:', error.message)
+          return null
+        }
+        const row = data as PhoneAgentSmsRow | null
+        return row && row.id ? toPhoneAgentSmsItem(row) : null
+      } catch (err) {
+        console.warn('[phone-agent-store] claimNextPendingSms timeout or failed:', err)
+        return null
+      }
     }
     const items = await readStoredSmsQueue()
     const now = Date.now()
@@ -554,14 +571,26 @@ export async function claimNextPendingSms(): Promise<SmsQueueItem | null> {
 export async function reportSmsResult(id: string, status: 'sent' | 'failed', error?: string): Promise<boolean> {
   return withStoreLock(async () => {
     if (resolveDataMode('zapis wyniku SMS') === 'supabase') {
-      const { data, error: updateError } = await getPhoneAgentSupabase()
-        .from('phone_agent_sms_queue')
-        .update({ status, sent_at: status === 'sent' ? new Date().toISOString() : null, error: error ? error.slice(0, 300) : null })
-        .eq('id', id)
-        .select('id')
-        .maybeSingle()
-      if (updateError) throw new Error(updateError.message)
-      return Boolean(data)
+      try {
+        const updatePromise = getPhoneAgentSupabase()
+          .from('phone_agent_sms_queue')
+          .update({ status, sent_at: status === 'sent' ? new Date().toISOString() : null, error: error ? error.slice(0, 300) : null })
+          .eq('id', id)
+          .select('id')
+          .maybeSingle()
+
+        const { data, error: updateError } = await Promise.race([
+          updatePromise,
+          new Promise<{ data: null; error: Error }>((_, reject) =>
+            setTimeout(() => reject(new Error('Supabase report SMS timeout (5s)')), 5000),
+          ),
+        ])
+        if (updateError) throw new Error(updateError.message)
+        return Boolean(data)
+      } catch (err) {
+        console.warn('[phone-agent-store] reportSmsResult error or timeout:', err)
+        return false
+      }
     }
     const items = await readStoredSmsQueue()
     const item = items.find((it) => it.id === id)
@@ -578,13 +607,25 @@ export async function reportSmsResult(id: string, status: 'sent' | 'failed', err
 export async function listSmsQueue(limit = 50): Promise<SmsQueueItem[]> {
   return withStoreLock(async () => {
     if (resolveDataMode('lista kolejki SMS') === 'supabase') {
-      const { data, error } = await getPhoneAgentSupabase()
-        .from('phone_agent_sms_queue')
-        .select('id, booking_id, phone, message, type, status, scheduled_for, created_at, sent_at, error, idempotency_key')
-        .order('created_at', { ascending: false })
-        .limit(limit)
-      if (error) throw error
-      return (data as PhoneAgentSmsRow[] ?? []).map(toPhoneAgentSmsItem)
+      try {
+        const queryPromise = getPhoneAgentSupabase()
+          .from('phone_agent_sms_queue')
+          .select('id, booking_id, phone, message, type, status, scheduled_for, created_at, sent_at, error, idempotency_key')
+          .order('created_at', { ascending: false })
+          .limit(limit)
+
+        const { data, error } = await Promise.race([
+          queryPromise,
+          new Promise<{ data: null; error: Error }>((_, reject) =>
+            setTimeout(() => reject(new Error('Supabase list SMS timeout (5s)')), 5000),
+          ),
+        ])
+        if (error) throw error
+        return (data as PhoneAgentSmsRow[] ?? []).map(toPhoneAgentSmsItem)
+      } catch (err) {
+        console.warn('[phone-agent-store] listSmsQueue error or timeout:', err)
+        return []
+      }
     }
     const items = await readStoredSmsQueue()
     return items.slice(-limit).reverse()

@@ -39,8 +39,8 @@ export async function POST(request: NextRequest) {
     const body = (await request.json().catch(() => ({}))) as PhoneAgentHeartbeatInput
     const state = await recordPhoneAgentHeartbeat(body)
 
-    // Check and generate upcoming SMS reminders
-    await generateUpcomingBookingSmsReminders().catch((e) =>
+    // Check and generate upcoming SMS reminders in background without delaying heartbeat response
+    generateUpcomingBookingSmsReminders().catch((e) =>
       console.warn('[phone-agent-heartbeat] sms reminders check error:', e),
     )
 

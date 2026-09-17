@@ -3,12 +3,15 @@ import { unstable_noStore as noStore } from 'next/cache'
 import { AdminAvailabilityManager } from '@/components/AdminAvailabilityManager'
 import { AdminBookingList } from '@/components/AdminBookingList'
 import { AdminLazyDetails } from '@/components/AdminLazyDetails'
+import { AdminOperatorMobileCard, type OperatorStatusData } from '@/components/AdminOperatorMobileCard'
 import { AdminPricingManager } from '@/components/AdminPricingManager'
 import { AdminUrgentRequestActions } from '@/components/AdminUrgentRequestActions'
 import { AdminZapytajLiveControl } from '@/components/AdminZapytajLiveControl'
 import { BookingReminderOptIn } from '@/components/BookingReminderOptIn'
 import { getBuildMarkerSnapshot } from '@/lib/build-marker'
 import { UNPAID_BOOKING_EXPIRY_HOURS, isUnpaidBookingExpired } from '@/lib/booking-expiry'
+import { getPhoneAgentDeviceState, listSmsQueue } from '@/lib/server/phone-agent-store'
+import { getZapytajLiveStatus } from '@/lib/server/zapytaj-live'
 import {
   compareDateAndTime,
   formatDateLabel,
@@ -332,6 +335,56 @@ export default async function AdminPage() {
     },
   ]
 
+  let operatorInitialData: OperatorStatusData | null = null
+  try {
+    const [deviceState, liveStatus, smsQueue] = await Promise.all([
+      getPhoneAgentDeviceState(),
+      getZapytajLiveStatus(),
+      listSmsQueue(50).catch(() => []),
+    ])
+    const pendingCount = smsQueue.filter((item) => item.status === 'pending' || item.status === 'claimed').length
+    const sentCount = smsQueue.filter((item) => item.status === 'sent').length
+    const failedCount = smsQueue.filter((item) => item.status === 'failed').length
+    const recentErrors = smsQueue
+      .filter((item) => item.status === 'failed' && Boolean(item.error))
+      .slice(0, 5)
+      .map((item) => ({
+        id: item.id,
+        phone: item.phone,
+        type: item.type,
+        error: item.error,
+        createdAt: item.createdAt,
+      }))
+    const nextUpcoming = bookingGroups.upcoming[0]
+      ? {
+          id: bookingGroups.upcoming[0].id,
+          ownerName: bookingGroups.upcoming[0].ownerName,
+          phone: bookingGroups.upcoming[0].customerPhoneNormalized ?? bookingGroups.upcoming[0].phone,
+          animalType: bookingGroups.upcoming[0].animalType,
+          bookingDate: bookingGroups.upcoming[0].bookingDate,
+          bookingTime: bookingGroups.upcoming[0].bookingTime,
+          serviceType: bookingGroups.upcoming[0].serviceType ?? null,
+          callStatus: bookingGroups.upcoming[0].callStatus ?? null,
+        }
+      : null
+
+    operatorInitialData = {
+      device: deviceState,
+      live: liveStatus,
+      smsSummary: {
+        pendingCount,
+        sentCount,
+        failedCount,
+        recentErrors,
+      },
+      nextUpcomingBooking: nextUpcoming,
+      pendingManualPaymentsCount: bookingGroups.needsAction.length,
+      updatedAt: new Date().toISOString(),
+    }
+  } catch (e) {
+    console.warn('[admin] operator status initial data failed:', e)
+  }
+
   return (
     <main className="page-wrap" data-analytics-disabled="true">
       <div className="container">
@@ -355,6 +408,8 @@ export default async function AdminPage() {
               </Link>
             </div>
           </div>
+
+          <AdminOperatorMobileCard initialData={operatorInitialData} />
 
           <div className="summary-grid top-gap">
             <div className="summary-card">

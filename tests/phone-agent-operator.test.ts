@@ -19,6 +19,7 @@ import { GET as getHeartbeat, POST as postHeartbeat } from '@/app/api/phone-agen
 import { GET as getSmsQueue, POST as postSmsQueue } from '@/app/api/phone-agent/sms-queue/route'
 import { POST as postWatchdog } from '@/app/api/phone-agent/watchdog/route'
 import { GET as getCronWatchdog, POST as postCronWatchdog } from '@/app/api/cron/phone-agent-watchdog/route'
+import { GET as getOperatorStatus } from '@/app/api/admin/operator/status/route'
 import { createAvailabilitySlot, createPendingBooking, markBookingPaid } from '@/lib/server/local-store'
 import { NextRequest } from 'next/server'
 
@@ -583,6 +584,60 @@ test('sendPaymentConfirmationSms routes through phone_agent queue when configure
         assert.match(queuedItem.message, /Potwierdzenie płatności/)
       },
     )
+  } finally {
+    await sandbox.cleanup()
+  }
+})
+
+test('admin operator status endpoint exposes device state, live status, and sms queue metrics', async () => {
+  const sandbox = await createLocalDataSandbox('phone-agent-admin-status', process.cwd())
+
+  try {
+    await withEnv({ APP_DATA_MODE: 'local' }, async () => {
+      // 1. Record device state
+      await recordPhoneAgentHeartbeat({
+        batteryLevel: 88,
+        isCharging: true,
+        network: 'T-Mobile LTE',
+        isDefaultDialer: true,
+        appVersion: '1.2.0',
+      })
+
+      // 2. Enqueue SMS (pending and failed)
+      await enqueueSms({
+        bookingId: 'booking-admin-test',
+        phone: '505848889',
+        message: 'Kolejka testowa',
+        type: 'custom',
+        idempotencyKey: 'custom-admin-test-1',
+      })
+
+      const failedItem = await enqueueSms({
+        bookingId: 'booking-admin-test-2',
+        phone: '505848889',
+        message: 'Błędna wiadomość',
+        type: 'custom',
+        idempotencyKey: 'custom-admin-test-2',
+      })
+      await reportSmsResult(failedItem.id, 'failed', 'NO_NETWORK_COVERAGE')
+
+      // 3. Call endpoint
+      const res = await getOperatorStatus()
+      assert.equal(res.status, 200)
+      const data = await res.json()
+
+      assert.equal(data.device.batteryLevel, 88)
+      assert.equal(data.device.isCharging, true)
+      assert.equal(data.device.network, 'T-Mobile LTE')
+      assert.equal(data.device.isOnline, true)
+
+      assert.ok(data.live)
+      assert.ok(data.smsSummary)
+      assert.equal(data.smsSummary.pendingCount, 1)
+      assert.equal(data.smsSummary.failedCount, 1)
+      assert.equal(data.smsSummary.recentErrors.length, 1)
+      assert.equal(data.smsSummary.recentErrors[0].error, 'NO_NETWORK_COVERAGE')
+    })
   } finally {
     await sandbox.cleanup()
   }

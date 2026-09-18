@@ -17,7 +17,7 @@ const contactHref = '/kontakt#formularz'
 
 export default function FaqPage() {
   return (
-    <ReferencePageShell className="reference-faq-page" ctaHref={bookHref} showHeroLeaf>
+    <ReferencePageShell className="reference-faq-page" ctaHref={bookHref} ctaLabel="Zapytaj behawiorystę – 79 zł" showHeroLeaf>
       <Schema
         data={[
           getBreadcrumbJsonLd([

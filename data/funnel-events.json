@@ -1,5 +1,89 @@
 [
   {
+    "id": "fd780249-84cd-4035-b438-bc8e794cdec6",
+    "eventType": "notification_optin_submitted",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "server",
+    "pagePath": "/zapytaj",
+    "location": null,
+    "properties": {
+      "notification_channel": "sms",
+      "email_fallback_available": false
+    },
+    "createdAt": "2026-09-18T14:14:05.380Z"
+  },
+  {
+    "id": "8d1ea2d2-fca2-4d6b-9077-99089fe37a65",
+    "eventType": "notification_optin_submitted",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "server",
+    "pagePath": "/zapytaj",
+    "location": null,
+    "properties": {
+      "notification_channel": "sms",
+      "email_fallback_available": false
+    },
+    "createdAt": "2026-09-18T14:07:36.717Z"
+  },
+  {
+    "id": "f8617463-4f52-4b06-ad43-7055b9e71a75",
+    "eventType": "notification_optin_submitted",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "server",
+    "pagePath": "/zapytaj",
+    "location": null,
+    "properties": {
+      "notification_channel": "sms",
+      "email_fallback_available": false
+    },
+    "createdAt": "2026-09-18T13:43:33.129Z"
+  },
+  {
+    "id": "5bbde885-7754-4226-8f70-eb383428b4c6",
+    "eventType": "notification_optin_submitted",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "server",
+    "pagePath": "/zapytaj",
+    "location": null,
+    "properties": {
+      "notification_channel": "sms",
+      "email_fallback_available": false
+    },
+    "createdAt": "2026-09-18T13:42:21.411Z"
+  },
+  {
+    "id": "72838381-5c6e-4c09-a1c5-343501c41482",
+    "eventType": "notification_optin_submitted",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "server",
+    "pagePath": "/zapytaj",
+    "location": null,
+    "properties": {
+      "notification_channel": "sms",
+      "email_fallback_available": false
+    },
+    "createdAt": "2026-09-18T13:06:12.647Z"
+  },
+  {
+    "id": "0c0235f8-e1d0-4718-b046-56b94d94f264",
+    "eventType": "notification_optin_submitted",
+    "bookingId": null,
+    "qaBooking": false,
+    "source": "server",
+    "pagePath": "/zapytaj",
+    "location": null,
+    "properties": {
+      "notification_channel": "sms",
+      "email_fallback_available": false
+    },
+    "createdAt": "2026-09-18T13:05:20.697Z"
+  },
+  {
     "id": "d9ede618-227a-4636-bf83-0c77cae2f781",
     "eventType": "contact_form_started",
     "bookingId": null,

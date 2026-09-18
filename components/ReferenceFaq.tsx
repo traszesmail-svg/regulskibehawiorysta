@@ -259,16 +259,14 @@ export function ReferenceFaq({ contactHref }: ReferenceFaqProps) {
 
       <section className="reference-final-cta reference-faq-final-cta">
         <div className="reference-final-copy">
-          <h2>Nie znalazłeś odpowiedzi?</h2>
-          <p>Opisz krótko sytuację, a pomogę dobrać najlepszy pierwszy krok.</p>
+          <h2>Nie masz pewności, od czego zacząć?</h2>
+          <p>Opisz sytuację w kilku zdaniach i zacznij od krótkiej rozmowy telefonicznej.</p>
           <div className="reference-final-actions">
-            <Link href={contactHref} prefetch={false} className="reference-btn reference-btn-primary">
-              <MessageCircle size={20} strokeWidth={1.8} aria-hidden="true" />
-              Opisz krótko sytuację
+            <Link href="/zapytaj" prefetch={false} className="reference-btn reference-btn-primary">
+              Zapytaj behawiorystę – 79 zł
             </Link>
-            <Link href="/" prefetch={false} className="reference-btn reference-btn-secondary">
-              <Leaf size={20} strokeWidth={1.8} aria-hidden="true" />
-              Pomóż mi dobrać pierwszy krok
+            <Link href="/mapa-sprawy" prefetch={false} className="reference-btn reference-btn-secondary">
+              Mapa zachowania
             </Link>
           </div>
         </div>

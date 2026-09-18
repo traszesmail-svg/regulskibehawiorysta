@@ -97,6 +97,6 @@ Nie zawsze. Czasem są bardzo pomocne i uwalniają przestrzeń do pracy behawior
 
 ## Jeśli chcesz porozmawiać o swoim psie
 
-To jest dokładnie ten typ problemu, przy którym **Kwadrans z behawiorystą** bywa najlepszym pierwszym krokiem. Opowiadasz, co dzieje się po wyjściu z domu, co już próbowałaś/próbowałeś i jak wygląda rytuał wychodzenia. Wychodzisz z jednym kierunkiem na najbliższy tydzień i jasnością, czy to, co robisz, naprawdę pomaga.
+To jest dokładnie ten typ problemu, przy którym rozmowa **Zapytaj behawiorystę (do 15 minut)** bywa najlepszym pierwszym krokiem: opowiadasz, co dzieje się po wyjściu z domu, co już próbowaliście i wychodzisz z ustaleniem pierwszego kierunku działania.
 
-[Umów Kwadrans z behawiorystą](/book) · [Zobacz pełny poradnik „pies zostaje sam”](/materialy) · [Kategoria: psy](/psy)
+[Zapytaj behawiorystę – 79 zł](/zapytaj) · [Zobacz pełny poradnik „pies zostaje sam”](/materialy) · [Kategoria: psy](/psy)

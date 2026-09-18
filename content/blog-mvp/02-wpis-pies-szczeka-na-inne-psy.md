@@ -96,7 +96,7 @@ Nie trzeba czekać aż „będzie bardzo źle”. Sensowny moment to:
 - pies jest zmęczony, ty jesteś zmęczona/zmęczony,
 - zaczyna być trudno wyjść z domu, bo nie wiadomo, co się wydarzy.
 
-Nie musisz od razu zamawiać długiej konsultacji. Często wystarczy **Kwadrans z behawiorystą**, żeby ustawić pierwszy kierunek i sprawdzić, czy plan, który masz w głowie, ma sens.
+Nie musisz od razu zamawiać długiej konsultacji. Często wystarczy rozmowa **Zapytaj behawiorystę (do 15 minut)**, żeby ustalić pierwszy kierunek działania i sprawdzić, czy plan, który masz w głowie, ma sens.
 
 ## FAQ
 
@@ -117,6 +117,6 @@ Od dystansu i jednej powtarzalnej procedury. Reszta jest nadbudową.
 
 ## Chcesz porozmawiać konkretnie o swoim psie?
 
-Nie musisz zaczynać od najdłuższej opcji. **Kwadrans z behawiorystą** sprawdza się właśnie przy takich spacerach: opowiadasz, jak wygląda typowy spacer, co już próbowałaś/próbowałeś i co dziś nie działa. Wychodzisz z jednym prostym kierunkiem na najbliższy tydzień.
+Nie musisz zaczynać od długiej opcji. Rozmowa **Zapytaj behawiorystę (do 15 minut)** sprawdza się właśnie przy takich spacerach: opowiadasz, jak wygląda typowy spacer, co już próbowałaś/próbowałeś i co dziś nie działa. Wychodzisz z ustaleniem pierwszego kierunku działania.
 
-[Umów Kwadrans z behawiorystą](/book) · [Zobacz, jak pracuję dla opiekunów psów](/psy)
+[Zapytaj behawiorystę – 79 zł](/zapytaj) · [Zobacz, jak pracuję dla opiekunów psów](/psy)

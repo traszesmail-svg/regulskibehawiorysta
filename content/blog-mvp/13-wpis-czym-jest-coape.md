@@ -75,6 +75,6 @@ Tak. Program obejmuje zarówno psy, jak i koty oraz inne zwierzęta towarzysząc
 
 ## Jeśli chcesz sprawdzić, jak pracuję
 
-Informacje o moich kwalifikacjach i afiliacjach znajdziesz na stronie /o-mnie, z publicznymi punktami odniesienia do samodzielnej weryfikacji. Jeśli chcesz się ze mną najpierw krótko rozmówić — **Kwadrans z behawiorystą** jest najlżejszym pierwszym krokiem.
+Informacje o moich kwalifikacjach i afiliacjach znajdziesz na stronie /o-mnie, z publicznymi punktami odniesienia do samodzielnej weryfikacji. Jeśli chcesz najpierw skonsultować sytuację — zacznij od rozmowy **Zapytaj behawiorystę (79 zł)** i ustalenia pierwszego kierunku działania.
 
-[O mnie i moich kwalifikacjach](/o-mnie) · [Umów Kwadrans z behawiorystą](/book) · [Kategoria: psy](/psy) · [Kategoria: koty](/koty)
+[O mnie i moich kwalifikacjach](/o-mnie) · [Zapytaj behawiorystę – 79 zł](/zapytaj) · [Kategoria: psy](/psy) · [Kategoria: koty](/koty)

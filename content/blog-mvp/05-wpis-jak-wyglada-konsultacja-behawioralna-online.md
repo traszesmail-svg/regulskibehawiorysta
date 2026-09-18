@@ -1,7 +1,7 @@
 ---
 slug: jak-wyglada-konsultacja-behawioralna-online
 title_seo: Jak wygląda konsultacja behawioralna online? Krok po kroku
-meta_description: Konsultacja behawioralna online dla psa lub kota — jak wygląda, co przygotować, co dostajesz i kiedy zacząć od Kwadransu z behawiorystą.
+meta_description: Konsultacja behawioralna online dla psa lub kota — jak wygląda, co przygotować, co dostajesz i kiedy zacząć od rozmowy Zapytaj behawiorystę.
 h1: Jak wygląda konsultacja behawioralna online?
 ---
 
@@ -45,7 +45,7 @@ Piszesz krótką wiadomość. Nie musisz opowiadać wszystkiego, wystarczy z jed
 
 ### 2. Wybór formatu
 
-Są różne długości konsultacji. Najczęściej proponuję zacząć od najmniejszej — **Kwadransu z behawiorystą**. To wystarczy, żeby:
+Są różne długości konsultacji. Najczęściej proponuję zacząć od rozmowy do 15 minut — **Zapytaj behawiorystę (79 zł)**. To wystarczy, żeby:
 
 - zobaczyć, czy trafiasz pod właściwy adres,
 - dostać pierwszy kierunek,
@@ -77,7 +77,7 @@ Nie jest to wykład. Nie jest to też terapia. To jest praca nad konkretnym prob
 
 ### 5. Plan działania
 
-Dostajesz konkrety: co zrobić pierwsze, czego nie robić, jak ocenić, czy idzie w dobrą stronę. Plan jest proporcjonalny do długości rozmowy. Po Kwadransie dostajesz kierunek. Po dłuższej konsultacji — plan wielotygodniowy z etapami.
+Dostajesz konkrety: co zrobić najpierw, czego unikać i jak ocenić sytuację. Po rozmowie Zapytaj behawiorystę dostajesz pierwszy kierunek działania. Przy sprawach wymagających dłuższej pracy umawiamy pełną konsultację (około 90 minut) z planem etapów.
 
 ### 6. Co dalej
 
@@ -94,7 +94,7 @@ Z pełną szczerością:
 
 W takich przypadkach mówię to wprost i albo kieruję dalej, albo proponuję współpracę z weterynarzem.
 
-## Co dostajesz realnie po Kwadransie z behawiorystą
+## Co dostajesz realnie po rozmowie Zapytaj behawiorystę
 
 Krótką listę. Konkretnie:
 
@@ -104,18 +104,18 @@ Krótką listę. Konkretnie:
 - kryterium, po którym poznasz, czy kierunek jest dobry,
 - informację, czy warto rozmawiać dłużej, czy spokojnie działasz sama/sam.
 
-Jeśli nie da się tego ustalić w kwadrans — to znaczy, że temat jest większy albo że w opisie brakuje ważnych informacji.
+Jeśli nie da się ustalić kierunku w krótkiej rozmowie — to znaczy, że temat jest szerszy albo wymaga pełnej konsultacji i szerszych obserwacji.
 
 ## FAQ
 
 **Czy muszę mieć kamerę?**
-Nie. Kwadrans z behawiorystą działa bez kamery. To świadomy wybór — mniejsza presja, mniej logistyki, większy spokój rozmowy.
+Nie. Rozmowa Zapytaj behawiorystę odbywa się telefonicznie, bez kamery. To świadomy wybór — mniejsza presja, mniej logistyki, większy spokój rozmowy.
 
 **Co jeśli mój pies/kot robi „to coś” tylko czasami?**
 To nadal wystarczy do rozmowy. Behawiorystę interesuje też kontekst, w którym problem nie występuje.
 
 **Czy 15 minut to naprawdę wystarczy?**
-Na wstępny kierunek — tak. Na pełny plan dla trudnej sytuacji — nie, i wtedy umawiamy dłuższą rozmowę. Kwadrans z behawiorystą to samodzielny format: dla jednego pytania, orientacji w temacie albo ustalenia priorytetu na start.
+Na wstępny kierunek — tak. Na pełny plan dla trudnej sytuacji — nie, i wtedy umawiamy dłuższą rozmowę. Rozmowa Zapytaj behawiorystę to format do 15 minut: dla jednego pytania, orientacji w temacie albo ustalenia pierwszego kierunku działania.
 
 **Co jeśli muszę coś przemyśleć po rozmowie?**
 Normalna sprawa. Piszesz, kiedy jesteś gotowa/gotowy. Brak presji czasu.
@@ -124,10 +124,10 @@ Normalna sprawa. Piszesz, kiedy jesteś gotowa/gotowy. Brak presji czasu.
 Tak. Koty reagują na obcą osobę w domu bardzo silnie. Rozmowa online bez kota na ekranie jest często sensowniejsza, bo patrzymy na środowisko i wzory zachowań, a nie na „jakiego kota zobaczy behawiorysta w stresie”.
 
 **Ile to kosztuje?**
-Kwadrans z behawiorystą jest najniższym progiem wejścia. Aktualny cennik i opcje znajdziesz na stronie głównej i w sekcji rezerwacji.
+Zapytaj behawiorystę (79 zł) jest podstawowym pierwszym krokiem w serwisie.
 
 ## Jeśli dotarłaś/dotarłeś tutaj, prawdopodobnie już wiesz
 
-Nie musisz od razu wybierać najdłuższej opcji. Zacznij od **Kwadransu z behawiorystą**, jeśli chcesz najpierw ustalić kierunek bez dużego progu wejścia.
+Nie musisz od razu decydować o dłuższej współpracy. Zacznij od rozmowy **Zapytaj behawiorystę (79 zł)**, jeśli chcesz najpierw ustalić pierwszy kierunek działania.
 
-[Umów Kwadrans z behawiorystą](/book) · [Kategoria: psy](/psy) · [Kategoria: koty](/koty) · [O mnie](/o-mnie)
+[Zapytaj behawiorystę – 79 zł](/zapytaj) · [Kategoria: psy](/psy) · [Kategoria: koty](/koty) · [O mnie](/o-mnie)

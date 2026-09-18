@@ -76,6 +76,7 @@ export function ZapytajIntakeForm({ promotionMode = false, initialPromotionCode 
   const [mode, setMode] = useState<ConversationMode>('scheduled')
   const [selectedSlotId, setSelectedSlotId] = useState('')
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [initialLoading, setInitialLoading] = useState(true)
   const [notificationChannel, setNotificationChannel] = useState<NotificationChannel>('sms')
   const [notificationConsent, setNotificationConsent] = useState(false)
   const [notificationStatus, setNotificationStatus] = useState<NotificationStatus>('idle')
@@ -103,6 +104,7 @@ export function ZapytajIntakeForm({ promotionMode = false, initialPromotionCode 
       setAvailabilityError(error instanceof Error ? error.message : 'Dostępność jest chwilowo niedostępna.')
     } finally {
       if (showLoading) setIsRefreshing(false)
+      setInitialLoading(false)
     }
   }
 
@@ -290,155 +292,199 @@ export function ZapytajIntakeForm({ promotionMode = false, initialPromotionCode 
 
   return (
     <form className="zapytaj-form" onSubmit={handleSubmit} noValidate>
-      <div className="zapytaj-availability" aria-live="polite">
-        <div className="zapytaj-availability-head">
+      {/* KROK 1: Wybór terminu rozmowy */}
+      <section className="zapytaj-form-step" aria-labelledby="step-1-title">
+        <div className="zapytaj-form-step-head">
+          <span className="zapytaj-form-step-badge">1</span>
           <div>
-            <span className="zapytaj-form-card-kicker">WOLNE TERMINY</span>
-            <strong>Zwykłe terminy rozmowy</strong>
+            <h2 id="step-1-title" className="zapytaj-form-step-title">Wybierz termin rozmowy</h2>
+            <p className="zapytaj-form-step-desc">Rozmowa telefoniczna do 15 minut · 79 zł (wstępna ocena sytuacji i kierunek działania).</p>
           </div>
-          <button type="button" className="zapytaj-refresh-button" onClick={() => void refreshAvailability(true)} disabled={isRefreshing}>
-            <RefreshCw size={14} aria-hidden="true" />
-            {isRefreshing ? 'Sprawdzam…' : 'Odśwież'}
-          </button>
         </div>
-        <p>{promotionMode ? 'Kod grupowy działa tylko przy rezerwacji zwykłego terminu.' : availabilityError || 'Wybierz dogodny termin rozmowy.'}</p>
-        {!promotionMode && liveAvailable ? (
-          <button type="button" className={`zapytaj-live-option${mode === 'live' ? ' is-selected' : ''}`} onClick={() => selectMode('live')}>
-            <PhoneCall size={18} aria-hidden="true" />
-            <span>
-              <strong>{getLiveOptionLabel(live!)} — {live!.livePricePln} zł</strong>
-              <small>{live?.status === 'in_call' ? 'Jedno następne okno, bez tworzenia kolejki bez końca.' : 'Po potwierdzeniu wpłaty połączenie uruchomi się automatycznie.'}</small>
-            </span>
-          </button>
-        ) : null}
-      </div>
 
-      <div className="zapytaj-form-choice-head">
-        <div>
-          <span className="zapytaj-form-card-kicker">WYBIERZ SPOSÓB</span>
-          <strong>{mode === 'live' ? 'Rozmowa teraz' : 'Rozmowa w wybranym terminie'}</strong>
+        <div className="zapytaj-availability" aria-live="polite">
+          <div className="zapytaj-availability-head">
+            <div>
+              <span className="zapytaj-form-card-kicker">WOLNE TERMINY</span>
+              <strong>Dostępne godziny w kalendarzu</strong>
+            </div>
+            <button type="button" className="zapytaj-refresh-button" onClick={() => void refreshAvailability(true)} disabled={isRefreshing}>
+              <RefreshCw size={14} aria-hidden="true" />
+              {isRefreshing ? 'Sprawdzam…' : 'Odśwież'}
+            </button>
+          </div>
+          <p>{promotionMode ? 'Kod grupowy działa tylko przy rezerwacji zwykłego terminu.' : availabilityError || 'Wybierz dogodny termin rozmowy.'}</p>
+          {!promotionMode && liveAvailable ? (
+            <button type="button" className={`zapytaj-live-option${mode === 'live' ? ' is-selected' : ''}`} onClick={() => selectMode('live')}>
+              <PhoneCall size={18} aria-hidden="true" />
+              <span>
+                <strong>{getLiveOptionLabel(live!)} — {live!.livePricePln} zł</strong>
+                <small>{live?.status === 'in_call' ? 'Jedno następne okno, bez tworzenia kolejki bez końca.' : 'Po potwierdzeniu wpłaty połączenie uruchomi się automatycznie.'}</small>
+              </span>
+            </button>
+          ) : null}
         </div>
-        <span className="zapytaj-form-choice-price">{promotionMode ? COMMUNITY_PROMO_PRICE_LABEL : mode === 'live' ? '104 zł' : '79 zł'}</span>
-      </div>
 
-      <div className="zapytaj-mode-grid" role="radiogroup" aria-label="Sposób rozmowy">
-        <button type="button" role="radio" aria-checked={mode === 'scheduled'} className={`zapytaj-mode-option${mode === 'scheduled' ? ' is-selected' : ''}`} onClick={() => selectMode('scheduled')}>
-          <Clock3 size={17} aria-hidden="true" />
-          <span><strong>Wybieram termin</strong><small>{promotionMode ? `${COMMUNITY_PROMO_PRICE_LABEL} · oferta z kodem` : '79 zł · zwykła rezerwacja'}</small></span>
-        </button>
-        {!promotionMode && liveAvailable ? (
-          <button type="button" role="radio" aria-checked={mode === 'live'} className={`zapytaj-mode-option${mode === 'live' ? ' is-selected' : ''}`} onClick={() => selectMode('live')}>
-            <PhoneCall size={17} aria-hidden="true" />
-            <span><strong>Zapytaj teraz</strong><small>104 zł · tylko przy realnej dostępności</small></span>
+        <div className="zapytaj-mode-grid" role="radiogroup" aria-label="Sposób rozmowy">
+          <button type="button" role="radio" aria-checked={mode === 'scheduled'} className={`zapytaj-mode-option${mode === 'scheduled' ? ' is-selected' : ''}`} onClick={() => selectMode('scheduled')}>
+            <Clock3 size={17} aria-hidden="true" />
+            <span><strong>Wybieram termin</strong><small>{promotionMode ? `${COMMUNITY_PROMO_PRICE_LABEL} · oferta z kodem` : '79 zł · zwykła rezerwacja'}</small></span>
           </button>
-        ) : null}
-      </div>
+          {!promotionMode && liveAvailable ? (
+            <button type="button" role="radio" aria-checked={mode === 'live'} className={`zapytaj-mode-option${mode === 'live' ? ' is-selected' : ''}`} onClick={() => selectMode('live')}>
+              <PhoneCall size={17} aria-hidden="true" />
+              <span><strong>Zapytaj teraz</strong><small>104 zł · tylko przy realnej dostępności</small></span>
+            </button>
+          ) : null}
+        </div>
 
-      {mode === 'scheduled' ? (
-        <fieldset className="zapytaj-slot-field">
-          <legend>Wybierz termin rozmowy</legend>
-          {availability?.slots.length ? (
-            <div className="zapytaj-slot-grid">
-              {availability.slots.map((slot) => (
-                <button type="button" key={slot.id} className={`zapytaj-slot-option${selectedSlotId === slot.id ? ' is-selected' : ''}`} onClick={() => setSelectedSlotId(slot.id)}>
-                  {slot.label}
-                </button>
+        {mode === 'scheduled' ? (
+          <fieldset className="zapytaj-slot-field">
+            <legend className="sr-only">Wybierz termin z listy</legend>
+            {initialLoading ? (
+              <p className="zapytaj-empty-slots" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <RefreshCw size={15} className="animate-spin" aria-hidden="true" />
+                <span>Sprawdzam dostępne terminy…</span>
+              </p>
+            ) : availability?.slots.length ? (
+              <div className="zapytaj-slot-grid">
+                {availability.slots.map((slot) => (
+                  <button type="button" key={slot.id} className={`zapytaj-slot-option${selectedSlotId === slot.id ? ' is-selected' : ''}`} onClick={() => setSelectedSlotId(slot.id)}>
+                    {slot.label}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p className="zapytaj-empty-slots">Nie ma jeszcze zwykłych terminów. Odśwież stronę później.</p>
+            )}
+          </fieldset>
+        ) : (
+          <div className="zapytaj-live-confirmation"><PhoneCall size={17} aria-hidden="true" /><span>Rezerwujesz najbliższe dostępne okno live. Termin zostanie zajęty dopiero na czas płatności.</span></div>
+        )}
+      </section>
+
+      {/* KROK 2: Twoje dane i zwierzę */}
+      <section className="zapytaj-form-step" aria-labelledby="step-2-title">
+        <div className="zapytaj-form-step-head">
+          <span className="zapytaj-form-step-badge">2</span>
+          <div>
+            <h2 id="step-2-title" className="zapytaj-form-step-title">Twoje dane i zwierzę</h2>
+            <p className="zapytaj-form-step-desc">Podaj dane, na które mam zadzwonić w wybranym terminie.</p>
+          </div>
+        </div>
+
+        <div className="zapytaj-form-grid">
+          {promotionMode ? (
+            <div className="zapytaj-field zapytaj-field-wide">
+              <label htmlFor="zapytaj-promo-code">Kod grupowy</label>
+              <input
+                id="zapytaj-promo-code"
+                name="promoCode"
+                type="text"
+                value={promotionCode}
+                onChange={(event) => { setPromotionCode(event.target.value.toUpperCase()); setStatus('idle'); setFeedback('') }}
+                placeholder="GRP-XXXX-XXXX"
+                autoCapitalize="characters"
+                autoComplete="off"
+                required
+              />
+              <small>Jednorazowy kod z grupy. Oferta dotyczy zwykłego terminu rozmowy.</small>
+            </div>
+          ) : null}
+          <div className="zapytaj-field">
+            <label htmlFor="zapytaj-name">Imię</label>
+            <input id="zapytaj-name" name="name" value={form.name} onChange={(event) => updateField('name', event.target.value)} autoComplete="name" placeholder="np. Anna" />
+          </div>
+          <div className="zapytaj-field">
+            <label htmlFor="zapytaj-phone">Telefon</label>
+            <input id="zapytaj-phone" name="phone" type="tel" value={form.phone} onChange={(event) => updateField('phone', event.target.value)} autoComplete="tel" placeholder="np. 500 600 700" />
+          </div>
+          <div className="zapytaj-field zapytaj-field-wide">
+            <label htmlFor="zapytaj-email">E-mail</label>
+            <input id="zapytaj-email" name="email" type="email" value={form.email} onChange={(event) => updateField('email', event.target.value)} autoComplete="email" placeholder="np. anna@email.pl" />
+          </div>
+          <fieldset className="zapytaj-field zapytaj-field-wide zapytaj-species-field">
+            <legend>Sprawa dotyczy</legend>
+            <div className="zapytaj-species-options">
+              {(['pies', 'kot'] as const).map((species) => (
+                <label key={species} className={`zapytaj-species-option${form.species === species ? ' is-selected' : ''}`}>
+                  <input type="radio" name="species" value={species} checked={form.species === species} onChange={() => updateField('species', species)} />
+                  <span>{species === 'pies' ? 'Pies' : 'Kot'}</span>
+                </label>
               ))}
             </div>
-          ) : (
-            <p className="zapytaj-empty-slots">Nie ma jeszcze zwykłych terminów. Odśwież stronę później.</p>
-          )}
-        </fieldset>
-      ) : (
-        <div className="zapytaj-live-confirmation"><PhoneCall size={17} aria-hidden="true" /><span>Rezerwujesz najbliższe dostępne okno live. Termin zostanie zajęty dopiero na czas płatności.</span></div>
-      )}
+          </fieldset>
+        </div>
+      </section>
 
-      <div className="zapytaj-form-grid">
-        {promotionMode ? (
+      {/* KROK 3: Co się dzieje? */}
+      <section className="zapytaj-form-step" aria-labelledby="step-3-title">
+        <div className="zapytaj-form-step-head">
+          <span className="zapytaj-form-step-badge">3</span>
+          <div>
+            <h2 id="step-3-title" className="zapytaj-form-step-title">Co się dzieje?</h2>
+            <p className="zapytaj-form-step-desc">Krótki opis sytuacji pozwoli mi przygotować się przed połączeniem.</p>
+          </div>
+        </div>
+
+        <div className="zapytaj-form-grid">
           <div className="zapytaj-field zapytaj-field-wide">
-            <label htmlFor="zapytaj-promo-code">Kod grupowy</label>
-            <input
-              id="zapytaj-promo-code"
-              name="promoCode"
-              type="text"
-              value={promotionCode}
-              onChange={(event) => { setPromotionCode(event.target.value.toUpperCase()); setStatus('idle'); setFeedback('') }}
-              placeholder="GRP-XXXX-XXXX"
-              autoCapitalize="characters"
-              autoComplete="off"
-              required
-            />
-            <small>Jednorazowy kod z grupy. Oferta dotyczy zwykłego terminu rozmowy.</small>
+            <div className="zapytaj-label-row"><label htmlFor="zapytaj-description">Opisz w kilku zdaniach zachowanie psa lub kota</label><span>{form.description.length}/{DESCRIPTION_MAX_LENGTH}</span></div>
+            <textarea id="zapytaj-description" name="description" rows={5} value={form.description} onChange={(event) => updateField('description', event.target.value.slice(0, DESCRIPTION_MAX_LENGTH))} placeholder="Co się dzieje, od kiedy i w jakich sytuacjach? Napisz też, co zostało już wypróbowane." maxLength={DESCRIPTION_MAX_LENGTH} />
+            <small>Nie musisz znać fachowych pojęć ani przyczyny. Wystarczy opis codziennej sytuacji.</small>
+          </div>
+        </div>
+      </section>
+
+      {/* KROK 4: Zgody i przejście do płatności */}
+      <section className="zapytaj-form-step" aria-labelledby="step-4-title">
+        <div className="zapytaj-form-step-head">
+          <span className="zapytaj-form-step-badge">4</span>
+          <div>
+            <h2 id="step-4-title" className="zapytaj-form-step-title">Zgody i przejście do płatności</h2>
+            <p className="zapytaj-form-step-desc">Płatność online (BLIK) · natychmiastowa blokada terminu w kalendarzu.</p>
+          </div>
+        </div>
+
+        {!promotionMode && live && !liveAvailable ? (
+          <div className="zapytaj-notification-box">
+            <div className="zapytaj-notification-copy">
+              <span className="zapytaj-form-card-kicker">POWIADOMIENIE O LIVE</span>
+              <strong>Nie chcesz sprawdzać strony? Zostaw kontakt.</strong>
+              <p>Gdy włączę rozmowę teraz, system spróbuje wysłać Ci jednorazową wiadomość. To nie rezerwuje miejsca.</p>
+            </div>
+            <div className="zapytaj-notification-channels" role="radiogroup" aria-label="Kanał powiadomienia">
+              <button type="button" role="radio" aria-checked={notificationChannel === 'sms'} className={notificationChannel === 'sms' ? 'is-selected' : ''} onClick={() => setNotificationChannel('sms')}>
+                SMS <small>preferowany</small>
+              </button>
+              <button type="button" role="radio" aria-checked={notificationChannel === 'email'} className={notificationChannel === 'email' ? 'is-selected' : ''} onClick={() => setNotificationChannel('email')}>
+                E-mail
+              </button>
+            </div>
+            <label className="zapytaj-notification-consent">
+              <input type="checkbox" checked={notificationConsent} onChange={(event) => { setNotificationConsent(event.target.checked); setNotificationStatus('idle'); setNotificationFeedback('') }} />
+              <span>Zgadzam się na jednorazowe powiadomienie o dostępności zgodnie z <Link href="/polityka-prywatnosci" target="_blank" rel="noopener noreferrer">polityką prywatności</Link>.</span>
+            </label>
+            <button type="button" className="zapytaj-notification-submit" onClick={() => void handleNotify()} disabled={notificationStatus === 'loading'}>
+              {notificationStatus === 'loading' ? 'Zapisuję…' : 'Zapisz powiadomienie'}
+            </button>
+            {notificationFeedback ? <div className={`zapytaj-notification-feedback${notificationStatus === 'error' ? ' is-error' : ''}`} role="status">{notificationFeedback}</div> : null}
           </div>
         ) : null}
-        <div className="zapytaj-field">
-          <label htmlFor="zapytaj-name">Imię</label>
-          <input id="zapytaj-name" name="name" value={form.name} onChange={(event) => updateField('name', event.target.value)} autoComplete="name" placeholder="np. Anna" />
-        </div>
-        <div className="zapytaj-field">
-          <label htmlFor="zapytaj-phone">Telefon</label>
-          <input id="zapytaj-phone" name="phone" type="tel" value={form.phone} onChange={(event) => updateField('phone', event.target.value)} autoComplete="tel" placeholder="np. 500 600 700" />
-        </div>
-        <div className="zapytaj-field zapytaj-field-wide">
-          <label htmlFor="zapytaj-email">E-mail</label>
-          <input id="zapytaj-email" name="email" type="email" value={form.email} onChange={(event) => updateField('email', event.target.value)} autoComplete="email" placeholder="np. anna@email.pl" />
-        </div>
-        <fieldset className="zapytaj-field zapytaj-field-wide zapytaj-species-field">
-          <legend>Sprawa dotyczy</legend>
-          <div className="zapytaj-species-options">
-            {(['pies', 'kot'] as const).map((species) => (
-              <label key={species} className={`zapytaj-species-option${form.species === species ? ' is-selected' : ''}`}>
-                <input type="radio" name="species" value={species} checked={form.species === species} onChange={() => updateField('species', species)} />
-                <span>{species === 'pies' ? 'Pies' : 'Kot'}</span>
-              </label>
-            ))}
-          </div>
-        </fieldset>
-        <div className="zapytaj-field zapytaj-field-wide">
-          <div className="zapytaj-label-row"><label htmlFor="zapytaj-description">Opisz krótko, co się dzieje z Twoim psem lub kotem</label><span>{form.description.length}/{DESCRIPTION_MAX_LENGTH}</span></div>
-          <textarea id="zapytaj-description" name="description" rows={6} value={form.description} onChange={(event) => updateField('description', event.target.value.slice(0, DESCRIPTION_MAX_LENGTH))} placeholder="Co się dzieje, od kiedy i w jakich sytuacjach? Napisz też, co zostało już wypróbowane." maxLength={DESCRIPTION_MAX_LENGTH} />
-          <small>Nie musisz znać nazwy problemu ani przyczyny. Wystarczy opis codziennej sytuacji.</small>
-        </div>
-      </div>
 
-      {!promotionMode && live && !liveAvailable ? (
-        <div className="zapytaj-notification-box">
-          <div className="zapytaj-notification-copy">
-            <span className="zapytaj-form-card-kicker">POWIADOMIENIE O LIVE</span>
-            <strong>Nie chcesz sprawdzać strony? Zostaw kontakt.</strong>
-            <p>Gdy włączę rozmowę teraz, system spróbuje wysłać Ci jednorazową wiadomość. To nie rezerwuje miejsca.</p>
-          </div>
-          <div className="zapytaj-notification-channels" role="radiogroup" aria-label="Kanał powiadomienia">
-            <button type="button" role="radio" aria-checked={notificationChannel === 'sms'} className={notificationChannel === 'sms' ? 'is-selected' : ''} onClick={() => setNotificationChannel('sms')}>
-              SMS <small>preferowany</small>
-            </button>
-            <button type="button" role="radio" aria-checked={notificationChannel === 'email'} className={notificationChannel === 'email' ? 'is-selected' : ''} onClick={() => setNotificationChannel('email')}>
-              E-mail
-            </button>
-          </div>
-          <label className="zapytaj-notification-consent">
-            <input type="checkbox" checked={notificationConsent} onChange={(event) => { setNotificationConsent(event.target.checked); setNotificationStatus('idle'); setNotificationFeedback('') }} />
-            <span>Zgadzam się na jednorazowe powiadomienie o dostępności zgodnie z <Link href="/polityka-prywatnosci" target="_blank" rel="noopener noreferrer">polityką prywatności</Link>.</span>
-          </label>
-          <button type="button" className="zapytaj-notification-submit" onClick={() => void handleNotify()} disabled={notificationStatus === 'loading'}>
-            {notificationStatus === 'loading' ? 'Zapisuję…' : 'Zapisz powiadomienie'}
-          </button>
-          {notificationFeedback ? <div className={`zapytaj-notification-feedback${notificationStatus === 'error' ? ' is-error' : ''}`} role="status">{notificationFeedback}</div> : null}
+        <div className="zapytaj-consents">
+          <label><input type="checkbox" checked={form.consentProcessing} onChange={(event) => updateField('consentProcessing', event.target.checked)} /><span>Wyrażam zgodę na przetwarzanie danych zgodnie z <Link href="/polityka-prywatnosci" target="_blank" rel="noopener noreferrer">polityką prywatności</Link>.</span></label>
+          <label><input type="checkbox" checked={form.consentPolicy} onChange={(event) => updateField('consentPolicy', event.target.checked)} /><span>Akceptuję <Link href="/regulamin" target="_blank" rel="noopener noreferrer">regulamin</Link> usługi.</span></label>
+          <label><input type="checkbox" checked={form.consentEarlyStart} onChange={(event) => updateField('consentEarlyStart', event.target.checked)} /><span>Proszę o rozpoczęcie płatnej rozmowy przed upływem 14 dni i przyjmuję, że po jej wykonaniu prawo odstąpienia może nie przysługiwać.</span></label>
         </div>
-      ) : null}
 
-      <div className="zapytaj-consents">
-        <label><input type="checkbox" checked={form.consentProcessing} onChange={(event) => updateField('consentProcessing', event.target.checked)} /><span>Wyrażam zgodę na przetwarzanie danych zgodnie z <Link href="/polityka-prywatnosci" target="_blank" rel="noopener noreferrer">polityką prywatności</Link>.</span></label>
-        <label><input type="checkbox" checked={form.consentPolicy} onChange={(event) => updateField('consentPolicy', event.target.checked)} /><span>Akceptuję <Link href="/regulamin" target="_blank" rel="noopener noreferrer">regulamin</Link> usługi.</span></label>
-        <label><input type="checkbox" checked={form.consentEarlyStart} onChange={(event) => updateField('consentEarlyStart', event.target.checked)} /><span>Proszę o rozpoczęcie płatnej rozmowy przed upływem 14 dni i przyjmuję, że po jej wykonaniu prawo odstąpienia może nie przysługiwać.</span></label>
-      </div>
+        {feedback ? <div className={`zapytaj-form-feedback${status === 'error' ? ' is-error' : ''}`} role="status">{feedback}</div> : null}
 
-      {feedback ? <div className={`zapytaj-form-feedback${status === 'error' ? ' is-error' : ''}`} role="status">{feedback}</div> : null}
-
-      <button type="submit" className="notatnik-btn zapytaj-form-submit" disabled={status === 'loading'}>
-        {status === 'loading' ? 'Przygotowuję rezerwację…' : promotionMode ? `Przejdź do płatności — ${COMMUNITY_PROMO_PRICE_LABEL}` : mode === 'live' ? 'Zapytaj teraz — 104 zł' : 'Wybierz termin — 79 zł'}
-      </button>
-      <p className="zapytaj-form-note">Po wysłaniu opisu przejdziesz do płatności BLIK. Termin jest wstępnie blokowany na 5 minut; po zgłoszeniu wpłaty czeka na ręczne potwierdzenie maksymalnie 24 godziny.</p>
+        <button type="submit" className="notatnik-btn zapytaj-form-submit" disabled={status === 'loading'}>
+          {status === 'loading' ? 'Przygotowuję rezerwację…' : promotionMode ? `Przejdź do płatności — ${COMMUNITY_PROMO_PRICE_LABEL}` : mode === 'live' ? 'Zapytaj teraz — 104 zł' : 'Wybierz termin — 79 zł'}
+        </button>
+        <p className="zapytaj-form-note">Po wysłaniu opisu przejdziesz do płatności BLIK. Termin jest wstępnie blokowany na 5 minut; po zgłoszeniu wpłaty czeka na ręczne potwierdzenie maksymalnie 24 godziny.</p>
+      </section>
     </form>
   )
 }

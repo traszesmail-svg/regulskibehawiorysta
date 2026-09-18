@@ -1,0 +1,26 @@
+[
+  {
+    "id": "9232f91c-3813-49f2-9305-f2a53a8d1325",
+    "notificationKey": "zapytaj-live:email:dedup-test@example.com",
+    "phone": null,
+    "email": "dedup-test@example.com",
+    "channel": "email",
+    "sourcePage": "/",
+    "status": "subscribed",
+    "createdAt": "2026-09-18T13:05:20.710Z",
+    "updatedAt": "2026-09-18T14:14:05.427Z",
+    "notifiedAt": null
+  },
+  {
+    "id": "a5148027-0762-4086-b197-64d1fb9ca404",
+    "notificationKey": "zapytaj-live:sms:+48505111222",
+    "phone": "+48505111222",
+    "email": null,
+    "channel": "sms",
+    "sourcePage": "/zapytaj",
+    "status": "subscribed",
+    "createdAt": "2026-09-18T13:05:20.419Z",
+    "updatedAt": "2026-09-18T14:14:05.109Z",
+    "notifiedAt": null
+  }
+]

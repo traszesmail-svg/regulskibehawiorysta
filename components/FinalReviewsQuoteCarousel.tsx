@@ -133,6 +133,7 @@ export function FinalReviewsQuoteCarousel({
   if (layout === 'editorial') {
     return (
       <section
+        id="opinie"
         className="notatnik-final notatnik-final-reviews is-editorial"
         aria-label="Opinie opiekunów po rozmowie"
       >

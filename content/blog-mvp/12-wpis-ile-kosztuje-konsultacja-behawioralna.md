@@ -27,7 +27,7 @@ Kilka zmiennych decyduje o tym, ile kosztuje spotkanie:
 
 ## Jak wygląda to u nas
 
-Najniższy próg wejścia to **Kwadrans z behawiorystą** — krótka rozmowa, która pomaga zorientować się w problemie i dostać pierwszy konkretny kierunek. To ma sens na start, kiedy nie wiesz jeszcze, czy temat jest prosty czy wymaga głębszej pracy.
+Podstawowy pierwszy krok w serwisie to **Zapytaj behawiorystę (79 zł)** — krótka rozmowa telefoniczna do 15 minut, która pomaga zorientować się w problemie i ustalić pierwszy kierunek działania. To ma sens na start, kiedy nie wiesz jeszcze, czy temat jest prosty, czy wymaga głębszej pracy.
 
 Pełna konsultacja online to osobna opcja dla sytuacji, które wymagają więcej czasu — kiedy problem jest złożony, wraca od dłuższego czasu albo dotyczy kilku kwestii naraz.
 
@@ -61,7 +61,7 @@ Krótka rozmowa za niską cenę może być dobrym sprawdzeniem tematu, ale nie z
 - nie jesteś pewna/pewien, czy temat jest duży czy mały i chcesz to ustalić zanim zainwestujesz więcej,
 - dopiero zaczynasz z nowym psem albo kotem i chcesz dobrze ustawić fundament.
 
-W tych przypadkach Kwadrans z behawiorystą jest sensowniejszym pierwszym krokiem niż od razu pełna, około 90-minutowa konsultacja.
+W tych przypadkach rozmowa Zapytaj behawiorystę jest sensowniejszym pierwszym krokiem niż od razu pełna, około 90-minutowa konsultacja.
 
 ## Ile spotkań zwykle potrzeba
 
@@ -92,6 +92,6 @@ To zależy od specjalisty. Warto zapytać przy dłuższej współpracy.
 
 ## Jeśli chcesz sprawdzić, czy to odpowiedni adres
 
-**Kwadrans z behawiorystą** to najniższy próg wejścia — bez kamery, bez długiego przygotowania, z jednym konkretnym celem: wyjść z kierunkiem na pierwszy tydzień.
+**Zapytaj behawiorystę (79 zł)** to rozmowa do 15 minut przez telefon — bez kamery, bez długiego przygotowania, z jasnym celem: ustalić pierwszy kierunek działania.
 
-[Umów Kwadrans z behawiorystą](/book) · [Jak wygląda konsultacja online — szczegóły](/blog/jak-wyglada-konsultacja-behawioralna-online) · [Kategoria: psy](/psy) · [Kategoria: koty](/koty)
+[Zapytaj behawiorystę – 79 zł](/zapytaj) · [Jak wygląda konsultacja online — szczegóły](/blog/jak-wyglada-konsultacja-behawioralna-online) · [Kategoria: psy](/psy) · [Kategoria: koty](/koty)

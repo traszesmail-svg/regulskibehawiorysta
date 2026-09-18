@@ -175,7 +175,7 @@ export default async function BlogArticlePage(props: BlogArticlePageProps) {
             <p>Przejdź przez Mapę sprawy albo opisz krótko sytuację. Dobierzemy pierwszy krok do realnej sytuacji Twojego psa lub kota.</p>
           </div>
           <Link href="/zapytaj" prefetch={false}>
-            Zapytaj behawiorystę
+            Zapytaj behawiorystę – 79 zł
             <ArrowRight size={17} strokeWidth={1.9} aria-hidden="true" />
           </Link>
         </section>

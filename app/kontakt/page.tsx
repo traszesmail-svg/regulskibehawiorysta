@@ -3,15 +3,10 @@ import Image from 'next/image'
 import Link from 'next/link'
 import {
   ArrowRight,
-  CheckCircle2,
-  Leaf,
   Mail,
   MessageSquare,
-  PenLine,
-  Search,
 } from 'lucide-react'
 import { ContactLeadForm } from '@/components/ContactLeadForm'
-import { MobileFirstStepCta } from '@/components/MobileFirstStepCta'
 import { NotatnikFooter, NotatnikTopbar, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
 import { ReferenceHeroLeaf } from '@/components/ReferencePageShell'
 import { Schema } from '@/components/schema'
@@ -74,7 +69,7 @@ export default async function ContactPage(
           navItems={PUBLIC_SITE_NAV_ITEMS}
           showUtilityLinks={false}
           ctaHref="/zapytaj"
-          ctaLabel="Zapytaj behawiorystę"
+          ctaLabel="Zapytaj behawiorystę – 79 zł"
         />
         <ReferenceHeroLeaf />
 
@@ -88,16 +83,34 @@ export default async function ContactPage(
               Krótka wiadomość wystarczy, bym zrozumiał sytuację i podpowiedział, od czego
               najlepiej zacząć. Bez oceniania. Z uważnością i fachową wiedzą.
             </p>
-            <MobileFirstStepCta
-              eyebrow="Nie musisz znać nazwy problemu"
-              title="Opisz sytuację w kilku zdaniach"
-              copy="Jeśli nie wiesz, co robić dalej, zacznij od formularza Zapytaj behawiorystę. Krótki opis wystarczy, żeby uporządkować pierwszy krok."
-              primaryHref="#formularz"
-              primaryLabel="Przejdź do formularza"
-              secondaryHref="/zapytaj"
-              secondaryLabel="Zapytaj behawiorystę"
-            />
+
+            <div className="contact-pathways-grid" aria-label="Wybierz formę kontaktu">
+              <div className="contact-pathway-card is-highlight">
+                <div className="contact-pathway-badge">Problem z zachowaniem</div>
+                <h2>Zapytaj behawiorystę</h2>
+                <p className="contact-pathway-price">79 zł · telefonicznie do 15 min</p>
+                <p className="contact-pathway-desc">
+                  Gdy potrzebujesz pilnej rozmowy, omówienia sytuacji psa lub kota i ustalonego pierwszego kierunku działania.
+                </p>
+                <Link href="/zapytaj" prefetch={false} className="contact-pathway-action is-primary">
+                  Zapytaj behawiorystę – 79 zł
+                </Link>
+              </div>
+
+              <div className="contact-pathway-card">
+                <div className="contact-pathway-badge">Zwykła wiadomość</div>
+                <h2>Formularz kontaktowy</h2>
+                <p className="contact-pathway-price">Pytanie ogólne · bezpłatnie</p>
+                <p className="contact-pathway-desc">
+                  Gdy masz sprawę organizacyjną, techniczną lub chcesz spokojnie opisać temat drogą mailową.
+                </p>
+                <a href="#formularz" className="contact-pathway-action is-secondary">
+                  Przejdź do formularza <ArrowRight size={16} aria-hidden="true" />
+                </a>
+              </div>
+            </div>
           </div>
+
           <div className="contact-reference-photo-wrap">
             <figure className="contact-reference-photo">
               <Image
@@ -109,58 +122,6 @@ export default async function ContactPage(
                 sizes="(max-width: 760px) 86vw, 360px"
               />
             </figure>
-          </div>
-        </section>
-
-        <section className="contact-reference-benefits" aria-label="Jak pomagam uporządkować sytuację">
-          <article>
-            <span className="contact-reference-icon" aria-hidden="true">
-              <Leaf size={34} strokeWidth={1.8} />
-            </span>
-            <div>
-              <h2>Rozumiem przyczynę</h2>
-              <p>Docieram do źródła problemu, nie tylko do objawów.</p>
-            </div>
-          </article>
-          <article>
-            <span className="contact-reference-icon" aria-hidden="true">
-              <Search size={34} strokeWidth={1.8} />
-            </span>
-            <div>
-              <h2>Patrzę szerzej</h2>
-              <p>Łączę zachowanie, zdrowie, środowisko i codzienny rytm zwierzęcia.</p>
-            </div>
-          </article>
-          <article>
-            <span className="contact-reference-icon" aria-hidden="true">
-              <CheckCircle2 size={36} strokeWidth={1.8} />
-            </span>
-            <div>
-              <h2>Jasny pierwszy krok</h2>
-              <p>Otrzymasz konkretną propozycję działania dopasowaną do Ciebie.</p>
-            </div>
-          </article>
-        </section>
-
-        <section className="contact-reference-cta-card" aria-labelledby="contact-write-title">
-          <div className="contact-reference-cta-icon" aria-hidden="true">
-            <Mail size={48} strokeWidth={1.6} />
-          </div>
-          <div className="contact-reference-cta-copy">
-            <h2 id="contact-write-title">Napisz do mnie</h2>
-            <p>
-              Opisz krótko, co się dzieje u Ciebie i Twojego psa lub kota. Odpowiem i zaproponuję
-              najlepszy pierwszy krok.
-            </p>
-            <div className="contact-reference-actions">
-              <Link href="#formularz" className="contact-reference-primary">
-                <PenLine size={22} strokeWidth={1.8} aria-hidden="true" />
-                <span>Przejdź do formularza</span>
-              </Link>
-              <Link href="/zapytaj" prefetch={false} className="contact-reference-secondary">
-                Zapytaj behawiorystę
-              </Link>
-            </div>
           </div>
         </section>
 
@@ -207,71 +168,38 @@ export default async function ContactPage(
           </div>
         </section>
 
-        <section className="contact-reference-reassurance" aria-labelledby="contact-approach-title">
-          <div className="contact-reference-reassurance-copy">
-            <div className="contact-reference-reassurance-heading-row">
-              <span className="contact-reference-reassurance-icon" aria-hidden="true">
-                <Leaf size={34} strokeWidth={1.6} />
-              </span>
-              <span className="contact-reference-reassurance-kicker">Moje podejście</span>
-            </div>
-            <h2 id="contact-approach-title">Pracuję z uważnością, szacunkiem i empatią</h2>
-            <p>
-              Zanim zaproponuję rozwiązanie, chcę zrozumieć kontekst, granice i codzienność
-              Waszej relacji.
-            </p>
-
-            <ul className="contact-reference-values" aria-label="Co to oznacza w praktyce">
-              <li>
-                <CheckCircle2 size={21} strokeWidth={2} aria-hidden="true" />
-                <span>
-                  <strong>Bez oceniania</strong>
-                  <small>Słucham i porządkuję sytuację.</small>
-                </span>
-              </li>
-              <li>
-                <CheckCircle2 size={21} strokeWidth={2} aria-hidden="true" />
-                <span>
-                  <strong>Bez presji</strong>
-                  <small>Tempo dopasowuję do zwierzęcia.</small>
-                </span>
-              </li>
-              <li>
-                <CheckCircle2 size={21} strokeWidth={2} aria-hidden="true" />
-                <span>
-                  <strong>Z konkretnym krokiem</strong>
-                  <small>Wiesz, od czego spokojnie zacząć.</small>
-                </span>
-              </li>
-            </ul>
-
-            <p className="contact-reference-reassurance-signoff">
-              Każde zwierzę i każda relacja zasługują na zrozumienie.
-            </p>
-          </div>
-
-          <div className="contact-reference-reassurance-visual">
-            <Image
-              src="/branding/contact/approach-animals-v1.png"
-              alt="Spokojny pies i kot odpoczywają razem w domu"
-              fill
-              sizes="(max-width: 640px) 100vw, (max-width: 980px) 50vw, 430px"
-            />
-            <a
-              className="contact-reference-reassurance-credential"
-              href={COAPE_ORG_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Poznaj metodologię COAPE"
-            >
+        <section className="contact-trust-card" aria-labelledby="contact-trust-title">
+          <div className="contact-trust-content">
+            <div className="contact-trust-badge">
               <Image
                 src={COAPE_POLSKA_LOGO.src}
                 alt={COAPE_POLSKA_LOGO.alt}
                 width={COAPE_POLSKA_LOGO.width}
                 height={COAPE_POLSKA_LOGO.height}
+                className="contact-trust-logo"
               />
-              <span>Praca oparta na metodologii COAPE</span>
-            </a>
+              <span className="contact-trust-badge-label">Krzysztof Regulski · Dyplomant COAPE · technik weterynarii</span>
+            </div>
+
+            <h2 id="contact-trust-title">Wiadomości czytam i odpowiadam osobiście.</h2>
+            <p className="contact-trust-lead">
+              Każda sytuacja ze zwierzęciem jest inna. Wiadomości czytam osobiście i odpowiadam zazwyczaj w ciągu 24–48 godzin roboczych — bez oceniania, ze spokojem i uważnością na Waszą codzienność.
+            </p>
+
+            <div className="contact-trust-channels">
+              <div className="contact-trust-channel">
+                <span className="contact-trust-channel-label">Bezpośredni kontakt e-mail:</span>
+                <a href={`mailto:${email}`} className="contact-trust-channel-link">
+                  {email}
+                </a>
+              </div>
+              <div className="contact-trust-channel">
+                <span className="contact-trust-channel-label">Potrzebujesz pilnej rozmowy?</span>
+                <Link href="/zapytaj" prefetch={false} className="contact-trust-channel-action">
+                  Zapytaj behawiorystę — 79 zł →
+                </Link>
+              </div>
+            </div>
           </div>
         </section>
 

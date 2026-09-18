@@ -64,4 +64,4 @@ Jeśli problem dotyczy raczej organizacji dnia, gryzienia, pobudzenia albo pierw
 
 Jeśli masz szczeniaka od kilku dni i nie wiesz, czy reagujesz za mało, za dużo albo w złym momencie, zacznij od krótkiej rozmowy. Nie musisz od razu mieć diagnozy. Wystarczy opis pierwszych nocy, rytmu dnia i tego, co najbardziej obciąża dom.
 
-[Zarezerwuj Kwadrans](/book?service=szybka-konsultacja-15-min&species=pies) | [Psy](/psy) | [Szczeniak: pierwsze 30 dni](/oferta/poradniki-pdf/szczeniak-pierwsze-30-dni)
+[Zapytaj behawiorystę – 79 zł](/zapytaj) | [Psy](/psy) | [Szczeniak: pierwsze 30 dni](/oferta/poradniki-pdf/szczeniak-pierwsze-30-dni)

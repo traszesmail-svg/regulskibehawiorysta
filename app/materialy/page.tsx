@@ -32,6 +32,12 @@ export const metadata: Metadata = buildMarketingMetadata({
 const quickHref = '/zapytaj#formularz'
 const quickPriceLabel = PUBLIC_OFFER_PRICE_LABELS.quick
 
+function formatGuideCount(count: number, species: 'psów' | 'kotów') {
+  if (count === 1) return `1 materiał dla ${species}`
+  if (count >= 2 && count <= 4) return `${count} materiały dla ${species}`
+  return `${count} materiałów dla ${species}`
+}
+
 function MaterialyGuideCard({ guide }: { guide: MaterialyGuide }) {
   const detailHref = `/materialy/${guide.slug}`
   const isFree = guide.priceCode === 'free'
@@ -102,8 +108,8 @@ function MaterialyShelf({
           <i />
         </div>
         <small>
-          {guides.filter((guide) => guide.category === 'dog').length} materiałów dla psów ·{' '}
-          {guides.filter((guide) => guide.category === 'cat').length} materiałów dla kotów
+          {formatGuideCount(guides.filter((guide) => guide.category === 'dog').length, 'psów')} ·{' '}
+          {formatGuideCount(guides.filter((guide) => guide.category === 'cat').length, 'kotów')}
         </small>
       </header>
 
@@ -130,9 +136,9 @@ export default function MaterialyLandingPage() {
       tag="Materiały / PDF"
       navItems={PUBLIC_SITE_NAV_ITEMS}
       ctaHref={quickHref}
-      ctaLabel={`Zapytaj / ${quickPriceLabel}`}
+      ctaLabel="Zapytaj behawiorystę – 79 zł"
       footerPrimaryHref={quickHref}
-      footerPrimaryLabel="Zapytaj behawiorystę"
+      footerPrimaryLabel="Zapytaj behawiorystę – 79 zł"
       pageClassName="homepage-shell materialy-page materialy-showcase-page"
       shellClassName="homepage-main materialy-shell materialy-showcase-shell"
     >
@@ -221,7 +227,7 @@ export default function MaterialyLandingPage() {
         id="p19"
         eyebrow="Plany po rozmowie · 19 zł"
         title="10 konkretnych PDF-ów do wdrożenia."
-        copy="Po Zapytaj behawiorysta może wskazać jeden materiał dopasowany do sprawy. Kupisz go później w swoim Pokoju — bez otwartego sklepu i przypadkowego wyboru."
+        copy="Po rozmowie „Zapytaj behawiorystę” mogę wskazać jeden materiał dopasowany do Twojej sprawy. Kupisz go później w swoim Pokoju — bez otwartego sklepu i przypadkowego wyboru."
         guides={p19Guides}
         tone="sage"
       />
@@ -252,7 +258,7 @@ export default function MaterialyLandingPage() {
             <span className="materialy-process-icon" aria-hidden="true">
               <CreditCard size={22} strokeWidth={1.6} />
             </span>
-            <p>Bezpłatny PDF pobierzesz od razu. Płatny materiał kupisz dopiero po wcześniejszym Zapytaj, gdy pojawi się rekomendacja w Pokoju.</p>
+            <p>Bezpłatny PDF pobierzesz od razu. Płatny materiał kupisz dopiero po wcześniejszej rozmowie „Zapytaj behawiorystę”, gdy pojawi się rekomendacja w Pokoju.</p>
           </article>
           <article>
             <strong>03</strong>

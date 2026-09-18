@@ -87,10 +87,10 @@ export default function OpinionsPage() {
     <NotatnikPageShell
       tag="Opinie"
       navItems={PUBLIC_SITE_NAV_ITEMS}
-      ctaHref="/mapa-sprawy"
-      ctaLabel="Mapa zachowania"
-      footerPrimaryHref={bookingHref}
-      footerPrimaryLabel="Umów spokojny pierwszy krok"
+      ctaHref="/zapytaj"
+      ctaLabel="Zapytaj behawiorystę – 79 zł"
+      footerPrimaryHref="/zapytaj"
+      footerPrimaryLabel="Zapytaj behawiorystę – 79 zł"
       showSideVisuals={false}
       pageClassName="opinions-showcase-page"
       shellClassName="opinions-showcase-shell"

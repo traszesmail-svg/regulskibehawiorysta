@@ -77,7 +77,7 @@ Praca behawioralna nad dźwiękami powinna odbywać się poza realnym kryzysem, 
 
 Jeśli nie wiesz, czy reakcja psa jest jeszcze napięciem, czy już paniką wymagającą szerszego planu, zacznij od uporządkowania obserwacji.
 
-[Przejdź przez Mapę zachowania](/mapa-sprawy?problem=halas-burza-fajerwerki) | [Zobacz Mapę problemów](/problemy) | [Umów pierwszy krok](/book?service=szybka-konsultacja-15-min&species=pies)
+[Przejdź przez Mapę zachowania](/mapa-sprawy?problem=halas-burza-fajerwerki) | [Zobacz Mapę problemów](/problemy) | [Zapytaj behawiorystę – 79 zł](/zapytaj)
 
 ## Źródła i dalsza lektura
 

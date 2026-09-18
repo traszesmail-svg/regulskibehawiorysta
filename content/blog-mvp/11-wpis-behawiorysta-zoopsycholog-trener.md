@@ -76,6 +76,6 @@ Dla diagnozy i planu działania — często tak. Przy złożonych problemach ter
 
 ## Jeśli nie wiesz, od czego zacząć
 
-**Kwadrans z behawiorystą** pozwala szybko ocenić, czy twój problem jest treningowy, behawioralny, czy wymaga czegoś jeszcze — i wyjść z kierunkiem, zanim zainwestujesz czas i pieniądze w dłuższą ścieżkę.
+Rozmowa **Zapytaj behawiorystę (do 15 minut)** pozwala spokojnie ocenić, czy problem jest treningowy, behawioralny, czy wymaga czegoś jeszcze — i ustalić pierwszy kierunek działania, zanim wejdziesz w dłuższą ścieżkę.
 
-[Umów Kwadrans z behawiorystą](/book) · [Jak pracuję — o metodach i podejściu](/o-mnie) · [Kategoria: psy](/psy) · [Kategoria: koty](/koty)
+[Zapytaj behawiorystę – 79 zł](/zapytaj) · [Jak pracuję — o metodach i podejściu](/o-mnie) · [Kategoria: psy](/psy) · [Kategoria: koty](/koty)

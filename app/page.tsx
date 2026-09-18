@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ArrowRight, BadgeCheck, CalendarDays, MessageSquareText, PhoneCall } from 'lucide-react'
+import { ArrowRight, CalendarDays, MessageSquareText, PhoneCall } from 'lucide-react'
 import { EditorialIndexTopbar } from '@/components/EditorialIndexTopbar'
 import { FaqAccordion } from '@/components/FaqAccordion'
 import { FinalReviewsQuoteCarousel } from '@/components/FinalReviewsQuoteCarousel'
@@ -10,7 +10,6 @@ import { Schema } from '@/components/schema'
 import { PUBLIC_ZAPYTAJ_OFFER, formatPublicOfferPrice } from '@/lib/public-offer'
 import { getBreadcrumbJsonLd, getFaqPageJsonLd, getServiceJsonLd } from '@/lib/schema'
 import { buildHomeMetadata } from '@/lib/seo'
-import { SPECIALIST_NAME, SPECIALIST_PUBLIC_STATUS } from '@/lib/site'
 import { reviews } from '@/lib/reviews.config'
 import styles from './homepage-light.module.css'
 
@@ -78,11 +77,13 @@ export default function HomePage() {
             <span>JAK ZACZĄĆ</span>
             <h2 id="homepage-process-title">Trzy proste kroki.</h2>
           </div>
-          <div className="homepage-sales-process-grid">
+          <div className="homepage-sales-process-grid steps-list">
             {homepageSteps.map(({ title, copy, Icon }) => (
-              <article key={title}>
-                <Icon aria-hidden="true" />
-                <div>
+              <article key={title} className="homepage-process-step step-item">
+                <span className="homepage-step-icon" aria-hidden="true">
+                  <Icon />
+                </span>
+                <div className="homepage-step-body">
                   <h3>{title}</h3>
                   <p>{copy}</p>
                 </div>
@@ -91,10 +92,42 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="homepage-trust-line" aria-label="Informacje o specjaliście">
-          <BadgeCheck aria-hidden="true" />
-          <span><strong>{SPECIALIST_NAME}</strong> · {SPECIALIST_PUBLIC_STATUS} · technik weterynarii</span>
-          <Link href="/o-mnie" prefetch={false}>Poznaj podejście <ArrowRight size={16} aria-hidden="true" /></Link>
+        <section className="homepage-approach-section" aria-labelledby="homepage-approach-title">
+          <div className="homepage-approach-card">
+            <div className="homepage-approach-header">
+              <span className="homepage-approach-kicker">ZASADY WSPÓŁPRACY</span>
+              <h2 id="homepage-approach-title">Poznaj moje podejście</h2>
+              <p className="homepage-approach-lead">
+                Najpierw chcę zrozumieć, co naprawdę dzieje się w danej sytuacji. Dopiero potem ustalamy pierwszy sensowny krok.
+              </p>
+            </div>
+
+            <div className="homepage-approach-principles" aria-label="Zasady podejścia">
+              <div className="homepage-approach-item">
+                <span className="homepage-approach-num" aria-hidden="true">01</span>
+                <div className="homepage-approach-content">
+                  <h3>Najpierw sytuacja</h3>
+                  <p>Patrzymy na zachowanie w jego konkretnym, codziennym kontekście.</p>
+                </div>
+              </div>
+
+              <div className="homepage-approach-item">
+                <span className="homepage-approach-num" aria-hidden="true">02</span>
+                <div className="homepage-approach-content">
+                  <h3>Potem pierwszy krok</h3>
+                  <p>Dostajesz jasny kierunek działania od razu po rozmowie.</p>
+                </div>
+              </div>
+
+              <div className="homepage-approach-item">
+                <span className="homepage-approach-num" aria-hidden="true">03</span>
+                <div className="homepage-approach-content">
+                  <h3>Bez komplikowania</h3>
+                  <p>Jeżeli potrzebna jest dalsza pomoc, ustalamy to spokojnie po rozmowie.</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </section>
 
         <FinalReviewsQuoteCarousel reviews={reviews} initialIndex={0} layout="editorial" />

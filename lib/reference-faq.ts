@@ -97,7 +97,7 @@ export const referenceFaqItems: ReferenceFaqItem[] = [
     category: 'wspolpraca',
     question: 'Czy dostanę plan pracy po konsultacji?',
     answer:
-      'Po pełnej konsultacji otrzymujesz plan działania i 14 dni wsparcia przez WhatsApp przy wdrażaniu zaleceń; Pokój przechowuje podsumowanie i historię. Po Zapytaj behawiorystę dostajesz przede wszystkim pierwszy kierunek i najbliższy sensowny krok.',
+      'Po pełnej konsultacji otrzymujesz plan działania i 14 dni wsparcia przez WhatsApp przy wdrażaniu zaleceń; Pokój przechowuje podsumowanie i historię. Po rozmowie „Zapytaj behawiorystę” (do 15 minut) dostajesz przede wszystkim pierwszy kierunek działania i najbliższy sensowny krok.',
   },
   {
     id: 'nie-zachowanie',
@@ -132,7 +132,7 @@ export const referenceFaqItems: ReferenceFaqItem[] = [
     category: 'konsultacje',
     question: 'Czy zakres analizy zależy od długości rozmowy?',
     answer:
-      'Tak. W Zapytaj behawiorystę dostajesz pierwszy kierunek działania na podstawie informacji od opiekuna. Przy sprawach złożonych pełniejsza analiza wymaga około 90 minut online, formularza, historii zachowania i czasem nagrań.',
+      'Tak. W rozmowie „Zapytaj behawiorystę” dostajesz pierwszy kierunek działania na podstawie informacji od opiekuna. Przy sprawach złożonych pełniejsza analiza wymaga około 90 minut online, formularza, historii zachowania i czasem nagrań.',
   },
   {
     id: 'pies-reaktywny-na-spacerze',
@@ -223,7 +223,7 @@ export const referenceFaqItems: ReferenceFaqItem[] = [
     category: 'techniczne',
     question: 'Czy muszę mieć włączoną kamerę?',
     answer:
-      'Nie zawsze. Zapytaj behawiorystę jest rozmową audio. Przy pełnej konsultacji kamera lub nagrania mogą pomóc, ale forma zależy od sytuacji i możliwości opiekuna.',
+      'Nie. „Zapytaj behawiorystę” to spokojna rozmowa telefoniczna bez konieczności włączania kamery. Przy pełnej konsultacji online kamera lub nagrania mogą pomóc, ale formę dobieramy do możliwości opiekuna.',
   },
   {
     id: 'techniczne-nagrania',

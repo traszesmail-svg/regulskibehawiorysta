@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight, BookOpen, HelpCircle } from 'lucide-react'
+import { ArrowRight, BookOpen, Clock3, Compass, HelpCircle, Layers } from 'lucide-react'
 import { Schema } from '@/components/schema'
 import { NotatnikPageShell, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
 import { getBreadcrumbJsonLd, getFaqPageJsonLd, getServiceJsonLd } from '@/lib/schema'
@@ -59,9 +59,9 @@ export default function TherapyPage() {
       tag="Indywidualna ścieżka"
       navItems={PUBLIC_SITE_NAV_ITEMS}
       ctaHref="/zapytaj#formularz"
-      ctaLabel="Zacznij od Zapytaj"
+      ctaLabel="Zapytaj behawiorystę – 79 zł"
       footerPrimaryHref="/zapytaj#formularz"
-      footerPrimaryLabel="Zapytaj behawiorystę"
+      footerPrimaryLabel="Zapytaj behawiorystę – 79 zł"
       showSideVisuals={false}
       pageClassName="canonical-service-page therapy-page"
       shellClassName="canonical-service-shell"
@@ -93,7 +93,7 @@ export default function TherapyPage() {
             forma kontaktu i dostępność ustalamy dopiero wtedy, gdy znamy sytuację z pełnej konsultacji.
           </p>
           <a href="/zapytaj#formularz" className="notatnik-btn">
-            Zacznij od Zapytaj <ArrowRight size={17} aria-hidden="true" />
+            Zacznij od Zapytaj behawiorystę – 79 zł <ArrowRight size={17} aria-hidden="true" />
           </a>
         </div>
         <figure className="canonical-service-hero-art canonical-service-photo">
@@ -109,6 +109,48 @@ export default function TherapyPage() {
             <small>Dopasowana do rytmu domu po pełnej konsultacji.</small>
           </figcaption>
         </figure>
+      </section>
+
+
+      <section className="therapy-sense-section" aria-labelledby="therapy-sense-title">
+        <div className="therapy-sense-inner">
+          <div className="therapy-sense-header">
+            <span className="zapytaj-kicker">KIERUNEK I ZASADY</span>
+            <h2 id="therapy-sense-title">Kiedy terapia ma sens?</h2>
+            <p className="therapy-sense-lead">
+              Nie każda sytuacja wymaga długiego procesu. Wspólna praca terapeutyczna ma uzasadnienie wtedy, gdy problem nie zamyka się w jednej prostej zmianie.
+            </p>
+          </div>
+          <div className="therapy-sense-grid">
+            <article className="therapy-sense-item">
+              <span className="therapy-sense-icon" aria-hidden="true">
+                <Layers size={24} strokeWidth={1.8} />
+              </span>
+              <div>
+                <h3>Problem wymaga pracy etapami</h3>
+                <p>Złożone zachowania wymagają stopniowego wprowadzania zmian w środowisku i codziennej rutynie.</p>
+              </div>
+            </article>
+            <article className="therapy-sense-item">
+              <span className="therapy-sense-icon" aria-hidden="true">
+                <Clock3 size={24} strokeWidth={1.8} />
+              </span>
+              <div>
+                <h3>Potrzebna jest obserwacja zmian w czasie</h3>
+                <p>Sprawdzamy, jak zwierzę reaguje na modyfikacje w bezpiecznym tempie, bez pośpiechu i bez presji.</p>
+              </div>
+            </article>
+            <article className="therapy-sense-item">
+              <span className="therapy-sense-icon" aria-hidden="true">
+                <Compass size={24} strokeWidth={1.8} />
+              </span>
+              <div>
+                <h3>Wcześniejsza konsultacja wskazała potrzebę dalszej pracy</h3>
+                <p>Dopiero po dokładnym omówieniu sytuacji w pełnej konsultacji ustalamy, czy dłuższy proces ma sens.</p>
+              </div>
+            </article>
+          </div>
+        </div>
       </section>
 
       <section className="canonical-service-explanation" aria-labelledby="therapy-access-title">
@@ -199,7 +241,7 @@ export default function TherapyPage() {
       <section className="canonical-service-note" aria-label="Ważna informacja">
         <strong>Jeśli dopiero szukasz pierwszego kroku</strong>
         <p>Zacznij od krótkiej rozmowy. Nie musisz od razu decydować o terapii.</p>
-        <a href="/zapytaj#formularz">Zapytaj behawiorystę <ArrowRight size={16} aria-hidden="true" /></a>
+        <a href="/zapytaj#formularz">Zacznij od Zapytaj behawiorystę – 79 zł <ArrowRight size={16} aria-hidden="true" /></a>
       </section>
     </NotatnikPageShell>
   )

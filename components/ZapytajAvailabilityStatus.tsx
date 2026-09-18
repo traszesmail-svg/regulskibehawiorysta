@@ -46,7 +46,7 @@ export function ZapytajAvailabilityStatus() {
   const isLiveChoice = live?.status === 'available_now' || live?.status === 'in_call'
 
   return (
-    <div className="zapytaj-hero-live-status" data-zapytaj-live-status={live?.status ?? 'loading'} aria-live="polite">
+    <div className="zapytaj-hero-live-status" data-zapytaj-live-status={loading ? 'loading' : (live?.status ?? 'offline')} aria-live="polite">
       <span className="zapytaj-hero-live-status-dot" aria-hidden="true" />
       <span>
         <strong>{loading ? 'Sprawdzam dostępność…' : isLiveChoice ? `Zapytaj teraz · ${live!.livePricePln} zł` : 'Zapytaj w wybranym terminie · 79 zł'}</strong>

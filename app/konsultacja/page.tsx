@@ -6,7 +6,8 @@ import { NotatnikPageShell, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA
 import { getBreadcrumbJsonLd, getServiceJsonLd } from '@/lib/schema'
 import { buildMarketingMetadata } from '@/lib/seo'
 import { PUBLIC_FULL_CONSULTATION_OFFER, formatPublicOfferPrice } from '@/lib/public-offer'
-import { SPECIALIST_ONLINE_PHOTO } from '@/lib/site'
+import { SPECIALIST_ONLINE_PHOTO, COAPE_POLSKA_LOGO, SPECIALIST_NAME, SPECIALIST_PUBLIC_STATUS } from '@/lib/site'
+import Link from 'next/link'
 import { getConsultationAccessByCode } from '@/lib/server/db'
 
 export const metadata: Metadata = buildMarketingMetadata({
@@ -31,9 +32,9 @@ export default async function ConsultationPage({
       tag="Dalszy etap"
       navItems={PUBLIC_SITE_NAV_ITEMS}
       ctaHref="/zapytaj#formularz"
-      ctaLabel="Najpierw zapytaj"
+      ctaLabel="Zapytaj behawiorystę – 79 zł"
       footerPrimaryHref="/zapytaj#formularz"
-      footerPrimaryLabel="Zapytaj behawiorystę"
+      footerPrimaryLabel="Zapytaj behawiorystę – 79 zł"
       showSideVisuals={false}
       pageClassName="canonical-service-page consultation-page"
       shellClassName="canonical-service-shell"
@@ -69,8 +70,32 @@ export default async function ConsultationPage({
             <span>· {PUBLIC_FULL_CONSULTATION_OFFER.durationLabel}</span>
           </div>
           <a href="/zapytaj#formularz" className="notatnik-btn">
-            Zacznij od Zapytaj <ArrowRight size={17} aria-hidden="true" />
+            Zacznij od Zapytaj behawiorystę – 79 zł <ArrowRight size={17} aria-hidden="true" />
           </a>
+          <div className="homepage-hero-proof" aria-label="Kwalifikacje specjalisty" style={{ marginTop: '20px', maxWidth: '380px' }}>
+            <div className="homepage-hero-proof-specialist">
+              <div className="homepage-hero-proof-logo-wrap">
+                <Image
+                  src={COAPE_POLSKA_LOGO.src}
+                  alt={COAPE_POLSKA_LOGO.alt}
+                  width={COAPE_POLSKA_LOGO.width}
+                  height={COAPE_POLSKA_LOGO.height}
+                  className="homepage-hero-proof-logo"
+                />
+              </div>
+              <div className="homepage-hero-proof-copy">
+                <strong className="homepage-hero-proof-name">{SPECIALIST_NAME}</strong>
+                <div className="homepage-hero-proof-creds">
+                  <span>{SPECIALIST_PUBLIC_STATUS}</span>
+                  <span className="homepage-hero-proof-sep" aria-hidden="true">·</span>
+                  <span>technik weterynarii</span>
+                </div>
+              </div>
+            </div>
+            <p className="homepage-hero-proof-note">
+              <Link href="/opinie" className="homepage-hero-proof-link">Zobacz opinie opiekunów</Link>
+            </p>
+          </div>
         </div>
         <figure className="canonical-service-hero-art canonical-service-photo">
           <Image

@@ -76,7 +76,7 @@ Co warto sprawdzić:
 
 Jeśli nigdy nie rozmawiałaś/rozmawiałeś z behawiorystą i nie wiesz, czego się spodziewać — [jest osobny tekst](/blog/jak-wyglada-konsultacja-behawioralna-online) z dokładnym opisem.
 
-Wersja krótka: opowiadasz, co się dzieje. Behawiorysta zadaje pytania. Razem identyfikujecie, co jest problemem. Dostajesz plan. Nie musisz od razu wchodzić w długą i drogą opcję — **Kwadrans z behawiorystą** to sensowny pierwszy krok, żeby sprawdzić, czy trafisz pod właściwy adres.
+Wersja krótka: opowiadasz, co się dzieje. Behawiorysta zadaje pytania. Razem identyfikujecie, co jest problemem. Dostajesz plan. Nie musisz od razu wchodzić w duży proces — rozmowa **Zapytaj behawiorystę (do 15 minut)** to sensowny pierwszy krok, żeby sprawdzić sytuację i ustalić właściwy kierunek działania.
 
 ## FAQ
 
@@ -87,7 +87,7 @@ W Polsce nie ma jednolitego systemu certyfikacji. Warto sprawdzić wykształceni
 Tak. Część specjalistów łączy obydwie kompetencje. To może być duży plus, jeśli masz problem złożony.
 
 **Ile kosztuje konsultacja behawioralna?**
-Różnie. Długa konsultacja na miejscu to koszt rzędu kilkuset złotych. Konsultacja online bywa tańsza. Najniższy próg wejścia to Kwadrans z behawiorystą.
+Różnie. Długa konsultacja na miejscu to koszt rzędu kilkuset złotych. Konsultacja online bywa tańsza. Podstawowy pierwszy krok to Zapytaj behawiorystę (79 zł).
 
 **Czy online to na pewno wystarczy na start?**
 Przy diagnozowaniu problemów emocjonalnych — często tak. Behawiorysta pyta o to, co ty obserwujesz, nie musi być na miejscu, żeby postawić hipotezę i zaproponować kierunek.
@@ -97,6 +97,6 @@ Opisz sytuację i zapytaj wprost. Każdy rzetelny specjalista powie ci, czy to d
 
 ## Jeśli nie jesteś pewna/pewien, pod jaki adres trafić
 
-Opisz krótko, co się dzieje. **Kwadrans z behawiorystą** sprawdza się właśnie przy takich wątpliwościach: pozwala odróżnić problem behawioralny od treningowego i wyjść z wiedzą, od czego zacząć.
+Opisz krótko, co się dzieje. Rozmowa **Zapytaj behawiorystę (do 15 minut)** sprawdza się właśnie przy takich wątpliwościach: pozwala odróżnić problem behawioralny od treningowego i ustalić pierwszy kierunek działania.
 
-[Umów Kwadrans z behawiorystą](/book) · [Kategoria: psy](/psy) · [O mnie — jak pracuję](/o-mnie)
+[Zapytaj behawiorystę – 79 zł](/zapytaj) · [Kategoria: psy](/psy) · [O mnie — jak pracuję](/o-mnie)

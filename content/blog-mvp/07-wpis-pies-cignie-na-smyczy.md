@@ -96,6 +96,6 @@ Jeśli ciągnięcie to czysty nawyk bez reaktywności — tak. Dobry trener z me
 
 ## Jeśli spacery są dla was obojga frustrujące
 
-Nie musisz od razu wchodzić w najdłuższą opcję. **Kwadrans z behawiorystą** wystarczy, żeby sprawdzić, czy to, co robisz, jest po drodze, i dostać jeden konkretny kierunek na najbliższy tydzień.
+Nie musisz od razu wchodzić w duży proces. Rozmowa **Zapytaj behawiorystę (do 15 minut)** wystarczy, żeby sprawdzić dotychczasowe podejście i ustalić pierwszy kierunek działania.
 
-[Umów Kwadrans z behawiorystą](/book) · [Kategoria: psy](/psy) · [Materiały PDF](/materialy)
+[Zapytaj behawiorystę – 79 zł](/zapytaj) · [Kategoria: psy](/psy) · [Materiały PDF](/materialy)

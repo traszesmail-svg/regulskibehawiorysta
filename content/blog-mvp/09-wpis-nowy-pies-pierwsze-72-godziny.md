@@ -130,6 +130,6 @@ Lepiej nie. Podróż, nocowanie w nowym miejscu i intensywne bodźce to duże wy
 
 ## Jeśli masz pytanie o swój konkretny przypadek
 
-Pierwsze tygodnie z psem to idealny moment na **Kwadrans z behawiorystą** — zanim zdążą się utrwalić złe wzorce i wtedy, gdy plan działania najłatwiej spokojnie ustawić.
+Pierwsze tygodnie z psem to bardzo dobry moment na rozmowę **Zapytaj behawiorystę (do 15 minut)** — zanim zdążą się utrwalić trudne nawyki i gdy najłatwiej ustalić spokojny pierwszy kierunek działania.
 
-[Umów Kwadrans z behawiorystą](/book) · [Kategoria: psy](/psy) · [Materiały PDF](/materialy)
+[Zapytaj behawiorystę – 79 zł](/zapytaj) · [Kategoria: psy](/psy) · [Materiały PDF](/materialy)

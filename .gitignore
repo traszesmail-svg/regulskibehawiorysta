@@ -18,6 +18,7 @@ data/
 !data/testimonials.json
 data/payment-orders.json
 data/promo-codes.json
+output/
 
 CHATGPT_*.txt
 FINAL_*REPORT*.txt

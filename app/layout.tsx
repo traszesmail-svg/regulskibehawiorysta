@@ -14,6 +14,7 @@ import { getBuildMarkerSnapshot } from '@/lib/build-marker'
 import { SITE_DESCRIPTION, SITE_NAME, SITE_OG_IMAGE, SITE_SHORT_NAME, SITE_TAGLINE } from '@/lib/site'
 import './globals.css'
 import './notatnik-a.css'
+import './subpages-editorial.css'
 
 const manrope = Manrope({
   subsets: ['latin', 'latin-ext'],

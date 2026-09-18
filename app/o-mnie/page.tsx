@@ -23,6 +23,7 @@ import {
   ABOUT_SPECIALIST_PHOTO,
   CAPBT_PROFILE_URL,
   COAPE_ORG_URL,
+  COAPE_POLSKA_LOGO,
   INSTAGRAM_PROFILE_URL,
   MEDIA_MENTIONS,
   SPECIALIST_NAME,
@@ -47,7 +48,15 @@ const credentialCards = [
   {
     title: 'Behawiorysta i trener zwierząt towarzyszących COAPE',
     copy: 'Analiza zachowania i praktyczny trening prowadzone w jednym, spójnym planie.',
-    icon: <Award size={28} strokeWidth={1.8} aria-hidden="true" />,
+    icon: (
+      <Image
+        src={COAPE_POLSKA_LOGO.src}
+        alt={COAPE_POLSKA_LOGO.alt}
+        width={72}
+        height={24}
+        className="coape-inline-badge"
+      />
+    ),
   },
   {
     title: 'Modyfikacja diety',
@@ -72,19 +81,19 @@ const featuredArticles = MEDIA_MENTIONS.filter((mention) =>
 const featuredArticle = featuredArticles[0] ?? MEDIA_MENTIONS[0]
 
 const publicLinks = [
-  { label: 'COAPE / COAPE', href: COAPE_ORG_URL, icon: <ShieldCheck size={18} strokeWidth={1.8} aria-hidden="true" /> },
+  { label: 'COAPE Polska (Metodologia)', href: COAPE_ORG_URL, icon: <ShieldCheck size={18} strokeWidth={1.8} aria-hidden="true" /> },
   {
-    label: 'CAPBT / Profil',
+    label: 'CAPBT (Katalog behawiorystów)',
     href: CAPBT_PROFILE_URL,
     icon: <User size={18} strokeWidth={1.8} aria-hidden="true" />,
   },
   {
-    label: 'Magwet / Artykuł',
+    label: 'Magazyn Weterynaryjny (Artykuły)',
     href: featuredArticle.href,
     icon: <BookOpen size={18} strokeWidth={1.8} aria-hidden="true" />,
   },
   {
-    label: 'Instagram / Profil',
+    label: 'Instagram (@regulskibehawiorysta)',
     href: INSTAGRAM_PROFILE_URL,
     icon: <ExternalLink size={18} strokeWidth={1.8} aria-hidden="true" />,
   },
@@ -94,7 +103,7 @@ export default function AboutPage() {
   const faqItems = FAQ_SHORTLISTS.consultation.slice(0, 2)
 
   return (
-    <ReferencePageShell className="reference-about-page reference-about-redesign-page" ctaHref="/zapytaj">
+    <ReferencePageShell className="reference-about-page reference-about-redesign-page" ctaHref="/zapytaj" ctaLabel="Zapytaj behawiorystę – 79 zł">
       <Schema
         data={[
           getPersonJsonLd(),
@@ -108,7 +117,7 @@ export default function AboutPage() {
 
       <section className="reference-hero reference-about-hero reference-about-redesign-hero">
         <div className="reference-hero-copy reference-about-hero-copy">
-          <span className="reference-pill">O mnie</span>
+          <span className="reference-pill">O MNIE</span>
           <h1>{SPECIALIST_NAME}. Behawiorysta psów i kotów.</h1>
           <p>
             Pomagam uporządkować sytuację psa lub kota tak, żeby po rozmowie został jasny pierwszy krok. Bez sztucznej
@@ -138,18 +147,19 @@ export default function AboutPage() {
             <h2>Jak pracuję z opiekunami psów i kotów</h2>
             <p>
               Od ponad 10 lat pomagam opiekunom psów i kotów zrozumieć zachowania, które w domu albo na spacerze
-              zaczynają robić się trudne. Pracuję spokojnie, bez oceniania i bez kar - najpierw szukam przyczyny
+              zaczynają robić się trudne. Pracuję spokojnie, bez oceniania i bez kar — najpierw szukam przyczyny
               napięcia, dopiero potem dobieram konkretne kroki.
             </p>
             <p>
-              Możesz zgłosić się z codziennym tematem, takim jak szczekanie, ciągnięcie, kuweta, stres czy napięcie
-              między zwierzętami - ale też z sytuacją bardziej złożoną, która trwa od miesięcy i zaczyna wpływać na całe
-              życie w domu.
+              Jako behawiorysta, doświadczony technik weterynarii i dietetyk patrzę na zachowanie szerzej:
             </p>
+            <ul className="reference-about-bullet-list">
+              <li><strong>Emocje i codzienne zachowanie:</strong> szczekanie, ciągnięcie, lęk, kuweta, relacje w domu.</li>
+              <li><strong>Zdrowie i samopoczucie:</strong> wykluczenie bólu i somatycznych przyczyn zmiany zachowania.</li>
+              <li><strong>Środowisko i rutyna:</strong> odpowiednia dieta, stymulacja i bezpieczny rytm dnia.</li>
+            </ul>
             <p>
-              Jako behawiorysta, doświadczony technik weterynarii i dietetyk patrzę na zachowanie szerzej: przez emocje,
-              zdrowie, ból, dietę, środowisko i codzienną rutynę. Dzięki temu mogę pomóc oddzielić objaw od możliwej
-              przyczyny i wybrać pierwszy krok, który ma sens.
+              Dzięki temu oddzielamy objaw od możliwej przyczyny i wybieramy pierwszy krok, który ma realny sens.
             </p>
           </div>
         </section>
@@ -161,15 +171,18 @@ export default function AboutPage() {
           <div className="reference-about-card-body">
             <h2>Metodologia pracy</h2>
             <p>
-              W pracy behawioralnej opieram się na metodologii COAPE: holistycznym, opartym na aktualnej wiedzy naukowej
-              podejściu do terapii zachowania zwierząt towarzyszących. Nie analizuję zachowania psa lub kota wyłącznie
-              jako problemu do wygaszenia, ale jako efekt współdziałania emocji, nastroju, stanu zdrowia, środowiska,
-              historii uczenia się, relacji społecznych oraz jakości codziennego funkcjonowania zwierzęcia.
+              W pracy behawioralnej opieram się na metodologii COAPE — holistycznym, opartym na nauce podejściu do terapii zachowania zwierząt towarzyszących.
             </p>
             <p>
-              Centralnym elementem tej metodologii jest model MHERA, wykorzystywany w COAPE do oceny emocjonalnych i
-              behawioralnych przyczyn problemów. Model ten pozwala uporządkować analizę przypadku i zaplanować działanie
-              w sposób etyczny, skuteczny i możliwy do utrzymania.
+              Zamiast traktować zachowanie jedynie jako problem do wygaszenia, analizujemy współdziałanie kluczowych czynników:
+            </p>
+            <ul className="reference-about-bullet-list">
+              <li><strong>Emocje i nastrój:</strong> analiza motywacji i poziomu stresu w modelu MHERA.</li>
+              <li><strong>Stan zdrowia:</strong> powiązanie samopoczucia fizycznego z reakcjami zwierzęcia.</li>
+              <li><strong>Środowisko i uczenie się:</strong> historia doświadczeń, relacje społeczne i codzienna rutyna.</li>
+            </ul>
+            <p>
+              Model MHERA pozwala zaplanować działanie w sposób etyczny, skuteczny i możliwy do utrzymania w Waszym domu.
             </p>
           </div>
           <div className="reference-methodology-points" aria-label="Założenia metodologii">

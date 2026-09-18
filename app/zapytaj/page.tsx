@@ -1,12 +1,14 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
-import { ArrowRight, Check, ShieldAlert } from 'lucide-react'
+import Link from 'next/link'
+import { ArrowRight, CalendarDays, Check, Clock3, MessageSquareText, PhoneCall, ShieldAlert, WalletCards } from 'lucide-react'
 import { Schema } from '@/components/schema'
 import { NotatnikPageShell, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
 import { ZapytajIntakeForm } from '@/components/ZapytajIntakeForm'
 import { getBreadcrumbJsonLd, getFaqPageJsonLd, getServiceJsonLd } from '@/lib/schema'
 import { buildMarketingMetadata } from '@/lib/seo'
 import { PUBLIC_ZAPYTAJ_OFFER, formatPublicOfferPrice } from '@/lib/public-offer'
+import { COAPE_POLSKA_LOGO, HOME_HERO_PHOTO, SPECIALIST_NAME, SPECIALIST_PUBLIC_STATUS } from '@/lib/site'
 
 const FAQ_ITEMS = [
   {
@@ -76,18 +78,25 @@ export default function ZapytajPage() {
 
       <section className="zapytaj-hero" aria-labelledby="zapytaj-page-title">
         <div className="zapytaj-hero-copy">
-          <span className="zapytaj-kicker">KRÓTKI PIERWSZY KROK</span>
+          <span className="zapytaj-kicker">KRZYSZTOF REGULSKI · BEHAWIORYSTA PSÓW I KOTÓW</span>
           <h1 id="zapytaj-page-title">
-            Masz problem z psem lub kotem? <em>Zapytaj behawiorystę.</em>
+            Martwi Cię zachowanie psa lub kota?
           </h1>
           <p className="zapytaj-hero-lead">
-            Opowiedz, co dzieje się z Twoim psem lub kotem. W krótkiej rozmowie uporządkujemy sytuację i ustalimy,
-            co możesz zrobić dalej.
+            Opowiedz, co się dzieje. Podczas krótkiej rozmowy ustalimy pierwszy krok i to, czy potrzebna jest dalsza pomoc.
           </p>
-          <div className="zapytaj-hero-price">
-            <div>
-              <strong>{PUBLIC_ZAPYTAJ_OFFER.durationLabel} · {formatPublicOfferPrice(PUBLIC_ZAPYTAJ_OFFER.pricePln)}</strong>
-              <span>Rozmowa telefoniczna na pierwszy, konkretny kierunek.</span>
+          <div className="offer-facts" aria-label="Najważniejsze informacje">
+            <div className="offer-fact">
+              <span className="offer-fact__icon"><Clock3 aria-hidden="true" /></span>
+              <span>Do 15 minut</span>
+            </div>
+            <div className="offer-fact">
+              <span className="offer-fact__icon"><WalletCards aria-hidden="true" /></span>
+              <span>{formatPublicOfferPrice(PUBLIC_ZAPYTAJ_OFFER.pricePln)}</span>
+            </div>
+            <div className="offer-fact">
+              <span className="offer-fact__icon"><PhoneCall aria-hidden="true" /></span>
+              <span>Telefonicznie</span>
             </div>
           </div>
           <div className="zapytaj-hero-actions">
@@ -99,46 +108,78 @@ export default function ZapytajPage() {
               Zobacz, jak to działa
             </a>
           </div>
+          <div className="homepage-hero-proof" aria-label="Kwalifikacje specjalisty">
+            <div className="homepage-hero-proof-specialist">
+              <div className="homepage-hero-proof-logo-wrap">
+                <Image
+                  src={COAPE_POLSKA_LOGO.src}
+                  alt={COAPE_POLSKA_LOGO.alt}
+                  width={COAPE_POLSKA_LOGO.width}
+                  height={COAPE_POLSKA_LOGO.height}
+                  className="homepage-hero-proof-logo"
+                />
+              </div>
+              <div className="homepage-hero-proof-copy">
+                <strong className="homepage-hero-proof-name">{SPECIALIST_NAME}</strong>
+                <div className="homepage-hero-proof-creds">
+                  <span>{SPECIALIST_PUBLIC_STATUS}</span>
+                  <span className="homepage-hero-proof-sep" aria-hidden="true">·</span>
+                  <span>technik weterynarii</span>
+                </div>
+              </div>
+            </div>
+            <p className="homepage-hero-proof-note">
+              Rozmowa bez kamery
+              <span className="homepage-hero-proof-dot" aria-hidden="true">·</span>
+              <Link href="/opinie" className="homepage-hero-proof-link">Zobacz opinie opiekunów</Link>
+            </p>
+          </div>
         </div>
 
         <figure className="zapytaj-hero-photo">
-          {/* This is the approved existing portrait asset, not a treatment scene. */}
           <Image
-            src="/branding/omnie.png"
-            alt="Krzysztof Regulski trzyma kota na rękach"
+            src={HOME_HERO_PHOTO.src}
+            alt={HOME_HERO_PHOTO.alt}
             fill
             priority
+            quality={86}
             sizes="(max-width: 760px) 100vw, 42vw"
           />
-          <figcaption>Rozmowa z behawiorystą, bez zgadywania i bez gotowej etykiety problemu.</figcaption>
         </figure>
       </section>
 
       <section className="zapytaj-process-section" id="jak-to-dziala" aria-labelledby="zapytaj-process-title">
         <div className="zapytaj-section-heading">
-          <span className="zapytaj-kicker">PROSTY PRZEBIEG</span>
-          <h2 id="zapytaj-process-title">Jak to działa?</h2>
+          <span className="zapytaj-kicker">JAK ZACZĄĆ</span>
+          <h2 id="zapytaj-process-title">Trzy proste kroki.</h2>
         </div>
-        <div className="zapytaj-process-grid">
-          <article>
-            <span>01</span>
-            <h3>Opisujesz problem</h3>
-            <p>Kilka zdań wystarczy. Nie musisz znać nazwy problemu ani przyczyny.</p>
+        <div className="zapytaj-process-grid steps-list">
+          <article className="step-item">
+            <span className="homepage-step-icon" aria-hidden="true">
+              <MessageSquareText size={17} />
+            </span>
+            <div className="homepage-step-body">
+              <h3>Opisujesz sytuację</h3>
+              <p>Kilka zdań o tym, co Cię niepokoi.</p>
+            </div>
           </article>
-          <article>
-            <span>02</span>
-            <h3>Opłacasz rozmowę</h3>
-            <p>Po formularzu pojawi się osobny krok płatności i potwierdzenia.</p>
+          <article className="step-item">
+            <span className="homepage-step-icon" aria-hidden="true">
+              <CalendarDays size={17} />
+            </span>
+            <div className="homepage-step-body">
+              <h3>Rezerwujesz rozmowę</h3>
+              <p>Wybierasz dostępny termin i opłacasz rozmowę.</p>
+            </div>
           </article>
-          <article>
-            <span>03</span>
-            <h3>Rozmawiasz z behawiorystą</h3>
-            <p>Do 15 minut telefonicznie, w potwierdzonym zwykłym terminie.</p>
-          </article>
-          <article>
-            <span>04</span>
-            <h3>Wiesz, co robić dalej</h3>
-            <p>Dostajesz pierwszy kierunek i informację, czy potrzebny jest kolejny etap.</p>
+          <article className="step-item">
+            <span className="homepage-step-icon" aria-hidden="true">
+              <PhoneCall size={17} />
+            </span>
+            <div className="homepage-step-body">
+              <h3>Rozmawiamy</h3>
+              <p>Ustalamy pierwszy krok i dalsze możliwości pomocy.</p>
+            </div>
           </article>
         </div>
       </section>

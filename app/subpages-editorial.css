@@ -488,39 +488,676 @@ html body main.notatnik-page .zapytaj-kicker {
   border-color: rgba(44, 76, 59, 0.35) !important;
 }
 
-/* 4. Terapia: reduce visible borders/boxes, use whitespace & hairline dividers */
-.therapy-page .canonical-service-steps {
-  gap: 28px !important;
-}
+/* ==========================================================================
+   CANONICAL SERVICE PAGES: KONSULTACJA & TERAPIA EDITORIAL REDESIGN
+   ========================================================================== */
 
-.therapy-page .canonical-service-steps article {
-  border: none !important;
+.canonical-service-page .canonical-service-shell {
   background: transparent !important;
+  border: none !important;
   box-shadow: none !important;
-  border-top: 1px solid rgba(44, 76, 59, 0.16) !important;
-  border-radius: 0 !important;
-  padding: 18px 4px 10px 0 !important;
-  gap: 8px;
+  padding: 0 16px !important;
 }
 
-.therapy-page .canonical-service-steps article h3 {
-  font-family: var(--font-serif, "Fraunces", Georgia, serif) !important;
-  font-size: 1.15rem !important;
+.canonical-service-page .canonical-service-shell > section {
+  border-bottom: 1px solid rgba(95, 110, 79, 0.12) !important;
+  background: transparent !important;
+  padding: 64px 0 !important;
+}
+
+.canonical-service-page .canonical-service-shell > section:last-of-type {
+  border-bottom: none !important;
+}
+
+/* 1. Hero Layout */
+.canonical-service-page .canonical-service-hero {
+  display: grid !important;
+  grid-template-columns: 1.15fr 0.85fr !important;
+  gap: clamp(32px, 5vw, 64px) !important;
+  align-items: center !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  min-height: unset !important;
+  padding: 32px 0 56px !important;
+}
+
+.canonical-service-page .canonical-service-hero-copy {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 14px !important;
+}
+
+.canonical-service-page .canonical-service-hero h1 {
+  font-family: var(--font-display), Georgia, serif !important;
+  font-size: clamp(34px, 4.2vw, 54px) !important;
+  font-weight: 400 !important;
+  line-height: 1.08 !important;
+  color: #181e14 !important;
+  letter-spacing: -0.015em !important;
+  margin: 0 !important;
+  max-width: 14ch !important;
+}
+
+.canonical-service-page .canonical-service-lead {
+  font-size: clamp(16px, 1.7vw, 18px) !important;
+  line-height: 1.62 !important;
+  color: #4a5641 !important;
+  max-width: 54ch !important;
+  margin: 0 !important;
+}
+
+/* Offer Facts Pill Bar */
+.canonical-service-page .offer-facts {
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 10px 16px !important;
+  margin: 10px 0 6px !important;
+}
+
+.canonical-service-page .offer-fact {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  color: #2d3b24 !important;
+  background: rgba(45, 59, 36, 0.05) !important;
+  border: 1px solid rgba(95, 110, 79, 0.16) !important;
+  padding: 6px 14px !important;
+  border-radius: 999px !important;
+  line-height: 1.2 !important;
+}
+
+.canonical-service-page .offer-fact__icon {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #56683b !important;
+}
+
+.canonical-service-page .offer-fact__icon svg {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+/* Actions */
+.canonical-service-page .canonical-service-hero-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 18px !important;
+  flex-wrap: wrap !important;
+  margin-top: 10px !important;
+}
+
+.canonical-service-page .zapytaj-muted-link {
+  font-size: 14.5px !important;
+  font-weight: 600 !important;
+  color: #56683b !important;
+  text-decoration: underline !important;
+  text-underline-offset: 3px !important;
+  transition: color 0.15s ease !important;
+}
+
+.canonical-service-page .zapytaj-muted-link:hover {
+  color: #2d3b24 !important;
+}
+
+/* Credentials proof in hero */
+.canonical-service-page .homepage-hero-proof {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 7px !important;
+  margin-top: 18px !important;
+  padding-top: 16px !important;
+  border-top: 1px solid rgba(95, 110, 79, 0.12) !important;
+  width: 100% !important;
+}
+
+.canonical-service-page .homepage-hero-proof-specialist {
+  display: flex !important;
+  align-items: center !important;
+  gap: 13px !important;
+}
+
+.canonical-service-page .homepage-hero-proof-logo-wrap {
+  display: flex !important;
+  align-items: center !important;
+  flex: 0 0 88px !important;
+  width: 88px !important;
+}
+
+.canonical-service-page .homepage-hero-proof-logo {
+  width: 100% !important;
+  height: auto !important;
+  object-fit: contain !important;
+  display: block !important;
+}
+
+.canonical-service-page .homepage-hero-proof-copy {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+}
+
+.canonical-service-page .homepage-hero-proof-name {
+  font-size: 14.5px !important;
+  font-weight: 600 !important;
+  color: #181e14 !important;
+  line-height: 1.25 !important;
+}
+
+.canonical-service-page .homepage-hero-proof-creds {
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 5px !important;
+  font-size: 13px !important;
+  color: #4f5a48 !important;
+  line-height: 1.35 !important;
+}
+
+.canonical-service-page .homepage-hero-proof-sep {
+  color: rgba(95, 110, 79, 0.4) !important;
+}
+
+.canonical-service-page .homepage-hero-proof-note {
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+  margin: 0 !important;
+  font-size: 12.5px !important;
+  color: #6b7762 !important;
+}
+
+.canonical-service-page .homepage-hero-proof-dot {
+  color: rgba(95, 110, 79, 0.4) !important;
+}
+
+.canonical-service-page .homepage-hero-proof-link {
+  color: #475a2d !important;
+  font-weight: 550 !important;
+  text-decoration: underline !important;
+  text-underline-offset: 2px !important;
+}
+
+.canonical-service-page .homepage-hero-proof-link:hover {
+  color: #2d3b24 !important;
+}
+
+/* Photo */
+.canonical-service-page .canonical-service-hero-art.canonical-service-photo {
+  position: relative !important;
+  width: 100% !important;
+  aspect-ratio: 4 / 3.1 !important;
+  min-height: 320px !important;
+  max-height: 480px !important;
+  border-radius: 20px !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(95, 110, 79, 0.16) !important;
+  box-shadow: 0 12px 32px rgba(43, 35, 24, 0.08) !important;
+  background: #eae5d9 !important;
+}
+
+.canonical-service-page .canonical-service-hero-art.canonical-service-photo img {
+  object-fit: cover !important;
+}
+
+/* 2. Section Heading & General Explanation */
+.canonical-service-page .canonical-service-explanation {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 28px !important;
+  background: transparent !important;
+}
+
+.canonical-service-page .canonical-service-heading {
+  max-width: 720px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  text-align: left !important;
+}
+
+.canonical-service-page .canonical-service-heading h2 {
+  font-family: var(--font-display), Georgia, serif !important;
+  font-size: clamp(24px, 3.2vw, 34px) !important;
+  font-weight: 400 !important;
+  line-height: 1.18 !important;
+  color: #181e14 !important;
+  margin: 0 !important;
+  letter-spacing: -0.01em !important;
+}
+
+.canonical-service-page .canonical-service-heading p {
+  font-size: 15.5px !important;
+  line-height: 1.62 !important;
+  color: #4f5a48 !important;
+  margin: 0 !important;
+}
+
+/* 3. Steps Editorial (01, 02, 03) */
+.canonical-service-page .steps-editorial {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 28px !important;
+  width: 100% !important;
+  margin-top: 10px !important;
+}
+
+.canonical-service-page .step-editorial-item {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 14px !important;
+  border-top: 2px solid rgba(95, 110, 79, 0.22) !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-bottom: none !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 20px 8px 10px 0 !important;
+}
+
+.canonical-service-page .step-editorial-num {
+  font-family: var(--font-display), Georgia, serif !important;
+  font-size: 32px !important;
+  font-weight: 400 !important;
+  color: #56683b !important;
+  line-height: 1 !important;
+  letter-spacing: -0.02em !important;
+}
+
+.canonical-service-page .step-editorial-item h3 {
+  font-family: var(--font-sans), system-ui, sans-serif !important;
+  font-size: 17px !important;
+  font-weight: 650 !important;
+  color: #181e14 !important;
+  margin: 0 0 6px !important;
+  line-height: 1.3 !important;
+}
+
+.canonical-service-page .step-editorial-item p {
+  font-size: 14.5px !important;
+  line-height: 1.6 !important;
+  color: #4f5a48 !important;
+  margin: 0 !important;
+}
+
+/* 4. Consultation Value Grid (4 cards) */
+.canonical-service-page .consultation-value-grid {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 20px !important;
+  width: 100% !important;
+  margin-top: 10px !important;
+}
+
+.canonical-service-page .consultation-value-card {
+  background: #faf8f2 !important;
+  border: 1px solid rgba(95, 110, 79, 0.14) !important;
+  border-radius: 16px !important;
+  padding: 24px 20px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+.canonical-service-page .consultation-value-card:hover {
+  box-shadow: 0 8px 24px rgba(43, 35, 24, 0.06) !important;
+  transform: translateY(-1px) !important;
+}
+
+.canonical-service-page .consultation-value-icon {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 10px !important;
+  background: rgba(45, 59, 36, 0.07) !important;
+  color: #2d3b24 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-bottom: 6px !important;
+}
+
+.canonical-service-page .consultation-value-card h3 {
+  font-family: var(--font-sans), system-ui, sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 650 !important;
+  color: #181e14 !important;
+  margin: 0 !important;
+  line-height: 1.35 !important;
+}
+
+.canonical-service-page .consultation-value-card p {
+  font-size: 13.5px !important;
+  line-height: 1.55 !important;
+  color: #4f5a48 !important;
+  margin: 0 !important;
+}
+
+/* 5. Consultation Access Section & Form */
+.canonical-service-page .canonical-service-access-section {
+  padding: 56px 0 !important;
+}
+
+.canonical-service-page .canonical-service-access-box {
+  background: #faf8f2 !important;
+  border: 1px solid rgba(95, 110, 79, 0.18) !important;
+  border-radius: 20px !important;
+  padding: 40px 36px !important;
+  max-width: 760px !important;
+  margin: 0 auto !important;
+  box-shadow: 0 8px 24px rgba(43, 35, 24, 0.04) !important;
+}
+
+.canonical-service-page .canonical-service-access-box .canonical-service-heading {
+  margin-bottom: 24px !important;
+}
+
+.canonical-service-page .canonical-service-access-input-group {
+  display: flex !important;
+  gap: 12px !important;
+  align-items: stretch !important;
+  width: 100% !important;
+}
+
+.canonical-service-page .canonical-service-access-input-group input {
+  flex: 1 !important;
+  min-width: 0 !important;
+  padding: 13px 18px !important;
+  border: 1px solid rgba(95, 110, 79, 0.25) !important;
+  border-radius: 12px !important;
+  background: #ffffff !important;
+  font-size: 15.5px !important;
+  font-family: monospace, monospace !important;
+  letter-spacing: 0.06em !important;
+  color: #181e14 !important;
+}
+
+.canonical-service-page .canonical-service-access-input-group input:focus {
+  outline: none !important;
+  border-color: #2d3b24 !important;
+  box-shadow: 0 0 0 3px rgba(45, 59, 36, 0.12) !important;
+}
+
+.canonical-service-page .canonical-service-access-input-group .notatnik-btn {
+  white-space: nowrap !important;
+}
+
+.canonical-service-page .canonical-service-access-confirmed {
+  background: rgba(45, 95, 50, 0.08) !important;
+  border: 1px solid rgba(45, 95, 50, 0.22) !important;
+  border-radius: 14px !important;
+  padding: 20px 24px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 14px !important;
+  align-items: flex-start !important;
+}
+
+.canonical-service-page .canonical-service-access-confirmed p {
+  margin: 0 !important;
+  font-size: 15px !important;
+  line-height: 1.55 !important;
+  color: #235c27 !important;
+}
+
+/* 6. Terapia: "Kiedy terapia ma sens?" (3 unboxed cards) */
+.canonical-service-page .therapy-sense-cards-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 24px !important;
+  width: 100% !important;
+  margin-top: 10px !important;
+}
+
+.canonical-service-page .therapy-sense-card {
+  background: #faf8f2 !important;
+  border: 1px solid rgba(95, 110, 79, 0.14) !important;
+  border-radius: 16px !important;
+  padding: 26px 22px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+}
+
+.canonical-service-page .therapy-sense-card-icon {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 12px !important;
+  background: rgba(45, 59, 36, 0.07) !important;
+  color: #2d3b24 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.canonical-service-page .therapy-sense-card h3 {
+  font-family: var(--font-sans), system-ui, sans-serif !important;
+  font-size: 17px !important;
+  font-weight: 650 !important;
+  color: #181e14 !important;
+  margin: 0 !important;
+  line-height: 1.35 !important;
+}
+
+.canonical-service-page .therapy-sense-card p {
+  font-size: 14px !important;
+  line-height: 1.58 !important;
+  color: #4f5a48 !important;
+  margin: 0 !important;
+}
+
+/* 7. Terapia: "Dla kogo jest terapia" (Fit Grid) */
+.canonical-service-page .therapy-fit-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 22px !important;
+  width: 100% !important;
+  margin-top: 10px !important;
+}
+
+.canonical-service-page .therapy-fit-card {
+  background: #faf8f2 !important;
+  border: 1px solid rgba(95, 110, 79, 0.14) !important;
+  border-radius: 16px !important;
+  padding: 26px 22px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+}
+
+.canonical-service-page .therapy-fit-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  padding: 4px 10px !important;
+  border-radius: 8px !important;
+  width: fit-content !important;
+}
+
+.canonical-service-page .therapy-fit-card.is-positive .therapy-fit-badge {
+  background: rgba(45, 95, 50, 0.12) !important;
+  color: #235c27 !important;
+}
+
+.canonical-service-page .therapy-fit-card.is-urgent .therapy-fit-badge {
+  background: rgba(180, 60, 30, 0.1) !important;
+  color: #9c2d18 !important;
+}
+
+.canonical-service-page .therapy-fit-card.is-neutral .therapy-fit-badge {
+  background: rgba(95, 110, 79, 0.12) !important;
+  color: #4a573a !important;
+}
+
+.canonical-service-page .therapy-fit-card h3 {
+  font-family: var(--font-sans), system-ui, sans-serif !important;
+  font-size: 16.5px !important;
+  font-weight: 650 !important;
+  color: #181e14 !important;
+  margin: 0 !important;
+  line-height: 1.35 !important;
+}
+
+.canonical-service-page .therapy-fit-card p {
+  font-size: 13.5px !important;
+  line-height: 1.58 !important;
+  color: #4f5a48 !important;
+  margin: 0 !important;
+}
+
+/* 8. Terapia: Related Articles Grid */
+.canonical-service-page .therapy-articles-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 22px !important;
+  width: 100% !important;
+  margin-top: 10px !important;
+}
+
+.canonical-service-page .therapy-article-card {
+  background: #faf8f2 !important;
+  border: 1px solid rgba(95, 110, 79, 0.14) !important;
+  border-radius: 16px !important;
+  padding: 24px 22px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+.canonical-service-page .therapy-article-card:hover {
+  box-shadow: 0 8px 24px rgba(43, 35, 24, 0.05) !important;
+  transform: translateY(-1px) !important;
+}
+
+.canonical-service-page .therapy-article-card h3 {
+  font-family: var(--font-sans), system-ui, sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 650 !important;
+  color: #181e14 !important;
+  margin: 0 !important;
+  line-height: 1.35 !important;
+}
+
+.canonical-service-page .therapy-article-card p {
+  font-size: 13.5px !important;
+  line-height: 1.55 !important;
+  color: #4f5a48 !important;
+  margin: 0 !important;
+}
+
+.canonical-service-page .therapy-article-link {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-size: 13.5px !important;
+  font-weight: 650 !important;
+  color: #2d3b24 !important;
+  text-decoration: none !important;
+  margin-top: 4px !important;
+}
+
+.canonical-service-page .therapy-article-link:hover {
+  text-decoration: underline !important;
+}
+
+/* 9. Canonical Service Note (Bottom banner) */
+.canonical-service-page .canonical-service-note {
+  background: #faf8f2 !important;
+  border: 1px solid rgba(95, 110, 79, 0.18) !important;
+  border-radius: 20px !important;
+  padding: 40px 32px !important;
+  text-align: center !important;
+  max-width: 720px !important;
+  margin: 56px auto 32px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 12px !important;
+  box-shadow: 0 8px 24px rgba(43, 35, 24, 0.04) !important;
+}
+
+.canonical-service-page .canonical-service-note strong {
+  font-family: var(--font-display), Georgia, serif !important;
+  font-size: 22px !important;
   font-weight: 500 !important;
   color: #181e14 !important;
   line-height: 1.3 !important;
 }
 
-.therapy-page .canonical-service-steps article p {
-  font-size: 14.5px !important;
+.canonical-service-page .canonical-service-note p {
+  font-size: 15px !important;
   line-height: 1.6 !important;
   color: #4f5a48 !important;
+  max-width: 48ch !important;
+  margin: 0 !important;
+}
+
+.canonical-service-page .canonical-service-note .notatnik-btn {
+  margin-top: 8px !important;
+}
+
+/* 10. Responsive Breakpoints */
+@media (max-width: 980px) {
+  .canonical-service-page .canonical-service-hero {
+    grid-template-columns: 1fr !important;
+    gap: 36px !important;
+  }
+
+  .canonical-service-page .canonical-service-hero-art.canonical-service-photo {
+    aspect-ratio: 16 / 9 !important;
+    max-height: 380px !important;
+  }
+
+  .canonical-service-page .consultation-value-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
 }
 
 @media (max-width: 768px) {
-  .therapy-page .canonical-service-steps {
+  .canonical-service-page .steps-editorial,
+  .canonical-service-page .therapy-sense-cards-grid,
+  .canonical-service-page .therapy-fit-grid,
+  .canonical-service-page .therapy-articles-grid,
+  .canonical-service-page .consultation-value-grid {
     grid-template-columns: 1fr !important;
     gap: 16px !important;
+  }
+
+  .canonical-service-page .canonical-service-shell > section {
+    padding: 40px 0 !important;
+  }
+
+  .canonical-service-page .canonical-service-access-box {
+    padding: 26px 20px !important;
+  }
+
+  .canonical-service-page .canonical-service-access-input-group {
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  .canonical-service-page .canonical-service-access-input-group .notatnik-btn {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  .canonical-service-page .canonical-service-note {
+    padding: 28px 20px !important;
+    margin-top: 36px !important;
   }
 }
 

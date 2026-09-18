@@ -81,6 +81,8 @@ export function ZapytajIntakeForm({ promotionMode = false, initialPromotionCode 
   const [notificationConsent, setNotificationConsent] = useState(false)
   const [notificationStatus, setNotificationStatus] = useState<NotificationStatus>('idle')
   const [notificationFeedback, setNotificationFeedback] = useState('')
+  const [showNotifyForm, setShowNotifyForm] = useState(false)
+  const [notifyContact, setNotifyContact] = useState('')
   const [promotionCode, setPromotionCode] = useState(initialPromotionCode)
 
   async function refreshAvailability(showLoading = false) {
@@ -140,36 +142,33 @@ export function ZapytajIntakeForm({ promotionMode = false, initialPromotionCode 
   async function handleNotify() {
     if (notificationStatus === 'loading') return
 
+    const contact = notifyContact.trim()
+    if (!contact) {
+      setNotificationStatus('error')
+      setNotificationFeedback('Podaj numer telefonu lub adres e-mail.')
+      return
+    }
+
     if (!notificationConsent) {
       setNotificationStatus('error')
       setNotificationFeedback('Zaznacz zgodę na jednorazowe powiadomienie.')
       return
     }
 
-    if (notificationChannel === 'sms' && !/^\+?[0-9 ()-]{9,}$/.test(form.phone.trim())) {
-      setNotificationStatus('error')
-      setNotificationFeedback('Podaj poprawny numer telefonu do powiadomienia SMS.')
-      return
-    }
-
-    if (notificationChannel === 'email' && !isEmail(form.email.trim())) {
-      setNotificationStatus('error')
-      setNotificationFeedback('Podaj poprawny adres e-mail do powiadomienia.')
-      return
-    }
-
     setNotificationStatus('loading')
     setNotificationFeedback('')
 
+    const isContactEmail = isEmail(contact)
+    const channel = isContactEmail ? 'email' : 'sms'
+
     try {
-      const fallbackEmail = isEmail(form.email.trim()) ? form.email.trim() : ''
       const response = await fetch('/api/zapytaj/notify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          phone: form.phone,
-          email: fallbackEmail || null,
-          channel: notificationChannel,
+          phone: isContactEmail ? '' : contact,
+          email: isContactEmail ? contact : null,
+          channel,
           consentAvailability: notificationConsent,
         }),
       })
@@ -180,8 +179,7 @@ export function ZapytajIntakeForm({ promotionMode = false, initialPromotionCode 
       }
 
       setNotificationStatus('success')
-      setNotificationFeedback(payload.message ?? 'Powiadomienie zostało zapisane.')
-      setNotificationConsent(false)
+      setNotificationFeedback('Gotowe. Dam Ci znać, gdy pojawi się wolny termin.')
     } catch (notificationError) {
       console.error('[regulski-behawiorysta][zapytaj] notification submit failed', notificationError)
       setNotificationStatus('error')
@@ -355,7 +353,66 @@ export function ZapytajIntakeForm({ promotionMode = false, initialPromotionCode 
                 ))}
               </div>
             ) : (
-              <p className="zapytaj-empty-slots">Nie ma jeszcze zwykłych terminów. Odśwież stronę później.</p>
+              <div className="zapytaj-empty-slots-wrap">
+                <p className="zapytaj-empty-slots">Brak wolnych terminów w kalendarzu.</p>
+                {!showNotifyForm && notificationStatus !== 'success' && (
+                  <button
+                    type="button"
+                    className="homepage-avail-notify-trigger"
+                    onClick={() => setShowNotifyForm(true)}
+                  >
+                    Powiadom mnie o wolnym terminie
+                  </button>
+                )}
+                {showNotifyForm && notificationStatus !== 'success' && (
+                  <div className="homepage-avail-notify-form" style={{ marginTop: '12px' }}>
+                    <div className="homepage-avail-notify-inputs">
+                      <input
+                        type="text"
+                        value={notifyContact}
+                        onChange={(e) => {
+                          setNotifyContact(e.target.value)
+                          setNotificationStatus('idle')
+                          setNotificationFeedback('')
+                        }}
+                        placeholder="Telefon lub e-mail"
+                        aria-label="Telefon lub e-mail do powiadomienia"
+                        className="homepage-avail-notify-input"
+                        required
+                      />
+                      <button
+                        type="button"
+                        className="homepage-avail-notify-submit"
+                        onClick={() => void handleNotify()}
+                        disabled={notificationStatus === 'loading'}
+                      >
+                        {notificationStatus === 'loading' ? 'Zapisuję…' : 'Zapisz'}
+                      </button>
+                    </div>
+                    <label className="homepage-avail-notify-consent">
+                      <input
+                        type="checkbox"
+                        checked={notificationConsent}
+                        onChange={(e) => {
+                          setNotificationConsent(e.target.checked)
+                          setNotificationStatus('idle')
+                          setNotificationFeedback('')
+                        }}
+                        required
+                      />
+                      <span>Zgadzam się na jednorazowe powiadomienie o dostępności.</span>
+                    </label>
+                    {notificationFeedback && notificationStatus === 'error' && (
+                      <p className="homepage-avail-notify-error" role="alert">{notificationFeedback}</p>
+                    )}
+                  </div>
+                )}
+                {notificationStatus === 'success' && (
+                  <p className="homepage-avail-notify-success" role="status" style={{ marginTop: '8px' }}>
+                    Gotowe. Dam Ci znać, gdy pojawi się wolny termin.
+                  </p>
+                )}
+              </div>
             )}
           </fieldset>
         ) : (
@@ -445,32 +502,6 @@ export function ZapytajIntakeForm({ promotionMode = false, initialPromotionCode 
             <p className="zapytaj-form-step-desc">Płatność online (BLIK) · natychmiastowa blokada terminu w kalendarzu.</p>
           </div>
         </div>
-
-        {!promotionMode && live && !liveAvailable ? (
-          <div className="zapytaj-notification-box">
-            <div className="zapytaj-notification-copy">
-              <span className="zapytaj-form-card-kicker">POWIADOMIENIE O LIVE</span>
-              <strong>Nie chcesz sprawdzać strony? Zostaw kontakt.</strong>
-              <p>Gdy włączę rozmowę teraz, system spróbuje wysłać Ci jednorazową wiadomość. To nie rezerwuje miejsca.</p>
-            </div>
-            <div className="zapytaj-notification-channels" role="radiogroup" aria-label="Kanał powiadomienia">
-              <button type="button" role="radio" aria-checked={notificationChannel === 'sms'} className={notificationChannel === 'sms' ? 'is-selected' : ''} onClick={() => setNotificationChannel('sms')}>
-                SMS <small>preferowany</small>
-              </button>
-              <button type="button" role="radio" aria-checked={notificationChannel === 'email'} className={notificationChannel === 'email' ? 'is-selected' : ''} onClick={() => setNotificationChannel('email')}>
-                E-mail
-              </button>
-            </div>
-            <label className="zapytaj-notification-consent">
-              <input type="checkbox" checked={notificationConsent} onChange={(event) => { setNotificationConsent(event.target.checked); setNotificationStatus('idle'); setNotificationFeedback('') }} />
-              <span>Zgadzam się na jednorazowe powiadomienie o dostępności zgodnie z <Link href="/polityka-prywatnosci" target="_blank" rel="noopener noreferrer">polityką prywatności</Link>.</span>
-            </label>
-            <button type="button" className="zapytaj-notification-submit" onClick={() => void handleNotify()} disabled={notificationStatus === 'loading'}>
-              {notificationStatus === 'loading' ? 'Zapisuję…' : 'Zapisz powiadomienie'}
-            </button>
-            {notificationFeedback ? <div className={`zapytaj-notification-feedback${notificationStatus === 'error' ? ' is-error' : ''}`} role="status">{notificationFeedback}</div> : null}
-          </div>
-        ) : null}
 
         <div className="zapytaj-consents">
           <label><input type="checkbox" checked={form.consentProcessing} onChange={(event) => updateField('consentProcessing', event.target.checked)} /><span>Wyrażam zgodę na przetwarzanie danych zgodnie z <Link href="/polityka-prywatnosci" target="_blank" rel="noopener noreferrer">polityką prywatności</Link>.</span></label>

@@ -22,7 +22,7 @@ export function HomepageZapytajHero() {
           </div>
           <div className="offer-fact">
             <span className="offer-fact__icon"><WalletCards aria-hidden="true" /></span>
-            <span>79 zł</span>
+            <span>{formatPublicOfferPrice(PUBLIC_ZAPYTAJ_OFFER.pricePln)}</span>
           </div>
           <div className="offer-fact">
             <span className="offer-fact__icon"><PhoneCall aria-hidden="true" /></span>
@@ -71,17 +71,19 @@ export function HomepageZapytajHero() {
       </div>
 
       <div className="homepage-zapytaj-photo-wrap">
-        <figure className="homepage-zapytaj-photo">
-          <Image
-            src={HOME_HERO_PHOTO.src}
-            alt={HOME_HERO_PHOTO.alt}
-            fill
-            priority
-            quality={86}
-            sizes="(max-width: 760px) 100vw, 46vw"
-            className="homepage-zapytaj-photo-image"
-          />
-        </figure>
+        <div className="homepage-zapytaj-photo-container">
+          <figure className="homepage-zapytaj-photo">
+            <Image
+              src={HOME_HERO_PHOTO.src}
+              alt={HOME_HERO_PHOTO.alt}
+              fill
+              priority
+              quality={86}
+              sizes="(max-width: 760px) 100vw, 46vw"
+              className="homepage-zapytaj-photo-image"
+            />
+          </figure>
+        </div>
       </div>
     </section>
   )

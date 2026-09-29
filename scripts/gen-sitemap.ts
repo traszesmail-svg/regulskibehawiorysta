@@ -45,8 +45,13 @@ const SPECIAL_PAGES_RE = /^(?:_document|_error|404|500)\.(?:ts|tsx|js|jsx)$/i
 const ROUTE_GROUP_RE = /^\(.+\)$/
 const DYNAMIC_SEGMENT_RE = /^\[.+\]$/
 
+// Keep removed public URLs out of regenerated sitemaps if a crawler rediscovers them.
 const EXCLUDED_ROUTE_EXACT = new Set([
   '/booking',
+  '/cennik',
+  '/cennik/pelny',
+  '/kwadrans-na-juz',
+  '/kwadrans-na-juz/start',
   '/slot',
   '/form',
   '/payment',
@@ -54,12 +59,13 @@ const EXCLUDED_ROUTE_EXACT = new Set([
   '/confirmation',
   '/confirm',
   '/problem',
+  '/newsletter',
+  '/niezbednik',
   '/przybornik',
   '/pokoj',
   '/admin',
-  '/__internal/opinie',
-  '/%5F%5Finternal/qa-report',
   '/produkt',
+  '/zamow-pdf',
   '/urgent',
   '/od-czego-zaczac',
   '/oferta',
@@ -107,8 +113,9 @@ const EXCLUDED_ROUTE_PREFIXES = [
 
 const MAIN_SERVICE_PAGES = new Set([
   '/',
-  '/cennik',
-  '/cennik/pelny',
+  '/zapytaj',
+  '/konsultacja',
+  '/problemy',
   '/kontakt',
 ])
 
@@ -118,7 +125,7 @@ const LEGAL_PAGES = new Set([
 ])
 
 const PDF_ROUTE_PREFIXES = ['/bezplatne-materialy/'] as const
-const TOPICAL_ROUTE_PREFIXES = ['/psy/', '/koty/'] as const
+const TOPICAL_ROUTE_PREFIXES = ['/problemy/'] as const
 
 function formatWarsawDate(date = new Date()): string {
   return new Intl.DateTimeFormat('sv-SE', {
@@ -368,7 +375,7 @@ function collectCandidateMap(): SourceMap {
 }
 
 function getChangeFrequency(routePath: string): SitemapEntry['changefreq'] {
-  return routePath === '/' || routePath === '/cennik' || routePath === '/cennik/pelny'
+  return routePath === '/' || routePath === '/zapytaj' || routePath === '/problemy'
     ? 'weekly'
     : 'monthly'
 }

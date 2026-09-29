@@ -498,7 +498,7 @@ export default async function AdminPage() {
                     ? `Ostatni raport QA: ${formatDateLabel(latestQaReport.updatedAt.slice(0, 10))}, ${latestQaReport.updatedAt.slice(11, 16)}.`
                     : 'Raport QA istnieje, ale nie ma daty aktualizacji.'
                   : 'Brak zapisanego raportu QA.'}{' '}
-                <Link href="/__internal/qa-report" prefetch={false}>
+                <Link href="/admin/qa-report" prefetch={false}>
                   Otwórz raport
                 </Link>
               </span>
@@ -744,7 +744,7 @@ export default async function AdminPage() {
                 <div className="list-card tree-backed-card">
                   <strong>Rytuał przed deployem</strong>
                   <span>npm run funnel-metrics · npm run release-checklist · npm run stage9-performance-audit · npm run full-public-crawl</span>
-                  <span>Wejścia wewnętrzne: /admin oraz /__internal/qa-report.</span>
+                  <span>Wejście do raportu QA: /admin/qa-report.</span>
                 </div>
                 <div className="list-card tree-backed-card">
                   <strong>Aktualny sygnał readiness</strong>

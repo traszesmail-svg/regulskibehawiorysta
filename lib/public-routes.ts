@@ -9,6 +9,17 @@ export function getCanonicalPublicHref(href: string): string {
   if (value === '/konsultacja-behawioralna-online') return '/konsultacja'
   if (value === '/book' || value.startsWith('/book?')) return '/zapytaj'
   if (value === '/call' || value.startsWith('/call?')) return '/zapytaj'
+  if (value === '/cennik') return '/zapytaj'
+  if (value === '/cennik/pelny') return '/konsultacja'
+  if (value === '/kwadrans-na-juz' || value === '/kwadrans-na-juz/start') return '/zapytaj'
+  if (value === '/newsletter' || value === '/niezbednik' || value === '/przybornik' || value === '/zamow-pdf') {
+    return '/materialy'
+  }
+  if (value === '/metodyka') return '/o-mnie'
+  if (value === '/termin' || value.startsWith('/termin?')) {
+    const queryIndex = value.indexOf('?')
+    return queryIndex < 0 ? '/zapytaj' : `/zapytaj${value.slice(queryIndex)}`
+  }
   if (value === '/psy') return '/problemy#pies'
   if (value === '/koty') return '/problemy#kot'
   if (value === '/psy/reaktywnosc-na-smyczy') return '/problemy/pies-szczeka-na-psy'

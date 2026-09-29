@@ -95,8 +95,15 @@ export function ContactLeadForm({ searchParams }: ContactLeadFormProps) {
   const [status, setStatus] = useState<FormState>(initialStatus)
   const [feedback, setFeedback] = useState(initialFeedback)
   const startedRef = useRef(false)
+  const feedbackRef = useRef<HTMLDivElement>(null)
   const messageLength = form.message.length
   const isSubmitDisabled = status === 'loading'
+
+  useEffect(() => {
+    if (feedback && (status === 'error' || status === 'success')) {
+      feedbackRef.current?.focus({ preventScroll: true })
+    }
+  }, [feedback, status])
 
   useEffect(() => {
     if (!presetSpecies) {
@@ -179,7 +186,7 @@ export function ContactLeadForm({ searchParams }: ContactLeadFormProps) {
       return 'Podaj poprawny adres e-mail.'
     }
 
-    if (!form.species) {
+    if (isUrgentNow && !form.species) {
       return 'Wybierz psa albo kota.'
     }
 
@@ -210,9 +217,9 @@ export function ContactLeadForm({ searchParams }: ContactLeadFormProps) {
       return
     }
 
-    const selectedSpecies = form.species
+    const selectedSpecies = form.species || 'nie-wiem'
 
-    if (!selectedSpecies) {
+    if (isUrgentNow && selectedSpecies === 'nie-wiem') {
       setStatus('error')
       setFeedback('Wybierz psa albo kota.')
       return
@@ -256,7 +263,7 @@ export function ContactLeadForm({ searchParams }: ContactLeadFormProps) {
 
       trackAnalyticsEvent('contact_form_submitted', {
         source_page: '/kontakt',
-        species: selectedSpecies,
+        species: form.species,
         problem_key: 'kontakt',
         intent: isUrgentNow ? URGENT_NOW_INTENT : 'contact',
       })
@@ -282,10 +289,10 @@ export function ContactLeadForm({ searchParams }: ContactLeadFormProps) {
       : status === 'success'
         ? isUrgentNow
           ? 'Wyślij kolejną prośbę'
-          : 'Wyślij kolejną'
+          : 'Wyślij kolejną wiadomość'
         : isUrgentNow
-          ? 'Wyślij'
-          : 'Wyślij'
+          ? 'Wyślij prośbę o termin'
+          : 'Wyślij wiadomość'
 
   return (
     <form className="form-grid top-gap" action="/api/contact" method="post" onSubmit={handleSubmit} noValidate>
@@ -298,7 +305,8 @@ export function ContactLeadForm({ searchParams }: ContactLeadFormProps) {
         </>
       ) : null}
       <fieldset className="full-width form-field contact-species-field">
-        <legend>Gatunek</legend>
+        <legend>{isUrgentNow ? 'Wiadomość dotyczy' : 'Wiadomość dotyczy (opcjonalnie)'}</legend>
+        {!form.species && !isUrgentNow ? <input type="hidden" name="species" value="nie-wiem" /> : null}
         <div className="contact-species-toggle" aria-label="Wybierz gatunek">
           <label
             className={`contact-species-card${form.species === 'pies' ? ' is-selected' : ''}`}
@@ -311,7 +319,7 @@ export function ContactLeadForm({ searchParams }: ContactLeadFormProps) {
               checked={form.species === 'pies'}
               onChange={() => chooseSpecies('pies')}
               onFocus={markStarted}
-              required
+              required={isUrgentNow}
             />
             <Image src="/branding/homepage/choice-dog-clean.png" alt="" width={44} height={38} aria-hidden="true" />
             <span>Pies</span>
@@ -327,7 +335,7 @@ export function ContactLeadForm({ searchParams }: ContactLeadFormProps) {
               checked={form.species === 'kot'}
               onChange={() => chooseSpecies('kot')}
               onFocus={markStarted}
-              required
+              required={isUrgentNow}
             />
             <Image src="/branding/homepage/choice-cat-clean.png" alt="" width={40} height={46} aria-hidden="true" />
             <span>Kot</span>
@@ -345,6 +353,7 @@ export function ContactLeadForm({ searchParams }: ContactLeadFormProps) {
           onFocus={markStarted}
           placeholder="np. Anna"
           autoComplete="name"
+          required
         />
       </div>
 
@@ -363,6 +372,7 @@ export function ContactLeadForm({ searchParams }: ContactLeadFormProps) {
           autoCapitalize="off"
           enterKeyHint="next"
           spellCheck={false}
+          required
         />
       </div>
 
@@ -384,7 +394,7 @@ export function ContactLeadForm({ searchParams }: ContactLeadFormProps) {
 
       <div className="full-width form-field">
         <div className="contact-message-label-row">
-          <label htmlFor="contact-message">{isUrgentNow ? 'Krótki opis sytuacji i preferowane pory dnia' : 'Krótki opis sytuacji'}</label>
+          <label htmlFor="contact-message">{isUrgentNow ? 'Krótki opis sytuacji i preferowane pory dnia' : 'Twoja wiadomość'}</label>
           <span className="contact-message-count" aria-live="polite">
             {messageLength}/{MESSAGE_MAX_LENGTH}
           </span>
@@ -399,11 +409,15 @@ export function ContactLeadForm({ searchParams }: ContactLeadFormProps) {
           placeholder={
             isUrgentNow
               ? 'Opisz krótko u jakiego zwierzęcia i jaki jest problem, oraz kiedy masz czas na pilną rozmowę (np. rano / popołudniu).'
-              : 'Napisz po ludzku, co się dzieje: od kiedy trwa sytuacja, kiedy się pojawia, co już próbowaliście i co najbardziej Cię martwi.'
+              : 'O co chcesz zapytać? Jeśli chodzi o zachowanie, opisz krótko, co się dzieje i od kiedy.'
           }
           enterKeyHint="send"
           maxLength={MESSAGE_MAX_LENGTH}
+          minLength={20}
+          required
+          aria-describedby="contact-message-hint"
         />
+        <p id="contact-message-hint" className="contact-message-hint">Od 20 do {MESSAGE_MAX_LENGTH} znaków. Wystarczy kilka zdań.</p>
       </div>
 
       <fieldset className="full-width form-field consent-stack">
@@ -463,7 +477,7 @@ export function ContactLeadForm({ searchParams }: ContactLeadFormProps) {
       />
 
       {feedback ? (
-        <div className={`info-box full-width ${status === 'error' ? 'error-box' : ''}`} role="status">
+        <div ref={feedbackRef} tabIndex={-1} className={`info-box full-width ${status === 'error' ? 'error-box' : ''}`} role="status" aria-live="polite" aria-atomic="true">
           <p>{feedback}</p>
           {status === 'success' ? (
             <div className="contact-success-next">

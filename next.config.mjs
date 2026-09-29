@@ -96,6 +96,16 @@ const nextConfig = {
         statusCode: 301,
       },
       {
+        source: '/kwadrans-na-juz/start',
+        destination: '/zapytaj',
+        statusCode: 301,
+      },
+      {
+        source: '/call',
+        destination: '/zapytaj',
+        statusCode: 301,
+      },
+      {
         source: '/konsultacja-behawioralna-online',
         destination: '/konsultacja',
         statusCode: 301,
@@ -126,6 +136,16 @@ const nextConfig = {
         statusCode: 301,
       },
       {
+        source: '/psy/lek-separacyjny',
+        destination: '/problemy/pies-nie-zostaje-sam',
+        statusCode: 301,
+      },
+      {
+        source: '/psy/reaktywnosc-na-smyczy',
+        destination: '/problemy/pies-szczeka-na-psy',
+        statusCode: 301,
+      },
+      {
         source: '/psy/:path*',
         destination: '/problemy#pies',
         statusCode: 301,
@@ -133,6 +153,16 @@ const nextConfig = {
       {
         source: '/koty',
         destination: '/problemy#kot',
+        statusCode: 301,
+      },
+      {
+        source: '/koty/zalatwianie-poza-kuweta',
+        destination: '/problemy/kot-sika-poza-kuweta',
+        statusCode: 301,
+      },
+      {
+        source: '/koty/konflikt-miedzy-kotami',
+        destination: '/problemy/konflikt-miedzy-kotami',
         statusCode: 301,
       },
       {
@@ -242,12 +272,12 @@ const nextConfig = {
       },
       {
         source: '/blog/pies-cignnie-na-smyczy',
-        destination: '/blog',
+        destination: '/blog/pies-ciagnie-na-smyczy',
         statusCode: 301,
       },
       {
         source: '/blog/pies-cignnie-na-smyczy-od-czego-zaczac',
-        destination: '/blog',
+        destination: '/blog/pies-ciagnie-na-smyczy-od-czego-zaczac',
         statusCode: 301,
       },
       {

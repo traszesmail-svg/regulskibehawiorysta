@@ -8,7 +8,7 @@ const pages = [
   { name: 'konsultacja', path: '/konsultacja' },
   { name: 'terapia', path: '/terapia' },
   { name: 'materialy', path: '/materialy' },
-  { name: 'cennik', path: '/cennik' },
+  { name: 'zapytaj', path: '/zapytaj' },
   { name: 'kontakt', path: '/kontakt' },
   { name: 'faq', path: '/faq' },
   { name: 'opinie', path: '/opinie' },

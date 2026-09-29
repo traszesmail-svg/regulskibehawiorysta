@@ -41,6 +41,7 @@ function formatGuideCount(count: number, species: 'psów' | 'kotów') {
 function MaterialyGuideCard({ guide }: { guide: MaterialyGuide }) {
   const detailHref = `/materialy/${guide.slug}`
   const isFree = guide.priceCode === 'free'
+  const accessLabel = isFree ? 'Bezpłatny PDF' : 'Po rozmowie'
 
   return (
     <article className="materialy-showcase-card">
@@ -71,7 +72,7 @@ function MaterialyGuideCard({ guide }: { guide: MaterialyGuide }) {
         </span>
 
         <span className="materialy-showcase-card-footer">
-          <span>{isFree ? 'Bezpłatny PDF' : 'Wymaga wcześniejszej rozmowy'} · {guide.previewPageCount} strony podglądu</span>
+          <span>{accessLabel} · {guide.previewPageCount} strony podglądu</span>
           <span className="materialy-showcase-card-action" aria-hidden="true">
             {isFree ? <ArrowDownToLine size={18} strokeWidth={1.8} /> : <ArrowRight size={18} strokeWidth={1.8} />}
           </span>
@@ -113,7 +114,7 @@ function MaterialyShelf({
         </small>
       </header>
 
-      <p className="materialy-showcase-swipe">Przesuń, aby zobaczyć kolejne materiały →</p>
+      <p className="materialy-showcase-swipe">Przesuń katalog, aby zobaczyć kolejne materiały →</p>
       <div className="materialy-showcase-grid">
         {guides.map((guide) => (
           <MaterialyGuideCard key={guide.slug} guide={guide} />
@@ -149,25 +150,20 @@ export default function MaterialyLandingPage() {
             Materiały PDF
           </span>
           <h1 id="materialy-title">Materiały PDF dla opiekunów psów i kotów</h1>
-          <p className="materialy-visual-lead">Praktyczne wsparcie przed rozmową i na co dzień.</p>
+          <p className="materialy-visual-lead">Krótkie materiały do samodzielnego przeczytania i wdrożenia.</p>
           <p className="materialy-visual-copy">
-            Wybierz bezpłatny materiał na start albo zobacz płatne PDF-y za 19 zł, które dobieram po rozmowie.
-            Proste wskazówki, gotowe do wdrożenia wtedy, gdy potrzebujesz spokojnego pierwszego kroku.
+            Bezpłatne PDF-y pobierzesz od razu. Rozszerzone materiały za 19 zł są dostępne po rozmowie
+            „Zapytaj behawiorystę”, gdy stanowią sensowny kolejny krok.
           </p>
           <div className="materialy-visual-actions">
-            <Link href="#p19" prefetch={false} className="materialy-visual-primary">
-              <span>Zobacz plany po rozmowie</span>
+            <Link href="#bezplatne" prefetch={false} className="materialy-visual-primary">
+              <span>Zobacz bezpłatne materiały</span>
               <ArrowDownToLine size={18} strokeWidth={1.8} aria-hidden="true" />
             </Link>
             <Link href="#jak-to-dziala" prefetch={false} className="materialy-visual-secondary">
-              <span>Jak to działa?</span>
+              <span>Jak pobrać PDF?</span>
               <ArrowRight size={18} strokeWidth={1.8} aria-hidden="true" />
             </Link>
-          </div>
-          <div className="materialy-visual-stats" aria-label="Zawartość katalogu">
-            <span><strong>16</strong> aktywnych PDF-ów</span>
-            <span><strong>6</strong> bezpłatnych</span>
-            <span><strong>10</strong> po 19 zł</span>
           </div>
         </div>
 
@@ -224,20 +220,20 @@ export default function MaterialyLandingPage() {
       </section>
 
       <MaterialyShelf
-        id="p19"
-        eyebrow="Plany po rozmowie · 19 zł"
-        title="10 konkretnych PDF-ów do wdrożenia."
-        copy="Po rozmowie „Zapytaj behawiorystę” mogę wskazać jeden materiał dopasowany do Twojej sprawy. Kupisz go później w swoim Pokoju — bez otwartego sklepu i przypadkowego wyboru."
-        guides={p19Guides}
-        tone="sage"
+        id="bezplatne"
+        eyebrow="Zacznij tutaj · bezpłatne"
+        title="Wybierz pierwszy PDF dla swojej sytuacji."
+        copy="Pobierzesz go od razu. Krótki materiał pomaga uporządkować najważniejsze informacje przed kolejnym krokiem."
+        guides={freeGuides}
       />
 
       <MaterialyShelf
-        id="bezplatne"
-        eyebrow="Materiały · bezpłatne"
-        title="6 krótkich PDF-ów na spokojny początek."
-        copy="Szybko porządkują najważniejsze informacje i pomagają bezpiecznie zacząć działać."
-        guides={freeGuides}
+        id="p19"
+        eyebrow="Kolejny krok po rozmowie · 19 zł"
+        title="Plany, gdy potrzebujesz dalszych wskazówek."
+        copy="Płatne PDF-y są udostępniane po rozmowie „Zapytaj behawiorystę”, gdy materiał jest trafnym kolejnym krokiem. Znajdziesz go później w swoim Pokoju."
+        guides={p19Guides}
+        tone="sage"
       />
 
       <section id="jak-to-dziala" className="materialy-process" aria-labelledby="materialy-process-title">

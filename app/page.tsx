@@ -74,15 +74,24 @@ export default function HomePage() {
 
         <section className="homepage-sales-process" id="jak-to-działa" aria-labelledby="homepage-process-title">
           <div className="homepage-sales-section-heading">
-            <span>JAK ZACZĄĆ</span>
+            <span className="homepage-section-kicker">JAK ZACZĄĆ</span>
             <h2 id="homepage-process-title">Trzy proste kroki.</h2>
+            <p className="homepage-process-subtitle">Szybka i przejrzysta ścieżka do pierwszej rozmowy.</p>
+            <div className="homepage-process-divider" aria-hidden="true">
+              <span className="homepage-process-divider-line" />
+              <span className="homepage-process-divider-dot" />
+              <span className="homepage-process-divider-line" />
+            </div>
           </div>
           <div className="homepage-sales-process-grid steps-list">
-            {homepageSteps.map(({ title, copy, Icon }) => (
+            {homepageSteps.map(({ title, copy, Icon }, idx) => (
               <article key={title} className="homepage-process-step step-item">
-                <span className="homepage-step-icon" aria-hidden="true">
-                  <Icon />
-                </span>
+                <div className="homepage-step-top">
+                  <span className="homepage-step-icon" aria-hidden="true">
+                    <Icon />
+                  </span>
+                  <span className="homepage-step-badge">0{idx + 1}</span>
+                </div>
                 <div className="homepage-step-body">
                   <h3>{title}</h3>
                   <p>{copy}</p>
@@ -93,37 +102,39 @@ export default function HomePage() {
         </section>
 
         <section className="homepage-approach-section" aria-labelledby="homepage-approach-title">
-          <div className="homepage-approach-card">
-            <div className="homepage-approach-header">
-              <span className="homepage-approach-kicker">ZASADY WSPÓŁPRACY</span>
-              <h2 id="homepage-approach-title">Poznaj moje podejście</h2>
-              <p className="homepage-approach-lead">
-                Najpierw chcę zrozumieć, co naprawdę dzieje się w danej sytuacji. Dopiero potem ustalamy pierwszy sensowny krok.
-              </p>
-            </div>
-
-            <div className="homepage-approach-principles" aria-label="Zasady podejścia">
-              <div className="homepage-approach-item">
-                <span className="homepage-approach-num" aria-hidden="true">01</span>
-                <div className="homepage-approach-content">
-                  <h3>Najpierw sytuacja</h3>
-                  <p>Patrzymy na zachowanie w jego konkretnym, codziennym kontekście.</p>
-                </div>
+          <div className="homepage-approach-container">
+            <div className="homepage-approach-grid">
+              <div className="homepage-approach-header">
+                <span className="homepage-approach-kicker">ZASADY WSPÓŁPRACY</span>
+                <h2 id="homepage-approach-title">Poznaj moje podejście</h2>
+                <p className="homepage-approach-lead">
+                  Najpierw chcę zrozumieć, co naprawdę dzieje się w danej sytuacji. Dopiero potem ustalamy pierwszy sensowny krok.
+                </p>
               </div>
 
-              <div className="homepage-approach-item">
-                <span className="homepage-approach-num" aria-hidden="true">02</span>
-                <div className="homepage-approach-content">
-                  <h3>Potem pierwszy krok</h3>
-                  <p>Dostajesz jasny kierunek działania od razu po rozmowie.</p>
+              <div className="homepage-approach-principles" aria-label="Zasady podejścia">
+                <div className="homepage-approach-item">
+                  <span className="homepage-approach-num" aria-hidden="true">01</span>
+                  <div className="homepage-approach-content">
+                    <h3>Najpierw sytuacja</h3>
+                    <p>Patrzymy na zachowanie w jego konkretnym, codziennym kontekście.</p>
+                  </div>
                 </div>
-              </div>
 
-              <div className="homepage-approach-item">
-                <span className="homepage-approach-num" aria-hidden="true">03</span>
-                <div className="homepage-approach-content">
-                  <h3>Bez komplikowania</h3>
-                  <p>Jeżeli potrzebna jest dalsza pomoc, ustalamy to spokojnie po rozmowie.</p>
+                <div className="homepage-approach-item">
+                  <span className="homepage-approach-num" aria-hidden="true">02</span>
+                  <div className="homepage-approach-content">
+                    <h3>Potem pierwszy krok</h3>
+                    <p>Dostajesz jasny kierunek działania od razu po rozmowie.</p>
+                  </div>
+                </div>
+
+                <div className="homepage-approach-item">
+                  <span className="homepage-approach-num" aria-hidden="true">03</span>
+                  <div className="homepage-approach-content">
+                    <h3>Bez komplikowania</h3>
+                    <p>Jeżeli potrzebna jest dalsza pomoc, ustalamy to spokojnie po rozmowie.</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -133,22 +144,35 @@ export default function HomePage() {
         <FinalReviewsQuoteCarousel reviews={reviews} initialIndex={0} layout="editorial" />
 
         <section className="homepage-sales-faq" aria-labelledby="homepage-faq-title">
-          <div className="homepage-sales-section-heading">
-            <span>NAJCZĘSTSZE PYTANIA</span>
-            <h2 id="homepage-faq-title">Zanim zaczniesz</h2>
-            <p>Nie wiesz, jak opisać sytuację? <Link href="/mapa-sprawy" prefetch={false}>Otwórz Mapę zachowania.</Link></p>
+          <div className="homepage-faq-grid">
+            <div className="homepage-faq-sidebar">
+              <span className="homepage-faq-kicker">NAJCZĘSTSZE PYTANIA</span>
+              <h2 id="homepage-faq-title">Zanim zaczniesz</h2>
+              <p className="homepage-faq-lead">
+                Nie wiesz, jak opisać sytuację?{' '}
+                <Link href="/mapa-sprawy" prefetch={false} className="homepage-faq-link">
+                  Otwórz Mapę zachowania.
+                </Link>
+              </p>
+            </div>
+
+            <div className="homepage-faq-accordion-wrap">
+              <FaqAccordion items={routerFaqItems.map((item) => ({ q: item.question, a: item.answer }))} />
+            </div>
           </div>
-          <FaqAccordion items={routerFaqItems.map((item) => ({ q: item.question, a: item.answer }))} />
         </section>
 
         <section className="homepage-final-cta" aria-labelledby="homepage-final-cta-title">
-          <div>
+          <div className="homepage-final-cta-card">
+            <span className="homepage-final-cta-kicker">MASZ PYTANIA LUB WĄTPLIWOŚCI?</span>
             <h2 id="homepage-final-cta-title">Chcesz wiedzieć, od czego zacząć?</h2>
             <p>Opowiedz, co się dzieje. W rozmowie do 15 minut ustalimy pierwszy kierunek działania.</p>
-            <Link href="/zapytaj" prefetch={false} className="notatnik-btn homepage-final-cta-button">
-              <span>Zapytaj behawiorystę — {formatPublicOfferPrice(PUBLIC_ZAPYTAJ_OFFER.pricePln)}</span>
-              <ArrowRight size={17} strokeWidth={1.9} aria-hidden="true" />
-            </Link>
+            <div className="homepage-final-cta-action-row">
+              <Link href="/zapytaj" prefetch={false} className="notatnik-btn homepage-final-cta-button">
+                <span>Zapytaj behawiorystę — {formatPublicOfferPrice(PUBLIC_ZAPYTAJ_OFFER.pricePln)}</span>
+                <ArrowRight size={17} strokeWidth={1.9} aria-hidden="true" />
+              </Link>
+            </div>
           </div>
         </section>
 

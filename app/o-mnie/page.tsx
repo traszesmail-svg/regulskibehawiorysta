@@ -11,9 +11,7 @@ import {
   Leaf,
   ShieldCheck,
   Stethoscope,
-  User,
   Users,
-  Utensils,
 } from 'lucide-react'
 import { ReferencePageShell } from '@/components/ReferencePageShell'
 import { Schema } from '@/components/schema'
@@ -24,9 +22,9 @@ import {
   CAPBT_PROFILE_URL,
   COAPE_ORG_URL,
   COAPE_POLSKA_LOGO,
-  INSTAGRAM_PROFILE_URL,
   MEDIA_MENTIONS,
   SPECIALIST_NAME,
+  SPECIALIST_PUBLIC_STATUS,
 } from '@/lib/site'
 import { FAQ_SHORTLISTS } from '@/lib/trust-layer'
 
@@ -46,12 +44,12 @@ const methodologyPoints = [
 
 const credentialCards = [
   {
-    title: 'Behawiorysta i trener zwierząt towarzyszących COAPE',
-    copy: 'Analiza zachowania i praktyczny trening prowadzone w jednym, spójnym planie.',
+    title: SPECIALIST_PUBLIC_STATUS,
+    copy: 'Metodologia pracy z zachowaniem zwierząt towarzyszących.',
     icon: (
       <Image
         src={COAPE_POLSKA_LOGO.src}
-        alt={COAPE_POLSKA_LOGO.alt}
+        alt=""
         width={72}
         height={24}
         className="coape-inline-badge"
@@ -59,18 +57,13 @@ const credentialCards = [
     ),
   },
   {
-    title: 'Modyfikacja diety',
-    copy: 'Niezbędne wsparcie terapii behawioralnej.',
-    icon: <Utensils size={28} strokeWidth={1.8} aria-hidden="true" />,
-  },
-  {
     title: 'Technik weterynarii',
-    copy: 'Kontekst zdrowia, bezpieczeństwa i sytuacji wymagających lekarza.',
+    copy: 'Pomaga uwzględnić zdrowie i rozpoznać moment, gdy potrzebny jest lekarz.',
     icon: <Stethoscope size={28} strokeWidth={1.8} aria-hidden="true" />,
   },
   {
     title: 'Bez kar i przymusu',
-    copy: 'Praca oparta na zaufaniu, dobrostanie i jasnej komunikacji.',
+    copy: 'Zmianę budujemy przez bezpieczeństwo, zrozumienie i praktyczne kroki.',
     icon: <Leaf size={28} strokeWidth={1.8} aria-hidden="true" />,
   },
 ]
@@ -78,24 +71,12 @@ const credentialCards = [
 const featuredArticles = MEDIA_MENTIONS.filter((mention) =>
   mention.id === 'magwet-fear' || mention.id === 'magwet-litter-box',
 )
-const featuredArticle = featuredArticles[0] ?? MEDIA_MENTIONS[0]
 
-const publicLinks = [
-  { label: 'COAPE Polska (Metodologia)', href: COAPE_ORG_URL, icon: <ShieldCheck size={18} strokeWidth={1.8} aria-hidden="true" /> },
+const publicSources = [
+  { label: 'COAPE Polska — metodologia', href: COAPE_ORG_URL },
   {
-    label: 'CAPBT (Katalog behawiorystów)',
+    label: 'Publiczny profil CAPBT',
     href: CAPBT_PROFILE_URL,
-    icon: <User size={18} strokeWidth={1.8} aria-hidden="true" />,
-  },
-  {
-    label: 'Magazyn Weterynaryjny (Artykuły)',
-    href: featuredArticle.href,
-    icon: <BookOpen size={18} strokeWidth={1.8} aria-hidden="true" />,
-  },
-  {
-    label: 'Instagram (@regulskibehawiorysta)',
-    href: INSTAGRAM_PROFILE_URL,
-    icon: <ExternalLink size={18} strokeWidth={1.8} aria-hidden="true" />,
   },
 ]
 
@@ -197,13 +178,13 @@ export default function AboutPage() {
 
         <section className="reference-section-card reference-about-credentials-card">
           <div className="reference-about-card-icon" aria-hidden="true">
-            <User size={28} strokeWidth={1.7} />
+            <Award size={28} strokeWidth={1.7} />
           </div>
           <div className="reference-about-card-body">
-            <h2>Kwalifikacje i profil</h2>
+            <h2>Kwalifikacje w praktyce</h2>
             <p>
-              Na stronie pokazuję tylko publicznie wspierane informacje: status, organizacje i profil, które można
-              sprawdzić samodzielnie.
+              W rozmowie patrzę nie tylko na samo zachowanie. Uwzględniam też zdrowie, warunki życia i to,
+              czego zwierzę już się nauczyło.
             </p>
             <div className="reference-about-credential-grid">
               {credentialCards.map((card) => (
@@ -214,22 +195,16 @@ export default function AboutPage() {
                 </article>
               ))}
             </div>
-          </div>
-        </section>
-
-        <section className="reference-section-card reference-about-public-card">
-          <div className="reference-about-card-icon" aria-hidden="true">
-            <ShieldCheck size={28} strokeWidth={1.7} />
-          </div>
-          <div className="reference-about-card-body">
-            <h2>Co możesz sprawdzić publicznie</h2>
-            <div className="reference-about-proof-links">
-              {publicLinks.map((link) => (
-                <a key={link.label} href={link.href} target="_blank" rel="noopener noreferrer">
-                  {link.icon}
-                  <span>{link.label}</span>
-                </a>
-              ))}
+            <div className="reference-about-sources" aria-label="Źródła i profil publiczny">
+              <span>Źródła:</span>
+              <div>
+                {publicSources.map((source) => (
+                  <a key={source.label} href={source.href} target="_blank" rel="noopener noreferrer">
+                    {source.label}
+                    <ExternalLink size={14} strokeWidth={1.8} aria-hidden="true" />
+                  </a>
+                ))}
+              </div>
             </div>
           </div>
         </section>

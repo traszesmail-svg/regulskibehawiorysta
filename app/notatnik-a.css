@@ -467,7 +467,7 @@ html[data-theme='dark'] .notatnik-page {
 
 .notatnik-page.reference-about-redesign-page .reference-about-credential-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 20px;
   margin-top: 24px;
 }
@@ -496,6 +496,40 @@ html[data-theme='dark'] .notatnik-page {
   color: #586257;
   font-size: 13px;
   line-height: 1.45;
+}
+
+.notatnik-page.reference-about-redesign-page .reference-about-sources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  align-items: center;
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(232, 223, 207, 0.9);
+}
+
+.notatnik-page.reference-about-redesign-page .reference-about-sources > span {
+  color: var(--about-muted);
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.notatnik-page.reference-about-redesign-page .reference-about-sources > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+
+.notatnik-page.reference-about-redesign-page .reference-about-sources a {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  color: var(--about-green);
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
 }
 
 .notatnik-page.reference-about-redesign-page .reference-about-proof-links {
@@ -970,6 +1004,11 @@ html[data-theme='dark'] .notatnik-page {
   .notatnik-page.reference-about-redesign-page .reference-about-proof-links,
   .notatnik-page.reference-about-redesign-page .home-footer-link-grid {
     grid-template-columns: 1fr;
+  }
+
+  .notatnik-page.reference-about-redesign-page .reference-about-sources {
+    display: grid;
+    gap: 8px;
   }
 
   .notatnik-page.reference-about-redesign-page .reference-about-proof-links a {
@@ -38014,6 +38053,15 @@ main.materialy-showcase-page > .materialy-showcase-shell {
   transform: translateY(-4px);
 }
 
+.materialy-showcase-card-link:focus-visible,
+.materialy-visual-primary:focus-visible,
+.materialy-visual-secondary:focus-visible,
+.materialy-visual-featured > a:focus-visible,
+.materialy-consultation-band > a:focus-visible {
+  outline: 3px solid rgba(64, 91, 40, 0.42);
+  outline-offset: 3px;
+}
+
 .materialy-showcase-cover {
   position: relative;
   display: block;
@@ -38488,12 +38536,14 @@ main.materialy-showcase-page a.materialy-showcase-card-link:hover * {
   .materialy-showcase-swipe {
     display: block;
     margin: 0 22px 12px;
-    color: rgba(40, 40, 31, 0.52);
+    color: rgba(51, 77, 32, 0.76);
     font-size: 11px;
+    font-weight: 750;
+    letter-spacing: 0.01em;
   }
 
   .materialy-showcase-grid {
-    grid-auto-columns: min(78vw, 300px);
+    grid-auto-columns: min(76vw, 300px);
     grid-template-columns: none;
     grid-auto-flow: column;
     gap: 12px;
@@ -38555,7 +38605,7 @@ main.materialy-showcase-page a.materialy-showcase-card-link:hover * {
   }
 
   .materialy-showcase-grid {
-    grid-auto-columns: min(82vw, 300px);
+    grid-auto-columns: min(76vw, 300px);
   }
 
   .materialy-process-grid article {

@@ -11,16 +11,16 @@ BASE_URL="${BASE_URL%/}"
 
 paths=(
   /
-  /psy
-  /koty
+  /problemy
+  /zapytaj
+  /konsultacja
   /materialy
   /o-mnie
   /opinie
   /kontakt
-  /cennik
   /blog
-  /behawiorysta-online-polska
-  /konsultacja-behawioralna-online
+  /mapa-sprawy
+  /problemy/pies-szczeka-na-psy
   /bezplatne-materialy/pies-ile-ruchu-potrzebuje
 )
 

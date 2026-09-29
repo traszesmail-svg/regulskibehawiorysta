@@ -170,7 +170,7 @@ function renderDocument(guide: ReviewGuide, css: string, bodyHtml: string) {
           <div class="end-step"><strong>3. Sprawdź efekt</strong>Porównaj kilka podobnych sytuacji, nie tylko jedną próbę.</div>
         </div>
       </div>
-      <div class="end-links"><strong>Potrzebujesz pomocy w swojej sytuacji?</strong><br />regulskibehawiorysta.pl/cennik · kontakt@regulskibehawiorysta.pl</div>
+      <div class="end-links"><strong>Potrzebujesz pomocy w swojej sytuacji?</strong><br />regulskibehawiorysta.pl/zapytaj · kontakt@regulskibehawiorysta.pl</div>
     </div>
     <p class="technical-note">© Krzysztof Regulski · Materiał do użytku własnego · regulskibehawiorysta.pl</p>
   </section>

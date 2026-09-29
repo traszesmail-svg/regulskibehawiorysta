@@ -32,11 +32,11 @@ export function HomepageAvailabilityStatus() {
   const [notifyStatus, setNotifyStatus] = useState<NotificationStatus>('idle')
   const [notifyFeedback, setNotifyFeedback] = useState('')
 
-  // Preview override for deterministic testing and required screenshots
+  // Preview is limited to local development so a public URL cannot misrepresent availability.
   const [previewMode, setPreviewMode] = useState<'live' | 'empty' | 'error' | null>(null)
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (process.env.NODE_ENV !== 'production' && typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search)
       const preview = params.get('preview_availability')
       if (preview === 'live' || preview === 'empty' || preview === 'error') {
@@ -113,14 +113,15 @@ export function HomepageAvailabilityStatus() {
     }
   }
 
-  const isLiveNow = previewMode === 'live' || (
+  const hasLiveBooking = previewMode === 'live' || (
     previewMode === null &&
     Boolean(availability?.live?.liveSlotId) &&
     (availability?.live?.status === 'available_now' || availability?.live?.status === 'in_call')
   )
+  const isInCall = previewMode === null && availability?.live?.status === 'in_call' && Boolean(availability?.live?.liveSlotId)
 
   const slots = previewMode === 'empty' || previewMode === 'error' ? [] : (availability?.slots ?? [])
-  const hasNextSlot = !isLiveNow && slots.length > 0
+  const hasNextSlot = !hasLiveBooking && slots.length > 0
   const isErrorState = previewMode === 'error' || (hasError && !availability && previewMode === null)
 
   return (
@@ -134,10 +135,10 @@ export function HomepageAvailabilityStatus() {
         <div className="homepage-avail-badge is-loading">
           <span>Sprawdzam dostępne terminy…</span>
         </div>
-      ) : isLiveNow ? (
-        <div className="homepage-avail-badge is-live">
-          <span className="homepage-avail-dot is-live-dot" aria-hidden="true" />
-          <span><strong>Dostępny teraz</strong> — możesz rozpocząć rozmowę</span>
+      ) : hasLiveBooking ? (
+        <div className={`homepage-avail-badge ${isInCall ? 'is-scheduled' : 'is-live'}`}>
+          <span className={`homepage-avail-dot ${isInCall ? 'is-scheduled-dot' : 'is-live-dot'}`} aria-hidden="true" />
+          <span>{isInCall ? <><strong>Trwa rozmowa</strong> — możesz zarezerwować następne okno</> : <><strong>Dostępny teraz</strong> — możesz rozpocząć rozmowę</>}</span>
         </div>
       ) : hasNextSlot ? (
         <div className="homepage-avail-badge is-scheduled">

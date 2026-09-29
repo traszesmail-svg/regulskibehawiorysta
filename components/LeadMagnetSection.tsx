@@ -1,5 +1,5 @@
 // handoff-7/components/LeadMagnetSection.tsx
-// Inline sekcja z lead magnetem — wstaw na stronach (home, /psy, /koty, blog)
+// Inline sekcja lead magnetu na stronie głównej, stronach problemów i blogu.
 // Większa, bardziej widoczna niż banner
 
 'use client';

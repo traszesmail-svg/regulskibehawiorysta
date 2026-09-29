@@ -63,7 +63,7 @@ const rootDir = process.cwd()
 const reportRoot = path.join(rootDir, 'qa-reports', 'stage9-performance-audit')
 const screenshotsDir = path.join(reportRoot, 'screenshots')
 
-const DEFAULT_ROUTES = ['/', '/cennik', '/opinie', '/book', '/termin?problem=szczeniak']
+const DEFAULT_ROUTES = ['/', '/zapytaj', '/opinie', '/book?qa=1', '/problemy']
 const VIEWPORTS: ViewportCase[] = [
   { name: 'desktop', width: 1365, height: 900 },
   { name: 'mobile', width: 390, height: 844, isMobile: true, deviceScaleFactor: 2 },

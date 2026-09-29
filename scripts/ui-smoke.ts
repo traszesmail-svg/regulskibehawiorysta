@@ -22,7 +22,8 @@ const uiSmokeOwnerName = 'UI Smoke'
 const uiSmokeEmail = 'ui-smoke@example.com'
 const homeHeading = /Behawiorysta psów i kotów online|Behawiorysta psow i kotow online/i
 const materialyHeading = /Materia.*PDF.*opiekun/i
-const pricingHeading = /Cennik konsultacji behawioralnych\.|Wybierz rozmowę dopasowaną do sytuacji|Wybierz rozmowe dopasowana do sytuacji/i
+const zapytajHeading = /Martwi Cię zachowanie psa lub kota\?|Martwi Cie zachowanie psa lub kota\?/i
+const consultationHeading = /Konsultacja behawioralna online/i
 type RouteButtonLabels = { buttonLabels?: readonly (string | RegExp)[] }
 type CallRoomMode = 'phone' | 'video-live' | 'video-locked'
 
@@ -202,7 +203,11 @@ async function verifyRedirectRoute(
   },
 ) {
   await page.goto(`${appUrl}${route}`, { waitUntil: 'domcontentloaded' })
-  const hasExpectedDestination = (currentUrl: string) => new URL(currentUrl).pathname === destinationPath
+  const expectedUrl = new URL(destinationPath, appUrl)
+  const hasExpectedDestination = (currentUrl: string) => {
+    const actualUrl = new URL(currentUrl)
+    return actualUrl.pathname === expectedUrl.pathname && (!expectedUrl.hash || actualUrl.hash === expectedUrl.hash)
+  }
   if (!hasExpectedDestination(page.url())) {
     await page.waitForURL(
       (currentUrl) => hasExpectedDestination(currentUrl.toString()),
@@ -608,10 +613,11 @@ async function runUiSmokeOnce() {
         ['mobile', publicPage],
         ['desktop', desktopPage],
       ] as const) {
-        await verifyRedirectRoute(page, '/koty', '/problemy', /Mapa problemów/i)
-        await verifyRedirectRoute(page, '/psy', '/problemy', /Mapa problemów/i)
-        await verifyRedirectRoute(page, '/oferta', '/cennik', pricingHeading)
-        await verifyRedirectRoute(page, '/oferta/poradniki-pdf', '/cennik', pricingHeading)
+        await verifyRedirectRoute(page, '/koty', '/problemy#kot', /Mapa problemów/i)
+        await verifyRedirectRoute(page, '/psy', '/problemy#pies', /Mapa problemów/i)
+        await verifyRedirectRoute(page, '/cennik', '/zapytaj', zapytajHeading)
+        await verifyRedirectRoute(page, '/oferta', '/zapytaj', zapytajHeading)
+        await verifyRedirectRoute(page, '/oferta/poradniki-pdf', '/materialy', materialyHeading)
       }
     }
 
@@ -638,8 +644,8 @@ async function runUiSmokeOnce() {
         heading: materialyHeading,
       },
       {
-        path: '/cennik',
-        heading: pricingHeading,
+        path: '/zapytaj',
+        heading: zapytajHeading,
       },
       {
         path: '/blog',
@@ -676,8 +682,8 @@ async function runUiSmokeOnce() {
       },
       {
         path: '/oferta/konsultacja-behawioralna-online',
-        destinationPath: '/cennik',
-        heading: pricingHeading,
+        destinationPath: '/konsultacja',
+        heading: consultationHeading,
       },
       {
         path: '/behawiorysta-psow',
@@ -691,8 +697,8 @@ async function runUiSmokeOnce() {
       },
       {
         path: '/oferta/poradniki-pdf',
-        destinationPath: '/cennik',
-        heading: pricingHeading,
+        destinationPath: '/materialy',
+        heading: materialyHeading,
       },
     ] as const) {
       const buttonLabels = (route as RouteButtonLabels).buttonLabels
@@ -701,10 +707,10 @@ async function runUiSmokeOnce() {
       })
     }
 
-    await publicPage.goto(`${appUrl}/book`, { waitUntil: 'domcontentloaded' })
+    await publicPage.goto(`${appUrl}/book?qa=1`, { waitUntil: 'domcontentloaded' })
     await publicPage.getByRole('heading', { name: /Wybierz termin konsultacji/i }).waitFor()
 
-    await publicPage.goto(`${appUrl}/slot?problem=szczeniak`, { waitUntil: 'domcontentloaded' })
+    await publicPage.goto(`${appUrl}/book?problem=szczeniak&qa=1`, { waitUntil: 'domcontentloaded' })
     await publicPage.getByRole('heading', { name: /Wybierz termin konsultacji/i }).waitFor()
     await publicPage.locator('[data-selected-slot-link="true"]').first().waitFor()
     await publicPage.locator('[data-nearest-slot-link="true"]').first().waitFor()
@@ -720,7 +726,7 @@ async function runUiSmokeOnce() {
       const bodyText = await publicPage.locator('body').innerText().catch(() => '')
       throw new Error(`Form page did not show booking form. URL: ${publicPage.url()}. Body: ${cleanText(bodyText).slice(0, 500)}`)
     }
-    assert.equal(new URL(publicPage.url()).pathname, '/book')
+    assert.equal(new URL(publicPage.url()).pathname, '/form')
     assert.equal(new URL(publicPage.url()).searchParams.get('problem'), 'szczeniak')
     assert.equal(await bookingForm.locator('input[name="slotId"]').inputValue(), slot.id)
 

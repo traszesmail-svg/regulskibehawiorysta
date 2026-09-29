@@ -68,10 +68,12 @@ export const DEFAULT_LEAD_MAGNET = LEAD_MAGNETS[2]; // "30 zachowań" — najsze
 
 // Jak wybrać magnet do pokazania na danej stronie
 export function pickLeadMagnet(pathname: string): LeadMagnet {
-  if (pathname.startsWith('/psy')) {
+  const currentPath = pathname.split(/[?#]/)[0] ?? pathname
+
+  if (currentPath.startsWith('/problemy/pies-')) {
     return LEAD_MAGNETS.find(m => m.audience === 'dog') ?? DEFAULT_LEAD_MAGNET;
   }
-  if (pathname.startsWith('/koty')) {
+  if (currentPath.startsWith('/problemy/kot-') || currentPath === '/problemy/konflikt-miedzy-kotami') {
     return LEAD_MAGNETS.find(m => m.audience === 'cat') ?? DEFAULT_LEAD_MAGNET;
   }
   return DEFAULT_LEAD_MAGNET;

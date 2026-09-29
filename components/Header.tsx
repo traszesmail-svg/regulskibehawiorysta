@@ -19,20 +19,6 @@ const homeNavItems: NavItem[] = [
   { href: '/#faq', label: 'FAQ', sectionId: 'faq' },
 ]
 
-const dogNavItems: NavItem[] = [
-  { href: '/problemy#pies', label: 'Problemy psa' },
-  { href: '/konsultacja', label: 'Konsultacja' },
-  { href: '/opinie', label: 'Opinie' },
-  { href: '/faq', label: 'FAQ' },
-]
-
-const catNavItems: NavItem[] = [
-  { href: '/problemy#kot', label: 'Problemy kota' },
-  { href: '/konsultacja', label: 'Konsultacja' },
-  { href: '/opinie', label: 'Opinie' },
-  { href: '/faq', label: 'FAQ' },
-]
-
 const opinionNavItems: NavItem[] = [
   { href: '/opinie#opinie', label: 'Opinie', sectionId: 'opinie' },
   { href: '/opinie#przypadki', label: 'Przypadki', sectionId: 'przypadki' },
@@ -72,26 +58,21 @@ const blogNavItems: NavItem[] = [
 
 function getNavItems(pathname: string): NavItem[] {
   if (pathname === '/blog' || pathname.startsWith('/blog/')) return blogNavItems
-  if (pathname === '/psy') return dogNavItems
-  if (pathname === '/koty') return catNavItems
   if (pathname === '/opinie') return opinionNavItems
   if (pathname === '/o-mnie') return aboutNavItems
   if (pathname === '/kontakt') return contactNavItems
-  if (pathname === '/materialy' || pathname === '/przybornik') return materialNavItems
+  if (pathname === '/materialy') return materialNavItems
   if (pathname === '/faq') return faqNavItems
   return homeNavItems
 }
 
 function buildSectionHref(pathname: string, sectionId: string): string {
   if (
-    pathname === '/psy' ||
-    pathname === '/koty' ||
     pathname === '/opinie' ||
     pathname === '/o-mnie' ||
     pathname === '/faq' ||
     pathname === '/kontakt' ||
-    pathname === '/materialy' ||
-    pathname === '/przybornik'
+    pathname === '/materialy'
   ) {
     return `${pathname}#${sectionId}`
   }

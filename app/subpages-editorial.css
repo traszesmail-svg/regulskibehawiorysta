@@ -330,9 +330,9 @@ html body main.notatnik-page .zapytaj-kicker {
 
 /* 2. Zapytaj: Step-by-step structure and border reduction */
 .zapytaj-form-step {
-  margin-bottom: 32px;
-  padding-bottom: 28px;
-  border-bottom: 1px solid rgba(44, 76, 59, 0.12);
+  margin-bottom: 26px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid rgba(44, 76, 59, 0.1);
 }
 
 .zapytaj-form-step:last-of-type {
@@ -356,8 +356,8 @@ html body main.notatnik-page .zapytaj-kicker {
   height: 32px;
   min-width: 32px;
   border-radius: 50%;
-  background: var(--accent, #2d3b24);
-  color: #ffffff;
+  background: #e1eadb;
+  color: #31452c;
   font-weight: 700;
   font-size: 14px;
   margin-top: 2px;
@@ -380,16 +380,17 @@ html body main.notatnik-page .zapytaj-kicker {
 }
 
 .zapytaj-form .zapytaj-availability {
-  border: 1px solid rgba(44, 76, 59, 0.12) !important;
-  background: #faf8f2 !important;
-  border-radius: 14px !important;
-  margin-bottom: 16px !important;
+  gap: 6px;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  margin-bottom: 10px !important;
 }
 
 .zapytaj-form .zapytaj-slot-field {
   border: none !important;
   padding: 0 !important;
-  margin: 16px 0 0 0 !important;
+  margin: 10px 0 0 0 !important;
 }
 
 .zapytaj-form .zapytaj-slot-field legend.sr-only {
@@ -421,6 +422,122 @@ html body main.notatnik-page .zapytaj-kicker {
   border-color: var(--accent, #2d3b24) !important;
   outline: 2px solid rgba(45, 59, 36, 0.15) !important;
 }
+.zapytaj-page .zapytaj-mode-grid:has(.zapytaj-mode-option:only-child) {
+  display: none;
+}
+
+.zapytaj-page .zapytaj-slot-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.zapytaj-page .zapytaj-day-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 14px 0 16px;
+}
+
+.zapytaj-page .zapytaj-day-option {
+  display: flex;
+  min-height: 64px;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 3px;
+  padding: 12px 15px;
+  border: 1px solid rgba(44, 76, 59, 0.16);
+  border-radius: 16px;
+  background: #ffffff;
+  color: #31412d;
+  cursor: pointer;
+  text-align: left;
+  transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+
+.zapytaj-page .zapytaj-day-option span {
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1.2;
+}
+
+.zapytaj-page .zapytaj-day-option small {
+  color: #6b7762;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.zapytaj-page .zapytaj-day-option:hover {
+  border-color: rgba(44, 76, 59, 0.36);
+  background: #f5f8f0;
+  transform: translateY(-1px);
+}
+
+.zapytaj-page .zapytaj-day-option.is-selected {
+  border-color: #58744e;
+  background: #e4eedf;
+  color: #263c20;
+}
+
+.zapytaj-page .zapytaj-day-option:focus-visible {
+  outline: 3px solid rgba(88, 116, 78, 0.2);
+  outline-offset: 2px;
+}
+
+.zapytaj-page .zapytaj-time-heading {
+  margin: 0 0 9px;
+  color: #465340;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.zapytaj-page .zapytaj-slot-option {
+  min-height: 42px;
+  justify-content: center;
+  padding: 8px 10px;
+  border-color: rgba(44, 76, 59, 0.14);
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: none;
+  color: #374334;
+  font-size: 12.5px;
+  font-weight: 650;
+  transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+
+.zapytaj-page .zapytaj-slot-option:hover {
+  border-color: rgba(44, 76, 59, 0.34);
+  background: #f5f8f0;
+  transform: translateY(-1px);
+}
+
+.zapytaj-page .zapytaj-slot-option.is-selected {
+  border-color: #58744e;
+  background: #e4eedf;
+  color: #263c20;
+}
+
+.zapytaj-page .zapytaj-slot-option:focus-visible {
+  outline: 3px solid rgba(88, 116, 78, 0.2);
+  outline-offset: 2px;
+}
+
+.zapytaj-page .zapytaj-form-card {
+  border-color: rgba(44, 76, 59, 0.13);
+  box-shadow: 0 14px 34px rgba(47, 51, 33, 0.06);
+}
+
+@media (max-width: 520px) {
+  .zapytaj-page .zapytaj-slot-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .zapytaj-page .zapytaj-field input:not([type='radio']),
+  .zapytaj-page .zapytaj-field textarea {
+    font-size: 16px;
+  }
+}
 
 /* 3. O mnie: Visual rhythm, cleaner bullet lists, no card-in-card feeling */
 .reference-about-bullet-list {
@@ -430,6 +547,100 @@ html body main.notatnik-page .zapytaj-kicker {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+/* Zapytaj: credentials and reassurance are separate, readable pieces of proof. */
+.zapytaj-page .homepage-hero-proof {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center !important;
+  gap: 12px 20px !important;
+  width: 100% !important;
+  max-width: 540px !important;
+  margin-top: 20px !important;
+  padding-top: 16px !important;
+  border-top: 1px solid rgba(95, 110, 79, 0.16) !important;
+}
+
+.zapytaj-page .homepage-hero-proof-specialist {
+  display: grid !important;
+  grid-template-columns: 72px minmax(0, 1fr);
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+.zapytaj-page .homepage-hero-proof-logo-wrap {
+  display: flex !important;
+  align-items: center !important;
+  width: 72px !important;
+}
+
+.zapytaj-page .homepage-hero-proof-logo {
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+  object-fit: contain !important;
+}
+
+.zapytaj-page .homepage-hero-proof-copy {
+  display: grid !important;
+  gap: 4px !important;
+}
+
+.zapytaj-page .homepage-hero-proof-name {
+  color: #181e14 !important;
+  font-size: 14.5px !important;
+  font-weight: 650 !important;
+  line-height: 1.2 !important;
+}
+
+.zapytaj-page .homepage-hero-proof-creds {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 4px 6px !important;
+  color: #53604d !important;
+  font-size: 12px !important;
+  line-height: 1.35 !important;
+}
+
+.zapytaj-page .homepage-hero-proof-sep {
+  color: rgba(95, 110, 79, 0.45) !important;
+}
+
+.zapytaj-page .homepage-hero-proof-note {
+  display: grid !important;
+  gap: 4px !important;
+  margin: 0 !important;
+  padding: 8px 0 8px 16px !important;
+  border-left: 1px solid rgba(95, 110, 79, 0.16);
+  color: #67735f !important;
+  font-size: 12px !important;
+  line-height: 1.25 !important;
+}
+
+.zapytaj-page .homepage-hero-proof-dot {
+  display: none;
+}
+
+.zapytaj-page .homepage-hero-proof-link {
+  color: #415534 !important;
+  font-weight: 650 !important;
+  text-decoration: underline !important;
+  text-decoration-thickness: 1px !important;
+  text-underline-offset: 3px !important;
+}
+
+@media (max-width: 760px) {
+  .zapytaj-page .homepage-hero-proof {
+    grid-template-columns: 1fr;
+    gap: 12px !important;
+  }
+
+  .zapytaj-page .homepage-hero-proof-note {
+    padding: 12px 0 0 !important;
+    border-top: 1px solid rgba(95, 110, 79, 0.13);
+    border-left: 0;
+  }
 }
 
 .reference-about-bullet-list li {
@@ -706,6 +917,305 @@ html body main.notatnik-page .zapytaj-kicker {
   object-fit: cover !important;
 }
 
+/* Consultation: warm two-column hero with one meaningful editorial illustration. */
+.canonical-service-page.consultation-page .canonical-service-hero {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1.04fr) minmax(360px, 0.96fr) !important;
+  align-items: center !important;
+  gap: clamp(38px, 5vw, 72px) !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 42px 0 66px !important;
+}
+
+.canonical-service-page.consultation-page .canonical-service-hero-copy {
+  align-items: flex-start !important;
+  text-align: left !important;
+  max-width: 660px !important;
+}
+
+.canonical-service-page.consultation-page .canonical-service-hero h1 {
+  max-width: 12ch !important;
+}
+
+.canonical-service-page.consultation-page .offer-facts,
+.canonical-service-page.consultation-page .canonical-service-hero-actions,
+.canonical-service-page.consultation-page .homepage-hero-proof-specialist,
+.canonical-service-page.consultation-page .homepage-hero-proof-note {
+  justify-content: flex-start !important;
+}
+
+.canonical-service-page.consultation-page .homepage-hero-proof {
+  align-items: flex-start !important;
+  max-width: 580px !important;
+}
+
+.consultation-access-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  max-width: 48ch;
+  margin: 0;
+  color: #5c6854;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.consultation-access-hint svg {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  color: #647b49;
+}
+
+.consultation-hero-art {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  min-height: 410px;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid rgba(95, 110, 79, 0.16);
+  border-radius: 32px 18px 32px 18px;
+  background: #eee7d9;
+  box-shadow: 0 22px 50px rgba(43, 35, 24, 0.11);
+  isolation: isolate;
+}
+
+.consultation-hero-art::after {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border: 8px solid rgba(255, 253, 248, 0.28);
+  border-radius: inherit;
+  content: '';
+  pointer-events: none;
+}
+
+.consultation-hero-art img {
+  object-fit: cover;
+  object-position: center;
+}
+
+.canonical-service-page.consultation-page .canonical-service-explanation {
+  align-items: center !important;
+}
+
+.canonical-service-page.consultation-page .canonical-service-heading {
+  text-align: center !important;
+}
+
+.canonical-service-page.consultation-page .step-editorial-item {
+  position: relative;
+  z-index: 1;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 14px !important;
+  padding: 0 18px !important;
+  border: 0 !important;
+  text-align: center;
+}
+
+.canonical-service-page.consultation-page .steps-editorial {
+  position: relative;
+  gap: 0 !important;
+  padding: 30px 20px 28px;
+  overflow: hidden;
+  border: 1px solid rgba(95, 110, 79, 0.14);
+  border-radius: 24px;
+  background: #f9f6ee;
+}
+
+.canonical-service-page.consultation-page .steps-editorial::before {
+  position: absolute;
+  left: 17%;
+  right: 17%;
+  top: 52px;
+  border-top: 1px dashed rgba(95, 110, 79, 0.34);
+  content: '';
+}
+
+.canonical-service-page.consultation-page .step-editorial-icon {
+  display: flex;
+  flex: 0 0 48px;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid rgba(95, 110, 79, 0.18);
+  border-radius: 50%;
+  background: #fffdf8;
+  color: #435632;
+  box-shadow: 0 6px 18px rgba(43, 35, 24, 0.06);
+}
+
+.canonical-service-page.consultation-page .step-editorial-num {
+  display: block;
+  margin-bottom: 4px !important;
+  color: #7a8967 !important;
+  font-family: var(--font-sans), system-ui, sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.12em !important;
+}
+
+.canonical-service-page.consultation-page .consultation-value-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 0 !important;
+  margin-top: 8px !important;
+  padding: 14px 10px;
+  border: 1px solid rgba(95, 110, 79, 0.14);
+  border-radius: 24px;
+  background: linear-gradient(135deg, #fbf8f0 0%, #f5f2e7 100%);
+}
+
+.canonical-service-page.consultation-page .consultation-value-card {
+  position: relative;
+  min-height: 190px;
+  justify-content: flex-start;
+  padding: 26px 28px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+}
+
+.canonical-service-page.consultation-page .consultation-value-card + .consultation-value-card::before {
+  position: absolute;
+  left: 0;
+  top: 24px;
+  bottom: 24px;
+  width: 1px;
+  background: rgba(95, 110, 79, 0.16);
+  content: '';
+}
+
+.canonical-service-page.consultation-page .consultation-value-card:hover {
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.canonical-service-page.consultation-page .consultation-value-icon {
+  width: 46px !important;
+  height: 46px !important;
+  border-radius: 14px !important;
+  background: #fffdf8 !important;
+  box-shadow: 0 5px 16px rgba(43, 35, 24, 0.05);
+}
+
+.canonical-service-page.consultation-page .consultation-faq-list {
+  width: min(100%, 820px);
+  margin: 0 auto;
+  text-align: left;
+}
+
+.canonical-service-page.consultation-page .consultation-first-step {
+  position: relative;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr) !important;
+  align-items: center !important;
+  gap: clamp(30px, 5vw, 58px) !important;
+  width: 100% !important;
+  max-width: 980px !important;
+  padding: 46px 48px !important;
+  overflow: hidden;
+  text-align: left !important;
+  background: linear-gradient(145deg, #faf8f2 0%, #f4f1e6 100%) !important;
+}
+
+.canonical-service-page.consultation-page .consultation-first-step::before,
+.canonical-service-page.consultation-page .consultation-first-step::after {
+  position: absolute;
+  border: 1px solid rgba(95, 110, 79, 0.13);
+  content: '';
+  pointer-events: none;
+}
+
+.canonical-service-page.consultation-page .consultation-first-step::before {
+  left: -52px;
+  top: -76px;
+  width: 190px;
+  height: 190px;
+  border-radius: 42% 58% 38% 62%;
+  transform: rotate(-18deg);
+}
+
+.canonical-service-page.consultation-page .consultation-first-step::after {
+  right: -42px;
+  bottom: -52px;
+  width: 150px;
+  height: 150px;
+  border-radius: 55% 45% 62% 38%;
+  transform: rotate(24deg);
+}
+
+.consultation-first-step__copy,
+.consultation-first-step__action {
+  position: relative;
+  z-index: 1;
+}
+
+.consultation-first-step__copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 11px;
+}
+
+.canonical-service-page.consultation-page .consultation-first-step__copy h2 {
+  max-width: 18ch;
+  margin: 0;
+  color: #181e14;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(28px, 3.2vw, 40px);
+  font-weight: 400;
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+}
+
+.canonical-service-page.consultation-page .consultation-first-step__copy p {
+  max-width: 54ch !important;
+  margin: 0 !important;
+  font-size: 15px !important;
+  line-height: 1.62 !important;
+}
+
+.consultation-first-step__action {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 24px;
+  border: 1px solid rgba(95, 110, 79, 0.15);
+  border-radius: 20px;
+  background: rgba(255, 253, 248, 0.76);
+  box-shadow: 0 10px 30px rgba(43, 35, 24, 0.05);
+}
+
+.consultation-first-step__facts {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.consultation-first-step__facts span {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #3f4f35;
+  font-size: 13.5px;
+  font-weight: 620;
+  line-height: 1.35;
+}
+
+.consultation-first-step__facts svg {
+  flex: 0 0 auto;
+  color: #657b4b;
+}
+
+.canonical-service-page.consultation-page .consultation-first-step__action .notatnik-btn {
+  justify-content: center !important;
+  width: 100% !important;
+  margin-top: 2px !important;
+}
+
 /* 2. Section Heading & General Explanation */
 .canonical-service-page .canonical-service-explanation {
   display: flex !important;
@@ -791,7 +1301,7 @@ html body main.notatnik-page .zapytaj-kicker {
 /* 4. Consultation Value Grid (4 cards) */
 .canonical-service-page .consultation-value-grid {
   display: grid !important;
-  grid-template-columns: repeat(4, 1fr) !important;
+  grid-template-columns: repeat(3, 1fr) !important;
   gap: 20px !important;
   width: 100% !important;
   margin-top: 10px !important;
@@ -841,237 +1351,215 @@ html body main.notatnik-page .zapytaj-kicker {
   margin: 0 !important;
 }
 
-/* 5. Consultation Access Section & Form */
-.canonical-service-page .canonical-service-access-section {
-  padding: 56px 0 !important;
+/* 6. Terapia: premium, long-term individual care. */
+.therapy-premium-page .therapy-premium-hero {
+  grid-template-columns: minmax(0, 1.02fr) minmax(360px, 0.82fr) !important;
+  gap: clamp(44px, 6vw, 78px) !important;
+  padding: 46px 0 76px !important;
 }
 
-.canonical-service-page .canonical-service-access-box {
-  background: #faf8f2 !important;
-  border: 1px solid rgba(95, 110, 79, 0.18) !important;
-  border-radius: 20px !important;
-  padding: 40px 36px !important;
-  max-width: 760px !important;
-  margin: 0 auto !important;
-  box-shadow: 0 8px 24px rgba(43, 35, 24, 0.04) !important;
+.therapy-premium-page .therapy-premium-hero h1 {
+  max-width: 14ch !important;
 }
 
-.canonical-service-page .canonical-service-access-box .canonical-service-heading {
-  margin-bottom: 24px !important;
-}
-
-.canonical-service-page .canonical-service-access-input-group {
-  display: flex !important;
-  gap: 12px !important;
-  align-items: stretch !important;
-  width: 100% !important;
-}
-
-.canonical-service-page .canonical-service-access-input-group input {
-  flex: 1 !important;
-  min-width: 0 !important;
-  padding: 13px 18px !important;
-  border: 1px solid rgba(95, 110, 79, 0.25) !important;
-  border-radius: 12px !important;
-  background: #ffffff !important;
-  font-size: 15.5px !important;
-  font-family: monospace, monospace !important;
-  letter-spacing: 0.06em !important;
-  color: #181e14 !important;
-}
-
-.canonical-service-page .canonical-service-access-input-group input:focus {
-  outline: none !important;
-  border-color: #2d3b24 !important;
-  box-shadow: 0 0 0 3px rgba(45, 59, 36, 0.12) !important;
-}
-
-.canonical-service-page .canonical-service-access-input-group .notatnik-btn {
-  white-space: nowrap !important;
-}
-
-.canonical-service-page .canonical-service-access-confirmed {
-  background: rgba(45, 95, 50, 0.08) !important;
-  border: 1px solid rgba(45, 95, 50, 0.22) !important;
-  border-radius: 14px !important;
-  padding: 20px 24px !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 14px !important;
-  align-items: flex-start !important;
-}
-
-.canonical-service-page .canonical-service-access-confirmed p {
-  margin: 0 !important;
-  font-size: 15px !important;
-  line-height: 1.55 !important;
-  color: #235c27 !important;
-}
-
-/* 6. Terapia: "Kiedy terapia ma sens?" (3 unboxed cards) */
-.canonical-service-page .therapy-sense-cards-grid {
-  display: grid !important;
-  grid-template-columns: repeat(3, 1fr) !important;
-  gap: 24px !important;
-  width: 100% !important;
-  margin-top: 10px !important;
-}
-
-.canonical-service-page .therapy-sense-card {
-  background: #faf8f2 !important;
-  border: 1px solid rgba(95, 110, 79, 0.14) !important;
-  border-radius: 16px !important;
-  padding: 26px 22px !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 12px !important;
-}
-
-.canonical-service-page .therapy-sense-card-icon {
-  width: 44px !important;
-  height: 44px !important;
-  border-radius: 12px !important;
-  background: rgba(45, 59, 36, 0.07) !important;
-  color: #2d3b24 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
-
-.canonical-service-page .therapy-sense-card h3 {
-  font-family: var(--font-sans), system-ui, sans-serif !important;
-  font-size: 17px !important;
-  font-weight: 650 !important;
-  color: #181e14 !important;
-  margin: 0 !important;
-  line-height: 1.35 !important;
-}
-
-.canonical-service-page .therapy-sense-card p {
-  font-size: 14px !important;
-  line-height: 1.58 !important;
-  color: #4f5a48 !important;
-  margin: 0 !important;
-}
-
-/* 7. Terapia: "Dla kogo jest terapia" (Fit Grid) */
-.canonical-service-page .therapy-fit-grid {
-  display: grid !important;
-  grid-template-columns: repeat(3, 1fr) !important;
-  gap: 22px !important;
-  width: 100% !important;
-  margin-top: 10px !important;
-}
-
-.canonical-service-page .therapy-fit-card {
-  background: #faf8f2 !important;
-  border: 1px solid rgba(95, 110, 79, 0.14) !important;
-  border-radius: 16px !important;
-  padding: 26px 22px !important;
-  display: flex !important;
-  flex-direction: column !important;
+.therapy-premium-page .therapy-premium-facts {
   gap: 10px !important;
+  max-width: 650px;
 }
 
-.canonical-service-page .therapy-fit-badge {
-  display: inline-flex !important;
+.therapy-hero-visual {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  min-width: 0;
+}
+
+.therapy-premium-page .therapy-hero-photo {
+  aspect-ratio: 4 / 3 !important;
+  min-height: 390px !important;
+  border-radius: 34px 18px 0 0 !important;
+  box-shadow: 0 24px 54px rgba(43, 35, 24, 0.11) !important;
+}
+
+.therapy-premium-page .therapy-hero-photo img {
+  object-position: 52% center !important;
+}
+
+.therapy-specialist-proof {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 94px minmax(0, 1fr);
+  gap: 17px;
+  align-items: center;
+  margin-top: -1px;
+  padding: 20px 22px 18px;
+  border: 1px solid rgba(95, 110, 79, 0.15);
+  border-top: 0;
+  border-radius: 0 0 24px 14px;
+  background: linear-gradient(135deg, #fffdf8 0%, #f5f0e5 100%);
+  box-shadow: 0 16px 32px rgba(43, 35, 24, 0.07);
+}
+
+.therapy-specialist-proof__logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding-right: 16px;
+  border-right: 1px solid rgba(95, 110, 79, 0.14);
+}
+
+.therapy-specialist-proof__logo img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.therapy-specialist-proof__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.therapy-specialist-proof__copy > span {
+  color: #718061;
+  font-size: 10.5px;
+  font-weight: 750;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.therapy-specialist-proof__copy strong {
+  color: #1f281a;
+  font-size: 15.5px;
+  font-weight: 680;
+  line-height: 1.3;
+}
+
+.therapy-specialist-proof__copy p {
+  margin: 0;
+  color: #586351;
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
+.therapy-opinions-link {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-end;
+  gap: 6px;
+  margin-top: 13px;
+  color: #536441;
+  font-size: 12.5px;
+  font-weight: 620;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.therapy-care-section {
+  gap: 34px !important;
+}
+
+.therapy-care-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid rgba(95, 110, 79, 0.15);
+  border-radius: 28px;
+  background: linear-gradient(145deg, #fbf8f0 0%, #f4efe3 100%);
+}
+
+.therapy-care-item {
+  display: grid;
+  grid-template-columns: 50px minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+  min-height: 180px;
+  padding: 30px 32px;
+}
+
+.therapy-care-item:nth-child(even) {
+  border-left: 1px solid rgba(95, 110, 79, 0.14);
+}
+
+.therapy-care-item:nth-child(n + 3) {
+  border-top: 1px solid rgba(95, 110, 79, 0.14);
+}
+
+.therapy-care-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid rgba(95, 110, 79, 0.16);
+  border-radius: 15px;
+  background: rgba(255, 253, 248, 0.82);
+  color: #4b6137;
+  box-shadow: 0 6px 18px rgba(43, 35, 24, 0.05);
+}
+
+.therapy-care-item h3 {
+  margin: 1px 0 7px;
+  color: #1d2419;
+  font-size: 16.5px;
+  font-weight: 680;
+  line-height: 1.35;
+}
+
+.therapy-care-item p {
+  max-width: 44ch;
+  margin: 0;
+  color: #53604c;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.therapy-safety-strip {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  width: min(100%, 900px);
+  padding: 18px 22px;
+  border-left: 3px solid #a56b4b;
+  border-radius: 0 16px 16px 0;
+  background: rgba(165, 107, 75, 0.075);
+}
+
+.therapy-safety-strip__icon {
+  display: flex;
+  flex: 0 0 auto;
+  margin-top: 1px;
+  color: #8d573a;
+}
+
+.therapy-safety-strip p {
+  margin: 0;
+  color: #615247;
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+.therapy-safety-strip strong {
+  color: #3b3028;
+}
+
+.therapy-faq-section {
   align-items: center !important;
-  gap: 6px !important;
-  font-size: 12px !important;
-  font-weight: 700 !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.06em !important;
-  padding: 4px 10px !important;
-  border-radius: 8px !important;
-  width: fit-content !important;
 }
 
-.canonical-service-page .therapy-fit-card.is-positive .therapy-fit-badge {
-  background: rgba(45, 95, 50, 0.12) !important;
-  color: #235c27 !important;
+.therapy-faq-section .canonical-service-heading {
+  text-align: center !important;
 }
 
-.canonical-service-page .therapy-fit-card.is-urgent .therapy-fit-badge {
-  background: rgba(180, 60, 30, 0.1) !important;
-  color: #9c2d18 !important;
-}
-
-.canonical-service-page .therapy-fit-card.is-neutral .therapy-fit-badge {
-  background: rgba(95, 110, 79, 0.12) !important;
-  color: #4a573a !important;
-}
-
-.canonical-service-page .therapy-fit-card h3 {
-  font-family: var(--font-sans), system-ui, sans-serif !important;
-  font-size: 16.5px !important;
-  font-weight: 650 !important;
-  color: #181e14 !important;
-  margin: 0 !important;
-  line-height: 1.35 !important;
-}
-
-.canonical-service-page .therapy-fit-card p {
-  font-size: 13.5px !important;
-  line-height: 1.58 !important;
-  color: #4f5a48 !important;
-  margin: 0 !important;
-}
-
-/* 8. Terapia: Related Articles Grid */
-.canonical-service-page .therapy-articles-grid {
-  display: grid !important;
-  grid-template-columns: repeat(3, 1fr) !important;
-  gap: 22px !important;
-  width: 100% !important;
-  margin-top: 10px !important;
-}
-
-.canonical-service-page .therapy-article-card {
-  background: #faf8f2 !important;
-  border: 1px solid rgba(95, 110, 79, 0.14) !important;
-  border-radius: 16px !important;
-  padding: 24px 22px !important;
-  display: flex !important;
-  flex-direction: column !important;
-  justify-content: space-between !important;
-  gap: 14px !important;
-  transition: transform 0.15s ease, box-shadow 0.15s ease !important;
-}
-
-.canonical-service-page .therapy-article-card:hover {
-  box-shadow: 0 8px 24px rgba(43, 35, 24, 0.05) !important;
-  transform: translateY(-1px) !important;
-}
-
-.canonical-service-page .therapy-article-card h3 {
-  font-family: var(--font-sans), system-ui, sans-serif !important;
-  font-size: 16px !important;
-  font-weight: 650 !important;
-  color: #181e14 !important;
-  margin: 0 !important;
-  line-height: 1.35 !important;
-}
-
-.canonical-service-page .therapy-article-card p {
-  font-size: 13.5px !important;
-  line-height: 1.55 !important;
-  color: #4f5a48 !important;
-  margin: 0 !important;
-}
-
-.canonical-service-page .therapy-article-link {
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 6px !important;
-  font-size: 13.5px !important;
-  font-weight: 650 !important;
-  color: #2d3b24 !important;
-  text-decoration: none !important;
-  margin-top: 4px !important;
-}
-
-.canonical-service-page .therapy-article-link:hover {
-  text-decoration: underline !important;
+.therapy-faq-list {
+  width: min(100%, 820px);
+  margin: 0 auto;
+  text-align: left;
 }
 
 /* 9. Canonical Service Note (Bottom banner) */
@@ -1110,11 +1598,163 @@ html body main.notatnik-page .zapytaj-kicker {
   margin-top: 8px !important;
 }
 
+.therapy-page .therapy-premium-entry {
+  position: relative;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr) !important;
+  align-items: center !important;
+  gap: clamp(32px, 5vw, 64px) !important;
+  width: 100% !important;
+  max-width: 1000px !important;
+  padding: 48px 52px 44px !important;
+  overflow: hidden;
+  text-align: left !important;
+  background: linear-gradient(145deg, #f8f5ed 0%, #ede7d8 100%) !important;
+}
+
+.therapy-page .therapy-premium-entry::before,
+.therapy-page .therapy-premium-entry::after {
+  position: absolute;
+  border: 1px solid rgba(95, 110, 79, 0.13);
+  content: '';
+  pointer-events: none;
+}
+
+.therapy-page .therapy-premium-entry::before {
+  left: -52px;
+  top: -76px;
+  width: 190px;
+  height: 190px;
+  border-radius: 42% 58% 38% 62%;
+  transform: rotate(-18deg);
+}
+
+.therapy-page .therapy-premium-entry::after {
+  right: -42px;
+  bottom: -52px;
+  width: 150px;
+  height: 150px;
+  border-radius: 55% 45% 62% 38%;
+  transform: rotate(24deg);
+}
+
+.therapy-premium-entry__copy,
+.therapy-premium-entry__actions,
+.therapy-premium-entry__scope {
+  position: relative;
+  z-index: 1;
+}
+
+.therapy-premium-entry__copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 11px;
+}
+
+.therapy-page .therapy-premium-entry__copy h2 {
+  max-width: 20ch;
+  margin: 0;
+  color: #181e14;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(28px, 3.2vw, 40px);
+  font-weight: 400;
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+}
+
+.therapy-page .therapy-premium-entry__copy p {
+  max-width: 56ch !important;
+  margin: 0 !important;
+  color: #4f5a48 !important;
+  font-size: 15px !important;
+  line-height: 1.62 !important;
+}
+
+.therapy-premium-entry__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 14px;
+  padding: 25px;
+  border: 1px solid rgba(95, 110, 79, 0.15);
+  border-radius: 20px;
+  background: rgba(255, 253, 248, 0.76);
+  box-shadow: 0 10px 30px rgba(43, 35, 24, 0.05);
+}
+
+.therapy-first-contact-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #4b5c3b;
+  font-size: 13.5px;
+  font-weight: 650;
+  line-height: 1.35;
+  text-align: center;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.therapy-first-contact-link svg {
+  flex: 0 0 auto;
+  color: #657b4b;
+}
+
+.therapy-first-contact-price {
+  margin-top: -8px;
+  color: #78846e;
+  font-size: 11.5px;
+  font-weight: 650;
+  text-align: center;
+}
+
+.therapy-page .therapy-premium-entry__actions .notatnik-btn {
+  justify-content: center !important;
+  width: 100% !important;
+  margin-top: 2px !important;
+}
+
+.therapy-page .therapy-premium-entry__scope {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  max-width: none !important;
+  padding-top: 18px;
+  border-top: 1px solid rgba(95, 110, 79, 0.13);
+  color: #5d6855 !important;
+  font-size: 12.5px !important;
+  text-align: center;
+}
+
+.therapy-premium-entry__scope svg {
+  flex: 0 0 auto;
+  color: #667b4e;
+}
+
 /* 10. Responsive Breakpoints */
 @media (max-width: 980px) {
   .canonical-service-page .canonical-service-hero {
     grid-template-columns: 1fr !important;
     gap: 36px !important;
+  }
+
+  .canonical-service-page.consultation-page .canonical-service-hero {
+    grid-template-columns: 1fr !important;
+    gap: 34px !important;
+    padding-top: 32px !important;
+  }
+
+  .canonical-service-page.consultation-page .canonical-service-hero-copy {
+    max-width: 720px !important;
+  }
+
+  .consultation-hero-art {
+    min-height: 0;
+    aspect-ratio: 16 / 9;
   }
 
   .canonical-service-page .canonical-service-hero-art.canonical-service-photo {
@@ -1125,13 +1765,103 @@ html body main.notatnik-page .zapytaj-kicker {
   .canonical-service-page .consultation-value-grid {
     grid-template-columns: repeat(2, 1fr) !important;
   }
+
+  .canonical-service-page.consultation-page .consultation-value-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .canonical-service-page.consultation-page .consultation-value-card:nth-child(3)::before {
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: auto;
+    width: auto;
+    height: 1px;
+  }
+
+  .canonical-service-page.consultation-page .consultation-first-step {
+    grid-template-columns: 1fr !important;
+    max-width: 720px !important;
+  }
+
+  .therapy-premium-page .therapy-premium-hero {
+    grid-template-columns: 1fr !important;
+    gap: 40px !important;
+  }
+
+  .therapy-premium-page .therapy-hero-visual {
+    width: min(100%, 720px);
+  }
+
+  .therapy-page .therapy-premium-entry {
+    grid-template-columns: 1fr !important;
+    max-width: 720px !important;
+  }
 }
 
 @media (max-width: 768px) {
+  .canonical-service-page.consultation-page .canonical-service-hero {
+    gap: 28px !important;
+    padding: 24px 0 44px !important;
+  }
+
+  .consultation-hero-art {
+    aspect-ratio: 4 / 3;
+    border-radius: 24px 14px 24px 14px;
+  }
+
+  .consultation-hero-art img {
+    object-position: 54% center;
+  }
+
+  .canonical-service-page.consultation-page .steps-editorial {
+    gap: 0 !important;
+    padding: 24px 20px !important;
+  }
+
+  .canonical-service-page.consultation-page .steps-editorial::before {
+    left: 43px;
+    right: auto;
+    top: 48px;
+    bottom: 48px;
+    border-top: 0;
+    border-left: 1px dashed rgba(95, 110, 79, 0.34);
+  }
+
+  .canonical-service-page.consultation-page .step-editorial-item {
+    display: grid !important;
+    grid-template-columns: 46px minmax(0, 1fr);
+    align-items: start !important;
+    gap: 16px !important;
+    padding: 14px 0 !important;
+    text-align: left;
+  }
+
+  .canonical-service-page.consultation-page .step-editorial-icon {
+    width: 46px;
+    height: 46px;
+  }
+
+  .canonical-service-page.consultation-page .consultation-value-grid {
+    grid-template-columns: 1fr !important;
+    padding: 8px 20px;
+  }
+
+  .canonical-service-page.consultation-page .consultation-value-card {
+    min-height: 0;
+    padding: 22px 0 !important;
+  }
+
+  .canonical-service-page.consultation-page .consultation-value-card + .consultation-value-card::before {
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: auto;
+    width: auto;
+    height: 1px;
+  }
+
   .canonical-service-page .steps-editorial,
-  .canonical-service-page .therapy-sense-cards-grid,
-  .canonical-service-page .therapy-fit-grid,
-  .canonical-service-page .therapy-articles-grid,
   .canonical-service-page .consultation-value-grid {
     grid-template-columns: 1fr !important;
     gap: 16px !important;
@@ -1158,6 +1888,82 @@ html body main.notatnik-page .zapytaj-kicker {
   .canonical-service-page .canonical-service-note {
     padding: 28px 20px !important;
     margin-top: 36px !important;
+  }
+
+  .canonical-service-page.consultation-page .consultation-first-step {
+    gap: 24px !important;
+    padding: 32px 22px !important;
+  }
+
+  .canonical-service-page.consultation-page .consultation-first-step__copy h2 {
+    max-width: 20ch;
+    font-size: clamp(27px, 8vw, 34px);
+  }
+
+  .consultation-first-step__action {
+    width: 100%;
+    padding: 20px;
+  }
+
+  .therapy-premium-page .canonical-service-hero {
+    gap: 28px !important;
+    padding: 24px 0 44px !important;
+  }
+
+  .therapy-premium-page .therapy-hero-photo {
+    aspect-ratio: 4 / 3 !important;
+    min-height: 0 !important;
+    border-radius: 24px 14px 0 0 !important;
+  }
+
+  .therapy-specialist-proof {
+    grid-template-columns: 80px minmax(0, 1fr);
+    padding: 18px;
+    border-radius: 0 0 20px 12px;
+  }
+
+  .therapy-care-grid {
+    grid-template-columns: 1fr;
+    border-radius: 22px;
+  }
+
+  .therapy-care-item {
+    min-height: 0;
+    padding: 25px 21px;
+  }
+
+  .therapy-care-item:nth-child(even) {
+    border-left: 0;
+  }
+
+  .therapy-care-item:nth-child(n + 2) {
+    border-top: 1px solid rgba(95, 110, 79, 0.14);
+  }
+
+  .therapy-safety-strip {
+    width: 100%;
+    padding: 17px 18px;
+  }
+
+  .therapy-page .therapy-premium-entry {
+    gap: 24px !important;
+    padding: 32px 22px !important;
+  }
+
+  .therapy-page .therapy-premium-entry__copy h2 {
+    max-width: 20ch;
+    font-size: clamp(27px, 8vw, 34px);
+  }
+
+  .therapy-premium-entry__actions {
+    width: 100%;
+    padding: 20px;
+  }
+
+  .therapy-page .therapy-premium-entry__scope {
+    align-items: flex-start;
+    justify-content: flex-start;
+    text-align: left;
   }
 }
 
@@ -1301,3 +2107,658 @@ html body main.notatnik-page .zapytaj-kicker {
   }
 }
 
+/* ==========================================================================
+   TERAPIA V2 — centered premium editorial layout
+   ========================================================================== */
+
+.therapy-premium-page .canonical-service-shell {
+  padding-inline: clamp(20px, 4vw, 52px) !important;
+}
+
+.therapy-premium-page .therapy-premium-hero {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 42px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-inline: auto !important;
+  padding: 64px 0 72px !important;
+}
+
+.therapy-premium-page .therapy-premium-hero .canonical-service-hero-copy {
+  align-items: center !important;
+  width: min(100%, 880px) !important;
+  margin-inline: auto !important;
+  text-align: center !important;
+}
+
+.therapy-premium-page .therapy-premium-hero h1 {
+  max-width: 17ch !important;
+  font-size: clamp(42px, 5.2vw, 66px) !important;
+}
+
+.therapy-premium-page .therapy-premium-hero .canonical-service-lead {
+  max-width: 72ch !important;
+  color: #56604f !important;
+  font-size: clamp(16px, 1.55vw, 18px) !important;
+}
+
+.therapy-premium-page .therapy-premium-facts {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 0 !important;
+  width: 100% !important;
+  max-width: 920px !important;
+  margin: 20px auto 8px !important;
+  border-block: 1px solid rgba(95, 110, 79, 0.17) !important;
+}
+
+.therapy-premium-page .therapy-premium-fact {
+  justify-content: center !important;
+  gap: 13px !important;
+  min-width: 0 !important;
+  padding: 18px 22px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  text-align: left !important;
+}
+
+.therapy-premium-page .therapy-premium-fact + .therapy-premium-fact {
+  border-left: 1px solid rgba(95, 110, 79, 0.17) !important;
+}
+
+.therapy-premium-page .therapy-premium-fact .offer-fact__icon {
+  flex: 0 0 auto !important;
+  color: #7e925e !important;
+}
+
+.therapy-premium-page .therapy-premium-fact .offer-fact__icon svg {
+  width: 22px !important;
+  height: 22px !important;
+}
+
+.therapy-premium-page .therapy-premium-fact > span:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.therapy-premium-page .therapy-premium-fact strong {
+  color: #1f281a;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.therapy-premium-page .therapy-premium-fact small {
+  color: #56604f;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.therapy-premium-page .canonical-service-hero-actions {
+  justify-content: center !important;
+  margin-top: 8px !important;
+}
+
+.therapy-process-panel {
+  width: 100%;
+  padding: clamp(32px, 4.5vw, 50px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  background: #26351f;
+  color: #fffdf8;
+  box-shadow: 0 24px 55px rgba(35, 48, 29, 0.16);
+}
+
+.therapy-process-panel__intro {
+  display: grid;
+  grid-template-columns: 0.55fr 1.45fr;
+  align-items: end;
+  gap: 36px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.therapy-process-panel__intro > span {
+  color: #c7d4b2;
+  font-size: 10.5px;
+  font-weight: 750;
+  letter-spacing: 0.14em;
+}
+
+.therapy-process-panel__intro h2 {
+  max-width: 24ch;
+  margin: 0;
+  color: #fffdf8;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(27px, 3.3vw, 40px);
+  font-weight: 400;
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+}
+
+.therapy-process-track {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0;
+  padding: 34px 0 0;
+  list-style: none;
+}
+
+.therapy-process-track li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 9px 14px;
+  min-width: 0;
+  padding: 0 24px;
+}
+
+.therapy-process-track li:first-child {
+  padding-left: 0;
+}
+
+.therapy-process-track li:last-child {
+  padding-right: 0;
+}
+
+.therapy-process-track li + li {
+  border-left: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.therapy-process-icon {
+  display: flex;
+  align-items: center;
+  color: #c7d4b2;
+}
+
+.therapy-process-number {
+  justify-self: end;
+  color: rgba(255, 255, 255, 0.46);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.therapy-process-track strong,
+.therapy-process-track p {
+  grid-column: 1 / -1;
+}
+
+.therapy-process-track strong {
+  margin-top: 8px;
+  color: #fffdf8;
+  font-size: 15.5px;
+  font-weight: 680;
+  line-height: 1.3;
+}
+
+.therapy-process-track p {
+  max-width: 25ch;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.therapy-specialist-bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 28px;
+  width: 100%;
+  padding: 22px 0;
+  border-block: 1px solid rgba(95, 110, 79, 0.15);
+}
+
+.therapy-specialist-bar__identity {
+  display: grid;
+  gap: 2px;
+  justify-self: start;
+}
+
+.therapy-specialist-bar__identity > span {
+  color: #768268;
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.therapy-specialist-bar__identity strong {
+  color: #1f281a;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.therapy-specialist-bar__identity p {
+  margin: 0;
+  color: #697362;
+  font-size: 14px;
+}
+
+.therapy-specialist-bar__logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 104px;
+  padding-inline: 18px;
+  border-inline: 1px solid rgba(95, 110, 79, 0.15);
+}
+
+.therapy-specialist-bar__logo img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.therapy-specialist-bar .therapy-opinions-link {
+  justify-self: end;
+  align-self: center;
+  margin: 0;
+  font-size: 13px;
+}
+
+.therapy-premium-page .therapy-care-section {
+  align-items: center !important;
+  gap: 42px !important;
+  padding-block: 76px !important;
+}
+
+.therapy-care-intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(220px, 0.65fr);
+  align-items: end;
+  gap: clamp(40px, 8vw, 96px);
+  width: 100%;
+}
+
+.therapy-premium-page .therapy-care-intro .canonical-service-heading {
+  max-width: 700px !important;
+}
+
+.therapy-care-commitment {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 14px;
+  align-items: center;
+  padding: 18px 0 5px;
+  border-top: 1px solid rgba(95, 110, 79, 0.24);
+  color: #50633c;
+}
+
+.therapy-care-commitment svg {
+  grid-row: 1 / 3;
+}
+
+.therapy-care-commitment strong {
+  color: #1f281a;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.1;
+}
+
+.therapy-care-commitment span {
+  color: #697362;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.therapy-premium-page .therapy-care-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  width: 100%;
+  overflow: visible;
+  border: 0;
+  border-block: 1px solid rgba(95, 110, 79, 0.18);
+  border-radius: 0;
+  background: transparent;
+}
+
+.therapy-premium-page .therapy-care-item {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-height: 260px;
+  padding: 30px 26px 32px;
+  border: 0 !important;
+  background: transparent;
+}
+
+.therapy-premium-page .therapy-care-item:first-child {
+  padding-left: 0;
+}
+
+.therapy-premium-page .therapy-care-item:last-child {
+  padding-right: 0;
+}
+
+.therapy-premium-page .therapy-care-item + .therapy-care-item {
+  border-left: 1px solid rgba(95, 110, 79, 0.16) !important;
+}
+
+.therapy-premium-page .therapy-care-icon {
+  width: auto;
+  height: auto;
+  justify-content: flex-start;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #657b4b;
+}
+
+.therapy-premium-page .therapy-care-item h3 {
+  margin: 0 0 8px;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.therapy-premium-page .therapy-care-item p {
+  font-size: 16px;
+  line-height: 1.62;
+}
+
+.therapy-premium-page .therapy-faq-section {
+  align-items: center !important;
+  padding-block: 76px !important;
+}
+
+.therapy-premium-page .therapy-faq-section .canonical-service-heading {
+  text-align: center !important;
+}
+
+.therapy-premium-page .therapy-faq-list {
+  width: min(100%, 840px);
+}
+
+.canonical-service-page .canonical-service-shell > section.therapy-premium-entry {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 22px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 34px auto 54px !important;
+  padding: clamp(44px, 6vw, 68px) clamp(24px, 6vw, 72px) !important;
+  border: 0 !important;
+  border-radius: 24px !important;
+  background: #26351f !important;
+  box-shadow: 0 24px 55px rgba(35, 48, 29, 0.15) !important;
+  text-align: center !important;
+}
+
+.canonical-service-page .canonical-service-shell > section.therapy-premium-entry::before,
+.canonical-service-page .canonical-service-shell > section.therapy-premium-entry::after {
+  display: none !important;
+  content: none !important;
+}
+
+.therapy-premium-entry__copy {
+  align-items: center;
+  max-width: 790px;
+}
+
+.therapy-page .therapy-premium-entry .zapytaj-kicker {
+  color: #c7d4b2 !important;
+}
+
+.therapy-page .therapy-premium-entry__copy h2 {
+  max-width: 23ch;
+  color: #fffdf8;
+  font-size: clamp(31px, 4vw, 46px);
+}
+
+.therapy-page .therapy-premium-entry__copy p {
+  max-width: 62ch !important;
+  color: rgba(255, 255, 255, 0.72) !important;
+}
+
+.therapy-premium-entry__actions {
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.therapy-page .therapy-premium-entry__actions .notatnik-btn {
+  width: auto !important;
+  margin: 0 !important;
+  background: #fffdf8 !important;
+  color: #26351f !important;
+}
+
+.therapy-page .therapy-premium-entry__actions .notatnik-btn:hover {
+  background: #f1ecdf !important;
+}
+
+.therapy-page .therapy-first-contact-link {
+  color: #eef3e7;
+  text-decoration-color: rgba(238, 243, 231, 0.42);
+}
+
+.therapy-page .therapy-first-contact-link svg {
+  color: #c7d4b2;
+}
+
+.canonical-service-page .canonical-service-shell > section.therapy-premium-entry .therapy-premium-entry__scope {
+  justify-content: center;
+  width: min(100%, 760px);
+  padding-top: 20px;
+  border-top-color: rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.62) !important;
+}
+
+.canonical-service-page .canonical-service-shell > section.therapy-premium-entry .therapy-premium-entry__scope svg {
+  color: #c7d4b2;
+}
+
+@media (max-width: 900px) {
+  .therapy-process-panel__intro {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .therapy-process-track {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+  }
+
+  .therapy-process-track li {
+    padding: 24px;
+  }
+
+  .therapy-process-track li:first-child {
+    padding-left: 0;
+  }
+
+  .therapy-process-track li:nth-child(2) {
+    padding-right: 0;
+  }
+
+  .therapy-process-track li:nth-child(3) {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .therapy-process-track li:nth-child(n + 3) {
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+  }
+
+  .therapy-process-track li:last-child {
+    padding-right: 0;
+  }
+
+  .therapy-premium-page .therapy-care-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .therapy-premium-page .therapy-care-item {
+    min-height: 220px;
+    padding: 28px;
+  }
+
+  .therapy-premium-page .therapy-care-item:first-child,
+  .therapy-premium-page .therapy-care-item:nth-child(3) {
+    padding-left: 0;
+  }
+
+  .therapy-premium-page .therapy-care-item:nth-child(2),
+  .therapy-premium-page .therapy-care-item:last-child {
+    padding-right: 0;
+  }
+
+  .therapy-premium-page .therapy-care-item:nth-child(3) {
+    border-left: 0 !important;
+  }
+
+  .therapy-premium-page .therapy-care-item:nth-child(n + 3) {
+    border-top: 1px solid rgba(95, 110, 79, 0.16) !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .therapy-premium-page .canonical-service-shell {
+    padding-inline: 18px !important;
+  }
+
+  .therapy-premium-page .therapy-premium-hero {
+    gap: 28px !important;
+    padding: 34px 0 48px !important;
+  }
+
+  .therapy-premium-page .therapy-premium-hero h1 {
+    font-size: clamp(38px, 11.4vw, 50px) !important;
+  }
+
+  .therapy-premium-page .therapy-premium-facts {
+    grid-template-columns: 1fr !important;
+    margin-top: 14px !important;
+  }
+
+  .therapy-premium-page .therapy-premium-fact {
+    justify-content: flex-start !important;
+    padding: 14px 4px !important;
+  }
+
+  .therapy-premium-page .therapy-premium-fact + .therapy-premium-fact {
+    border-top: 1px solid rgba(95, 110, 79, 0.14) !important;
+    border-left: 0 !important;
+  }
+
+  .therapy-premium-page .canonical-service-hero-actions {
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+
+  .therapy-premium-page .canonical-service-hero-actions .notatnik-btn {
+    justify-content: center !important;
+    width: 100% !important;
+  }
+
+  .therapy-process-panel {
+    padding: 28px 22px;
+    border-radius: 18px;
+  }
+
+  .therapy-process-panel__intro h2 {
+    font-size: 29px;
+  }
+
+  .therapy-process-track {
+    grid-template-columns: 1fr;
+    padding-top: 18px;
+  }
+
+  .therapy-process-track li,
+  .therapy-process-track li:first-child,
+  .therapy-process-track li:nth-child(2),
+  .therapy-process-track li:nth-child(3),
+  .therapy-process-track li:last-child {
+    padding: 20px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+    border-left: 0;
+  }
+
+  .therapy-process-track li:first-child {
+    border-top: 0;
+  }
+
+  .therapy-specialist-bar {
+    grid-template-columns: 1fr auto;
+    gap: 18px;
+  }
+
+  .therapy-specialist-bar__logo {
+    justify-self: end;
+    width: 92px;
+    padding: 0 0 0 16px;
+    border-right: 0;
+  }
+
+  .therapy-specialist-bar .therapy-opinions-link {
+    grid-column: 1 / -1;
+    justify-self: start;
+    padding-top: 12px;
+    border-top: 1px solid rgba(95, 110, 79, 0.12);
+  }
+
+  .therapy-premium-page .therapy-care-section,
+  .therapy-premium-page .therapy-faq-section {
+    padding-block: 52px !important;
+  }
+
+  .therapy-care-intro {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .therapy-premium-page .therapy-care-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .therapy-premium-page .therapy-care-item,
+  .therapy-premium-page .therapy-care-item:first-child,
+  .therapy-premium-page .therapy-care-item:nth-child(2),
+  .therapy-premium-page .therapy-care-item:nth-child(3),
+  .therapy-premium-page .therapy-care-item:last-child {
+    min-height: 0;
+    padding: 24px 0;
+    border-left: 0 !important;
+  }
+
+  .therapy-premium-page .therapy-care-item + .therapy-care-item {
+    border-top: 1px solid rgba(95, 110, 79, 0.16) !important;
+  }
+
+  .canonical-service-page .canonical-service-shell > section.therapy-premium-entry {
+    margin-block: 20px 36px !important;
+    border-radius: 18px !important;
+  }
+
+  .therapy-premium-entry__actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .therapy-page .therapy-premium-entry__actions .notatnik-btn {
+    justify-content: center !important;
+    width: 100% !important;
+  }
+
+  .canonical-service-page .canonical-service-shell > section.therapy-premium-entry .therapy-premium-entry__scope {
+    align-items: flex-start;
+    justify-content: flex-start;
+    text-align: left;
+  }
+}

@@ -1,6 +1,8 @@
 node_modules/
 .next/
 .next-codex-verify/
+/.next-contact-review/
+/.next-therapy-review/
 .tools/
 .vercel/
 android/phone-agent/.gradle/
@@ -89,6 +91,34 @@ qa-reports/remaining-pages-*/
 qa-reports/
 do-przegladu/
 .tmp/
+
+# Jednorazowe zrzuty lokalnych testow telefonu operatora; mozna je odtworzyc.
+/.telecom.txt
+/.telecom_latest.txt
+/.tmp_ui_dump.xml
+/.tmp_window_dump.xml
+/dialpad_dump.xml
+/menu_dump.xml
+/after_add.png
+/after_tap_1490.png
+/conf_active.png
+/conf_merged.png
+/conf_v3.png
+/conf_v4.png
+/dialed_second.png
+/dialer_opened.png
+/home.png
+/live_menu.png
+/live_screen.png
+/live_screen2.png
+/menu.png
+/now_calling_second.png
+/screen_now.png
+/step2_muted.png
+/step3_both_live.png
+/step4_more_menu.png
+/step5_conference_result.png
+/two_calls.png
 
 # Jednorazowe lokalne skrypty do testów kodów i rezerwacji.
 test-promo.ts

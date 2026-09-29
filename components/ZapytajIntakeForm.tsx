@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useState, type FormEvent, type KeyboardEvent } from 'react'
 import { Clock3, PhoneCall, RefreshCw } from 'lucide-react'
 import { trackAnalyticsEvent } from '@/lib/analytics'
 
@@ -76,6 +76,7 @@ export function ZapytajIntakeForm({ promotionMode = false, initialPromotionCode 
   const [mode, setMode] = useState<ConversationMode>('scheduled')
   const [selectedSlotId, setSelectedSlotId] = useState('')
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [selectedDay, setSelectedDay] = useState('')
   const [initialLoading, setInitialLoading] = useState(true)
   const [notificationChannel, setNotificationChannel] = useState<NotificationChannel>('sms')
   const [notificationConsent, setNotificationConsent] = useState(false)
@@ -100,7 +101,7 @@ export function ZapytajIntakeForm({ promotionMode = false, initialPromotionCode 
       setAvailabilityError('')
       setSelectedSlotId((current) => {
         if (current && payload.slots.some((slot) => slot.id === current)) return current
-        return payload.slots[0]?.id ?? ''
+        return ''
       })
     } catch (error) {
       setAvailabilityError(error instanceof Error ? error.message : 'Dostępność jest chwilowo niedostępna.')
@@ -122,6 +123,32 @@ export function ZapytajIntakeForm({ promotionMode = false, initialPromotionCode 
     () => availability?.slots.find((slot) => slot.id === selectedSlotId) ?? null,
     [availability?.slots, selectedSlotId],
   )
+  const availableDays = useMemo(() => {
+    const days = new Map<string, { date: string; label: string; count: number }>()
+
+    for (const slot of availability?.slots ?? []) {
+      const existing = days.get(slot.date)
+      if (existing) {
+        existing.count += 1
+        continue
+      }
+
+      days.set(slot.date, {
+        date: slot.date,
+        label: slot.label.split(/\s+\u00b7\s+/u)[0] ?? slot.date,
+        count: 1,
+      })
+    }
+
+    return [...days.values()]
+  }, [availability?.slots])
+  const activeDay = availableDays.some((day) => day.date === selectedDay)
+    ? selectedDay
+    : availableDays[0]?.date ?? ''
+  const visibleSlots = useMemo(
+    () => (availability?.slots ?? []).filter((slot) => slot.date === activeDay),
+    [activeDay, availability?.slots],
+  )
 
   function updateField<K extends keyof FormState>(field: K, value: FormState[K]) {
     setStatus('idle')
@@ -137,6 +164,47 @@ export function ZapytajIntakeForm({ promotionMode = false, initialPromotionCode 
     setMode(nextMode)
     if (nextMode === 'live' && live?.liveSlotId) setSelectedSlotId(live.liveSlotId)
     if (nextMode === 'scheduled' && selectedSlotId === live?.liveSlotId) setSelectedSlotId(availability?.slots[0]?.id ?? '')
+  }
+
+  function selectDay(nextDay: string) {
+    setSelectedDay(nextDay)
+    setSelectedSlotId('')
+    setStatus('idle')
+    setFeedback('')
+  }
+
+  function handleDayKeyDown(event: KeyboardEvent<HTMLButtonElement>, currentDay: string) {
+    const currentIndex = availableDays.findIndex((day) => day.date === currentDay)
+    const lastIndex = availableDays.length - 1
+    let nextIndex: number
+
+    switch (event.key) {
+      case 'ArrowRight':
+      case 'ArrowDown':
+        nextIndex = (currentIndex + 1) % availableDays.length
+        break
+      case 'ArrowLeft':
+      case 'ArrowUp':
+        nextIndex = (currentIndex - 1 + availableDays.length) % availableDays.length
+        break
+      case 'Home':
+        nextIndex = 0
+        break
+      case 'End':
+        nextIndex = lastIndex
+        break
+      default:
+        return
+    }
+
+    event.preventDefault()
+    const nextDay = availableDays[nextIndex]
+    if (!nextDay) return
+
+    selectDay(nextDay.date)
+    event.currentTarget.parentElement
+      ?.querySelectorAll<HTMLButtonElement>('[role="radio"]')[nextIndex]
+      ?.focus()
   }
 
   async function handleNotify() {
@@ -295,8 +363,8 @@ export function ZapytajIntakeForm({ promotionMode = false, initialPromotionCode 
         <div className="zapytaj-form-step-head">
           <span className="zapytaj-form-step-badge">1</span>
           <div>
-            <h2 id="step-1-title" className="zapytaj-form-step-title">Wybierz termin rozmowy</h2>
-            <p className="zapytaj-form-step-desc">Rozmowa telefoniczna do 15 minut · 79 zł (wstępna ocena sytuacji i kierunek działania).</p>
+            <h2 id="step-1-title" className="zapytaj-form-step-title">Wybierz dzień i godzinę</h2>
+            <p className="zapytaj-form-step-desc">Krótka rozmowa telefoniczna do 15 minut. Termin wybierasz dopiero po zobaczeniu dostępnych godzin.</p>
           </div>
         </div>
 
@@ -304,14 +372,14 @@ export function ZapytajIntakeForm({ promotionMode = false, initialPromotionCode 
           <div className="zapytaj-availability-head">
             <div>
               <span className="zapytaj-form-card-kicker">WOLNE TERMINY</span>
-              <strong>Dostępne godziny w kalendarzu</strong>
+              <strong>Wybierz dzień, potem godzinę</strong>
             </div>
             <button type="button" className="zapytaj-refresh-button" onClick={() => void refreshAvailability(true)} disabled={isRefreshing}>
               <RefreshCw size={14} aria-hidden="true" />
               {isRefreshing ? 'Sprawdzam…' : 'Odśwież'}
             </button>
           </div>
-          <p>{promotionMode ? 'Kod grupowy działa tylko przy rezerwacji zwykłego terminu.' : availabilityError || 'Wybierz dogodny termin rozmowy.'}</p>
+          <p>{promotionMode ? 'Kod grupowy działa tylko przy rezerwacji zwykłego terminu.' : availabilityError || 'Pokazuję tylko godziny z wybranego dnia.'}</p>
           {!promotionMode && liveAvailable ? (
             <button type="button" className={`zapytaj-live-option${mode === 'live' ? ' is-selected' : ''}`} onClick={() => selectMode('live')}>
               <PhoneCall size={18} aria-hidden="true" />
@@ -345,13 +413,33 @@ export function ZapytajIntakeForm({ promotionMode = false, initialPromotionCode 
                 <span>Sprawdzam dostępne terminy…</span>
               </p>
             ) : availability?.slots.length ? (
-              <div className="zapytaj-slot-grid">
-                {availability.slots.map((slot) => (
-                  <button type="button" key={slot.id} className={`zapytaj-slot-option${selectedSlotId === slot.id ? ' is-selected' : ''}`} onClick={() => setSelectedSlotId(slot.id)}>
-                    {slot.label}
+              <>
+              <div className="zapytaj-day-grid" role="radiogroup" aria-label="Wybierz dzień rozmowy">
+                {availableDays.map((day) => (
+                  <button
+                    type="button"
+                    key={day.date}
+                    role="radio"
+                    aria-checked={day.date === activeDay}
+                    tabIndex={day.date === activeDay ? 0 : -1}
+                    className={`zapytaj-day-option${day.date === activeDay ? ' is-selected' : ''}`}
+                    onClick={() => selectDay(day.date)}
+                    onKeyDown={(event) => handleDayKeyDown(event, day.date)}
+                  >
+                    <span>{day.label}</span>
+                    <small>{day.count} godz.</small>
                   </button>
                 ))}
               </div>
+              <p className="zapytaj-time-heading">Wybierz godzinę</p>
+              <div className="zapytaj-slot-grid">
+                {visibleSlots.map((slot) => (
+                  <button type="button" key={slot.id} className={`zapytaj-slot-option${selectedSlotId === slot.id ? ' is-selected' : ''}`} onClick={() => setSelectedSlotId(slot.id)}>
+                    {slot.time}
+                  </button>
+                ))}
+              </div>
+              </>
             ) : (
               <div className="zapytaj-empty-slots-wrap">
                 <p className="zapytaj-empty-slots">Brak wolnych terminów w kalendarzu.</p>

@@ -89,23 +89,18 @@ const problemLandingPaths = [
 
 const BASE_SEEDS = Array.from(new Set([
   '/',
-  '/cennik',
-  '/cennik/pelny',
-  '/konsultacja-behawioralna-online',
-  '/behawiorysta-online-polska',
+  '/zapytaj',
+  '/konsultacja',
   '/opinie',
-  '/koty',
-  '/psy',
+  '/problemy',
+  '/mapa-sprawy',
   '/faq',
   '/o-mnie',
   '/kontakt',
   '/polityka-prywatnosci',
   '/regulamin',
   '/materialy',
-  '/przybornik',
   '/blog',
-  '/book',
-  '/booking',
   '/slot',
   '/form',
   '/payment',
@@ -123,7 +118,6 @@ const BASE_SEEDS = Array.from(new Set([
   buildBookHref(null, 'konsultacja-behawioralna-online'),
   buildBookHref(null, 'konsultacja-behawioralna-online', false, 'pies'),
   buildBookHref(null, 'konsultacja-behawioralna-online', false, 'kot'),
-  '/materialy',
 ].map((value) => value.trim())))
 
 function normalizeComparablePath(url: string) {

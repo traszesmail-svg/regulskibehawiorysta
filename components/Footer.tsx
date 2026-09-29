@@ -22,7 +22,6 @@ type FooterProps = {
   showReviews?: boolean
   reviewSpecies?: 'dog' | 'cat' | 'all'
   reviewLayout?: 'carousel' | 'editorial'
-  sectionBasePath?: '/' | '/blog' | '/psy' | '/koty' | '/opinie' | '/o-mnie' | '/faq' | '/kontakt' | '/materialy'
 }
 
 const FOOTER_NAV_ITEMS = [

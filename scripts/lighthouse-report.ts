@@ -25,7 +25,7 @@ const rootDir = process.cwd()
 const reportRoot = path.join(rootDir, 'qa-reports', 'lighthouse')
 const latestDir = path.join(reportRoot, 'latest')
 const tempRoot = path.join(rootDir, '.tmp-lighthouse')
-const DEFAULT_ROUTES = ['/', '/cennik', '/kontakt', '/book']
+const DEFAULT_ROUTES = ['/', '/zapytaj', '/kontakt', '/book?qa=1']
 const LIGHTHOUSE_MAX_ATTEMPTS = 2
 
 function readArg(name: string) {

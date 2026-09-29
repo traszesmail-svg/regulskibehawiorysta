@@ -7,7 +7,6 @@ const publicRules: MetadataRoute.Robots['rules'] = [
     allow: '/',
     disallow: [
       '/admin/',
-      '/__internal/',
       '/api/',
       '/call/',
       '/room/',
@@ -25,7 +24,6 @@ const publicRules: MetadataRoute.Robots['rules'] = [
       '/problem',
       '/materialy/pobranie',
       '/bezplatne-materialy/dziekuje',
-      '/przybornik',
     ],
   },
 ]

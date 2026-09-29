@@ -2,10 +2,8 @@ import { access, mkdir, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { loadEnvConfig } from '@next/env'
 import { chromium, type BrowserContext, type Locator, type Page } from 'playwright-core'
-import { getBookingServiceTitle, type BookingServiceType } from '../lib/booking-services'
-import { getProblemLabel, isFutureAvailabilitySlot } from '../lib/data'
+import { isFutureAvailabilitySlot } from '../lib/data'
 import { SITE_PRODUCTION_URL } from '../lib/site'
-import type { ProblemType } from '../lib/types'
 import { resolveBrowserExecutablePath } from './lib/browser-path'
 
 type StepStatus = 'passed' | 'failed'
@@ -31,7 +29,7 @@ type MobileResult = {
 
 type DesktopResult = {
   bookCardsReadable: boolean
-  catsCardsReadable: boolean
+  problemCardsReadable: boolean
   layoutStable: boolean
   notes: string[]
 }
@@ -383,19 +381,9 @@ async function clickAndWaitForUrl(
 
 async function waitForHome(page: Page, baseUrl: string) {
   await page.goto(`${baseUrl}/`, { waitUntil: 'domcontentloaded' })
-  await waitForAnyVisible(
-    [
-      page
-        .locator('main h1')
-        .filter({ hasText: /Masz psa, kota albo sprawę złożoną\?|Spokojny start bez zgadywania|Chcę opisać sytuację/i })
-        .first(),
-      page.locator('main h1').first(),
-    ],
-    20000,
-  )
-  await waitForAnyVisible([page.locator('#home-paths').first(), page.locator('[data-home-quick-choice]').first()], 20000)
+  await page.getByRole('heading', { level: 1, name: /Martwi Ci.*zachowanie psa lub kota/i }).waitFor({ timeout: 20000 })
+  await page.locator('.homepage-zapytaj-primary').first().waitFor({ timeout: 20000 })
 }
-
 async function waitForConfirmationState(page: Page, expectedState: string, headingFallback: RegExp, timeout: number) {
   return waitForAnyVisible(
     [
@@ -444,7 +432,7 @@ async function assertPublicSiteNavVisible(page: Page, routePath: string) {
   const nav = page.locator('header.notatnik-topbar nav[aria-label="Glowne sekcje"]').first()
   await waitForAnyVisible([nav], 20000)
 
-  for (const label of ['O mnie', 'Cennik', 'FAQ', 'Blog', 'Kontakt']) {
+  for (const label of ['Konsultacja', 'Terapia', 'Materiały', 'Blog', 'O mnie']) {
     const link = nav.getByRole('link', { name: new RegExp(`^${escapeRegExp(label)}$`, 'i') }).first()
 
     if (!(await isVisible(link))) {
@@ -454,127 +442,13 @@ async function assertPublicSiteNavVisible(page: Page, routePath: string) {
 }
 
 async function assertBookingHeroJumpLink(page: Page, routePath: string, expectedHref: string, expectedLabel: RegExp) {
-  const link = page.locator('.notatnik-subhero-actions a').filter({ hasText: expectedLabel }).first()
+  const link = page.locator('.mobile-first-step-cta-actions a').filter({ hasText: expectedLabel }).first()
   await waitForAnyVisible([link], 20000)
   const href = await link.getAttribute('href')
 
   if (href !== expectedHref) {
     throw new Error(`CTA hero na ${routePath} ma href ${href ?? 'null'} zamiast ${expectedHref}.`)
   }
-}
-
-type OfferJourneyConfig = {
-  stepName: string
-  serviceType: BookingServiceType
-  offerHeading: RegExp
-  problemType: ProblemType
-  ownerName: string
-  email: string
-  description: string
-}
-
-async function runOfferJourney(results: StepResult[], page: Page, baseUrl: string, config: OfferJourneyConfig) {
-  await runStep(results, config.stepName, page, async (step) => {
-    await page.goto(`${baseUrl}/oferta`, { waitUntil: 'domcontentloaded' })
-    await waitForAnyVisible([page.getByRole('heading', { level: 1, name: /Wybierz start dla swojej sytuacji\./i })], 20000)
-
-    const offerCard = page.locator('.offer-card', { has: page.getByRole('heading', { name: config.offerHeading }) }).first()
-    await waitForAnyVisible([offerCard], 20000)
-
-    const offerButton = offerCard.locator('.offer-card-actions .button').first()
-    await clickAndWaitForUrl(
-      page,
-      offerButton,
-      (url) => url.pathname === '/book' && url.searchParams.get('service') === config.serviceType,
-    )
-
-    await waitForAnyVisible(
-      [page.getByRole('heading', { level: 1, name: new RegExp(`Wybierz temat dla: ${escapeRegExp(getBookingServiceTitle(config.serviceType))}`, 'i') })],
-      20000,
-    )
-    step.notes.push(`/oferta -> /book z service=${config.serviceType}`)
-
-    const topicCard = page.locator(`a.topic-card[data-problem="${escapeAttributeValue(config.problemType)}"]`).first()
-    await clickAndWaitForUrl(
-      page,
-      topicCard,
-      (url) =>
-        url.pathname === '/slot' &&
-        url.searchParams.get('problem') === config.problemType &&
-        url.searchParams.get('service') === config.serviceType,
-    )
-
-    await waitForAnyVisible(
-      [page.getByRole('heading', { level: 1, name: new RegExp(`Wybierz termin: ${escapeRegExp(getProblemLabel(config.problemType))}`, 'i') })],
-      20000,
-    )
-    step.notes.push(`/book -> /slot z problem=${config.problemType}`)
-
-    const firstSlot = getFirstSlotLink(page)
-    const emptyState = page.locator('.empty-box').first()
-    await waitForAnyVisible([firstSlot, emptyState], 20000)
-
-    if ((await isVisible(emptyState)) && !(await isVisible(firstSlot))) {
-      step.notes.push(`/book -> /slot z problem=${config.problemType}`)
-      step.notes.push(`emptyState=true dla service=${config.serviceType}`)
-      return
-    }
-
-    await clickAndWaitForUrl(
-      page,
-      firstSlot,
-      (url) =>
-        url.pathname === '/form' &&
-        url.searchParams.get('problem') === config.problemType &&
-        url.searchParams.get('service') === config.serviceType,
-    )
-
-    await waitForAnyVisible([page.getByRole('heading', { level: 1, name: /Uzupełnij dane do rezerwacji/i })], 20000)
-    step.notes.push(`/slot -> /form z service=${config.serviceType}`)
-
-    await getBookingFormField(page, 'owner-name').fill(config.ownerName)
-    await getBookingFormField(page, 'email').fill(config.email)
-    await getBookingFormField(page, 'description').fill(config.description)
-    await page.locator('#booking-privacy').check()
-    await page.locator('#booking-early-start').check()
-
-    const bookingResponse = page.waitForResponse(
-      (response) => response.url().includes('/api/bookings') && response.request().method() === 'POST',
-    )
-    await submitBookingForm(page)
-    const response = await bookingResponse
-    if (!response.ok()) {
-      throw new Error(`POST /api/bookings zwrocil ${response.status()}.`)
-    }
-
-    await page.waitForURL(
-      (url) => url.pathname === '/payment' && url.searchParams.get('service') === config.serviceType,
-      {
-        timeout: 60000,
-        waitUntil: 'domcontentloaded',
-      },
-    )
-
-    const paymentUrl = new URL(page.url())
-    if (paymentUrl.searchParams.get('service') !== config.serviceType) {
-      throw new Error(`URL payment nie zachowal service=${config.serviceType}.`)
-    }
-
-    await waitForAnyVisible(
-      [
-        page.locator('[data-payment-state="payment-selection"]').first(),
-        page.getByRole('heading', { level: 1, name: /Wybierz sposób płatności/i }),
-      ],
-      20000,
-    )
-
-    const manualVisible = (await page.locator('[data-payment-method="manual"]').count()) > 0
-    const payuVisible = (await page.locator('[data-payment-method="payu"]').count()) > 0
-
-    step.notes.push(`/form -> /payment z service=${config.serviceType}`)
-    step.notes.push(`manualVisible=${manualVisible}`)
-    step.notes.push(`payuVisible=${payuVisible}`)
-  })
 }
 
 async function rejectManualPaymentWithRetry(page: Page, bookingId: string) {
@@ -624,38 +498,23 @@ async function checkMobileLayout(
   try {
     await waitForHome(page, baseUrl)
     const heroHeading = page.getByRole('heading', { level: 1 }).first()
-    const choices = [
-      page.locator('[data-home-quick-choice="dog"]').first(),
-      page.locator('[data-home-quick-choice="cat"]').first(),
-      page.locator('[data-home-quick-choice="help"]').first(),
-    ]
-    const choiceHeading = page.locator('#home-paths .home-choice-heading').first()
-    const choiceBoxes = await Promise.all(choices.map((locator) => locator.boundingBox()))
-    const titleBoxes = await Promise.all(choices.map((locator) => locator.locator('.home-choice-title').boundingBox()))
-    const summaryCounts = await Promise.all(choices.map((locator) => locator.locator('.home-choice-summary').count()))
+    const homeCta = page.locator('.homepage-zapytaj-primary').first()
+    const homeCtaBox = await homeCta.boundingBox()
     const headingBox = await heroHeading.boundingBox()
-    const choiceHeadingBox = await choiceHeading.boundingBox()
     const heroClear = Boolean(headingBox && headingBox.y >= 0 && headingBox.y + headingBox.height <= height)
-    const decisionBlockVisibleSoon = Boolean(choiceHeadingBox && choiceHeadingBox.y <= height * 1.35)
-    const homeCardsReadable =
-      decisionBlockVisibleSoon &&
-      choiceBoxes.every((box) => Boolean(box && box.width >= 88 && box.height >= 96)) &&
-      titleBoxes.every((box) => Boolean(box && box.height <= 72)) &&
-      summaryCounts.every((count) => count > 0)
-    const ctaEasyToTap = choiceBoxes.every((box) => Boolean(box && box.height >= 44 && box.width >= 44))
+    const homeCtaReadable = Boolean(homeCtaBox && homeCtaBox.width >= Math.max(220, width * 0.68))
+    const ctaEasyToTap = Boolean(homeCtaBox && homeCtaBox.height >= 44 && homeCtaBox.width >= 44)
     const homeStable = await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)
     const homeLean = (await page.locator('footer').getByText(/Marka i kontakt/i).count()) === 0
 
-    await page.goto(`${baseUrl}/book`, { waitUntil: 'domcontentloaded' })
-    await waitForAnyVisible([page.getByRole('heading', { name: /Wybierz temat dla:/i })], 20000)
-    const firstBookCard = page.locator('.topic-card').first()
-    const bookCardBox = await firstBookCard.boundingBox()
-    const bookTitleBox = await firstBookCard.locator('.topic-title').boundingBox()
-    const bookCardsReadable =
-      Boolean(bookCardBox && bookCardBox.width >= Math.max(236, width * 0.68)) &&
-      Boolean(bookTitleBox && bookTitleBox.height <= 96) &&
-      (await isVisible(firstBookCard.locator('.topic-desc').first())) &&
-      (await isVisible(firstBookCard.locator('.topic-link').first()))
+    await page.goto(`${baseUrl}/book?qa=1`, { waitUntil: 'domcontentloaded' })
+    await waitForAnyVisible([page.getByRole('heading', { name: /Wybierz termin konsultacji/i })], 20000)
+    const calendarLayout = page.locator('.termin-calendar-layout').first()
+    const calendarBox = await calendarLayout.boundingBox()
+    const calendarControlsVisible =
+      (await isVisible(page.locator('.termin-calendar-toolbar').first())) &&
+      (await isVisible(page.locator('.termin-calendar-grid').first()))
+    const bookCardsReadable = Boolean(calendarBox && calendarBox.width >= Math.max(236, width * 0.68)) && calendarControlsVisible
     const bookStable = await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)
     const bookLean = (await page.locator('footer').getByText(/Marka i kontakt/i).count()) === 0
 
@@ -664,38 +523,30 @@ async function checkMobileLayout(
     const kontaktStable = await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)
     const kontaktLean = (await page.locator('footer').getByText(/Marka i kontakt/i).count()) === 0
 
-    await page.goto(`${baseUrl}/oferta`, { waitUntil: 'domcontentloaded' })
-    await waitForAnyVisible([page.getByRole('heading', { level: 1, name: /Wybierz start dla swojej sytuacji\./i })], 20000)
-    const firstOfferCard = page.locator('.offer-card').first()
-    const offerCardBox = await firstOfferCard.boundingBox()
-    const offerTitleBox = await firstOfferCard.locator('h3').boundingBox()
-    const offerCardsReadable =
-      Boolean(offerCardBox && offerCardBox.width >= Math.max(236, width * 0.68)) &&
-      Boolean(offerTitleBox && offerTitleBox.height <= 110) &&
-      (await isVisible(firstOfferCard.locator('.offer-card-summary').first())) &&
-      (await isVisible(firstOfferCard.locator('.offer-price').first())) &&
-      (await isVisible(firstOfferCard.locator('.offer-card-actions .button').first())) &&
-      (await firstOfferCard.locator('.offer-card-meta').count()) >= 2
-    const ofertaStable = await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)
-    const ofertaLean = (await page.locator('footer').getByText(/Marka i kontakt/i).count()) === 0
+    await page.goto(`${baseUrl}/zapytaj`, { waitUntil: 'domcontentloaded' })
+    await waitForAnyVisible([page.getByRole('heading', { level: 1, name: /Martwi Ci.*zachowanie psa lub kota/i })], 20000)
+    const zapytajCta = page.locator('.zapytaj-hero-actions a').first()
+    const zapytajCtaBox = await zapytajCta.boundingBox()
+    const zapytajPageReadable = Boolean(zapytajCtaBox && zapytajCtaBox.width >= Math.max(220, width * 0.68) && zapytajCtaBox.height >= 44)
+    const zapytajStable = await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)
+    const zapytajLean = (await page.locator('footer').getByText(/Marka i kontakt/i).count()) === 0
 
     return {
       width,
       height,
       heroClear,
-      cardsReadable: homeCardsReadable && bookCardsReadable && offerCardsReadable,
-      bottomAreaLean: homeLean && bookLean && kontaktLean && ofertaLean,
+      cardsReadable: homeCtaReadable && bookCardsReadable && zapytajPageReadable,
+      bottomAreaLean: homeLean && bookLean && kontaktLean && zapytajLean,
       ctaEasyToTap,
-      layoutStable: homeStable && bookStable && kontaktStable && ofertaStable,
+      layoutStable: homeStable && bookStable && kontaktStable && zapytajStable,
       notes: [
-        `decisionBlockVisibleSoon=${decisionBlockVisibleSoon}`,
-        `homeCardsReadable=${homeCardsReadable}`,
+        `homeCtaReadable=${homeCtaReadable}`,
         `bookCardsReadable=${bookCardsReadable}`,
-        `offerCardsReadable=${offerCardsReadable}`,
+        `zapytajPageReadable=${zapytajPageReadable}`,
         `homeLean=${homeLean}`,
         `bookLean=${bookLean}`,
         `kontaktLean=${kontaktLean}`,
-        `ofertaLean=${ofertaLean}`,
+        `zapytajLean=${zapytajLean}`,
       ],
     } satisfies MobileResult
   } catch (error) {
@@ -739,23 +590,22 @@ async function checkDesktopLayout(
   const page = await createPage(context, 'desktop', baseUrl, issues, seen)
 
   try {
-    await page.goto(`${baseUrl}/book`, { waitUntil: 'domcontentloaded' })
-    await waitForAnyVisible([page.getByRole('heading', { name: /Wybierz temat dla:/i })], 20000)
+    await page.goto(`${baseUrl}/book?qa=1`, { waitUntil: 'domcontentloaded' })
+    await waitForAnyVisible([page.getByRole('heading', { name: /Wybierz termin konsultacji/i })], 20000)
 
-    const bookGrid = page.locator('#tematy').first()
-    const bookCard = page.locator('#tematy .topic-card').first()
-    const bookGridBox = await bookGrid.boundingBox()
-    const bookCardBox = await bookCard.boundingBox()
-    const bookCardsReadable = Boolean(bookGridBox && bookGridBox.y <= 720) && Boolean(bookCardBox && bookCardBox.width >= 300 && bookCardBox.width <= 420)
+    const calendarLayout = page.locator('.termin-calendar-layout').first()
+    const calendarBox = await calendarLayout.boundingBox()
+    const calendarToolbarBox = await page.locator('.termin-calendar-toolbar').first().boundingBox()
+    const bookCardsReadable = Boolean(calendarBox && calendarBox.y <= 720 && calendarBox.width >= 700) && Boolean(calendarToolbarBox && calendarToolbarBox.width >= 400)
 
-    await page.goto(`${baseUrl}/koty`, { waitUntil: 'domcontentloaded' })
-    await waitForAnyVisible([page.getByRole('heading', { name: /Wybierz temat dla kota/i })], 20000)
+    await page.goto(`${baseUrl}/problemy#kot`, { waitUntil: 'domcontentloaded' })
+    await waitForAnyVisible([page.locator('.problem-hub-group-kot .problem-hub-card').first()], 20000)
 
-    const catsGrid = page.locator('#kocie-kategorie').first()
-    const catsCard = page.locator('#kocie-kategorie .topic-card').first()
-    const catsGridBox = await catsGrid.boundingBox()
-    const catsCardBox = await catsCard.boundingBox()
-    const catsCardsReadable = Boolean(catsGridBox && catsGridBox.y <= 720) && Boolean(catsCardBox && catsCardBox.width >= 300 && catsCardBox.width <= 420)
+    const problemGroup = page.locator('.problem-hub-group-kot').first()
+    const problemCard = problemGroup.locator('.problem-hub-card').first()
+    const problemGridBox = await problemGroup.boundingBox()
+    const problemCardBox = await problemCard.boundingBox()
+    const problemCardsReadable = Boolean(problemGridBox && problemGridBox.y <= 720) && Boolean(problemCardBox && problemCardBox.width >= 300 && problemCardBox.width <= 420)
 
     const layoutStable = await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)
 
@@ -772,14 +622,14 @@ async function checkDesktopLayout(
       )
     }
 
-    if (!catsCardsReadable) {
+    if (!problemCardsReadable) {
       pushIssue(
         issues,
         {
           level: 'pageerror',
-          source: 'desktop-cats',
+          source: 'desktop-problem-map',
           url: page.url() || null,
-          message: 'Desktop cat cards are not readable or start too low on /koty.',
+          message: 'Desktop problem cards are not readable or start too low in the cat section of /problemy.',
         },
         seen,
       )
@@ -800,11 +650,11 @@ async function checkDesktopLayout(
 
     return {
       bookCardsReadable,
-      catsCardsReadable,
+      problemCardsReadable,
       layoutStable,
       notes: [
         `bookCardsReadable=${bookCardsReadable}`,
-        `catsCardsReadable=${catsCardsReadable}`,
+        `problemCardsReadable=${problemCardsReadable}`,
         `layoutStable=${layoutStable}`,
       ],
     } satisfies DesktopResult
@@ -822,7 +672,7 @@ async function checkDesktopLayout(
 
     return {
       bookCardsReadable: false,
-      catsCardsReadable: false,
+      problemCardsReadable: false,
       layoutStable: false,
       notes: ['desktop layout check failed before completion'],
     } satisfies DesktopResult
@@ -957,69 +807,53 @@ async function main() {
 
     await runStep(results, 'Home', publicPage, async (step) => {
       await waitForHome(publicPage, baseUrl)
-      await waitForAnyVisible([publicPage.locator('[data-home-quick-choice="dog"]').first()], 20000)
-      await waitForAnyVisible([publicPage.locator('[data-home-quick-choice="cat"]').first()], 20000)
-      await waitForAnyVisible([publicPage.locator('[data-home-quick-choice="help"]').first()], 20000)
-      step.notes.push('Hero i 3 wejścia są widoczne na stronie głównej.')
-    })
-
-    await runStep(results, 'Hero CTA x3', publicPage, async (step) => {
-      await waitForHome(publicPage, baseUrl)
-      await clickAndWaitForUrl(publicPage, publicPage.locator('[data-home-quick-choice="dog"]').first(), /\/book$/)
-      step.notes.push('Mam psa -> /book')
-
-      await waitForHome(publicPage, baseUrl)
-      await clickAndWaitForUrl(publicPage, publicPage.locator('[data-home-quick-choice="cat"]').first(), /\/koty$/)
-      step.notes.push('Mam kota -> /koty')
-
-      await waitForHome(publicPage, baseUrl)
-      await clickAndWaitForUrl(publicPage, publicPage.locator('[data-home-quick-choice="help"]').first(), /\/kontakt$/)
-      step.notes.push('Chcę opisać sytuację -> /kontakt')
-    })
-
-    await runStep(results, '/koty', publicPage, async (step) => {
-      await publicPage.goto(`${baseUrl}/koty`, { waitUntil: 'domcontentloaded' })
-      await waitForAnyVisible(
-        [publicPage.getByRole('heading', { level: 1, name: /Wybierz temat dla kota i od razu przejdź do terminu\./i })],
-        20000,
-      )
-      const catTopicCount = await publicPage.locator('[data-cat-problem]').count()
-      const catImageCount = await publicPage.locator('#kocie-kategorie img').count()
-
-      if (catTopicCount !== 5) {
-        throw new Error(`Strona /koty powinna miec 5 kategorii, a ma ${catTopicCount}.`)
+      const ctaHref = await publicPage.locator('.homepage-zapytaj-primary').first().getAttribute('href')
+      if (ctaHref !== '/zapytaj') {
+        throw new Error(`Homepage primary CTA points to ${ctaHref ?? 'no link'} instead of /zapytaj.`)
       }
-
-      if (catImageCount < 5) {
-        throw new Error(`Strona /koty powinna miec obrazy dla 5 kategorii, a znalazla ${catImageCount}.`)
-      }
-
-      step.notes.push('Strona kotow pokazuje 5 kategorii z obrazami.')
+      step.notes.push('Homepage primary CTA points to the current Zapytaj service page.')
     })
 
-    await runStep(results, '/book', publicPage, async (step) => {
-      await publicPage.goto(`${baseUrl}/book`, { waitUntil: 'domcontentloaded' })
-      await waitForAnyVisible([publicPage.getByRole('heading', { level: 1, name: /Wybierz temat dla:/i })], 20000)
-      const catCardsInBook = await publicPage.locator('a.topic-card[data-problem^="kot"]').count()
-      if (catCardsInBook > 0) {
-        throw new Error(`/book nadal pokazuje kocie kategorie (${catCardsInBook}).`)
-      }
-
-      step.notes.push('Wejscie do book dziala i pokazuje tylko psie tematy.')
+    await runStep(results, 'Homepage CTA -> /zapytaj', publicPage, async (step) => {
+      await waitForHome(publicPage, baseUrl)
+      await clickAndWaitForUrl(publicPage, publicPage.locator('.homepage-zapytaj-primary').first(), (url) => url.pathname === '/zapytaj')
+      await waitForAnyVisible([publicPage.locator('#formularz').first()], 20000)
+      step.notes.push('The homepage CTA opens the current service page and its intake form.')
     })
 
-    await runStep(results, '/slot', publicPage, async (step) => {
-      await publicPage.goto(`${baseUrl}/koty`, { waitUntil: 'domcontentloaded' })
-      await clickAndWaitForUrl(publicPage, publicPage.locator('a[data-cat-problem="kot-stres"]').first(), /\/slot\?problem=kot-stres$/)
-      await waitForAnyVisible(
-        [publicPage.getByRole('heading', { level: 1, name: new RegExp(`Wybierz termin: ${escapeRegExp(getProblemLabel('kot-stres'))}`, 'i') })],
-        20000,
-      )
+    await runStep(results, 'Problem map cat cards', publicPage, async (step) => {
+      await publicPage.goto(`${baseUrl}/problemy#kot`, { waitUntil: 'domcontentloaded' })
+      await waitForAnyVisible([publicPage.locator('.problem-hub-group-kot .problem-hub-card').first()], 20000)
+      const catProblemCard = publicPage.locator('a[data-analytics-problem="kot-sika-poza-kuweta"]').first()
+      const catProblemHref = await catProblemCard.getAttribute('href')
+      if (catProblemHref !== '/problemy/kot-sika-poza-kuweta') {
+        throw new Error(`Cat problem card points to ${catProblemHref ?? 'no link'} instead of its canonical problem page.`)
+      }
+      step.notes.push('The canonical problem map exposes cat problem cards and links to the active detail routes.')
+    })
+
+    await runStep(results, '/book?qa=1', publicPage, async (step) => {
+      await publicPage.goto(`${baseUrl}/book?qa=1`, { waitUntil: 'domcontentloaded' })
+      await waitForAnyVisible([publicPage.getByRole('heading', { name: /Wybierz termin konsultacji/i })], 20000)
+      await waitForAnyVisible([publicPage.locator('.termin-calendar-layout').first()], 20000)
+      const selectedSpecies = publicPage.locator('.termin-inline-choice-options a.is-selected').first()
+      if (!/Pies/i.test(await selectedSpecies.innerText())) {
+        throw new Error('The booking entry without a species query does not default to the dog selection.')
+      }
+      step.notes.push('The booking QA route opens the current calendar with the default dog selection.')
+    })
+
+    await runStep(results, '/book cat QA route', publicPage, async (step) => {
+      await publicPage.goto(`${baseUrl}/book?problem=kot-stres&species=kot&qa=1`, { waitUntil: 'domcontentloaded' })
+      await waitForAnyVisible([publicPage.getByRole('heading', { level: 1, name: /Wybierz termin konsultacji/i })], 20000)
+      const selectedSpecies = publicPage.locator('.termin-inline-choice-options a.is-selected').first()
+      if (!/Kot/i.test(await selectedSpecies.innerText())) {
+        throw new Error('The booking calendar did not preserve the selected cat species.')
+      }
       const firstSlot = getFirstSlotLink(publicPage)
       await waitForAnyVisible([firstSlot], 20000)
-      step.notes.push(`Pierwszy slot: ${cleanText(await firstSlot.innerText())}`)
+      step.notes.push(`Cat QA route exposes an available slot: ${cleanText(await firstSlot.innerText())}`)
     })
-
     await runStep(results, '/form', publicPage, async (step) => {
       const firstSlot = getFirstSlotLink(publicPage)
       await firstSlot.click()
@@ -1055,20 +889,16 @@ async function main() {
       step.notes.push('Formularz przeszedl do payment.')
     })
 
-    await runStep(results, '/koty -> slot / 30 min', publicPage, async (step) => {
-      await publicPage.goto(`${baseUrl}/koty?service=konsultacja-30-min`, { waitUntil: 'domcontentloaded' })
+    await runStep(results, '/book cat 30 min QA route', publicPage, async (step) => {
+      await publicPage.goto(`${baseUrl}/book?problem=kot-kuweta&service=konsultacja-30-min&species=kot&qa=1`, { waitUntil: 'domcontentloaded' })
       await waitForAnyVisible(
-        [publicPage.getByRole('heading', { level: 1, name: /Wybierz temat dla kota i od razu przejdź do terminu\./i })],
+        [publicPage.getByRole('heading', { level: 1, name: /Wybierz termin konsultacji/i })],
         20000,
       )
-      await clickAndWaitForUrl(
-        publicPage,
-        publicPage.locator('a[data-cat-problem="kot-kuweta"]').first(),
-        /\/slot\?problem=kot-kuweta&service=konsultacja-30-min$/,
-      )
-      step.notes.push('Kocia sciezka 30 min zachowuje service=konsultacja-30-min.')
+      const firstSlot = getFirstSlotLink(publicPage)
+      await waitForAnyVisible([firstSlot], 20000)
+      step.notes.push('Cat booking keeps the selected 30-minute service on the current QA route.')
     })
-
     await runStep(results, '/payment', publicPage, async (step) => {
       if (!bookingId || !accessToken) {
         throw new Error('Brak bookingId lub access token do powrotu na payment.')
@@ -1204,102 +1034,57 @@ async function main() {
       })
     }
 
-    await runStep(results, '/oferta', publicPage, async (step) => {
-      await publicPage.goto(`${baseUrl}/oferta`, { waitUntil: 'domcontentloaded' })
-      await waitForAnyVisible([publicPage.getByRole('heading', { level: 1, name: /Wybierz start dla swojej sytuacji\./i })], 20000)
-      const firstCardButtons = await publicPage.locator('.offer-card').first().locator('.offer-card-actions .button').count()
-      step.notes.push(`Pierwsza karta ma 1 główne CTA: ${firstCardButtons === 1}`)
-    })
-
-    await runOfferJourney(results, publicPage, baseUrl, {
-      stepName: 'oferta -> payment / 30 min CTA',
-      serviceType: 'konsultacja-30-min',
-      offerHeading: /Konsultacja 30 min/i,
-      problemType: 'separacja',
-      ownerName: `${qaIdentity.ownerName} 30 min`,
-      email: `qa-live-30min-${timestamp.compact}@example.com`,
-      description:
-        'Test UI clickthrough dla 30 min. Pies ma napięcie przy zostawaniu samemu i chcemy sprawdzić pełny flow od oferty do płatności.',
-    })
-
-    await runStep(results, 'oferta -> slot / online CTA', publicPage, async (step) => {
-      await publicPage.goto(`${baseUrl}/oferta`, { waitUntil: 'domcontentloaded' })
-      await waitForAnyVisible([publicPage.getByRole('heading', { level: 1, name: /Wybierz start dla swojej sytuacji\./i })], 20000)
-
-      const onlineCard = publicPage.locator('.offer-card', { has: publicPage.getByRole('heading', { name: /Konsultacja behawioralna online/i }) }).first()
-      await waitForAnyVisible([onlineCard], 20000)
-
-      const onlineHref = await onlineCard.locator('.offer-card-actions .button').first().getAttribute('href')
-      if (!onlineHref || !onlineHref.includes('/book') || !onlineHref.includes('service=konsultacja-behawioralna-online')) {
-        throw new Error('Online CTA nie prowadzi do /book z service=konsultacja-behawioralna-online.')
+    await runStep(results, '/zapytaj current service page', publicPage, async (step) => {
+      await publicPage.goto(`${baseUrl}/zapytaj`, { waitUntil: 'domcontentloaded' })
+      await waitForAnyVisible([publicPage.getByRole('heading', { level: 1, name: /Martwi Ci.*zachowanie psa lub kota/i })], 20000)
+      await waitForAnyVisible([publicPage.locator('#formularz').first()], 20000)
+      const ctaHref = await publicPage.locator('.zapytaj-hero-actions a').first().getAttribute('href')
+      if (ctaHref !== '#formularz') {
+        throw new Error(`The Zapytaj hero CTA points to ${ctaHref ?? 'no link'} instead of #formularz.`)
       }
-
-      await publicPage.goto(`${baseUrl}/slot?problem=separacja&service=konsultacja-behawioralna-online`, { waitUntil: 'domcontentloaded' })
-      await waitForAnyBodyText(
-        publicPage,
-        [/Wybierz termin: Lęk separacyjny/i, /Teraz nie ma wolnych terminów/i, /Terminy chwilowo się odświeżają/i],
-        20000,
-      )
-
-      const emptyState = publicPage.locator('.empty-box').first()
-      if (await isVisible(emptyState)) {
-        step.notes.push('Online CTA prowadzi do empty state bez wolnych 60-min slotow.')
-      } else {
-        step.notes.push('Online CTA prowadzi do /slot z dostepnymi godzinami.')
-      }
+      step.notes.push('The canonical Zapytaj page exposes its intake form and matching hero CTA.')
     })
 
-    await runStep(results, 'detail page 1', publicPage, async (step) => {
-      await publicPage.goto(`${baseUrl}/oferta/konsultacja-30-min`, { waitUntil: 'domcontentloaded' })
-      await waitForAnyVisible([publicPage.getByRole('heading', { level: 1, name: /Konsultacja 30 min/i })], 20000)
-      const bodyText = cleanText(await publicPage.locator('main').innerText())
-      if (bodyText.includes('Sprawdź szybko') || bodyText.includes('Po tym wiesz, co robić')) {
-        throw new Error('Detail page 1 nadal zawiera stary szablon.')
-      }
-      step.notes.push('Konsultacja 30 min ma skrócony układ i 2 CTA.')
-    })
+    await runStep(results, 'legacy offer redirects', publicPage, async (step) => {
+      const redirects = [
+        { from: '/cennik', to: '/zapytaj', heading: /Martwi Cię zachowanie psa lub kota|Martwi Cie zachowanie psa lub kota/i },
+        { from: '/oferta', to: '/zapytaj', heading: /Martwi Cię zachowanie psa lub kota|Martwi Cie zachowanie psa lub kota/i },
+        { from: '/oferta/konsultacja-behawioralna-online', to: '/konsultacja', heading: /Konsultacja/i },
+        { from: '/oferta/poradniki-pdf', to: '/materialy', heading: /Materia.*PDF.*opiekun/i },
+      ] as const
 
-    await runStep(results, 'detail page 2', publicPage, async (step) => {
-      await publicPage.goto(`${baseUrl}/oferta/pobyty-socjalizacyjno-terapeutyczne`, { waitUntil: 'domcontentloaded' })
-      await waitForAnyVisible([publicPage.getByRole('heading', { level: 1, name: /Pobyty socjalizacyjno-terapeutyczne/i })], 20000)
-      const bodyText = cleanText(await publicPage.locator('main').innerText())
-      if (bodyText.includes('Sprawdź szybko') || bodyText.includes('Po tym wiesz, co robić')) {
-        throw new Error('Detail page 2 nadal zawiera stary szablon.')
+      for (const route of redirects) {
+        await publicPage.goto(`${baseUrl}${route.from}`, { waitUntil: 'domcontentloaded' })
+        await publicPage.waitForURL((url) => url.pathname === route.to, { timeout: 20000, waitUntil: 'domcontentloaded' })
+        await waitForAnyVisible([publicPage.getByRole('heading', { level: 1, name: route.heading })], 20000)
       }
-      step.notes.push('Pobyty pozostają opcją dalszą, nie zimnym pierwszym krokiem.')
+      step.notes.push('Legacy public offer URLs resolve to the current Zapytaj, consultation, and materials pages.')
     })
-
     await runStep(results, '/book 30 min hero CTA', publicPage, async (step) => {
-      await publicPage.goto(`${baseUrl}/book?service=konsultacja-30-min`, { waitUntil: 'domcontentloaded' })
-      await waitForAnyBodyText(publicPage, [/Rezerwacja Dwa kwadranse z behawiorysta/i, /Rezerwacja Dwoch kwadransow z behawiorysta/i], 20000)
-      await assertBookingHeroJumpLink(publicPage, '/book?service=konsultacja-30-min', '/book?service=konsultacja-30-min#formularz', /Przejdz do formularza: Dwa kwadranse/i)
+      await publicPage.goto(`${baseUrl}/book?qa=1&service=konsultacja-30-min`, { waitUntil: 'domcontentloaded' })
+      await waitForAnyVisible([publicPage.getByRole('heading', { level: 1, name: /Wybierz termin konsultacji/i })], 20000)
+      await assertBookingHeroJumpLink(publicPage, '/book?qa=1&service=konsultacja-30-min', '#najblizsze-terminy', /Zobacz terminy/i)
       const bodyText = cleanText(await publicPage.locator('main').innerText())
-      if (bodyText.includes('Kwadrans to bezpieczny start')) {
-        throw new Error('Book 30 min nadal pokazuje ogolny blok "Kwadrans to bezpieczny start".')
+      if (!bodyText.includes('Ten starszy wariant nie jest obecnie')) {
+        throw new Error('The retired 30-minute service is not clearly identified as unavailable to public bookings.')
       }
-      if (!bodyText.includes('Dwa kwadranse dla szerszego tematu')) {
-        throw new Error('Book 30 min nie pokazuje dopasowanego bloku decyzji.')
-      }
-      step.notes.push('Book 30 min ma aktywny hero CTA do formularza i bez generycznego bloku Kwadransu.')
+      step.notes.push('The internal 30-minute QA route identifies the service as retired and links to available dates.')
     })
 
     await runStep(results, '/book full consultation hero CTA', publicPage, async (step) => {
-      await publicPage.goto(`${baseUrl}/book?service=konsultacja-behawioralna-online`, { waitUntil: 'domcontentloaded' })
-      await waitForAnyBodyText(publicPage, [/Rezerwacja Pelna konsultacja behawioralna/i, /Rezerwacja Pelnej konsultacji behawioralnej/i], 20000)
+      await publicPage.goto(`${baseUrl}/book?qa=1&service=konsultacja-behawioralna-online`, { waitUntil: 'domcontentloaded' })
+      await waitForAnyVisible([publicPage.getByRole('heading', { level: 1, name: /Wybierz termin konsultacji/i })], 20000)
       await assertBookingHeroJumpLink(
         publicPage,
-        '/book?service=konsultacja-behawioralna-online',
-        '/book?service=konsultacja-behawioralna-online#formularz',
-        /Przejdz do formularza: Pelna konsultacja/i,
+        '/book?qa=1&service=konsultacja-behawioralna-online',
+        '#najblizsze-terminy',
+        /Zobacz terminy/i,
       )
-      const bodyText = cleanText(await publicPage.locator('main').innerText())
-      if (bodyText.includes('Kwadrans to bezpieczny start')) {
-        throw new Error('Book pelna konsultacja nadal pokazuje ogolny blok "Kwadrans to bezpieczny start".')
+      const serviceTitle = await publicPage.locator('.mobile-first-step-cta strong').first().innerText()
+      if (!/Pełna|Pelna konsultacja/i.test(serviceTitle)) {
+        throw new Error(`The booking calendar does not show the selected full-consultation service: ${serviceTitle}.`)
       }
-      if (!bodyText.includes('Pelna konsultacja dla spraw zlozonych')) {
-        throw new Error('Book pelna konsultacja nie pokazuje dopasowanego bloku decyzji.')
-      }
-      step.notes.push('Book pelna konsultacja ma aktywny hero CTA do formularza i bez generycznego bloku Kwadransu.')
+      step.notes.push('The current full-consultation calendar keeps the selected service and date CTA.')
     })
 
     await runStep(results, '/kontakt', publicPage, async (step) => {
@@ -1348,12 +1133,12 @@ async function main() {
       step.notes.push('Katalog aktualnych PDF ma ten sam publiczny topbar co glowne templatey.')
     })
 
-    await runStep(results, '/psy/reaktywnosc-na-smyczy', publicPage, async (step) => {
+    await runStep(results, 'canonical leash reactivity article', publicPage, async (step) => {
       await publicPage.goto(`${baseUrl}/blog/reaktywnosc-na-smyczy-cwiczenie-luznej-smyczy`, { waitUntil: 'domcontentloaded' })
       await waitForAnyVisible([publicPage.locator('main h1').first()], 20000)
-      await assertPublicSiteNavVisible(publicPage, '/psy/reaktywnosc-na-smyczy')
-      await assertLegacyHeaderLinksHidden(publicPage, '/psy/reaktywnosc-na-smyczy')
-      step.notes.push('Legacy alias /psy/reaktywnosc-na-smyczy remains represented in the public QA report.')
+      await assertPublicSiteNavVisible(publicPage, '/blog/reaktywnosc-na-smyczy-cwiczenie-luznej-smyczy')
+      await assertLegacyHeaderLinksHidden(publicPage, '/blog/reaktywnosc-na-smyczy-cwiczenie-luznej-smyczy')
+      step.notes.push('The current canonical article uses the current public navigation.')
     })
 
     await publicContext.close()
@@ -1408,7 +1193,7 @@ async function main() {
     if (
       results.some((result) => result.status === 'failed') ||
       !desktopResult.bookCardsReadable ||
-      !desktopResult.catsCardsReadable ||
+      !desktopResult.problemCardsReadable ||
       !desktopResult.layoutStable ||
       mobileResults.some((result) => !result.heroClear || !result.cardsReadable || !result.bottomAreaLean || !result.ctaEasyToTap || !result.layoutStable)
     ) {

@@ -413,18 +413,11 @@ test('home starts with one paid Zapytaj service and keeps the map optional', () 
 })
 
 test('audit priority fixes keep booking copy, no-js contact and technical SEO aligned', () => {
-  const pricingPageSource = readSource('app', 'cennik', 'page.tsx')
-  const pricingContentSource = readSource('app', 'cennik', 'pricing-page-content.tsx')
   const blogCostSource = readSource('content', 'blog-mvp', '12-wpis-ile-kosztuje-konsultacja-behawioralna.md')
   const bookingCalendarSource = readSource('components', 'BookingSlotCalendar.tsx')
   const formatSource = readSource('app', 'format-konsultacji', 'page.tsx')
   const contactFormSource = readSource('components', 'ContactLeadForm.tsx')
   const nextConfigSource = readSource('next.config.mjs')
-
-  assert.doesNotMatch(`${pricingPageSource}\n${pricingContentSource}`, /Kwadrans priorytetowy/)
-  assert.match(`${pricingPageSource}\n${pricingContentSource}`, /Zapytaj teraz/)
-  assert.match(pricingPageSource, /Potwierdzenie płatności na życzenie/)
-  assert.match(pricingPageSource, /Link do rozmowy po potwierdzeniu płatności/)
 
   assert.doesNotMatch(blogCostSource, /Pełna godzinna konsultacja|od razu godzinna konsultacja/)
   assert.match(blogCostSource, /około 90 minut/)
@@ -516,8 +509,8 @@ test('service-page architecture keeps one broad online landing and redirects hel
 
   assert.match(uiSmokeSource, /path: '\/behawiorysta-psow'/)
   assert.match(uiSmokeSource, /path: '\/behawiorysta-kotow'/)
-  assert.match(uiSmokeSource, /verifyRedirectRoute\(page, '\/koty', '\/problemy', \/Mapa problemów\/i\)/)
-  assert.match(uiSmokeSource, /verifyRedirectRoute\(page, '\/psy', '\/problemy', \/Mapa problemów\/i\)/)
+  assert.match(uiSmokeSource, /verifyRedirectRoute\(page, '\/koty', '\/problemy#kot', \/Mapa problemów\/i\)/)
+  assert.match(uiSmokeSource, /verifyRedirectRoute\(page, '\/psy', '\/problemy#pies', \/Mapa problemów\/i\)/)
   assert.match(uiSmokeSource, /if \(!hasExpectedDestination\(page\.url\(\)\)\)/)
 })
 
@@ -540,7 +533,7 @@ test('copy governance keeps Zapytaj behawiorystę as the primary service and liv
   assert.match(bookingServiceInfoCardSource, /połączenie telefoniczne/)
   assert.match(bookingServiceInfoCardSource, /Jitsi/)
 
-  assert.match(contactSource, /Napisz krótko, co się dzieje/)
+  assert.match(contactSource, /Opisz krótko, co dzieje się u Twojego psa lub kota/)
   assert.doesNotMatch(contactSource, /<h3>Kwadrans z behawiorysta<\/h3>/)
   assert.doesNotMatch(contactSource, /contact-booking-panel/)
   assert.match(bookSource, /BookingSlotCalendar/)
@@ -634,7 +627,7 @@ test('booking form intro follows the selected service instead of a generic booki
   assert.doesNotMatch(bookingFormSource, /PUBLIC_OFFER_BOOKING_REASSURANCE/)
 })
 
-test('home, dogs and cats pages keep canonical service routing and current entry layouts', () => {
+test('home and legacy species paths use current canonical routes', () => {
   const homeSource = readSource('app', 'page.tsx')
   const homeHeroSource = readSource('components', 'HomepageZapytajHero.tsx')
   const nextConfigSource = readSource('next.config.mjs')
@@ -658,7 +651,8 @@ test('home, dogs and cats pages keep canonical service routing and current entry
   assert.match(nextConfigSource, /source: '\/psy\/:path\*'/)
   assert.match(nextConfigSource, /source: '\/koty'/)
   assert.match(nextConfigSource, /source: '\/koty\/:path\*'/)
-  assert.match(nextConfigSource, /destination: '\/'/)
+  assert.match(nextConfigSource, /destination: '\/problemy#pies'/)
+  assert.match(nextConfigSource, /destination: '\/problemy#kot'/)
 })
 
 test.skip('offer and booking pages keep quick-scan language', () => {
@@ -856,25 +850,6 @@ test.skip('social trust surfaces keep CAPBT and Instagram together', () => {
   assert.match(socialMarkup, /instagram\.com\/coapebehawiorysta/)
 })
 
-test.skip('cat entry stays short and decision-led', () => {
-  const catPage = readSource('app', 'koty', 'page.tsx')
-  const siteSource = readSource('lib', 'site.ts')
-
-  assert.match(catPage, /Zacznij od krótkiej konsultacji i sprawdź, co będzie najlepszym kolejnym krokiem\./)
-  assert.match(catPage, /Spokojny pierwszy krok przy problemach kota/)
-  assert.match(catPage, /Spokojny pierwszy krok przy problemach kota\. Zacznij od 15 min, a PDF potraktuj jako drugi krok i materiał pomocniczy między etapami\./)
-  assert.match(catPage, /dynamic = 'force-dynamic'/)
-  assert.match(catPage, /path: '\/koty'/)
-  assert.match(catPage, /SpeciesShopPage/)
-  assert.match(catPage, /species=\"koty\"/)
-  assert.match(siteSource, /cat-kuweta\.png/)
-  assert.match(siteSource, /cat-conflict\.png/)
-  assert.match(siteSource, /cat-destruction\.png/)
-  assert.match(siteSource, /cat-stress\.png/)
-  assert.match(siteSource, /cat-night\.png/)
-  assert.match(siteSource, /therapy-animals\.png/)
-})
-
 test('qa checkout routing stays isolated and allowlist-gated', () => {
   assert.equal(readQaBookingSearchParam('1'), true)
   assert.equal(readQaBookingSearchParam('true'), true)
@@ -993,6 +968,18 @@ test('urgent request response keeps the urgent service, price and callback phone
   assert.doesNotMatch(responseSource, /serviceType: 'szybka-konsultacja-15-min'/)
 })
 
+test('Zapytaj day radio group supports roving focus and arrow-key selection', () => {
+  const intakeSource = readSource('components', 'ZapytajIntakeForm.tsx')
+
+  assert.match(intakeSource, /tabIndex=\{day\.date === activeDay \? 0 : -1\}/)
+  assert.match(intakeSource, /case 'ArrowRight':/)
+  assert.match(intakeSource, /case 'ArrowLeft':/)
+  assert.match(intakeSource, /case 'ArrowDown':/)
+  assert.match(intakeSource, /case 'ArrowUp':/)
+  assert.match(intakeSource, /case 'Home':/)
+  assert.match(intakeSource, /case 'End':/)
+})
+
 test('cat topic images exist in the dedicated catalog', () => {
   const assetPaths = [
     ['public', 'images', 'cutover', 'cat-kuweta.png'],
@@ -1013,7 +1000,6 @@ test.skip('booking funnel sources keep canonical routing and standardized analyt
   const contactSource = readSource('app', 'kontakt', 'page.tsx')
   const slotSource = readSource('app', 'slot', 'page.tsx')
   const bookSource = readSource('app', 'book', 'page.tsx')
-  const catsSource = readSource('app', 'koty', 'page.tsx')
   const formSource = readSource('app', 'form', 'page.tsx')
   const legacyProblemSource = readSource('app', 'problem', 'page.tsx')
   const headerSource = readSource('components', 'Header.tsx')
@@ -1650,19 +1636,15 @@ test('live clickthrough keeps legal pages inside public production QA', () => {
   const liveClickthroughSource = readSource('scripts', 'live-clickthrough-report.ts')
 
   assert.match(liveClickthroughSource, /assertPublicSiteNavVisible/)
-  assert.match(liveClickthroughSource, /\/book\?service=konsultacja-30-min/)
-  assert.match(liveClickthroughSource, /\/book\?service=konsultacja-behawioralna-online/)
-  assert.match(liveClickthroughSource, /Przejdz do formularza: Dwa kwadranse/)
-  assert.match(liveClickthroughSource, /Przejdz do formularza: Pelna konsultacja/)
-  assert.match(liveClickthroughSource, /\/psy\/reaktywnosc-na-smyczy/)
-  assert.match(liveClickthroughSource, /\/materialy\/pies-sam-w-domu/)
-  assert.match(liveClickthroughSource, /\/materialy/)
+  assert.match(liveClickthroughSource, /\/book\?qa=1&service=konsultacja-30-min/)
+  assert.match(liveClickthroughSource, /\/book\?qa=1&service=konsultacja-behawioralna-online/)
+  assert.match(liveClickthroughSource, /\/kontakt/)
   assert.match(liveClickthroughSource, /\/regulamin/)
   assert.match(liveClickthroughSource, /\/polityka-prywatnosci/)
-  assert.match(liveClickthroughSource, /oferta -> payment \/ 30 min CTA/)
-  assert.match(liveClickthroughSource, /oferta -> slot \/ online CTA/)
+  assert.match(liveClickthroughSource, /assertNoPublicPhoneLinks/)
+  assert.match(liveClickthroughSource, /\/materialy\/pies-sam-w-domu/)
+  assert.match(liveClickthroughSource, /\/materialy/)
   assert.match(liveClickthroughSource, /api\/payments\/manual/)
-  assert.match(liveClickthroughSource, /konsultacja-30-min/)
   assert.match(liveClickthroughSource, /konsultacja-behawioralna-online/)
   assert.match(liveClickthroughSource, /CAPBT/)
   assert.match(liveClickthroughSource, /a\[href\^="tel:"\]/)
@@ -1720,7 +1702,7 @@ test.skip('contact page keeps the compact identity block next to the action pane
 
 test('admin page renders explicit go-live status cards', () => {
   const adminSource = readSource('app', 'admin', 'page.tsx')
-  const qaReportSource = readSource('app', '__internal', 'qa-report', 'page.tsx')
+  const qaReportSource = readSource('app', 'admin', 'qa-report', 'page.tsx')
 
   assert.match(adminSource, /getGoLiveChecks/)
   assert.match(adminSource, /Go-live/)
@@ -1796,7 +1778,6 @@ test('stage 9 performance guardrails keep priority images, lazy media, layout ch
   const homeHeroSource = readSource('components', 'HomepageZapytajHero.tsx')
   const opinionsSource = readSource('app', 'opinie', 'page.tsx')
   const reviewGridSource = readSource('components', 'OpinionsReviewGrid.tsx')
-  const pricingSource = readSource('app', 'cennik', 'page.tsx')
   const cssSource = readSource('app', 'notatnik-a.css')
   const stage9Source = readSource('scripts', 'stage9-performance-audit.ts')
   const lighthouseSource = readSource('scripts', 'lighthouse-report.ts')
@@ -1808,7 +1789,6 @@ test('stage 9 performance guardrails keep priority images, lazy media, layout ch
   assert.match(homeHeroSource, /sizes="\(max-width: 760px\) 100vw, 46vw"/)
   assert.match(opinionsSource, /home-bg-cat-1to1\.webp" alt="" fill loading="lazy"/)
   assert.match(reviewGridSource, /fill loading="lazy" sizes="58px"/)
-  assert.match(pricingSource, /faq-help-illustration-clean\.png" alt="" width=\{355\} height=\{208\} loading="lazy"/)
   assert.match(cssSource, /Stage 9 layout guardrails/)
   assert.match(cssSource, /overflow-wrap: anywhere/)
   assert.match(cssSource, /contain: layout paint/)
@@ -1938,7 +1918,7 @@ test('booking and contact flows keep resilient fallback selectors', () => {
   assert.match(liveClickthroughSource, /data-selected-slot-link/)
   assert.match(liveBookingMatrixSource, /buildAttemptStartPath/)
   assert.match(uiSmokeSource, /await slotLink\.click\(\)/)
-  assert.match(uiSmokeSource, /new URL\(publicPage\.url\(\)\)\.pathname, '\/book'/)
+  assert.match(uiSmokeSource, /new URL\(publicPage\.url\(\)\)\.pathname, '\/form'/)
   assert.match(uiSmokeSource, /bookingForm\.locator\('input\[name="slotId"\]'\)/)
   assert.match(uiSmokeSource, /room-stage-live/)
   assert.match(uiSmokeSource, /room-stage-locked/)
@@ -2077,7 +2057,6 @@ test('clinic code funnel reveals phone surcharge only after validation and keeps
   const choiceStylesSource = readSource('app', 'wybor', 'wybor.module.css')
   const contactSource = readSource('app', 'kontakt', 'page.tsx')
   const homeSource = readSource('app', 'page.tsx')
-  const pricingSource = readSource('app', 'cennik', 'page.tsx')
   const termsSource = readSource('app', 'regulamin', 'page.tsx')
   const privacySource = readSource('app', 'polityka-prywatnosci', 'page.tsx')
   const callRoomSource = readSource('components', 'CallRoom.tsx')
@@ -2087,8 +2066,6 @@ test('clinic code funnel reveals phone surcharge only after validation and keeps
   assert.doesNotMatch(homeSource, /homepage-clinic-entry/)
   assert.doesNotMatch(homeSource, /ClinicCodeEntry/)
   assert.doesNotMatch(homeSource, /href="\/lecznica"/)
-  assert.match(pricingSource, /Program dla klientów lecznic/)
-  assert.doesNotMatch(pricingSource, /clinic-program-pricing-title[\s\S]{0,600}9 zł/)
   assert.match(clinicPageSource, /Lecznice uczestniczące w programie/)
   assert.match(clinicEntrySource, /sessionStorage\.setItem\('clinicPromoCode'/)
   assert.match(clinicEntrySource, /\/wybor\?clinic=1/)
@@ -2099,8 +2076,8 @@ test('clinic code funnel reveals phone surcharge only after validation and keeps
   assert.match(bookingSource, /readClinicFlowSearchParam/)
   assert.match(bookingSource, /priceLabel: clinicFlow \? '0 /)
   assert.match(clinicIdentitySource, /data-clinic-booking-identity/)
-  assert.match(contactSource, /contact-trust-card/)
-  assert.match(contactSource, /COAPE_POLSKA_LOGO/)
+  assert.match(contactSource, /contact-title/)
+  assert.match(contactSource, /Wiadomości czytam i odpowiadam osobiście/)
   assert.match(paymentSource, /promoValidated \? \(/)
   assert.match(paymentSource, /data-promo-channel="phone"/)
   assert.match(paymentSource, /data-promo-phone-input="true"/)

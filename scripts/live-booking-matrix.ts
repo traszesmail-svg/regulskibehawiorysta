@@ -8,14 +8,14 @@ import { SITE_PRODUCTION_URL } from '../lib/site'
 type MatrixAttempt = {
   label: string
   problem: string
-  routePath: '/book' | '/koty'
+  routePath: '/book'
   animalType: 'Pies' | 'Kot'
 }
 
 type MatrixAttemptResult = {
   index: number
   label: string
-  routePath: '/book' | '/koty'
+  routePath: '/book'
   problem: string
   status: 'passed' | 'failed'
   startUrl: string
@@ -27,11 +27,11 @@ type MatrixAttemptResult = {
 }
 
 const MATRIX_ATTEMPTS: MatrixAttempt[] = [
-  { label: 'kot-stres', problem: 'kot-stres', routePath: '/koty', animalType: 'Kot' },
-  { label: 'kot-kuweta', problem: 'kot-kuweta', routePath: '/koty', animalType: 'Kot' },
-  { label: 'kot-dotyk', problem: 'kot-dotyk', routePath: '/koty', animalType: 'Kot' },
-  { label: 'kot-konflikt', problem: 'kot-konflikt', routePath: '/koty', animalType: 'Kot' },
-  { label: 'kot-nocna-wokalizacja', problem: 'kot-nocna-wokalizacja', routePath: '/koty', animalType: 'Kot' },
+  { label: 'kot-stres', problem: 'kot-stres', routePath: '/book', animalType: 'Kot' },
+  { label: 'kot-kuweta', problem: 'kot-kuweta', routePath: '/book', animalType: 'Kot' },
+  { label: 'kot-dotyk', problem: 'kot-dotyk', routePath: '/book', animalType: 'Kot' },
+  { label: 'kot-konflikt', problem: 'kot-konflikt', routePath: '/book', animalType: 'Kot' },
+  { label: 'kot-nocna-wokalizacja', problem: 'kot-nocna-wokalizacja', routePath: '/book', animalType: 'Kot' },
   { label: 'szczeniak', problem: 'szczeniak', routePath: '/book', animalType: 'Pies' },
   { label: 'separacja', problem: 'separacja', routePath: '/book', animalType: 'Pies' },
   { label: 'agresja', problem: 'agresja', routePath: '/book', animalType: 'Pies' },
@@ -156,6 +156,7 @@ function buildAttemptStartPath(attempt: MatrixAttempt) {
   const params = new URLSearchParams({
     problem: attempt.problem,
     species: attempt.animalType === 'Kot' ? 'kot' : 'pies',
+    qa: '1',
   })
 
   return `/book?${params.toString()}`

@@ -1,25 +1,10 @@
-import type { Metadata } from 'next'
 import { unstable_noStore as noStore } from 'next/cache'
 import { readLatestQaReport } from '@/lib/server/qa-report'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
-export const metadata: Metadata = {
-  title: 'Internal QA Report',
-  robots: {
-    index: false,
-    follow: false,
-    nocache: true,
-    googleBot: {
-      index: false,
-      follow: false,
-      noimageindex: true,
-    },
-  },
-}
-
-export default async function InternalQaReportPage() {
+export default async function AdminQaReportPage() {
   noStore()
   const report = await readLatestQaReport()
 
@@ -29,8 +14,8 @@ export default async function InternalQaReportPage() {
         <section className="panel section-panel">
           <div className="section-head">
             <div>
-              <div className="section-eyebrow">Wewnetrzny raport QA</div>
-              <h1>Raport techniczny tylko po autoryzacji</h1>
+              <div className="section-eyebrow">Wewnętrzny raport QA</div>
+              <h1>Raport techniczny</h1>
             </div>
           </div>
 
@@ -40,16 +25,12 @@ export default async function InternalQaReportPage() {
               <span>{report.exists ? 'Raport znaleziony w repo.' : 'Raport nie istnieje jeszcze w repo.'}</span>
             </div>
             <div className="list-card">
-              <strong>Sciezka źródlowa</strong>
+              <strong>Ścieżka źródłowa</strong>
               <span>{report.filePath}</span>
             </div>
             <div className="list-card">
               <strong>Ostatnia aktualizacja</strong>
               <span>{report.updatedAt ?? 'brak'}</span>
-            </div>
-            <div className="list-card">
-              <strong>Dostep</strong>
-              <span>Ta trasa uzywa tej samej autoryzacji Basic Auth co `/admin` i nie jest indeksowana.</span>
             </div>
           </div>
 

@@ -1,6 +1,6 @@
 ﻿// handoff/components/KwadransNaJuzBadge.tsx
 // Badge "Kwadrans na już" — używaj WSZÄDZIE gdzie wspomniana jest ta opcja
-// Strony: /, /book, /cennik, /psy, /koty
+// Używaj przy bieżących opisach oferty i rezerwacji.
 
 import { Icon } from '@/components/icons-config';
 import { PUBLIC_OFFER_PRICE_LABELS } from '@/lib/public-offer-copy';

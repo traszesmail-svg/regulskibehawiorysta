@@ -1,6 +1,6 @@
 // handoff/components/Testimonial.tsx
 // Pojedyncza opinia z 5 gwiazdkami Lucide
-// Używaj na: /, /psy, /koty
+// Używaj na stronach opinii i podsumowania usług.
 
 import { Icon } from '@/components/icons-config';
 

@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer'
+import type { Transporter } from 'nodemailer'
 import type { LeadMagnet } from '@/lib/growth-layer'
 import { getCanonicalPublicHref } from '@/lib/public-routes'
 import { getBookingServiceTitle, resolveBookingServiceType } from '@/lib/booking-services'
@@ -70,7 +71,7 @@ type MailProviderConfig =
       fromStatus: 'missing' | 'invalid' | 'valid'
     }
 
-let gmailTransport: nodemailer.Transporter | null = null
+let gmailTransport: Transporter | null = null
 
 type ManualPaymentReviewLinks = {
   approveUrl: string

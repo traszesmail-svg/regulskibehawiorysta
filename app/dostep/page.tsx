@@ -8,9 +8,9 @@ export const revalidate = 0
 
 export function generateMetadata(): Metadata {
   return buildTechnicalMetadata({
-    title: 'Wpisz kod dostępu',
+    title: 'Otwórz kupiony materiał PDF',
     path: '/dostep',
-    description: 'Wpisz kod dostępu do konsultacji lub materiału cyfrowego.',
+    description: 'Otwórz płatny materiał PDF za pomocą kodu i adresu e-mail z zamówienia.',
     noIndex: true,
     follow: false,
   })
@@ -29,14 +29,15 @@ export default function AccessPage() {
     >
       <div className="container">
         <section className="panel centered-panel hero-surface booking-stage-panel transaction-panel booking-flow-panel">
-          <div className="section-eyebrow">Kod dostępu</div>
-          <h1>Wpisz kod dostępu.</h1>
+          <div className="section-eyebrow">Kupiony materiał PDF</div>
+          <h1>Otwórz swój PDF.</h1>
           <p className="hero-text small-width center-text">
-            Kod znajdziesz w e-mailu po potwierdzeniu płatności. Wpisz go razem z adresem e-mail użytym przy zamówieniu.
+            Wpisz kod z wiadomości po zakupie i ten sam adres e-mail, który podano w zamówieniu. Zaproszenie na Pełną
+            konsultację otwiera się z osobistego linku lub kodu na stronie konsultacji.
           </p>
           <CommerceAccessForm />
           <p className="account-login-fallback">
-            Chcesz mieć materiały i rezerwacje w aplikacji? <a href="/login">Zaloguj się do pokoju opiekuna</a>.
+            Chcesz mieć rezerwacje i materiały w jednym miejscu? <a href="/login">Zaloguj się lub utwórz konto opiekuna</a>.
           </p>
         </section>
       </div>

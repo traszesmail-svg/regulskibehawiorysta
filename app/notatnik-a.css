@@ -1,4 +1,4 @@
-﻿.notatnik-page {
+.notatnik-page {
   --bg: #f8f4ed;
   --bg-2: #ebe5d8;
   --paper: #faf7f0;
@@ -38921,6 +38921,29 @@ main.materialy-showcase-page a.materialy-showcase-card-link:hover * {
 
 .zapytaj-next-section {
   background: color-mix(in srgb, var(--accent-warm) 7%, var(--paper));
+}
+
+/* The PDF library now uses documentary photography and its own covers as the proof. */
+.materialy-visual-hero {
+  background: #fbfaf6;
+  border-radius: 18px;
+}
+
+.materialy-visual-hero::before,
+.materialy-visual-hero::after {
+  content: none !important;
+  display: none !important;
+}
+
+.materialy-visual-art {
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #eee9df;
+}
+
+.materialy-visual-art img {
+  object-position: 42% center;
 }
 
 .zapytaj-next-inline {

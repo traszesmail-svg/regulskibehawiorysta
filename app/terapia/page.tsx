@@ -5,15 +5,13 @@ import {
   ArrowRight,
   BedDouble,
   CalendarRange,
-  CheckCircle2,
   House,
   MessageCircleMore,
-  PhoneCall,
   Route,
   SlidersHorizontal,
 } from 'lucide-react'
 import { Schema } from '@/components/schema'
-import { NotatnikPageShell, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
+import { NotatnikFinalCta, NotatnikPageShell, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
 import { getBreadcrumbJsonLd, getFaqPageJsonLd, getServiceJsonLd } from '@/lib/schema'
 import { buildMarketingMetadata } from '@/lib/seo'
 import { PUBLIC_THERAPY_OFFER, PUBLIC_ZAPYTAJ_OFFER, formatPublicOfferPrice } from '@/lib/public-offer'
@@ -222,29 +220,14 @@ export default function TherapyPage() {
         </div>
       </section>
 
-      <section className="canonical-service-note therapy-premium-entry" aria-labelledby="therapy-entry-title">
-        <div className="therapy-premium-entry__copy">
-          <span className="zapytaj-kicker">PIERWSZY ETAP</span>
-          <h2 id="therapy-entry-title">Długoterminowa współpraca zaczyna się od poznania sytuacji</h2>
-          <p>
-            Po pełnej konsultacji ustalamy zasadność terapii, zakres opieki, organizację wizyty domowej oraz warunki współpracy.
-          </p>
-        </div>
-        <div className="therapy-premium-entry__actions">
-          <Link href="/konsultacja" className="notatnik-btn">
-            <span>Poznaj pełną konsultację</span>
-            <ArrowRight size={16} aria-hidden="true" />
-          </Link>
-          <Link href="/zapytaj#formularz" className="therapy-first-contact-link">
-            <PhoneCall size={16} aria-hidden="true" />
-            <span>Pierwszy kontakt? Zacznij od Zapytaj · {formatPublicOfferPrice(PUBLIC_ZAPYTAJ_OFFER.pricePln)}</span>
-          </Link>
-        </div>
-        <p className="therapy-premium-entry__scope">
-          <CheckCircle2 size={17} aria-hidden="true" />
-          Szczegółowy zakres oraz warunki poszczególnych form opieki ustalamy indywidualnie.
-        </p>
-      </section>
+      <NotatnikFinalCta
+        title="Ustalmy, jaki zakres opieki będzie potrzebny."
+        copy="Po rozmowie i analizie sytuacji dobieramy dalszy plan, wizytę domową oraz zakres współpracy."
+        primaryHref="/zapytaj#formularz"
+        primaryLabel={`Zapytaj behawiorystę · ${formatPublicOfferPrice(PUBLIC_ZAPYTAJ_OFFER.pricePln)}`}
+        secondaryHref="/konsultacja"
+        secondaryLabel="Poznaj pełną konsultację"
+      />
     </NotatnikPageShell>
   )
 }

@@ -34,7 +34,6 @@ const FOOTER_NAV_ITEMS = [
 
 const FOOTER_LEGAL_LINKS = [
   { href: '/login', label: 'Pokój opiekuna' },
-  { href: '/admin', label: 'Panel specjalisty' },
   { href: '/polityka-prywatnosci', label: 'Polityka prywatności' },
   { href: '/regulamin', label: 'Regulamin' },
   { href: '/regulamin-pelna-konsultacja', label: 'Regulamin Pełnej konsultacji' },

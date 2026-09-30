@@ -3,7 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, Mail, MessageCircle, Plus } from 'lucide-react'
 import { ContactLeadForm } from '@/components/ContactLeadForm'
-import { NotatnikFooter, NotatnikTopbar, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
+import { NotatnikFinalCta, NotatnikFooter, NotatnikTopbar, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
 import { Schema } from '@/components/schema'
 import { getBreadcrumbJsonLd, getFaqPageJsonLd } from '@/lib/schema'
 import { buildMarketingMetadata } from '@/lib/seo'
@@ -68,8 +68,8 @@ export default async function ContactPage(props: {
               </div>
             </div>
             <figure className={styles.art}>
-              <Image src="/branding/section-heroes/contact-message-v1.webp" alt="Spokojna chwila z psem i kotem przy pisaniu wiadomości" width={1122} height={1402} priority sizes="(max-width: 760px) 90vw, 440px" />
-              <figcaption><span>O Waszej codzienności. Z uważnością.</span><span aria-hidden="true">01 / KONTAKT</span></figcaption>
+              <Image src="/images/krzysztof-vet-action.jpg" alt="Krzysztof Regulski podczas pracy z pacjentem w gabinecie weterynaryjnym" width={1024} height={1536} priority sizes="(max-width: 760px) 90vw, 440px" />
+              <figcaption><span>Krzysztof Regulski · technik weterynarii</span><span aria-hidden="true">01 / KONTAKT</span></figcaption>
             </figure>
           </section>
           <section className={styles.route} aria-label="Wybierz rodzaj kontaktu">
@@ -105,6 +105,12 @@ export default async function ContactPage(props: {
               {contactFaqItems.map(item => <details key={item.question}><summary><span>{item.question}</span><Plus size={18} strokeWidth={1.5} aria-hidden="true" /></summary><p>{item.answer}</p></details>)}
             </div>
           </section>
+          <NotatnikFinalCta
+            title="Wolisz od razu omówić zachowanie?"
+            copy="Możesz też sprawdzić dostępność krótkiej rozmowy telefonicznej."
+            primaryHref="/zapytaj"
+            primaryLabel="Zapytaj behawiorystę"
+          />
         </div>
         <NotatnikFooter showReviews={false} />
       </div>

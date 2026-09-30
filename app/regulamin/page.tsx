@@ -108,6 +108,11 @@ const sections: LegalSection[] = [
           Termin zostaje ostatecznie zablokowany dopiero po potwierdzeniu płatności. Wpłatę potwierdzam albo odrzucam
           maksymalnie w ciągu 24 godzin.
         </p>
+        <p>
+          Jeżeli dla danego zamówienia checkout udostępnia płatność online, dostępne metody i operatora płatności
+          zobaczysz przed przejściem do zewnętrznego checkoutu. Gdy tej opcji nie ma, płatność odbywa się według
+          instrukcji BLIK wysłanej e-mailem.
+        </p>
         <p>Nieopłacona lub niepotwierdzona rezerwacja może wygasnąć, a termin może wrócić do puli dostępnych terminów.</p>
       </>
     ),
@@ -159,12 +164,11 @@ const sections: LegalSection[] = [
     title: '8. Zmiana terminu i rezygnacja',
     body: (
       <>
-        <p>Po potwierdzeniu wpłaty klient ma 24 godziny na zgłoszenie rezygnacji albo wniosku o zmianę terminu.</p>
+        <p>Prośbę o zmianę terminu albo rezygnację należy wysłać na e-mail kontakt@regulskibehawiorysta.pl.</p>
         <p>
-          Ewentualny zwrot środków wymaga kontaktu i jest rozpatrywany indywidualnie z uwzględnieniem etapu realizacji
-          usługi oraz przebiegu rezerwacji.
+          Zasady dobrowolnej zmiany terminu i rozliczenia rezygnacji dla danej usługi opisuje jej regulamin szczegółowy.
+          Nie ograniczają one ustawowego prawa odstąpienia od umowy ani praw związanych z reklamacją.
         </p>
-        <p>Po upływie wskazanego terminu zmiana lub odwołanie rezerwacji może nie być możliwe bez poniesienia kosztu usługi.</p>
       </>
     ),
   },
@@ -173,7 +177,11 @@ const sections: LegalSection[] = [
     body: (
       <>
         <p>Jeżeli klient nie opłaci rezerwacji albo wpłata nie zostanie potwierdzona, rezerwacja może zostać zamknięta jako nieaktywna.</p>
-        <p>Jeżeli klient nie stawi się na opłaconą usługę bez wcześniejszego kontaktu, rezerwacja może zostać uznana za zrealizowaną.</p>
+        <p>
+          Jeżeli klient nie może dołączyć do opłaconej usługi, powinien niezwłocznie skontaktować się z usługodawcą.
+          Każdą taką sytuację rozpatruje się według informacji przekazanych przy rezerwacji, okoliczności nieobecności
+          oraz przysługujących klientowi praw ustawowych.
+        </p>
       </>
     ),
   },
@@ -234,7 +242,25 @@ const sections: LegalSection[] = [
     ),
   },
   {
-    title: '14. Postanowienia końcowe',
+    title: '14. Płatne materiały cyfrowe',
+    body: (
+      <>
+        <p>
+          Płatny materiał PDF jest odrębną treścią cyfrową. Jego cena, zawartość i sposób uzyskania dostępu są podane
+          przed złożeniem zamówienia. Po zaksięgowaniu lub potwierdzeniu płatności kod dostępu jest wysyłany na adres
+          e-mail podany przy zamówieniu; do jego użycia potrzebny jest ten sam adres.
+        </p>
+        <p>
+          Zasady ustawowego odstąpienia od umowy o treść cyfrową zależą między innymi od tego, czy jej dostarczanie
+          rozpoczęto za uprzednią, wyraźną zgodą konsumenta i po poinformowaniu go o skutkach dla prawa odstąpienia.
+          Regulamin nie zastępuje wymaganej zgody ani informacji i nie wprowadza ogólnego zrzeczenia się prawa odstąpienia.
+          Postanowienia regulaminu nie wyłączają praw konsumenta wynikających z niezgodności treści cyfrowej z umową.
+        </p>
+      </>
+    ),
+  },
+  {
+    title: '15. Postanowienia końcowe',
     body: (
       <>
         <p>Regulamin obowiązuje od dnia jego opublikowania w serwisie i ma zastosowanie do rezerwacji składanych po tej dacie.</p>

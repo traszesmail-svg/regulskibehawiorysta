@@ -1,10 +1,7 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
-import Link from 'next/link'
 import {
-  Award,
   BookOpen,
-  ChevronRight,
   ExternalLink,
   Heart,
   HelpCircle,
@@ -14,6 +11,7 @@ import {
   Users,
 } from 'lucide-react'
 import { ReferencePageShell } from '@/components/ReferencePageShell'
+import { NotatnikFinalCta } from '@/components/NotatnikA'
 import { Schema } from '@/components/schema'
 import { getBreadcrumbJsonLd, getFaqPageJsonLd, getPersonJsonLd } from '@/lib/schema'
 import { buildMarketingMetadata } from '@/lib/seo'
@@ -142,6 +140,29 @@ export default function AboutPage() {
             <p>
               Dzięki temu oddzielamy objaw od możliwej przyczyny i wybieramy pierwszy krok, który ma realny sens.
             </p>
+            <div className="reference-about-credentials-inline">
+              <h3>Kwalifikacje i podejście</h3>
+              <div className="reference-about-credential-grid">
+                {credentialCards.map((card) => (
+                  <article key={card.title} className="reference-about-credential">
+                    <span className="reference-about-credential-icon">{card.icon}</span>
+                <h3>{card.title}</h3>
+                    <p>{card.copy}</p>
+                  </article>
+                ))}
+              </div>
+              <div className="reference-about-sources" aria-label="Źródła i profil publiczny">
+                <span>Więcej informacji:</span>
+                <div>
+                  {publicSources.map((source) => (
+                    <a key={source.label} href={source.href} target="_blank" rel="noopener noreferrer">
+                      {source.label}
+                      <ExternalLink size={14} strokeWidth={1.8} aria-hidden="true" />
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -173,39 +194,6 @@ export default function AboutPage() {
                 <span>{point.label}</span>
               </div>
             ))}
-          </div>
-        </section>
-
-        <section className="reference-section-card reference-about-credentials-card">
-          <div className="reference-about-card-icon" aria-hidden="true">
-            <Award size={28} strokeWidth={1.7} />
-          </div>
-          <div className="reference-about-card-body">
-            <h2>Kwalifikacje w praktyce</h2>
-            <p>
-              W rozmowie patrzę nie tylko na samo zachowanie. Uwzględniam też zdrowie, warunki życia i to,
-              czego zwierzę już się nauczyło.
-            </p>
-            <div className="reference-about-credential-grid">
-              {credentialCards.map((card) => (
-                <article key={card.title} className="reference-about-credential">
-                  <span className="reference-about-credential-icon">{card.icon}</span>
-                  <h3>{card.title}</h3>
-                  <p>{card.copy}</p>
-                </article>
-              ))}
-            </div>
-            <div className="reference-about-sources" aria-label="Źródła i profil publiczny">
-              <span>Źródła:</span>
-              <div>
-                {publicSources.map((source) => (
-                  <a key={source.label} href={source.href} target="_blank" rel="noopener noreferrer">
-                    {source.label}
-                    <ExternalLink size={14} strokeWidth={1.8} aria-hidden="true" />
-                  </a>
-                ))}
-              </div>
-            </div>
           </div>
         </section>
 
@@ -258,21 +246,12 @@ export default function AboutPage() {
           </div>
         </section>
 
-        <section className="reference-about-green-cta site-help-cta">
-          <div className="site-help-cta-copy">
-            <h2>Zróbmy pierwszy krok spokojnie</h2>
-            <p>Opisz krótko sytuację i uporządkujmy, co robić dalej z Twoim psem lub kotem.</p>
-            <div className="site-help-cta-actions">
-              <Link href="/zapytaj" prefetch={false}>
-                Zapytaj behawiorystę
-                <ChevronRight size={19} strokeWidth={1.8} aria-hidden="true" />
-              </Link>
-            </div>
-          </div>
-          <div className="site-help-cta-image" aria-hidden="true">
-            <Image src="/faq/faq-help-illustration-clean.png" alt="" width={355} height={208} sizes="(max-width: 760px) 58vw, 210px" />
-          </div>
-        </section>
+        <NotatnikFinalCta
+          title="Porozmawiajmy o sytuacji Twojego zwierzęcia."
+          copy="Napisz, co się dzieje. Wspólnie ustalimy, jaki kolejny krok ma sens."
+          primaryHref="/zapytaj"
+          primaryLabel="Zapytaj behawiorystę"
+        />
       </section>
     </ReferencePageShell>
   )

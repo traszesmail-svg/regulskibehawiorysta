@@ -9,7 +9,7 @@ import {
   readCommerceViewerToken,
 } from '@/lib/commerce'
 import { isBookingAwaitingPayment } from '@/lib/booking-expiry'
-import { getCommerceOrderForViewer } from '@/lib/server/commerce-store'
+import { getCommerceOrderForViewerBounded } from '@/lib/server/commerce-store'
 import { getBookingById } from '@/lib/server/db'
 import { getManualPaymentConfig } from '@/lib/server/payment-options'
 import { buildTechnicalMetadata } from '@/lib/seo'
@@ -36,7 +36,9 @@ export default async function BlikPaymentPage(props: {
   const viewerToken = readCommerceViewerToken(searchParams?.viewer)
   // Rendering this page must be a read-only operation. The manual-payment
   // state is created only when the buyer explicitly reports a completed BLIK.
-  const order = await getCommerceOrderForViewer(params.orderNumber, viewerToken)
+  const orderResult = await getCommerceOrderForViewerBounded(params.orderNumber, viewerToken)
+  const orderReadUnavailable = orderResult.status === 'unavailable'
+  const order = orderReadUnavailable ? null : orderResult.order
   const manual = getManualPaymentConfig()
   const isClinicPhoneUpgrade = Boolean(order?.meta.clinicPhoneUpgrade)
   const needsActiveConsultationBooking =
@@ -61,7 +63,18 @@ export default async function BlikPaymentPage(props: {
     >
       <div className="container">
         <section className="panel centered-panel hero-surface booking-stage-panel transaction-panel booking-flow-panel">
-          {!order ? (
+          {orderReadUnavailable ? (
+            <div className="stack-gap">
+              <h1>Nie udało się sprawdzić statusu zamówienia</h1>
+              <div className="error-box">
+                Nie wiadomo jeszcze, czy płatność została odnotowana. Nie wykonuj jej ponownie. Odśwież tę stronę za chwilę.
+              </div>
+              <div className="hero-actions centered-actions">
+                <a href="" className="button button-primary big-button">Odśwież status</a>
+                <Link href="/kontakt#formularz" className="button button-ghost big-button">Skontaktuj się</Link>
+              </div>
+            </div>
+          ) : !order ? (
             <div className="stack-gap">
               <h1>Nie znaleziono zamówienia</h1>
               <div className="error-box">Ten link do płatności jest nieprawidłowy albo wygasł.</div>

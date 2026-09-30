@@ -17,7 +17,7 @@ Kupujesz „dobry żwirek" z reklamy, myjesz kuwetę regularnie, a kot i tak za�
 
 ### Rozmiar
 
-To najczęściej pomijany parametr. Kuweta powinna mieć co najmniej 1,5× długość ciała kota (od nosa do nasady ogona). Większość kótek dostępnych w sklepach jest za mała dla dorosłego kota.
+To najczęściej pomijany parametr. Kuweta powinna mieć co najmniej 1,5× długość ciała kota (od nosa do nasady ogona). Większość kuwet dostępnych w sklepach jest za mała dla dorosłego kota.
 
 Prosty test: czy kot może wejść do kuwety, obrócić się w pełni i zakopać? Jeśli nie — jest za mała.
 
@@ -26,7 +26,7 @@ Prosty test: czy kot może wejść do kuwety, obrócić się w pełni i zakopać
 Kuwety z dachem i drzwiczkami wyglądają estetycznie dla opiekuna. Dla kota to:
 - zamknięta przestrzeń bez drogi ucieczki w razie zagrożenia,
 - koncentracja zapachu (dla kota, nie dla opiekuna),
-- ciemnośc i ograniczona możliwość obserwacji otoczenia.
+- ciemność i ograniczona możliwość obserwacji otoczenia.
 
 Wiele kotów toleruje budkę, ale przy problemach z kuwetą — zmiana na otwartą jest pierwszą i prostą rzeczą do sprawdzenia.
 
@@ -94,8 +94,8 @@ Dla opiekuna — często wygodny. Dla kota — różnie. Granulki silikonowe maj
 **Ile razy dziennie trzeba sprzątać kuwetę?**
 Przynajmniej raz dziennie zbierać odchody. Przy wielu kotach — dwa razy. Pełna wymiana żwirku i mycie kuwety: co 1–2 tygodnie zależnie od rodzaju żwirku.
 
-**Czy pot mat pod kuwetą ma sens?**
-Jako podkład na roznoszone granulki — tak. Nie powinien jednak utrudniać dostępu do kuwety ani być dyskomfortem pod łapami.
+**Czy mata pod kuwetą ma sens?**
+Jako podkład na roznoszone granulki — tak. Nie powinna jednak utrudniać dostępu do kuwety ani powodować dyskomfortu pod łapami.
 
 **Czy mogę mieć kuwetę tylko w łazience?**
 Można, jeśli łazienka jest stale dostępna dla kota, cicha i wystarczająco duża. Problem pojawia się, gdy drzwi są czasem zamknięte albo gdy masz więcej kotów.

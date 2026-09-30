@@ -18,12 +18,16 @@ describe('homepage and zapytaj live availability verification', () => {
         liveSlotId: string | null
       }
       slots: Array<{ id: string; date: string; time: string; label: string }>
+      liveError: boolean
+      slotsError: boolean
     }
 
     assert.ok(data.live, 'Payload must contain live object')
     assert.ok(Array.isArray(data.slots), 'Payload must contain slots array')
     assert.equal(typeof data.live.status, 'string')
     assert.equal(typeof data.live.livePricePln, 'number')
+    assert.equal(typeof data.liveError, 'boolean')
+    assert.equal(typeof data.slotsError, 'boolean')
   })
 
   it('2. dostepny teraz -> realnie mozna przejsc dalej do rezerwacji', async () => {
@@ -71,21 +75,6 @@ describe('homepage and zapytaj live availability verification', () => {
     const body = (await response.json()) as { ok: boolean; id: string }
     assert.equal(body.ok, true)
     assert.ok(body.id, 'Record ID must be returned')
-  })
-
-  it('5. blad pobrania -> neutralny stan sprawdzania, nigdy falszywe Dostepny teraz', async () => {
-    function resolveState(error: boolean, availability: { live: { status: string; liveSlotId: string | null } } | null) {
-      if (error || !availability) {
-        return { isLive: false, label: 'Sprawdzam dostępne terminy…' }
-      }
-      const isLive = Boolean(availability.live.liveSlotId && (availability.live.status === 'available_now' || availability.live.status === 'in_call'))
-      return { isLive, label: isLive ? 'Dostępny teraz' : 'Terminy z systemu' }
-    }
-
-    const stateOnError = resolveState(true, null)
-    assert.equal(stateOnError.isLive, false)
-    assert.notEqual(stateOnError.label, 'Dostępny teraz')
-    assert.equal(stateOnError.label, 'Sprawdzam dostępne terminy…')
   })
 
   it('6. blad zapisu -> komunikat bledu i brak sukcesu', async () => {

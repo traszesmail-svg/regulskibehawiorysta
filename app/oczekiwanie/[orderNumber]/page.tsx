@@ -6,7 +6,7 @@ import { PreConsultationForm } from '@/components/PreConsultationForm'
 import { NotatnikPageShell, PUBLIC_BOOKING_FLOW_NAV_ITEMS } from '@/components/NotatnikA'
 import { readCommerceViewerToken } from '@/lib/commerce'
 import { isCommerceTestModeAllowed } from '@/lib/server/commerce-service'
-import { canUseCommerceAccess, getCommerceOrderForViewer } from '@/lib/server/commerce-store'
+import { canUseCommerceAccess, getCommerceOrderForViewerBounded } from '@/lib/server/commerce-store'
 import { buildTechnicalMetadata } from '@/lib/seo'
 
 export const dynamic = 'force-dynamic'
@@ -38,7 +38,9 @@ export default async function WaitingPage(props: {
   const params = await props.params;
   const searchParams = await props.searchParams
   const viewerToken = readCommerceViewerToken(searchParams?.viewer)
-  const order = await getCommerceOrderForViewer(params.orderNumber, viewerToken)
+  const orderResult = await getCommerceOrderForViewerBounded(params.orderNumber, viewerToken)
+  const orderReadUnavailable = orderResult.status === 'unavailable'
+  const order = orderReadUnavailable ? null : orderResult.order
   const accessReady = order ? canUseCommerceAccess(order) : false
   const consultationReady = Boolean(order?.productType === 'consultation' && order.status === 'paid' && order.meta.bookingId)
   const clinicPhoneUpgradePending = Boolean(order?.meta.clinicPhoneUpgrade && order.status === 'payment_reported' && order.meta.bookingId)
@@ -94,7 +96,18 @@ export default async function WaitingPage(props: {
     >
       <div className="container">
         <section className="panel centered-panel hero-surface booking-stage-panel transaction-panel booking-flow-panel">
-          {!order ? (
+          {orderReadUnavailable ? (
+            <div className="stack-gap">
+              <h1>Nie udało się sprawdzić statusu zamówienia</h1>
+              <div className="error-box">
+                Status płatności jest chwilowo niedostępny. Nie zgłaszaj wpłaty ponownie. Odśwież tę stronę za chwilę.
+              </div>
+              <div className="hero-actions centered-actions">
+                <a href="" className="button button-primary big-button">Odśwież status</a>
+                <Link href="/kontakt#formularz" className="button button-ghost big-button">Skontaktuj się</Link>
+              </div>
+            </div>
+          ) : !order ? (
             <div className="stack-gap">
               <h1>Nie znaleziono zamówienia</h1>
               <div className="error-box">Ten link jest nieprawidłowy albo wygasł.</div>

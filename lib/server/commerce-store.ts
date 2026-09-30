@@ -494,6 +494,29 @@ export async function getCommerceOrderForViewer(orderNumber: string, viewerToken
   return order && hasCommerceOrderViewerAccess(order, viewerToken) ? order : null
 }
 
+export async function getCommerceOrderForViewerBounded(
+  orderNumber: string,
+  viewerToken: string | null | undefined,
+  timeoutMs = 4_000,
+): Promise<{ status: 'ok'; order: CommerceOrder | null } | { status: 'unavailable' }> {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined
+
+  try {
+    const order = await Promise.race([
+      getCommerceOrderForViewer(orderNumber, viewerToken),
+      new Promise<never>((_, reject) => {
+        timeoutId = setTimeout(() => reject(new Error(`Commerce order read timed out after ${timeoutMs}ms`)), timeoutMs)
+      }),
+    ])
+    return { status: 'ok', order }
+  } catch (error) {
+    console.warn('[regulski-behawiorysta][commerce] order status unavailable', error)
+    return { status: 'unavailable' }
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId)
+  }
+}
+
 /**
  * Used only after a separate authenticated owner check (for example a booking
  * access token) has already happened. This gives an old consultation order a

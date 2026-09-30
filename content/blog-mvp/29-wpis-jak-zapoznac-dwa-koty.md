@@ -1,23 +1,23 @@
 ---
 slug: jak-zapoznac-dwa-koty
-title_seo: Jak zapoznać dwa koty, żeby nie zepsuć relacji w pierwszy tydzień
-meta_description: Szybkie zapoznanie kotów prawie zawsze kończy się konfliktem. Sprawdź, jak to zrobić z planem — przez zapach, nie przez pierwsze spojrzenie.
-h1: Jak zapoznać dwa koty, żeby nie zepsuć relacji w pierwszy tydzień
+title_seo: Jak zapoznać dwa koty krok po kroku i ograniczyć napięcie
+meta_description: Zapoznaj koty stopniowo: od wymiany zapachów po nadzorowany kontakt. Dopasuj tempo do reakcji obu zwierząt.
+h1: Jak zapoznać dwa koty krok po kroku
 ---
 
-# Jak zapoznać dwa koty, żeby nie zepsuć relacji w pierwszy tydzień
+# Jak zapoznać dwa koty krok po kroku
 
-**Krótka odpowiedź:** nie przez bezpośrednie spotkanie. Koty poznają się najpierw przez zapach, potem przez szparę w drzwiach, na końcu twarzą w twarz. Cały proces trwa minimum 3–4 tygodnie. Przyspieszenie go prawie zawsze wraca jako kilkumiesięczny konflikt.
+**Krótka odpowiedź:** nie zaczynaj od bezpośredniego spotkania. Daj kotom czas na poznanie zapachów, potem wprowadź spokojny kontakt wzrokowy, a dopiero później krótkie, nadzorowane spotkania. Tempo i długość każdego etapu zależą od reakcji obu zwierząt.
 
 ## Dlaczego szybkie zapoznanie nie działa
 
-Pierwsze spotkanie twarzą w twarz, bez przygotowania, w nieznanym środowisku — to dla obu kotów sytuacja maksymalnego zagrożenia. Co się wydarzy w tym momencie, zostanie zapamiętane jako pierwsze skojarzenie z zapachem i wyglądem drugiego kota.
+Bezpośrednie spotkanie bez wcześniejszego oswojenia z zapachem i przygotowania przestrzeni może być dla kotów stresujące. Jeśli któreś się boi lub nie ma drogi odejścia, napięcie może utrudnić dalsze kontakty.
 
-Nawet jeśli nie dojdzie do bójki — napięcie z pierwszego spotkania buduje dystans, który może trwać miesiącami.
+Brak bójki nie oznacza jeszcze, że koty czują się swobodnie. Obserwuj ich zachowanie i zapewnij każdemu możliwość wycofania się.
 
 ## Plan — 4 etapy
 
-### Etap 1: Izolacja nowego kota (tydzień 1–2)
+### Etap 1: Bezpieczna baza dla nowego kota
 
 Nowy kot dostaje własne pomieszczenie z zamkniętymi drzwiami. Ma tam wszystko: kuwetę, miskę, wodę, legowisko, kryjówkę. Stary kot żyje w reszcie mieszkania.
 
@@ -25,26 +25,26 @@ Oboje oswajają się ze swoimi zapachami przez drzwi — wąchają od spodu, sł
 
 **Przyspiesz oswajanie zapachem:** weź ściereczkę, potrzyj ją po policzku jednego kota, połóż przy legowisku drugiego. Naprzemiennie. Spokojne wąchanie = dobry znak. Syczenie = idź wolniej.
 
-### Etap 2: Zamiana pomieszczeń (tydzień 2–3)
+### Etap 2: Poznawanie zapachów i przestrzeni
 
 Bez kotów: zamień je miejscami. Stary kot wchodzi do pokoju nowego, nowy eksploruje resztę mieszkania. Każdy ma dostęp do zapachu drugiego bez bezpośredniej konfrontacji.
 
 To jeden z najważniejszych etapów — koty mapują terytorium i uczą się, że zapach drugiego nie oznacza zagrożenia.
 
-### Etap 3: Kontakt przez szparę (tydzień 3–4)
+### Etap 3: Spokojny kontakt wzrokowy
 
 Uchylasz drzwi na kilka centymetrów. Koty mogą się widzieć i wąchać, ale nie wejść do siebie.
 
 **Dobry znak:** spokojne podejście do szpary, powąchanie, odejście.
 **Zły znak:** intensywne syczenie, warczenie, ucieczka. → wróć do etapu 2.
 
-### Etap 4: Pierwsze wspólne przebywanie (tydzień 4–6)
+### Etap 4: Krótkie, nadzorowane spotkania
 
 Otwierasz drzwi. Koty mogą się spotkać.
 
 - Miej coś smacznego pod ręką — jeśli oba koty biorą jedzenie w swoim towarzystwie, to dobry sygnał.
-- Pierwsze sesje: 15–30 minut, potem rozdzielasz.
-- Trochę syczenia to norma. Bójka z uszkodzeniami → wróć do izolacji.
+- Zacznij od krótkiej sesji i zakończ ją, zanim którekolwiek z kotów zacznie się wyraźnie napinać. Wydłużaj kontakt stopniowo, jeśli oba czują się swobodnie.
+- Przy syczeniu, warczeniu lub próbie ataku zwiększ dystans i wróć do poprzedniego etapu. Jeśli doszło do urazu, skontaktuj się z lekarzem weterynarii.
 
 ## Czego nie robić
 

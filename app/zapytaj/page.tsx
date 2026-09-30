@@ -214,7 +214,7 @@ export default function ZapytajPage() {
         </div>
       </section>
 
-      <section className="zapytaj-value-section" aria-labelledby="zapytaj-value-title">
+      <section className="zapytaj-value-section zapytaj-outcomes-section" aria-labelledby="zapytaj-value-title">
         <div className="zapytaj-section-heading">
           <span className="zapytaj-kicker">CO WYNIESIESZ Z ROZMOWY</span>
           <h2 id="zapytaj-value-title">Pierwszy klucz, nie obietnica całej terapii</h2>
@@ -233,27 +233,27 @@ export default function ZapytajPage() {
             <p>Jeśli temat jest szerszy, mogę wskazać pełną konsultację albo inny właściwy kierunek.</p>
           </article>
         </div>
-      </section>
 
-      <section className="zapytaj-next-section" aria-labelledby="zapytaj-next-title">
-        <div className="zapytaj-section-heading">
-          <span className="zapytaj-kicker">DALSZE MOŻLIWOŚCI</span>
-          <h2 id="zapytaj-next-title">Nie każda sprawa potrzebuje tego samego procesu</h2>
-        </div>
-        <div className="zapytaj-next-grid">
-          <article>
-            <span className="zapytaj-next-label">PO INDYWIDUALNYM ZAPROSZENIU</span>
-            <h3>Pełna konsultacja</h3>
-            <p>Około 90 minut, szerszy kontekst i plan działania. Po rozmowie możesz otrzymać osobny link do dostępnych terminów i opłacić ten etap.</p>
-            <a href="/konsultacja">Zobacz opis pełnej konsultacji <ArrowRight size={16} aria-hidden="true" /></a>
-          </article>
-          <article>
-            <span className="zapytaj-next-label">PO PEŁNEJ KONSULTACJI</span>
-            <h3>Terapia behawioralna</h3>
-            <p>Indywidualna, dłuższa ścieżka pracy ustalana po pełnej konsultacji. Zakres i terminy dobieramy do sytuacji.</p>
-            <a href="/terapia">Zobacz możliwości terapii <ArrowRight size={16} aria-hidden="true" /></a>
-          </article>
-        </div>
+        <section className="zapytaj-next-section zapytaj-next-inline" aria-labelledby="zapytaj-next-title">
+          <div className="zapytaj-section-heading">
+            <span className="zapytaj-kicker">DALSZE MOŻLIWOŚCI</span>
+            <h2 id="zapytaj-next-title">Nie każda sprawa potrzebuje tego samego procesu</h2>
+          </div>
+          <div className="zapytaj-next-grid">
+            <article>
+              <span className="zapytaj-next-label">PO INDYWIDUALNYM ZAPROSZENIU</span>
+              <h3>Pełna konsultacja</h3>
+              <p>Około 90 minut, szerszy kontekst i plan działania. Po rozmowie możesz otrzymać osobny link do dostępnych terminów i opłacić ten etap.</p>
+              <a href="/konsultacja">Zobacz opis pełnej konsultacji <ArrowRight size={16} aria-hidden="true" /></a>
+            </article>
+            <article>
+              <span className="zapytaj-next-label">PO PEŁNEJ KONSULTACJI</span>
+              <h3>Terapia behawioralna</h3>
+              <p>Indywidualna, dłuższa ścieżka pracy ustalana po pełnej konsultacji. Zakres i terminy dobieramy do sytuacji.</p>
+              <a href="/terapia">Zobacz możliwości terapii <ArrowRight size={16} aria-hidden="true" /></a>
+            </article>
+          </div>
+        </section>
       </section>
 
       <section className="zapytaj-faq-section" aria-labelledby="zapytaj-faq-title">

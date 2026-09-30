@@ -50,7 +50,7 @@ export default function TherapyPage() {
       tag="Indywidualna ścieżka"
       navItems={PUBLIC_SITE_NAV_ITEMS}
       ctaHref="/zapytaj#formularz"
-      ctaLabel={`Zapytaj behawiorystę – ${formatPublicOfferPrice(PUBLIC_ZAPYTAJ_OFFER.pricePln)}`}
+      ctaLabel={`Zapytaj · ${formatPublicOfferPrice(PUBLIC_ZAPYTAJ_OFFER.pricePln)}`}
       footerPrimaryHref="/zapytaj#formularz"
       footerPrimaryLabel={`Zapytaj behawiorystę – ${formatPublicOfferPrice(PUBLIC_ZAPYTAJ_OFFER.pricePln)}`}
       showSideVisuals={false}

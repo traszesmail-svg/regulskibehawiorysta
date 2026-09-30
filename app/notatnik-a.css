@@ -34015,7 +34015,7 @@ html[data-theme='dark'] input[type="checkbox"] {
 
 .blog-magazine-category-rail {
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-template-columns: repeat(8, minmax(0, 1fr));
   overflow: hidden;
   border: 1px solid var(--magazine-line);
   border-radius: 24px;
@@ -38923,6 +38923,26 @@ main.materialy-showcase-page a.materialy-showcase-card-link:hover * {
   background: color-mix(in srgb, var(--accent-warm) 7%, var(--paper));
 }
 
+.zapytaj-next-inline {
+  margin-top: clamp(30px, 4vw, 48px);
+  padding: clamp(28px, 3.5vw, 40px) 0 0;
+  border-top: 1px solid var(--line);
+  background: transparent;
+}
+
+.zapytaj-next-inline .zapytaj-section-heading {
+  margin-bottom: 20px;
+}
+
+.zapytaj-next-inline .zapytaj-section-heading h2 {
+  max-width: 22ch;
+  font-size: clamp(27px, 3vw, 38px);
+}
+
+.zapytaj-next-inline .zapytaj-next-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .zapytaj-section-heading {
   display: grid;
   gap: 9px;
@@ -39718,6 +39738,15 @@ html[data-theme='dark'] .zapytaj-safety-note {
     padding: 48px 24px;
   }
 
+  .zapytaj-value-section.zapytaj-outcomes-section {
+    padding-bottom: 38px;
+  }
+
+  .zapytaj-next-inline {
+    margin-top: 30px;
+    padding: 28px 0 0;
+  }
+
   .zapytaj-hero {
     gap: 30px;
   }
@@ -39727,6 +39756,10 @@ html[data-theme='dark'] .zapytaj-safety-note {
   .zapytaj-next-grid,
   .canonical-service-steps,
   .canonical-service-value-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .zapytaj-next-inline .zapytaj-next-grid {
     grid-template-columns: 1fr;
   }
 

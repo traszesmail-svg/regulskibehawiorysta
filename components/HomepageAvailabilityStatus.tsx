@@ -16,6 +16,8 @@ type ScheduleSlot = { id: string; date: string; time: string; label: string }
 type AvailabilityPayload = {
   live: LiveStatus
   slots: ScheduleSlot[]
+  liveError: boolean
+  slotsError: boolean
 }
 
 type NotificationStatus = 'idle' | 'loading' | 'success' | 'error'
@@ -47,7 +49,10 @@ export function HomepageAvailabilityStatus() {
     let mounted = true
     async function fetchAvailability() {
       try {
-        const response = await fetch('/api/zapytaj/availability', { cache: 'no-store' })
+        const response = await fetch('/api/zapytaj/availability', {
+          cache: 'no-store',
+          signal: AbortSignal.timeout(6_000),
+        })
         if (!response.ok) throw new Error('Błąd pobierania dostępności')
         const data = (await response.json()) as AvailabilityPayload
         if (mounted) {
@@ -115,14 +120,19 @@ export function HomepageAvailabilityStatus() {
 
   const hasLiveBooking = previewMode === 'live' || (
     previewMode === null &&
+    !hasError &&
+    !availability?.liveError &&
     Boolean(availability?.live?.liveSlotId) &&
     (availability?.live?.status === 'available_now' || availability?.live?.status === 'in_call')
   )
   const isInCall = previewMode === null && availability?.live?.status === 'in_call' && Boolean(availability?.live?.liveSlotId)
 
   const slots = previewMode === 'empty' || previewMode === 'error' ? [] : (availability?.slots ?? [])
-  const hasNextSlot = !hasLiveBooking && slots.length > 0
-  const isErrorState = previewMode === 'error' || (hasError && !availability && previewMode === null)
+  const hasNextSlot = !hasLiveBooking && !hasError && !availability?.slotsError && slots.length > 0
+  const isErrorState = previewMode === 'error' || (
+    previewMode === null &&
+    (hasError || (!hasLiveBooking && !hasNextSlot && Boolean(availability?.liveError || availability?.slotsError)))
+  )
 
   return (
     <div className="homepage-hero-availability" aria-live="polite">
@@ -132,8 +142,13 @@ export function HomepageAvailabilityStatus() {
           <span>Sprawdzam dostępność…</span>
         </div>
       ) : isErrorState ? (
-        <div className="homepage-avail-badge is-loading">
-          <span>Sprawdzam dostępne terminy…</span>
+        <div className="homepage-avail-empty-wrap">
+          <div className="homepage-avail-badge is-empty" role="status">
+            <span>Nie udało się potwierdzić dostępności.</span>
+          </div>
+          <a className="homepage-avail-notify-trigger" href="/zapytaj#formularz">
+            Przejdź do wyboru terminu
+          </a>
         </div>
       ) : hasLiveBooking ? (
         <div className={`homepage-avail-badge ${isInCall ? 'is-scheduled' : 'is-live'}`}>

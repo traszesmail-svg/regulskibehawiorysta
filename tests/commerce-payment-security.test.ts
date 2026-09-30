@@ -20,6 +20,7 @@ import {
   ensureCommerceOrderViewerToken,
   fulfillCommerceOrder,
   getCommerceOrderForViewer,
+  getCommerceOrderForViewerBounded,
   hasCommerceOrderViewerAccess,
   markCommerceManualPaymentBookingPending,
   prepareCommerceManualPayment,
@@ -88,6 +89,11 @@ test('buyer order links require a high-entropy per-order viewer capability', asy
     assert.equal(hasCommerceOrderViewerAccess(order, `${order.viewerToken}x`), false)
     assert.equal(hasCommerceOrderViewerAccess(order, order.orderNumber), false)
     assert.ok(await getCommerceOrderForViewer(order.orderNumber, order.viewerToken))
+    const boundedOrder = await getCommerceOrderForViewerBounded(order.orderNumber, order.viewerToken)
+    assert.equal(boundedOrder.status, 'ok')
+    assert.equal(boundedOrder.status === 'ok' ? boundedOrder.order?.orderNumber : null, order.orderNumber)
+    const boundedUnauthorized = await getCommerceOrderForViewerBounded(order.orderNumber, order.orderNumber)
+    assert.deepEqual(boundedUnauthorized, { status: 'ok', order: null })
     assert.equal(await getCommerceOrderForViewer(order.orderNumber, order.orderNumber), null)
     assert.equal(await getCommerceOrderForViewer(order.orderNumber, null), null)
     assert.equal(await reportCommerceManualPayment(order.orderNumber, order.orderNumber), null)
@@ -255,7 +261,7 @@ test('buyer-facing BLIK routes enforce the viewer token and BLIK GET stays read-
   assert.match(ordersRoute, /viewerToken: order\.viewerToken/)
   assert.match(ordersRoute, /buildCommerceCheckoutHref\(order\.orderNumber, order\.viewerToken\)/)
   for (const source of [checkoutSource, blikSource, waitingSource, statusRoute, reportRoute, onlineCheckoutRoute]) {
-    assert.match(source, /getCommerceOrderForViewer/)
+    assert.match(source, /getCommerceOrderForViewer(?:Bounded)?/)
     assert.match(source, /viewerToken/)
   }
   assert.match(reportRoute, /alreadyReported: !report\.reportedNow/)

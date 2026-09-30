@@ -55,7 +55,7 @@ export default async function ConsultationPage({
       tag="Dalszy etap"
       navItems={PUBLIC_SITE_NAV_ITEMS}
       ctaHref="/zapytaj#formularz"
-      ctaLabel="Zapytaj behawiorystę – 79 zł"
+      ctaLabel="Zapytaj · 79 zł"
       footerPrimaryHref="/zapytaj#formularz"
       footerPrimaryLabel="Zapytaj behawiorystę – 79 zł"
       showSideVisuals={false}

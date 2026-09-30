@@ -15,7 +15,7 @@ Szukasz pomocy dla swojego psa — i natykasz się na dziesiątki ogłoszeń: tr
 
 ## Czym zajmuje się trener psa
 
-Trener psa uczy psów konkretnych zachowań: siadaj, leżaj, zostań, chodź przy nodze, wróć na wołanie, nie skakaj na ludzi. Pracuje nad komunikacją między psem a opiekunem i nad codziennym funkcjonowaniem w domu i na spacerze.
+Trener psa uczy psów konkretnych zachowań: siad, leżeć, zostań, chodź przy nodze, wróć na wołanie, nie skakaj na ludzi. Pracuje nad komunikacją między psem a opiekunem i nad codziennym funkcjonowaniem w domu i na spacerze.
 
 Dobry trener to ogromna wartość — szczególnie dla szczeniaków i psów po adopcji, które potrzebują nauki podstaw, jasnej struktury i wyćwiczonej relacji z opiekunem.
 

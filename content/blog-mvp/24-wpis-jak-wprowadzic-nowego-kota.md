@@ -1,25 +1,25 @@
 ---
 slug: jak-wprowadzic-nowego-kota-do-domu
 title_seo: Jak wprowadzić nowego kota do domu, w którym jest już jeden
-meta_description: Zbyt szybkie wspólne mieszkanie nowych kotów to najczęstszy błąd, który niszczy relację na miesiące. Sprawdź, jak zrobić to spokojnie i z planem.
+meta_description: Stopniowe zapoznanie kotów pomaga ograniczać napięcie. Sprawdź, jak przygotować osobne strefy i przechodzić do kontaktu w tempie zwierząt.
 h1: Jak wprowadzić nowego kota do domu, w którym jest już jeden
 ---
 
 # Jak wprowadzić nowego kota do domu, w którym jest już jeden
 
-**Krótka odpowiedź:** koty nie są z natury zwierzętami społecznymi i nie witają nowego lokatora z otwartymi łapami. Klucz to stopniowe oswajanie — zanim koty się zobaczą, powinny się przyzwyczaić do swojego zapachu. Cały proces zajmuje tygodnie, nie dni, i nie da się go przyspieszyć bez ryzyka trwałego konfliktu.
+**Krótka odpowiedź:** koty różnią się potrzebą kontaktu z innymi kotami. Stopniowe zapoznanie — najpierw z zapachem, potem z widokiem i dopiero później z bliską obecnością — pomaga ograniczać napięcie. Tempo zależy od reakcji obu zwierząt.
 
 ## Lead
 
 Bierzesz nowego kota do domu. Masz już jednego. Wyobrażasz sobie, że zaprzyjaźnią się po pierwszym dniu. Niestety — w naturze koty nie dobierają sobie sąsiadów z ulotki. Jeśli chcesz, żeby te dwa zwierzęta żyły razem spokojnie, masz przed sobą kilka tygodni stopniowej pracy. Ten wpis przeprowadza przez nią krok po kroku.
 
-## Dlaczego szybkie wprowadzenie prawie zawsze kończy się konfliktem
+## Dlaczego gwałtowne wprowadzenie zwiększa ryzyko napięcia
 
-Pierwsze spotkanie twarzą w twarz, bez przygotowania, w nieznanym środowisku — to dla obu kotów sytuacja maksymalnego napięcia. Mózg pracuje w trybie zagrożenia. To, co się wtedy wydarzy, zostanie zapamiętane jako pierwsze skojarzenie z tym zapachem i tym wyglądem.
+Bezpośrednie spotkanie bez wcześniejszego oswojenia z zapachem i przygotowania przestrzeni może być dla kotów stresujące. Jeśli któreś się boi lub nie ma drogi odejścia, napięcie może utrudnić dalsze kontakty.
 
-Nawet jeśli nie dojdzie do bójki — pierwsze niesformatowane spotkanie buduje napięcie, które może trwać miesiącami.
+Brak bójki nie oznacza jeszcze, że koty czują się swobodnie. Obserwuj ich zachowanie i zapewnij każdemu możliwość wycofania się.
 
-## Etap 1 — izolacja nowego kota (tydzień 1–2)
+## Etap 1 — bezpieczna baza dla nowego kota
 
 Nowy kot dostaje własne pomieszczenie. Zamknięte drzwi. Ma tam wszystko: kuwetę, miskę, wodę, legowisko, kryjówkę. Stary kot żyje w reszcie mieszkania.
 
@@ -31,13 +31,13 @@ Co to robi:
 **Jak przyspieszyć oswajanie zapachem:**
 Weź ściereczkę, potrzyj ją po policzku jednego kota, połóż przy leżanku drugiego. Powtarzaj naprzemiennie przez kilka dni. Obserwuj reakcję — spokojne wąchanie to dobry znak, syczenie to sygnał, że idź wolniej.
 
-## Etap 2 — zamiana pomieszczeń (tydzień 2–3)
+## Etap 2 — poznawanie zapachów i przestrzeni
 
 Bez obecności kotów — zamień je miejscami. Stary kot wchodzi do pokoju nowego kota. Nowy kot wychodzi i eksploruje resztę mieszkania.
 
 Każdy z nich ma teraz pełny dostęp do terenu drugiego, bez bezpośredniej konfrontacji. To jeden z najważniejszych etapów — koty mapują środowisko zapachem i uczą się, że obecność drugiego kota nie oznacza zagrożenia.
 
-## Etap 3 — kontakt przez szparę (tydzień 3–4)
+## Etap 3 — spokojny kontakt wzrokowy
 
 Uchylisz drzwi na kilka centymetrów — na tyle, żeby koty mogły się widzieć i wąchać, ale nie wejść do siebie. Obserwuj.
 
@@ -51,9 +51,9 @@ Uchylisz drzwi na kilka centymetrów — na tyle, żeby koty mogły się widzie�
 - jeden kot ucieka i chowa się,
 - sztywna postawa, uniesiona sierść.
 
-Jeśli widzisz napięcie — wróć do etapu 2 na kolejny tydzień.
+Jeśli widzisz napięcie, przerwij sesję i wróć do poprzedniego etapu. Ponów próbę dopiero wtedy, gdy oba koty znów zachowują się swobodnie.
 
-## Etap 4 — pierwsze wspólne przebywanie (tydzień 4–6)
+## Etap 4 — krótkie, nadzorowane spotkania
 
 Otwierasz drzwi. Koty mogą się spotkać.
 
@@ -61,9 +61,9 @@ Kilka zasad na ten moment:
 - nie pchaj kotów do siebie,
 - miej coś smacznego pod ręką — jeśli oba koty biorą jedzenie w swoim towarzystwie, to dobry sygnał,
 - miej otwarte drogi ucieczki dla obu,
-- pierwsze wspólne sesje powinny być krótkie (15–30 minut), potem rozdzielasz.
+- zacznij od krótkiej sesji i zakończ ją, zanim którekolwiek z kotów zacznie się wyraźnie napinać; stopniowo wydłużaj kontakt, jeśli oba czują się swobodnie.
 
-Pierwsze spotkanie prawie zawsze jest napięte. Trochę syczenia to norma. Bójka z uszkodzeniami ciała — wróć do izolacji.
+Reakcje zależą od kotów. Przy syczeniu, warczeniu lub próbie ataku spokojnie zwiększ dystans i wróć do poprzedniego etapu. Jeśli doszło do urazu, skontaktuj się z lekarzem weterynarii.
 
 ## Co robić, jeśli koty się nie akceptują po kilku tygodniach
 
@@ -82,8 +82,8 @@ W pewnym stopniu. Dwa kocury mogą mieć więcej konfliktów terytorialnych (kas
 **Czy feromony (Feliway Harmony) pomagają przy wprowadzeniu?**
 Mogą pomóc jako uzupełnienie — obniżają tło napięcia. Nie zastępują planu.
 
-**Jak długo powinienem czekać z pierwszym wspólnym spotkaniem?**
-Minimum 2–3 tygodnie od przyjazdu nowego kota. Przy kotach wyraźnie niespokojnych lub agresywnych — dłużej.
+**Jak długo czekać z pierwszym wspólnym spotkaniem?**
+Nie ma jednego terminu dla wszystkich kotów. Poczekaj, aż oba spokojnie reagują na zapachy i kontakt wzrokowy. Jeśli któreś okazuje napięcie, zostań przy poprzednim etapie i skonsultuj plan, gdy nie wiesz, jak bezpiecznie postąpić.
 
 **Czy muszę mieć dwie kuwety?**
 Minimum dwie — przy jednym nowym i jednym starym kocie. W trakcie introdukcji trzymaj je w osobnych pomieszczeniach. Po pełnej integracji rozmieść w różnych miejscach mieszkania.

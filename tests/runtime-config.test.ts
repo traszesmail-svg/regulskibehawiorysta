@@ -1037,7 +1037,6 @@ test.skip('booking funnel sources keep canonical routing and standardized analyt
   assert.match(slotSource, /data-analytics-event="booking_slot_selected"/)
   assert.doesNotMatch(slotSource, /data-analytics-event="slot_select"/)
   assert.match(bookSource, /eventName="booking_service_selected"/)
-  assert.match(catsSource, /eventName="booking_service_selected"/)
   assert.match(headerSource, /data-analytics-event="funnel_entry_15_min"/)
   assert.match(footerSource, /data-analytics-event="funnel_entry_15_min"/)
   assert.match(bookingFormSource, /booking_form_started/)

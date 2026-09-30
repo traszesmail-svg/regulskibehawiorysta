@@ -7,7 +7,7 @@ h1: Rutyna wyjścia — jak oswajać psa z samotnością krok po kroku
 
 # Rutyna wyjścia — jak oswajać psa z samotnością krok po kroku
 
-**Krótka odpowiedź:** pies uczy się tolerować samotność przez wielokrotne doświadczenie, że nieobecność opiekuna jest krótka, przewidywalna i zawsze kończy się powrotem. Buduje się to stopniowo — zaczynając od sekund, nie od godzin — i nigdy nie przeskakując etapów bez wyraźnej gotowości psa.
+**Krótka odpowiedź:** pies uczy się tolerować samotność przez stopniowe doświadczenia, że krótkie nieobecności są bezpieczne. Zaczynaj od krótkich wyjść i wydłużaj je zależnie od reakcji psa.
 
 ## Lead
 

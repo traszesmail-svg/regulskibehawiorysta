@@ -25,6 +25,8 @@ type ScheduleSlot = { id: string; date: string; time: string; label: string }
 type AvailabilityPayload = {
   live: LiveStatus
   slots: ScheduleSlot[]
+  liveError: boolean
+  slotsError: boolean
   holdMinutes: number
   manualConfirmationHours: number
 }
@@ -90,7 +92,10 @@ export function ZapytajIntakeForm({ promotionMode = false, initialPromotionCode 
     if (showLoading) setIsRefreshing(true)
 
     try {
-      const response = await fetch('/api/zapytaj/availability', { cache: 'no-store' })
+      const response = await fetch('/api/zapytaj/availability', {
+        cache: 'no-store',
+        signal: AbortSignal.timeout(6_000),
+      })
       const payload = (await response.json()) as AvailabilityPayload
 
       if (!response.ok || !payload.live || !Array.isArray(payload.slots)) {
@@ -98,12 +103,17 @@ export function ZapytajIntakeForm({ promotionMode = false, initialPromotionCode 
       }
 
       setAvailability(payload)
-      setAvailabilityError('')
+      setAvailabilityError(
+        payload.slotsError
+          ? 'Nie udało się potwierdzić zwykłych terminów. Spróbuj ponownie za chwilę.'
+          : '',
+      )
       setSelectedSlotId((current) => {
         if (current && payload.slots.some((slot) => slot.id === current)) return current
         return ''
       })
     } catch (error) {
+      setAvailability(null)
       setAvailabilityError(error instanceof Error ? error.message : 'Dostępność jest chwilowo niedostępna.')
     } finally {
       if (showLoading) setIsRefreshing(false)
@@ -412,6 +422,20 @@ export function ZapytajIntakeForm({ promotionMode = false, initialPromotionCode 
                 <RefreshCw size={15} className="animate-spin" aria-hidden="true" />
                 <span>Sprawdzam dostępne terminy…</span>
               </p>
+            ) : availabilityError && (!availability || availability.slotsError) ? (
+              <div className="zapytaj-empty-slots-wrap">
+                <p className="zapytaj-empty-slots" role="alert">
+                  {availabilityError || 'Nie udało się sprawdzić dostępnych terminów. Spróbuj ponownie za chwilę.'}
+                </p>
+                <button
+                  type="button"
+                  className="homepage-avail-notify-trigger"
+                  onClick={() => void refreshAvailability(true)}
+                  disabled={isRefreshing}
+                >
+                  Spróbuj ponownie
+                </button>
+              </div>
             ) : availability?.slots.length ? (
               <>
               <div className="zapytaj-day-grid" role="radiogroup" aria-label="Wybierz dzień rozmowy">

@@ -80,13 +80,13 @@ Koty adaptują się do zmian wolniej niż psy. Po przeprowadzce albo po pojawien
 
 ## FAQ
 
-**Czy kastracja pomaga przy znakowania moczem?**
-Tak, szczególnie przy znakowania terytorialnego u kocurów. Kastracja nie jest gwarantowanym rozwiązaniem, ale wyraźnie redukuje motywację hormonalną do znakowania.
+**Czy kastracja pomaga przy znakowaniu moczem?**
+Tak, szczególnie przy znakowaniu terytorialnym u kocurów. Kastracja nie jest gwarantowanym rozwiązaniem, ale wyraźnie redukuje motywację hormonalną do znakowania.
 
 **Czy dwa koty zawsze będą miały konflikty?**
 Nie. Wiele par kotów żyje razem bez napięcia. Zależy od temperamentów, sposobu wprowadzenia i jakości środowiska. Przy napięciu między kotami — warto to sprawdzić oddzielnie.
 
-**Czy stress u kota wymaga wizyty u weterynarza?**
+**Czy stres u kota wymaga wizyty u weterynarza?**
 Przy objawach fizycznych (zmiana moczu, krew, ból przy załatwianiu) — tak, natychmiast. Przy czystym stresie behawioralnym — lekarz może ocenić, czy wsparcie farmakologiczne ma sens, i wykluczyć FIC.
 
 **Jak długo trwa adaptacja po przeprowadzce?**

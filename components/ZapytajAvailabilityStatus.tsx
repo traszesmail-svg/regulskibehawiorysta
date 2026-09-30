@@ -18,7 +18,10 @@ export function ZapytajAvailabilityStatus() {
 
     async function load() {
       try {
-        const response = await fetch('/api/zapytaj/availability', { cache: 'no-store' })
+        const response = await fetch('/api/zapytaj/availability', {
+          cache: 'no-store',
+          signal: AbortSignal.timeout(6_000),
+        })
         const payload = (await response.json()) as { live?: LiveStatus }
         if (mounted && payload.live) setLive(payload.live)
       } catch {

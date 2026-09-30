@@ -19,7 +19,7 @@ Trener psa uczy konkretnych zachowań i umiejętności. Pracuje z psem i opiekun
 
 Trener jest odpowiednim adresem, gdy pytanie brzmi: **czego chcę, żeby mój pies umiał**.
 
-Typowe tematy: siad, leżaj, zostań, wróć na wołanie, chodzenie na luźnej smyczy, nie skakanie na ludzi, pierwsza nauka z nowym psem lub szczeniakiem.
+Typowe tematy: siad, leżeć, zostań, wróć na wołanie, chodzenie na luźnej smyczy, nie skakanie na ludzi, pierwsza nauka z nowym psem lub szczeniakiem.
 
 Trener nie musi oceniać, dlaczego pies reaguje lękiem albo agresją — to nie jest jego specjalizacja.
 

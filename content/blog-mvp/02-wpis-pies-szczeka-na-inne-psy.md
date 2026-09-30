@@ -1,13 +1,13 @@
 ---
 slug: dlaczego-moj-pies-szczeka-na-inne-psy
-title_seo: Dlaczego mój pies szczeka na inne psy - i czemu to nie zawsze jest agresja?
-meta_description: Szczekanie na inne psy rzadko oznacza agresję. Najczęściej to mieszanka napięcia, frustracji i zbyt małego dystansu. Sprawdź, co zrobić pierwsze.
-h1: Dlaczego mój pies szczeka na inne psy - i czemu to nie zawsze jest agresja?
+h1: Dlaczego mój pies szczeka na inne psy? Przyczyny i bezpieczne pierwsze kroki
+title_seo: Dlaczego mój pies szczeka na inne psy? Przyczyny i bezpieczne kroki
+meta_description: Szczekanie na inne psy może mieć różne przyczyny. Sprawdź, na co zwrócić uwagę i jak bezpiecznie zacząć zmieniać spacery.
 ---
 
-# Dlaczego mój pies szczeka na inne psy - i czemu to nie zawsze jest agresja?
+# Dlaczego mój pies szczeka na inne psy? Przyczyny i bezpieczne pierwsze kroki
 
-**Krótka odpowiedź:** pies, który szczeka na inne psy na spacerze, najczęściej nie jest agresywny ani „dominujący”. Zwykle jest spięty, za blisko bodźca i bez przećwiczonej procedury, co ma zrobić, gdy widzi innego psa. To problem regulacji, nie charakteru.
+**Krótka odpowiedź:** samo szczekanie nie pozwala stwierdzić, czy pies jest agresywny ani co motywuje jego reakcję. Może wiązać się między innymi z lękiem, frustracją, pobudzeniem lub zachowaniem terytorialnym. Znaczenie mają też mowa ciała, kontekst i historia psa, dlatego nie warto oceniać sytuacji po jednym objawie.
 
 ## Lead
 
@@ -100,8 +100,8 @@ Nie musisz od razu zamawiać długiej konsultacji. Często wystarczy rozmowa **Z
 
 ## FAQ
 
-**Czy szczekanie na inne psy to agresja?**
-Najczęściej nie. To zwykle reakcja z napięcia, frustracji albo lęku. Agresja ma bardziej konsekwentny, wycelowany wzorzec. Szczekanie na smyczy to w większości przypadków problem regulacji pobudzenia.
+**Czy szczekanie na inne psy oznacza agresję?**
+Nie da się tego rozstrzygnąć na podstawie samego szczekania. Reakcja może wynikać z lęku, frustracji, pobudzenia, zachowania terytorialnego albo agresji. Jeśli pies próbował ugryźć, doszło do pogryzienia lub trudno go bezpiecznie utrzymać, zwiększ dystans i skonsultuj sytuację z lekarzem weterynarii lub wykwalifikowanym specjalistą zachowania. Nie sprawdzaj reakcji przez dopuszczanie do kontaktu z innym psem.
 
 **Czy pies z tego „wyrośnie”?**
 Nie z samego upływu czasu. Może się pogłębić, jeśli codziennie powtarza ten sam schemat. Może też wyraźnie zelżeć, jeśli zmienimy sposób, w jaki kończą się mijania.

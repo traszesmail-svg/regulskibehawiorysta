@@ -56,7 +56,7 @@ Klucze, kurtka, buty — to są dla psa sygnały alarmowe. Trenuje się je osobn
 
 ### 3. Buduj czas krok po kroku
 
-Nie zaczynaj od 30 minut. Zaczynaj od takich długości, przy których pies jeszcze nie zaczyna wyć. Jeśli to jest 20 sekund — zaczynasz od 20 sekund. Wydłużasz dopiero wtedy, gdy krótsze odcinki są naprawdę spokojne. To jest najwolniejszy i najbardziej niecierpliwiony etap procesu. Większość niepowodzeń wynika z pośpiechu.
+Nie zaczynaj od 30 minut. Zaczynaj od takich długości, przy których pies jeszcze nie zaczyna wyć. Jeśli to jest 20 sekund — zaczynasz od 20 sekund. Wydłużasz dopiero wtedy, gdy krótsze odcinki są naprawdę spokojne. To najwolniejszy i najbardziej wymagający cierpliwości etap procesu. Większość niepowodzeń wynika z pośpiechu.
 
 ### 4. Zadbaj o warunki startowe
 

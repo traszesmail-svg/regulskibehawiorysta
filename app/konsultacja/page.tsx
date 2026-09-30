@@ -1,14 +1,14 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight, Clock3, Compass, KeyRound, Layers, MessageSquareText, Video, WalletCards } from 'lucide-react'
+import { ArrowRight, CalendarCheck2, Clock3, Compass, KeyRound, Layers, MessageSquareText, PhoneCall, Video, WalletCards } from 'lucide-react'
 import { Schema } from '@/components/schema'
 import { NotatnikPageShell, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
 import { getBreadcrumbJsonLd, getFaqPageJsonLd, getServiceJsonLd } from '@/lib/schema'
 import { buildMarketingMetadata } from '@/lib/seo'
 import { PUBLIC_FULL_CONSULTATION_OFFER, formatPublicOfferPrice } from '@/lib/public-offer'
-import { SPECIALIST_ONLINE_PHOTO, COAPE_POLSKA_LOGO, SPECIALIST_NAME, SPECIALIST_PUBLIC_STATUS } from '@/lib/site'
-import { getConsultationAccessByCode } from '@/lib/server/db'
+import { COAPE_POLSKA_LOGO, SPECIALIST_NAME, SPECIALIST_PUBLIC_STATUS } from '@/lib/site'
+import styles from './consultation.module.css'
 
 const CONSULTATION_FAQ_ITEMS = [
   {
@@ -40,16 +40,7 @@ export const metadata: Metadata = buildMarketingMetadata({
     'Pełna konsultacja behawioralna dla psów i kotów: około 90 minut, szersza analiza sytuacji i plan działania. Dostęp po wcześniejszej rozmowie i indywidualnym kodzie.',
 })
 
-export default async function ConsultationPage({
-  searchParams,
-}: {
-  searchParams?: Promise<Record<string, string | string[] | undefined>>
-}) {
-  const params = await searchParams
-  const rawCode = params?.code
-  const accessCode = (Array.isArray(rawCode) ? rawCode[0] : rawCode)?.trim() ?? ''
-  const accessBooking = accessCode ? await getConsultationAccessByCode(accessCode) : null
-
+export default async function ConsultationPage() {
   return (
     <NotatnikPageShell
       tag="Dalszy etap"
@@ -59,7 +50,7 @@ export default async function ConsultationPage({
       footerPrimaryHref="/zapytaj#formularz"
       footerPrimaryLabel="Zapytaj behawiorystę – 79 zł"
       showSideVisuals={false}
-      pageClassName="canonical-service-page consultation-page"
+      pageClassName={`canonical-service-page consultation-page ${styles.page}`}
       shellClassName="canonical-service-shell"
       footerVariant="home"
       showFooterReviews={false}
@@ -106,7 +97,7 @@ export default async function ConsultationPage({
           </div>
 
           <div className="canonical-service-hero-actions">
-            <a href="/zapytaj#formularz" className="notatnik-btn">
+            <a href="/zapytaj#formularz" className={`notatnik-btn ${styles.action}`}>
               <span>Zacznij od Zapytaj — 79 zł</span>
               <ArrowRight size={17} strokeWidth={1.9} aria-hidden="true" />
             </a>
@@ -145,8 +136,8 @@ export default async function ConsultationPage({
 
         <figure className="canonical-service-hero-art canonical-service-photo">
           <Image
-            src={SPECIALIST_ONLINE_PHOTO.src}
-            alt="Pies i kot odpoczywają spokojnie w domowym otoczeniu"
+            src="/branding/section-heroes/consultation-online-branded-screen-v1.webp"
+            alt="Opiekunka z psem podczas konsultacji online, z logo Regulski Behawiorysta na ekranie laptopa"
             fill
             priority
             sizes="(max-width: 980px) 92vw, 38vw"
@@ -164,26 +155,29 @@ export default async function ConsultationPage({
           </p>
         </div>
 
-        <div className="canonical-service-steps steps-editorial">
-          <article className="step-editorial-item">
-            <span className="step-editorial-num">01</span>
-            <div>
-              <h3>Zapytaj behawiorystę</h3>
-              <p>Krótka, wstępna rozmowa (79 zł) pozwala ocenić problem i ustalić, czy potrzebny jest pełny proces.</p>
+        <div className={styles.steps}>
+          <article className={styles.step}>
+            <span className={styles.stepIcon} aria-hidden="true"><PhoneCall size={22} strokeWidth={1.8} /></span>
+            <div className={styles.stepCopy}>
+              <span className={styles.stepNumber}>01</span>
+              <h3 className={styles.stepTitle}>Zapytaj behawiorystę</h3>
+              <p className={styles.stepDescription}>Krótka, wstępna rozmowa (79 zł) pozwala ocenić problem i ustalić, czy potrzebny jest pełny proces.</p>
             </div>
           </article>
-          <article className="step-editorial-item">
-            <span className="step-editorial-num">02</span>
-            <div>
-              <h3>Dedykowane zaproszenie</h3>
-              <p>Gdy rekomenduję konsultację, przesyłam link lub kod odblokowujący dostępne terminy w kalendarzu.</p>
+          <article className={styles.step}>
+            <span className={styles.stepIcon} aria-hidden="true"><KeyRound size={22} strokeWidth={1.8} /></span>
+            <div className={styles.stepCopy}>
+              <span className={styles.stepNumber}>02</span>
+              <h3 className={styles.stepTitle}>Dedykowane zaproszenie</h3>
+              <p className={styles.stepDescription}>Gdy rekomenduję konsultację, przesyłam link lub kod odblokowujący dostępne terminy w kalendarzu.</p>
             </div>
           </article>
-          <article className="step-editorial-item">
-            <span className="step-editorial-num">03</span>
-            <div>
-              <h3>Rezerwacja i plan działania</h3>
-              <p>Wybierasz dogodny termin, opłacasz konsultację (475 zł) i otrzymujesz wytyczne do przygotowania.</p>
+          <article className={styles.step}>
+            <span className={styles.stepIcon} aria-hidden="true"><CalendarCheck2 size={22} strokeWidth={1.8} /></span>
+            <div className={styles.stepCopy}>
+              <span className={styles.stepNumber}>03</span>
+              <h3 className={styles.stepTitle}>Rezerwacja i plan działania</h3>
+              <p className={styles.stepDescription}>Wybierasz dogodny termin, opłacasz konsultację (475 zł) i otrzymujesz wytyczne do przygotowania.</p>
             </div>
           </article>
         </div>
@@ -197,69 +191,25 @@ export default async function ConsultationPage({
         </div>
         <div className="consultation-value-grid">
           <article className="consultation-value-card">
-            <span className="consultation-value-icon" aria-hidden="true"><Clock3 size={20} /></span>
+            <span className={`consultation-value-icon ${styles.valueIcon}`} aria-hidden="true"><Clock3 size={20} strokeWidth={1.75} /></span>
             <h3>Około 90 minut rozmowy</h3>
             <p>Spokojny czas na omówienie historii psa lub kota bez presji zegarka i powierzchownych rad.</p>
           </article>
           <article className="consultation-value-card">
-            <span className="consultation-value-icon" aria-hidden="true"><Layers size={20} /></span>
+            <span className={`consultation-value-icon ${styles.valueIcon}`} aria-hidden="true"><Layers size={20} strokeWidth={1.75} /></span>
             <h3>Analiza zachowania i domu</h3>
             <p>Przeglądamy nagrania wideo, codzienne nawyki domowników i wyzwalacze emocji zwierzęcia.</p>
           </article>
           <article className="consultation-value-card">
-            <span className="consultation-value-icon" aria-hidden="true"><Compass size={20} /></span>
+            <span className={`consultation-value-icon ${styles.valueIcon}`} aria-hidden="true"><Compass size={20} strokeWidth={1.75} /></span>
             <h3>Plan możliwy do wdrożenia</h3>
             <p>Konkretne ćwiczenia i zmiany w środowisku, dobrane do Twojego trybu życia i możliwości.</p>
           </article>
           <article className="consultation-value-card">
-            <span className="consultation-value-icon" aria-hidden="true"><MessageSquareText size={20} /></span>
+            <span className={`consultation-value-icon ${styles.valueIcon}`} aria-hidden="true"><MessageSquareText size={20} strokeWidth={1.75} /></span>
             <h3>Ustalony kontakt po spotkaniu</h3>
             <p>Sprawdzamy reakcję zwierzęcia na pierwsze zmiany i w razie potrzeby korygujemy wybrane kroki.</p>
           </article>
-        </div>
-      </section>
-
-      <section className="canonical-service-access-section" aria-labelledby="consultation-access-form-title">
-        <div className="canonical-service-access-box">
-          <div className="canonical-service-heading">
-            <span className="zapytaj-kicker">MASZ JUŻ ZAPROSZENIE?</span>
-            <h2 id="consultation-access-form-title">Wpisz kod od behawiorysty</h2>
-            <p>
-              Jeśli po wstępnej rozmowie otrzymałeś kod zaproszenia, wpisz go poniżej, aby odblokować kalendarz konsultacji.
-            </p>
-          </div>
-          {accessBooking ? (
-            <div className="canonical-service-access-confirmed">
-              <p>
-                Kod jest aktywny dla adresu <strong>{accessBooking.email}</strong>. Możesz przejść do wyboru terminu.
-              </p>
-              <a
-                href={`/konsultacja/rezerwacja?code=${encodeURIComponent(accessCode)}`}
-                className="notatnik-btn"
-              >
-                <span>Wybierz termin konsultacji</span>
-                <ArrowRight size={17} aria-hidden="true" />
-              </a>
-            </div>
-          ) : (
-            <form action="/konsultacja/rezerwacja" method="get" className="canonical-service-access-form">
-              <label htmlFor="consultation-access-code" className="sr-only">Kod zaproszenia</label>
-              <div className="canonical-service-access-input-group">
-                <input
-                  id="consultation-access-code"
-                  name="code"
-                  placeholder="np. RB-AB12CD34EF"
-                  autoComplete="one-time-code"
-                  required
-                />
-                <button type="submit" className="notatnik-btn">
-                  <span>Przejdź do terminów</span>
-                  <ArrowRight size={17} aria-hidden="true" />
-                </button>
-              </div>
-              {accessCode ? <p className="form-error">Ten kod jest nieprawidłowy, wykorzystany albo wygasł.</p> : null}
-            </form>
-          )}
         </div>
       </section>
 
@@ -278,10 +228,10 @@ export default async function ConsultationPage({
         </div>
       </section>
 
-      <section className="canonical-service-note" aria-label="Pierwszy krok">
+      <section className={`canonical-service-note ${styles.finalCta}`} aria-label="Pierwszy krok">
         <strong>Jeśli dopiero szukasz pierwszego kontaktu</strong>
-        <p>Nie musisz od razu rezerwować 90-minutowego spotkania. Zacznij od krótkiej rozmowy telefonicznej.</p>
-        <a href="/zapytaj#formularz" className="notatnik-btn">
+        <p>Zacznij od krótkiej rozmowy telefonicznej, żeby sprawdzić, czy pełna konsultacja będzie odpowiednia.</p>
+        <a href="/zapytaj#formularz" className={`notatnik-btn ${styles.action}`}>
           <span>Zapytaj behawiorystę — 79 zł</span>
           <ArrowRight size={16} aria-hidden="true" />
         </a>

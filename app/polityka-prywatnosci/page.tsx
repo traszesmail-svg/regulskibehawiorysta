@@ -18,7 +18,7 @@ const summaryItems: LegalSummaryItem[] = [
   },
   {
     label: 'Podstawowe narzędzia',
-    value: 'Supabase, Resend, Jitsi, Zadarma, WhatsApp/Meta, ręczna obsługa BLIK, operator online Naffy lub Stripe (jeśli checkout jest aktywny) oraz analityka wyłącznie po zgodzie.',
+    value: 'Supabase, Resend, Jitsi, Zadarma, WhatsApp/Meta, ręczna obsługa BLIK na telefon oraz narzędzia analityczne uruchamiane wyłącznie po wyrażeniu zgody.',
   },
   {
     label: 'Publiczny kontakt',
@@ -115,13 +115,6 @@ const sections: LegalSection[] = [
         <p>
           Przy płatnościach dane mogą być przetwarzane w ramach ręcznej obsługi BLIK na telefon, zgodnie z aktualnym
           modelem przyjmowania wpłat.
-        </p>
-        <p>
-          Jeżeli checkout konkretnego zamówienia oferuje płatność online, klient przechodzi do zewnętrznego checkoutu
-          Naffy albo Stripe — zależnie od aktywnej konfiguracji. Naffy otrzymuje w adresie checkoutu numer zamówienia
-          potrzebny do powiązania wpłaty; Stripe otrzymuje adres e-mail, numer zamówienia, typ i nazwę produktu oraz
-          kwotę. Dane karty są wprowadzane bezpośrednio u wybranego operatora. Dostępne metody i operator są pokazane
-          przed przejściem do checkoutu.
         </p>
         <p>
           Część dostawców, w szczególności Meta lub narzędzia analityczne, może przetwarzać dane poza Europejskim

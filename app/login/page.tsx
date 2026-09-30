@@ -24,7 +24,7 @@ export default function LoginPage() {
       navItems={PUBLIC_BOOKING_FLOW_NAV_ITEMS}
       topbarProfile="flow"
       ctaHref="/dostep"
-      ctaLabel="Otwórz kupiony PDF"
+      ctaLabel="Kod dostępu"
       footerPrimaryHref="/pokoj"
       footerPrimaryLabel="Pokój opiekuna"
       pageClassName="account-page"

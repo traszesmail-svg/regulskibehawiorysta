@@ -61,7 +61,7 @@ const sections: LegalSection[] = [
     body: (
       <>
         <p>Cena konsultacji: {PUBLIC_OFFER_PRICE_LABELS.premium} brutto.</p>
-        <p>Podstawowa metoda płatności: {PUBLIC_OFFER_PAYMENT_METHODS}. Jeżeli checkout dla danej rezerwacji udostępnia płatność online, pokazuje dostępne metody przed przekierowaniem do operatora. W przeciwnym razie klient otrzymuje instrukcję wpłaty BLIK e-mailem.</p>
+        <p>Metoda płatności: {PUBLIC_OFFER_PAYMENT_METHODS}. Klient otrzymuje dane potrzebne do wykonania wpłaty zgodnie z instrukcją.</p>
         <p>Termin jest wstępnie blokowany na czas płatności. Standardowe okno blokady wynosi 5 minut.</p>
         <p>Termin zostaje ostatecznie zablokowany dopiero po potwierdzeniu płatności. Przy płatności BLIK według instrukcji wpłatę potwierdza usługodawca w godzinach 9:00-21:00, poza dniami ustawowo wolnymi od pracy.</p>
         <p>Rezerwacja bez dokonanej lub potwierdzonej płatności nie jest wiążąca, a termin może wrócić do puli dostępnych terminów.</p>
@@ -98,12 +98,9 @@ const sections: LegalSection[] = [
     title: '6. Zmiana terminu i anulacja',
     body: (
       <>
-        <p>Prośbę o zmianę terminu lub rezygnację należy przesłać na kontakt@regulskibehawiorysta.pl możliwie szybko.</p>
-        <p>
-          Przy rezygnacji zgłoszonej co najmniej 48 godzin przed spotkaniem usługodawca zwraca całą wpłatę albo — na
-          życzenie klienta — przenosi termin. Przy późniejszej rezygnacji strony ustalają zmianę terminu lub rozliczenie
-          z uwzględnieniem poniesionych kosztów i zakresu przygotowania; nie wyłącza to praw ustawowych klienta.
-        </p>
+        <p>Do 48 godzin przed konsultacją klient może bezpłatnie zmienić termin albo zrezygnować i otrzymać zwrot 100% wpłaty.</p>
+        <p>Pomiędzy 48 a 24 godzinami przed terminem możliwa jest bezpłatna zmiana terminu albo zwrot 50% wpłaty.</p>
+        <p>Krócej niż 24 godziny przed terminem wpłata nie podlega zwrotowi, chyba że przyczyną jest siła wyższa lub niedostępność usługodawcy.</p>
       </>
     ),
   },
@@ -111,11 +108,8 @@ const sections: LegalSection[] = [
     title: '7. No-show i odwołanie przez usługodawcę',
     body: (
       <>
-        <p>
-          Jeśli klient nie może dołączyć do rozmowy, powinien skontaktować się z usługodawcą. Nieobecność, problem z
-          połączeniem ani spóźnienie są rozpatrywane indywidualnie; jeśli problem leży po stronie usługodawcy lub
-          platformy, klient wybiera nowy termin albo zwrot wpłaty.
-        </p>
+        <p>Jeśli klient nie dołączy do rozmowy w ciągu 15 minut od planowanego początku i nie skontaktuje się z usługodawcą, konsultacja uznawana jest za zrealizowaną bez prawa do zwrotu.</p>
+        <p>W przypadku problemów technicznych udokumentowanych przez klienta usługodawca proponuje nowy termin bez dopłaty.</p>
         <p>W sytuacjach wyjątkowych usługodawca może odwołać konsultację. W takim przypadku klient otrzymuje wybór: nowy termin w ciągu 30 dni albo pełny zwrot wpłaty.</p>
       </>
     ),
@@ -126,11 +120,7 @@ const sections: LegalSection[] = [
       <>
         <p>Konsument ma prawo odstąpić od umowy zawartej na odległość w terminie 14 dni bez podania przyczyny, z zastrzeżeniem przepisów szczególnych o usługach wykonanych za zgodą klienta.</p>
         <p>Przy rezerwacji klient składa osobną zgodę na rozpoczęcie świadczenia usługi przed upływem 14-dniowego terminu i przyjmuje do wiadomości, że po zakończonej konsultacji traci prawo odstąpienia od umowy w zakresie wykonanej usługi.</p>
-        <p>
-          Jeżeli klient zażąda rozpoczęcia świadczenia przed upływem 14 dni i odstąpi od umowy przed pełnym wykonaniem,
-          może być zobowiązany do zapłaty za część świadczenia spełnioną do chwili odstąpienia, zgodnie z ustawą.
-          Oświadczenie można przesłać e-mailem na kontakt@regulskibehawiorysta.pl.
-        </p>
+        <p>Do momentu rozpoczęcia konsultacji klient zachowuje prawo odstąpienia na zasadach ogólnych. Zgłoszenie e-mailem jest wystarczające.</p>
       </>
     ),
   },
@@ -138,7 +128,7 @@ const sections: LegalSection[] = [
     title: '9. Reklamacje',
     body: (
       <>
-        <p>Klient może złożyć reklamację e-mailem na kontakt@regulskibehawiorysta.pl. Regulamin nie skraca ustawowych terminów ani uprawnień konsumenta.</p>
+        <p>Klient może złożyć reklamację e-mailem na kontakt@regulskibehawiorysta.pl w ciągu 14 dni od konsultacji.</p>
         <p>Reklamacja powinna zawierać imię i nazwisko, datę konsultacji oraz opis nieprawidłowości.</p>
         <p>Usługodawca rozpatruje reklamację w ciągu 14 dni roboczych. Jeżeli reklamacja jest zasadna, klient otrzymuje zwrot części lub całości wpłaty albo darmową konsultację uzupełniającą.</p>
         <p>

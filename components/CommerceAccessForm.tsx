@@ -37,12 +37,12 @@ export function CommerceAccessForm() {
         <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
       </label>
       <label>
-        Kod do kupionego PDF-u
-        <input type="text" autoComplete="one-time-code" value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} required />
+        Kod dostępu
+        <input type="text" value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} required />
       </label>
       {error ? <p className="form-error">{error}</p> : null}
       <button type="submit" className="button button-primary big-button" disabled={loading}>
-        {loading ? 'Sprawdzam...' : 'Otwórz PDF'}
+        {loading ? 'Sprawdzam...' : 'Wejdź'}
       </button>
     </form>
   )

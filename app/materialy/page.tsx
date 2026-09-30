@@ -11,7 +11,7 @@ import {
   PawPrint,
   ShoppingCart,
 } from 'lucide-react'
-import { NotatnikFinalCta, NotatnikPageShell, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
+import { NotatnikPageShell, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
 import { buildMarketingMetadata } from '@/lib/seo'
 import { PUBLIC_OFFER_PRICE_LABELS } from '@/lib/public-offer-copy'
 import {
@@ -169,8 +169,8 @@ export default function MaterialyLandingPage() {
 
         <figure className="materialy-visual-art">
           <Image
-            src={getMaterialyGuideCoverSrc(featuredGuides[0]!)}
-            alt={`Okładka bezpłatnego materiału PDF: ${featuredGuides[0]!.title}`}
+            src="/branding/materialy/materialy-hero-guardian-pets-v1.webp"
+            alt="Opiekunka siedząca spokojnie z psem i kotem pośród notatek i delikatnych roślin"
             fill
             priority
             sizes="(max-width: 860px) 92vw, 48vw"
@@ -266,12 +266,21 @@ export default function MaterialyLandingPage() {
         </div>
       </section>
 
-      <NotatnikFinalCta
-        title="Potrzebujesz omówić zachowanie?"
-        copy="Rozmowa pomaga ustalić priorytet i sprawdzić, czy kolejny materiał lub konsultacja będą przydatne."
-        primaryHref={quickHref}
-        primaryLabel={`Zapytaj behawiorystę · ${quickPriceLabel}`}
-      />
+      <section className="materialy-consultation-band" aria-labelledby="materialy-consultation-title">
+        <div className="materialy-consultation-mark" aria-hidden="true">
+          <PawPrint size={54} strokeWidth={1.25} />
+        </div>
+        <div>
+          <h2 id="materialy-consultation-title">
+            Jeśli materiał nie wystarczy, <em>Zapytaj behawiorystę i uporządkuj temat w 15 minut.</em>
+          </h2>
+          <p>PDF to dobry start, ale rozmowa jest najprostszym sposobem na ustalenie priorytetu i ewentualnego dalszego materiału.</p>
+        </div>
+        <Link href={quickHref} prefetch={false}>
+          <span>Zapytaj behawiorystę</span>
+          <ArrowRight size={18} strokeWidth={1.8} aria-hidden="true" />
+        </Link>
+      </section>
     </NotatnikPageShell>
   )
 }

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { LogIn, UserPlus } from 'lucide-react'
+import { LogIn, Mail, UserPlus } from 'lucide-react'
 import { getSafeInternalReturnPath } from '@/lib/safe-return-path'
 
 type AuthMode = 'login' | 'register' | 'reset' | 'new-password'
@@ -230,14 +230,18 @@ export function AccountAuthForm() {
 
   return (
     <div className="account-auth-card">
-      <div className="account-auth-tabs" aria-label="Wybierz działanie">
+      <div className="account-auth-tabs" role="tablist" aria-label="Tryb konta">
         <button type="button" className={mode === 'login' ? 'is-active' : ''} onClick={() => setMode('login')}>
           <LogIn size={16} aria-hidden="true" />
-          Zaloguj się
+          Logowanie
         </button>
         <button type="button" className={mode === 'register' ? 'is-active' : ''} onClick={() => setMode('register')}>
           <UserPlus size={16} aria-hidden="true" />
-          Utwórz konto
+          Konto
+        </button>
+        <button type="button" className={mode === 'reset' ? 'is-active' : ''} onClick={() => setMode('reset')}>
+          <Mail size={16} aria-hidden="true" />
+          Hasło
         </button>
       </div>
 
@@ -260,11 +264,6 @@ export function AccountAuthForm() {
               required
             />
           </label>
-        ) : null}
-        {mode === 'login' ? (
-          <button type="button" className="account-auth-reset-link" onClick={() => setMode('reset')}>
-            Nie pamiętasz hasła?
-          </button>
         ) : null}
         {error ? <p className="form-error">{error}</p> : null}
         {message ? <p className="form-success">{message}</p> : null}

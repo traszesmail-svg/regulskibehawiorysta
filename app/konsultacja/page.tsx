@@ -3,11 +3,11 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, Clock3, Compass, KeyRound, Layers, MessageSquareText, Video, WalletCards } from 'lucide-react'
 import { Schema } from '@/components/schema'
-import { NotatnikFinalCta, NotatnikPageShell, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
+import { NotatnikPageShell, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
 import { getBreadcrumbJsonLd, getFaqPageJsonLd, getServiceJsonLd } from '@/lib/schema'
 import { buildMarketingMetadata } from '@/lib/seo'
 import { PUBLIC_FULL_CONSULTATION_OFFER, formatPublicOfferPrice } from '@/lib/public-offer'
-import { COAPE_POLSKA_LOGO, SPECIALIST_NAME, SPECIALIST_PUBLIC_STATUS } from '@/lib/site'
+import { SPECIALIST_ONLINE_PHOTO, COAPE_POLSKA_LOGO, SPECIALIST_NAME, SPECIALIST_PUBLIC_STATUS } from '@/lib/site'
 import { getConsultationAccessByCode } from '@/lib/server/db'
 
 const CONSULTATION_FAQ_ITEMS = [
@@ -86,8 +86,8 @@ export default async function ConsultationPage({
           <span className="zapytaj-kicker">DLA SPRAW, KTÓRE WYMAGAJĄ SZERSZEGO KONTEKSTU</span>
           <h1 id="consultation-title">Pełna konsultacja</h1>
           <p className="canonical-service-lead">
-            Około 90 minut online na omówienie historii zachowania, warunków w domu i możliwych przyczyn trudności.
-            Po spotkaniu otrzymujesz indywidualny plan działania oraz 14 dni wsparcia.
+            To spokojniejszy, pełny proces: przyglądamy się historii zachowania, codziennym warunkom i temu, co
+            może utrzymywać problem. Potem układamy plan działania możliwy do wdrożenia w Twoim domu.
           </p>
 
           <div className="offer-facts" aria-label="Najważniejsze informacje">
@@ -145,8 +145,8 @@ export default async function ConsultationPage({
 
         <figure className="canonical-service-hero-art canonical-service-photo">
           <Image
-            src="/images/krzysztof-vet-action.jpg"
-            alt="Krzysztof Regulski, technik weterynarii, podczas pracy z pacjentem"
+            src={SPECIALIST_ONLINE_PHOTO.src}
+            alt="Pies i kot odpoczywają spokojnie w domowym otoczeniu"
             fill
             priority
             sizes="(max-width: 980px) 92vw, 38vw"
@@ -222,11 +222,10 @@ export default async function ConsultationPage({
       <section className="canonical-service-access-section" aria-labelledby="consultation-access-form-title">
         <div className="canonical-service-access-box">
           <div className="canonical-service-heading">
-            <span className="zapytaj-kicker">DLA OSÓB PO ROZMOWIE WSTĘPNEJ</span>
-            <h2 id="consultation-access-form-title">Masz osobiste zaproszenie?</h2>
+            <span className="zapytaj-kicker">MASZ JUŻ ZAPROSZENIE?</span>
+            <h2 id="consultation-access-form-title">Wpisz kod od behawiorysty</h2>
             <p>
-              Pełna konsultacja nie jest rezerwowana z konta ani kodem PDF. Po rozmowie wstępnej wysyłam Ci indywidualny link
-              lub kod, który otwiera kalendarz i pozwala zarezerwować spotkanie.
+              Jeśli po wstępnej rozmowie otrzymałeś kod zaproszenia, wpisz go poniżej, aby odblokować kalendarz konsultacji.
             </p>
           </div>
           {accessBooking ? (
@@ -244,17 +243,17 @@ export default async function ConsultationPage({
             </div>
           ) : (
             <form action="/konsultacja/rezerwacja" method="get" className="canonical-service-access-form">
-              <label htmlFor="consultation-access-code" className="sr-only">Osobisty kod zaproszenia na konsultację</label>
+              <label htmlFor="consultation-access-code" className="sr-only">Kod zaproszenia</label>
               <div className="canonical-service-access-input-group">
                 <input
                   id="consultation-access-code"
                   name="code"
-                  placeholder="Kod z osobistego zaproszenia"
+                  placeholder="np. RB-AB12CD34EF"
                   autoComplete="one-time-code"
                   required
                 />
                 <button type="submit" className="notatnik-btn">
-                  <span>Otwórz kalendarz</span>
+                  <span>Przejdź do terminów</span>
                   <ArrowRight size={17} aria-hidden="true" />
                 </button>
               </div>
@@ -279,12 +278,14 @@ export default async function ConsultationPage({
         </div>
       </section>
 
-      <NotatnikFinalCta
-        title="Szukasz pierwszego kontaktu?"
-        copy="Krótka rozmowa telefoniczna pomaga ustalić, jaki kolejny krok będzie odpowiedni."
-        primaryHref="/zapytaj#formularz"
-        primaryLabel="Zapytaj behawiorystę — 79 zł"
-      />
+      <section className="canonical-service-note" aria-label="Pierwszy krok">
+        <strong>Jeśli dopiero szukasz pierwszego kontaktu</strong>
+        <p>Nie musisz od razu rezerwować 90-minutowego spotkania. Zacznij od krótkiej rozmowy telefonicznej.</p>
+        <a href="/zapytaj#formularz" className="notatnik-btn">
+          <span>Zapytaj behawiorystę — 79 zł</span>
+          <ArrowRight size={16} aria-hidden="true" />
+        </a>
+      </section>
     </NotatnikPageShell>
   )
 }

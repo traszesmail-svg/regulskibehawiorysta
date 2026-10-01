@@ -17,9 +17,10 @@ async function cleanupTestBooking() {
 
   const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
   const { error: smsError } = await supabase.from('phone_agent_sms_queue').delete().eq('booking_id', createdTestBookingId)
-  if (smsError) throw smsError
   const { error: bookingError } = await supabase.from('bookings').delete().eq('id', createdTestBookingId)
-  if (bookingError) throw bookingError
+  if (smsError || bookingError) {
+    throw new Error(`Cleanup testu nie powiódł się: ${[smsError?.message, bookingError?.message].filter(Boolean).join('; ')}`)
+  }
   console.log(`   Usunięto dane testowe: ${createdTestBookingId}`)
   createdTestBookingId = null
 }
@@ -92,7 +93,7 @@ async function main() {
 
   // 3. Dodanie SMS-a do kolejki
   console.log('\n3. Dodaję SMS testowy do kolejki phone_agent_sms_queue...')
-  const smsMessage = `Regulski Behawiorysta: Potwierdzenie testowe. Twoja konsultacja z behawiorystą została potwierdzona. Pozdrawiamy!`
+  const smsMessage = 'Regulski Behawiorysta: kontrolny test techniczny wysyłki SMS. Nie wymaga odpowiedzi.'
   const idempotencyKey = `pilot_sms_${Date.now()}`
 
   const queuedSms = await enqueueSms({
@@ -105,29 +106,38 @@ async function main() {
   console.log(`   SMS zarejestrowany w kolejce: ID=${queuedSms.id}, status=${queuedSms.status}`)
 
   // 4. Oczekiwanie na pobranie i wysłanie przez Motorolę
-  console.log('\n4. Oczekiwanie na pobranie i wysłanie SMS przez Motorolę (polling co 15s)...')
+  console.log('\n4. Oczekiwanie na pobranie i wysłanie SMS przez Motorolę (polling co 5s, maksymalnie 150s)...')
   let finalSmsStatus = queuedSms.status
   let attempts = 0
-  const maxAttempts = 12 // do 60 sekund
+  const maxAttempts = 30 // do 150 sekund
 
   while (attempts < maxAttempts) {
     await new Promise((r) => setTimeout(r, 5000))
     attempts++
 
-    const { data: currentSms } = await supabase
+    const { data: currentSms, error: smsStatusError } = await supabase
       .from('phone_agent_sms_queue')
       .select('id, status, sent_at, error')
       .eq('id', queuedSms.id)
       .single()
 
+    if (smsStatusError) throw smsStatusError
+
     if (currentSms) {
       console.log(`   [${attempts * 5}s] Status SMS w bazie: ${currentSms.status}${currentSms.error ? ` (Błąd: ${currentSms.error})` : ''}`)
       finalSmsStatus = currentSms.status
+      if (currentSms.status === 'failed') {
+        throw new Error(`Motorola zgłosiła błąd wysyłki SMS: ${currentSms.error || 'brak szczegółów'}`)
+      }
       if (currentSms.status === 'sent') {
         console.log(`   SUKCES! SMS został fizycznie wysłany przez Motorolę o ${currentSms.sent_at}!`)
         break
       }
     }
+  }
+
+  if (finalSmsStatus !== 'sent') {
+    throw new Error(`Timeout SMS po 150 sekundach: baza nie potwierdziła statusu sent (ostatni status: ${finalSmsStatus})`)
   }
 
   // 5. Test Lektora TTS na Motoroli

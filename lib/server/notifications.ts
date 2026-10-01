@@ -2027,7 +2027,7 @@ export async function sendConsultationAccessCodeEmail(
   code: string,
   expiresAt: string,
 ): Promise<DeliveryResult> {
-  const accessUrl = buildAbsoluteUrl(`/konsultacja?code=${encodeURIComponent(code)}`)
+  const accessUrl = buildAbsoluteUrl(`/konsultacja/rezerwacja?code=${encodeURIComponent(code)}`)
   const subject = `Dostęp do konsultacji behawioralnej - ${EMAIL_BRAND_NAME}`
   const expiryLabel = formatDateTimeLabel(expiresAt.slice(0, 10), expiresAt.slice(11, 16))
   const html = renderEmailShell(

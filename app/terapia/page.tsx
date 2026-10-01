@@ -5,7 +5,7 @@ import {
   ArrowRight,
   BedDouble,
   CalendarRange,
-  CheckCircle2,
+  Clock3,
   House,
   MessageCircleMore,
   PhoneCall,
@@ -98,14 +98,17 @@ export default function TherapyPage() {
               <span><strong>Indywidualny zakres</strong><small>według potrzeb konkretnego pacjenta</small></span>
             </div>
           </div>
+        </div>
 
-          <div className="canonical-service-hero-actions">
-            <Link href="/konsultacja" className="notatnik-btn">
-              <span>Poznaj pełną konsultację</span>
-              <ArrowRight size={17} strokeWidth={1.9} aria-hidden="true" />
-            </Link>
-            <a href="#zakres-opieki" className="zapytaj-muted-link">Zobacz zakres opieki</a>
-          </div>
+        <div className="therapy-premium-hero-photo">
+          <Image
+            src="/branding/section-heroes/therapy-behavioural-session.png"
+            alt="Behawiorystka rozmawia z opiekunką o zachowaniu psa podczas spotkania w domu"
+            width={1024}
+            height={1536}
+            sizes="(max-width: 760px) 90vw, (max-width: 1100px) 42vw, 38vw"
+            priority
+          />
         </div>
 
         <div className="therapy-process-panel" aria-labelledby="therapy-process-title">
@@ -222,28 +225,26 @@ export default function TherapyPage() {
         </div>
       </section>
 
-      <section className="canonical-service-note therapy-premium-entry" aria-labelledby="therapy-entry-title">
-        <div className="therapy-premium-entry__copy">
-          <span className="zapytaj-kicker">PIERWSZY ETAP</span>
-          <h2 id="therapy-entry-title">Długoterminowa współpraca zaczyna się od poznania sytuacji</h2>
-          <p>
-            Po pełnej konsultacji ustalamy zasadność terapii, zakres opieki, organizację wizyty domowej oraz warunki współpracy.
-          </p>
+      <section className="canonical-service-note consultation-contact-note therapy-contact-note" aria-label="Pierwszy krok">
+        <strong>Jeśli dopiero szukasz pierwszego kontaktu</strong>
+        <p>Nie musisz od razu rezerwować 90-minutowego spotkania. Zacznij od krótkiej rozmowy telefonicznej.</p>
+        <div className="consultation-contact-facts" aria-label="Informacje o pierwszej rozmowie">
+          <span><PhoneCall size={17} aria-hidden="true" /> Telefonicznie</span>
+          <span><Clock3 size={17} aria-hidden="true" /> Do 15 minut</span>
         </div>
-        <div className="therapy-premium-entry__actions">
-          <Link href="/konsultacja" className="notatnik-btn">
-            <span>Poznaj pełną konsultację</span>
-            <ArrowRight size={16} aria-hidden="true" />
-          </Link>
-          <Link href="/zapytaj#formularz" className="therapy-first-contact-link">
-            <PhoneCall size={16} aria-hidden="true" />
-            <span>Pierwszy kontakt? Zacznij od Zapytaj · {formatPublicOfferPrice(PUBLIC_ZAPYTAJ_OFFER.pricePln)}</span>
-          </Link>
+        <a href="/zapytaj#formularz" className="notatnik-btn">
+          <span>Zapytaj behawiorystę — {formatPublicOfferPrice(PUBLIC_ZAPYTAJ_OFFER.pricePln)}</span>
+          <ArrowRight size={16} aria-hidden="true" />
+        </a>
+        <div className="consultation-contact-photo">
+          <Image
+            src="/branding/section-heroes/consultation-first-contact.png"
+            alt="Kobieta rozmawia przez telefon, a obok spokojnie odpoczywa jej pies"
+            width={1024}
+            height={1024}
+            sizes="(max-width: 760px) 100vw, 42vw"
+          />
         </div>
-        <p className="therapy-premium-entry__scope">
-          <CheckCircle2 size={17} aria-hidden="true" />
-          Szczegółowy zakres oraz warunki poszczególnych form opieki ustalamy indywidualnie.
-        </p>
       </section>
     </NotatnikPageShell>
   )

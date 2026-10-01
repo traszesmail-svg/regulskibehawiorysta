@@ -2762,3 +2762,858 @@ html body main.notatnik-page .zapytaj-kicker {
     text-align: left;
   }
 }
+
+/* Consultation: premium process and care blocks, scoped to this route. */
+.canonical-service-page.consultation-page .consultation-process-section {
+  position: relative;
+  margin: 16px 0 42px;
+  padding: clamp(34px, 5vw, 58px) clamp(24px, 5vw, 64px) !important;
+  overflow: hidden;
+  border: 1px solid rgba(255, 253, 248, 0.12);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 92% 8%, rgba(171, 188, 117, 0.16), transparent 34%),
+    linear-gradient(135deg, #263126 0%, #172019 100%) !important;
+}
+
+.canonical-service-page.consultation-page .consultation-process-section::before {
+  position: absolute;
+  right: -52px;
+  bottom: -72px;
+  width: 250px;
+  height: 250px;
+  border: 1px solid rgba(232, 223, 181, 0.18);
+  border-radius: 48% 52% 58% 42%;
+  content: '';
+  transform: rotate(22deg);
+}
+
+.canonical-service-page.consultation-page .consultation-process-section .canonical-service-heading,
+.canonical-service-page.consultation-page .consultation-process-section .steps-editorial {
+  position: relative;
+  z-index: 1;
+}
+
+.canonical-service-page.consultation-page .consultation-process-section .canonical-service-heading {
+  max-width: 700px;
+  text-align: left !important;
+}
+
+.canonical-service-page.consultation-page .consultation-process-section .zapytaj-kicker {
+  color: #d7dfaf;
+}
+
+.canonical-service-page.consultation-page .consultation-process-section .canonical-service-heading h2,
+.canonical-service-page.consultation-page .consultation-process-section .step-editorial-item h3 {
+  color: #fffdf7 !important;
+}
+
+.canonical-service-page.consultation-page .consultation-process-section .canonical-service-heading p,
+.canonical-service-page.consultation-page .consultation-process-section .step-editorial-item p {
+  color: rgba(255, 253, 247, 0.76) !important;
+}
+
+.canonical-service-page.consultation-page .consultation-process-section .steps-editorial {
+  margin-top: 12px !important;
+  padding: 28px 0 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.canonical-service-page.consultation-page .consultation-process-section .steps-editorial::before {
+  left: 17%;
+  right: 17%;
+  border-color: rgba(215, 223, 175, 0.34);
+}
+
+.canonical-service-page.consultation-page .consultation-process-section .step-editorial-item {
+  align-items: flex-start !important;
+  padding: 0 24px !important;
+  text-align: left;
+}
+
+.canonical-service-page.consultation-page .consultation-process-section .step-editorial-num {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 12px !important;
+  border: 1px solid rgba(215, 223, 175, 0.44);
+  border-radius: 50%;
+  background: rgba(255, 253, 247, 0.08);
+  color: #fffdf7 !important;
+  font-size: 15px;
+  letter-spacing: 0.08em;
+}
+
+.canonical-service-page.consultation-page .consultation-care-section {
+  position: relative;
+  margin: 0 0 42px;
+  padding: clamp(34px, 5vw, 58px) clamp(24px, 5vw, 64px) !important;
+  border: 1px solid rgba(95, 110, 79, 0.15);
+  border-radius: 28px;
+  background: linear-gradient(145deg, #fcfaf4 0%, #f2f1e5 100%);
+}
+
+.canonical-service-page.consultation-page .consultation-care-section .consultation-value-grid {
+  margin-top: 18px !important;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.canonical-service-page.consultation-page .consultation-care-section .consultation-value-card {
+  min-height: 218px;
+  padding: 28px !important;
+  border: 1px solid rgba(95, 110, 79, 0.13) !important;
+  border-radius: 18px !important;
+  background: rgba(255, 253, 248, 0.78) !important;
+}
+
+.canonical-service-page.consultation-page .consultation-care-section .consultation-value-card + .consultation-value-card::before {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .canonical-service-page.consultation-page .consultation-process-section,
+  .canonical-service-page.consultation-page .consultation-care-section {
+    margin-inline: 0;
+    border-radius: 22px;
+  }
+
+  .canonical-service-page.consultation-page .consultation-process-section .steps-editorial {
+    gap: 0 !important;
+  }
+
+  .canonical-service-page.consultation-page .consultation-process-section .steps-editorial::before {
+    display: none;
+  }
+
+  .canonical-service-page.consultation-page .consultation-process-section .step-editorial-item {
+    padding: 20px 0 !important;
+    border-top: 1px solid rgba(215, 223, 175, 0.2) !important;
+  }
+
+  .canonical-service-page.consultation-page .consultation-process-section .step-editorial-item:first-child {
+    padding-top: 0 !important;
+    border-top: 0 !important;
+  }
+}
+
+/* Keep the two public service headers on the same page edge as the public home, blog and materials headers. */
+.canonical-service-page.consultation-page .canonical-service-shell > #notatnik-topbar {
+  margin: 0 0 0 -16px !important;
+}
+
+.therapy-premium-page .canonical-service-shell > #notatnik-topbar {
+  margin: 0 0 0 -52px !important;
+}
+
+@media (max-width: 760px) {
+  .canonical-service-page.consultation-page .canonical-service-shell > #notatnik-topbar {
+    margin-left: -16px !important;
+  }
+
+  .therapy-premium-page .canonical-service-shell > #notatnik-topbar {
+    margin-left: -18px !important;
+  }
+}
+
+/* Consultation follows the same light, editorial offer surface as the homepage. */
+.canonical-service-page.consultation-page .canonical-service-hero {
+  grid-template-columns: minmax(0, 1.08fr) minmax(280px, 0.78fr) !important;
+  gap: clamp(30px, 5vw, 70px) !important;
+  min-height: min(680px, 72vh) !important;
+  margin: 0 -16px !important;
+  padding: clamp(52px, 7vw, 92px) clamp(30px, 5vw, 76px) !important;
+  background:
+    radial-gradient(circle at 16% 12%, rgba(194, 166, 112, 0.16), transparent 31%),
+    linear-gradient(135deg, #fffdf8 0%, #f4eee2 100%) !important;
+}
+
+.canonical-service-page.consultation-page .canonical-service-hero-copy {
+  gap: 20px !important;
+}
+
+.canonical-service-page.consultation-page .canonical-service-hero h1 {
+  max-width: 13ch !important;
+  font-size: clamp(46px, 5.2vw, 76px) !important;
+  letter-spacing: -0.055em !important;
+  line-height: 0.99 !important;
+}
+
+.canonical-service-page.consultation-page .canonical-service-lead {
+  font-size: clamp(16px, 1.45vw, 19px) !important;
+}
+
+.canonical-service-page.consultation-page .canonical-service-hero-art.canonical-service-photo {
+  justify-self: center;
+  width: min(100%, 304px) !important;
+  min-height: 400px !important;
+  max-height: 440px !important;
+  aspect-ratio: 3 / 4 !important;
+  border: 4px solid #fffdf8 !important;
+  border-radius: 26px !important;
+  box-shadow: 0 24px 60px rgba(43, 35, 24, 0.14) !important;
+}
+
+.canonical-service-page.consultation-page .consultation-hero-art::after {
+  border: 0;
+  background: linear-gradient(180deg, rgba(255, 253, 247, 0.02), rgba(31, 29, 23, 0.12));
+}
+
+.canonical-service-page.consultation-page .consultation-hero-art img {
+  object-position: center center !important;
+}
+
+.canonical-service-page.consultation-page .consultation-process-section {
+  margin: 0 -16px !important;
+  padding: clamp(58px, 8vw, 104px) clamp(28px, 7vw, 94px) !important;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: #fffdf8 !important;
+}
+
+.canonical-service-page.consultation-page .consultation-process-section::before {
+  position: absolute;
+  top: 20px;
+  right: -44px;
+  z-index: 0;
+  display: block;
+  width: 196px;
+  height: 236px;
+  background: url('/decor/leaf-raster/leaf-top-right.png') center / contain no-repeat;
+  content: '';
+  opacity: 0.24;
+  pointer-events: none;
+  transform: rotate(3deg);
+}
+
+.canonical-service-page.consultation-page .consultation-process-section .canonical-service-heading {
+  max-width: none;
+  position: relative;
+  text-align: center !important;
+}
+
+.canonical-service-page.consultation-page .consultation-process-section .canonical-service-heading::after {
+  display: block;
+  width: 220px;
+  height: 34px;
+  margin: 16px auto 0;
+  background: url('/decor/leaf-transparent/leaf-divider-wide.png') center / contain no-repeat;
+  content: '';
+  opacity: 0.58;
+}
+
+.canonical-service-page.consultation-page .consultation-process-section .zapytaj-kicker,
+.canonical-service-page.consultation-page .consultation-process-section .canonical-service-heading h2,
+.canonical-service-page.consultation-page .consultation-process-section .canonical-service-heading p,
+.canonical-service-page.consultation-page .consultation-process-section .step-editorial-item h3,
+.canonical-service-page.consultation-page .consultation-process-section .step-editorial-item p {
+  color: var(--ink) !important;
+}
+
+.canonical-service-page.consultation-page .consultation-process-section .zapytaj-kicker,
+.canonical-service-page.consultation-page .consultation-process-section .step-editorial-num {
+  color: var(--accent-warm) !important;
+}
+
+.canonical-service-page.consultation-page .consultation-process-section .canonical-service-heading p {
+  max-width: 58ch;
+  margin-inline: auto;
+  color: var(--ink-soft) !important;
+}
+
+.canonical-service-page.consultation-page .consultation-process-section .steps-editorial {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(14px, 2vw, 22px) !important;
+  margin-top: clamp(28px, 4vw, 48px) !important;
+  padding: 0 !important;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.canonical-service-page.consultation-page .consultation-process-section .steps-editorial::before {
+  content: none;
+}
+
+.canonical-service-page.consultation-page .consultation-process-section .step-editorial-item {
+  position: relative;
+  align-items: flex-start !important;
+  min-height: 232px;
+  padding: clamp(24px, 3.3vw, 38px) !important;
+  overflow: hidden;
+  border: 1px solid rgba(116, 105, 81, 0.14) !important;
+  border-radius: 18px !important;
+  background: linear-gradient(145deg, rgba(255, 253, 248, 0.98), rgba(250, 246, 237, 0.9)) !important;
+  box-shadow: 0 12px 26px rgba(81, 65, 38, 0.035);
+  text-align: left;
+}
+
+.canonical-service-page.consultation-page .consultation-process-section .step-editorial-item::after {
+  content: none;
+}
+
+.canonical-service-page.consultation-page .consultation-process-section .step-editorial-num {
+  display: block;
+  width: auto;
+  height: auto;
+  margin: 0 !important;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 30px;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.canonical-service-page.consultation-page .consultation-step-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.canonical-service-page.consultation-page .consultation-step-icon {
+  display: grid;
+  flex: 0 0 48px;
+  width: 48px;
+  min-width: 48px;
+  height: 48px;
+  place-items: center;
+  border: 1px solid rgba(95, 110, 79, 0.18);
+  border-radius: 50%;
+  background: rgba(95, 110, 79, 0.06);
+  color: #53683d;
+}
+
+.canonical-service-page.consultation-page .consultation-step-icon svg {
+  stroke-width: 1.9;
+}
+
+.canonical-service-page.consultation-page .consultation-process-section .step-editorial-item h3 {
+  margin-top: 22px;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(24px, 2.2vw, 32px);
+  font-weight: 400;
+  line-height: 1.08;
+}
+
+.canonical-service-page.consultation-page .consultation-process-section .step-editorial-item p {
+  color: var(--ink-soft) !important;
+}
+
+.canonical-service-page.consultation-page .consultation-care-section {
+  position: relative;
+  isolation: isolate;
+  margin: 0 -16px !important;
+  padding: clamp(58px, 8vw, 104px) clamp(28px, 7vw, 94px) !important;
+  border: 0;
+  border-radius: 0;
+  overflow: hidden;
+  background: linear-gradient(135deg, #fffdf8 0%, #f4eee2 100%);
+}
+
+.canonical-service-page.consultation-page .consultation-care-section::after {
+  position: absolute;
+  right: 2.5%;
+  bottom: -34px;
+  z-index: -1;
+  width: clamp(136px, 17vw, 220px);
+  height: clamp(164px, 20vw, 268px);
+  background: url('/decor/leaf-raster/leaf-bottom-right.png') center / contain no-repeat;
+  content: '';
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+.canonical-service-page.consultation-page .consultation-contact-note {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.72fr);
+  column-gap: clamp(30px, 6vw, 86px);
+  row-gap: 10px;
+  align-items: center;
+  width: auto !important;
+  max-width: none !important;
+  margin: 0 -16px !important;
+  padding: clamp(52px, 7vw, 82px) clamp(28px, 7vw, 94px) !important;
+  overflow: hidden;
+  border: 0 !important;
+  border-radius: 0 !important;
+  text-align: left !important;
+  background:
+    radial-gradient(circle at 88% 18%, rgba(194, 166, 112, 0.14), transparent 25%),
+    linear-gradient(135deg, #fffdf8 0%, #f4eee2 100%) !important;
+}
+
+.canonical-service-page.consultation-page .consultation-contact-note::before {
+  grid-column: 1;
+  color: var(--accent-warm);
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  line-height: 1.4;
+  content: 'PIERWSZY KROK';
+}
+
+.canonical-service-page.consultation-page .consultation-contact-note strong,
+.canonical-service-page.consultation-page .consultation-contact-note p,
+.canonical-service-page.consultation-page .consultation-contact-facts {
+  grid-column: 1;
+}
+
+.canonical-service-page.consultation-page .consultation-contact-note strong {
+  max-width: 20ch;
+  font-size: clamp(30px, 3.4vw, 46px) !important;
+  line-height: 1.03 !important;
+}
+
+.canonical-service-page.consultation-page .consultation-contact-note p {
+  max-width: 54ch !important;
+}
+
+.canonical-service-page.consultation-page .consultation-contact-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  margin-top: 10px;
+}
+
+.canonical-service-page.consultation-page .consultation-contact-facts span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--ink-soft);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.canonical-service-page.consultation-page .consultation-contact-facts svg {
+  color: #53683d;
+}
+
+.canonical-service-page.consultation-page .consultation-contact-note .notatnik-btn {
+  grid-column: 1;
+  grid-row: auto;
+  margin: 0 !important;
+  justify-self: start;
+  align-self: start;
+}
+
+.canonical-service-page.consultation-page .consultation-contact-photo {
+  grid-column: 2;
+  grid-row: 1 / span 5;
+  align-self: center;
+  width: 100%;
+  max-width: 440px;
+  justify-self: end;
+  overflow: hidden;
+  border: 5px solid #fffdf8;
+  border-radius: 24px;
+  box-shadow: 0 18px 44px rgba(66, 52, 31, 0.14);
+  aspect-ratio: 4 / 3;
+}
+
+.canonical-service-page.consultation-page .consultation-contact-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 48%;
+  transform: scale(1.1);
+}
+
+.canonical-service-page.consultation-page .consultation-faq-section {
+  position: relative;
+  margin: 0 -16px !important;
+  padding: clamp(58px, 8vw, 104px) clamp(28px, 7vw, 94px) !important;
+  overflow: hidden;
+  background: #fffdf8 !important;
+}
+
+.canonical-service-page.consultation-page .consultation-faq-section::after {
+  position: absolute;
+  right: -42px;
+  bottom: -54px;
+  z-index: 0;
+  width: 196px;
+  height: 236px;
+  background: url('/decor/leaf-transparent/leaf-bottom-right.png') center / contain no-repeat;
+  content: '';
+  opacity: 0.18;
+  pointer-events: none;
+}
+
+.canonical-service-page.consultation-page .consultation-faq-section .canonical-service-heading,
+.canonical-service-page.consultation-page .consultation-faq-section .zapytaj-faq-list {
+  position: relative;
+  z-index: 1;
+}
+
+.canonical-service-page.consultation-page .consultation-faq-section .zapytaj-faq-list {
+  width: min(100%, 820px) !important;
+  max-width: 820px !important;
+  margin-inline: auto !important;
+}
+
+@media (max-width: 980px) {
+  .canonical-service-page.consultation-page .canonical-service-hero {
+    grid-template-columns: 1fr !important;
+  }
+
+  .canonical-service-page.consultation-page .canonical-service-hero-art.canonical-service-photo {
+    justify-self: center;
+  }
+}
+
+@media (max-width: 760px) {
+  .canonical-service-page.consultation-page .canonical-service-hero {
+    margin-inline: -16px !important;
+    padding: 42px 24px 48px !important;
+  }
+
+  .canonical-service-page.consultation-page .canonical-service-hero h1 {
+    max-width: 11ch !important;
+    font-size: clamp(44px, 13vw, 61px) !important;
+  }
+
+  .canonical-service-page.consultation-page .canonical-service-hero-art.canonical-service-photo {
+    width: min(100%, 304px) !important;
+    min-height: 400px !important;
+  }
+
+  .canonical-service-page.consultation-page .consultation-process-section,
+  .canonical-service-page.consultation-page .consultation-care-section {
+    margin-inline: -16px !important;
+    padding: 52px 24px !important;
+  }
+
+  .canonical-service-page.consultation-page .consultation-process-section .steps-editorial {
+    grid-template-columns: 1fr;
+  }
+
+  .canonical-service-page.consultation-page .consultation-process-section .step-editorial-item {
+    min-height: 0;
+    padding: 26px 22px !important;
+  }
+
+  .canonical-service-page.consultation-page .consultation-contact-note {
+    grid-template-columns: 1fr;
+    margin-inline: -16px !important;
+    padding: 52px 24px !important;
+  }
+
+  .canonical-service-page.consultation-page .consultation-care-section::after {
+    right: -38px;
+    bottom: -54px;
+    width: 148px;
+    height: 180px;
+    opacity: 0.15;
+  }
+
+  .canonical-service-page.consultation-page .consultation-faq-section {
+    margin-inline: -16px !important;
+    padding: 52px 24px !important;
+  }
+
+  .canonical-service-page.consultation-page .consultation-contact-note .notatnik-btn {
+    grid-column: 1;
+    grid-row: auto;
+    width: 100%;
+    justify-content: center;
+    margin-top: 14px !important;
+  }
+
+  .canonical-service-page.consultation-page .consultation-contact-photo {
+    grid-column: 1;
+    grid-row: auto;
+    width: 100%;
+    max-width: none;
+    justify-self: stretch;
+    margin-top: 10px;
+    aspect-ratio: 4 / 3;
+  }
+}
+
+/* Therapy surface: return the process and closing CTA to the homepage's paper palette. */
+.therapy-premium-page .therapy-process-panel {
+  border-color: rgba(126, 103, 72, 0.16);
+  background: linear-gradient(135deg, #fffdf8 0%, #f4eee2 100%);
+  color: var(--ink, #29271f);
+  box-shadow: 0 16px 38px rgba(68, 53, 35, 0.08);
+}
+
+.therapy-premium-page .therapy-process-panel__intro {
+  border-bottom-color: rgba(126, 103, 72, 0.18);
+}
+
+.therapy-premium-page .therapy-process-panel__intro > span {
+  color: var(--accent-warm, #9b7040);
+}
+
+.therapy-premium-page .therapy-process-panel__intro h2,
+.therapy-premium-page .therapy-process-track strong {
+  color: var(--ink, #29271f);
+}
+
+.therapy-premium-page .therapy-process-track li + li {
+  border-left-color: rgba(126, 103, 72, 0.17);
+}
+
+.therapy-premium-page .therapy-process-track li:nth-child(n + 3) {
+  border-top-color: rgba(126, 103, 72, 0.17);
+}
+
+.therapy-premium-page .therapy-process-icon {
+  color: #9b7040;
+}
+
+.therapy-premium-page .therapy-process-number {
+  color: rgba(79, 70, 56, 0.48);
+}
+
+.therapy-premium-page .therapy-process-track p {
+  color: var(--ink-soft, #5f5a50);
+}
+
+.therapy-premium-page .canonical-service-shell > section.therapy-premium-entry {
+  border: 1px solid rgba(126, 103, 72, 0.16) !important;
+  background: linear-gradient(135deg, #fffdf8 0%, #f4eee2 100%) !important;
+  box-shadow: 0 16px 38px rgba(68, 53, 35, 0.08) !important;
+}
+
+.therapy-premium-page .therapy-premium-entry .zapytaj-kicker {
+  color: var(--accent-warm, #9b7040) !important;
+}
+
+.therapy-premium-page .therapy-premium-entry__copy h2 {
+  color: var(--ink, #29271f);
+}
+
+.therapy-premium-page .therapy-premium-entry__copy p {
+  color: var(--ink-soft, #5f5a50) !important;
+}
+
+.therapy-premium-page .therapy-premium-entry__actions .notatnik-btn {
+  border-color: rgba(255, 122, 26, 0.34) !important;
+  background: linear-gradient(180deg, #ff8a24, #e76d10) !important;
+  color: #fffdf7 !important;
+  box-shadow: 0 12px 26px rgba(201, 92, 14, 0.22) !important;
+}
+
+.therapy-premium-page .therapy-premium-entry__actions .notatnik-btn:hover,
+.therapy-premium-page .therapy-premium-entry__actions .notatnik-btn:focus-visible {
+  box-shadow: 0 15px 30px rgba(201, 92, 14, 0.28) !important;
+  filter: saturate(1.05);
+}
+
+.therapy-premium-page .therapy-first-contact-link {
+  color: var(--ink-soft, #5f5a50);
+  text-decoration-color: rgba(95, 90, 80, 0.42);
+}
+
+.therapy-premium-page .therapy-first-contact-link svg,
+.therapy-premium-page .canonical-service-shell > section.therapy-premium-entry .therapy-premium-entry__scope svg {
+  color: var(--accent-warm, #9b7040);
+}
+
+.therapy-premium-page .canonical-service-shell > section.therapy-premium-entry .therapy-premium-entry__scope {
+  border-top-color: rgba(126, 103, 72, 0.18);
+  color: var(--ink-soft, #5f5a50) !important;
+}
+
+.therapy-premium-page .therapy-premium-hero {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1.08fr) minmax(280px, 0.78fr);
+  align-items: center !important;
+  gap: clamp(30px, 5vw, 70px) !important;
+  padding: clamp(52px, 7vw, 92px) clamp(30px, 5vw, 76px) !important;
+}
+
+.therapy-premium-page .therapy-premium-hero .canonical-service-hero-copy {
+  align-items: flex-start !important;
+  width: 100% !important;
+  max-width: 650px !important;
+  margin: 0 !important;
+  text-align: left !important;
+}
+
+.therapy-premium-page .therapy-premium-hero-photo {
+  justify-self: center;
+  width: min(100%, 440px);
+  overflow: hidden;
+  border: 4px solid #fffdf8;
+  border-radius: 26px;
+  background: #f4eee2;
+  box-shadow: 0 24px 60px rgba(43, 35, 24, 0.14);
+  aspect-ratio: 4 / 5;
+}
+
+.therapy-premium-page .therapy-premium-hero-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 48%;
+}
+
+.therapy-premium-page .therapy-process-panel,
+.therapy-premium-page .therapy-specialist-bar {
+  grid-column: 1 / -1;
+}
+
+.therapy-premium-page .therapy-contact-note {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 0.9fr);
+  column-gap: clamp(28px, 4.5vw, 64px);
+  row-gap: 10px;
+  align-items: center;
+  width: auto !important;
+  max-width: none !important;
+  margin: 0 -16px !important;
+  padding: clamp(52px, 6vw, 76px) clamp(28px, 5vw, 72px) !important;
+  overflow: hidden;
+  border: 0 !important;
+  border-radius: 0 !important;
+  text-align: left !important;
+  background:
+    radial-gradient(circle at 88% 18%, rgba(194, 166, 112, 0.14), transparent 25%),
+    linear-gradient(135deg, #fffdf8 0%, #f4eee2 100%) !important;
+}
+
+.therapy-premium-page .therapy-contact-note::before {
+  grid-column: 1;
+  color: var(--accent-warm, #9b7040);
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  line-height: 1.4;
+  content: 'PIERWSZY KROK';
+}
+
+.therapy-premium-page .therapy-contact-note strong,
+.therapy-premium-page .therapy-contact-note p,
+.therapy-premium-page .therapy-contact-note .consultation-contact-facts {
+  grid-column: 1;
+}
+
+.therapy-premium-page .therapy-contact-note strong {
+  max-width: 20ch;
+  font-size: clamp(30px, 3.4vw, 46px) !important;
+  line-height: 1.03 !important;
+}
+
+.therapy-premium-page .therapy-contact-note p {
+  max-width: 54ch !important;
+}
+
+.therapy-premium-page .therapy-contact-note .consultation-contact-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  margin-top: 10px;
+}
+
+.therapy-premium-page .therapy-contact-note .consultation-contact-facts span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--ink-soft, #5f5a50);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.therapy-premium-page .therapy-contact-note .consultation-contact-facts svg {
+  color: #9b7040;
+}
+
+.therapy-premium-page .therapy-contact-note .notatnik-btn {
+  grid-column: 1;
+  grid-row: auto;
+  justify-self: start;
+  align-self: start;
+  margin: 0 !important;
+  border-color: rgba(255, 122, 26, 0.34) !important;
+  background: linear-gradient(180deg, #ff8a24, #e76d10) !important;
+  color: #fffdf7 !important;
+  box-shadow: 0 12px 26px rgba(201, 92, 14, 0.22) !important;
+}
+
+.therapy-premium-page .therapy-contact-note .consultation-contact-photo {
+  grid-column: 2;
+  grid-row: 1 / span 5;
+  align-self: center;
+  width: 100%;
+  max-width: 420px;
+  min-width: 0;
+  justify-self: center;
+  overflow: hidden;
+  border: 5px solid #fffdf8;
+  border-radius: 24px;
+  box-shadow: 0 18px 44px rgba(66, 52, 31, 0.14);
+  aspect-ratio: 3 / 4;
+}
+
+.therapy-premium-page .therapy-contact-note .consultation-contact-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 40%;
+}
+
+@media (max-width: 760px) {
+  .therapy-premium-page .therapy-premium-hero {
+    grid-template-columns: 1fr;
+    gap: 28px !important;
+    padding: 42px 24px 48px !important;
+  }
+
+  .therapy-premium-page .therapy-premium-hero .canonical-service-hero-copy {
+    justify-items: start !important;
+  }
+
+  .therapy-premium-page .therapy-premium-hero-photo {
+    justify-self: center;
+    width: min(100%, 440px);
+  }
+
+  .therapy-premium-page .therapy-process-panel,
+  .therapy-premium-page .therapy-specialist-bar {
+    grid-column: 1;
+  }
+
+  .therapy-premium-page .therapy-contact-note {
+    grid-template-columns: minmax(0, 1fr);
+    margin-inline: -16px !important;
+    padding: 52px 24px !important;
+  }
+
+  .therapy-premium-page .therapy-contact-note .notatnik-btn {
+    grid-column: 1;
+    grid-row: auto;
+    width: 100%;
+    justify-content: center;
+    margin-top: 14px !important;
+  }
+
+  .therapy-premium-page .therapy-contact-note .consultation-contact-photo {
+    grid-column: 1;
+    grid-row: auto;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    justify-self: stretch;
+    margin-top: 10px;
+    aspect-ratio: 3 / 4;
+  }
+}

@@ -5,10 +5,12 @@ import {
   ArrowDownToLine,
   ArrowRight,
   Check,
+  Clock3,
   CloudDownload,
   CreditCard,
   FileText,
   PawPrint,
+  PhoneCall,
   ShoppingCart,
 } from 'lucide-react'
 import { NotatnikPageShell, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
@@ -169,8 +171,8 @@ export default function MaterialyLandingPage() {
 
         <figure className="materialy-visual-art">
           <Image
-            src="/branding/materialy/materialy-hero-guardian-pets-v1.webp"
-            alt="Opiekunka siedząca spokojnie z psem i kotem pośród notatek i delikatnych roślin"
+            src="/branding/section-heroes/materialy-reading-guides.png"
+            alt="Opiekunka czyta materiały o zachowaniu, a obok niej są pies i kot"
             fill
             priority
             sizes="(max-width: 860px) 92vw, 48vw"
@@ -266,20 +268,26 @@ export default function MaterialyLandingPage() {
         </div>
       </section>
 
-      <section className="materialy-consultation-band" aria-labelledby="materialy-consultation-title">
-        <div className="materialy-consultation-mark" aria-hidden="true">
-          <PawPrint size={54} strokeWidth={1.25} />
+      <section className="materialy-contact-note consultation-contact-note" aria-label="Pierwszy krok">
+        <strong>Jeśli dopiero szukasz pierwszego kontaktu</strong>
+        <p>Nie musisz od razu rezerwować 90-minutowego spotkania. Zacznij od krótkiej rozmowy telefonicznej.</p>
+        <div className="consultation-contact-facts" aria-label="Informacje o pierwszej rozmowie">
+          <span><PhoneCall size={17} aria-hidden="true" /> Telefonicznie</span>
+          <span><Clock3 size={17} aria-hidden="true" /> Do 15 minut</span>
         </div>
-        <div>
-          <h2 id="materialy-consultation-title">
-            Jeśli materiał nie wystarczy, <em>Zapytaj behawiorystę i uporządkuj temat w 15 minut.</em>
-          </h2>
-          <p>PDF to dobry start, ale rozmowa jest najprostszym sposobem na ustalenie priorytetu i ewentualnego dalszego materiału.</p>
+        <a href={quickHref} className="notatnik-btn">
+          <span>Zapytaj behawiorystę — {quickPriceLabel}</span>
+          <ArrowRight size={16} aria-hidden="true" />
+        </a>
+        <div className="consultation-contact-photo">
+          <Image
+            src="/branding/section-heroes/consultation-first-contact.png"
+            alt="Kobieta rozmawia przez telefon, a obok spokojnie odpoczywa jej pies"
+            width={1024}
+            height={1024}
+            sizes="(max-width: 760px) 100vw, 42vw"
+          />
         </div>
-        <Link href={quickHref} prefetch={false}>
-          <span>Zapytaj behawiorystę</span>
-          <ArrowRight size={18} strokeWidth={1.8} aria-hidden="true" />
-        </Link>
       </section>
     </NotatnikPageShell>
   )

@@ -7,10 +7,12 @@ import {
   Brain,
   Cat,
   ChevronRight,
+  Clock3,
   Dog,
   Heart,
   Home,
   PawPrint,
+  PhoneCall,
   UsersRound,
   type LucideIcon,
 } from 'lucide-react'
@@ -511,18 +513,26 @@ export default async function BlogPage(props: { searchParams?: Promise<BlogSearc
             </aside>
           </section>
 
-          <section className="blog-magazine-bottom-cta">
-            <figure aria-hidden="true">
-              <Image src={spotlightPost?.cover.src ?? BLOG_HERO_IMAGE} alt="" fill sizes="(max-width: 760px) 42vw, 210px" />
-            </figure>
-            <div>
-              <h2>Potrzebujesz indywidualnej pomocy?</h2>
-              <p>Każde zwierzę jest inne. Jeśli artykuł pomaga nazwać problem, konsultacja pomaga ułożyć pierwszy plan działania.</p>
+          <section className="blog-magazine-bottom-cta" aria-label="Pierwszy krok">
+            <strong>Jeśli dopiero szukasz pierwszego kontaktu</strong>
+            <p>Nie musisz od razu rezerwować 90-minutowego spotkania. Zacznij od krótkiej rozmowy telefonicznej.</p>
+            <div className="blog-contact-facts" aria-label="Informacje o pierwszej rozmowie">
+              <span><PhoneCall size={17} aria-hidden="true" /> Telefonicznie</span>
+              <span><Clock3 size={17} aria-hidden="true" /> Do 15 minut</span>
             </div>
-            <Link href="/zapytaj" prefetch={false}>
-              Zapytaj behawiorystę
-              <ArrowRight size={17} strokeWidth={1.9} aria-hidden="true" />
-            </Link>
+            <a href="/zapytaj#formularz" className="notatnik-btn">
+              <span>Zapytaj behawiorystę — 79 zł</span>
+              <ArrowRight size={16} aria-hidden="true" />
+            </a>
+            <div className="blog-contact-photo">
+              <Image
+                src="/branding/section-heroes/consultation-first-contact.png"
+                alt="Kobieta rozmawia przez telefon, a obok spokojnie odpoczywa jej pies"
+                width={1024}
+                height={1024}
+                sizes="(max-width: 760px) 100vw, 42vw"
+              />
+            </div>
           </section>
         </div>
 

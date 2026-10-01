@@ -33,10 +33,13 @@ import {
   resolveQuestionsExpiresAt,
 } from '@/lib/question-access'
 import { isAvailabilitySlotBookableForService } from '@/lib/scheduling/rules'
+import { countActiveUrgentDayBookings, getWarsawDateAndDay, validateZapytajUrgentPreference } from '@/lib/urgent-now-policy'
 import { isZapytajLiveSlot, ZAPYTAJ_LIVE_PRICE_PLN, ZAPYTAJ_SERVICE_TYPE } from '@/lib/zapytaj-flow'
 import {
   createUrgentNowRequest as createUrgentNowRequestRecord,
+  claimUrgentNoResponseSms as claimUrgentNoResponseSmsRecord,
   listUrgentNowRequests as listUrgentNowRequestRecords,
+  markUrgentNoResponseSms as markUrgentNoResponseSmsRecord,
   respondUrgentNowRequest as respondUrgentNowRequestRecord,
 } from '@/lib/server/urgent-now-store'
 import { createFunnelEventRecord, normalizeFunnelEventProperties } from '@/lib/server/funnel-events'
@@ -481,6 +484,16 @@ export async function listAvailability(): Promise<GroupedAvailability[]> {
   })
 }
 
+export async function listAvailabilityBetween(from: string, to: string): Promise<GroupedAvailability[]> {
+  const groups = await listAvailability()
+  return groups.filter((group) => group.date >= from && group.date <= to)
+}
+
+export async function hasAvailabilityAfter(date: string): Promise<boolean> {
+  const groups = await listAvailability()
+  return groups.some((group) => group.date > date)
+}
+
 export async function getActiveConsultationPrice() {
   return withLock(async () => {
     const store = await readStore()
@@ -834,14 +847,27 @@ export async function createUrgentNowRequest(input: {
   name: string
   email: string
   phone?: string | null
-  species: 'pies' | 'kot'
+  contactPreference: 'payment_link' | 'notify_only'
+  species: 'pies' | 'kot' | null
   topicId: import('@/lib/types').ProblemType
   topicLabel: string
   message: string
   requestedDate: string
   requestedTime: string
 }) {
-  return createUrgentNowRequestRecord(input)
+  return withLock(async () => {
+    const store = await readStore()
+    const availableDates = [...new Set(store.availability
+      .filter((slot) => !isZapytajLiveSlot(slot.id) && isAvailabilitySlotBookableForService(slot, 'szybka-konsultacja-15-min'))
+      .map((slot) => slot.bookingDate))].sort()
+    const nearestDate = availableDates[0]
+    const isTodayRequest = input.requestedDate === getWarsawDateAndDay().date
+    if (input.species === null) {
+      if (validateZapytajUrgentPreference(input.requestedDate, input.requestedTime)) throw new Error('URGENT_NOW_PREFERENCE_INVALID')
+    } else if (!isTodayRequest && (!nearestDate || nearestDate !== input.requestedDate)) throw new Error('URGENT_NOW_DATE_CHANGED')
+    const activeBookingCount = countActiveUrgentDayBookings(store.bookings, store.availability, input.requestedDate)
+    return createUrgentNowRequestRecord({ ...input, activeBookingCount })
+  })
 }
 
 export async function respondUrgentNowRequest(input: {
@@ -853,6 +879,14 @@ export async function respondUrgentNowRequest(input: {
   bookingHref?: string | null
 }) {
   return respondUrgentNowRequestRecord(input)
+}
+
+export async function markUrgentNoResponseSms(input: { id: string; status: 'sent' | 'failed' | 'skipped' }) {
+  return markUrgentNoResponseSmsRecord(input)
+}
+
+export async function claimUrgentNoResponseSms(id: string) {
+  return claimUrgentNoResponseSmsRecord(id)
 }
 
 export async function recordFunnelEvent(input: FunnelEventInput): Promise<FunnelEventRecord> {

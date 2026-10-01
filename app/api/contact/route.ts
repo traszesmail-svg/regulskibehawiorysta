@@ -8,6 +8,8 @@ import { ConfigurationError } from '@/lib/server/env'
 import { sendContactLeadAutoReplyEmail, sendContactLeadEmail } from '@/lib/server/notifications'
 import { getContactDetails } from '@/lib/site'
 import { isUrgentNowIntent } from '@/lib/urgent-now'
+import { isUrgentNowDailyLimitError } from '@/lib/urgent-now-policy'
+import { getZapytajLiveStatus } from '@/lib/server/zapytaj-live'
 import type { ProblemType } from '@/lib/types'
 
 const SUCCESS_MESSAGE = 'Dziękuję za wiadomość. Wiadomość trafiła do mnie. Odpowiem na podany adres e-mail.'
@@ -321,10 +323,15 @@ export async function POST(request: Request) {
     }
 
     if (isUrgentNowIntent(payload.intent) && payload.species !== 'nie-wiem') {
+      const liveStatus = await getZapytajLiveStatus()
+      if (liveStatus.status !== 'available_now') {
+        return contactErrorResponse(request, shouldRedirect, 'Zapytaj teraz jest dostępne tylko w otwartym oknie. Zgłoszenie złóż podczas aktywnej dostępności.', 409)
+      }
       await createUrgentNowRequest({
         name: payload.name,
         email: payload.email,
         phone: payload.phone,
+        contactPreference: 'payment_link',
         species: payload.species,
         topicId: payload.topicId,
         topicLabel: payload.topic,
@@ -357,6 +364,16 @@ export async function POST(request: Request) {
     return contactErrorResponse(request, shouldRedirect, GENERIC_ERROR_MESSAGE, 500)
   } catch (error) {
     console.error('[regulski-behawiorysta][contact] unexpected error', error)
+
+    if (isUrgentNowDailyLimitError(error)) {
+      return contactErrorResponse(request, shouldRedirect, 'Dzisiejszy limit pilnych zgłoszeń został już wykorzystany.', 409)
+    }
+    if (error instanceof Error && error.message === 'URGENT_NOW_WEEKEND') {
+      return contactErrorResponse(request, shouldRedirect, 'Pilne zgłoszenia nie są przyjmowane w weekend.', 400)
+    }
+    if (error instanceof Error && error.message === 'URGENT_NOW_DATE_CHANGED') {
+      return contactErrorResponse(request, shouldRedirect, 'Zmienił się dzień. Odśwież formularz i spróbuj ponownie.', 409)
+    }
 
     if (error instanceof ConfigurationError) {
       return contactErrorResponse(request, shouldRedirect, getUnavailableMessage(), 503)

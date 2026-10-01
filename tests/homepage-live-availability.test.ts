@@ -6,7 +6,7 @@ import { GET as availabilityRoute } from '@/app/api/zapytaj/availability/route'
 
 describe('homepage and zapytaj live availability verification', () => {
   it('1. home i /zapytaj korzystaja z tego samego zrodla dostepnosci (/api/zapytaj/availability)', async () => {
-    const response = await availabilityRoute()
+    const response = await availabilityRoute(new Request('http://localhost/api/zapytaj/availability'))
     assert.equal(response.status, 200)
 
     const data = (await response.json()) as {

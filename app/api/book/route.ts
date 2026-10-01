@@ -120,6 +120,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Nie udało się odczytać formularza rezerwacji.' }, { status: 400 })
     }
 
+    if (body.service === 'kwadrans-na-juz') {
+      return NextResponse.json(
+        { error: 'Zapytaj teraz wymaga zgłoszenia w formularzu pod kalendarzem. Operator potwierdzi godzinę i wyśle indywidualny link.' },
+        { status: 409, headers: { 'Cache-Control': 'no-store' } },
+      )
+    }
+
     const { payload, error } = validatePayload(body)
 
     if (!payload || error) {

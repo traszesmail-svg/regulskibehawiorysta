@@ -221,7 +221,7 @@ function getBaseScheduleState(date: string, time: string, serviceType: BookingSe
       time,
       state: 'reserved_for_urgent',
       statusLabel: 'Niedostępne',
-      reasonLabel: 'Najbliższe dwa dni są zarezerwowane dla Zapytaj teraz.',
+      reasonLabel: 'Najbliższy termin zaczyna się od następnego dnia roboczego.',
       isBookable: false,
     }
   }

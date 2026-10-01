@@ -9,6 +9,8 @@ type AdminUrgentRequestActionsProps = {
   requestedDate?: string | null
   requestedTime?: string | null
   requestedSlots?: UrgentRequestedSlot[]
+  contactPreference?: 'payment_link' | 'notify_only'
+  manualMode?: boolean
 }
 
 function toLocalDateInputValue(date: Date) {
@@ -46,10 +48,12 @@ export function AdminUrgentRequestActions({
   requestedDate = null,
   requestedTime = null,
   requestedSlots = [],
+  contactPreference = 'payment_link',
+  manualMode = false,
 }: AdminUrgentRequestActionsProps) {
   const defaultDate = requestedDate || toLocalDateInputValue(new Date())
   const [proposedDate, setProposedDate] = useState(defaultDate)
-  const [proposedTime, setProposedTime] = useState(requestedTime || '10:00')
+  const [proposedTime, setProposedTime] = useState(requestedTime && requestedTime !== '00:00' ? requestedTime : '10:00')
   const [responseNote, setResponseNote] = useState('')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
@@ -70,6 +74,7 @@ export function AdminUrgentRequestActions({
           proposedDate,
           proposedTime,
           responseNote,
+          manualResponse: manualMode,
         }),
       })
 
@@ -79,7 +84,11 @@ export function AdminUrgentRequestActions({
         throw new Error(payload.error ?? 'Nie udało się wysłać odpowiedzi.')
       }
 
-      setMessage(`Wysłano klientowi link do płatności: ${payload.bookingHref ?? ''}`.trim())
+      setMessage(manualMode
+        ? 'Zapisano ręczną odpowiedź. SMS musi być wcześniej wysłany przez operatora.'
+        : contactPreference === 'notify_only'
+        ? 'Wysłano informację o dostępności. Nie utworzono rezerwacji.'
+        : `Wysłano klientowi link do płatności: ${payload.bookingHref ?? ''}`.trim())
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : 'Nie udało się wysłać odpowiedzi.')
     } finally {
@@ -89,7 +98,7 @@ export function AdminUrgentRequestActions({
 
   return (
     <div className="booking-actions" data-urgent-request-actions={requestId}>
-      <div className="booking-meta">Wybierz termin (data oraz godzina co 30 min) i zatwierdź.</div>
+      <div className="booking-meta">{manualMode ? 'Wpisz propozycję i oznacz zgłoszenie jako obsłużone dopiero po wysłaniu klientowi SMS-a.' : 'Wybierz termin (data oraz godzina co 30 min) i zatwierdź.'}</div>
       
       <div style={{ display: 'grid', gap: 12, gridTemplateColumns: '1fr 1fr', margin: '8px 0' }}>
         <div>
@@ -128,7 +137,7 @@ export function AdminUrgentRequestActions({
         disabled={disabled || loading}
       />
       <button type="button" className="button button-primary" onClick={handleRespond} disabled={disabled || loading}>
-        {loading ? 'Wysyłam...' : 'Wyślij link do płatności'}
+        {loading ? 'Zapisuję...' : manualMode ? 'Zapisz ręczną odpowiedź po SMS' : contactPreference === 'notify_only' ? 'Wyślij powiadomienie' : 'Wyślij link do płatności'}
       </button>
       {message ? <span className="booking-meta">{message}</span> : null}
       {error ? <span className="booking-meta">{error}</span> : null}

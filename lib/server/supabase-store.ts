@@ -8,7 +8,7 @@ import {
   resolveBookingServiceType,
 } from '@/lib/booking-services'
 import { getUnpaidBookingExpiryCutoff, isBookingAwaitingPayment } from '@/lib/booking-expiry'
-import { compareDateAndTime, formatDateLabel, isFutureAvailabilitySlot } from '@/lib/data'
+import { compareDateAndTime, formatDateLabel, getWarsawNowBoundary, isFutureAvailabilitySlot } from '@/lib/data'
 import { createActiveConsultationPrice, DEFAULT_PRICE_PLN, parseConsultationPriceInput } from '@/lib/pricing'
 import { normalizePolishPhone } from '@/lib/phone'
 import { createFunnelEventRecord, normalizeFunnelEventProperties } from '@/lib/server/funnel-events'
@@ -182,7 +182,9 @@ type UrgentNowRequestRow = {
   status: string
   name: string
   email: string
-  species: string
+  phone: string | null
+  contact_preference: 'payment_link' | 'notify_only' | null
+  species: string | null
   topic_id: string
   topic_label: string
   message: string
@@ -194,6 +196,8 @@ type UrgentNowRequestRow = {
   response_note: string | null
   availability_slot_id: string | null
   booking_href: string | null
+  no_response_sms_status?: 'processing' | 'sent' | 'failed' | 'skipped' | null
+  no_response_sms_sent_at?: string | null
 }
 
 type LegacyPaymentMeta = {
@@ -725,7 +729,9 @@ function mapUrgentNowRequestRow(row: UrgentNowRequestRow): UrgentNowRequestRecor
     status: row.status === 'responded' ? 'responded' : 'new',
     name: row.name,
     email: row.email,
-    species: row.species === 'kot' ? 'kot' : 'pies',
+    phone: row.phone,
+    contactPreference: row.contact_preference ?? undefined,
+    species: row.species === 'kot' ? 'kot' : row.species === 'pies' ? 'pies' : null,
     topicId: row.topic_id as UrgentNowRequestRecord['topicId'],
     topicLabel: row.topic_label,
     message: row.message,
@@ -737,6 +743,8 @@ function mapUrgentNowRequestRow(row: UrgentNowRequestRow): UrgentNowRequestRecor
     responseNote: row.response_note,
     availabilitySlotId: row.availability_slot_id,
     bookingHref: row.booking_href,
+    noResponseSmsStatus: row.no_response_sms_status ?? null,
+    noResponseSmsSentAt: row.no_response_sms_sent_at ?? null,
   }
 }
 
@@ -1199,6 +1207,51 @@ async function readPricingSettings() {
 export async function listAvailability(): Promise<GroupedAvailability[]> {
   await cleanupExpiredReservations()
   return groupAvailability((await ensureFutureAvailabilityRows()).filter((slot) => !slot.isBooked))
+}
+
+export async function listAvailabilityBetween(from: string, to: string): Promise<GroupedAvailability[]> {
+  await cleanupExpiredReservations()
+  const supabase = getSupabaseAdmin()
+  const today = getWarsawNowBoundary().date
+  const seedRows = buildSeedAvailabilitySlots().filter((slot) => slot.bookingDate >= today)
+  const lastSeedDate = seedRows.at(-1)?.bookingDate ?? to
+  const existing = await supabase.from('availability').select('id').gte('booking_date', today).lte('booking_date', lastSeedDate)
+  if (existing.error) throw existing.error
+
+  const existingIds = new Set(((existing.data as Array<{ id: string }> | null) ?? []).map((row) => row.id))
+  const missingRows = seedRows.filter((slot) => !existingIds.has(slot.id)).map(mapAvailabilitySlotToRow)
+  if (missingRows.length) {
+    const inserted = await supabase.from('availability').upsert(missingRows, { onConflict: 'id' })
+    if (inserted.error) throw inserted.error
+  }
+
+  const result = await supabase
+    .from('availability')
+    .select('*')
+    .gte('booking_date', from)
+    .lte('booking_date', to)
+    .order('booking_date', { ascending: true })
+    .order('booking_time', { ascending: true })
+  if (result.error) throw result.error
+  return groupAvailability(((result.data as AvailabilityRow[]) ?? []).map(mapAvailabilityRow))
+}
+
+export async function hasAvailabilityAfter(date: string): Promise<boolean> {
+  await cleanupExpiredReservations()
+  const supabase = getSupabaseAdmin()
+  const result = await supabase
+    .from('availability')
+    .select('*')
+    .gt('booking_date', date)
+    .eq('is_booked', false)
+    .is('locked_by_booking_id', null)
+    .order('booking_date', { ascending: true })
+    .order('booking_time', { ascending: true })
+    .limit(100)
+  if (result.error) throw result.error
+  return ((result.data as AvailabilityRow[]) ?? [])
+    .map(mapAvailabilityRow)
+    .some((slot) => !isZapytajLiveSlot(slot.id) && isAvailabilitySlotBookableForService(slot, 'szybka-konsultacja-15-min'))
 }
 
 export async function getActiveConsultationPrice() {
@@ -1836,7 +1889,8 @@ export async function createUrgentNowRequest(input: {
   name: string
   email: string
   phone?: string | null
-  species: 'pies' | 'kot'
+  contactPreference: 'payment_link' | 'notify_only'
+  species: 'pies' | 'kot' | null
   topicId: import('@/lib/types').ProblemType
   topicLabel: string
   message: string
@@ -1844,28 +1898,25 @@ export async function createUrgentNowRequest(input: {
   requestedTime: string
 }): Promise<UrgentNowRequestRecord> {
   const supabase = getSupabaseAdmin()
-  const { data, error } = await supabase
-    .from('urgent_now_requests')
-    .insert({
-      status: 'new',
-      name: input.name,
-      email: input.email,
-      phone: input.phone ?? null,
-      species: input.species,
-      topic_id: input.topicId,
-      topic_label: input.topicLabel,
-      message: input.message,
-      requested_date: input.requestedDate,
-      requested_time: input.requestedTime,
-    })
-    .select('*')
-    .single()
+  const { data, error } = await supabase.rpc('create_urgent_now_request', {
+    p_name: input.name,
+    p_email: input.email,
+    p_phone: input.phone ?? null,
+    p_contact_preference: input.contactPreference,
+    p_species: input.species,
+    p_topic_id: input.topicId,
+    p_topic_label: input.topicLabel,
+    p_message: input.message,
+    p_requested_date: input.requestedDate,
+    p_requested_time: input.requestedTime,
+  })
 
   if (error) {
-    throw error
+    throw new Error(error.message)
   }
 
-  return mapUrgentNowRequestRow(data as UrgentNowRequestRow)
+  const row = Array.isArray(data) ? data[0] : data
+  return mapUrgentNowRequestRow(row as UrgentNowRequestRow)
 }
 
 export async function respondUrgentNowRequest(input: {
@@ -1897,6 +1948,36 @@ export async function respondUrgentNowRequest(input: {
     throw error
   }
 
+  return data ? mapUrgentNowRequestRow(data as UrgentNowRequestRow) : null
+}
+
+export async function markUrgentNoResponseSms(input: { id: string; status: 'sent' | 'failed' | 'skipped' }) {
+  const supabase = getSupabaseAdmin()
+  const now = new Date().toISOString()
+  const { data, error } = await supabase
+    .from('urgent_now_requests')
+    .update({ no_response_sms_status: input.status, no_response_sms_sent_at: input.status === 'sent' ? now : null, updated_at: now })
+    .eq('id', input.id)
+    .eq('status', 'new')
+    .eq('no_response_sms_status', 'processing')
+    .select('*')
+    .maybeSingle()
+  if (error) throw error
+  return data ? mapUrgentNowRequestRow(data as UrgentNowRequestRow) : null
+}
+
+export async function claimUrgentNoResponseSms(id: string) {
+  const supabase = getSupabaseAdmin()
+  const staleBefore = new Date(Date.now() - 5 * 60 * 1000).toISOString()
+  const { data, error } = await supabase
+    .from('urgent_now_requests')
+    .update({ no_response_sms_status: 'processing', updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .eq('status', 'new')
+    .or(`no_response_sms_status.is.null,and(no_response_sms_status.eq.processing,updated_at.lt.${staleBefore})`)
+    .select('*')
+    .maybeSingle()
+  if (error) throw error
   return data ? mapUrgentNowRequestRow(data as UrgentNowRequestRow) : null
 }
 

@@ -20,6 +20,14 @@ export async function listAvailability() {
   return getProvider().listAvailability()
 }
 
+export async function listAvailabilityBetween(from: string, to: string) {
+  return getProvider().listAvailabilityBetween(from, to)
+}
+
+export async function hasAvailabilityAfter(date: string) {
+  return getProvider().hasAvailabilityAfter(date)
+}
+
 export async function getActiveConsultationPrice() {
   return getProvider().getActiveConsultationPrice()
 }
@@ -161,6 +169,14 @@ export async function createUrgentNowRequest(input: Parameters<StoreProvider['cr
 
 export async function respondUrgentNowRequest(input: Parameters<StoreProvider['respondUrgentNowRequest']>[0]) {
   return getProvider().respondUrgentNowRequest(input)
+}
+
+export async function markUrgentNoResponseSms(input: Parameters<StoreProvider['markUrgentNoResponseSms']>[0]) {
+  return getProvider().markUrgentNoResponseSms(input)
+}
+
+export async function claimUrgentNoResponseSms(id: string) {
+  return getProvider().claimUrgentNoResponseSms(id)
 }
 
 export async function recordFunnelEvent(

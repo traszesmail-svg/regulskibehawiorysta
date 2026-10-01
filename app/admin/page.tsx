@@ -559,7 +559,7 @@ export default async function AdminPage() {
             <div className="section-eyebrow">Zapytaj teraz</div>
             <h2>Prośby o pilny termin</h2>
             <p className="muted paragraph-gap">
-              Klient wpisuje preferowaną datę i godzinę przez formularz. Tutaj dodajesz termin do kalendarza i od razu odsyłasz mu gotowy link.
+              Pilna prośba zawiera najwcześniejszą dyspozycyjność klienta. Odpowiedz SMS-em ręcznie w ciągu 15 minut; jeśli nie będzie odpowiedzi, system wyśle informację o braku terminu.
             </p>
 
             {urgentRequests.length === 0 ? (
@@ -567,7 +567,7 @@ export default async function AdminPage() {
             ) : (
               <div className="booking-list">
                 {urgentRequests.map((request) => {
-                  const requestedSlots = parseUrgentRequestedSlotsFromMessage(request.message, {
+                  const requestedSlots = parseUrgentRequestedSlotsFromMessage(request.message, request.requestedTime === '00:00' ? null : {
                     date: request.requestedDate,
                     time: request.requestedTime,
                   })
@@ -577,12 +577,13 @@ export default async function AdminPage() {
                     <div>
                       <div className="booking-title">{request.topicLabel}</div>
                       <div className="booking-meta">
-                        {request.name} - {request.email} - {request.species}
+                        {request.name} - {request.email || 'brak e-maila'} - {request.phone ?? 'brak telefonu'} - {request.species ?? 'nie podano gatunku'}
                       </div>
+                        <div className="booking-meta">Preferencja: {request.contactPreference === 'notify_only' ? 'tylko powiadomienie' : 'link do płatności po potwierdzeniu godziny'}</div>
                         <div className="booking-meta">
-                          Wybrane godziny: {requestedSlots.map((slot) => `${slot.date} ${slot.time}`).join(', ')}
+                          {requestedSlots.length ? `Wybrane godziny: ${requestedSlots.map((slot) => `${slot.date} ${slot.time}`).join(', ')}` : 'Godzinę ustala operator.'}
                         </div>
-                      <div className="booking-meta">Status: {request.status === 'responded' ? 'odpowiedziano' : 'nowa prośba'}</div>
+                      <div className="booking-meta">Status: {request.status === 'responded' ? 'odpowiedziano' : 'oczekuje na odpowiedź operatora'}{request.noResponseSmsStatus ? ` · SMS po 15 min: ${request.noResponseSmsStatus === 'sent' ? 'wysłany' : request.noResponseSmsStatus === 'failed' ? 'błąd wysyłki' : request.noResponseSmsStatus === 'skipped' ? 'pominięty — brak konfiguracji' : 'w trakcie'}` : ''}</div>
                     </div>
                     <div className="booking-description">
                         <div>{stripUrgentRequestedSlotsFromMessage(request.message)}</div>
@@ -593,13 +594,20 @@ export default async function AdminPage() {
                       ) : null}
                       {request.bookingHref ? <div className="booking-meta">Link: {request.bookingHref}</div> : null}
                     </div>
-                    <AdminUrgentRequestActions
+                    {request.species ? <AdminUrgentRequestActions
                       requestId={request.id}
                       disabled={request.status === 'responded'}
                       requestedDate={request.requestedDate}
                       requestedTime={request.requestedTime}
                       requestedSlots={requestedSlots}
-                    />
+                      contactPreference={request.contactPreference}
+                    /> : <AdminUrgentRequestActions
+                      requestId={request.id}
+                      disabled={request.status === 'responded'}
+                      requestedDate={request.requestedDate}
+                      requestedTime={request.requestedTime}
+                      manualMode
+                    />}
                     </div>
                   )
                 })}

@@ -484,6 +484,122 @@ html body main.notatnik-page .zapytaj-kicker {
   outline-offset: 2px;
 }
 
+.zapytaj-page .zapytaj-calendar-navigation {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  margin: 18px 0 10px;
+}
+
+.zapytaj-page .zapytaj-calendar-navigation button {
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid rgba(44, 76, 59, 0.18);
+  border-radius: 12px;
+  background: #fffdf8;
+  color: #31412d;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.zapytaj-page .zapytaj-calendar-navigation button:last-child {
+  justify-self: end;
+}
+
+.zapytaj-page .zapytaj-calendar-navigation button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.zapytaj-page .zapytaj-calendar-navigation button:focus-visible,
+.zapytaj-page .zapytaj-calendar-day:focus-visible {
+  outline: 3px solid rgba(88, 116, 78, 0.24);
+  outline-offset: 2px;
+}
+
+.zapytaj-page .zapytaj-calendar-weekdays,
+.zapytaj-page .zapytaj-calendar-day-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.zapytaj-page .zapytaj-calendar-weekdays {
+  margin-bottom: 6px;
+  color: #68745e;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.zapytaj-page .zapytaj-calendar-day-grid {
+  margin-bottom: 16px;
+}
+
+.zapytaj-page .zapytaj-calendar-day,
+.zapytaj-page .zapytaj-calendar-day-blank {
+  min-width: 0;
+  min-height: 48px;
+  border-radius: 10px;
+}
+
+.zapytaj-page .zapytaj-calendar-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 4px 2px;
+  border: 1px solid rgba(44, 76, 59, 0.12);
+  background: #fffdf8;
+  color: #72786d;
+  font: inherit;
+  cursor: pointer;
+}
+
+.zapytaj-page .zapytaj-calendar-day.has-slots {
+  border-color: rgba(88, 116, 78, 0.3);
+  color: #31412d;
+}
+
+.zapytaj-page .zapytaj-calendar-day.is-selected {
+  border-color: #58744e;
+  background: #e4eedf;
+  color: #263c20;
+}
+
+.zapytaj-page .zapytaj-calendar-day span {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.zapytaj-page .zapytaj-calendar-day small {
+  min-height: 11px;
+  font-size: 9px;
+  line-height: 1;
+}
+
+@media (max-width: 420px) {
+  .zapytaj-page .zapytaj-calendar-navigation {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .zapytaj-page .zapytaj-calendar-navigation strong {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    text-align: center;
+  }
+
+  .zapytaj-page .zapytaj-calendar-navigation button {
+    grid-row: 2;
+    padding-inline: 6px;
+    font-size: 11px;
+  }
+}
+
 .zapytaj-page .zapytaj-time-heading {
   margin: 0 0 9px;
   color: #465340;
@@ -3616,4 +3732,267 @@ html body main.notatnik-page .zapytaj-kicker {
     margin-top: 10px;
     aspect-ratio: 3 / 4;
   }
+}
+
+.canonical-service-page.consultation-page .canonical-service-hero,
+.therapy-premium-page .therapy-premium-hero {
+  background: transparent !important;
+}
+
+.canonical-service-page.consultation-page,
+.canonical-service-page.therapy-premium-page {
+  background: #f8f4ed !important;
+}
+
+.canonical-service-page.consultation-page > .canonical-service-shell,
+.canonical-service-page.therapy-premium-page > .canonical-service-shell {
+  background: rgba(255, 253, 247, 0.98) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 22px 60px rgba(31, 26, 23, 0.1) !important;
+}
+
+/* /zapytaj: one compact three-step process directly aligned with the booking panel. */
+main.notatnik-page.zapytaj-page #jak-to-dziala {
+  padding: 60px clamp(24px, 5vw, 68px);
+}
+
+main.notatnik-page.zapytaj-page .zapytaj-process-heading {
+  position: relative;
+  min-height: 120px;
+  margin-bottom: 32px;
+}
+
+main.notatnik-page.zapytaj-page .zapytaj-process-leaf {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 150px;
+  height: 120px;
+  object-fit: contain;
+  opacity: 0.72;
+  pointer-events: none;
+}
+
+main.notatnik-page.zapytaj-page .zapytaj-process-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
+main.notatnik-page.zapytaj-page .zapytaj-process-grid article {
+  grid-template-rows: auto 1fr;
+  align-content: start;
+  gap: 18px;
+  min-height: 270px;
+  padding: 28px;
+  border: 1px solid rgba(186, 166, 133, 0.42);
+  border-radius: 18px;
+  background: #fcf9f2;
+  box-shadow: none;
+}
+
+main.notatnik-page.zapytaj-page .zapytaj-process-number {
+  color: #8d6740;
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  line-height: 1;
+}
+
+main.notatnik-page.zapytaj-page .zapytaj-process-grid h3 {
+  color: var(--ink);
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(23px, 1.7vw, 24px);
+  font-weight: 500;
+  line-height: 1.15;
+}
+
+main.notatnik-page.zapytaj-page .zapytaj-process-grid p {
+  color: var(--ink-soft);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+@media (max-width: 839px) {
+  main.notatnik-page.zapytaj-page .zapytaj-process-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  main.notatnik-page.zapytaj-page #jak-to-dziala {
+    padding: 48px 16px;
+  }
+
+  main.notatnik-page.zapytaj-page .zapytaj-process-heading {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 64px;
+    grid-template-rows: auto auto;
+    align-items: start;
+    column-gap: 8px;
+    min-height: 80px;
+  }
+
+  main.notatnik-page.zapytaj-page .zapytaj-process-heading > .zapytaj-kicker {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  main.notatnik-page.zapytaj-page .zapytaj-process-heading > h2 {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  main.notatnik-page.zapytaj-page .zapytaj-process-leaf {
+    position: static;
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    width: 64px;
+    height: 80px;
+  }
+
+  main.notatnik-page.zapytaj-page .zapytaj-process-grid {
+    gap: 16px;
+  }
+
+  main.notatnik-page.zapytaj-page .zapytaj-process-grid article {
+    min-height: 0;
+    padding: 24px;
+  }
+}
+/* Shared status occupies a dedicated, quiet second row; it never competes with nav/actions. */
+#notatnik-topbar {
+  display: grid !important;
+  grid-template-columns: minmax(0, auto) minmax(0, 1fr) auto;
+  grid-template-areas: 'brand nav actions' 'status status status';
+  align-items: center;
+  row-gap: 5px !important;
+  min-height: 0 !important;
+  padding-bottom: 8px !important;
+}
+#notatnik-topbar > .notatnik-brand { grid-area: brand; min-width: 0; }
+#notatnik-topbar > .notatnik-nav { grid-area: nav; min-width: 0; }
+#notatnik-topbar > .notatnik-topbar-actions { grid-area: actions; min-width: 0; }
+#notatnik-topbar > .notatnik-urgent-status {
+  position: static !important;
+  grid-area: status;
+  justify-self: center;
+  width: 100%;
+  max-width: 100%;
+  min-height: 42px;
+  padding: 10px;
+  border: 0;
+  border-top: 1px solid rgba(186, 166, 133, .38);
+  border-radius: 0;
+  background: transparent;
+  text-align: center;
+  white-space: nowrap;
+}
+
+main.notatnik-page.zapytaj-page .zapytaj-now-teaser-container {
+  container-type: inline-size;
+  width: min(100%, 720px);
+  margin: 0 auto 32px;
+}
+main.notatnik-page.zapytaj-page .zapytaj-now-teaser {
+  width: 100%;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 20px;
+  padding: 28px 24px;
+  border: 1px solid rgba(186, 166, 133, .4);
+  border-radius: 19px;
+  background: #fcfaf5;
+  box-shadow: none;
+}
+main.notatnik-page.zapytaj-page .zapytaj-now-teaser > * { margin: 0; }
+main.notatnik-page.zapytaj-page .zapytaj-now-teaser-image {
+  display: block;
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+}
+main.notatnik-page.zapytaj-page .zapytaj-now-teaser-copy h2 {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(23px, 2vw, 28px);
+  font-weight: 500;
+  line-height: 1.14;
+}
+main.notatnik-page.zapytaj-page .zapytaj-now-teaser-copy p {
+  margin: 7px 0 0;
+  color: var(--ink-soft);
+  font-size: 15px;
+  line-height: 1.45;
+}
+main.notatnik-page.zapytaj-page .zapytaj-now-teaser-cta {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 15px;
+  border: 1px solid rgba(120, 83, 43, .32);
+  border-radius: 999px;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+main.notatnik-page.zapytaj-page .zapytaj-now-teaser-cta:hover,
+main.notatnik-page.zapytaj-page .zapytaj-now-teaser-cta:focus-visible {
+  background: #f5f0e5;
+}
+
+.zapytaj-teraz-page .zapytaj-teraz-shell { width: min(880px, calc(100% - 48px)); max-width: 880px; margin-inline: auto; }
+.zapytaj-teraz-page .zapytaj-urgent-standalone {
+  box-sizing: border-box;
+  width: min(720px, 100%);
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+  margin: 32px auto 0;
+  padding: clamp(24px, 4vw, 40px);
+  border: 1px solid rgba(186, 166, 133, .42);
+  border-radius: 22px;
+  background: rgba(255, 253, 248, .96);
+  box-shadow: 0 14px 38px rgba(67, 49, 22, .055);
+}
+.zapytaj-teraz-page .zapytaj-urgent-standalone .zapytaj-urgent-intro > .zapytaj-kicker { display: none; }
+.zapytaj-teraz-page .zapytaj-urgent-standalone .zapytaj-urgent-intro > h1 { margin-top: 0; }
+.zapytaj-teraz-page .zapytaj-teraz-calendar-link { width: min(720px, 100%); margin: 24px auto 0; }
+
+@media (max-width: 1179px) {
+  #notatnik-topbar {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: 'brand menu' 'status status';
+    min-height: 0 !important;
+    padding-bottom: 8px !important;
+  }
+  #notatnik-topbar > .notatnik-nav,
+  #notatnik-topbar > .notatnik-topbar-actions { display: none !important; }
+  #notatnik-topbar > .notatnik-mobile-menu { grid-area: menu; justify-self: end; }
+  #notatnik-topbar > .notatnik-urgent-status { justify-self: stretch; text-align: center; }
+}
+
+@container (max-width: 480px) {
+  main.notatnik-page.zapytaj-page .zapytaj-now-teaser {
+    grid-template-columns: 52px minmax(0, 1fr);
+    gap: 12px 14px;
+    padding: 20px 16px;
+  }
+  main.notatnik-page.zapytaj-page .zapytaj-now-teaser-image { width: 52px; height: 52px; }
+  main.notatnik-page.zapytaj-page .zapytaj-now-teaser-copy h2 { font-size: 22px; }
+  main.notatnik-page.zapytaj-page .zapytaj-now-teaser-copy p { margin-top: 4px; }
+  main.notatnik-page.zapytaj-page .zapytaj-now-teaser-cta { grid-column: 2; justify-self: start; white-space: normal; }
+}
+
+@media (max-width: 480px) {
+  #notatnik-topbar { grid-template-columns: minmax(0, 1fr) auto; }
+  #notatnik-topbar > .notatnik-urgent-status { min-height: 42px; padding: 11px 2px; font-size: 10px; }
+  .zapytaj-teraz-page .zapytaj-teraz-shell { width: calc(100% - 24px); }
+  .zapytaj-teraz-page .zapytaj-urgent-standalone { padding: 22px 18px; }
 }

@@ -1,13 +1,7 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import {
-  ArrowRight,
-  GraduationCap,
-  Leaf,
-  PawPrint,
-  ShieldCheck,
-} from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import { NotatnikPageShell, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
 import { OpinionsReviewGrid } from '@/components/OpinionsReviewGrid'
 import { buildBookHref } from '@/lib/booking-routing'
@@ -31,29 +25,6 @@ const addOpinionHref = '/opinie/dodaj'
 
 const filters = ['Pies', 'Kot'] as const
 
-
-const proofItems = [
-  {
-    title: 'Bezpieczeństwo',
-    copy: 'Spokojna praca bez przemocy, straszenia i dominowania.',
-    icon: ShieldCheck,
-  },
-  {
-    title: 'Wiedza i doświadczenie',
-    copy: 'Praktyka oparta na nauce i wieloletniej pracy.',
-    icon: GraduationCap,
-  },
-  {
-    title: 'Empatia i zrozumienie',
-    copy: 'Wsparcie dla Ciebie i Twojego zwierzęcia.',
-    icon: PawPrint,
-  },
-  {
-    title: 'Konkret po rozmowie',
-    copy: 'Pierwszy krok, którego opiekun naprawdę może spróbować w swoim domu.',
-    icon: Leaf,
-  },
-] as const
 
 export default function OpinionsPage() {
   const baseUrl = getCanonicalBaseUrl()
@@ -97,41 +68,39 @@ export default function OpinionsPage() {
       showFooterReviews={false}
     >
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
-      <OpinionsReviewGrid filters={[...filters]} reviews={publicOpinionReviews} />
+      <section className="opinions-editorial-hero" aria-labelledby="opinions-page-title">
+        <div className="opinions-editorial-copy">
+          <span className="opinions-editorial-eyebrow">Opinie po konsultacjach</span>
+          <h1 id="opinions-page-title">Historie, które pokazują, jak zaczyna się spokojniejsza codzienność</h1>
+          <p>Krótkie wypowiedzi opiekunów psów i kotów, udostępnione za zgodą. Pokazują, jak wygląda proces i co realnie pomaga po rozmowie.</p>
+          <div className="opinions-editorial-proof">Wypowiedzi opiekunów po konsultacjach · publikowane za zgodą</div>
+        </div>
+        <figure className="opinions-editorial-photo">
+          <Image
+            src="/images/opinions/hero-reviews-premium-v1.png"
+            alt="Opiekunka spędza spokojny czas z psem i kotem w domu"
+            fill
+            priority
+            sizes="(max-width: 760px) 90vw, 48vw"
+          />
+        </figure>
+      </section>
 
-        <section className="opinions-story-band">
-          <div className="opinions-story-copy">
-            <Leaf size={58} strokeWidth={1.1} />
-            <div>
-              <h2>Twoja historia może pomóc innym</h2>
-              <p>Każda opinia wspiera innych opiekunów w podjęciu decyzji i daje im nadzieję na lepszą relację ze zwierzęciem.</p>
-              <Link href={addOpinionHref} prefetch={false} className="opinions-story-button">
-                Dodaj opinię <ArrowRight size={17} strokeWidth={1.8} />
-              </Link>
-            </div>
-          </div>
-          <div className="opinions-story-photo" aria-hidden="true">
-            <Image src="/images/homepage/home-bg-cat-1to1.webp" alt="" fill loading="lazy" sizes="(max-width: 860px) 90vw, 390px" />
-          </div>
-        </section>
+      <OpinionsReviewGrid filters={[...filters]} reviews={publicOpinionReviews} showIntro={false} />
 
-        <section className="opinions-proof-strip" aria-label="Dlaczego opiekunowie wracają do spokojnego procesu">
-          {proofItems.map((item) => {
-            const Icon = item.icon
-
-            return (
-              <article key={item.title} className="opinions-proof-item">
-                <span>
-                  <Icon size={32} strokeWidth={1.55} />
-                </span>
-                <div>
-                  <h3>{item.title}</h3>
-                  <p>{item.copy}</p>
-                </div>
-              </article>
-            )
-          })}
-        </section>
+      <section className="opinions-story-band">
+        <div className="opinions-story-copy">
+          <span className="opinions-editorial-eyebrow">Podziel się swoim doświadczeniem</span>
+          <h2>Twoja historia może pomóc innym</h2>
+          <p>Każda opinia wspiera innych opiekunów w podjęciu decyzji i daje im nadzieję na lepszą relację ze zwierzęciem.</p>
+          <Link href={addOpinionHref} prefetch={false} className="opinions-story-button">
+            Dodaj opinię <ArrowRight size={17} strokeWidth={1.8} />
+          </Link>
+        </div>
+        <figure className="opinions-story-photo">
+          <Image src="/images/opinions/review-submit-premium-v1.png" alt="" fill loading="lazy" sizes="(max-width: 760px) 90vw, 36vw" />
+        </figure>
+      </section>
 
     </NotatnikPageShell>
   )

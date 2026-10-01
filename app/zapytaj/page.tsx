@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight, CalendarDays, Check, Clock3, MessageSquareText, PhoneCall, ShieldAlert, WalletCards } from 'lucide-react'
+import { ArrowRight, Clock3, PhoneCall, ShieldAlert, WalletCards } from 'lucide-react'
 import { Schema } from '@/components/schema'
 import { NotatnikPageShell, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
 import { ZapytajIntakeForm } from '@/components/ZapytajIntakeForm'
@@ -63,8 +63,10 @@ export default function ZapytajPage() {
     <NotatnikPageShell
       tag="Pierwszy krok"
       navItems={PUBLIC_SITE_NAV_ITEMS}
-      ctaHref="/zapytaj#formularz"
-      ctaLabel={`Zapytaj — ${formatPublicOfferPrice(PUBLIC_ZAPYTAJ_OFFER.pricePln)}`}
+      ctaHref="/zapytaj"
+      ctaLabel="Zapytaj"
+      showZapytajStatus={false}
+      showZapytajHeaderCta
       footerPrimaryHref="/zapytaj#formularz"
       footerPrimaryLabel={`Zapytaj behawiorystę — ${formatPublicOfferPrice(PUBLIC_ZAPYTAJ_OFFER.pricePln)}`}
       showSideVisuals={false}
@@ -101,11 +103,11 @@ export default function ZapytajPage() {
           </div>
           <div className="zapytaj-hero-actions">
             <a href="#formularz" className="notatnik-btn">
-              Zapytaj behawiorystę — {formatPublicOfferPrice(PUBLIC_ZAPYTAJ_OFFER.pricePln)}
+              Wybierz termin
               <ArrowRight size={17} strokeWidth={1.9} aria-hidden="true" />
             </a>
-            <a href="#jak-to-dziala" className="zapytaj-muted-link">
-              Zobacz, jak to działa
+            <a href="/zapytaj-teraz" className="zapytaj-muted-link">
+              Zapytaj o rozmowę dziś
             </a>
           </div>
           <div className="homepage-hero-proof" aria-label="Kwalifikacje specjalisty">
@@ -148,112 +150,58 @@ export default function ZapytajPage() {
         </figure>
       </section>
 
+      <div className="zapytaj-now-teaser-container">
+        <section className="zapytaj-now-teaser" id="zapytaj-teraz" aria-labelledby="zapytaj-now-teaser-title">
+          <Image className="zapytaj-now-teaser-image" src="/images/zapytaj-teraz/telefon-premium-v2.png" alt="" width={72} height={72} sizes="(max-width: 480px) 52px, 72px" />
+          <div className="zapytaj-now-teaser-copy">
+            <h2 id="zapytaj-now-teaser-title">Potrzebujesz pomocy teraz?</h2>
+            <p>Sprawdź, czy jest taka możliwość.</p>
+          </div>
+          <Link className="zapytaj-now-teaser-cta" href="/zapytaj-teraz">Sprawdź możliwość rozmowy <ArrowRight size={17} aria-hidden="true" /></Link>
+        </section>
+      </div>
+
       <section className="zapytaj-process-section" id="jak-to-dziala" aria-labelledby="zapytaj-process-title">
-        <div className="zapytaj-section-heading">
-          <span className="zapytaj-kicker">JAK ZACZĄĆ</span>
-          <h2 id="zapytaj-process-title">Trzy proste kroki.</h2>
+        <div className="zapytaj-section-heading zapytaj-process-heading">
+          <span className="zapytaj-kicker">JAK TO DZIAŁA</span>
+          <h2 id="zapytaj-process-title">Jak to działa</h2>
+          <Image
+            src="/decor/leaf-transparent/leaf-top-right.png"
+            alt=""
+            width={150}
+            height={124}
+            className="zapytaj-process-leaf"
+            aria-hidden="true"
+          />
         </div>
         <div className="zapytaj-process-grid steps-list">
           <article className="step-item">
-            <span className="homepage-step-icon" aria-hidden="true">
-              <MessageSquareText size={17} />
-            </span>
-            <div className="homepage-step-body">
-              <h3>Opisujesz sytuację</h3>
-              <p>Kilka zdań o tym, co Cię niepokoi.</p>
-            </div>
+            <span className="zapytaj-process-number" aria-hidden="true">01</span>
+            <div className="homepage-step-body"><h3>Opisujesz sytuację</h3><p>Kilka zdań o tym, co Cię niepokoi. Wspólnie porządkujemy fakty — bez pochopnych interpretacji i internetowych etykiet.</p></div>
           </article>
           <article className="step-item">
-            <span className="homepage-step-icon" aria-hidden="true">
-              <CalendarDays size={17} />
-            </span>
-            <div className="homepage-step-body">
-              <h3>Rezerwujesz rozmowę</h3>
-              <p>Wybierasz dostępny termin i opłacasz rozmowę.</p>
-            </div>
+            <span className="zapytaj-process-number" aria-hidden="true">02</span>
+            <div className="homepage-step-body"><h3>Rezerwujesz rozmowę</h3><p>Wybierasz dostępny termin i opłacasz rozmowę.</p></div>
           </article>
           <article className="step-item">
-            <span className="homepage-step-icon" aria-hidden="true">
-              <PhoneCall size={17} />
-            </span>
-            <div className="homepage-step-body">
-              <h3>Rozmawiamy</h3>
-              <p>Ustalamy pierwszy krok i dalsze możliwości pomocy.</p>
-            </div>
+            <span className="zapytaj-process-number" aria-hidden="true">03</span>
+            <div className="homepage-step-body"><h3>Rozmawiamy</h3><p>Ustalamy pierwszy realny krok. Jeśli temat jest szerszy, wskażę właściwy dalszy kierunek.</p></div>
           </article>
         </div>
       </section>
 
       <section className="zapytaj-intake-section" id="formularz" aria-labelledby="zapytaj-form-title">
-        <div className="zapytaj-intake-copy">
-          <span className="zapytaj-kicker">ZACZNIJ OD OPISU</span>
-          <h2 id="zapytaj-form-title">Napisz, co się dzieje</h2>
-          <p>
-            To nie jest test ani diagnoza. Chcę najpierw zobaczyć sytuację Twoimi oczami: co się dzieje, od kiedy,
-            w jakich momentach i co już było próbowane.
-          </p>
-          <ul>
-            <li><Check size={17} aria-hidden="true" /> pies albo kot — bez pytania o rasę</li>
-            <li><Check size={17} aria-hidden="true" /> opis własnymi słowami, bez wybierania etykiety</li>
-            <li><Check size={17} aria-hidden="true" /> telefon potrzebny do rozmowy i e-mail do potwierdzeń</li>
-          </ul>
-          <div className="zapytaj-safety-note">
-            <ShieldAlert size={20} strokeWidth={1.7} aria-hidden="true" />
-            <span>Jeśli jest ból, uraz, nagła zmiana stanu albo zagrożenie, najpierw wybierz lekarza weterynarii lub pomoc alarmową.</span>
-          </div>
+        <div className="zapytaj-booking-heading">
+          <span className="zapytaj-kicker">WYBIERZ TERMIN</span>
+          <h2 id="zapytaj-form-title">Wybierz dzień i godzinę rozmowy</h2>
         </div>
         <div className="zapytaj-form-card">
-          <div className="zapytaj-form-card-head">
-            <div>
-              <span className="zapytaj-form-card-kicker">FORMULARZ USŁUGI</span>
-              <h3>Opowiedz po swojemu</h3>
-            </div>
-            <strong>{formatPublicOfferPrice(PUBLIC_ZAPYTAJ_OFFER.pricePln)}</strong>
-          </div>
           <ZapytajIntakeForm />
         </div>
-      </section>
-
-      <section className="zapytaj-value-section zapytaj-outcomes-section" aria-labelledby="zapytaj-value-title">
-        <div className="zapytaj-section-heading">
-          <span className="zapytaj-kicker">CO WYNIESIESZ Z ROZMOWY</span>
-          <h2 id="zapytaj-value-title">Pierwszy klucz, nie obietnica całej terapii</h2>
-        </div>
-        <div className="zapytaj-value-grid">
-          <article>
-            <h3>Porządkujesz fakty</h3>
-            <p>Oddzielamy to, co rzeczywiście widzisz, od szybkich interpretacji i internetowych etykiet.</p>
-          </article>
-          <article>
-            <h3>Dostajesz pierwszy krok</h3>
-            <p>Wiesz, co warto sprawdzić lub zmienić najpierw, bez udawania gotowego planu terapii.</p>
-          </article>
-          <article>
-            <h3>Wiesz, co dalej</h3>
-            <p>Jeśli temat jest szerszy, mogę wskazać pełną konsultację albo inny właściwy kierunek.</p>
-          </article>
-        </div>
-
-        <section className="zapytaj-next-section zapytaj-next-inline" aria-labelledby="zapytaj-next-title">
-          <div className="zapytaj-section-heading">
-            <span className="zapytaj-kicker">DALSZE MOŻLIWOŚCI</span>
-            <h2 id="zapytaj-next-title">Nie każda sprawa potrzebuje tego samego procesu</h2>
-          </div>
-          <div className="zapytaj-next-grid">
-            <article>
-              <span className="zapytaj-next-label">PO INDYWIDUALNYM ZAPROSZENIU</span>
-              <h3>Pełna konsultacja</h3>
-              <p>Około 90 minut, szerszy kontekst i plan działania. Po rozmowie możesz otrzymać osobny link do dostępnych terminów i opłacić ten etap.</p>
-              <a href="/konsultacja">Zobacz opis pełnej konsultacji <ArrowRight size={16} aria-hidden="true" /></a>
-            </article>
-            <article>
-              <span className="zapytaj-next-label">PO PEŁNEJ KONSULTACJI</span>
-              <h3>Terapia behawioralna</h3>
-              <p>Indywidualna, dłuższa ścieżka pracy ustalana po pełnej konsultacji. Zakres i terminy dobieramy do sytuacji.</p>
-              <a href="/terapia">Zobacz możliwości terapii <ArrowRight size={16} aria-hidden="true" /></a>
-            </article>
-          </div>
-        </section>
+        <p className="zapytaj-safety-note">
+          <ShieldAlert size={18} strokeWidth={1.7} aria-hidden="true" />
+          <span>Jeśli jest ból, uraz, nagła zmiana stanu albo zagrożenie, najpierw wybierz lekarza weterynarii lub pomoc alarmową.</span>
+        </p>
       </section>
 
       <section className="zapytaj-faq-section" aria-labelledby="zapytaj-faq-title">

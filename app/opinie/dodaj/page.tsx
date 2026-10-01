@@ -1,11 +1,9 @@
 'use client'
 
-import Image from 'next/image'
 import Link from 'next/link'
 import { useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react'
-import { ArrowLeft, CheckCircle2, ImagePlus, Send, ShieldCheck } from 'lucide-react'
+import { ArrowLeft, CheckCircle2, Send } from 'lucide-react'
 import { NotatnikPageShell, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
-import { REGULSKI_WEB_BADGE_LOGO } from '@/lib/regulski-web-assets'
 import { TESTIMONIAL_ISSUE_OPTIONS } from '@/lib/testimonials'
 
 const MAX_PHOTO_SIZE_BYTES = 25 * 1024 * 1024
@@ -119,39 +117,15 @@ export default function AddOpinionPage() {
             Wróć do opinii
           </Link>
 
-          <div className="add-opinion-brand-card">
-            <span className="add-opinion-brand-logo">
-              <Image src={REGULSKI_WEB_BADGE_LOGO} alt="" width={58} height={58} priority />
-            </span>
-            <span>
-              <strong>Regulski Behawiorysta</strong>
-              <small>opinie po konsultacjach psów i kotów</small>
-            </span>
-          </div>
-
           <div className="add-opinion-intro-copy">
             <span className="add-opinion-eyebrow">Po konsultacji</span>
             <h1 id="add-opinion-heading">Dodaj opinię</h1>
             <p>
-              Formularz jest dla osób po konsultacji. Treść i zdjęcie trafiają do ręcznej weryfikacji, więc nic nie
-              pojawia się na stronie automatycznie.
+              Napisz własnymi słowami, co było dla Ciebie ważne. Każdą opinię czytam i weryfikuję ręcznie przed publikacją — nic nie pojawia się na stronie automatycznie.
             </p>
           </div>
 
-          <ul className="add-opinion-trust-list" aria-label="Zasady publikacji opinii">
-            <li>
-              <ShieldCheck size={18} strokeWidth={1.7} />
-              Publikuję tylko imię, inicjały albo opis anonimowy.
-            </li>
-            <li>
-              <ImagePlus size={18} strokeWidth={1.7} />
-              Zdjęcie możesz dodać jako plik, nie jako link.
-            </li>
-            <li>
-              <CheckCircle2 size={18} strokeWidth={1.7} />
-              Pełne dane kontaktowe zostają tylko do weryfikacji.
-            </li>
-          </ul>
+          <p className="add-opinion-trust-note">Dane kontaktowe służą do weryfikacji i nie są publikowane. Opinię udostępnię dopiero po Twojej zgodzie i ręcznym sprawdzeniu.</p>
         </aside>
 
         <form className="add-opinion-form" onSubmit={handleSubmit} data-opinion-form="submit" noValidate>

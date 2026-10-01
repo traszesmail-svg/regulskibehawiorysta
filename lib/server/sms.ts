@@ -493,6 +493,16 @@ export async function sendAdminUrgentReminderSms(
   return sendRawSms(`urgent-reminder-${requestId}`, adminPhone, message, 'urgent-admin-reminder')
 }
 
+export async function sendUrgentNoResponseSms(request: Pick<import('@/lib/urgent-now').UrgentNowRequestRecord, 'id' | 'name' | 'phone'>): Promise<PaymentConfirmationSmsResult> {
+  const firstName = request.name.trim().split(/\s+/)[0] || 'Dzień dobry'
+  return sendRawSms(
+    `urgent-no-response-${request.id}`,
+    request.phone,
+    `Cześć ${firstName}, nie udało się znaleźć pilnego terminu. Spróbuj ponownie jutro.`,
+    'urgent-no-response',
+  )
+}
+
 export async function sendCallConnectingSms(
   booking: Pick<BookingRecord, 'id' | 'phone' | 'customerPhoneNormalized' | 'ownerName'>,
 ): Promise<PaymentConfirmationSmsResult> {

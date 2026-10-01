@@ -13,6 +13,7 @@ type NotatnikMobileMenuProps = {
   navItems: readonly NotatnikMobileMenuItem[]
   ctaHref?: string
   ctaLabel?: string
+  showCta?: boolean
 }
 
 const MOBILE_MENU_AUTO_CLOSE_DELAY_MS = 8000
@@ -124,7 +125,7 @@ export function NotatnikMobileMenuAutoClose() {
   return null
 }
 
-export function NotatnikMobileMenu({ navItems, ctaHref = '/mapa-sprawy', ctaLabel = 'Mapa zachowania' }: NotatnikMobileMenuProps) {
+export function NotatnikMobileMenu({ navItems, ctaHref = '/mapa-sprawy', ctaLabel = 'Mapa zachowania', showCta = true }: NotatnikMobileMenuProps) {
   const detailsRef = useRef<HTMLDetailsElement>(null)
   const autoCloseTimerRef = useRef<number | null>(null)
 
@@ -220,9 +221,9 @@ export function NotatnikMobileMenu({ navItems, ctaHref = '/mapa-sprawy', ctaLabe
       </summary>
       <div className="notatnik-mobile-menu-panel">
         <nav aria-label="Menu mobilne">
-          <Link href={ctaHref} prefetch={false} className="notatnik-mobile-menu-cta" onClick={handleInternalLinkClick(ctaHref)}>
+          {showCta ? <Link href={ctaHref} prefetch={false} className="notatnik-mobile-menu-cta" onClick={handleInternalLinkClick(ctaHref)}>
             {ctaLabel}
-          </Link>
+          </Link> : null}
           {navItems.map((item) => (
             <Link key={item.href} href={item.href} prefetch={false} onClick={handleInternalLinkClick(item.href)}>
               {item.label}

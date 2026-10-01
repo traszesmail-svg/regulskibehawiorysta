@@ -21,6 +21,7 @@ import { getLocalStoreDataDir } from '@/lib/server/local-store-path'
 import { getDataModeStatus, getSupabaseServerConfig, resolveDataMode } from '@/lib/server/env'
 import { createClient } from '@supabase/supabase-js'
 import type { AvailabilitySlot, BookingRecord } from '@/lib/types'
+import { isZapytajNowActivationTime } from '@/lib/urgent-now-policy'
 
 const LIVE_STATE_ID = 'main'
 let liveQueue = Promise.resolve()
@@ -364,6 +365,10 @@ export async function enableZapytajLive(): Promise<ZapytajLiveStatusDto> {
   return withLiveLock(async () => {
     const state = await readState()
     const now = Date.now()
+    if (!isZapytajNowActivationTime(new Date(now))) {
+      throw new Error('ZAPYTAJ_NOW_OUTSIDE_ACTIVATION_HOURS')
+    }
+    // Startowanie jest dozwolone do 20:00 czasu Warsaw włącznie; istniejące okno trwa pełną godzinę, więc może skończyć się po 20:00.
     const requestedUntil = new Date(now + 60 * 60 * 1000).toISOString()
     state.enabledUntil =
       isFutureIso(state.enabledUntil, now) && Date.parse(state.enabledUntil!) > Date.parse(requestedUntil)

@@ -28,6 +28,12 @@ function slotsFromSeed(now: Date): AvailabilitySlot[] {
 }
 
 describe('service scheduling rules', () => {
+  it('opens ordinary Zapytaj dates from D+2 on a working day', () => {
+    const monday = new Date('2026-05-18T08:00:00.000Z')
+
+    assert.equal(getNormalBookingMinDateKey(monday), '2026-05-20')
+  })
+
   it('moves normal Kwadrans availability from Friday to Monday', () => {
     const friday = new Date('2026-05-15T08:00:00.000Z')
 

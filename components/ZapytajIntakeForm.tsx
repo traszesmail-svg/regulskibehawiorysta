@@ -1,34 +1,22 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useMemo, useState, type FormEvent, type KeyboardEvent } from 'react'
-import { Clock3, PhoneCall, RefreshCw } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
+import { RefreshCw } from 'lucide-react'
 import { trackAnalyticsEvent } from '@/lib/analytics'
+import { addAvailabilityMonths, buildZapytajMonthDates } from '@/lib/zapytaj-availability-window'
 
 type Species = 'pies' | 'kot' | ''
-type ConversationMode = 'scheduled' | 'live'
 type FormStatus = 'idle' | 'loading' | 'error'
 type NotificationChannel = 'sms' | 'email'
 type NotificationStatus = 'idle' | 'loading' | 'success' | 'error'
 
-type LiveStatus = {
-  status: 'unavailable' | 'offline' | 'available_now' | 'payment_pending' | 'in_call' | 'buffer'
-  label: string
-  message: string
-  livePricePln: number
-  liveSlotId: string | null
-  enabledUntil: string | null
-  storageAvailable: boolean
-}
-
 type ScheduleSlot = { id: string; date: string; time: string; label: string }
 type AvailabilityPayload = {
-  live: LiveStatus
+  live: unknown
   slots: ScheduleSlot[]
-  liveError: boolean
+  window: { from: string; to: string; month: string; hasEarlier: boolean; hasLater: boolean; hasAnySlots: boolean }
   slotsError: boolean
-  holdMinutes: number
-  manualConfirmationHours: number
 }
 
 type FormState = {
@@ -60,10 +48,6 @@ function isEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
 }
 
-function getLiveOptionLabel(live: LiveStatus) {
-  return live.status === 'in_call' ? 'Zarezerwuj następne okno' : 'Zapytaj teraz'
-}
-
 type ZapytajIntakeFormProps = {
   promotionMode?: boolean
   initialPromotionCode?: string
@@ -75,7 +59,6 @@ export function ZapytajIntakeForm({ promotionMode = false, initialPromotionCode 
   const [feedback, setFeedback] = useState('')
   const [availability, setAvailability] = useState<AvailabilityPayload | null>(null)
   const [availabilityError, setAvailabilityError] = useState('')
-  const [mode, setMode] = useState<ConversationMode>('scheduled')
   const [selectedSlotId, setSelectedSlotId] = useState('')
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [selectedDay, setSelectedDay] = useState('')
@@ -87,22 +70,29 @@ export function ZapytajIntakeForm({ promotionMode = false, initialPromotionCode 
   const [showNotifyForm, setShowNotifyForm] = useState(false)
   const [notifyContact, setNotifyContact] = useState('')
   const [promotionCode, setPromotionCode] = useState(initialPromotionCode)
+  const availabilityFrom = useRef('')
+  const [visibleMonth, setVisibleMonth] = useState(() => getWarsawDateKey().slice(0, 7))
 
-  async function refreshAvailability(showLoading = false) {
+  async function refreshAvailability(showLoading = false, requestedFrom = availabilityFrom.current) {
     if (showLoading) setIsRefreshing(true)
 
     try {
-      const response = await fetch('/api/zapytaj/availability', {
+      const query = requestedFrom ? `?from=${encodeURIComponent(requestedFrom)}` : ''
+      const response = await fetch(`/api/zapytaj/availability${query}`, {
         cache: 'no-store',
-        signal: AbortSignal.timeout(6_000),
+        // The API may perform a second, bounded availability read after loading this month.
+        // Keep the client deadline above the endpoint's two sequential 4s read limits.
+        signal: AbortSignal.timeout(12_000),
       })
       const payload = (await response.json()) as AvailabilityPayload
 
-      if (!response.ok || !payload.live || !Array.isArray(payload.slots)) {
+      if (!response.ok || !payload.live || !Array.isArray(payload.slots) || !payload.window) {
         throw new Error('Nie udało się pobrać dostępności.')
       }
 
       setAvailability(payload)
+      availabilityFrom.current = payload.window.from
+      setVisibleMonth(payload.window.month)
       setAvailabilityError(
         payload.slotsError
           ? 'Nie udało się potwierdzić zwykłych terminów. Spróbuj ponownie za chwilę.'
@@ -127,34 +117,24 @@ export function ZapytajIntakeForm({ promotionMode = false, initialPromotionCode 
     return () => window.clearInterval(interval)
   }, [])
 
-  const live = availability?.live ?? null
-  const liveAvailable = !promotionMode && Boolean(live?.liveSlotId && (live.status === 'available_now' || live.status === 'in_call'))
   const selectedSlot = useMemo(
     () => availability?.slots.find((slot) => slot.id === selectedSlotId) ?? null,
     [availability?.slots, selectedSlotId],
   )
   const availableDays = useMemo(() => {
-    const days = new Map<string, { date: string; label: string; count: number }>()
-
-    for (const slot of availability?.slots ?? []) {
-      const existing = days.get(slot.date)
-      if (existing) {
-        existing.count += 1
-        continue
-      }
-
-      days.set(slot.date, {
-        date: slot.date,
-        label: slot.label.split(/\s+\u00b7\s+/u)[0] ?? slot.date,
-        count: 1,
-      })
-    }
-
-    return [...days.values()]
-  }, [availability?.slots])
-  const activeDay = availableDays.some((day) => day.date === selectedDay)
+    const counts = new Map<string, number>()
+    for (const slot of availability?.slots ?? []) counts.set(slot.date, (counts.get(slot.date) ?? 0) + 1)
+    const today = getWarsawDateKey()
+    return buildZapytajMonthDates(availability?.window.month ?? '')
+      .map((date) => date ? { date, count: counts.get(date) ?? 0, isPast: date < today } : null)
+  }, [availability?.slots, availability?.window.month])
+  const selectableDays = useMemo(
+    () => availableDays.filter((day): day is { date: string; count: number; isPast: boolean } => day !== null && !day.isPast),
+    [availableDays],
+  )
+  const activeDay = selectableDays.some((day) => day.date === selectedDay)
     ? selectedDay
-    : availableDays[0]?.date ?? ''
+    : selectableDays.find((day) => day.count > 0)?.date ?? selectableDays[0]?.date ?? ''
   const visibleSlots = useMemo(
     () => (availability?.slots ?? []).filter((slot) => slot.date === activeDay),
     [activeDay, availability?.slots],
@@ -166,14 +146,17 @@ export function ZapytajIntakeForm({ promotionMode = false, initialPromotionCode 
     setForm((current) => ({ ...current, [field]: value }))
   }
 
-  function selectMode(nextMode: ConversationMode) {
-    if (promotionMode && nextMode === 'live') return
-
+  function moveCalendar(direction: -1 | 1) {
+    if (!availability) return
+    const nextMonth = addAvailabilityMonths(availability.window.month, direction)
+    const nextFrom = `${nextMonth}-01`
+    availabilityFrom.current = nextFrom
+    setVisibleMonth(nextMonth)
+    setSelectedDay('')
+    setSelectedSlotId('')
     setStatus('idle')
     setFeedback('')
-    setMode(nextMode)
-    if (nextMode === 'live' && live?.liveSlotId) setSelectedSlotId(live.liveSlotId)
-    if (nextMode === 'scheduled' && selectedSlotId === live?.liveSlotId) setSelectedSlotId(availability?.slots[0]?.id ?? '')
+    void refreshAvailability(true, nextFrom)
   }
 
   function selectDay(nextDay: string) {
@@ -184,18 +167,18 @@ export function ZapytajIntakeForm({ promotionMode = false, initialPromotionCode 
   }
 
   function handleDayKeyDown(event: KeyboardEvent<HTMLButtonElement>, currentDay: string) {
-    const currentIndex = availableDays.findIndex((day) => day.date === currentDay)
-    const lastIndex = availableDays.length - 1
+    const currentIndex = selectableDays.findIndex((day) => day.date === currentDay)
+    const lastIndex = selectableDays.length - 1
     let nextIndex: number
 
     switch (event.key) {
       case 'ArrowRight':
       case 'ArrowDown':
-        nextIndex = (currentIndex + 1) % availableDays.length
+        nextIndex = (currentIndex + 1) % selectableDays.length
         break
       case 'ArrowLeft':
       case 'ArrowUp':
-        nextIndex = (currentIndex - 1 + availableDays.length) % availableDays.length
+        nextIndex = (currentIndex - 1 + selectableDays.length) % selectableDays.length
         break
       case 'Home':
         nextIndex = 0
@@ -208,7 +191,7 @@ export function ZapytajIntakeForm({ promotionMode = false, initialPromotionCode 
     }
 
     event.preventDefault()
-    const nextDay = availableDays[nextIndex]
+    const nextDay = selectableDays[nextIndex]
     if (!nextDay) return
 
     selectDay(nextDay.date)
@@ -306,15 +289,9 @@ export function ZapytajIntakeForm({ promotionMode = false, initialPromotionCode 
       return
     }
 
-    if (mode === 'scheduled' && !selectedSlot) {
+    if (!selectedSlot) {
       setStatus('error')
       setFeedback('Wybierz termin rozmowy.')
-      return
-    }
-
-    if (mode === 'live' && !liveAvailable) {
-      setStatus('error')
-      setFeedback('Okno live właśnie zniknęło. Odśwież dostępność albo wybierz zwykły termin.')
       return
     }
 
@@ -330,7 +307,7 @@ export function ZapytajIntakeForm({ promotionMode = false, initialPromotionCode 
       source_page: '/zapytaj',
       species: form.species,
       problem_key: 'zapytaj-behawioryste',
-      intent: promotionMode ? 'zapytaj-promocja' : mode === 'live' ? 'zapytaj-live' : 'zapytaj-termin',
+      intent: promotionMode ? 'zapytaj-promocja' : 'zapytaj-termin',
     })
 
     try {
@@ -343,8 +320,8 @@ export function ZapytajIntakeForm({ promotionMode = false, initialPromotionCode 
           email: form.email,
           species: form.species,
           description: form.description,
-          mode,
-          slotId: mode === 'live' ? live?.liveSlotId : selectedSlotId,
+          mode: 'scheduled',
+          slotId: selectedSlotId,
           consentProcessing: form.consentProcessing,
           consentPolicy: form.consentPolicy,
           consentEarlyStart: form.consentEarlyStart,
@@ -374,7 +351,7 @@ export function ZapytajIntakeForm({ promotionMode = false, initialPromotionCode 
           <span className="zapytaj-form-step-badge">1</span>
           <div>
             <h2 id="step-1-title" className="zapytaj-form-step-title">Wybierz dzień i godzinę</h2>
-            <p className="zapytaj-form-step-desc">Krótka rozmowa telefoniczna do 15 minut. Termin wybierasz dopiero po zobaczeniu dostępnych godzin.</p>
+            <p className="zapytaj-form-step-desc">Możesz przeglądać kolejne miesiące i sprawdzić dostępne godziny.</p>
           </div>
         </div>
 
@@ -390,32 +367,19 @@ export function ZapytajIntakeForm({ promotionMode = false, initialPromotionCode 
             </button>
           </div>
           <p>{promotionMode ? 'Kod grupowy działa tylko przy rezerwacji zwykłego terminu.' : availabilityError || 'Pokazuję tylko godziny z wybranego dnia.'}</p>
-          {!promotionMode && liveAvailable ? (
-            <button type="button" className={`zapytaj-live-option${mode === 'live' ? ' is-selected' : ''}`} onClick={() => selectMode('live')}>
-              <PhoneCall size={18} aria-hidden="true" />
-              <span>
-                <strong>{getLiveOptionLabel(live!)} — {live!.livePricePln} zł</strong>
-                <small>{live?.status === 'in_call' ? 'Jedno następne okno, bez tworzenia kolejki bez końca.' : 'Po potwierdzeniu wpłaty połączenie uruchomi się automatycznie.'}</small>
-              </span>
-            </button>
-          ) : null}
         </div>
 
-        <div className="zapytaj-mode-grid" role="radiogroup" aria-label="Sposób rozmowy">
-          <button type="button" role="radio" aria-checked={mode === 'scheduled'} className={`zapytaj-mode-option${mode === 'scheduled' ? ' is-selected' : ''}`} onClick={() => selectMode('scheduled')}>
-            <Clock3 size={17} aria-hidden="true" />
-            <span><strong>Wybieram termin</strong><small>{promotionMode ? `${COMMUNITY_PROMO_PRICE_LABEL} · oferta z kodem` : '79 zł · zwykła rezerwacja'}</small></span>
+        <div className="zapytaj-calendar-navigation" aria-label="Nawigacja kalendarza">
+          <button type="button" onClick={() => moveCalendar(-1)} disabled={!availability || !availability.window.hasEarlier || isRefreshing}>
+            Poprzedni miesiąc
           </button>
-          {!promotionMode && liveAvailable ? (
-            <button type="button" role="radio" aria-checked={mode === 'live'} className={`zapytaj-mode-option${mode === 'live' ? ' is-selected' : ''}`} onClick={() => selectMode('live')}>
-              <PhoneCall size={17} aria-hidden="true" />
-              <span><strong>Zapytaj teraz</strong><small>104 zł · tylko przy realnej dostępności</small></span>
-            </button>
-          ) : null}
+          <strong aria-live="polite">{formatMonth(availability?.window.month ?? visibleMonth)}</strong>
+          <button type="button" onClick={() => moveCalendar(1)} disabled={!availability || !availability.window.hasLater || isRefreshing}>
+            Następny miesiąc
+          </button>
         </div>
 
-        {mode === 'scheduled' ? (
-          <fieldset className="zapytaj-slot-field">
+        <fieldset className="zapytaj-slot-field">
             <legend className="sr-only">Wybierz termin z listy</legend>
             {initialLoading ? (
               <p className="zapytaj-empty-slots" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -436,32 +400,70 @@ export function ZapytajIntakeForm({ promotionMode = false, initialPromotionCode 
                   Spróbuj ponownie
                 </button>
               </div>
-            ) : availability?.slots.length ? (
+            ) : availability ? (
               <>
-              <div className="zapytaj-day-grid" role="radiogroup" aria-label="Wybierz dzień rozmowy">
-                {availableDays.map((day) => (
-                  <button
-                    type="button"
-                    key={day.date}
-                    role="radio"
-                    aria-checked={day.date === activeDay}
-                    tabIndex={day.date === activeDay ? 0 : -1}
-                    className={`zapytaj-day-option${day.date === activeDay ? ' is-selected' : ''}`}
-                    onClick={() => selectDay(day.date)}
-                    onKeyDown={(event) => handleDayKeyDown(event, day.date)}
-                  >
-                    <span>{day.label}</span>
-                    <small>{day.count} godz.</small>
-                  </button>
-                ))}
-              </div>
-              <p className="zapytaj-time-heading">Wybierz godzinę</p>
-              <div className="zapytaj-slot-grid">
-                {visibleSlots.map((slot) => (
-                  <button type="button" key={slot.id} className={`zapytaj-slot-option${selectedSlotId === slot.id ? ' is-selected' : ''}`} onClick={() => setSelectedSlotId(slot.id)}>
-                    {slot.time}
-                  </button>
-                ))}
+              <div className="zapytaj-calendar-layout">
+                <div className="zapytaj-calendar-month-panel">
+                  <div className="zapytaj-calendar-weekdays" aria-hidden="true">
+                    {['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd'].map((label) => <span key={label}>{label}</span>)}
+                  </div>
+                  <div className="zapytaj-calendar-day-grid" role="radiogroup" aria-label="Wybierz dzień rozmowy">
+                    {availableDays.map((day, index) => day ? (
+                      <button
+                        type="button"
+                        key={day.date}
+                        role="radio"
+                        aria-checked={day.date === activeDay}
+                        aria-label={`${formatCalendarDay(day.date)}${day.isPast ? ', termin minął' : day.count ? `, ${day.count} dostępnych godzin` : ', brak dostępnych godzin'}`}
+                        tabIndex={day.date === activeDay ? 0 : -1}
+                        disabled={day.isPast}
+                        className={`zapytaj-calendar-day${day.date === activeDay ? ' is-selected' : ''}${day.count ? ' has-slots' : ''}${day.isPast ? ' is-past' : ''}`}
+                        onClick={() => selectDay(day.date)}
+                        onKeyDown={(event) => handleDayKeyDown(event, day.date)}
+                      >
+                        <span>{Number(day.date.slice(-2))}</span>
+                        <small>{day.count || '—'}</small>
+                      </button>
+                    ) : <span key={`blank-${index}`} className="zapytaj-calendar-day-blank" aria-hidden="true" />)}
+                  </div>
+                </div>
+                <div className="zapytaj-calendar-times-panel" aria-live="polite">
+                  <p className="zapytaj-time-heading">{activeDay ? `Godziny · ${formatCalendarDay(activeDay)}` : 'Dostępne godziny'}</p>
+                  {visibleSlots.length ? <div className="zapytaj-slot-grid">
+                    {visibleSlots.map((slot) => (
+                      <button type="button" key={slot.id} aria-label={`Wybierz ${slot.time}, ${formatCalendarDay(slot.date)}`} className={`zapytaj-slot-option${selectedSlotId === slot.id ? ' is-selected' : ''}`} onClick={() => setSelectedSlotId(slot.id)}>
+                        {slot.time}
+                      </button>
+                    ))}
+                  </div> : <div className="zapytaj-empty-slots-wrap">
+                    <p className="zapytaj-empty-slots">
+                      {availability.window.hasAnySlots && activeDay
+                        ? `W dniu ${formatCalendarDay(activeDay)} nie ma wolnych godzin. Wybierz inny dzień w kalendarzu.`
+                        : 'W tym miesiącu nie ma wolnych terminów. Wybierz inny miesiąc, aby sprawdzić dalsze daty.'}
+                    </p>
+                    {!availability.window.hasAnySlots && !availability.window.hasLater && !availability.window.hasEarlier && !showNotifyForm && notificationStatus !== 'success' && (
+                      <button type="button" className="homepage-avail-notify-trigger" onClick={() => setShowNotifyForm(true)}>
+                        Powiadom mnie o wolnym terminie
+                      </button>
+                    )}
+                    {!availability.window.hasAnySlots && !availability.window.hasLater && !availability.window.hasEarlier && showNotifyForm && notificationStatus !== 'success' && (
+                      <div className="homepage-avail-notify-form">
+                        <div className="homepage-avail-notify-inputs">
+                          <input type="text" value={notifyContact} onChange={(event) => { setNotifyContact(event.target.value); setNotificationStatus('idle'); setNotificationFeedback('') }} placeholder="Telefon lub e-mail" aria-label="Telefon lub e-mail do powiadomienia" className="homepage-avail-notify-input" required />
+                          <button type="button" className="homepage-avail-notify-submit" onClick={() => void handleNotify()} disabled={notificationStatus === 'loading'}>
+                            {notificationStatus === 'loading' ? 'Zapisuję…' : 'Zapisz'}
+                          </button>
+                        </div>
+                        <label className="homepage-avail-notify-consent">
+                          <input type="checkbox" checked={notificationConsent} onChange={(event) => { setNotificationConsent(event.target.checked); setNotificationStatus('idle'); setNotificationFeedback('') }} required />
+                          <span>Zgadzam się na jednorazowe powiadomienie o dostępności.</span>
+                        </label>
+                        {notificationFeedback && notificationStatus === 'error' && <p className="homepage-avail-notify-error" role="alert">{notificationFeedback}</p>}
+                      </div>
+                    )}
+                    {notificationStatus === 'success' && !availability.window.hasAnySlots && !availability.window.hasLater && !availability.window.hasEarlier && <p className="homepage-avail-notify-success" role="status">Gotowe. Dam Ci znać, gdy pojawi się wolny termin.</p>}
+                  </div>}
+                </div>
               </div>
               </>
             ) : (
@@ -526,11 +528,11 @@ export function ZapytajIntakeForm({ promotionMode = false, initialPromotionCode 
                 )}
               </div>
             )}
-          </fieldset>
-        ) : (
-          <div className="zapytaj-live-confirmation"><PhoneCall size={17} aria-hidden="true" /><span>Rezerwujesz najbliższe dostępne okno live. Termin zostanie zajęty dopiero na czas płatności.</span></div>
-        )}
+        </fieldset>
       </section>
+
+      {selectedSlot ? <>
+      <p className="zapytaj-selected-slot" role="status">Wybrany termin: <strong>{formatCalendarDay(selectedSlot.date)}, godz. {selectedSlot.time}</strong></p>
 
       {/* KROK 2: Twoje dane i zwierzę */}
       <section className="zapytaj-form-step" aria-labelledby="step-2-title">
@@ -624,10 +626,36 @@ export function ZapytajIntakeForm({ promotionMode = false, initialPromotionCode 
         {feedback ? <div className={`zapytaj-form-feedback${status === 'error' ? ' is-error' : ''}`} role="status">{feedback}</div> : null}
 
         <button type="submit" className="notatnik-btn zapytaj-form-submit" disabled={status === 'loading'}>
-          {status === 'loading' ? 'Przygotowuję rezerwację…' : promotionMode ? `Przejdź do płatności — ${COMMUNITY_PROMO_PRICE_LABEL}` : mode === 'live' ? 'Zapytaj teraz — 104 zł' : 'Wybierz termin — 79 zł'}
+          {status === 'loading' ? 'Przygotowuję rezerwację…' : promotionMode ? `Przejdź do płatności — ${COMMUNITY_PROMO_PRICE_LABEL}` : 'Wybierz termin — 79 zł'}
         </button>
         <p className="zapytaj-form-note">Po wysłaniu opisu przejdziesz do płatności BLIK. Termin jest wstępnie blokowany na 5 minut; po zgłoszeniu wpłaty czeka na ręczne potwierdzenie maksymalnie 24 godziny.</p>
       </section>
+      </> : <p className="zapytaj-before-selection">Po wybraniu godziny pojawi się formularz danych i płatności.</p>}
     </form>
   )
+}
+
+function formatMonth(month: string) {
+  return new Intl.DateTimeFormat('pl-PL', { month: 'long', year: 'numeric', timeZone: 'UTC' })
+    .format(new Date(`${month}-15T12:00:00Z`))
+}
+
+function formatCalendarDay(date: string) {
+  return new Intl.DateTimeFormat('pl-PL', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    timeZone: 'UTC',
+  }).format(new Date(`${date}T12:00:00Z`))
+}
+
+function getWarsawDateKey(now = new Date()) {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Warsaw',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(now)
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]))
+  return `${values.year}-${values.month}-${values.day}`
 }

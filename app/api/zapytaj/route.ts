@@ -7,6 +7,7 @@ import { normalizePolishPhone } from '@/lib/phone'
 import { createCommunityPromoBooking, PromoCodeValidationError } from '@/lib/server/promo-codes'
 import { getZapytajLiveStatus } from '@/lib/server/zapytaj-live'
 import { isZapytajLiveSlot, ZAPYTAJ_SERVICE_TYPE } from '@/lib/zapytaj-flow'
+import { isCurrentLiveCheckoutSlot } from '@/lib/urgent-now-policy'
 import type { AnimalType } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
@@ -33,12 +34,16 @@ export async function POST(request: Request) {
     return errorResponse('Nie udało się odczytać formularza.', 400)
   }
 
+  if (body.mode === 'live') {
+    return errorResponse('Zapytaj teraz wymaga zgłoszenia w formularzu pod kalendarzem. Operator potwierdzi godzinę i wyśle indywidualny link.', 409)
+  }
+
   const name = typeof body.name === 'string' ? body.name.trim() : ''
   const phone = typeof body.phone === 'string' ? body.phone.trim() : ''
   const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : ''
   const species = body.species === 'kot' || body.species === 'pies' ? body.species : null
   const description = typeof body.description === 'string' ? body.description.trim() : ''
-  const mode = body.mode === 'live' ? 'live' : body.mode === 'scheduled' ? 'scheduled' : null
+  const mode = body.mode === 'scheduled' ? 'scheduled' : null
   const slotId = typeof body.slotId === 'string' ? body.slotId.trim() : ''
   const promoCode = typeof body.promoCode === 'string' ? body.promoCode.trim() : ''
   const normalizedPhone = normalizePolishPhone(phone)
@@ -66,6 +71,9 @@ export async function POST(request: Request) {
   if (!mode || !slotId) {
     return errorResponse('Wybierz sposób i termin rozmowy.', 400)
   }
+  if (promoCode && isZapytajLiveSlot(slotId)) {
+    return errorResponse('Promocja nie łączy się z rozmową uruchomioną w oknie Zapytaj teraz.', 400)
+  }
 
   if (!isTruthy(body.consentProcessing) || !isTruthy(body.consentPolicy) || !isTruthy(body.consentEarlyStart)) {
     return errorResponse('Zaznacz wszystkie zgody potrzebne do rezerwacji i rozpoczęcia usługi.', 400)
@@ -76,27 +84,15 @@ export async function POST(request: Request) {
     return errorResponse('Rezerwacja chwilowo jest niedostępna. Spróbuj ponownie za moment.', 503)
   }
 
-  const liveMode = mode === 'live'
-
-  if (promoCode && liveMode) {
-    return errorResponse('Kod grupowy działa tylko przy zwykłym terminie rozmowy.', 400)
+  const liveMode = isZapytajLiveSlot(slotId)
+  if (liveMode) {
+    const currentLive = await getZapytajLiveStatus()
+    if (!isCurrentLiveCheckoutSlot(currentLive.status, currentLive.liveSlotId, slotId)) {
+      return errorResponse('To okno zmieniło dostępność. Wróć do kalendarza i wybierz aktualny termin.', 409)
+    }
   }
 
   try {
-    if (liveMode) {
-      const live = await getZapytajLiveStatus()
-      if (
-        !isZapytajLiveSlot(slotId) ||
-        !live.liveSlotId ||
-        live.liveSlotId !== slotId ||
-        (live.status !== 'available_now' && live.status !== 'in_call')
-      ) {
-        return errorResponse('To okno live nie jest już dostępne. Odśwież status i wybierz inne.', 409)
-      }
-    } else if (isZapytajLiveSlot(slotId)) {
-      return errorResponse('Wybierz zwykły termin rozmowy.', 400)
-    }
-
     const result = promoCode
       ? await createCommunityPromoBooking({
           code: promoCode,

@@ -1875,6 +1875,32 @@ export async function sendUrgentNowResponseEmail(payload: UrgentNowResponseEmail
   )
 }
 
+export async function sendUrgentNowAvailabilityNoticeEmail(payload: Omit<UrgentNowResponseEmailPayload, 'bookingHref'>): Promise<DeliveryResult> {
+  const subject = `Informacja o dostępności - ${EMAIL_BRAND_NAME}`
+  const html = renderEmailShell(
+    'Pojawiła się dostępność na krótką rozmowę',
+    'Poniższa godzina jest informacją o dostępności i nie stanowi rezerwacji. Jeśli chcesz z niej skorzystać, odpowiedz na tę wiadomość, aby ustalić dalszy krok.',
+    `
+      ${renderEmailDataTable([
+        { label: 'Temat', htmlValue: escapeHtml(payload.topic) },
+        { label: 'Dostępna godzina', htmlValue: `${escapeHtml(payload.proposedDate)} o ${escapeHtml(payload.proposedTime)}` },
+      ], 'urgent-availability')}
+      ${payload.responseNote ? renderEmailTextPanel('Dodatkowa wiadomość', formatMultilineHtml(payload.responseNote)) : ''}
+      ${renderContactBlockHtml()}
+    `,
+    'Ta wiadomość nie blokuje terminu. Rezerwacja wymaga osobnego potwierdzenia.',
+  )
+  const text = [
+    'Pojawiła się dostępność na krótką rozmowę.',
+    `Temat: ${payload.topic}`,
+    `Dostępna godzina: ${payload.proposedDate} ${payload.proposedTime}`,
+    'To powiadomienie nie stanowi rezerwacji i nie blokuje terminu.',
+    payload.responseNote ? `Dodatkowa wiadomość: ${payload.responseNote}` : null,
+    renderContactBlockText(),
+  ].filter((line): line is string => Boolean(line)).join('\n')
+  return deliverEmail({ to: payload.customerEmail, subject, html, text }, 'customer')
+}
+
 export async function sendBookingConfirmationEmail(booking: BookingRecord): Promise<DeliveryResult> {
   const subject = `Potwierdzenie konsultacji - ${EMAIL_BRAND_NAME}`
   const serviceType = resolveBookingServiceType(booking.serviceType, booking.amount)
@@ -2728,6 +2754,7 @@ type UrgentNowSubmission = {
   requestedDate?: string | null
   requestedTime?: string | null
   requestedSlotsSummary?: string | null
+  contactPreference?: 'payment_link' | 'notify_only'
 }
 
 export async function sendUrgentNowCustomerAckEmail(submission: UrgentNowSubmission): Promise<DeliveryResult> {
@@ -2738,9 +2765,12 @@ export async function sendUrgentNowCustomerAckEmail(submission: UrgentNowSubmiss
   }
 
   const subject = 'Zapytaj teraz - dostałem Twoją prośbę'
+  const customerCopy = submission.contactPreference === 'notify_only'
+    ? 'Przekażę Ci informację, jeśli operator potwierdzi dostępność. Wybrana godzina nie będzie rezerwowana, a link do płatności nie zostanie wysłany.'
+    : 'Po ustaleniu rzeczywistej godziny operator prześle Ci indywidualny link do płatności. Zgłoszenie samo nie rezerwuje terminu.'
   const html = renderEmailShell(
     `Cześć ${submission.name.split(' ')[0]}, dostałem Twoją prośbę o Zapytaj teraz.`,
-    'Odpiszę priorytetowo na ten adres e-mail z konkretną godziną albo najbliższym realnym terminem i linkiem do płatności.',
+    customerCopy,
     `
       ${renderEmailDataTable(
         compactEmailRows([
@@ -2760,12 +2790,12 @@ export async function sendUrgentNowCustomerAckEmail(submission: UrgentNowSubmiss
       <p>Jeśli coś się zmieni albo zechcesz doprecyzować temat, po prostu odpowiedz na tego maila.</p>
       ${renderContactBlockHtml()}
     `,
-    'Poczekaj chwilę — wrócę z godziną i dalszym krokiem płatności.',
+    customerCopy,
   )
   const text = [
     `Cześć ${submission.name.split(' ')[0]},`,
     '',
-    'Dostałem Twoją prośbę o Zapytaj teraz. Odpiszę priorytetowo z konkretną godziną albo najbliższym realnym terminem i linkiem do płatności.',
+    customerCopy,
     '',
     `Temat: ${submission.topic}`,
     submission.requestedSlotsSummary ? `Wybrane godziny: ${submission.requestedSlotsSummary}` : null,
@@ -2791,6 +2821,19 @@ export async function sendUrgentNowAdminAlertEmail(submission: UrgentNowSubmissi
 
   const replyTo = isValidPublicEmail(submission.email) ? submission.email : undefined
   const adminConfirmHref = buildAbsoluteUrl(`/admin/urgent-confirm/${submission.requestId}`)
+  if (submission.topic === 'Pilny termin — Zapytaj teraz' || submission.topic === 'Zapytanie o rozmowę dziś') {
+    const subject = `PILNY TERMIN — ZAPYTAJ TERAZ: ${submission.name} [ID: ${submission.requestId.slice(0, 8)}]`
+    const text = [
+      `Nowa prośba o najszybszy termin: ${submission.name}`,
+      `Telefon: ${submission.phone ?? 'Nie podano'}`,
+      `Najwcześniejsza dyspozycyjność: ${submission.requestedDate ?? 'nie podano'} od ${submission.requestedTime ?? 'nie podano'}`,
+      `Opis: ${submission.message}`,
+      'To nie jest rezerwacja. Odpowiedz klientowi SMS-em z konkretną propozycją do 15 minut. Po jego potwierdzeniu prześlij link do płatności i po opłaceniu wpisz termin do kalendarza. Jeśli nie odpowiesz, po 15 minutach system wyśle klientowi SMS o braku terminu i prośbie o ponowny kontakt jutro.',
+      `Szczegóły zgłoszenia: ${adminConfirmHref}`,
+    ].join('\n\n')
+    const html = `<h2>Nowa prośba o najszybszy termin</h2><p><strong>${escapeHtml(submission.name)}</strong></p><p>Telefon: ${escapeHtml(submission.phone ?? 'Nie podano')}</p><p>Najwcześniejsza dyspozycyjność: ${escapeHtml(submission.requestedDate ?? 'nie podano')} od ${escapeHtml(submission.requestedTime ?? 'nie podano')}</p><p>${formatMultilineHtml(submission.message)}</p><p>To nie jest rezerwacja. Odpowiedz klientowi SMS-em z konkretną propozycją do 15 minut. Po jego potwierdzeniu prześlij link do płatności i po opłaceniu wpisz termin do kalendarza. Jeśli nie odpowiesz, po 15 minutach system wyśle klientowi SMS o braku terminu i prośbie o ponowny kontakt jutro.</p><p><a href="${escapeHtml(adminConfirmHref)}">Otwórz zgłoszenie</a></p>`
+    return deliverEmail({ to: recipient, subject, html, text }, 'internal')
+  }
   const subject = `ZAPYTAJ TERAZ: ${submission.name} - ${submission.topic} [ID: ${submission.requestId.slice(0, 8)}]`
   const html = renderEmailShell(
     'Nowe zgłoszenie Zapytaj teraz',

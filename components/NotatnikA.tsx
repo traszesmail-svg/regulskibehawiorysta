@@ -6,6 +6,7 @@ import { NotatnikMobileMenu } from '@/components/NotatnikMobileMenu'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { INSTAGRAM_PROFILE_URL } from '@/lib/site'
 import { REGULSKI_WEB_BADGE_LOGO } from '@/lib/regulski-web-assets'
+import { ZapytajHeaderStatus } from '@/components/ZapytajHeaderStatus'
 
 export type NotatnikNavItem = {
   href: string
@@ -35,7 +36,10 @@ type NotatnikTopbarProps = {
   ctaHref?: string
   ctaLabel?: string
   ctaVariant?: 'solid' | 'ghost' | 'accent'
+  showTopbarCta?: boolean
   showUtilityLinks?: boolean
+  showZapytajStatus?: boolean
+  showZapytajHeaderCta?: boolean
   profile?: NotatnikTopbarProfile
 }
 
@@ -76,6 +80,9 @@ type NotatnikPageShellProps = {
   shellClassName?: string
   footerVariant?: 'landing' | 'lean' | 'full' | 'home' | 'legal'
   showFooterReviews?: boolean
+  showTopbarCta?: boolean
+  showZapytajStatus?: boolean
+  showZapytajHeaderCta?: boolean
   analyticsDisabled?: boolean
   topbarProfile?: NotatnikTopbarProfile
   children: React.ReactNode
@@ -125,7 +132,10 @@ export function NotatnikTopbar({
   navItems = PUBLIC_SITE_NAV_ITEMS,
   ctaHref,
   ctaLabel,
+  showTopbarCta = true,
   showUtilityLinks = true,
+  showZapytajStatus = true,
+  showZapytajHeaderCta = false,
   profile = 'site',
 }: NotatnikTopbarProps) {
   const hasNavItems = navItems.length > 0
@@ -147,6 +157,10 @@ export function NotatnikTopbar({
         </nav>
       ) : null}
 
+      {showZapytajHeaderCta ? (
+        <Link className="notatnik-urgent-status" href="/zapytaj-teraz" prefetch={false}>Zapytaj teraz: sprawdź najszybszy możliwy termin</Link>
+      ) : showZapytajStatus ? <ZapytajHeaderStatus /> : null}
+
       <div className="notatnik-topbar-actions">
         <Link
           href="/login"
@@ -161,10 +175,12 @@ export function NotatnikTopbar({
         >
           <span>Strefa opiekuna</span>
         </Link>
-        <Link href={resolvedCtaHref} prefetch={false} className="notatnik-topbar-quick-help">
-          <Zap size={16} strokeWidth={2.1} aria-hidden="true" />
-          <span>{resolvedCtaLabel}</span>
-        </Link>
+        {showTopbarCta ? (
+          <Link href={resolvedCtaHref} prefetch={false} className="notatnik-topbar-quick-help">
+            <Zap size={16} strokeWidth={2.1} aria-hidden="true" />
+            <span>{resolvedCtaLabel}</span>
+          </Link>
+        ) : null}
         {resolvedShowUtilityLinks ? <ThemeToggle /> : null}
         {resolvedShowUtilityLinks ? (
           <a
@@ -179,7 +195,7 @@ export function NotatnikTopbar({
         ) : null}
       </div>
 
-      {hasNavItems ? <NotatnikMobileMenu navItems={navItems} ctaHref={resolvedCtaHref} ctaLabel={resolvedCtaLabel} /> : null}
+      {hasNavItems ? <NotatnikMobileMenu navItems={navItems} ctaHref={resolvedCtaHref} ctaLabel={resolvedCtaLabel} showCta={showTopbarCta} /> : null}
     </header>
   )
 }
@@ -341,6 +357,9 @@ export function NotatnikPageShell({
   shellClassName,
   footerVariant = 'home',
   showFooterReviews = false,
+  showTopbarCta = true,
+  showZapytajStatus = true,
+  showZapytajHeaderCta = false,
   analyticsDisabled = false,
   topbarProfile = 'site',
   children,
@@ -352,7 +371,7 @@ export function NotatnikPageShell({
     >
       {showSideVisuals ? <NotatnikSideVisuals variant={sideVisualVariant} /> : null}
       <div className={shellClassName ? `notatnik-shell ${shellClassName}` : 'notatnik-shell'}>
-        <NotatnikTopbar tag={tag} navItems={navItems} ctaHref={ctaHref} ctaLabel={ctaLabel} profile={topbarProfile} />
+        <NotatnikTopbar tag={tag} navItems={navItems} ctaHref={ctaHref} ctaLabel={ctaLabel} showTopbarCta={showTopbarCta} showZapytajStatus={showZapytajStatus} showZapytajHeaderCta={showZapytajHeaderCta} profile={topbarProfile} />
         {children}
         <NotatnikFooter
           primaryHref={footerPrimaryHref}

@@ -13,7 +13,8 @@ export type UrgentNowRequestRecord = {
   name: string
   email: string
   phone?: string | null
-  species: FunnelSpecies
+  contactPreference?: 'payment_link' | 'notify_only'
+  species: FunnelSpecies | null
   topicId: ProblemType
   topicLabel: string
   message: string
@@ -25,6 +26,8 @@ export type UrgentNowRequestRecord = {
   responseNote?: string | null
   availabilitySlotId?: string | null
   bookingHref?: string | null
+  noResponseSmsStatus?: 'processing' | 'sent' | 'failed' | 'skipped' | null
+  noResponseSmsSentAt?: string | null
 }
 
 export function isUrgentNowIntent(value: string | null | undefined) {

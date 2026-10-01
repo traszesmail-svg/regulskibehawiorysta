@@ -22792,3 +22792,63 @@ html[data-theme='dark'] .opinions-showcase-wave {
   .clinic-program-steps,
   .payment-ref-channel-grid { grid-template-columns: 1fr; }
 }
+
+/* Editorial opinions pages: warm, restrained, and photo-led. */
+.opinions-showcase-page .opinions-editorial-hero { display:grid; grid-template-columns:minmax(0,.94fr) minmax(0,1.06fr); gap:clamp(28px,5vw,64px); align-items:center; margin:28px 10px 48px; padding:clamp(26px,4vw,48px); overflow:hidden; border-radius:24px; background:radial-gradient(ellipse at 12% 16%,rgba(224,210,181,.26),transparent 44%),#fbf8f1; }
+.opinions-editorial-copy { display:grid; gap:18px; }
+.opinions-editorial-eyebrow { color:#777957; font:700 11px/1.4 var(--font-mono),monospace; letter-spacing:.14em; text-transform:uppercase; }
+.opinions-editorial-copy h1 { max-width:15ch; margin:0; color:#20281e; font:500 clamp(37px,4.4vw,58px)/1.04 var(--font-display),Georgia,serif; letter-spacing:-.025em; text-wrap:balance; }
+.opinions-editorial-copy>p { max-width:52ch; margin:0; color:#56584d; font-size:16px; line-height:1.72; }
+.opinions-editorial-proof { width:fit-content; max-width:100%; padding:10px 0 0 14px; border-left:1px solid rgba(111,117,78,.42); color:#62654a; font-size:12px; line-height:1.5; }
+.opinions-editorial-photo { position:relative; width:calc(100% - 10px); aspect-ratio:.92/1; max-height:590px; margin:0 10px 0 0; overflow:hidden; border:1px solid rgba(116,104,78,.16); border-radius:20px; background:#eee7da; box-shadow:0 20px 44px rgba(57,47,31,.12); }
+.opinions-editorial-photo img { object-fit:cover; object-position:50% 52%; }
+.opinions-showcase-page .opinions-review-section { gap:25px; margin:0 14px; }
+.opinions-showcase-page .opinions-filter-bar { width:fit-content; max-width:100%; gap:8px; padding:0; border:0; border-radius:0; background:transparent; box-shadow:none; }
+.opinions-showcase-page .opinions-filter-bar button { min-height:38px; padding-inline:16px; border:1px solid rgba(111,117,78,.18); background:rgba(255,253,248,.68); color:#34392e; box-shadow:none; }
+.opinions-showcase-page .opinions-filter-bar button.is-active { border-color:#596148; background:#596148; color:#fffdf8; }
+.opinions-showcase-page .opinions-review-grid { grid-template-columns:repeat(2,minmax(0,1fr)); column-gap:clamp(28px,5vw,64px); row-gap:0; }
+.opinions-showcase-page .opinions-review-card { min-height:0; gap:17px; padding:27px 4px 26px; border:0; border-top:1px solid rgba(98,91,68,.19); border-radius:0; background:transparent; box-shadow:none; }
+.opinions-showcase-page .opinions-review-card p { color:#292d25; font-size:16px; font-weight:450; line-height:1.78; }
+.opinions-showcase-page .opinions-review-card footer { gap:12px; }
+.opinions-showcase-page .opinions-review-avatar { width:42px; height:42px; border:1px solid rgba(109,101,76,.18); box-shadow:none; }
+.opinions-showcase-page .opinions-review-card strong { color:#33392d; font-size:13px; font-weight:750; }
+.opinions-showcase-page .opinions-review-card small { color:#777764; font-size:11px; font-weight:550; }
+.opinions-showcase-page .opinions-review-expand { border-color:rgba(111,117,78,.26); background:#f3f0e7; color:#3e4936; box-shadow:none; }
+.opinions-showcase-page .opinions-story-band { grid-template-columns:minmax(0,1fr) minmax(240px,.55fr); min-height:0; margin:54px 10px 10px; border:1px solid rgba(118,107,80,.14); border-radius:22px; background:radial-gradient(ellipse at 12% 10%,rgba(228,216,190,.36),transparent 46%),#f6f2e9; color:#272e24; box-shadow:none; }
+.opinions-showcase-page .opinions-story-copy { grid-template-columns:minmax(0,1fr); align-content:center; gap:12px; padding:clamp(25px,4vw,44px); }
+.opinions-showcase-page .opinions-story-copy h2 { max-width:16ch; color:#252c22; font-size:clamp(30px,3.5vw,42px); }
+.opinions-showcase-page .opinions-story-copy p { margin:0; color:#5c5d51; }
+.opinions-showcase-page .opinions-story-button { min-height:46px; margin-top:7px; border:1px solid #596148; background:#596148; color:#fffdf8; box-shadow:none; }
+.opinions-showcase-page .opinions-story-photo { position:relative; inset:auto; width:auto; min-height:250px; margin:14px; overflow:hidden; border-radius:16px; opacity:1; mask-image:none; -webkit-mask-image:none; }
+.opinions-showcase-page .opinions-story-photo img { object-position:center; }
+.opinions-showcase-page .opinions-story-band { grid-template-columns:minmax(0,1fr); min-height:340px; }
+.opinions-showcase-page .opinions-story-copy { width:min(46%,560px); min-height:340px; padding:clamp(28px,4vw,46px); }
+.opinions-showcase-page .opinions-story-photo { position:absolute; inset:0; z-index:1; min-height:0; margin:0; border-radius:inherit; }
+.opinions-showcase-page .opinions-story-photo::after { position:absolute; inset:0; content:""; background:linear-gradient(90deg,#f6f2e9 0%,rgba(246,242,233,.96) 30%,rgba(246,242,233,.66) 47%,rgba(246,242,233,.08) 72%,transparent 100%); }
+.opinions-showcase-page .opinions-story-photo img { object-position:58% 50%; }
+.add-opinion-page .add-opinion-layout { grid-template-columns:minmax(0,.78fr) minmax(0,1.22fr); gap:clamp(24px,4vw,54px); align-items:stretch; margin-top:30px; }
+.add-opinion-page .add-opinion-intro { position:relative; top:auto; align-content:start; gap:20px; padding:0; border:0; background:transparent; box-shadow:none; }
+.add-opinion-page .add-opinion-intro-copy { gap:14px; }
+.add-opinion-page .add-opinion-intro-copy h1 { font-size:clamp(40px,5vw,58px); line-height:1.02; }
+.add-opinion-page .add-opinion-intro-copy p { color:#5b5d52; font-size:15px; }
+.add-opinion-page .add-opinion-trust-note { margin:0; color:#626254; font-size:13px; line-height:1.65; }
+.add-opinion-page .add-opinion-form { gap:17px; border-color:rgba(116,104,78,.15); border-radius:18px; background:rgba(255,253,248,.78); box-shadow:0 14px 34px rgba(57,47,31,.055); }
+.add-opinion-page .add-opinion-field input,.add-opinion-page .add-opinion-field select,.add-opinion-page .add-opinion-field textarea { border-color:rgba(104,102,78,.2); border-radius:9px; background:rgba(255,255,255,.72); }
+.add-opinion-page .add-opinion-submit { border-color:#596148; border-radius:999px; background:#596148; box-shadow:none; }
+@media (max-width:760px) {
+  .opinions-showcase-page .opinions-editorial-hero { grid-template-columns:minmax(0,1fr); gap:24px; margin:14px 0 35px; padding:23px 20px 20px; border-radius:20px; }
+  .opinions-editorial-copy { gap:14px; }
+  .opinions-editorial-copy h1 { max-width:18ch; font-size:clamp(36px,9vw,46px); }
+  .opinions-editorial-copy>p { font-size:15px; }
+  .opinions-editorial-photo { width:100%; max-height:470px; aspect-ratio:1/1.08; margin:0; border-radius:16px; }
+  .opinions-showcase-page .opinions-review-section { margin:0; }
+  .opinions-showcase-page .opinions-review-grid { grid-template-columns:minmax(0,1fr); }
+  .opinions-showcase-page .opinions-story-band { grid-template-columns:minmax(0,1fr); min-height:0; margin:38px 0 4px; }
+  .opinions-showcase-page .opinions-story-copy { width:100%; min-height:0; padding:26px 22px 20px; }
+  .opinions-showcase-page .opinions-story-photo { position:relative; inset:auto; min-height:190px; margin:0 12px 12px; border-radius:14px; }
+  .opinions-showcase-page .opinions-story-photo::after { content:none; }
+  .opinions-showcase-page .opinions-story-photo img { object-position:62% 50%; }
+  .add-opinion-page .add-opinion-layout { grid-template-columns:minmax(0,1fr); gap:22px; margin:20px auto 32px; }
+  .add-opinion-page .add-opinion-intro,.add-opinion-page .add-opinion-form { padding:22px; border-radius:16px; }
+  .add-opinion-page .add-opinion-intro { padding:0; }
+}

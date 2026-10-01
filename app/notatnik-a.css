@@ -37589,8 +37589,8 @@ main.payment-ref-page > .payment-ref-shell {
 }
 
 main.materialy-showcase-page > .materialy-showcase-shell {
-  width: min(1400px, calc(100vw - 20px)) !important;
-  max-width: 1400px !important;
+  width: min(1120px, calc(100vw - 28px)) !important;
+  max-width: 1120px !important;
 }
 
 .materialy-showcase-page .materialy-showcase-shell {
@@ -41077,6 +41077,1450 @@ main.blog-magazine-page .blog-contact-photo img {
     max-width: none;
     justify-self: stretch;
     margin-top: 8px;
+  }
+}
+
+@media (min-width: 1041px) {
+  main.materialy-showcase-page .materialy-visual-hero {
+    grid-template-columns: minmax(260px, 0.9fr) minmax(300px, 1.15fr) minmax(210px, 0.75fr);
+    gap: clamp(14px, 1.5vw, 20px);
+    padding-inline: clamp(26px, 3vw, 34px);
+  }
+
+  main.materialy-showcase-page .materialy-visual-hero h1 {
+    font-size: clamp(42px, 3.5vw, 50px);
+  }
+}
+
+main.blog-magazine-page .blog-magazine-hero {
+  border-radius: 0 0 34px 34px;
+}
+
+@media (max-width: 760px) {
+  main.blog-magazine-page .blog-magazine-hero {
+    border-radius: 0 0 24px 24px;
+  }
+}
+
+/* Keep the two service canvases visually identical to the Materials canvas. */
+main.notatnik-page.canonical-service-page > .notatnik-shell.canonical-service-shell {
+  background: rgba(255, 253, 247, 0.98) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 22px 60px rgba(31, 26, 23, 0.1) !important;
+}
+
+main.notatnik-page.canonical-service-page {
+  background: #f8f4ed !important;
+}
+
+/* /o-mnie: warm editorial rhythm aligned with the homepage, not a stack of raw cards. */
+main.notatnik-page.reference-about-redesign-page .reference-about-redesign-flow {
+  gap: clamp(22px, 3vw, 34px) !important;
+  padding: 0 clamp(18px, 3vw, 34px) 34px !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-section-card {
+  border: 1px solid rgba(122, 99, 62, 0.15) !important;
+  border-radius: 5px 24px 5px 24px !important;
+  background:
+    linear-gradient(115deg, rgba(255, 253, 248, 0.98), rgba(249, 245, 236, 0.94)) !important;
+  box-shadow: 0 14px 34px rgba(58, 47, 30, 0.055) !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-story-card,
+main.notatnik-page.reference-about-redesign-page .reference-about-credentials-card,
+main.notatnik-page.reference-about-redesign-page .reference-about-faq-card {
+  grid-template-columns: 56px minmax(0, 1fr) !important;
+  gap: clamp(18px, 2.5vw, 30px) !important;
+  padding: clamp(26px, 4vw, 42px) !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card {
+  grid-template-columns: 56px minmax(0, 1fr) minmax(240px, 0.72fr) !important;
+  gap: clamp(18px, 2.5vw, 30px) !important;
+  padding: clamp(26px, 4vw, 42px) !important;
+  background:
+    linear-gradient(115deg, rgba(249, 245, 236, 0.97), rgba(255, 253, 248, 0.98)) !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-card-icon {
+  width: 52px !important;
+  height: 52px !important;
+  border: 1px solid rgba(157, 119, 61, 0.26) !important;
+  border-radius: 14px !important;
+  background: #f2ead9 !important;
+  color: #8b6230 !important;
+  box-shadow: none !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-section-card h2 {
+  margin-bottom: 16px !important;
+  color: #243326 !important;
+  font-size: clamp(27px, 3vw, 36px) !important;
+  line-height: 1.08 !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-section-card p {
+  color: #4d5148 !important;
+  font-size: 15px !important;
+  line-height: 1.76 !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-bullet-list {
+  display: grid;
+  gap: 12px;
+  margin: 18px 0;
+  padding-left: 22px;
+  color: #42483f;
+  line-height: 1.65;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-methodology-points {
+  gap: 14px !important;
+  padding: 22px !important;
+  border-color: rgba(157, 119, 61, 0.18) !important;
+  border-radius: 4px 18px 4px 18px !important;
+  background: rgba(246, 240, 226, 0.74) !important;
+  box-shadow: inset 3px 0 #c9a66e;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-methodology-point {
+  color: #344035 !important;
+  font-weight: 750 !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-methodology-point svg,
+main.notatnik-page.reference-about-redesign-page .reference-about-credential-icon {
+  color: #9b7040 !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-credential-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: clamp(16px, 2vw, 24px) !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-credential {
+  padding: 18px 16px !important;
+  border-top: 2px solid #c9a66e !important;
+  background: rgba(246, 240, 226, 0.55) !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-credential h3 {
+  color: #26372b !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-publication-card {
+  padding: clamp(24px, 3.5vw, 38px) !important;
+  background: linear-gradient(125deg, #f5efe2 0%, #fffdf8 58%, #f8f3e9 100%) !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-publication-copy > span {
+  color: #9b7040 !important;
+  letter-spacing: 0.08em !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-publication-list article {
+  padding: 15px 0 !important;
+  border-top: 1px solid rgba(122, 99, 62, 0.19) !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-publication-copy a,
+main.notatnik-page.reference-about-redesign-page .reference-about-sources a {
+  color: #795529 !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-leaf-publication {
+  width: 145px !important;
+  height: 175px !important;
+  opacity: 0.22 !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-faq-card .reference-compact-faq details {
+  border: 1px solid rgba(122, 99, 62, 0.16) !important;
+  border-radius: 4px 14px 4px 14px !important;
+  background: rgba(255, 253, 248, 0.82) !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-faq-card .reference-compact-faq summary span {
+  color: #9b7040 !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-first-contact {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.72fr);
+  column-gap: clamp(30px, 6vw, 72px);
+  row-gap: 12px;
+  align-items: center;
+  margin: 0 0 18px;
+  padding: clamp(42px, 6vw, 72px) clamp(26px, 5vw, 64px);
+  overflow: hidden;
+  border: 1px solid rgba(122, 99, 62, 0.18);
+  border-radius: 5px 26px 5px 26px;
+  background: linear-gradient(135deg, #fffdf8 0%, #f3ecdf 100%);
+  box-shadow: 0 16px 38px rgba(58, 47, 30, 0.065);
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-first-contact::before {
+  grid-column: 1;
+  color: #9b7040;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  line-height: 1.4;
+  content: 'PIERWSZY KROK';
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-first-contact > strong,
+main.notatnik-page.reference-about-redesign-page .reference-about-first-contact > p,
+main.notatnik-page.reference-about-redesign-page .reference-about-first-contact .consultation-contact-facts {
+  grid-column: 1;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-first-contact > strong {
+  max-width: 20ch;
+  color: #26372b;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(30px, 3.4vw, 46px);
+  font-weight: 400;
+  line-height: 1.03;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-first-contact > p {
+  max-width: 54ch;
+  margin: 0;
+  color: rgba(40, 40, 31, 0.76);
+  font-size: 15px;
+  line-height: 1.62;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-first-contact .consultation-contact-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  margin-top: 8px;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-first-contact .consultation-contact-facts span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: rgba(40, 40, 31, 0.76);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-first-contact .consultation-contact-facts svg {
+  color: #9b7040;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-first-contact .notatnik-btn {
+  grid-column: 1;
+  justify-self: start;
+  margin: 0 !important;
+  border-color: rgba(255, 122, 26, 0.34) !important;
+  background: linear-gradient(180deg, #ff8a24, #e76d10) !important;
+  color: #fffdf7 !important;
+  box-shadow: 0 12px 26px rgba(201, 92, 14, 0.22) !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-first-contact .consultation-contact-photo {
+  grid-column: 2;
+  grid-row: 1 / span 5;
+  align-self: center;
+  width: 100%;
+  max-width: 410px;
+  min-width: 0;
+  justify-self: center;
+  overflow: hidden;
+  border: 5px solid #fffdf8;
+  border-radius: 22px;
+  box-shadow: 0 18px 44px rgba(66, 52, 31, 0.14);
+  aspect-ratio: 3 / 4;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-first-contact .consultation-contact-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 40%;
+}
+
+@media (max-width: 980px) {
+  main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card {
+    grid-template-columns: 56px minmax(0, 1fr) !important;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-methodology-points {
+    grid-column: 2;
+  }
+}
+
+@media (max-width: 760px) {
+  main.notatnik-page.reference-about-redesign-page .reference-about-redesign-flow {
+    gap: 18px !important;
+    padding: 0 12px 20px !important;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-story-card,
+  main.notatnik-page.reference-about-redesign-page .reference-about-credentials-card,
+  main.notatnik-page.reference-about-redesign-page .reference-about-faq-card,
+  main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 16px !important;
+    padding: 22px 18px !important;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-card-icon {
+    width: 46px !important;
+    height: 46px !important;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-methodology-points {
+    grid-column: 1;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-credential-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-publication-card {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 20px !important;
+    padding: 22px 18px !important;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-first-contact {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 12px;
+    padding: 38px 22px;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-first-contact .notatnik-btn {
+    width: 100%;
+    justify-content: center;
+    margin-top: 6px;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-first-contact .consultation-contact-photo {
+    grid-column: 1;
+    grid-row: auto;
+    width: 100%;
+    max-width: none;
+    justify-self: stretch;
+    margin-top: 8px;
+  }
+}
+
+/* /o-mnie correction: open editorial blocks patterned on the homepage FAQ rhythm. */
+main.notatnik-page.reference-about-redesign-page .reference-about-portrait-card {
+  width: min(360px, 100%) !important;
+  height: auto !important;
+  aspect-ratio: 2 / 3 !important;
+  overflow: hidden !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-portrait-card img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  object-position: center !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card {
+  grid-template-columns: minmax(0, 1fr) minmax(230px, 0.72fr) !important;
+  align-items: start !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-story-card,
+main.notatnik-page.reference-about-redesign-page .reference-about-credentials-card {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card > .reference-about-card-body {
+  grid-column: 1;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card > .reference-methodology-points {
+  grid-column: 2;
+  align-self: center;
+  padding: 4px 0 4px 22px !important;
+  border: 0 !important;
+  border-left: 1px solid rgba(185, 155, 98, 0.42) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card::before,
+main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card::after {
+  content: none !important;
+  display: none !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-credentials-card .reference-about-credential-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 0 !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-credentials-card .reference-about-credential {
+  min-height: 0 !important;
+  padding: 4px 24px !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-credentials-card .reference-about-credential + .reference-about-credential {
+  border-left: 1px solid rgba(185, 155, 98, 0.42) !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-publication-card {
+  display: block !important;
+  padding: clamp(28px, 4vw, 44px) !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-magwet-wordmark {
+  display: block;
+  width: min(220px, 60vw);
+  height: auto;
+  margin: 0 0 18px;
+  object-fit: contain;
+  opacity: 0.82;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-publication-list {
+  gap: 0 !important;
+  margin-top: 20px !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-publication-list article {
+  padding: 20px 0 !important;
+  border: 0 !important;
+  border-top: 1px solid rgba(185, 155, 98, 0.38) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-publication-list article > span {
+  color: #80613a !important;
+  font-size: 11px !important;
+  letter-spacing: 0.07em !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-publication-list h3 {
+  color: #2c352c !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-leaf-publication {
+  display: none !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-faq-card {
+  display: block !important;
+  padding: 30px 0 8px !important;
+  border: 0 !important;
+  border-top: 1px solid rgba(185, 155, 98, 0.42) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-faq-card .reference-about-card-body {
+  width: 100%;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-faq-card .reference-compact-faq {
+  display: grid;
+  gap: 0 !important;
+  margin-top: 8px !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-faq-card .reference-compact-faq details {
+  overflow: visible !important;
+  border: 0 !important;
+  border-bottom: 1px solid rgba(185, 155, 98, 0.34) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-faq-card .reference-compact-faq summary {
+  display: block !important;
+  min-height: 0 !important;
+  padding: 18px 38px 18px 0 !important;
+  color: #2d2b25 !important;
+  font-size: 16px !important;
+  font-weight: 740 !important;
+  line-height: 1.42 !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-faq-card .reference-compact-faq summary::after {
+  content: '' !important;
+  position: absolute !important;
+  top: 50% !important;
+  right: 8px !important;
+  width: 9px !important;
+  height: 9px !important;
+  border: 0 !important;
+  border-right: 1.7px solid #173222 !important;
+  border-bottom: 1.7px solid #173222 !important;
+  transform: translateY(-68%) rotate(45deg) !important;
+  font-size: 0 !important;
+  opacity: 0.72;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-faq-card .reference-compact-faq details[open] summary::after {
+  transform: translateY(-24%) rotate(225deg) !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-faq-card .reference-compact-faq details > p {
+  max-width: 72ch !important;
+  margin: 0 !important;
+  padding: 0 38px 18px 0 !important;
+  color: rgba(45, 43, 37, 0.74) !important;
+  font-size: 14px !important;
+  line-height: 1.65 !important;
+}
+
+@media (max-width: 980px) {
+  main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card > .reference-methodology-points {
+    grid-column: 1;
+    padding: 18px 0 0 !important;
+    border-top: 1px solid rgba(185, 155, 98, 0.42) !important;
+    border-left: 0 !important;
+  }
+}
+
+@media (max-width: 760px) {
+  main.notatnik-page.reference-about-redesign-page .reference-about-portrait-card {
+    width: min(320px, 100%) !important;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-credentials-card .reference-about-credential-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 14px !important;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-credentials-card .reference-about-credential {
+    padding: 16px 0 0 !important;
+    border-top: 1px solid rgba(185, 155, 98, 0.34) !important;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-credentials-card .reference-about-credential + .reference-about-credential {
+    border-left: 0 !important;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-publication-card {
+    padding: 24px 20px !important;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-faq-card {
+    padding: 24px 0 4px !important;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-faq-card .reference-compact-faq summary {
+    padding: 16px 34px 16px 0 !important;
+    font-size: 15px !important;
+  }
+}
+
+/* Consistent, unboxed pictograms and crop for the /o-mnie editorial page. */
+main.notatnik-page.reference-about-redesign-page .reference-about-section-kicker {
+  display: inline-flex !important;
+  width: fit-content !important;
+  min-height: 0 !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+  margin: 0 0 16px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #8b6230 !important;
+  font-family: var(--font-mono), monospace !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.08em !important;
+  line-height: 1.3 !important;
+  text-transform: uppercase !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-section-kicker svg {
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  color: #8b6230 !important;
+  stroke-width: 1.5 !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-portrait-card {
+  width: min(360px, 100%) !important;
+  height: auto !important;
+  aspect-ratio: 2 / 3 !important;
+  overflow: hidden !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-portrait-card img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card {
+  grid-template-columns: minmax(0, 1fr) minmax(230px, 0.72fr) !important;
+  align-items: start !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card > .reference-about-card-body {
+  grid-column: 1;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card > .reference-methodology-points {
+  grid-column: 2;
+  align-self: center;
+  padding: 4px 0 4px 22px !important;
+  border: 0 !important;
+  border-left: 1px solid rgba(185, 155, 98, 0.42) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card .reference-methodology-point {
+  display: block !important;
+  color: #42483f !important;
+  font-size: 14px !important;
+  font-weight: 650 !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-credentials-card .reference-about-credential-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 0 !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-credentials-card .reference-about-credential {
+  min-height: 0 !important;
+  padding: 4px 24px !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-credentials-card .reference-about-credential + .reference-about-credential {
+  border-left: 1px solid rgba(185, 155, 98, 0.42) !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-publication-card {
+  display: block !important;
+  padding: clamp(28px, 4vw, 44px) !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-magwet-wordmark {
+  display: block;
+  width: min(220px, 60vw);
+  height: auto;
+  margin: 0 0 18px;
+  object-fit: contain;
+  opacity: 0.82;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-publication-list {
+  gap: 0 !important;
+  margin-top: 20px !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-publication-list article {
+  padding: 20px 0 !important;
+  border: 0 !important;
+  border-top: 1px solid rgba(185, 155, 98, 0.38) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-leaf {
+  display: none !important;
+}
+
+@media (max-width: 980px) {
+  main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card > .reference-methodology-points {
+    grid-column: 1;
+    padding: 18px 0 0 !important;
+    border-top: 1px solid rgba(185, 155, 98, 0.42) !important;
+    border-left: 0 !important;
+  }
+}
+
+@media (max-width: 760px) {
+  main.notatnik-page.reference-about-redesign-page .reference-about-section-kicker {
+    margin-bottom: 12px !important;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-section-kicker svg {
+    flex-basis: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-portrait-card {
+    width: min(320px, 100%) !important;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-credentials-card .reference-about-credential-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 14px !important;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-credentials-card .reference-about-credential {
+    padding: 16px 0 0 !important;
+    border-top: 1px solid rgba(185, 155, 98, 0.34) !important;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-credentials-card .reference-about-credential + .reference-about-credential {
+    border-left: 0 !important;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-publication-card {
+    padding: 24px 20px !important;
+  }
+}
+
+/* /o-mnie first-contact facts: two separate, readable lines before the CTA. */
+main.notatnik-page.reference-about-redesign-page .reference-about-first-contact .consultation-contact-facts {
+  display: grid !important;
+  justify-items: start;
+  gap: 14px !important;
+  margin-top: 12px !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-first-contact .consultation-contact-facts span {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 12px !important;
+  color: #45463e !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  line-height: 1.4;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-first-contact .consultation-contact-facts svg {
+  flex: 0 0 18px;
+  width: 18px !important;
+  height: 18px !important;
+  color: #8b6230 !important;
+  stroke-width: 1.5 !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-first-contact .notatnik-btn {
+  margin-top: 10px !important;
+}
+
+@media (max-width: 760px) {
+  main.notatnik-page.reference-about-redesign-page .reference-about-first-contact .consultation-contact-facts {
+    gap: 12px !important;
+    margin-top: 10px !important;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-first-contact .consultation-contact-facts span {
+    font-size: 14px !important;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-first-contact .consultation-contact-facts svg {
+    flex-basis: 17px;
+    width: 17px !important;
+    height: 17px !important;
+  }
+}
+
+/* /o-mnie original line illustrations: one shared visual grammar, no icon badges. */
+main.notatnik-page.reference-about-redesign-page .about-editorial-art {
+  display: block;
+  width: clamp(120px, 10vw, 144px);
+  height: auto;
+  aspect-ratio: 1;
+  color: #533d29;
+  overflow: visible;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-hero-mark {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 0 6px;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-hero-mark .reference-pill {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #80613a;
+}
+
+main.notatnik-page.reference-about-redesign-page .about-editorial-art-hero {
+  flex: 0 0 clamp(120px, 10vw, 144px);
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card {
+  grid-template-columns: clamp(120px, 10vw, 144px) minmax(0, 1fr) minmax(190px, 0.62fr) !important;
+  column-gap: clamp(32px, 3vw, 40px) !important;
+  align-items: start !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card > .about-editorial-art {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: start;
+  margin-top: 0;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card > .reference-about-card-body {
+  grid-column: 2;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card > .reference-methodology-points {
+  grid-column: 3;
+  padding-left: 22px !important;
+  border-left: 1px solid rgba(185, 155, 98, 0.42) !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-credentials-card,
+main.notatnik-page.reference-about-redesign-page .reference-about-publication-card {
+  display: grid !important;
+  grid-template-columns: clamp(120px, 10vw, 144px) minmax(0, 1fr) !important;
+  column-gap: clamp(32px, 3vw, 40px) !important;
+  align-items: start !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-credentials-card > .about-editorial-art,
+main.notatnik-page.reference-about-redesign-page .reference-about-publication-card > .about-editorial-art {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: start;
+  margin-top: 0;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-credentials-card > .reference-about-card-body,
+main.notatnik-page.reference-about-redesign-page .reference-about-publication-card > .reference-about-publication-copy {
+  grid-column: 2;
+  min-width: 0;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-first-contact {
+  grid-template-columns: clamp(120px, 10vw, 144px) minmax(0, 1fr) minmax(250px, 0.72fr) !important;
+  column-gap: clamp(28px, 3vw, 40px) !important;
+  row-gap: 12px !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-first-contact > .about-editorial-art {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: start;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-first-contact-copy {
+  grid-column: 2;
+  grid-row: 1;
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  gap: 14px;
+  min-width: 0;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-first-contact::before {
+  display: none !important;
+  content: none !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-contact-eyebrow {
+  color: #9b7040;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  line-height: 1.4;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-first-contact-copy > strong,
+main.notatnik-page.reference-about-redesign-page .reference-about-first-contact-copy > p,
+main.notatnik-page.reference-about-redesign-page .reference-about-first-contact-copy .consultation-contact-facts,
+main.notatnik-page.reference-about-redesign-page .reference-about-first-contact-copy .notatnik-btn {
+  grid-column: auto !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-first-contact-copy > p {
+  max-width: 54ch;
+  margin: 0;
+  color: rgba(40, 40, 31, 0.76) !important;
+  font-size: 15px !important;
+  line-height: 1.62 !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-first-contact-copy > strong {
+  max-width: 20ch;
+  color: #26372b !important;
+  font-family: var(--font-display), Georgia, serif !important;
+  font-size: clamp(30px, 3.4vw, 46px) !important;
+  font-weight: 400 !important;
+  line-height: 1.03 !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-first-contact-copy .consultation-contact-facts {
+  display: grid !important;
+  justify-items: start;
+  gap: 12px !important;
+  margin: 0 !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-first-contact-copy .consultation-contact-facts span {
+  display: block !important;
+  color: #45463e !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  line-height: 1.4;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-first-contact-copy .notatnik-btn {
+  margin: 2px 0 0 !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-first-contact > .consultation-contact-photo {
+  grid-column: 3;
+  grid-row: 1;
+  width: 100%;
+  max-width: 410px;
+  justify-self: center;
+}
+
+.notatnik-urgent-status {
+  display: inline-flex;
+  max-width: 230px;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 12px;
+  border: 1px solid rgba(95, 108, 71, 0.26);
+  border-radius: 999px;
+  color: #3f5235;
+  background: rgba(247, 244, 235, 0.82);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
+  text-decoration: none;
+}
+
+.zapytaj-urgent {
+  display: grid;
+  width: min(1040px, calc(100% - 48px));
+  grid-template-columns: minmax(250px, 0.82fr) minmax(0, 1.18fr);
+  gap: clamp(26px, 5vw, 64px);
+  margin: 24px auto 54px;
+  padding: clamp(26px, 4vw, 48px);
+  border: 1px solid rgba(224, 213, 194, 0.92);
+  border-radius: 26px;
+  background: rgba(255, 253, 248, 0.96);
+  box-shadow: 0 18px 48px rgba(67, 49, 22, 0.06);
+}
+
+.zapytaj-urgent h2 {
+  margin: 12px 0 14px;
+  color: #24261d;
+  font-family: var(--font-display, Georgia, serif);
+  font-size: clamp(32px, 3.2vw, 44px);
+  font-weight: 500;
+  line-height: 1.02;
+}
+
+.zapytaj-urgent-intro > p {
+  color: #5f6254;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.zapytaj-urgent-state {
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(112, 105, 83, 0.2);
+  font-weight: 700;
+}
+
+.zapytaj-urgent-note,
+.zapytaj-urgent-preference small,
+.zapytaj-urgent-disabled {
+  display: block;
+  color: #777568;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.zapytaj-urgent-alt {
+  display: inline-block;
+  margin-top: 8px;
+  color: #405336;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.zapytaj-urgent-form { display: grid; gap: 18px; align-content: start; }
+.zapytaj-urgent-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.zapytaj-urgent-fields label { display: grid; gap: 6px; color: #444638; font-size: 12px; font-weight: 700; }
+.zapytaj-urgent-fields input,
+.zapytaj-urgent-fields select,
+.zapytaj-urgent-fields textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid rgba(118, 111, 91, 0.28);
+  border-radius: 12px;
+  color: #292a23;
+  background: rgba(255, 255, 255, 0.72);
+  font: inherit;
+}
+.zapytaj-urgent-fields textarea { resize: vertical; }
+.zapytaj-urgent-message { grid-column: 1 / -1; }
+.zapytaj-urgent-preference { display: grid; gap: 11px; margin: 0; padding: 16px 0 0; border: 0; border-top: 1px solid rgba(112, 105, 83, 0.2); }
+.zapytaj-urgent-preference legend { padding: 0 0 10px; color: #35372b; font-family: var(--font-display, Georgia, serif); font-size: 20px; }
+.zapytaj-urgent-preference label,
+.zapytaj-urgent-consents label { display: flex; align-items: flex-start; gap: 9px; color: #4f5046; font-size: 13px; line-height: 1.5; }
+.zapytaj-urgent-preference input,
+.zapytaj-urgent-consents input { margin-top: 3px; accent-color: #596b43; flex: 0 0 auto; }
+.zapytaj-urgent-preference small { margin: 0 0 0 24px; }
+.zapytaj-urgent-consents { display: grid; gap: 9px; }
+.zapytaj-urgent-consents a { color: #405336; font-weight: 700; }
+.zapytaj-urgent-form > .notatnik-btn { justify-self: start; border: 0; cursor: pointer; }
+.zapytaj-urgent-form > .notatnik-btn:disabled { cursor: not-allowed; opacity: 0.56; }
+.zapytaj-urgent-feedback { margin: 0; color: #405336; font-size: 13px; line-height: 1.55; }
+.zapytaj-urgent-feedback a { color: inherit; font-weight: 700; }
+
+@media (max-width: 1179px) {
+  #notatnik-topbar { position: sticky !important; min-height: 128px !important; padding-bottom: 40px !important; }
+  #notatnik-topbar .notatnik-urgent-status { position: absolute; right: 14px; bottom: 7px; left: 14px; max-width: none; min-height: 26px; padding: 4px 8px; border: 0; background: transparent; }
+}
+
+@media (max-width: 760px) {
+  #notatnik-topbar { min-height: 112px !important; padding-bottom: 34px !important; }
+  #notatnik-topbar .notatnik-urgent-status { bottom: 5px; font-size: 10px; }
+  .zapytaj-urgent { width: calc(100% - 24px); grid-template-columns: 1fr; gap: 22px; margin: 16px auto 36px; padding: 22px 18px; border-radius: 20px; }
+  .zapytaj-urgent-fields { grid-template-columns: 1fr; }
+  .zapytaj-urgent-message { grid-column: auto; }
+  .zapytaj-urgent-form > .notatnik-btn { width: 100%; justify-content: center; }
+}
+
+@media (max-width: 980px) {
+  main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card {
+    grid-template-columns: 1fr minmax(190px, 0.7fr) !important;
+    column-gap: 28px !important;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card > .about-editorial-art {
+    grid-column: 1;
+    grid-row: 1;
+    width: 72px;
+    margin-bottom: 20px;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card > .reference-about-card-body {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card > .reference-methodology-points {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    border-left: 0 !important;
+    border-top: 1px solid rgba(185, 155, 98, 0.42) !important;
+    padding: 16px 0 0 !important;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-credentials-card,
+  main.notatnik-page.reference-about-redesign-page .reference-about-publication-card {
+    grid-template-columns: 1fr !important;
+    row-gap: 20px !important;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-credentials-card > .about-editorial-art,
+  main.notatnik-page.reference-about-redesign-page .reference-about-publication-card > .about-editorial-art {
+    grid-column: 1;
+    grid-row: 1;
+    width: 72px;
+    margin-bottom: 0;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-credentials-card > .reference-about-card-body,
+  main.notatnik-page.reference-about-redesign-page .reference-about-publication-card > .reference-about-publication-copy {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-first-contact {
+    grid-template-columns: 72px minmax(0, 1fr) minmax(220px, 0.7fr) !important;
+    column-gap: 20px !important;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-first-contact > .about-editorial-art {
+    grid-column: 1;
+    grid-row: 1;
+    width: 72px;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-first-contact-copy {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-first-contact > .consultation-contact-photo {
+    grid-column: 3;
+    grid-row: 1;
+  }
+}
+
+@media (max-width: 760px) {
+  main.notatnik-page.reference-about-redesign-page .reference-about-hero-mark {
+    margin-bottom: 18px;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .about-editorial-art-hero {
+    flex-basis: 68px;
+    width: 68px;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card,
+  main.notatnik-page.reference-about-redesign-page .reference-about-credentials-card,
+  main.notatnik-page.reference-about-redesign-page .reference-about-publication-card {
+    grid-template-columns: minmax(0, 1fr) !important;
+    row-gap: 20px !important;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card > .about-editorial-art,
+  main.notatnik-page.reference-about-redesign-page .reference-about-credentials-card > .about-editorial-art,
+  main.notatnik-page.reference-about-redesign-page .reference-about-publication-card > .about-editorial-art {
+    grid-column: 1;
+    grid-row: 1;
+    width: 68px;
+    margin: 0;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card > .reference-about-card-body,
+  main.notatnik-page.reference-about-redesign-page .reference-about-credentials-card > .reference-about-card-body,
+  main.notatnik-page.reference-about-redesign-page .reference-about-publication-card > .reference-about-publication-copy {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card > .reference-methodology-points {
+    grid-column: 1;
+    grid-row: 3;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-first-contact {
+    grid-template-columns: minmax(0, 1fr) !important;
+    row-gap: 20px !important;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-first-contact > .about-editorial-art {
+    grid-column: 1;
+    grid-row: 1;
+    width: 68px;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-first-contact-copy {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-first-contact > .consultation-contact-photo {
+    grid-column: 1;
+    grid-row: 3;
+    width: 100%;
+    max-width: none;
+  }
+}
+
+@media (max-width: 1179px) {
+  #notatnik-topbar { min-height: 128px !important; padding-bottom: 40px !important; }
+  #notatnik-topbar .notatnik-urgent-status { position: absolute; right: 14px; bottom: 7px; left: 14px; max-width: none; min-height: 26px; padding: 4px 8px; border: 0; background: transparent; }
+}
+
+@media (max-width: 760px) {
+  #notatnik-topbar { min-height: 112px !important; padding-bottom: 34px !important; }
+  #notatnik-topbar .notatnik-urgent-status { bottom: 5px; font-size: 10px; }
+}
+
+.zapytaj-urgent-notify {
+  display: grid;
+  gap: 9px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(112, 105, 83, 0.2);
+  color: #5f6254;
+  font-size: 12px;
+}
+.zapytaj-urgent-notify > strong { color: #36382d; font-family: var(--font-display, Georgia, serif); font-size: 17px; font-weight: 500; }
+.zapytaj-urgent-notify > label:not(.zapytaj-urgent-notify-consent) { display: grid; gap: 5px; font-weight: 700; }
+.zapytaj-urgent-notify select,
+.zapytaj-urgent-notify input:not([type='checkbox']) { min-height: 40px; padding: 8px 10px; border: 1px solid rgba(118, 111, 91, 0.28); border-radius: 10px; color: #292a23; background: rgba(255, 255, 255, 0.72); font: inherit; }
+.zapytaj-urgent-notify-consent { display: flex; align-items: flex-start; gap: 8px; line-height: 1.45; }
+.zapytaj-urgent-notify-consent input { flex: 0 0 auto; margin-top: 2px; accent-color: #596b43; }
+.zapytaj-urgent-notify-button { justify-self: start; padding: 9px 14px; border: 1px solid rgba(77, 92, 57, 0.42); border-radius: 999px; color: #405336; background: transparent; font: inherit; font-weight: 700; cursor: pointer; }
+.zapytaj-urgent-notify-button:disabled { opacity: 0.55; cursor: wait; }
+
+/* /o-mnie: the approved content layout has no standalone SVG/icon column. */
+main.notatnik-page.reference-about-redesign-page .reference-about-hero-mark {
+  display: block;
+  margin-bottom: 6px;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card {
+  grid-template-columns: minmax(0, 1fr) minmax(190px, 0.62fr) !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card > .reference-about-card-body {
+  grid-column: 1;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card > .reference-methodology-points {
+  grid-column: 2;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-credentials-card,
+main.notatnik-page.reference-about-redesign-page .reference-about-publication-card {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-credentials-card > .reference-about-card-body,
+main.notatnik-page.reference-about-redesign-page .reference-about-publication-card > .reference-about-publication-copy {
+  grid-column: 1;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-first-contact {
+  grid-template-columns: minmax(0, 1fr) minmax(250px, 0.72fr) !important;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-first-contact-copy {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+main.notatnik-page.reference-about-redesign-page .reference-about-first-contact > .consultation-contact-photo {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+@media (max-width: 980px) {
+  main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card,
+  main.notatnik-page.reference-about-redesign-page .reference-about-first-contact {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card > .reference-methodology-points,
+  main.notatnik-page.reference-about-redesign-page .reference-about-first-contact-copy,
+  main.notatnik-page.reference-about-redesign-page .reference-about-first-contact > .consultation-contact-photo {
+    grid-column: 1;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card > .reference-methodology-points {
+    grid-row: 2;
+  }
+
+  main.notatnik-page.reference-about-redesign-page .reference-about-first-contact > .consultation-contact-photo {
+    grid-row: 2;
+  }
+}
+
+/* /zapytaj: booking calendar first, with the daily contact option clearly separated below. */
+main.notatnik-page.zapytaj-page .zapytaj-hero {
+  min-height: 0;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 0.72fr);
+  gap: clamp(28px, 4vw, 58px);
+  padding: clamp(36px, 5vw, 64px) clamp(26px, 5vw, 68px);
+}
+main.notatnik-page.zapytaj-page .zapytaj-hero-copy { gap: 16px; }
+main.notatnik-page.zapytaj-page .zapytaj-hero-copy h1 { max-width: 13ch; font-size: clamp(42px, 4.6vw, 66px); line-height: 1.02; }
+main.notatnik-page.zapytaj-page .zapytaj-hero-lead { max-width: 49ch; font-size: 16px; }
+main.notatnik-page.zapytaj-page .zapytaj-hero-actions { display: flex; width: auto; align-items: center; justify-items: initial; flex-wrap: wrap; gap: 18px; }
+main.notatnik-page.zapytaj-page .zapytaj-hero-actions .notatnik-btn { min-height: 48px; }
+main.notatnik-page.zapytaj-page .zapytaj-hero-photo { width: 100%; min-height: 410px; border-radius: 24px; }
+main.notatnik-page.zapytaj-page .zapytaj-intake-section { display: block; padding: clamp(36px, 5vw, 64px) clamp(24px, 5vw, 68px); background: var(--shell-bg); }
+main.notatnik-page.zapytaj-page .zapytaj-booking-heading { width: min(100%, 1080px); margin: 0 auto 22px; }
+main.notatnik-page.zapytaj-page .zapytaj-booking-heading h2 { margin: 7px 0 0; color: var(--ink); font-family: var(--font-display), Georgia, serif; font-size: clamp(30px, 3.4vw, 44px); font-weight: 500; line-height: 1.08; }
+main.notatnik-page.zapytaj-page .zapytaj-form-card { width: min(100%, 1080px); margin: 0 auto; padding: clamp(20px, 3vw, 34px); border-color: rgba(224, 213, 194, 0.96); border-radius: 22px; background: rgba(255, 253, 248, 0.96); box-shadow: 0 16px 44px rgba(67, 49, 22, 0.06); }
+main.notatnik-page.zapytaj-page .zapytaj-form { gap: 24px; }
+main.notatnik-page.zapytaj-page .zapytaj-form-step[aria-labelledby='step-1-title'] { gap: 17px; }
+main.notatnik-page.zapytaj-page .zapytaj-availability { padding: 0; border: 0; background: transparent; }
+main.notatnik-page.zapytaj-page .zapytaj-calendar-navigation { display: grid; grid-template-columns: minmax(130px, 1fr) auto minmax(130px, 1fr); align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+main.notatnik-page.zapytaj-page .zapytaj-calendar-navigation strong { color: var(--ink); font-family: var(--font-display), Georgia, serif; font-size: clamp(20px, 2.4vw, 28px); font-weight: 500; text-align: center; text-transform: capitalize; }
+main.notatnik-page.zapytaj-page .zapytaj-calendar-navigation button { min-height: 38px; padding: 7px 11px; border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--ink-soft); cursor: pointer; font: inherit; font-size: 12px; font-weight: 700; }
+main.notatnik-page.zapytaj-page .zapytaj-calendar-navigation button:last-child { justify-self: end; }
+main.notatnik-page.zapytaj-page .zapytaj-calendar-navigation button:disabled { cursor: default; opacity: 0.48; }
+main.notatnik-page.zapytaj-page .zapytaj-calendar-layout { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(250px, 0.92fr); gap: clamp(24px, 4vw, 50px); align-items: start; }
+main.notatnik-page.zapytaj-page .zapytaj-calendar-weekdays,
+main.notatnik-page.zapytaj-page .zapytaj-calendar-day-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px; }
+main.notatnik-page.zapytaj-page .zapytaj-calendar-weekdays { margin-bottom: 7px; color: var(--ink-mute); font-size: 11px; font-weight: 800; text-align: center; }
+main.notatnik-page.zapytaj-page .zapytaj-calendar-weekdays span { padding: 8px 0; }
+main.notatnik-page.zapytaj-page .zapytaj-calendar-day { display: grid; min-width: 0; min-height: 50px; align-content: center; justify-items: center; gap: 2px; padding: 4px 2px; border: 1px solid transparent; border-radius: 12px; background: transparent; color: var(--ink-soft); cursor: pointer; font: inherit; }
+main.notatnik-page.zapytaj-page .zapytaj-calendar-day span { font-size: 14px; font-weight: 750; }
+main.notatnik-page.zapytaj-page .zapytaj-calendar-day small { color: var(--ink-mute); font-size: 9px; line-height: 1; }
+main.notatnik-page.zapytaj-page .zapytaj-calendar-day.has-slots { border-color: color-mix(in srgb, var(--accent) 16%, var(--line)); background: color-mix(in srgb, var(--accent) 5%, var(--paper)); color: var(--ink); }
+main.notatnik-page.zapytaj-page .zapytaj-calendar-day.is-selected { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--paper)); box-shadow: inset 0 0 0 1px var(--accent); }
+main.notatnik-page.zapytaj-page .zapytaj-calendar-day.is-past { cursor: default; opacity: 0.34; }
+main.notatnik-page.zapytaj-page .zapytaj-calendar-day-blank { min-height: 50px; }
+main.notatnik-page.zapytaj-page .zapytaj-calendar-times-panel { min-height: 100%; padding: 15px 0 0 clamp(18px, 2.7vw, 34px); border-left: 1px solid var(--line); }
+main.notatnik-page.zapytaj-page .zapytaj-time-heading { margin: 0 0 14px; color: var(--ink); font-family: var(--font-display), Georgia, serif; font-size: 22px; line-height: 1.2; }
+main.notatnik-page.zapytaj-page .zapytaj-slot-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+main.notatnik-page.zapytaj-page .zapytaj-slot-option { min-height: 44px; border-radius: 10px; font-size: 13px; }
+main.notatnik-page.zapytaj-page .zapytaj-before-selection,
+main.notatnik-page.zapytaj-page .zapytaj-selected-slot { margin: 0; padding: 13px 15px; border-radius: 12px; background: color-mix(in srgb, var(--accent-warm) 8%, var(--paper)); color: var(--ink-soft); font-size: 13px; line-height: 1.5; }
+main.notatnik-page.zapytaj-page .zapytaj-selected-slot strong { color: var(--ink); }
+main.notatnik-page.zapytaj-page .zapytaj-safety-note { width: min(100%, 1080px); margin: 16px auto 0; }
+main.notatnik-page.zapytaj-page .zapytaj-urgent { width: min(1080px, calc(100% - 48px)); margin: 28px auto 44px; background: rgba(255, 253, 248, 0.96); }
+main.notatnik-page.zapytaj-page .zapytaj-urgent.is-closed { width: min(820px, calc(100% - 48px)); grid-template-columns: minmax(0, 1fr); }
+main.notatnik-page.zapytaj-page .zapytaj-urgent.is-closed .zapytaj-urgent-intro { max-width: 720px; }
+
+.notatnik-topbar .notatnik-urgent-status[data-state='available'] { border-color: rgba(71, 107, 57, 0.42); background: rgba(234, 241, 226, 0.94); color: #314d2b; }
+.notatnik-topbar .notatnik-urgent-status[data-state='full'] { border-color: rgba(160, 112, 49, 0.38); background: rgba(249, 239, 220, 0.96); color: #704a1f; }
+.notatnik-topbar .notatnik-urgent-status[data-state='in_progress'] { border-color: rgba(128, 105, 68, 0.3); background: rgba(245, 239, 226, 0.96); color: #5a4930; }
+.notatnik-topbar .notatnik-urgent-status[data-state='weekend'],
+.notatnik-topbar .notatnik-urgent-status[data-state='unavailable'],
+.notatnik-topbar .notatnik-urgent-status[data-state='unknown'] { border-color: rgba(94, 96, 88, 0.25); background: rgba(241, 240, 234, 0.96); color: #5b5d55; }
+
+@media (min-width: 1180px) and (max-width: 1499px) {
+  #notatnik-topbar { display: grid !important; grid-template-columns: minmax(0, auto) minmax(0, 1fr) auto; grid-template-areas: 'brand nav actions' 'status status status'; column-gap: 14px !important; row-gap: 5px !important; min-height: 126px !important; padding-top: 12px !important; padding-bottom: 8px !important; }
+  .notatnik-topbar .notatnik-brand { grid-area: brand; }
+  .notatnik-topbar .notatnik-nav { grid-area: nav; justify-content: center; flex-wrap: nowrap; min-width: 0; }
+  .notatnik-topbar .notatnik-topbar-actions { grid-area: actions; }
+  #notatnik-topbar .notatnik-urgent-status { position: static !important; grid-area: status; justify-self: center; width: max-content; max-width: 100%; min-height: 28px; padding: 4px 10px; white-space: nowrap; }
+}
+
+@media (max-width: 980px) {
+  main.notatnik-page.zapytaj-page .zapytaj-hero { grid-template-columns: minmax(0, 1fr) minmax(280px, 0.75fr); min-height: 0; }
+  main.notatnik-page.zapytaj-page .zapytaj-hero-photo { min-height: 340px; }
+  main.notatnik-page.zapytaj-page .zapytaj-calendar-layout { grid-template-columns: minmax(0, 1fr) minmax(220px, 0.82fr); gap: 20px; }
+}
+
+@media (max-width: 760px) {
+  main.notatnik-page.zapytaj-page .zapytaj-hero { grid-template-columns: minmax(0, 1fr); padding: 38px 22px; }
+  main.notatnik-page.zapytaj-page .zapytaj-hero-photo { width: 100%; min-height: 300px; max-height: 380px; }
+  main.notatnik-page.zapytaj-page .zapytaj-hero-copy h1 { font-size: clamp(40px, 12vw, 56px); }
+  main.notatnik-page.zapytaj-page .zapytaj-hero-actions { justify-content: flex-start; }
+  main.notatnik-page.zapytaj-page .zapytaj-hero-actions .notatnik-btn { width: auto; }
+  main.notatnik-page.zapytaj-page .zapytaj-intake-section { padding: 36px 16px; }
+  main.notatnik-page.zapytaj-page .zapytaj-form-card { padding: 17px 14px; border-radius: 17px; }
+  main.notatnik-page.zapytaj-page .zapytaj-calendar-layout { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+  main.notatnik-page.zapytaj-page .zapytaj-calendar-times-panel { min-height: 0; padding: 18px 0 0; border-top: 1px solid var(--line); border-left: 0; }
+  main.notatnik-page.zapytaj-page .zapytaj-calendar-navigation { grid-template-columns: auto minmax(0, 1fr) auto; gap: 6px; }
+  main.notatnik-page.zapytaj-page .zapytaj-calendar-navigation button { min-height: 36px; padding: 6px 8px; font-size: 11px; }
+  main.notatnik-page.zapytaj-page .zapytaj-calendar-day,
+  main.notatnik-page.zapytaj-page .zapytaj-calendar-day-blank { min-height: 44px; }
+  main.notatnik-page.zapytaj-page .zapytaj-slot-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  main.notatnik-page.zapytaj-page .zapytaj-urgent { width: calc(100% - 24px); }
+}
+
+@media (max-width: 360px) {
+  main.notatnik-page.zapytaj-page .zapytaj-calendar-navigation button { max-width: 86px; min-height: 42px; line-height: 1.15; white-space: normal; }
+  main.notatnik-page.zapytaj-page .zapytaj-calendar-navigation strong { font-size: 19px; }
+  main.notatnik-page.zapytaj-page .zapytaj-calendar-day,
+  main.notatnik-page.zapytaj-page .zapytaj-calendar-day-blank { min-height: 40px; }
+  main.notatnik-page.zapytaj-page .zapytaj-slot-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Appointment hours are one open list rather than separate tiles. */
+main.notatnik-page.zapytaj-page .zapytaj-calendar-times-panel .zapytaj-slot-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-rows: minmax(48px, auto);
+  gap: 0;
+  max-height: none;
+  overflow: visible;
+}
+
+main.notatnik-page.zapytaj-page .zapytaj-calendar-times-panel .zapytaj-slot-option {
+  position: relative;
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 8px 12px;
+  border: 0;
+  border-bottom: 1px solid rgba(190, 174, 145, 0.42);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--ink-soft);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.2;
+  text-align: center;
+  transition: background-color 140ms ease, color 140ms ease, outline-color 140ms ease;
+}
+
+main.notatnik-page.zapytaj-page .zapytaj-calendar-times-panel .zapytaj-slot-option:nth-last-child(-n + 3) {
+  border-bottom-color: transparent;
+}
+
+main.notatnik-page.zapytaj-page .zapytaj-calendar-times-panel .zapytaj-slot-option:hover:not(.is-selected) {
+  background: rgba(225, 210, 181, 0.2);
+  color: var(--ink);
+}
+
+main.notatnik-page.zapytaj-page .zapytaj-calendar-times-panel .zapytaj-slot-option:focus-visible {
+  z-index: 1;
+  outline: 2px solid color-mix(in srgb, var(--accent) 70%, white);
+  outline-offset: -3px;
+}
+
+main.notatnik-page.zapytaj-page .zapytaj-calendar-times-panel .zapytaj-slot-option.is-selected {
+  border-bottom-color: rgba(190, 174, 145, 0.42);
+  background: rgba(244, 235, 216, 0.78);
+  box-shadow: none;
+  color: var(--ink);
+  font-weight: 800;
+}
+
+main.notatnik-page.zapytaj-page .zapytaj-calendar-times-panel .zapytaj-slot-option.is-selected::after {
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  width: 22px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--accent-warm);
+  content: '';
+  transform: translateX(-50%);
+}
+
+@media (max-width: 760px) {
+  main.notatnik-page.zapytaj-page .zapytaj-calendar-times-panel .zapytaj-slot-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  main.notatnik-page.zapytaj-page .zapytaj-calendar-times-panel .zapytaj-slot-option:nth-last-child(-n + 3) {
+    border-bottom-color: rgba(190, 174, 145, 0.42);
+  }
+
+  main.notatnik-page.zapytaj-page .zapytaj-calendar-times-panel .zapytaj-slot-option:nth-last-child(-n + 2) {
+    border-bottom-color: transparent;
   }
 }
 

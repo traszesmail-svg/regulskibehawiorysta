@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import Image from 'next/image'
-import { ChevronDown, Quote } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 import { getOpinionServiceLabel, type OpinionReview } from '@/lib/opinion-reviews'
 
 const COLLAPSED_REVIEW_COUNT = 6
@@ -10,9 +10,10 @@ const COLLAPSED_REVIEW_COUNT = 6
 type OpinionsReviewGridProps = {
   filters: string[]
   reviews: OpinionReview[]
+  showIntro?: boolean
 }
 
-export function OpinionsReviewGrid({ filters, reviews }: OpinionsReviewGridProps) {
+export function OpinionsReviewGrid({ filters, reviews, showIntro = true }: OpinionsReviewGridProps) {
   const [activeFilter, setActiveFilter] = useState<string | null>(null)
   const [isExpanded, setIsExpanded] = useState(false)
 
@@ -41,14 +42,16 @@ export function OpinionsReviewGrid({ filters, reviews }: OpinionsReviewGridProps
 
   return (
     <section className="opinions-review-section" id="opinie">
-      <div className="opinions-review-section-head">
-        <span>Opinie po konsultacjach</span>
-        <h1>Historie, które pokazują, jak zaczyna się spokojniejsza codzienność</h1>
-        <p>
-          Krótkie wypowiedzi opiekunów psów i kotów, udostępnione za zgodą. Pokazują, jak wygląda proces i co realnie pomaga po
-          rozmowie.
-        </p>
-      </div>
+      {showIntro ? (
+        <div className="opinions-review-section-head">
+          <span>Opinie po konsultacjach</span>
+          <h1>Historie, które pokazują, jak zaczyna się spokojniejsza codzienność</h1>
+          <p>
+            Krótkie wypowiedzi opiekunów psów i kotów, udostępnione za zgodą. Pokazują, jak wygląda proces i co realnie pomaga po
+            rozmowie.
+          </p>
+        </div>
+      ) : null}
 
       <div className="opinions-filter-bar" aria-label="Filtry opinii">
         <button
@@ -86,20 +89,16 @@ export function OpinionsReviewGrid({ filters, reviews }: OpinionsReviewGridProps
                 data-opinion-review="true"
                 data-review-species={species}
               >
-                <Quote className="opinions-review-quote" size={34} strokeWidth={2} aria-hidden="true" />
                 <p>{review.text}</p>
                 <footer>
-                  <span className="opinions-review-avatar">
-                    {review.photoApproved && review.avatar ? (
-                      <Image src={review.avatar} alt="" fill loading="lazy" sizes="58px" />
-                    ) : (
-                      <span aria-hidden="true">{review.name.slice(0, 1).toUpperCase()}</span>
-                    )}
-                  </span>
+                  {review.avatar ? (
+                    <span className="opinions-review-avatar" aria-hidden="true">
+                      <Image src={review.avatar} alt="" fill loading="lazy" sizes="42px" />
+                    </span>
+                  ) : null}
                   <span>
                     <strong>{review.name}</strong>
-                    <small className="opinions-review-service">Usługa: {getOpinionServiceLabel(review.service)}</small>
-                    <small className="opinions-review-topic">Temat: {review.topic}</small>
+                    <small className="opinions-review-service">{getOpinionServiceLabel(review.service)} · {review.topic}</small>
                   </span>
                 </footer>
               </article>

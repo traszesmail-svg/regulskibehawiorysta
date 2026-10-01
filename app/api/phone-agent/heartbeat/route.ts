@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { hasValidPhoneAgentAuthorization } from '@/lib/server/phone-agent'
+import { runUrgentReminderSweep } from '@/lib/server/urgent-reminder-runner'
 import {
   getPhoneAgentDeviceState,
   recordPhoneAgentHeartbeat,
@@ -38,13 +39,23 @@ export async function POST(request: NextRequest) {
   try {
     const body = (await request.json().catch(() => ({}))) as PhoneAgentHeartbeatInput
     const state = await recordPhoneAgentHeartbeat(body)
+    // Await durable urgent processing before the function can be suspended.
+    // A sweep failure must not discard an already persisted device heartbeat.
+    let urgentReminders: Awaited<ReturnType<typeof runUrgentReminderSweep>> | { ok: false }
+    try {
+      urgentReminders = await runUrgentReminderSweep()
+      if (!urgentReminders.ok) console.warn('[phone-agent-heartbeat] urgent reminders partially failed')
+    } catch {
+      console.warn('[phone-agent-heartbeat] urgent reminders sweep failed')
+      urgentReminders = { ok: false }
+    }
 
     // Check and generate upcoming SMS reminders in background without delaying heartbeat response
     generateUpcomingBookingSmsReminders().catch((e) =>
       console.warn('[phone-agent-heartbeat] sms reminders check error:', e),
     )
 
-    return NextResponse.json({ ok: true, state }, { headers: { 'Cache-Control': 'no-store' } })
+    return NextResponse.json({ ok: true, state, urgentReminders }, { headers: { 'Cache-Control': 'no-store' } })
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Nie udało się zapisać meldunku telefonu.' },

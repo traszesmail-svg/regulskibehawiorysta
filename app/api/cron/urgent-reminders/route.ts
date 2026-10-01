@@ -3,14 +3,9 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 import { NextResponse } from 'next/server'
-import { claimUrgentNoResponseSms, listUrgentNowRequests, markUrgentNoResponseSms } from '@/lib/server/db'
 import { ConfigurationError } from '@/lib/server/env'
 import { getReminderAuthorizationError } from '@/lib/server/reminder-runner'
-import { sendAdminUrgentReminderSms, sendUrgentNoResponseSms } from '@/lib/server/sms'
-import { isUrgentOperatorResponseOverdue } from '@/lib/urgent-now-policy'
-
-const URGENT_WINDOW_MS = 15 * 60 * 1000
-const REMINDER_AT_MS = 10 * 60 * 1000
+import { runUrgentReminderSweep } from '@/lib/server/urgent-reminder-runner'
 
 export async function GET(request: Request) {
   try {
@@ -20,40 +15,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: authorizationError }, { status: 401 })
     }
 
-    const now = Date.now()
-    const requests = await listUrgentNowRequests()
-
-    const due = requests.filter((r) => {
-      if (r.status !== 'new') return false
-      const age = now - new Date(r.createdAt).getTime()
-      return age >= REMINDER_AT_MS && age < URGENT_WINDOW_MS
-    })
-    const timeoutDue = requests.filter((item) =>
-      item.species === null &&
-      (!item.noResponseSmsStatus || (item.noResponseSmsStatus === 'processing' && now - Date.parse(item.updatedAt) >= 5 * 60 * 1000)) &&
-      isUrgentOperatorResponseOverdue(item.createdAt, item.status, new Date(now)),
-    )
-
-    const results = await Promise.allSettled(
-      due.map((r) => sendAdminUrgentReminderSms(r.id, r.name, r.topicLabel)),
-    )
-    const timeoutResults = await Promise.allSettled(timeoutDue.map(async (item) => {
-      const claimed = await claimUrgentNoResponseSms(item.id)
-      if (!claimed) return 'already_claimed'
-      const sms = await sendUrgentNoResponseSms(claimed)
-      const status = sms.status === 'sent' ? 'sent' : sms.status.startsWith('skipped') ? 'skipped' : 'failed'
-      await markUrgentNoResponseSms({ id: item.id, status })
-      return status
-    }))
-
-    return NextResponse.json({
-      ok: true,
-      checked: requests.filter((r) => r.status === 'new').length,
-      reminded: due.length,
-      results: results.map((r) => (r.status === 'fulfilled' ? r.value.status : 'rejected')),
-      timedOut: timeoutDue.length,
-      timeoutResults: timeoutResults.map((r) => r.status === 'fulfilled' ? r.value : 'rejected'),
-    })
+    return NextResponse.json(await runUrgentReminderSweep())
   } catch (err) {
     console.error('[regulski-behawiorysta][cron][urgent-reminders] error', err)
     const message = err instanceof Error ? err.message : 'Internal error'

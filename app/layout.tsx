@@ -25,11 +25,13 @@ const manrope = Manrope({
 const inter = Inter({
   subsets: ['latin', 'latin-ext'],
   variable: '--font-body',
+  preload: false,
 })
 
 const fraunces = Fraunces({
   subsets: ['latin', 'latin-ext'],
   variable: '--font-display',
+  preload: false,
 })
 
 const jetbrainsMono = JetBrains_Mono({

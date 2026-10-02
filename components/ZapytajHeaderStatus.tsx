@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { getZapytajHeaderStatusLabel } from '@/lib/urgent-now-policy'
+import { readZapytajAvailability } from '@/lib/zapytaj-availability-client'
 
 type HeaderAvailability = { status: 'available' | 'full' | 'weekend' | 'in_progress' | 'unavailable' | 'offline' | 'online_with_slot' | 'online_without_slot' | 'unknown' }
 
@@ -13,10 +14,10 @@ export function ZapytajHeaderStatus() {
     let active = true
     const refresh = async () => {
       try {
-        const response = await fetch('/api/zapytaj/availability', { cache: 'no-store' })
-        if (!response.ok) throw new Error('availability unavailable')
-        const payload = await response.json()
-        if (!response.ok || !payload.live || !payload.urgentNow) throw new Error('availability unavailable')
+        const payload = await readZapytajAvailability<{ live?: unknown; urgentNow?: HeaderAvailability }>('/api/zapytaj/availability', {
+          signal: AbortSignal.timeout(6_000),
+        })
+        if (!payload.live || !payload.urgentNow) throw new Error('availability unavailable')
         if (active) setAvailability(payload.urgentNow)
       } catch {
         if (active) setAvailability({ status: 'unavailable' })

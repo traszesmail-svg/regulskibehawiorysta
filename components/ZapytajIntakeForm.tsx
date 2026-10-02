@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEven
 import { RefreshCw } from 'lucide-react'
 import { trackAnalyticsEvent } from '@/lib/analytics'
 import { addAvailabilityMonths, buildZapytajMonthDates } from '@/lib/zapytaj-availability-window'
+import { readZapytajAvailability } from '@/lib/zapytaj-availability-client'
 
 type Species = 'pies' | 'kot' | ''
 type FormStatus = 'idle' | 'loading' | 'error'
@@ -78,15 +79,14 @@ export function ZapytajIntakeForm({ promotionMode = false, initialPromotionCode 
 
     try {
       const query = requestedFrom ? `?from=${encodeURIComponent(requestedFrom)}` : ''
-      const response = await fetch(`/api/zapytaj/availability${query}`, {
-        cache: 'no-store',
-        // The API may perform a second, bounded availability read after loading this month.
-        // Keep the client deadline above the endpoint's two sequential 4s read limits.
+      const payload = await readZapytajAvailability<AvailabilityPayload>(`/api/zapytaj/availability${query}`, {
+        // The API performs bounded availability reads in parallel.
+        // Keep the client deadline above its 4s read limit and network overhead.
         signal: AbortSignal.timeout(12_000),
+        force: showLoading,
       })
-      const payload = (await response.json()) as AvailabilityPayload
 
-      if (!response.ok || !payload.live || !Array.isArray(payload.slots) || !payload.window) {
+      if (!payload.live || !Array.isArray(payload.slots) || !payload.window) {
         throw new Error('Nie udało się pobrać dostępności.')
       }
 

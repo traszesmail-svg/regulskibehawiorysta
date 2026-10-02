@@ -352,7 +352,7 @@ html[data-theme='dark'] .notatnik-page {
   left: -54px;
   width: 198px;
   height: 238px;
-  background-image: url('/decor/leaf-transparent/leaf-top-left.png');
+  background-image: url('/decor/leaf-transparent/leaf-top-left.webp');
   opacity: 0.5;
   transform: rotate(-9deg);
 }
@@ -362,7 +362,7 @@ html[data-theme='dark'] .notatnik-page {
   right: -36px;
   width: 196px;
   height: 236px;
-  background-image: url('/decor/leaf-transparent/leaf-top-right.png');
+  background-image: url('/decor/leaf-transparent/leaf-top-right.webp');
   opacity: 0.62;
   transform: rotate(3deg);
 }
@@ -634,7 +634,7 @@ html[data-theme='dark'] .notatnik-page {
   bottom: -8px;
   width: 130px;
   height: 130px;
-  background-image: url('/decor/leaf-transparent/leaf-bottom-right.png');
+  background-image: url('/decor/leaf-transparent/leaf-bottom-right.webp');
   opacity: 0.7;
   transform: rotate(8deg);
 }
@@ -767,7 +767,7 @@ html[data-theme='dark'] .notatnik-page {
   bottom: -14px;
   width: 160px;
   height: 130px;
-  background-image: url('/decor/leaf-transparent/leaf-bottom-right.png');
+  background-image: url('/decor/leaf-transparent/leaf-bottom-right.webp');
   opacity: 0.24;
   filter: invert(1) brightness(1.6);
   transform: rotate(12deg);
@@ -10293,7 +10293,7 @@ html[data-theme='dark'] .booking-details-consent input {
   right: -32px;
   width: 180px;
   height: 180px;
-  background-image: url('/decor/leaf-transparent/leaf-top-right.png');
+  background-image: url('/decor/leaf-transparent/leaf-top-right.webp');
 }
 
 .quiz-reference-card::after {
@@ -10301,7 +10301,7 @@ html[data-theme='dark'] .booking-details-consent input {
   left: -60px;
   width: 150px;
   height: 190px;
-  background-image: url('/decor/leaf-transparent/leaf-mid-left.png');
+  background-image: url('/decor/leaf-transparent/leaf-mid-left.webp');
 }
 
 .quiz-reference-hero {
@@ -10654,7 +10654,7 @@ html[data-theme='dark'] .booking-details-consent input {
   bottom: 12px;
   width: 170px;
   height: 170px;
-  background: url('/decor/leaf-transparent/leaf-bottom-right.png') right bottom / contain no-repeat;
+  background: url('/decor/leaf-transparent/leaf-bottom-right.webp') right bottom / contain no-repeat;
   opacity: 0.58;
   pointer-events: none;
 }
@@ -19237,7 +19237,7 @@ a.reference-info-row,
     top: 50%;
     width: 42px;
     height: 52px;
-    background: url('/decor/leaf-raster/leaf-top-left.png') center / contain no-repeat;
+    background: url('/decor/leaf-raster/leaf-top-left.webp') center / contain no-repeat;
     mix-blend-mode: screen;
     opacity: 0.94;
     transform: translateY(-50%) rotate(-18deg);
@@ -19268,7 +19268,7 @@ a.reference-info-row,
     position: absolute;
     width: 54px;
     height: 66px;
-    background: url('/decor/leaf-raster/leaf-bottom-right.png') center / contain no-repeat;
+    background: url('/decor/leaf-raster/leaf-bottom-right.webp') center / contain no-repeat;
     mix-blend-mode: screen;
     opacity: 0.72;
     pointer-events: none;
@@ -19352,7 +19352,7 @@ a.reference-info-row,
     bottom: 8px;
     width: 46px;
     height: 60px;
-    background: url('/decor/leaf-raster/leaf-top-left.png') center / contain no-repeat;
+    background: url('/decor/leaf-raster/leaf-top-left.webp') center / contain no-repeat;
     mix-blend-mode: screen;
     opacity: 0.42;
     pointer-events: none;
@@ -19379,7 +19379,7 @@ a.reference-info-row,
     bottom: 96px;
     width: 92px;
     height: 116px;
-    background: url('/decor/leaf-raster/leaf-mid-left.png') center / contain no-repeat;
+    background: url('/decor/leaf-raster/leaf-mid-left.webp') center / contain no-repeat;
     mix-blend-mode: screen;
     opacity: 0.56;
     pointer-events: none;
@@ -19542,7 +19542,7 @@ a.reference-info-row,
     position: absolute;
     width: 118px;
     height: 118px;
-    background: url('/decor/leaf-raster/leaf-top-left.png') center / contain no-repeat;
+    background: url('/decor/leaf-raster/leaf-top-left.webp') center / contain no-repeat;
     mix-blend-mode: screen;
     opacity: 0.5;
     pointer-events: none;
@@ -19557,7 +19557,7 @@ a.reference-info-row,
   .homepage-shell .notatnik-final-reviews::after {
     right: -12px;
     bottom: 8px;
-    background-image: url('/decor/leaf-raster/leaf-bottom-right.png');
+    background-image: url('/decor/leaf-raster/leaf-bottom-right.webp');
     transform: rotate(154deg);
   }
 
@@ -19616,7 +19616,7 @@ a.reference-info-row,
     height: 34px;
     justify-self: center;
     margin-top: 2px;
-    background: url('/decor/leaf-raster/leaf-divider-wide.png') center / contain no-repeat;
+    background: url('/decor/leaf-raster/leaf-divider-wide.webp') center / contain no-repeat;
     mix-blend-mode: screen;
     opacity: 0.58;
   }
@@ -19867,7 +19867,7 @@ a.reference-info-row,
   height: 34px;
   justify-self: center;
   margin-top: 2px;
-  background: url('/decor/leaf-raster/leaf-divider-wide.png') center / contain no-repeat;
+  background: url('/decor/leaf-raster/leaf-divider-wide.webp') center / contain no-repeat;
   mix-blend-mode: screen;
   opacity: 0.58;
 }
@@ -19983,7 +19983,7 @@ a.reference-info-row,
   left: 50%;
   width: 132px;
   height: 42px;
-  background: url('/decor/leaf-raster/leaf-divider-wide.png') center / contain no-repeat;
+  background: url('/decor/leaf-raster/leaf-divider-wide.webp') center / contain no-repeat;
   mix-blend-mode: screen;
   opacity: 0.9;
   transform: translate(-50%, -50%) scale(0.78);
@@ -20020,12 +20020,12 @@ a.reference-info-row,
 
 .homepage-shell .home-diagnosis-photo-stack::before {
   left: clamp(2px, 3.8vw, 28px);
-  background-image: url('/decor/leaf-raster/leaf-top-left.png');
+  background-image: url('/decor/leaf-raster/leaf-top-left.webp');
 }
 
 .homepage-shell .home-diagnosis-photo-stack::after {
   right: clamp(2px, 3.8vw, 28px);
-  background-image: url('/decor/leaf-raster/leaf-top-right.png');
+  background-image: url('/decor/leaf-raster/leaf-top-right.webp');
 }
 
 .homepage-shell .home-diagnosis-photo {
@@ -20257,7 +20257,7 @@ a.reference-info-row,
   bottom: 70px;
   width: 110px;
   height: 138px;
-  background-image: url('/decor/leaf-transparent/leaf-bottom-left.png');
+  background-image: url('/decor/leaf-transparent/leaf-bottom-left.webp');
   opacity: 0.9;
 }
 
@@ -20411,7 +20411,7 @@ a.reference-info-row,
   bottom: 34px;
   width: 82px;
   height: 104px;
-  background-image: url('/decor/leaf-transparent/leaf-top-right.png');
+  background-image: url('/decor/leaf-transparent/leaf-top-right.webp');
   opacity: 0.82;
 }
 
@@ -20577,7 +20577,7 @@ a.reference-info-row,
   content: '';
   width: 48px;
   height: 36px;
-  background: url('/decor/leaf-transparent/leaf-top-left.png') center / contain no-repeat;
+  background: url('/decor/leaf-transparent/leaf-top-left.webp') center / contain no-repeat;
   opacity: 0.9;
 }
 
@@ -22417,7 +22417,7 @@ a.reference-info-row,
   left: -54px;
   width: 198px;
   height: 238px;
-  background-image: url('/decor/leaf-transparent/leaf-top-left.png');
+  background-image: url('/decor/leaf-transparent/leaf-top-left.webp');
   opacity: 0.5;
   transform: rotate(-9deg);
 }
@@ -22427,7 +22427,7 @@ a.reference-info-row,
   right: -36px;
   width: 196px;
   height: 236px;
-  background-image: url('/decor/leaf-transparent/leaf-top-right.png');
+  background-image: url('/decor/leaf-transparent/leaf-top-right.webp');
   opacity: 0.62;
   transform: rotate(3deg);
 }
@@ -23704,7 +23704,7 @@ a.reference-info-row,
   right: 0;
   width: 142px;
   height: 104px;
-  background-image: url('/decor/leaf-transparent/leaf-top-right.png');
+  background-image: url('/decor/leaf-transparent/leaf-top-right.webp');
 }
 
 .reference-faq-leaves-left {
@@ -23712,7 +23712,7 @@ a.reference-info-row,
   bottom: 20px;
   width: 126px;
   height: 104px;
-  background-image: url('/decor/leaf-transparent/leaf-bottom-left.png');
+  background-image: url('/decor/leaf-transparent/leaf-bottom-left.webp');
   transform: none;
 }
 
@@ -23824,7 +23824,7 @@ a.reference-info-row,
   width: 28px;
   height: 28px;
   flex: 0 0 auto;
-  background: url('/decor/leaf-transparent/leaf-mid-left.png') center / contain no-repeat;
+  background: url('/decor/leaf-transparent/leaf-mid-left.webp') center / contain no-repeat;
   opacity: 0.78;
 }
 
@@ -23847,7 +23847,7 @@ a.reference-info-row,
   bottom: 0;
   width: 132px;
   height: 120px;
-  background-image: url('/decor/leaf-transparent/leaf-bottom-right.png');
+  background-image: url('/decor/leaf-transparent/leaf-bottom-right.webp');
   transform: none;
 }
 
@@ -24072,7 +24072,7 @@ a.reference-info-row,
   bottom: 30px;
   width: 86px;
   height: 96px;
-  background-image: url('/decor/leaf-transparent/leaf-mid-left.png');
+  background-image: url('/decor/leaf-transparent/leaf-mid-left.webp');
   opacity: 0.22;
   transform: rotate(-7deg);
 }
@@ -24391,7 +24391,7 @@ a.reference-info-row,
   height: 34px !important;
   justify-self: center !important;
   margin-top: 2px !important;
-  background: url('/decor/leaf-raster/leaf-divider-wide.png') center / contain no-repeat !important;
+  background: url('/decor/leaf-raster/leaf-divider-wide.webp') center / contain no-repeat !important;
   mix-blend-mode: multiply !important;
   opacity: 0.34 !important;
 }
@@ -24429,7 +24429,7 @@ a.reference-info-row,
   left: -42px;
   width: clamp(118px, 15vw, 170px);
   height: clamp(96px, 13vw, 150px);
-  background-image: url('/decor/leaf-raster/leaf-top-left.png');
+  background-image: url('/decor/leaf-raster/leaf-top-left.webp');
   opacity: 0.12;
   transform: rotate(-7deg);
 }
@@ -24442,7 +24442,7 @@ a.reference-info-row,
   right: -38px;
   width: clamp(116px, 15vw, 168px);
   height: clamp(92px, 13vw, 148px);
-  background-image: url('/decor/leaf-raster/leaf-top-right.png');
+  background-image: url('/decor/leaf-raster/leaf-top-right.webp');
   opacity: 0.11;
   transform: rotate(5deg);
 }
@@ -24462,14 +24462,14 @@ a.reference-info-row,
 .reference-about-leaf-right,
 .reference-faq-leaves-top,
 .quiz-reference-card::before {
-  background-image: url('/decor/leaf-raster/leaf-top-right.png') !important;
+  background-image: url('/decor/leaf-raster/leaf-top-right.webp') !important;
   opacity: 0.16 !important;
 }
 
 .reference-about-leaf-left,
 .reference-faq-leaves-left,
 .quiz-reference-card::after {
-  background-image: url('/decor/leaf-raster/leaf-top-left.png') !important;
+  background-image: url('/decor/leaf-raster/leaf-top-left.webp') !important;
   opacity: 0.14 !important;
 }
 
@@ -24477,12 +24477,12 @@ a.reference-info-row,
 .reference-about-leaf-cta,
 .reference-faq-page .reference-faq-leaves-bottom,
 .blog-redesign-help-card {
-  background-image: url('/decor/leaf-raster/leaf-divider-wide.png') !important;
+  background-image: url('/decor/leaf-raster/leaf-divider-wide.webp') !important;
 }
 
 .blog-redesign-help-card {
   background:
-    url('/decor/leaf-raster/leaf-divider-wide.png') right 22px center / 118px auto no-repeat,
+    url('/decor/leaf-raster/leaf-divider-wide.webp') right 22px center / 118px auto no-repeat,
     linear-gradient(90deg, rgba(235, 232, 213, 0.9), rgba(255, 253, 248, 0.72)),
     rgba(255, 253, 248, 0.92) !important;
 }
@@ -24954,7 +24954,7 @@ a.reference-info-row,
   width: 118px !important;
   height: 118px !important;
   pointer-events: none !important;
-  background: url('/decor/leaf-raster/leaf-top-left.png') center / contain no-repeat !important;
+  background: url('/decor/leaf-raster/leaf-top-left.webp') center / contain no-repeat !important;
   mix-blend-mode: screen !important;
   opacity: 0.5 !important;
 }
@@ -24974,7 +24974,7 @@ a.reference-info-row,
 .payment-ref-page .notatnik-final-reviews::after {
   right: -12px !important;
   bottom: 8px !important;
-  background-image: url('/decor/leaf-raster/leaf-bottom-right.png') !important;
+  background-image: url('/decor/leaf-raster/leaf-bottom-right.webp') !important;
   transform: rotate(154deg) !important;
 }
 
@@ -25095,7 +25095,7 @@ a.reference-info-row,
   width: 118px !important;
   height: 118px !important;
   pointer-events: none !important;
-  background: url('/decor/leaf-raster/leaf-top-left.png') center / contain no-repeat !important;
+  background: url('/decor/leaf-raster/leaf-top-left.webp') center / contain no-repeat !important;
   mix-blend-mode: screen !important;
   opacity: 0.5 !important;
 }
@@ -25115,7 +25115,7 @@ a.reference-info-row,
 .payment-ref-page .notatnik-final-reviews::after {
   right: -12px !important;
   bottom: 8px !important;
-  background-image: url('/decor/leaf-raster/leaf-bottom-right.png') !important;
+  background-image: url('/decor/leaf-raster/leaf-bottom-right.webp') !important;
   transform: rotate(154deg) !important;
 }
 
@@ -25236,7 +25236,7 @@ a.reference-info-row,
   width: 118px !important;
   height: 118px !important;
   pointer-events: none !important;
-  background: url('/decor/leaf-raster/leaf-top-left.png') center / contain no-repeat !important;
+  background: url('/decor/leaf-raster/leaf-top-left.webp') center / contain no-repeat !important;
   mix-blend-mode: screen !important;
   opacity: 0.5 !important;
 }
@@ -25256,7 +25256,7 @@ a.reference-info-row,
 .payment-ref-page .notatnik-final-reviews::after {
   right: -12px !important;
   bottom: 8px !important;
-  background-image: url('/decor/leaf-raster/leaf-bottom-right.png') !important;
+  background-image: url('/decor/leaf-raster/leaf-bottom-right.webp') !important;
   transform: rotate(154deg) !important;
 }
 
@@ -25362,7 +25362,7 @@ a.reference-info-row,
   width: clamp(92px, 15vw, 142px) !important;
   height: clamp(72px, 12vw, 104px) !important;
   pointer-events: none !important;
-  background: url('/decor/leaf-transparent/leaf-top-right.png') center / contain no-repeat !important;
+  background: url('/decor/leaf-transparent/leaf-top-right.webp') center / contain no-repeat !important;
   opacity: 0.2 !important;
   transform: none !important;
 }
@@ -26608,7 +26608,7 @@ body {
   position: absolute !important;
   width: 118px !important;
   height: 118px !important;
-  background: url('/decor/leaf-raster/leaf-top-left.png') center / contain no-repeat !important;
+  background: url('/decor/leaf-raster/leaf-top-left.webp') center / contain no-repeat !important;
   mix-blend-mode: screen !important;
   opacity: 0.5 !important;
 }
@@ -26628,7 +26628,7 @@ body {
 .payment-ref-page .notatnik-final-reviews::after {
   right: -12px !important;
   bottom: 8px !important;
-  background-image: url('/decor/leaf-raster/leaf-bottom-right.png') !important;
+  background-image: url('/decor/leaf-raster/leaf-bottom-right.webp') !important;
   transform: rotate(154deg) !important;
 }
 
@@ -26791,7 +26791,7 @@ body {
   width: 196px !important;
   height: 236px !important;
   pointer-events: none !important;
-  background: url('/decor/leaf-raster/leaf-top-right.png') center / contain no-repeat !important;
+  background: url('/decor/leaf-raster/leaf-top-right.webp') center / contain no-repeat !important;
   opacity: 0.28 !important;
   filter: saturate(1.14) contrast(1.18) !important;
   transform: rotate(3deg) !important;
@@ -26801,7 +26801,7 @@ body {
   top: -22px !important;
   width: 196px !important;
   height: 236px !important;
-  background-image: url('/decor/leaf-raster/leaf-top-right.png') !important;
+  background-image: url('/decor/leaf-raster/leaf-top-right.webp') !important;
   opacity: 0.28 !important;
   filter: saturate(1.14) contrast(1.18) !important;
   transform: rotate(3deg) !important;
@@ -26828,7 +26828,7 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
   width: 196px !important;
   height: 236px !important;
   pointer-events: none !important;
-  background: url('/decor/leaf-raster/leaf-top-right.png') center / contain no-repeat !important;
+  background: url('/decor/leaf-raster/leaf-top-right.webp') center / contain no-repeat !important;
   opacity: 0.28 !important;
   filter: saturate(1.14) contrast(1.18) !important;
   transform: rotate(3deg) !important;
@@ -26885,7 +26885,7 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
   width: 170px !important;
   height: 190px !important;
   pointer-events: none !important;
-  background: url('/decor/leaf-raster/leaf-top-right.png') center / contain no-repeat !important;
+  background: url('/decor/leaf-raster/leaf-top-right.webp') center / contain no-repeat !important;
   opacity: 0.24 !important;
   filter: saturate(1.08) contrast(1.1) !important;
 }
@@ -26925,7 +26925,7 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
   width: 196px !important;
   height: 236px !important;
   pointer-events: none !important;
-  background: url('/decor/leaf-raster/leaf-top-right.png') center / contain no-repeat !important;
+  background: url('/decor/leaf-raster/leaf-top-right.webp') center / contain no-repeat !important;
   opacity: 0.28 !important;
   filter: saturate(1.14) contrast(1.18) !important;
   transform: rotate(3deg) !important;
@@ -29603,7 +29603,7 @@ border: 1px solid rgba(23, 63, 36, 0.14);
   width: 196px !important;
   height: 236px !important;
   pointer-events: none !important;
-  background: url('/decor/leaf-raster/leaf-top-right.png') center / contain no-repeat !important;
+  background: url('/decor/leaf-raster/leaf-top-right.webp') center / contain no-repeat !important;
   opacity: 0.28 !important;
   filter: saturate(1.14) contrast(1.18) !important;
   transform: rotate(3deg) !important;
@@ -29820,7 +29820,7 @@ main.notatnik-page.contact-page-reference .reference-hero-leaf {
   right: -36px !important;
   width: 196px !important;
   height: 236px !important;
-  background: url('/decor/leaf-raster/leaf-top-right.png') center / contain no-repeat !important;
+  background: url('/decor/leaf-raster/leaf-top-right.webp') center / contain no-repeat !important;
   opacity: 0.28 !important;
   filter: saturate(1.14) contrast(1.18) !important;
   transform: rotate(3deg) !important;
@@ -29947,7 +29947,7 @@ main.notatnik-page.reference-about-redesign-page .reference-about-leaf-right {
   width: 196px !important;
   height: 236px !important;
   pointer-events: none !important;
-  background: url('/decor/leaf-raster/leaf-top-right.png') center / contain no-repeat !important;
+  background: url('/decor/leaf-raster/leaf-top-right.webp') center / contain no-repeat !important;
   opacity: 0.28 !important;
   filter: saturate(1.14) contrast(1.18) !important;
   transform: rotate(3deg) !important;
@@ -29970,7 +29970,7 @@ main.notatnik-page:not(.reference-about-redesign-page):not(.homepage-shell):not(
   width: 196px !important;
   height: 236px !important;
   pointer-events: none !important;
-  background: url('/decor/leaf-raster/leaf-top-right.png') center / contain no-repeat !important;
+  background: url('/decor/leaf-raster/leaf-top-right.webp') center / contain no-repeat !important;
   opacity: 0.28 !important;
   filter: saturate(1.14) contrast(1.18) !important;
   transform: rotate(3deg) !important;
@@ -30056,7 +30056,7 @@ main.notatnik-page.reference-about-redesign-page .reference-about-leaf-right {
   width: 196px !important;
   height: 236px !important;
   pointer-events: none !important;
-  background: url('/decor/leaf-raster/leaf-top-right.png') center / contain no-repeat !important;
+  background: url('/decor/leaf-raster/leaf-top-right.webp') center / contain no-repeat !important;
   opacity: 0.28 !important;
   filter: saturate(1.14) contrast(1.18) !important;
   transform: rotate(3deg) !important;
@@ -30208,7 +30208,7 @@ main.payment-ref-page > .payment-ref-shell::after {
   width: 196px !important;
   height: 236px !important;
   pointer-events: none !important;
-  background: url('/decor/leaf-raster/leaf-top-right.png') center / contain no-repeat !important;
+  background: url('/decor/leaf-raster/leaf-top-right.webp') center / contain no-repeat !important;
   opacity: 0.28 !important;
   filter: saturate(1.14) contrast(1.18) !important;
   transform: rotate(3deg) !important;
@@ -30531,7 +30531,7 @@ main.notatnik-page.reference-about-redesign-page .reference-about-leaf-right {
   width: 196px !important;
   height: 236px !important;
   pointer-events: none !important;
-  background: url('/decor/leaf-raster/leaf-top-right.png') center / contain no-repeat !important;
+  background: url('/decor/leaf-raster/leaf-top-right.webp') center / contain no-repeat !important;
   opacity: 0.28 !important;
   filter: saturate(1.14) contrast(1.18) !important;
   transform: rotate(3deg) !important;
@@ -33232,7 +33232,7 @@ html[data-theme='dark'] input[type="checkbox"] {
   bottom: -58px;
   width: 150px;
   height: 180px;
-  background: url('/decor/leaf-transparent/leaf-bottom-right.png') center / contain no-repeat;
+  background: url('/decor/leaf-transparent/leaf-bottom-right.webp') center / contain no-repeat;
   opacity: 0.14;
   pointer-events: none;
 }
@@ -33332,7 +33332,7 @@ html[data-theme='dark'] input[type="checkbox"] {
   bottom: -78px;
   width: 220px;
   height: 270px;
-  background: url('/decor/leaf-transparent/leaf-bottom-right.png') center / contain no-repeat;
+  background: url('/decor/leaf-transparent/leaf-bottom-right.webp') center / contain no-repeat;
   opacity: 0.18;
   transform: scaleX(-1);
   pointer-events: none;
@@ -33913,7 +33913,7 @@ html[data-theme='dark'] input[type="checkbox"] {
   bottom: -48px;
   width: 230px;
   height: 270px;
-  background: url('/decor/leaf-transparent/leaf-bottom-right.png') center / contain no-repeat;
+  background: url('/decor/leaf-transparent/leaf-bottom-right.webp') center / contain no-repeat;
   opacity: 0.34;
   pointer-events: none;
 }
@@ -34335,7 +34335,7 @@ html[data-theme='dark'] input[type="checkbox"] {
   border-radius: 28px;
   padding: 20px 28px 20px 20px;
   background:
-    url('/decor/leaf-transparent/leaf-bottom-right.png') right 28px bottom -22px / 150px auto no-repeat,
+    url('/decor/leaf-transparent/leaf-bottom-right.webp') right 28px bottom -22px / 150px auto no-repeat,
     linear-gradient(100deg, rgba(241, 236, 220, 0.9), rgba(255, 253, 248, 0.95));
 }
 
@@ -34623,7 +34623,7 @@ html[data-theme='dark'] input[type="checkbox"] {
   top: 30px;
   width: 190px;
   height: 230px;
-  background: url('/decor/leaf-transparent/leaf-mid-left.png') center / contain no-repeat;
+  background: url('/decor/leaf-transparent/leaf-mid-left.webp') center / contain no-repeat;
   opacity: 0.34;
   pointer-events: none;
 }
@@ -34931,7 +34931,7 @@ html[data-theme='dark'] input[type="checkbox"] {
   width: clamp(112px, 14vw, 154px) !important;
   height: clamp(112px, 14vw, 154px) !important;
   pointer-events: none !important;
-  background: url('/decor/leaf-transparent/leaf-top-left.png') center / contain no-repeat !important;
+  background: url('/decor/leaf-transparent/leaf-top-left.webp') center / contain no-repeat !important;
   mix-blend-mode: normal !important;
   opacity: 0.16 !important;
   filter: sepia(0.22) saturate(0.72) hue-rotate(354deg) !important;
@@ -34946,7 +34946,7 @@ html[data-theme='dark'] input[type="checkbox"] {
 .homepage-shell .notatnik-final-reviews.is-editorial::after {
   right: -2px !important;
   bottom: -8px !important;
-  background-image: url('/decor/leaf-transparent/leaf-bottom-right.png') !important;
+  background-image: url('/decor/leaf-transparent/leaf-bottom-right.webp') !important;
   transform: none !important;
 }
 
@@ -37629,7 +37629,7 @@ main.materialy-showcase-page > .materialy-showcase-shell {
   width: 235px;
   height: 340px;
   pointer-events: none;
-  background: url('/decor/leaf-transparent/leaf-bottom-left.png') left bottom / contain no-repeat;
+  background: url('/decor/leaf-transparent/leaf-bottom-left.webp') left bottom / contain no-repeat;
   opacity: 0.48;
   filter: sepia(0.14) saturate(0.72);
 }
@@ -37942,13 +37942,13 @@ main.materialy-showcase-page > .materialy-showcase-shell {
 .materialy-showcase-section-light::after {
   right: -56px;
   bottom: -40px;
-  background-image: url('/decor/leaf-transparent/leaf-bottom-right.png');
+  background-image: url('/decor/leaf-transparent/leaf-bottom-right.webp');
 }
 
 .materialy-showcase-section-sage::before {
   left: -66px;
   top: 110px;
-  background-image: url('/decor/leaf-transparent/leaf-mid-left.png');
+  background-image: url('/decor/leaf-transparent/leaf-mid-left.webp');
 }
 
 .materialy-showcase-heading,
@@ -38264,7 +38264,7 @@ main.materialy-showcase-page > .materialy-showcase-shell {
   width: 180px;
   height: 210px;
   pointer-events: none;
-  background: url('/decor/leaf-transparent/leaf-bottom-right.png') right bottom / contain no-repeat;
+  background: url('/decor/leaf-transparent/leaf-bottom-right.webp') right bottom / contain no-repeat;
   opacity: 0.2;
 }
 

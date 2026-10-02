@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useEffect, useState, type FormEvent } from 'react'
 import { getProblemOptionsForSpecies, getPublicServicePriceLabel, type FunnelSpecies } from '@/lib/funnel'
+import { readZapytajAvailability } from '@/lib/zapytaj-availability-client'
 
 type UrgentAvailability = { status: 'available' | 'full' | 'weekend' | 'in_progress' | 'unavailable' | 'unknown' | 'offline' | 'online_with_slot' | 'online_without_slot'; acceptedCount: number; dailyLimit: number; date?: string | null; liveSlotAvailable?: boolean }
 
@@ -36,9 +37,10 @@ export function ZapytajNaJuzForm({ standalone = false }: ZapytajNaJuzFormProps) 
     let active = true
     const refresh = async () => {
       try {
-        const response = await fetch('/api/zapytaj/availability', { cache: 'no-store' })
-        const payload = await response.json()
-        if (active) setAvailability(payload.urgentNow ?? { status: 'unavailable' })
+        const payload = await readZapytajAvailability<{ urgentNow?: UrgentAvailability }>('/api/zapytaj/availability', {
+          signal: AbortSignal.timeout(6_000),
+        })
+        if (active) setAvailability(payload.urgentNow ?? { status: 'unavailable', acceptedCount: 0, dailyLimit: 2 })
       } catch {
         if (active) setAvailability({ status: 'unknown', acceptedCount: 0, dailyLimit: 2 })
       }

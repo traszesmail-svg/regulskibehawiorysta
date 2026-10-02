@@ -3101,7 +3101,7 @@ html body main.notatnik-page .zapytaj-kicker {
   display: block;
   width: 196px;
   height: 236px;
-  background: url('/decor/leaf-raster/leaf-top-right.png') center / contain no-repeat;
+  background: url('/decor/leaf-raster/leaf-top-right.webp') center / contain no-repeat;
   content: '';
   opacity: 0.24;
   pointer-events: none;
@@ -3119,7 +3119,7 @@ html body main.notatnik-page .zapytaj-kicker {
   width: 220px;
   height: 34px;
   margin: 16px auto 0;
-  background: url('/decor/leaf-transparent/leaf-divider-wide.png') center / contain no-repeat;
+  background: url('/decor/leaf-transparent/leaf-divider-wide.webp') center / contain no-repeat;
   content: '';
   opacity: 0.58;
 }
@@ -3244,7 +3244,7 @@ html body main.notatnik-page .zapytaj-kicker {
   z-index: -1;
   width: clamp(136px, 17vw, 220px);
   height: clamp(164px, 20vw, 268px);
-  background: url('/decor/leaf-raster/leaf-bottom-right.png') center / contain no-repeat;
+  background: url('/decor/leaf-raster/leaf-bottom-right.webp') center / contain no-repeat;
   content: '';
   opacity: 0.2;
   pointer-events: none;
@@ -3362,7 +3362,7 @@ html body main.notatnik-page .zapytaj-kicker {
   z-index: 0;
   width: 196px;
   height: 236px;
-  background: url('/decor/leaf-transparent/leaf-bottom-right.png') center / contain no-repeat;
+  background: url('/decor/leaf-transparent/leaf-bottom-right.webp') center / contain no-repeat;
   content: '';
   opacity: 0.18;
   pointer-events: none;

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from 'react'
 import { CheckCircle2, RefreshCw } from 'lucide-react'
+import { readZapytajAvailability } from '@/lib/zapytaj-availability-client'
 
 type LiveStatus = {
   status: 'unavailable' | 'offline' | 'available_now' | 'payment_pending' | 'in_call' | 'buffer'
@@ -49,12 +50,9 @@ export function HomepageAvailabilityStatus() {
     let mounted = true
     async function fetchAvailability() {
       try {
-        const response = await fetch('/api/zapytaj/availability', {
-          cache: 'no-store',
+        const data = await readZapytajAvailability<AvailabilityPayload>('/api/zapytaj/availability', {
           signal: AbortSignal.timeout(6_000),
         })
-        if (!response.ok) throw new Error('Błąd pobierania dostępności')
-        const data = (await response.json()) as AvailabilityPayload
         if (mounted) {
           setAvailability(data)
           setHasError(false)

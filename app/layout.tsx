@@ -19,6 +19,7 @@ import './subpages-editorial.css'
 const manrope = Manrope({
   subsets: ['latin', 'latin-ext'],
   variable: '--font-ui',
+  preload: false,
 })
 
 const inter = Inter({
@@ -34,6 +35,7 @@ const fraunces = Fraunces({
 const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin', 'latin-ext'],
   variable: '--font-mono',
+  preload: false,
 })
 
 const metadataBase = new URL(getCanonicalBaseUrl())

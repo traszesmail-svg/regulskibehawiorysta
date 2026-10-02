@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { fetchWithAvailabilityReadDeadline } from '@/lib/server/availability-read-context'
 import { getBookingAnalyticsContextParams } from '@/lib/analytics-schema'
 import {
   getBookableServiceAvailabilityWindow,
@@ -550,6 +551,9 @@ function getSupabaseAdmin() {
     auth: {
       autoRefreshToken: false,
       persistSession: false,
+    },
+    global: {
+      fetch: fetchWithAvailabilityReadDeadline,
     },
   })
 }

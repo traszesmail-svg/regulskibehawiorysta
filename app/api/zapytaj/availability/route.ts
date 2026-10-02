@@ -12,6 +12,7 @@ import {
 import { getDataModeStatus } from '@/lib/server/env'
 import { addWarsawDateDays, countActiveUrgentDayBookings, countZapytajNowPaymentLinkRequestsForDate, getWarsawDateAndDay, getZapytajNowPublicStatus, URGENT_NOW_DAILY_LIMIT } from '@/lib/urgent-now-policy'
 import { resolveZapytajAvailabilityWindow, sliceZapytajAvailabilityWindow } from '@/lib/zapytaj-availability-window'
+import { withAvailabilityReadDeadline } from '@/lib/server/availability-read-context'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -23,7 +24,7 @@ function sharePendingRead<T>(key: string, read: () => Promise<T>): Promise<T> {
   const existing = sharedAvailabilityReads.get(key) as Promise<T> | undefined
   if (existing) return existing
 
-  const pending = read()
+  const pending = withAvailabilityReadDeadline(read, AVAILABILITY_READ_TIMEOUT_MS)
   sharedAvailabilityReads.set(key, pending)
   void pending.then(
     () => { if (sharedAvailabilityReads.get(key) === pending) sharedAvailabilityReads.delete(key) },

@@ -20,6 +20,7 @@ import { getAvailabilitySlot, createAvailabilitySlot, listBookings } from '@/lib
 import { getLocalStoreDataDir } from '@/lib/server/local-store-path'
 import { getDataModeStatus, getSupabaseServerConfig, resolveDataMode } from '@/lib/server/env'
 import { createClient } from '@supabase/supabase-js'
+import { fetchWithAvailabilityReadDeadline } from '@/lib/server/availability-read-context'
 import type { AvailabilitySlot, BookingRecord } from '@/lib/types'
 import { isZapytajNowActivationTime } from '@/lib/urgent-now-policy'
 
@@ -75,6 +76,9 @@ function getSupabaseAdmin() {
     auth: {
       autoRefreshToken: false,
       persistSession: false,
+    },
+    global: {
+      fetch: fetchWithAvailabilityReadDeadline,
     },
   })
 }

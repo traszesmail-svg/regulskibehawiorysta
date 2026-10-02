@@ -2,13 +2,14 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { ArrowRight, CalendarDays, Clock3, Compass, Layers, MessageSquareText, PhoneCall, Video, WalletCards } from 'lucide-react'
+import { ArrowRight, CalendarCheck2, Clock3, Compass, KeyRound, Layers, MessageSquareText, PhoneCall, Video, WalletCards } from 'lucide-react'
 import { Schema } from '@/components/schema'
 import { NotatnikPageShell, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
 import { getBreadcrumbJsonLd, getFaqPageJsonLd, getServiceJsonLd } from '@/lib/schema'
 import { buildMarketingMetadata } from '@/lib/seo'
 import { PUBLIC_FULL_CONSULTATION_OFFER, formatPublicOfferPrice } from '@/lib/public-offer'
 import { COAPE_POLSKA_LOGO, SPECIALIST_NAME, SPECIALIST_PUBLIC_STATUS } from '@/lib/site'
+import styles from './consultation.module.css'
 
 const CONSULTATION_FAQ_ITEMS = [
   {
@@ -64,7 +65,7 @@ export default async function ConsultationPage({
       footerPrimaryHref="/zapytaj#formularz"
       footerPrimaryLabel="Zapytaj behawiorystę – 79 zł"
       showSideVisuals={false}
-      pageClassName="canonical-service-page consultation-page"
+      pageClassName={`canonical-service-page consultation-page ${styles.page}`}
       shellClassName="canonical-service-shell"
       footerVariant="home"
       showFooterReviews={false}
@@ -147,8 +148,8 @@ export default async function ConsultationPage({
 
         <figure className="canonical-service-hero-art canonical-service-photo">
           <Image
-            src="/branding/section-heroes/consultation-home-style-v2.png"
-            alt="Opiekunka podczas spokojnej konsultacji online z behawiorystą, z psem przy boku"
+            src="/branding/section-heroes/consultation-online-branded-screen-v1.webp"
+            alt="Opiekunka z psem podczas konsultacji online, z logo Regulski Behawiorysta na ekranie laptopa"
             fill
             priority
             sizes="(max-width: 980px) 92vw, 38vw"
@@ -166,35 +167,29 @@ export default async function ConsultationPage({
           </p>
         </div>
 
-        <div className="canonical-service-steps steps-editorial">
-          <article className="step-editorial-item">
-            <div className="consultation-step-top">
-              <span className="consultation-step-icon" aria-hidden="true"><MessageSquareText size={22} /></span>
-              <span className="step-editorial-num">01</span>
-            </div>
-            <div>
-              <h3>Zapytaj behawiorystę</h3>
-              <p>Krótka, wstępna rozmowa (79 zł) pozwala ocenić problem i ustalić, czy potrzebny jest pełny proces.</p>
+        <div className={styles.steps}>
+          <article className={styles.step}>
+            <span className={styles.stepIcon} aria-hidden="true"><PhoneCall size={22} strokeWidth={1.8} /></span>
+            <div className={styles.stepCopy}>
+              <span className={styles.stepNumber}>01</span>
+              <h3 className={styles.stepTitle}>Zapytaj behawiorystę</h3>
+              <p className={styles.stepDescription}>Krótka, wstępna rozmowa (79 zł) pozwala ocenić problem i ustalić, czy potrzebny jest pełny proces.</p>
             </div>
           </article>
-          <article className="step-editorial-item">
-            <div className="consultation-step-top">
-              <span className="consultation-step-icon" aria-hidden="true"><CalendarDays size={22} /></span>
-              <span className="step-editorial-num">02</span>
-            </div>
-            <div>
-              <h3>Link do rezerwacji w aplikacji</h3>
-              <p>Gdy rekomenduję konsultację, otrzymujesz indywidualny link do dostępnych terminów.</p>
+          <article className={styles.step}>
+            <span className={styles.stepIcon} aria-hidden="true"><KeyRound size={22} strokeWidth={1.8} /></span>
+            <div className={styles.stepCopy}>
+              <span className={styles.stepNumber}>02</span>
+              <h3 className={styles.stepTitle}>Link do rezerwacji w aplikacji</h3>
+              <p className={styles.stepDescription}>Gdy rekomenduję konsultację, otrzymujesz indywidualny link do dostępnych terminów.</p>
             </div>
           </article>
-          <article className="step-editorial-item">
-            <div className="consultation-step-top">
-              <span className="consultation-step-icon" aria-hidden="true"><Video size={22} /></span>
-              <span className="step-editorial-num">03</span>
-            </div>
-            <div>
-              <h3>Rezerwacja i plan działania</h3>
-              <p>Wybierasz dogodny termin, opłacasz konsultację (475 zł) i otrzymujesz wytyczne do przygotowania.</p>
+          <article className={styles.step}>
+            <span className={styles.stepIcon} aria-hidden="true"><CalendarCheck2 size={22} strokeWidth={1.8} /></span>
+            <div className={styles.stepCopy}>
+              <span className={styles.stepNumber}>03</span>
+              <h3 className={styles.stepTitle}>Rezerwacja i plan działania</h3>
+              <p className={styles.stepDescription}>Wybierasz dogodny termin, opłacasz konsultację (475 zł) i otrzymujesz wytyczne do przygotowania.</p>
             </div>
           </article>
         </div>
@@ -208,22 +203,22 @@ export default async function ConsultationPage({
         </div>
         <div className="consultation-value-grid">
           <article className="consultation-value-card">
-            <span className="consultation-value-icon" aria-hidden="true"><Clock3 size={20} /></span>
+            <span className={`consultation-value-icon ${styles.valueIcon}`} aria-hidden="true"><Clock3 size={20} strokeWidth={1.75} /></span>
             <h3>Około 90 minut rozmowy</h3>
             <p>Spokojny czas na omówienie historii psa lub kota bez presji zegarka i powierzchownych rad.</p>
           </article>
           <article className="consultation-value-card">
-            <span className="consultation-value-icon" aria-hidden="true"><Layers size={20} /></span>
+            <span className={`consultation-value-icon ${styles.valueIcon}`} aria-hidden="true"><Layers size={20} strokeWidth={1.75} /></span>
             <h3>Analiza zachowania i domu</h3>
             <p>Przeglądamy nagrania wideo, codzienne nawyki domowników i wyzwalacze emocji zwierzęcia.</p>
           </article>
           <article className="consultation-value-card">
-            <span className="consultation-value-icon" aria-hidden="true"><Compass size={20} /></span>
+            <span className={`consultation-value-icon ${styles.valueIcon}`} aria-hidden="true"><Compass size={20} strokeWidth={1.75} /></span>
             <h3>Plan możliwy do wdrożenia</h3>
             <p>Konkretne ćwiczenia i zmiany w środowisku, dobrane do Twojego trybu życia i możliwości.</p>
           </article>
           <article className="consultation-value-card">
-            <span className="consultation-value-icon" aria-hidden="true"><MessageSquareText size={20} /></span>
+            <span className={`consultation-value-icon ${styles.valueIcon}`} aria-hidden="true"><MessageSquareText size={20} strokeWidth={1.75} /></span>
             <h3>Ustalony kontakt po spotkaniu</h3>
             <p>Sprawdzamy reakcję zwierzęcia na pierwsze zmiany i w razie potrzeby korygujemy wybrane kroki.</p>
           </article>

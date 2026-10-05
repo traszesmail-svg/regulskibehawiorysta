@@ -91,11 +91,11 @@ Jeśli bodziec nadal istnieje i kot nadal go widzi — nie. Usunięcie bodźca a
 
 Agresja przekierowana bywa mylona z konfliktem między kotami i odwrotnie. **15 min audio** pozwala szybko ocenić, z czym konkretnie masz do czynienia i co ma sens zmienić najpierw.
 
-[Zamów 15 min audio](/call) · [Konflikt między kotami w domu](/koty/konflikt-miedzy-kotami) · [Kategoria: koty](/koty)
+[Zamów 15 min audio](/call) · [Konflikt między kotami w domu](/problemy/konflikt-miedzy-kotami) · [Kategoria: koty](/problemy#kot)
 
 ## Linkowanie wewnętrzne
 
-- `/koty/konflikt-miedzy-kotami` — landing silosu (CTA)
+- `/problemy/konflikt-miedzy-kotami` — landing silosu (CTA)
 - `/call` — 15 min audio
-- `/koty` — kategoria
+- `/problemy#kot` — kategoria
 - Cross-link: wpis 24 (jak wprowadzić nowego kota), wpis 08 (kot drapie meble — napięcie środowiskowe)

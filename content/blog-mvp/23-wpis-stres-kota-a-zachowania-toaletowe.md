@@ -99,12 +99,12 @@ Tak, zazwyczaj jest to dobry pierwszy krok przy napięciu. Każdy kot z własną
 
 Stres środowiskowy bywa wielowarstwowy. **15 min audio** pozwala przejrzeć środowisko kota razem i wskazać, co ma największy sens do zmiany w pierwszej kolejności.
 
-[Zamów 15 min audio](/call) · [Kot załatwia się poza kuwetą](/koty/zalatwianie-poza-kuweta) · [Kategoria: koty](/koty) · [Materiały PDF](/materialy)
+[Zamów 15 min audio](/call) · [Kot załatwia się poza kuwetą](/problemy/kot-sika-poza-kuweta) · [Kategoria: koty](/problemy#kot) · [Materiały PDF](/materialy)
 
 ## Linkowanie wewnętrzne
 
-- `/koty/zalatwianie-poza-kuweta` — landing silosu (CTA)
+- `/problemy/kot-sika-poza-kuweta` — landing silosu (CTA)
 - `/call` — 15 min audio
-- `/koty` — kategoria
+- `/problemy#kot` — kategoria
 - `/materialy` — guide o kocie i kuwecie oraz konflikcie między kotami
-- Cross-link: wpis 04 (kot poza kuwetą), wpis 22 (kuweta i żwirek), landing `/koty/konflikt-miedzy-kotami`
+- Cross-link: wpis 04 (kot poza kuwetą), wpis 22 (kuweta i żwirek), landing `/problemy/konflikt-miedzy-kotami`

@@ -190,25 +190,9 @@ export function getDefaultReleaseSmokeRules(): ReleaseSmokeRule[] {
       requireBuildMarker: true,
     },
     {
-      path: '/cennik',
-      expectedRedirectTo: '/zapytaj',
-      expectedRedirectStatus: 301,
-    },
-    {
-      path: '/behawiorysta-online-polska',
-      expectedRedirectTo: '/',
-      expectedRedirectStatus: 301,
-      required: [
-        'Masz problem z zachowaniem psa lub kota?',
-        'Zapytaj behawiorystę.',
-      ],
-      forbiddenRaw: ['href="tel:', "href='tel:"],
-      requireBuildMarker: true,
-    },
-    {
       path: '/termin?problem=szczeniak',
       expectedRedirectTo: '/zapytaj',
-      expectedRedirectStatus: 301,
+      expectedRedirectStatus: 307,
     },
     {
       path: '/mapa-sprawy',

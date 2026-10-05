@@ -5,13 +5,12 @@ import { CreditCard, LockKeyhole, PlayCircle } from 'lucide-react'
 import { buildCommerceBlikHref, buildCommerceWaitingHref, formatCommercePrice } from '@/lib/commerce'
 
 type OnlinePaymentRuntime = {
-  provider: 'naffy' | 'stripe' | 'none'
+  provider: 'stripe' | 'none'
   available: boolean
   label: string
   buttonLabel: string
   description: string
   unavailableMessage: string
-  naffyUrl: string | null
 }
 
 type Props = {

@@ -99,4 +99,4 @@ Prawdopodobnie to ważny punkt terytorialny dla niego (przy wejściu, przy miejs
 
 Zdarza się — zwłaszcza gdy drapanie jest objawem napięcia środowiskowego, a nie tylko braku odpowiedniego drapaka. Rozmowa **Zapytaj behawiorystę (do 15 minut)** pozwala sprawdzić, czy szukasz rozwiązania we właściwym miejscu i ustalić pierwszy kierunek działania.
 
-[Zapytaj behawiorystę – 79 zł](/zapytaj) · [Kategoria: koty](/koty) · [Materiały PDF](/materialy)
+[Zapytaj behawiorystę – 79 zł](/zapytaj) · [Kategoria: koty](/problemy#kot) · [Materiały PDF](/materialy)

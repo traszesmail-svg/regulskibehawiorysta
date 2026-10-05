@@ -79,12 +79,12 @@ Minimum trzy — rozmieszczone w różnych miejscach, nie obok siebie.
 
 **15 min audio** daje ocenę środowiska i konkretny plan introdukcji pod temperament twojego obecnego kota — zanim przywieziesz nowego.
 
-[Zamów 15 min audio](/call) · [Konflikt między kotami — pełny przewodnik](/koty/konflikt-miedzy-kotami) · [Kategoria: koty](/koty) · [Materiały PDF](/materialy)
+[Zamów 15 min audio](/call) · [Konflikt między kotami — pełny przewodnik](/problemy/konflikt-miedzy-kotami) · [Kategoria: koty](/problemy#kot) · [Materiały PDF](/materialy)
 
 ## Linkowanie
 
-- `/koty/konflikt-miedzy-kotami` — landing (CTA + w tekście przy sekcji kiedy behawiorysta)
+- `/problemy/konflikt-miedzy-kotami` — landing (CTA + w tekście przy sekcji kiedy behawiorysta)
 - `/call` — 15 min audio
-- `/koty`
+- `/problemy#kot`
 - `/materialy` → guide o konflikcie między kotami
 - Cross-link: wpis 24 (jak wprowadzić nowego kota — głębszy), wpis 25 (agresja przekierowana)

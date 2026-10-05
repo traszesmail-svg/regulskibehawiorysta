@@ -72,12 +72,12 @@ Przy codziennym sprzątaniu — nie bardziej niż zakryta. Zakryta kumuluje zapa
 
 Jeśli zmieniłeś/zmieniłaś kuwetę, miejsce i żwirek, a problem wraca — **15 min audio** pozwala sprawdzić, czy to środowisko czy coś innego.
 
-[Zamów 15 min audio](/call) · [Kot załatwia się poza kuwetą — pełny przewodnik](/koty/zalatwianie-poza-kuweta) · [Kategoria: koty](/koty) · [Materiały PDF](/materialy)
+[Zamów 15 min audio](/call) · [Kot załatwia się poza kuwetą — pełny przewodnik](/problemy/kot-sika-poza-kuweta) · [Kategoria: koty](/problemy#kot) · [Materiały PDF](/materialy)
 
 ## Linkowanie
 
-- `/koty/zalatwianie-poza-kuweta` — landing (CTA + w tekście)
+- `/problemy/kot-sika-poza-kuweta` — landing (CTA + w tekście)
 - `/call` — 15 min audio
-- `/koty`
+- `/problemy#kot`
 - `/materialy` → guide „kot i kuweta"
 - Cross-link: wpis 04 (kot poza kuwetą), wpis 22 (jak wybrać kuwetę i żwirek — głębszy), wpis 23 (stres kota)

@@ -65,11 +65,11 @@ Tak, kiedy pies spontanicznie wraca do boku albo oddaje smycz. Nie "kupujesz" uw
 
 Jeśli chcesz wiedzieć, czy twój przypadek to nawyk czy reaktywność — i dostać konkretny plan na start — **15 min audio** jest po to.
 
-[Zamów 15 min audio](/call) · [Reaktywność psa na smyczy — pełny przewodnik](/psy/reaktywnosc-na-smyczy) · [Kategoria: psy](/psy)
+[Zamów 15 min audio](/call) · [Reaktywność psa na smyczy — pełny przewodnik](/problemy/pies-szczeka-na-psy) · [Kategoria: psy](/problemy#pies)
 
 ## Linkowanie
 
-- `/psy/reaktywnosc-na-smyczy` — landing (CTA + w tekście przy sekcji „coś więcej")
+- `/problemy/pies-szczeka-na-psy` — landing (CTA + w tekście przy sekcji „coś więcej")
 - `/call` — 15 min audio
-- `/psy`
+- `/problemy#pies`
 - Cross-link: wpis 07 (nawyk vs. problem), wpis 18 (próg pobudzenia), wpis 19 (ćwiczenie luźnej smyczy)

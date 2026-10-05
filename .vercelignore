@@ -1,4 +1,6 @@
 .git
+.codex/
+AGENTS.md
 .next
 .next-codex-verify
 output/**
@@ -30,7 +32,6 @@ Nowy folder/**
 strona (1)/**
 regulski/**
 prompty/**
-gumroad/**
 qa-*.js
 qa-*.png
 book-debug-*.png

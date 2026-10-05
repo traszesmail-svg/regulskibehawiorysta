@@ -29,7 +29,7 @@ test('stage 3b keeps the fallback analytics banner delayed on desktop and scroll
   assert.match(globalsSource, /body\[data-consent-banner-visible='true'\]/)
   assert.match(globalsSource, /\.consent-banner \{/)
   assert.match(globalsSource, /position: fixed;/)
-  assert.match(globalsSource, /width: min\(420px, calc\(100vw - 28px\)\);/)
+  assert.match(globalsSource, /\.consent-banner \{[^}]*right: 0;[^}]*left: 0;[^}]*width: auto;/)
   assert.match(globalsSource, /\.consent-actions \{/)
   assert.match(globalsSource, /grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);/)
   assert.match(globalsSource, /@media \(max-width: 540px\)/)

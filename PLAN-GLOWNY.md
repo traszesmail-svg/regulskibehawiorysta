@@ -1,12 +1,14 @@
 # Plan główny — Regulski Behawiorysta
 
-Data aktualizacji: 2026-09-16
+Data aktualizacji: 2026-10-05
 
 Aktualny zakres Operatora i panelu właściciela: [PLAN-OPERATOR-2026-09-16.md](PLAN-OPERATOR-2026-09-16.md). Ustalenia z 16.09 o Motoroli, automatycznych SMS-ach, dostępności online i docelowej automatyzacji Revolut zastępują starsze ograniczenia zakresu w tym dokumencie. Wykonanie i testy są rozliczane osobno; karta SIM czeka na doładowanie.
 Status: dokument kanoniczny dla dalszych decyzji i wdrożeń  
-Powiązany audyt: [AUDYT-GLOWNY-2026-09-11.md](AUDYT-GLOWNY-2026-09-11.md) (poprzedni: [AUDYT-GLOWNY-2026-09-07.md](AUDYT-GLOWNY-2026-09-07.md))
+Historyczne audyty i wycofane koncepcje: lokalne archiwum `C:\projekt\regulskibehawiorysta-archiwum-20261005` (poza repozytorium).
 
 ## 1. Decyzja nadrzędna
+
+Ustalenie użytkownika z 05.10.2026: obecna treść publiczna i układ strony są przyjętą, stałą bazą. Dalsza praca dotyczy Operatora oraz drobnych mechanizmów i napraw technicznych. Nie wznawiamy przebudowy strony, zmiany treści ani dawnych koncepcji na podstawie archiwalnych planów i audytów; takie zmiany wymagają nowej decyzji użytkownika. Porządki w repozytorium i wdrożeniach mają zachowywać przyjętą treść i wygląd.
 
 Główną ścieżką serwisu jest `Zapytaj behawiorystę — 15 min`. To samodzielna, płatna rozmowa telefoniczna za **79 zł** w zwykłym terminie. Klient płaci za rozmowę i pierwszy konkretny kierunek; nie jest to zaliczka ani ukryty formularz kwalifikacyjny do pełnej konsultacji.
 

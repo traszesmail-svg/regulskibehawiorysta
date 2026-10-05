@@ -1,8 +1,0 @@
-{
-  "releaseId": "2026-04-23-live-verification-v1",
-  "updatedAt": "2026-04-23T18:00:00+02:00",
-  "source": "local-repo",
-  "productionUrl": "https://regulskibehawiorysta.pl",
-  "verificationManifest": "/release-2026-04-23-live-verification-v1.json",
-  "liveCheck": "/live-check-20260423-codex.txt"
-}

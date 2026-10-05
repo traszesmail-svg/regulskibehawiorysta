@@ -98,4 +98,4 @@ Jeśli ciągnięcie to czysty nawyk bez reaktywności — tak. Dobry trener z me
 
 Nie musisz od razu wchodzić w duży proces. Rozmowa **Zapytaj behawiorystę (do 15 minut)** wystarczy, żeby sprawdzić dotychczasowe podejście i ustalić pierwszy kierunek działania.
 
-[Zapytaj behawiorystę – 79 zł](/zapytaj) · [Kategoria: psy](/psy) · [Materiały PDF](/materialy)
+[Zapytaj behawiorystę – 79 zł](/zapytaj) · [Kategoria: psy](/problemy#pies) · [Materiały PDF](/materialy)

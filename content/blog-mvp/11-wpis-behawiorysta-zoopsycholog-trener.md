@@ -78,4 +78,4 @@ Dla diagnozy i planu działania — często tak. Przy złożonych problemach ter
 
 Rozmowa **Zapytaj behawiorystę (do 15 minut)** pozwala spokojnie ocenić, czy problem jest treningowy, behawioralny, czy wymaga czegoś jeszcze — i ustalić pierwszy kierunek działania, zanim wejdziesz w dłuższą ścieżkę.
 
-[Zapytaj behawiorystę – 79 zł](/zapytaj) · [Jak pracuję — o metodach i podejściu](/o-mnie) · [Kategoria: psy](/psy) · [Kategoria: koty](/koty)
+[Zapytaj behawiorystę – 79 zł](/zapytaj) · [Jak pracuję — o metodach i podejściu](/o-mnie) · [Kategoria: psy](/problemy#pies) · [Kategoria: koty](/problemy#kot)

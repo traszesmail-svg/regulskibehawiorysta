@@ -1,4 +1,0 @@
-LIVE OK
-marker: 2026-04-23-codex
-source: local-repo
-note: this file exists to verify the latest production deploy without relying on cached HTML pages

@@ -99,4 +99,4 @@ Nie zawsze. Czasem są bardzo pomocne i uwalniają przestrzeń do pracy behawior
 
 To jest dokładnie ten typ problemu, przy którym rozmowa **Zapytaj behawiorystę (do 15 minut)** bywa najlepszym pierwszym krokiem: opowiadasz, co dzieje się po wyjściu z domu, co już próbowaliście i wychodzisz z ustaleniem pierwszego kierunku działania.
 
-[Zapytaj behawiorystę – 79 zł](/zapytaj) · [Zobacz pełny poradnik „pies zostaje sam”](/materialy) · [Kategoria: psy](/psy)
+[Zapytaj behawiorystę – 79 zł](/zapytaj) · [Zobacz pełny poradnik „pies zostaje sam”](/materialy) · [Kategoria: psy](/problemy#pies)

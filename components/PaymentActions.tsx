@@ -305,7 +305,7 @@ export function PaymentActions({
       const payload = (await response.json()) as {
         orderNumber?: string
         viewerToken?: string
-        onlineCheckoutUrl?: string
+        onlineCheckoutUrl?: string | null
         redirectTo?: string
         error?: string
       }

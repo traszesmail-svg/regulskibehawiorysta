@@ -23,7 +23,6 @@ const uiSmokeEmail = 'ui-smoke@example.com'
 const homeHeading = /Behawiorysta psów i kotów online|Behawiorysta psow i kotow online/i
 const materialyHeading = /Materia.*PDF.*opiekun/i
 const zapytajHeading = /Martwi Cię zachowanie psa lub kota\?|Martwi Cie zachowanie psa lub kota\?/i
-const consultationHeading = /Konsultacja behawioralna online/i
 type RouteButtonLabels = { buttonLabels?: readonly (string | RegExp)[] }
 type CallRoomMode = 'phone' | 'video-live' | 'video-locked'
 
@@ -191,36 +190,6 @@ async function applyOpinionFilter(page: Page, filter: 'Pies' | 'Kot', visibleSpe
 
   await page.locator(`[data-opinion-review][data-review-species="${visibleSpecies}"]`).first().waitFor({ timeout: routeNavigationTimeoutMs })
   assert.equal(await page.locator(`[data-opinion-review][data-review-species="${hiddenSpecies}"]`).count(), 0)
-}
-
-async function verifyRedirectRoute(
-  page: Page,
-  route: string,
-  destinationPath: string,
-  heading: RegExp,
-  options?: {
-    buttonLabels?: readonly (string | RegExp)[]
-  },
-) {
-  await page.goto(`${appUrl}${route}`, { waitUntil: 'domcontentloaded' })
-  const expectedUrl = new URL(destinationPath, appUrl)
-  const hasExpectedDestination = (currentUrl: string) => {
-    const actualUrl = new URL(currentUrl)
-    return actualUrl.pathname === expectedUrl.pathname && (!expectedUrl.hash || actualUrl.hash === expectedUrl.hash)
-  }
-  if (!hasExpectedDestination(page.url())) {
-    await page.waitForURL(
-      (currentUrl) => hasExpectedDestination(currentUrl.toString()),
-      { timeout: slowRouteTimeoutMs },
-    )
-  }
-  await page.getByRole('heading', { level: 1, name: heading }).waitFor({ timeout: slowRouteTimeoutMs })
-
-  for (const label of options?.buttonLabels ?? []) {
-    await waitForButtonLink(page, label)
-  }
-
-  console.log(`[redirect-route] ${route} -> ${new URL(page.url()).pathname}`)
 }
 
 function escapeAttributeValue(value: string) {
@@ -575,10 +544,9 @@ async function runUiSmokeOnce() {
     await waitForServer()
     await Promise.all([
       '/',
-      '/koty',
-      '/psy',
+      '/problemy#kot',
+      '/problemy#pies',
       '/book',
-      '/oferta',
       '/materialy',
     ].map((route) => fetch(`${appUrl}${route}`, { cache: 'no-store' }).catch(() => null)))
 
@@ -609,15 +577,9 @@ async function runUiSmokeOnce() {
     const desktopPage = await adminContext.newPage()
 
     if (process.env.UI_SMOKE_SKIP_SHOP !== '1') {
-      for (const [label, page] of [
-        ['mobile', publicPage],
-        ['desktop', desktopPage],
-      ] as const) {
-        await verifyRedirectRoute(page, '/koty', '/problemy#kot', /Mapa problemów/i)
-        await verifyRedirectRoute(page, '/psy', '/problemy#pies', /Mapa problemów/i)
-        await verifyRedirectRoute(page, '/cennik', '/zapytaj', zapytajHeading)
-        await verifyRedirectRoute(page, '/oferta', '/zapytaj', zapytajHeading)
-        await verifyRedirectRoute(page, '/oferta/poradniki-pdf', '/materialy', materialyHeading)
+      for (const page of [publicPage, desktopPage]) {
+        await page.goto(`${appUrl}/problemy`, { waitUntil: 'domcontentloaded' })
+        await page.getByRole('heading', { level: 1, name: /Mapa problem/i }).waitFor({ timeout: slowRouteTimeoutMs })
       }
     }
 
@@ -673,39 +635,6 @@ async function runUiSmokeOnce() {
     }
 
     await verifyOpinionsInteractions(publicPage)
-
-    for (const route of [
-      {
-        path: '/konsultacja-behawioralna-online',
-        destinationPath: '/',
-        heading: homeHeading,
-      },
-      {
-        path: '/oferta/konsultacja-behawioralna-online',
-        destinationPath: '/konsultacja',
-        heading: consultationHeading,
-      },
-      {
-        path: '/behawiorysta-psow',
-        destinationPath: '/',
-        heading: homeHeading,
-      },
-      {
-        path: '/behawiorysta-kotow',
-        destinationPath: '/',
-        heading: homeHeading,
-      },
-      {
-        path: '/oferta/poradniki-pdf',
-        destinationPath: '/materialy',
-        heading: materialyHeading,
-      },
-    ] as const) {
-      const buttonLabels = (route as RouteButtonLabels).buttonLabels
-      await verifyRedirectRoute(publicPage, route.path, route.destinationPath, route.heading, {
-        buttonLabels,
-      })
-    }
 
     await publicPage.goto(`${appUrl}/book?qa=1`, { waitUntil: 'domcontentloaded' })
     await publicPage.getByRole('heading', { name: /Wybierz termin konsultacji/i }).waitFor()

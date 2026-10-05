@@ -71,12 +71,12 @@ Przy łagodnym lęku: kilka tygodni. Przy głębszym: kilka miesięcy. Bez konkr
 
 Jeśli nie jesteś pewna/pewien, jak głęboki jest problem twojego psa — **15 min audio** daje ocenę i plan na pierwsze dwa tygodnie.
 
-[Zamów 15 min audio](/call) · [Lęk separacyjny u psa — pełny przewodnik](/psy/lek-separacyjny) · [Kategoria: psy](/psy) · [Materiały PDF](/materialy)
+[Zamów 15 min audio](/call) · [Lęk separacyjny u psa — pełny przewodnik](/problemy/pies-nie-zostaje-sam) · [Kategoria: psy](/problemy#pies) · [Materiały PDF](/materialy)
 
 ## Linkowanie
 
-- `/psy/lek-separacyjny` — landing (CTA + w tekście przy sekcji „za duże na samodzielną")
+- `/problemy/pies-nie-zostaje-sam` — landing (CTA + w tekście przy sekcji „za duże na samodzielną")
 - `/call` — 15 min audio
-- `/psy`
+- `/problemy#pies`
 - `/materialy` → guide „pies zostaje sam"
 - Cross-link: wpis 03 (pies wyje), wpis 20 (jak nagrać psa), wpis 21 (rutyna wyjścia — głębszy)

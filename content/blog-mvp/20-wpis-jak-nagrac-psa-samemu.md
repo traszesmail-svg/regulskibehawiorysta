@@ -102,11 +102,11 @@ To ważna informacja, nie wyrok. Daje punkt startowy do pracy — wiadomo, z czy
 
 Przyniesie na **15 min audio** — dosłownie. Powiedz, co widziałaś/widziałeś, albo pokaż fragment. Wychodzisz z pierwszą oceną i kierunkiem na pracę.
 
-[Zamów 15 min audio](/call) · [Lęk separacyjny u psa](/psy/lek-separacyjny) · [Kategoria: psy](/psy)
+[Zamów 15 min audio](/call) · [Lęk separacyjny u psa](/problemy/pies-nie-zostaje-sam) · [Kategoria: psy](/problemy#pies)
 
 ## Linkowanie wewnętrzne
 
-- `/psy/lek-separacyjny` — landing silosu (CTA)
+- `/problemy/pies-nie-zostaje-sam` — landing silosu (CTA)
 - `/call` — 15 min audio
-- `/psy` — kategoria
+- `/problemy#pies` — kategoria
 - Cross-link: wpis 03 (pies wyje kiedy zostaje sam), wpis 21 (rutyna wyjścia)

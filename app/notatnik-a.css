@@ -1561,13 +1561,6 @@ html[data-theme='dark'] .notatnik-page {
   box-shadow: none;
 }
 
-.blog-redesign-page .blog-index-topbar {
-  margin: 0 0 22px;
-  border: 1px solid rgba(121, 95, 61, 0.12);
-  background: rgba(255, 253, 248, 0.86);
-  box-shadow: 0 18px 48px rgba(88, 63, 32, 0.07);
-}
-
 .blog-redesign-page .blog-redesign-category-pills a,
 .blog-redesign-page .blog-redesign-latest-list a,
 .blog-redesign-page .blog-redesign-category-table a,
@@ -9973,10 +9966,6 @@ html[data-theme='dark'] .booking-details-consent input {
   font-family: var(--font-display), Georgia, serif;
   font-size: 32px;
   font-weight: 400;
-}
-
-.decision-quiz-result-price small {
-  grid-column: 1 / -1;
 }
 
 .decision-quiz-reasons {
@@ -24863,59 +24852,13 @@ a.reference-info-row,
   object-position: center !important;
 }
 
-.blog-redesign-page .blog-redesign-hero-art {
-  aspect-ratio: 1000 / 410 !important;
-  overflow: hidden !important;
-  border-radius: 14px !important;
-  background: transparent !important;
-  box-shadow: none !important;
-}
-
-.blog-redesign-page .blog-redesign-hero-art img {
-  display: block !important;
-  object-fit: cover !important;
-  object-position: center center !important;
-}
-
 /* Absolute final guard for the public header logo: one light frame, no empty padding. */
-.notatnik-page .notatnik-topbar .notatnik-brand-credential,
-.homepage-shell .notatnik-topbar .notatnik-brand-credential,
-.blog-redesign-page .notatnik-topbar .notatnik-brand-credential {
-  padding: 0 !important;
-  overflow: hidden !important;
-  border: 1px solid rgba(27, 51, 35, 0.12) !important;
-  border-radius: 999px !important;
-  background: #fffdf7 !important;
-  box-shadow: 0 8px 18px rgba(31, 39, 27, 0.08) !important;
-}
-
-.notatnik-page .notatnik-topbar .notatnik-brand-credential img,
-.homepage-shell .notatnik-topbar .notatnik-brand-credential img,
-.blog-redesign-page .notatnik-topbar .notatnik-brand-credential img {
-  display: block !important;
-  width: 100% !important;
-  height: 100% !important;
-  border-radius: inherit !important;
-  object-fit: cover !important;
-  object-position: center !important;
-}
 
 /* Absolute final guard for the approved blog hero photo: crop out embedded right/bottom artifacts. */
-.blog-redesign-page .blog-redesign-hero-art {
-  aspect-ratio: 1000 / 410 !important;
-  overflow: hidden !important;
-  border-radius: 14px !important;
-  background: transparent !important;
-  box-shadow: none !important;
-}
 
-.blog-redesign-page .blog-redesign-hero-art img {
-  display: block !important;
-  object-fit: cover !important;
-  object-position: center center !important;
-  transform: scale(1.12) !important;
-  transform-origin: left top !important;
-}
+/* Absolute final reviews guard: homepage green leafy opinion template, sitewide. */
+
+/* Absolute final reviews guard: homepage green leafy opinion template, sitewide. */
 
 /* Absolute final reviews guard: homepage green leafy opinion template, sitewide. */
 .notatnik-page .notatnik-final-reviews,
@@ -24957,307 +24900,6 @@ a.reference-info-row,
   background: url('/decor/leaf-raster/leaf-top-left.webp') center / contain no-repeat !important;
   mix-blend-mode: screen !important;
   opacity: 0.5 !important;
-}
-
-.notatnik-page .notatnik-final-reviews::before,
-.homepage-shell .notatnik-final-reviews::before,
-.blog-redesign-page .notatnik-final-reviews::before,
-.payment-ref-page .notatnik-final-reviews::before {
-  top: 10px !important;
-  left: -14px !important;
-  transform: rotate(-18deg) !important;
-}
-
-.notatnik-page .notatnik-final-reviews::after,
-.homepage-shell .notatnik-final-reviews::after,
-.blog-redesign-page .notatnik-final-reviews::after,
-.payment-ref-page .notatnik-final-reviews::after {
-  right: -12px !important;
-  bottom: 8px !important;
-  background-image: url('/decor/leaf-raster/leaf-bottom-right.webp') !important;
-  transform: rotate(154deg) !important;
-}
-
-.notatnik-page .notatnik-final-review-kicker,
-.homepage-shell .notatnik-final-review-kicker,
-.blog-redesign-page .notatnik-final-review-kicker,
-.payment-ref-page .notatnik-final-review-kicker {
-  position: relative !important;
-  z-index: 1 !important;
-  max-width: 13ch !important;
-  color: rgba(248, 241, 223, 0.82) !important;
-  font-family: var(--font-display), Georgia, serif !important;
-  font-size: clamp(25px, 8vw, 34px) !important;
-  font-weight: 520 !important;
-  letter-spacing: 0.02em !important;
-  line-height: 0.98 !important;
-  text-align: center !important;
-  text-transform: uppercase !important;
-}
-
-.notatnik-page .notatnik-final-review-quote,
-.homepage-shell .notatnik-final-review-quote,
-.blog-redesign-page .notatnik-final-review-quote,
-.payment-ref-page .notatnik-final-review-quote {
-  position: relative !important;
-  z-index: 1 !important;
-  display: grid !important;
-  width: min(100%, 640px) !important;
-  justify-items: center !important;
-  gap: 12px !important;
-  margin: 0 !important;
-}
-
-.notatnik-page .notatnik-final-review-quote p,
-.homepage-shell .notatnik-final-review-quote p,
-.blog-redesign-page .notatnik-final-review-quote p,
-.payment-ref-page .notatnik-final-review-quote p {
-  max-width: 34ch !important;
-  margin: 0 !important;
-  color: #fff8e9 !important;
-  font-family: var(--font-display), Georgia, serif !important;
-  font-size: 15px !important;
-  font-style: italic !important;
-  font-weight: 600 !important;
-  line-height: 1.42 !important;
-  text-align: center !important;
-}
-
-.notatnik-page .notatnik-final-review-quote footer,
-.notatnik-page .notatnik-final-review-quote strong,
-.homepage-shell .notatnik-final-review-quote footer,
-.homepage-shell .notatnik-final-review-quote strong,
-.blog-redesign-page .notatnik-final-review-quote footer,
-.blog-redesign-page .notatnik-final-review-quote strong,
-.payment-ref-page .notatnik-final-review-quote footer,
-.payment-ref-page .notatnik-final-review-quote strong {
-  color: #fff8e9 !important;
-  font-size: 12px !important;
-  text-align: center !important;
-}
-
-.notatnik-page .notatnik-final-review-dots,
-.homepage-shell .notatnik-final-review-dots,
-.blog-redesign-page .notatnik-final-review-dots,
-.payment-ref-page .notatnik-final-review-dots {
-  position: relative !important;
-  z-index: 1 !important;
-}
-
-.notatnik-page .notatnik-final-review-dots span,
-.homepage-shell .notatnik-final-review-dots span,
-.blog-redesign-page .notatnik-final-review-dots span,
-.payment-ref-page .notatnik-final-review-dots span {
-  background: rgba(248, 241, 223, 0.28) !important;
-}
-
-.notatnik-page .notatnik-final-review-dots span.is-active,
-.homepage-shell .notatnik-final-review-dots span.is-active,
-.blog-redesign-page .notatnik-final-review-dots span.is-active,
-.payment-ref-page .notatnik-final-review-dots span.is-active {
-  background: #d8b46e !important;
-}
-
-/* Absolute final reviews guard: homepage green leafy opinion template, sitewide. */
-.notatnik-page .notatnik-final-reviews,
-.homepage-shell .notatnik-final-reviews,
-.blog-redesign-page .notatnik-final-reviews,
-.payment-ref-page .notatnik-final-reviews {
-  position: relative !important;
-  display: grid !important;
-  place-items: center !important;
-  gap: 18px !important;
-  width: calc(100% - 28px) !important;
-  max-width: calc(100% - 28px) !important;
-  min-height: 0 !important;
-  margin: 0 auto !important;
-  padding: 26px 24px 30px !important;
-  overflow: hidden !important;
-  border-radius: 16px !important;
-  background:
-    radial-gradient(circle at 50% 0%, rgba(73, 99, 63, 0.28), transparent 52%),
-    linear-gradient(135deg, #091915 0%, #10251d 58%, #07120f 100%) !important;
-  color: #f8f1df !important;
-  box-shadow: 0 20px 38px rgba(22, 30, 23, 0.18) !important;
-}
-
-.notatnik-page .notatnik-final-reviews::before,
-.homepage-shell .notatnik-final-reviews::before,
-.blog-redesign-page .notatnik-final-reviews::before,
-.payment-ref-page .notatnik-final-reviews::before,
-.notatnik-page .notatnik-final-reviews::after,
-.homepage-shell .notatnik-final-reviews::after,
-.blog-redesign-page .notatnik-final-reviews::after,
-.payment-ref-page .notatnik-final-reviews::after {
-  content: '' !important;
-  position: absolute !important;
-  z-index: 0 !important;
-  width: 118px !important;
-  height: 118px !important;
-  pointer-events: none !important;
-  background: url('/decor/leaf-raster/leaf-top-left.webp') center / contain no-repeat !important;
-  mix-blend-mode: screen !important;
-  opacity: 0.5 !important;
-}
-
-.notatnik-page .notatnik-final-reviews::before,
-.homepage-shell .notatnik-final-reviews::before,
-.blog-redesign-page .notatnik-final-reviews::before,
-.payment-ref-page .notatnik-final-reviews::before {
-  top: 10px !important;
-  left: -14px !important;
-  transform: rotate(-18deg) !important;
-}
-
-.notatnik-page .notatnik-final-reviews::after,
-.homepage-shell .notatnik-final-reviews::after,
-.blog-redesign-page .notatnik-final-reviews::after,
-.payment-ref-page .notatnik-final-reviews::after {
-  right: -12px !important;
-  bottom: 8px !important;
-  background-image: url('/decor/leaf-raster/leaf-bottom-right.webp') !important;
-  transform: rotate(154deg) !important;
-}
-
-.notatnik-page .notatnik-final-review-kicker,
-.homepage-shell .notatnik-final-review-kicker,
-.blog-redesign-page .notatnik-final-review-kicker,
-.payment-ref-page .notatnik-final-review-kicker {
-  position: relative !important;
-  z-index: 1 !important;
-  max-width: 13ch !important;
-  color: rgba(248, 241, 223, 0.82) !important;
-  font-family: var(--font-display), Georgia, serif !important;
-  font-size: clamp(25px, 8vw, 34px) !important;
-  font-weight: 520 !important;
-  letter-spacing: 0.02em !important;
-  line-height: 0.98 !important;
-  text-align: center !important;
-  text-transform: uppercase !important;
-}
-
-.notatnik-page .notatnik-final-review-quote,
-.homepage-shell .notatnik-final-review-quote,
-.blog-redesign-page .notatnik-final-review-quote,
-.payment-ref-page .notatnik-final-review-quote {
-  position: relative !important;
-  z-index: 1 !important;
-  display: grid !important;
-  width: min(100%, 640px) !important;
-  justify-items: center !important;
-  gap: 12px !important;
-  margin: 0 !important;
-}
-
-.notatnik-page .notatnik-final-review-quote p,
-.homepage-shell .notatnik-final-review-quote p,
-.blog-redesign-page .notatnik-final-review-quote p,
-.payment-ref-page .notatnik-final-review-quote p {
-  max-width: 34ch !important;
-  margin: 0 !important;
-  color: #fff8e9 !important;
-  font-family: var(--font-display), Georgia, serif !important;
-  font-size: 15px !important;
-  font-style: italic !important;
-  font-weight: 600 !important;
-  line-height: 1.42 !important;
-  text-align: center !important;
-}
-
-.notatnik-page .notatnik-final-review-quote footer,
-.notatnik-page .notatnik-final-review-quote strong,
-.homepage-shell .notatnik-final-review-quote footer,
-.homepage-shell .notatnik-final-review-quote strong,
-.blog-redesign-page .notatnik-final-review-quote footer,
-.blog-redesign-page .notatnik-final-review-quote strong,
-.payment-ref-page .notatnik-final-review-quote footer,
-.payment-ref-page .notatnik-final-review-quote strong {
-  color: #fff8e9 !important;
-  font-size: 12px !important;
-  text-align: center !important;
-}
-
-.notatnik-page .notatnik-final-review-dots,
-.homepage-shell .notatnik-final-review-dots,
-.blog-redesign-page .notatnik-final-review-dots,
-.payment-ref-page .notatnik-final-review-dots {
-  position: relative !important;
-  z-index: 1 !important;
-}
-
-.notatnik-page .notatnik-final-review-dots span,
-.homepage-shell .notatnik-final-review-dots span,
-.blog-redesign-page .notatnik-final-review-dots span,
-.payment-ref-page .notatnik-final-review-dots span {
-  background: rgba(248, 241, 223, 0.28) !important;
-}
-
-.notatnik-page .notatnik-final-review-dots span.is-active,
-.homepage-shell .notatnik-final-review-dots span.is-active,
-.blog-redesign-page .notatnik-final-review-dots span.is-active,
-.payment-ref-page .notatnik-final-review-dots span.is-active {
-  background: #d8b46e !important;
-}
-
-/* Absolute final reviews guard: homepage green leafy opinion template, sitewide. */
-.notatnik-page .notatnik-final-reviews,
-.homepage-shell .notatnik-final-reviews,
-.blog-redesign-page .notatnik-final-reviews,
-.payment-ref-page .notatnik-final-reviews {
-  position: relative !important;
-  display: grid !important;
-  place-items: center !important;
-  gap: 18px !important;
-  width: calc(100% - 28px) !important;
-  max-width: calc(100% - 28px) !important;
-  min-height: 0 !important;
-  margin: 0 auto !important;
-  padding: 26px 24px 30px !important;
-  overflow: hidden !important;
-  border-radius: 16px !important;
-  background:
-    radial-gradient(circle at 50% 0%, rgba(73, 99, 63, 0.28), transparent 52%),
-    linear-gradient(135deg, #091915 0%, #10251d 58%, #07120f 100%) !important;
-  color: #f8f1df !important;
-  box-shadow: 0 20px 38px rgba(22, 30, 23, 0.18) !important;
-}
-
-.notatnik-page .notatnik-final-reviews::before,
-.homepage-shell .notatnik-final-reviews::before,
-.blog-redesign-page .notatnik-final-reviews::before,
-.payment-ref-page .notatnik-final-reviews::before,
-.notatnik-page .notatnik-final-reviews::after,
-.homepage-shell .notatnik-final-reviews::after,
-.blog-redesign-page .notatnik-final-reviews::after,
-.payment-ref-page .notatnik-final-reviews::after {
-  content: '' !important;
-  position: absolute !important;
-  z-index: 0 !important;
-  width: 118px !important;
-  height: 118px !important;
-  pointer-events: none !important;
-  background: url('/decor/leaf-raster/leaf-top-left.webp') center / contain no-repeat !important;
-  mix-blend-mode: screen !important;
-  opacity: 0.5 !important;
-}
-
-.notatnik-page .notatnik-final-reviews::before,
-.homepage-shell .notatnik-final-reviews::before,
-.blog-redesign-page .notatnik-final-reviews::before,
-.payment-ref-page .notatnik-final-reviews::before {
-  top: 10px !important;
-  left: -14px !important;
-  transform: rotate(-18deg) !important;
-}
-
-.notatnik-page .notatnik-final-reviews::after,
-.homepage-shell .notatnik-final-reviews::after,
-.blog-redesign-page .notatnik-final-reviews::after,
-.payment-ref-page .notatnik-final-reviews::after {
-  right: -12px !important;
-  bottom: 8px !important;
-  background-image: url('/decor/leaf-raster/leaf-bottom-right.webp') !important;
-  transform: rotate(154deg) !important;
 }
 
 .notatnik-page .notatnik-final-review-kicker,
@@ -25516,44 +25158,8 @@ a.reference-info-row,
 }
 
 /* Absolute final guard for the public header logo: one light frame, no empty padding. */
-.notatnik-page .notatnik-topbar .notatnik-brand-credential,
-.homepage-shell .notatnik-topbar .notatnik-brand-credential,
-.blog-redesign-page .notatnik-topbar .notatnik-brand-credential {
-  padding: 0 !important;
-  overflow: hidden !important;
-  border: 1px solid rgba(27, 51, 35, 0.12) !important;
-  border-radius: 999px !important;
-  background: #fffdf7 !important;
-  box-shadow: 0 8px 18px rgba(31, 39, 27, 0.08) !important;
-}
-
-.notatnik-page .notatnik-topbar .notatnik-brand-credential img,
-.homepage-shell .notatnik-topbar .notatnik-brand-credential img,
-.blog-redesign-page .notatnik-topbar .notatnik-brand-credential img {
-  display: block !important;
-  width: 100% !important;
-  height: 100% !important;
-  border-radius: inherit !important;
-  object-fit: cover !important;
-  object-position: center !important;
-}
 
 /* Absolute final guard for the approved blog hero photo: crop out embedded right/bottom artifacts. */
-.blog-redesign-page .blog-redesign-hero-art {
-  aspect-ratio: 1000 / 410 !important;
-  overflow: hidden !important;
-  border-radius: 14px !important;
-  background: transparent !important;
-  box-shadow: none !important;
-}
-
-.blog-redesign-page .blog-redesign-hero-art img {
-  display: block !important;
-  object-fit: cover !important;
-  object-position: center center !important;
-  transform: scale(1.12) !important;
-  transform-origin: left top !important;
-}
 
 /* Final header logo and blog hero crop guard. */
 .notatnik-page .notatnik-topbar .notatnik-brand-credential,
@@ -26524,13 +26130,6 @@ body {
 }
 
 /* Final blog hero image guard: keep the approved photo filling its frame without decorative leftovers. */
-.blog-redesign-page .blog-redesign-hero-art {
-  aspect-ratio: 1000 / 410 !important;
-  overflow: hidden !important;
-  border-radius: 14px !important;
-  background: transparent !important;
-  box-shadow: none !important;
-}
 
 .blog-redesign-page .blog-redesign-hero-art img {
   display: block !important;
@@ -26678,14 +26277,6 @@ body {
 }
 
 /* Final homepage/quiz correction: no top-right leaf on home, normalized quiz text and section padding. */
-.notatnik-page.homepage-shell > .notatnik-shell::after,
-.homepage-shell .homepage-main::after {
-  content: none !important;
-  display: none !important;
-  background: none !important;
-  background-image: none !important;
-  opacity: 0 !important;
-}
 
 .notatnik-page.quiz-page .quiz-reference-stage {
   padding: 18px 14px 0 !important;
@@ -28826,133 +28417,6 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
   scroll-margin-top: 18px;
 }
 
-.termin-inline-flow-head {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.62fr);
-  gap: clamp(16px, 3vw, 28px);
-  align-items: start;
-}
-
-.termin-inline-flow-eyebrow {
-  display: inline-flex;
-  width: fit-content;
-  margin-bottom: 10px;
-  padding: 7px 11px;
-  border-radius: 999px;
-  background: rgba(212, 222, 190, 0.72);
-  color: #174b2c;
-  font-size: 12px;
-  font-weight: 900;
-  line-height: 1;
-}
-
-.termin-inline-flow-head h2 {
-  margin: 0;
-  color: #07371f;
-  font-family: var(--font-display), Georgia, serif;
-  font-size: clamp(28px, 3vw, 38px);
-  font-weight: 650;
-  line-height: 1.08;
-  letter-spacing: 0;
-}
-
-.termin-inline-flow-head p {
-  max-width: 62ch;
-  margin: 10px 0 0;
-  color: rgba(22, 35, 28, 0.74);
-  font-size: 15px;
-  line-height: 1.55;
-}
-
-.termin-inline-flow-steps {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
-  min-width: 0;
-}
-
-.termin-inline-flow-steps span {
-  display: grid;
-  gap: 7px;
-  min-width: 0;
-  min-height: 70px;
-  align-content: center;
-  justify-items: center;
-  padding: 10px;
-  border: 1px solid rgba(23, 63, 36, 0.12);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.64);
-  color: rgba(18, 47, 34, 0.7);
-  font-size: 12px;
-  font-weight: 850;
-  text-align: center;
-}
-
-.termin-inline-flow-steps strong {
-  display: inline-grid;
-  width: 28px;
-  height: 28px;
-  place-items: center;
-  border-radius: 999px;
-  background: rgba(23, 63, 36, 0.1);
-  color: #174b2c;
-  font-size: 13px;
-}
-
-.termin-inline-flow-steps span.is-active,
-.termin-inline-flow-steps span.is-complete {
-  border-color: rgba(23, 75, 44, 0.28);
-  background: #e9ecd8;
-  color: #07371f;
-}
-
-.termin-inline-flow-steps span.is-active strong,
-.termin-inline-flow-steps span.is-complete strong {
-  background: #174b2c;
-  color: #fffdf8;
-}
-
-.termin-inline-flow-body,
-.termin-inline-payment-panel {
-  display: grid;
-  gap: 16px;
-  min-width: 0;
-}
-
-.termin-inline-booking-flow .booking-details-form {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  padding: 0;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
-}
-
-.termin-inline-booking-flow .booking-details-safe-note,
-.termin-inline-booking-flow .booking-details-submit,
-.termin-inline-booking-flow .notatnik-callout,
-.termin-inline-booking-flow .booking-details-field-wide,
-.termin-inline-booking-flow .booking-details-consent {
-  grid-column: 1 / -1;
-}
-
-.termin-inline-booking-flow .payment-ref-action {
-  display: grid;
-  gap: 16px;
-}
-
-.termin-inline-booking-flow .payment-ref-method-tabs {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.termin-inline-flow-empty {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  min-height: 58px;
-  color: rgba(22, 35, 28, 0.74);
-  font-weight: 800;
-}
-
 @media (max-width: 980px) {
   .termin-inline-flow-head,
   .termin-inline-booking-flow .booking-details-form,
@@ -28980,27 +28444,6 @@ main.notatnik-page[class*="wybor_page"] > .notatnik-shell::after {
 }
 
 /* Stage 9 layout guardrails for dense funnel controls. */
-.notatnik-page :where(.notatnik-btn, .button, .big-button, .router-choice-card, .termin-nearest-slot-link, .termin-summary-cta, .booking-details-submit, .pricing-2026-btn),
-.payment-ref-page :where(.payment-ref-submit, .payment-ref-method-tab, .payment-ref-secondary-button, .button, .big-button),
-.opinions-showcase-page :where(.opinions-filter-bar button, .opinions-story-button) {
-  min-width: 0;
-  max-width: 100%;
-  white-space: normal;
-  overflow-wrap: anywhere;
-}
-
-.notatnik-page :where(.router-choice-grid, .termin-calendar-shell, .pricing-2026-offers, .pricing-2026-help-actions),
-.payment-ref-page :where(.payment-ref-method-tabs, .payment-ref-submit-row, .payment-ref-button-row),
-.opinions-showcase-page :where(.opinions-filter-bar, .opinions-review-grid) {
-  min-width: 0;
-  max-width: 100%;
-}
-
-.notatnik-page :where(.router-choice-card, .termin-summary-card, .pricing-2026-offer),
-.payment-ref-page :where(.payment-ref-method-tab, .payment-ref-method-panel),
-.opinions-showcase-page :where(.opinions-review-card, .opinions-proof-item) {
-  contain: layout paint;
-}
 
 /* Final homepage acceptance fixes, June 2026. */
 .homepage-intro-popup {
@@ -29854,18 +29297,6 @@ main.notatnik-page.reference-faq-page > .reference-shell,
 main.notatnik-page.reference-pricing-page > .reference-shell,
 main.notatnik-page.contact-page-reference > .contact-shell {
   position: relative !important;
-}
-
-main.notatnik-page.blog-redesign-page .reference-hero-leaf-anchor,
-main.notatnik-page.reference-faq-page .reference-hero-leaf-anchor,
-main.notatnik-page.reference-pricing-page .reference-hero-leaf-anchor,
-main.notatnik-page.contact-page-reference .reference-hero-leaf-anchor {
-  position: relative !important;
-  z-index: 1 !important;
-  display: block !important;
-  width: 100% !important;
-  height: 0 !important;
-  pointer-events: none !important;
 }
 
 main.notatnik-page.blog-redesign-page .reference-hero-leaf-anchor > .reference-hero-leaf,
@@ -41414,12 +40845,6 @@ main.notatnik-page.reference-about-redesign-page .reference-about-first-contact 
 }
 
 /* /o-mnie correction: open editorial blocks patterned on the homepage FAQ rhythm. */
-main.notatnik-page.reference-about-redesign-page .reference-about-portrait-card {
-  width: min(360px, 100%) !important;
-  height: auto !important;
-  aspect-ratio: 2 / 3 !important;
-  overflow: hidden !important;
-}
 
 main.notatnik-page.reference-about-redesign-page .reference-about-portrait-card img {
   display: block !important;
@@ -41429,79 +40854,15 @@ main.notatnik-page.reference-about-redesign-page .reference-about-portrait-card 
   object-position: center !important;
 }
 
-main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card {
-  grid-template-columns: minmax(0, 1fr) minmax(230px, 0.72fr) !important;
-  align-items: start !important;
-}
-
 main.notatnik-page.reference-about-redesign-page .reference-about-story-card,
 main.notatnik-page.reference-about-redesign-page .reference-about-credentials-card {
   grid-template-columns: minmax(0, 1fr) !important;
-}
-
-main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card > .reference-about-card-body {
-  grid-column: 1;
-}
-
-main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card > .reference-methodology-points {
-  grid-column: 2;
-  align-self: center;
-  padding: 4px 0 4px 22px !important;
-  border: 0 !important;
-  border-left: 1px solid rgba(185, 155, 98, 0.42) !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
 }
 
 main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card::before,
 main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card::after {
   content: none !important;
   display: none !important;
-}
-
-main.notatnik-page.reference-about-redesign-page .reference-about-credentials-card .reference-about-credential-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-  gap: 0 !important;
-}
-
-main.notatnik-page.reference-about-redesign-page .reference-about-credentials-card .reference-about-credential {
-  min-height: 0 !important;
-  padding: 4px 24px !important;
-  border: 0 !important;
-  background: transparent !important;
-}
-
-main.notatnik-page.reference-about-redesign-page .reference-about-credentials-card .reference-about-credential + .reference-about-credential {
-  border-left: 1px solid rgba(185, 155, 98, 0.42) !important;
-}
-
-main.notatnik-page.reference-about-redesign-page .reference-about-publication-card {
-  display: block !important;
-  padding: clamp(28px, 4vw, 44px) !important;
-}
-
-main.notatnik-page.reference-about-redesign-page .reference-magwet-wordmark {
-  display: block;
-  width: min(220px, 60vw);
-  height: auto;
-  margin: 0 0 18px;
-  object-fit: contain;
-  opacity: 0.82;
-}
-
-main.notatnik-page.reference-about-redesign-page .reference-about-publication-list {
-  gap: 0 !important;
-  margin-top: 20px !important;
-}
-
-main.notatnik-page.reference-about-redesign-page .reference-about-publication-list article {
-  padding: 20px 0 !important;
-  border: 0 !important;
-  border-top: 1px solid rgba(185, 155, 98, 0.38) !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
 }
 
 main.notatnik-page.reference-about-redesign-page .reference-about-publication-list article > span {
@@ -41679,10 +41040,6 @@ main.notatnik-page.reference-about-redesign-page .reference-about-portrait-card 
 main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card {
   grid-template-columns: minmax(0, 1fr) minmax(230px, 0.72fr) !important;
   align-items: start !important;
-}
-
-main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card > .reference-about-card-body {
-  grid-column: 1;
 }
 
 main.notatnik-page.reference-about-redesign-page .reference-about-methodology-card > .reference-methodology-points {

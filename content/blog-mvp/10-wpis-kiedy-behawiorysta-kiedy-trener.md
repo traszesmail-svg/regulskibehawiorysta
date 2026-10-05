@@ -99,4 +99,4 @@ Opisz sytuację i zapytaj wprost. Każdy rzetelny specjalista powie ci, czy to d
 
 Opisz krótko, co się dzieje. Rozmowa **Zapytaj behawiorystę (do 15 minut)** sprawdza się właśnie przy takich wątpliwościach: pozwala odróżnić problem behawioralny od treningowego i ustalić pierwszy kierunek działania.
 
-[Zapytaj behawiorystę – 79 zł](/zapytaj) · [Kategoria: psy](/psy) · [O mnie — jak pracuję](/o-mnie)
+[Zapytaj behawiorystę – 79 zł](/zapytaj) · [Kategoria: psy](/problemy#pies) · [O mnie — jak pracuję](/o-mnie)

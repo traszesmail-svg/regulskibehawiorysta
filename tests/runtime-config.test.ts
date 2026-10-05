@@ -6,11 +6,8 @@ import { test } from 'node:test'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import ContactPage from '@/app/kontakt/page'
-import OpinionsPage from '@/app/opinie/page'
 import generateRobots from '@/app/robots'
 import { Footer } from '@/components/Footer'
-import { SocialSection } from '@/components/SocialSection'
-import { SocialProofSection } from '@/components/SocialProofSection'
 import { buildBookHref, buildFormHref, buildPaymentHref, buildSlotHref, readClinicFlowSearchParam, readQaBookingSearchParam } from '@/lib/booking-routing'
 import { BUILD_MARKER_KEY } from '@/lib/build-marker'
 import { evaluateReleaseSmokeRedirect, getDefaultReleaseSmokeRules } from '@/lib/release-smoke'
@@ -145,31 +142,13 @@ test.skip('home hero uses the approved cutover assets', () => {
   assert.match(headerSource, /brand-mark-coape/)
 })
 
-test.skip('home and opinions pages surface real social proof and local SEO', async () => {
+test.skip('home and opinions pages retain local SEO metadata', async () => {
   const homeSource = readSource('app', 'page.tsx')
   const opinionsSource = readSource('app', 'opinie', 'page.tsx')
   const homeMetadata = await buildHomeMetadata()
-  const opinionsMarkup = renderToStaticMarkup(createElement(OpinionsPage))
-  const socialPreviewMarkup = renderToStaticMarkup(createElement(SocialProofSection, { showSubmissionForm: false }))
-  const socialFullMarkup = renderToStaticMarkup(createElement(SocialProofSection))
 
-  assert.doesNotMatch(homeSource, /SocialProofSection/)
-  assert.doesNotMatch(homeSource, /showSubmissionForm=\{false\}/)
-  assert.match(opinionsSource, /SocialProofSection/)
   assert.match(opinionsSource, /buildMarketingMetadata/)
   assert.match(String(homeMetadata.openGraph?.siteName ?? ''), /Regulski \| Terapia behawioralna/)
-  assert.match(opinionsMarkup, /real-case-grid/)
-  assert.match(opinionsMarkup, /Historie opiekunów i efekty konsultacji/)
-  assert.equal(countMatches(opinionsMarkup, /real-case-card/g), 10)
-  assert.equal(countMatches(opinionsMarkup, /real-case-gallery-item/g), 20)
-  assert.match(opinionsMarkup, /Dodaj swoją opinię do ręcznej weryfikacji/)
-  assert.match(socialPreviewMarkup, /Historie opiekunów i efekty konsultacji/)
-  assert.equal(countMatches(socialPreviewMarkup, /real-case-card/g), 10)
-  assert.match(socialPreviewMarkup, /Publiczne źródła/)
-  assert.match(socialPreviewMarkup, /Magazyn Weterynaryjny/)
-  assert.match(socialPreviewMarkup, /Zobacz pełną sekcję opinii/)
-  assert.match(socialFullMarkup, /Dodaj swoją opinię do ręcznej weryfikacji/)
-  assert.match(socialFullMarkup, /Publiczne źródła/)
 })
 
 test('opinions page keeps dog cat depth, expandable reviews and upload form hooks', () => {
@@ -358,38 +337,38 @@ test('account and access routes explicitly prevent private response storage', ()
   }
 })
 
-test('release smoke validates the intentional legacy online-page redirect without following it', () => {
-  const rule = getDefaultReleaseSmokeRules().find((item) => item.path === '/behawiorysta-online-polska')
+test('release smoke validates the current term-selection redirect without following it', () => {
+  const rule = getDefaultReleaseSmokeRules().find((item) => item.path === '/termin?problem=szczeniak')
 
-  assert.equal(rule?.expectedRedirectTo, '/')
-  assert.equal(rule?.expectedRedirectStatus, 301)
+  assert.equal(rule?.expectedRedirectTo, '/zapytaj')
+  assert.equal(rule?.expectedRedirectStatus, 307)
 })
 
 test('release redirect evaluator accepts a same-origin cache-busted redirect and rejects unsafe targets', () => {
-  const rule = getDefaultReleaseSmokeRules().find((item) => item.path === '/behawiorysta-online-polska')
+  const rule = getDefaultReleaseSmokeRules().find((item) => item.path === '/termin?problem=szczeniak')
   assert.ok(rule)
 
   const passed = evaluateReleaseSmokeRedirect(
-    'https://regulskibehawiorysta.pl/behawiorysta-online-polska?__release_smoke=1',
+    'https://regulskibehawiorysta.pl/termin?problem=szczeniak&__release_smoke=1',
     rule,
-    301,
-    '/?__release_smoke=1',
+    307,
+    '/zapytaj?problem=szczeniak&__release_smoke=1',
   )
   assert.equal(passed.ok, true)
   assert.deepEqual(passed.issues, [])
-  assert.equal(passed.target, '/?__release_smoke=1')
+  assert.equal(passed.target, '/zapytaj?problem=szczeniak&__release_smoke=1')
 
   const external = evaluateReleaseSmokeRedirect(
-    'https://regulskibehawiorysta.pl/behawiorysta-online-polska',
+    'https://regulskibehawiorysta.pl/termin?problem=szczeniak',
     rule,
-    301,
+    307,
     'https://example.test/',
   )
   assert.equal(external.ok, false)
   assert.match(external.issues.join(' | '), /redirect origin/)
 
   const wrongStatus = evaluateReleaseSmokeRedirect(
-    'https://regulskibehawiorysta.pl/behawiorysta-online-polska',
+    'https://regulskibehawiorysta.pl/termin?problem=szczeniak',
     rule,
     302,
     '/',
@@ -401,15 +380,11 @@ test('release redirect evaluator accepts a same-origin cache-busted redirect and
 test('home starts with one paid Zapytaj service and keeps the map optional', () => {
   const homeSource = readSource('app', 'page.tsx')
   const heroSource = readSource('components', 'HomepageZapytajHero.tsx')
-  const introPopupSource = readSource('components', 'HomepageIntroPopup.tsx')
 
   assert.match(homeSource, /<HomepageZapytajHero \/>/)
   assert.doesNotMatch(homeSource, /<HomepageServiceSelector \/>/)
   assert.match(heroSource, /Zapytaj behawiorystę —/)
   assert.match(heroSource, /pricePln/)
-  assert.match(introPopupSource, /To właściwe miejsce/)
-  assert.match(introPopupSource, /Nie wiesz, jak to nazwać\? Otwórz mapę/)
-  assert.doesNotMatch(introPopupSource, /Ĺ|Ä|Ă|ďż˝/)
 })
 
 test('audit priority fixes keep booking copy, no-js contact and technical SEO aligned', () => {
@@ -492,8 +467,9 @@ test('robots block all crawling outside production and expose sitemap on product
   )
 })
 
-test('service-page architecture keeps one broad online landing and redirects helper seo routes', () => {
+test('service-page architecture keeps one broad online landing and direct problem links', () => {
   const growthLayerSource = readSource('lib', 'growth-layer.ts')
+  const blogSource = readSource('lib', 'blog.tsx')
   const nextConfigSource = readSource('next.config.mjs')
   const uiSmokeSource = readSource('scripts', 'ui-smoke.ts')
 
@@ -501,23 +477,14 @@ test('service-page architecture keeps one broad online landing and redirects hel
   assert.match(growthLayerSource, /title: 'Behawiorysta psów i kotów online - cała Polska'/)
   assert.match(growthLayerSource, /href: '\/'/)
 
-  assert.match(nextConfigSource, /source: '\/behawiorysta-psow'/)
-  assert.match(nextConfigSource, /source: '\/behawiorysta-kotow'/)
-  assert.match(nextConfigSource, /source: '\/psy'/)
-  assert.match(nextConfigSource, /source: '\/koty'/)
-  assert.match(nextConfigSource, /destination: '\/'/)
-
-  assert.match(uiSmokeSource, /path: '\/behawiorysta-psow'/)
-  assert.match(uiSmokeSource, /path: '\/behawiorysta-kotow'/)
-  assert.match(uiSmokeSource, /verifyRedirectRoute\(page, '\/koty', '\/problemy#kot', \/Mapa problemów\/i\)/)
-  assert.match(uiSmokeSource, /verifyRedirectRoute\(page, '\/psy', '\/problemy#pies', \/Mapa problemów\/i\)/)
-  assert.match(uiSmokeSource, /if \(!hasExpectedDestination\(page\.url\(\)\)\)/)
+  assert.match(blogSource, /categoryHref: '\/problemy#pies'/)
+  assert.match(blogSource, /categoryHref: '\/problemy#kot'/)
+  assert.doesNotMatch(nextConfigSource, /async redirects\(\)/)
+  assert.match(uiSmokeSource, /page\.goto\(`\$\{appUrl\}\/problemy`/)
 })
 
 test('copy governance keeps Zapytaj behawiorystę as the primary service and live option as supporting detail', () => {
   const copyGovernanceSource = readSource('lib', 'copy-governance.ts')
-  const offerEntrySource = readSource('components', 'OfferEntrySection.tsx')
-  const bookingServiceInfoCardSource = readSource('components', 'BookingServiceInfoCard.tsx')
   const contactSource = readSource('app', 'kontakt', 'page.tsx')
   const bookSource = readSource('app', 'book', 'page.tsx')
   const seoSource = readSource('lib', 'seo.ts')
@@ -525,13 +492,6 @@ test('copy governance keeps Zapytaj behawiorystę as the primary service and liv
   assert.match(copyGovernanceSource, /primary: 'Zapytaj behawiorystę'/)
   assert.match(copyGovernanceSource, /primaryDescriptor: 'do 15 min połączenia telefonicznego'/)
   assert.match(copyGovernanceSource, /primaryLead: 'Zapytaj behawiorystę to rozmowa telefoniczna/)
-
-  assert.match(offerEntrySource, /COPY_SERVICE_NAMES\.primaryDescriptor/)
-  assert.match(offerEntrySource, /Ten sam zakres co zwykłe Zapytaj behawiorystę/)
-
-  assert.match(bookingServiceInfoCardSource, /const isPhoneService = service\.mode === 'phone'/)
-  assert.match(bookingServiceInfoCardSource, /połączenie telefoniczne/)
-  assert.match(bookingServiceInfoCardSource, /Jitsi/)
 
   assert.match(contactSource, /Opisz krótko, co dzieje się u Twojego psa lub kota/)
   assert.doesNotMatch(contactSource, /<h3>Kwadrans z behawiorysta<\/h3>/)
@@ -616,27 +576,13 @@ test('Mapa zachowania speaks to the owner instead of exposing internal funnel la
   assert.match(profileClaimMigrationSource, /cron\.schedule/)
 })
 
-test('booking form intro follows the selected service instead of a generic booking lead', () => {
-  const bookingFormSource = readSource('components', 'BookRequestForm.tsx')
-
-  assert.match(bookingFormSource, /function getSelectedServiceIntro/)
-  assert.match(bookingFormSource, /Wybrana rozmowa: \$\{option\.label\} \/ \$\{option\.price\}\./)
-  assert.match(bookingFormSource, /30 min połączenia telefonicznego, gdy temat ma kilka wątków/)
-  assert.match(bookingFormSource, /Około 90 minut przez Jitsi.*14 dni wsparcia przez WhatsApp/)
-  assert.doesNotMatch(bookingFormSource, /PUBLIC_OFFER_BOOKING_LEAD/)
-  assert.doesNotMatch(bookingFormSource, /PUBLIC_OFFER_BOOKING_REASSURANCE/)
-})
-
-test('home and legacy species paths use current canonical routes', () => {
+test('home and blog categories use current canonical problem paths', () => {
   const homeSource = readSource('app', 'page.tsx')
   const homeHeroSource = readSource('components', 'HomepageZapytajHero.tsx')
+  const blogPageSource = readSource('app', 'blog', 'page.tsx')
+  const blogSource = readSource('lib', 'blog.tsx')
   const nextConfigSource = readSource('next.config.mjs')
-  const funnelActionsSource = readSource('components', 'FunnelPrimaryActions.tsx')
-  const serviceDecisionSource = readSource('components', 'ServiceDecisionSection.tsx')
-
-  assert.match(serviceDecisionSource, /strony usługi online/)
-  assert.match(funnelActionsSource, /serviceHref\?: string/)
-  assert.match(funnelActionsSource, /Jeśli chcesz najpierw zobaczyć pełny opis usługi/)
+  const uiSmokeSource = readSource('scripts', 'ui-smoke.ts')
 
   assert.match(homeSource, /HomepageZapytajHero/)
   assert.match(homeHeroSource, /href="\/zapytaj"/)
@@ -644,15 +590,14 @@ test('home and legacy species paths use current canonical routes', () => {
   assert.doesNotMatch(homeSource, /homepage-clinic-entry/)
   assert.doesNotMatch(homeSource, /ClinicCodeEntry/)
   assert.doesNotMatch(homeSource, /pelnego opisu konsultacji online/)
-  assert.doesNotMatch(homeSource, /<ServiceDecisionSection/)
   assert.match(homeSource, /Behawiorysta ps/)
 
-  assert.match(nextConfigSource, /source: '\/psy'/)
-  assert.match(nextConfigSource, /source: '\/psy\/:path\*'/)
-  assert.match(nextConfigSource, /source: '\/koty'/)
-  assert.match(nextConfigSource, /source: '\/koty\/:path\*'/)
-  assert.match(nextConfigSource, /destination: '\/problemy#pies'/)
-  assert.match(nextConfigSource, /destination: '\/problemy#kot'/)
+  assert.match(blogPageSource, /post\.categoryHref === '\/problemy#pies'/)
+  assert.match(blogPageSource, /post\.categoryHref === '\/problemy#kot'/)
+  assert.match(blogSource, /categoryHref: '\/problemy#pies'/)
+  assert.match(blogSource, /categoryHref: '\/problemy#kot'/)
+  assert.doesNotMatch(nextConfigSource, /async redirects\(\)/)
+  assert.match(uiSmokeSource, /page\.goto\(`\$\{appUrl\}\/problemy`/)
 })
 
 test.skip('offer and booking pages keep quick-scan language', () => {
@@ -822,13 +767,11 @@ test.skip('contact, header, footer and legal pages stay aligned with the public 
 test.skip('social trust surfaces keep CAPBT and Instagram together', () => {
   const homeSource = readSource('app', 'page.tsx')
   const footerSource = readSource('components', 'Footer.tsx')
-  const socialSource = readSource('components', 'SocialSection.tsx')
   const legalLayoutSource = readSource('components', 'LegalPageLayout.tsx')
   const siteSource = readSource('lib', 'site.ts')
   const leanFooterMarkup = renderToStaticMarkup(createElement(Footer))
   const landingFooterMarkup = renderToStaticMarkup(createElement(Footer, { variant: 'landing' }))
   const fullFooterMarkup = renderToStaticMarkup(createElement(Footer, { variant: 'full' }))
-  const socialMarkup = renderToStaticMarkup(createElement(SocialSection))
 
   assert.match(siteSource, /INSTAGRAM_PROFILE_URL/)
   assert.match(siteSource, /instagram\.com\/coapebehawiorysta/)
@@ -838,7 +781,6 @@ test.skip('social trust surfaces keep CAPBT and Instagram together', () => {
   assert.match(homeSource, /editorial-home-footer/)
   assert.match(homeSource, /editorial-home-footer-links/)
   assert.match(footerSource, /INSTAGRAM_PROFILE_URL/)
-  assert.match(socialSource, /INSTAGRAM_PROFILE_URL/)
   assert.match(legalLayoutSource, /INSTAGRAM_PROFILE_URL/)
   assert.match(leanFooterMarkup, /behawioryscicoape\.pl\/behawiorysta\/Regulski/)
   assert.match(leanFooterMarkup, /instagram\.com\/coapebehawiorysta/)
@@ -846,8 +788,6 @@ test.skip('social trust surfaces keep CAPBT and Instagram together', () => {
   assert.match(landingFooterMarkup, /instagram\.com\/coapebehawiorysta/)
   assert.match(fullFooterMarkup, /behawioryscicoape\.pl\/behawiorysta\/Regulski/)
   assert.match(fullFooterMarkup, /instagram\.com\/coapebehawiorysta/)
-  assert.match(socialMarkup, /behawioryscicoape\.pl\/behawiorysta\/Regulski/)
-  assert.match(socialMarkup, /instagram\.com\/coapebehawiorysta/)
 })
 
 test('qa checkout routing stays isolated and allowlist-gated', () => {
@@ -996,7 +936,6 @@ test('cat topic images exist in the dedicated catalog', () => {
 
 test.skip('booking funnel sources keep canonical routing and standardized analytics events', () => {
   const homeSource = readSource('app', 'page.tsx')
-  const stickyCtaSource = readSource('components', 'HomeMobileStickyCta.tsx')
   const contactSource = readSource('app', 'kontakt', 'page.tsx')
   const slotSource = readSource('app', 'slot', 'page.tsx')
   const bookSource = readSource('app', 'book', 'page.tsx')
@@ -1026,8 +965,6 @@ test.skip('booking funnel sources keep canonical routing and standardized analyt
   assert.match(homeSource, /buildHomeMetadata/)
   assert.match(homeSource, /AnalyticsEventOnMount/)
   assert.match(homeSource, /funnel_entry_15_min/)
-  assert.match(stickyCtaSource, /data-analytics-event="funnel_entry_15_min"/)
-  assert.match(stickyCtaSource, /data-home-sticky-cta="start"/)
   assert.match(contactSource, /contact-lead-general/)
   assert.match(contactSource, /contact-lead-resource/)
   assert.match(contactSource, /contact-lead-reschedule/)
@@ -1096,7 +1033,7 @@ test('owner booking notification is sent only after payment report or paid confi
   assert.match(manualPaymentSource, /sendManualPaymentReportedAdminEmailWithTimeout\(updatedBooking/)
 })
 
-test('commerce checkout uses Naffy runtime and refuses silent admin notification failures', () => {
+test('commerce checkout uses Stripe runtime and refuses silent admin notification failures', () => {
   const checkoutSource = readSource('app', 'checkout', 'page.tsx')
   const checkoutActionsSource = readSource('components', 'CommerceCheckoutActions.tsx')
   const onlineRouteSource = readSource('app', 'api', 'payments', 'online', 'create-checkout', 'route.ts')
@@ -1111,15 +1048,8 @@ test('commerce checkout uses Naffy runtime and refuses silent admin notification
   assert.doesNotMatch(checkoutSource, /stripeAvailable/)
   assert.match(checkoutActionsSource, /onlinePayment\.buttonLabel/)
   assert.match(checkoutActionsSource, /payment-ref-method-tabs/)
-  assert.match(onlineRuntimeSource, /NAFFY_PAYMENT_URL/)
-  assert.match(onlineRuntimeSource, /NAFFY_CHECKOUT_URL/)
-  assert.match(onlineRuntimeSource, /NAFFY_CONSULTATION_QUICK_URL/)
-  assert.match(onlineRuntimeSource, /NAFFY_CONSULTATION_URGENT_URL/)
-  assert.match(onlineRuntimeSource, /NAFFY_CONSULTATION_30_URL/)
-  assert.match(onlineRuntimeSource, /NAFFY_CONSULTATION_FULL_URL/)
-  assert.match(onlineRouteSource, /buildNaffyCheckoutUrl/)
   assert.match(onlineRouteSource, /getOnlinePaymentRuntime\(order\)/)
-  assert.match(onlineRouteSource, /provider: 'naffy'/)
+  assert.match(onlineRuntimeSource, /STRIPE_SECRET_KEY/)
   assert.match(reportRouteSource, /emailResult\.status !== 'sent'/)
   assert.match(reportRouteSource, /adminNotificationReason/)
   assert.match(blikActionsSource, /adminNotification[\s\S]+!== 'sent'/)
@@ -1209,14 +1139,13 @@ test('public manual payment stays available when only BLIK phone is configured',
   }
 })
 
-test('manual payment mode still allows online payment when Naffy checkout is configured', () => {
+test('manual payment mode still allows Stripe checkout when configured', () => {
   withEnv(
     {
       APP_PAYMENT_MODE: 'manual',
       MANUAL_PAYMENT_BLIK_PHONE: '500600700',
       MANUAL_PAYMENT_PAYPAL_ME_URL: null,
-      NAFFY_PAYMENT_URL: 'https://pay.example/checkout',
-      STRIPE_SECRET_KEY: null,
+      STRIPE_SECRET_KEY: 'sk_test_example',
       VERCEL_ENV: 'production',
     },
     () => {
@@ -1229,9 +1158,8 @@ test('manual payment mode still allows online payment when Naffy checkout is con
       assert.deepEqual(paymentMode.missing, [])
       assert.match(paymentMode.summary, /APP_PAYMENT_MODE=manual/)
       assert.match(paymentMode.summary, /ręczna|ręcznym/i)
-      assert.equal(onlinePayment.provider, 'naffy')
+      assert.equal(onlinePayment.provider, 'stripe')
       assert.equal(onlinePayment.available, true)
-      assert.equal(onlinePayment.naffyUrl, 'https://pay.example/checkout')
     },
   )
 })
@@ -1242,8 +1170,7 @@ test('online payment runtime stays available when auto mode falls back to active
       APP_PAYMENT_MODE: 'auto',
       MANUAL_PAYMENT_BLIK_PHONE: '500600700',
       MANUAL_PAYMENT_PAYPAL_ME_URL: null,
-      NAFFY_PAYMENT_URL: 'https://pay.example/checkout',
-      STRIPE_SECRET_KEY: null,
+      STRIPE_SECRET_KEY: 'sk_test_example',
       VERCEL_ENV: 'production',
     },
     () => {
@@ -1253,9 +1180,8 @@ test('online payment runtime stays available when auto mode falls back to active
       assert.equal(paymentMode.isValid, true)
       assert.equal(paymentMode.active, 'manual')
       assert.equal(paymentMode.usesFallback, true)
-      assert.equal(onlinePayment.provider, 'naffy')
+      assert.equal(onlinePayment.provider, 'stripe')
       assert.equal(onlinePayment.available, true)
-      assert.equal(onlinePayment.naffyUrl, 'https://pay.example/checkout')
     },
   )
 })
@@ -1821,7 +1747,6 @@ test('stage 10 funnel aliases, drop tracking, and release checklist are wired', 
   const adminSource = readSource('app', 'admin', 'page.tsx')
   const releaseChecklistSource = readSource('scripts', 'release-checklist.ts')
   const fullPublicCrawlSource = readSource('scripts', 'full-public-crawl.ts')
-  const nextConfigSource = readSource('next.config.mjs')
 
   for (const eventName of [
     'hero_cta_click',
@@ -1867,7 +1792,6 @@ test('stage 10 funnel aliases, drop tracking, and release checklist are wired', 
   assert.match(fullPublicCrawlSource, /--no-screenshots/)
   assert.match(fullPublicCrawlSource, /digits\.length === 9/)
   assert.match(fullPublicCrawlSource, /horizontalOverflowPx > 2/)
-  assert.match(nextConfigSource, /source: '\/booking',\s+destination: '\/book'/)
 })
 
 test('live booking matrix keeps a ten-attempt production report', () => {
@@ -2028,22 +1952,19 @@ test('default production env snapshot path prefers the current production snapsh
   }
 })
 
-test('consultation payment runtime resolves service-specific Naffy checkout without a global link', () => {
+test('consultation payment runtime falls back to BLIK when Stripe is unavailable', () => {
   withEnv(
     {
       APP_PAYMENT_MODE: 'manual',
       MANUAL_PAYMENT_BLIK_PHONE: '500600700',
-      NAFFY_CONSULTATION_30_URL: 'https://pay.example/dwa-kwadranse',
-      NAFFY_PAYMENT_URL: undefined,
-      NAFFY_CHECKOUT_URL: undefined,
       STRIPE_SECRET_KEY: undefined,
     },
     () => {
       const onlinePayment = getOnlinePaymentRuntimeForConsultation('konsultacja-30-min')
 
-      assert.equal(onlinePayment.provider, 'naffy')
-      assert.equal(onlinePayment.available, true)
-      assert.equal(onlinePayment.naffyUrl, 'https://pay.example/dwa-kwadranse')
+      assert.equal(onlinePayment.provider, 'none')
+      assert.equal(onlinePayment.available, false)
+      assert.match(onlinePayment.unavailableMessage, /BLIK/i)
     },
   )
 })

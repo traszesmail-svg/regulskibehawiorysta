@@ -9,7 +9,6 @@ import {
   fulfillCommerceOrderAndNotify,
 } from '@/lib/server/commerce-service'
 import { buildCommerceCheckoutHref } from '@/lib/commerce'
-import { buildNaffyCheckoutUrl, getOnlinePaymentRuntime } from '@/lib/server/online-payments'
 
 export async function POST(request: Request) {
   let body: Record<string, unknown>
@@ -38,17 +37,12 @@ export async function POST(request: Request) {
         accessToken,
         request.headers.get('authorization'),
       )
-      const onlinePayment = getOnlinePaymentRuntime(order)
-      const onlineCheckoutUrl =
-        onlinePayment.provider === 'naffy' && onlinePayment.naffyUrl
-          ? buildNaffyCheckoutUrl(onlinePayment.naffyUrl, order)
-          : null
 
       return NextResponse.json({
         ok: true,
         orderNumber: order.orderNumber,
         viewerToken: order.viewerToken,
-        onlineCheckoutUrl,
+        onlineCheckoutUrl: null,
         redirectTo: buildCommerceCheckoutHref(order.orderNumber, order.viewerToken),
       })
     }
@@ -68,17 +62,12 @@ export async function POST(request: Request) {
         phone,
         request.headers.get('authorization'),
       )
-      const onlinePayment = getOnlinePaymentRuntime(order)
-      const onlineCheckoutUrl =
-        onlinePayment.provider === 'naffy' && onlinePayment.naffyUrl
-          ? buildNaffyCheckoutUrl(onlinePayment.naffyUrl, order)
-          : null
 
       return NextResponse.json({
         ok: true,
         orderNumber: order.orderNumber,
         viewerToken: order.viewerToken,
-        onlineCheckoutUrl,
+        onlineCheckoutUrl: null,
         redirectTo: buildCommerceCheckoutHref(order.orderNumber, order.viewerToken),
       })
     }

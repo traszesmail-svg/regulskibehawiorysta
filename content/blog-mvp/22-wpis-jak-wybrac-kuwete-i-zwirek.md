@@ -104,12 +104,12 @@ Można, jeśli łazienka jest stale dostępna dla kota, cicha i wystarczająco d
 
 Jeśli zmieniłaś/zmieniłeś kuwetę i żwirek, a problem wraca — **15 min audio** pozwala szybko ocenić, co jeszcze warto sprawdzić.
 
-[Zamów 15 min audio](/call) · [Kot załatwia się poza kuwetą](/koty/zalatwianie-poza-kuweta) · [Kategoria: koty](/koty) · [Materiały PDF](/materialy)
+[Zamów 15 min audio](/call) · [Kot załatwia się poza kuwetą](/problemy/kot-sika-poza-kuweta) · [Kategoria: koty](/problemy#kot) · [Materiały PDF](/materialy)
 
 ## Linkowanie wewnętrzne
 
-- `/koty/zalatwianie-poza-kuweta` — landing silosu (CTA)
+- `/problemy/kot-sika-poza-kuweta` — landing silosu (CTA)
 - `/call` — 15 min audio
-- `/koty` — kategoria
+- `/problemy#kot` — kategoria
 - `/materialy` → guide „kot i kuweta"
 - Cross-link: wpis 04 (kot poza kuwetą), wpis 23 (stres kota i zachowania toaletowe)

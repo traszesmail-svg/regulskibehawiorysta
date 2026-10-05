@@ -130,4 +130,4 @@ Zapytaj behawiorystę (79 zł) jest podstawowym pierwszym krokiem w serwisie.
 
 Nie musisz od razu decydować o dłuższej współpracy. Zacznij od rozmowy **Zapytaj behawiorystę (79 zł)**, jeśli chcesz najpierw ustalić pierwszy kierunek działania.
 
-[Zapytaj behawiorystę – 79 zł](/zapytaj) · [Kategoria: psy](/psy) · [Kategoria: koty](/koty) · [O mnie](/o-mnie)
+[Zapytaj behawiorystę – 79 zł](/zapytaj) · [Kategoria: psy](/problemy#pies) · [Kategoria: koty](/problemy#kot) · [O mnie](/o-mnie)

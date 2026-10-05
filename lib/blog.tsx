@@ -308,7 +308,7 @@ const BLOG_COVER_BY_SLUG: Record<string, BlogPostCover> = {
 }
 
 function getFallbackBlogCover(categoryHref: string): BlogPostCover {
-  if (categoryHref === '/koty') {
+  if (categoryHref === '/problemy#kot') {
     return {
       src: 'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?auto=format&fit=crop&w=1600&q=82',
       alt: 'Kot w domowym otoczeniu.',
@@ -317,7 +317,7 @@ function getFallbackBlogCover(categoryHref: string): BlogPostCover {
     }
   }
 
-  if (categoryHref === '/psy') {
+  if (categoryHref === '/problemy#pies') {
     return {
       src: 'https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=1600&q=82',
       alt: 'Pies podczas spaceru z opiekunem.',
@@ -409,7 +409,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     fileName: '31-wpis-pies-boi-sie-burzy-i-fajerwerkow.md',
     publishedAt: '2026-07-21',
     categoryLabel: 'Pies',
-    categoryHref: '/psy',
+    categoryHref: '/problemy#pies',
     topic: 'pies',
     audioHref: DOG_AUDIO_HREF,
     supportLinks: [
@@ -440,7 +440,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     fileName: '32-wpis-wakacje-z-psem-plan-bez-chaosu.md',
     publishedAt: '2026-07-21',
     categoryLabel: 'Pies',
-    categoryHref: '/psy',
+    categoryHref: '/problemy#pies',
     topic: 'pies',
     audioHref: DOG_AUDIO_HREF,
     supportLinks: [
@@ -471,13 +471,13 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     fileName: '30-wpis-szczeniak-pierwsza-noc.md',
     publishedAt: '2026-04-24',
     categoryLabel: 'Pies',
-    categoryHref: '/psy',
+    categoryHref: '/problemy#pies',
     topic: 'pies',
     audioHref: buildBookHref(null, 'szybka-konsultacja-15-min', false, 'pies'),
     supportLinks: [
       {
         label: 'Szczeniak / młody pies',
-        href: '/psy',
+        href: '/problemy#pies',
         description: 'Hub tematów psich, jeśli pierwsza noc łączy się z gryzieniem, pobudzeniem albo separacją.',
       },
       {
@@ -502,18 +502,18 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     fileName: '02-wpis-pies-szczeka-na-inne-psy.md',
     publishedAt: '2026-03-18',
     categoryLabel: 'Pies',
-    categoryHref: '/psy',
+    categoryHref: '/problemy#pies',
     topic: 'pies',
     audioHref: buildBookHref(null, 'szybka-konsultacja-15-min', false, 'pies'),
     supportLinks: [
       {
         label: 'Reaktywność na smyczy',
-        href: '/psy/reaktywnosc-na-smyczy',
+        href: '/problemy/pies-szczeka-na-psy',
         description: 'Pełniejsza strona problemowa o spacerach i napięciu na smyczy.',
       },
       {
         label: 'Psy',
-        href: '/psy',
+        href: '/problemy#pies',
         description: 'Więcej tematów związanych że spacerem, regulacją i codzienną pracą z psem.',
       },
       {
@@ -533,18 +533,18 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     fileName: '03-wpis-pies-wyje-kiedy-zostaje-sam.md',
     publishedAt: '2026-02-11',
     categoryLabel: 'Pies',
-    categoryHref: '/psy',
+    categoryHref: '/problemy#pies',
     topic: 'pies',
     audioHref: buildBookHref(null, 'szybka-konsultacja-15-min', false, 'pies'),
     supportLinks: [
       {
         label: 'Lęk separacyjny u psa',
-        href: '/psy/lek-separacyjny',
+        href: '/problemy/pies-nie-zostaje-sam',
         description: 'Pełniejszy przewodnik, jeśli problem powtarza się albo szybko narasta.',
       },
       {
         label: 'Psy',
-        href: '/psy',
+        href: '/problemy#pies',
         description: 'Zobacz inne tematy związane z zachowaniem psa.',
       },
       {
@@ -564,18 +564,18 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     fileName: '04-wpis-kot-zalatwia-sie-poza-kuweta.md',
     publishedAt: '2026-01-07',
     categoryLabel: 'Kot',
-    categoryHref: '/koty',
+    categoryHref: '/problemy#kot',
     topic: 'koty',
     audioHref: buildBookHref(null, 'szybka-konsultacja-15-min', false, 'kot'),
     supportLinks: [
       {
         label: 'Załatwianie poza kuwetą',
-        href: '/koty/zalatwianie-poza-kuweta',
+        href: '/problemy/kot-sika-poza-kuweta',
         description: 'Pełniejsza strona problemowa o filtrach diagnostycznych i pierwszych decyzjach.',
       },
       {
         label: 'Koty',
-        href: '/koty',
+        href: '/problemy#kot',
         description: 'Więcej tematów związanych z kuwetą, stresem i codziennym funkcjonowaniem kota.',
       },
       {
@@ -611,12 +611,12 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
       },
       {
         label: 'Psy',
-        href: '/psy',
+        href: '/problemy#pies',
         description: 'Przejdź do pomocy dla opiekunów psów.',
       },
       {
         label: 'Koty',
-        href: '/koty',
+        href: '/problemy#kot',
         description: 'Przejdź do pomocy dla opiekunów kotów.',
       },
     ],
@@ -626,13 +626,13 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     fileName: '07-wpis-pies-cignie-na-smyczy.md',
     publishedAt: '2025-11-12',
     categoryLabel: 'Pies',
-    categoryHref: '/psy',
+    categoryHref: '/problemy#pies',
     topic: 'pies',
     audioHref: buildBookHref(null, 'szybka-konsultacja-15-min', false, 'pies'),
     supportLinks: [
       {
         label: 'Reaktywność na smyczy',
-        href: '/psy/reaktywnosc-na-smyczy',
+        href: '/problemy/pies-szczeka-na-psy',
         description: 'Pełniejsza strona problemowa, jeśli samo ciągnięcie jest częścią większego napięcia.',
       },
       {
@@ -642,7 +642,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
       },
       {
         label: 'Psy',
-        href: '/psy',
+        href: '/problemy#pies',
         description: 'Więcej tematów związanych że spacerem i regulacją psa.',
       },
       {
@@ -657,18 +657,18 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     fileName: '08-wpis-kot-drapie-meble.md',
     publishedAt: '2025-10-08',
     categoryLabel: 'Kot',
-    categoryHref: '/koty',
+    categoryHref: '/problemy#kot',
     topic: 'koty',
     audioHref: buildBookHref(null, 'szybka-konsultacja-15-min', false, 'kot'),
     supportLinks: [
       {
         label: 'Załatwianie poza kuwetą',
-        href: '/koty/zalatwianie-poza-kuweta',
+        href: '/problemy/kot-sika-poza-kuweta',
         description: 'Jeśli obok drapania widzisz też napięcie środowiskowe lub problem toaletowy.',
       },
       {
         label: 'Koty',
-        href: '/koty',
+        href: '/problemy#kot',
         description: 'Więcej tematów o stresie, kuwecie i relacjach w domu.',
       },
       {
@@ -688,13 +688,13 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     fileName: '09-wpis-nowy-pies-pierwsze-72-godziny.md',
     publishedAt: '2025-09-03',
     categoryLabel: 'Pies',
-    categoryHref: '/psy',
+    categoryHref: '/problemy#pies',
     topic: 'pies',
     audioHref: buildBookHref(null, 'szybka-konsultacja-15-min', false, 'pies'),
     supportLinks: [
       {
         label: 'Psy',
-        href: '/psy',
+        href: '/problemy#pies',
         description: 'Przejdź do pomocy dla opiekunów psów i podobnych tematów.',
       },
       {
@@ -740,7 +740,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
       },
       {
         label: 'Psy',
-        href: '/psy',
+        href: '/problemy#pies',
         description: 'Przejdź do strony dla opiekunów psów.',
       },
     ],
@@ -766,12 +766,12 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
       },
       {
         label: 'Psy',
-        href: '/psy',
+        href: '/problemy#pies',
         description: 'Pomoc dla opiekunów psów.',
       },
       {
         label: 'Koty',
-        href: '/koty',
+        href: '/problemy#kot',
         description: 'Pomoc dla opiekunów kotów.',
       },
     ],
@@ -833,7 +833,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
       },
       {
         label: 'Psy',
-        href: '/psy',
+        href: '/problemy#pies',
         description: 'Przejdź do strony dla opiekunów psów.',
       },
     ],
@@ -862,7 +862,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     fileName: '19-wpis-cwiczenie-luznej-smyczy.md',
     publishedAt: '2025-03-19',
     categoryLabel: 'Pies',
-    categoryHref: '/psy',
+    categoryHref: '/problemy#pies',
     topic: 'pies',
     audioHref: DOG_AUDIO_HREF,
     supportLinks: [
@@ -881,7 +881,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     fileName: '20-wpis-jak-nagrac-psa-samemu.md',
     publishedAt: '2025-02-05',
     categoryLabel: 'Pies',
-    categoryHref: '/psy',
+    categoryHref: '/problemy#pies',
     topic: 'pies',
     audioHref: DOG_AUDIO_HREF,
     supportLinks: [
@@ -900,7 +900,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     fileName: '21-wpis-rutyna-wyjscia-oswajanie-z-samotnosciq.md',
     publishedAt: '2025-01-22',
     categoryLabel: 'Pies',
-    categoryHref: '/psy',
+    categoryHref: '/problemy#pies',
     topic: 'pies',
     audioHref: DOG_AUDIO_HREF,
     supportLinks: [
@@ -919,7 +919,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     fileName: '22-wpis-jak-wybrac-kuwete-i-zwirek.md',
     publishedAt: '2024-12-11',
     categoryLabel: 'Kot',
-    categoryHref: '/koty',
+    categoryHref: '/problemy#kot',
     topic: 'koty',
     audioHref: CAT_AUDIO_HREF,
     supportLinks: [
@@ -938,7 +938,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     fileName: '23-wpis-stres-kota-a-zachowania-toaletowe.md',
     publishedAt: '2024-11-06',
     categoryLabel: 'Kot',
-    categoryHref: '/koty',
+    categoryHref: '/problemy#kot',
     topic: 'koty',
     audioHref: CAT_AUDIO_HREF,
     supportLinks: [
@@ -957,7 +957,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     fileName: '24-wpis-jak-wprowadzic-nowego-kota.md',
     publishedAt: '2024-10-23',
     categoryLabel: 'Kot',
-    categoryHref: '/koty',
+    categoryHref: '/problemy#kot',
     topic: 'koty',
     audioHref: CAT_AUDIO_HREF,
     supportLinks: [
@@ -976,7 +976,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     fileName: '25-wpis-agresja-przekierowana-u-kota.md',
     publishedAt: '2024-09-18',
     categoryLabel: 'Kot',
-    categoryHref: '/koty',
+    categoryHref: '/problemy#kot',
     topic: 'koty',
     audioHref: CAT_AUDIO_HREF,
     supportLinks: [
@@ -995,7 +995,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     fileName: '26-wpis-pies-ciagnie-od-czego-zaczac.md',
     publishedAt: '2024-08-07',
     categoryLabel: 'Pies',
-    categoryHref: '/psy',
+    categoryHref: '/problemy#pies',
     topic: 'pies',
     audioHref: DOG_AUDIO_HREF,
     supportLinks: [
@@ -1014,7 +1014,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     fileName: '27-wpis-jak-nauczyc-psa-zostawania-samemu.md',
     publishedAt: '2024-07-24',
     categoryLabel: 'Pies',
-    categoryHref: '/psy',
+    categoryHref: '/problemy#pies',
     topic: 'pies',
     audioHref: DOG_AUDIO_HREF,
     supportLinks: [
@@ -1033,7 +1033,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     fileName: '28-wpis-jak-ustawic-kuwete-dla-kota.md',
     publishedAt: '2024-06-12',
     categoryLabel: 'Kot',
-    categoryHref: '/koty',
+    categoryHref: '/problemy#kot',
     topic: 'koty',
     audioHref: CAT_AUDIO_HREF,
     supportLinks: [
@@ -1052,7 +1052,7 @@ const BLOG_POST_CONFIGS: BlogPostConfig[] = [
     fileName: '29-wpis-jak-zapoznac-dwa-koty.md',
     publishedAt: '2024-05-08',
     categoryLabel: 'Kot',
-    categoryHref: '/koty',
+    categoryHref: '/problemy#kot',
     topic: 'koty',
     audioHref: CAT_AUDIO_HREF,
     supportLinks: [

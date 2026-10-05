@@ -1,6 +1,6 @@
 /**
- * Canonical destinations for legacy public paths. Redirects remain available
- * for old external URLs, but internal links should point here directly.
+ * Canonical destinations for older links embedded in retained content.
+ * Public redirects for these retired paths have been removed.
  */
 export function getCanonicalPublicHref(href: string): string {
   const value = href.trim()

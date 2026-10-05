@@ -77,4 +77,4 @@ Tak. Program obejmuje zarówno psy, jak i koty oraz inne zwierzęta towarzysząc
 
 Informacje o moich kwalifikacjach i afiliacjach znajdziesz na stronie /o-mnie, z publicznymi punktami odniesienia do samodzielnej weryfikacji. Jeśli chcesz najpierw skonsultować sytuację — zacznij od rozmowy **Zapytaj behawiorystę (79 zł)** i ustalenia pierwszego kierunku działania.
 
-[O mnie i moich kwalifikacjach](/o-mnie) · [Zapytaj behawiorystę – 79 zł](/zapytaj) · [Kategoria: psy](/psy) · [Kategoria: koty](/koty)
+[O mnie i moich kwalifikacjach](/o-mnie) · [Zapytaj behawiorystę – 79 zł](/zapytaj) · [Kategoria: psy](/problemy#pies) · [Kategoria: koty](/problemy#kot)

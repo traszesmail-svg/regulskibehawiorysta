@@ -14,7 +14,7 @@ import {
   fulfillCommerceOrderAndNotify,
   isCommerceTestModeAllowed,
 } from '@/lib/server/commerce-service'
-import { buildNaffyCheckoutUrl, getOnlinePaymentRuntime } from '@/lib/server/online-payments'
+import { getOnlinePaymentRuntime } from '@/lib/server/online-payments'
 
 function toStripeAmount(amount: number) {
   return Math.round(amount * 100)
@@ -64,14 +64,6 @@ export async function POST(request: Request) {
   }
 
   const onlinePayment = getOnlinePaymentRuntime(order)
-
-  if (onlinePayment.provider === 'naffy' && onlinePayment.naffyUrl) {
-    return NextResponse.json({
-      ok: true,
-      provider: 'naffy',
-      url: buildNaffyCheckoutUrl(onlinePayment.naffyUrl, order),
-    })
-  }
 
   if (onlinePayment.provider === 'none') {
     return NextResponse.json(

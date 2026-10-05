@@ -94,4 +94,4 @@ To zależy od specjalisty. Warto zapytać przy dłuższej współpracy.
 
 **Zapytaj behawiorystę (79 zł)** to rozmowa do 15 minut przez telefon — bez kamery, bez długiego przygotowania, z jasnym celem: ustalić pierwszy kierunek działania.
 
-[Zapytaj behawiorystę – 79 zł](/zapytaj) · [Jak wygląda konsultacja online — szczegóły](/blog/jak-wyglada-konsultacja-behawioralna-online) · [Kategoria: psy](/psy) · [Kategoria: koty](/koty)
+[Zapytaj behawiorystę – 79 zł](/zapytaj) · [Jak wygląda konsultacja online — szczegóły](/blog/jak-wyglada-konsultacja-behawioralna-online) · [Kategoria: psy](/problemy#pies) · [Kategoria: koty](/problemy#kot)

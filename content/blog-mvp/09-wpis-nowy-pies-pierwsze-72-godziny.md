@@ -132,4 +132,4 @@ Lepiej nie. Podróż, nocowanie w nowym miejscu i intensywne bodźce to duże wy
 
 Pierwsze tygodnie z psem to bardzo dobry moment na rozmowę **Zapytaj behawiorystę (do 15 minut)** — zanim zdążą się utrwalić trudne nawyki i gdy najłatwiej ustalić spokojny pierwszy kierunek działania.
 
-[Zapytaj behawiorystę – 79 zł](/zapytaj) · [Kategoria: psy](/psy) · [Materiały PDF](/materialy)
+[Zapytaj behawiorystę – 79 zł](/zapytaj) · [Kategoria: psy](/problemy#pies) · [Materiały PDF](/materialy)

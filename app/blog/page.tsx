@@ -95,11 +95,11 @@ function countBy(posts: BlogPost[], predicate: (post: BlogPost) => boolean) {
 }
 
 function isDogPost(post: BlogPost) {
-  return post.categoryHref === '/psy'
+  return post.categoryHref === '/problemy#pies'
 }
 
 function isCatPost(post: BlogPost) {
-  return post.categoryHref === '/koty'
+  return post.categoryHref === '/problemy#kot'
 }
 
 function isBehaviorPost(post: BlogPost) {
@@ -261,8 +261,8 @@ function buildBlogPageHref(page: number, categoryId: string) {
 }
 
 function getSpeciesBadge(post: BlogPost) {
-  if (post.categoryHref === '/koty') return 'Kot'
-  if (post.categoryHref === '/psy') return 'Pies'
+  if (post.categoryHref === '/problemy#kot') return 'Kot'
+  if (post.categoryHref === '/problemy#pies') return 'Pies'
   return repairCopy(post.categoryLabel)
 }
 

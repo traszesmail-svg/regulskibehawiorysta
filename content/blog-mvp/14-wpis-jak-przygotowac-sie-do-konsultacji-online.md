@@ -113,11 +113,11 @@ Jeśli masz nagranie albo chcesz opisać sytuację pisemnie przed rozmową — t
 
 **15 min audio** to najlżejszy format na start — bez konieczności przygotowywania się intensywnie. Wystarczy wiedzieć, co cię najbardziej niepokoi, i mieć kilka minut przed rozmową na zebranie myśli.
 
-[Zamów 15 min audio](/call) · [Jak wygląda konsultacja — szczegóły formatu](/blog/jak-wyglada-konsultacja-behawioralna-online) · [Kategoria: psy](/psy) · [Kategoria: koty](/koty)
+[Zamów 15 min audio](/call) · [Jak wygląda konsultacja — szczegóły formatu](/blog/jak-wyglada-konsultacja-behawioralna-online) · [Kategoria: psy](/problemy#pies) · [Kategoria: koty](/problemy#kot)
 
 ## Linkowanie wewnętrzne
 
 - [`/call`](/call) — CTA,
 - wpis „jak wygląda konsultacja behawioralna online" — cross-link naturalny (uzupełniający ten wpis),
-- [`/psy`](/psy) i [`/koty`](/koty) — w końcówce,
+- [`/problemy#pies`](/problemy#pies) i [`/problemy#kot`](/problemy#kot) — w końcówce,
 - opcjonalnie [`/o-mnie`](/o-mnie) — przy akapicie o formularzu wstępnym.

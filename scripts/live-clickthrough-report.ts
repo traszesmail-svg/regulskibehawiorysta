@@ -1045,21 +1045,6 @@ async function main() {
       step.notes.push('The canonical Zapytaj page exposes its intake form and matching hero CTA.')
     })
 
-    await runStep(results, 'legacy offer redirects', publicPage, async (step) => {
-      const redirects = [
-        { from: '/cennik', to: '/zapytaj', heading: /Martwi Cię zachowanie psa lub kota|Martwi Cie zachowanie psa lub kota/i },
-        { from: '/oferta', to: '/zapytaj', heading: /Martwi Cię zachowanie psa lub kota|Martwi Cie zachowanie psa lub kota/i },
-        { from: '/oferta/konsultacja-behawioralna-online', to: '/konsultacja', heading: /Konsultacja/i },
-        { from: '/oferta/poradniki-pdf', to: '/materialy', heading: /Materia.*PDF.*opiekun/i },
-      ] as const
-
-      for (const route of redirects) {
-        await publicPage.goto(`${baseUrl}${route.from}`, { waitUntil: 'domcontentloaded' })
-        await publicPage.waitForURL((url) => url.pathname === route.to, { timeout: 20000, waitUntil: 'domcontentloaded' })
-        await waitForAnyVisible([publicPage.getByRole('heading', { level: 1, name: route.heading })], 20000)
-      }
-      step.notes.push('Legacy public offer URLs resolve to the current Zapytaj, consultation, and materials pages.')
-    })
     await runStep(results, '/book 30 min hero CTA', publicPage, async (step) => {
       await publicPage.goto(`${baseUrl}/book?qa=1&service=konsultacja-30-min`, { waitUntil: 'domcontentloaded' })
       await waitForAnyVisible([publicPage.getByRole('heading', { level: 1, name: /Wybierz termin konsultacji/i })], 20000)

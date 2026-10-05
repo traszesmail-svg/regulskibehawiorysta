@@ -110,4 +110,4 @@ Bywają użyteczne jako dodatek do pracy nad środowiskiem. Nie są magicznym ro
 
 Rozmowa **Zapytaj behawiorystę (do 15 minut)** pozwala spokojnie zebrać informacje i ustalić, co sprawdzić w pierwszej kolejności: czy problem wygląda bardziej na kuwetę, na teren, na napięcie, czy na połączenie tych rzeczy. Wychodzisz z ustaleniem pierwszego kierunku działania.
 
-[Zapytaj behawiorystę – 79 zł](/zapytaj) · [Zobacz kategorię: koty](/koty) · [Poradnik „Kot i kuweta — pierwszy plan działania”](/materialy)
+[Zapytaj behawiorystę – 79 zł](/zapytaj) · [Zobacz kategorię: koty](/problemy#kot) · [Poradnik „Kot i kuweta — pierwszy plan działania”](/materialy)

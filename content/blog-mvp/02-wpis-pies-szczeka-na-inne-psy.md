@@ -119,4 +119,4 @@ Od dystansu i jednej powtarzalnej procedury. Reszta jest nadbudową.
 
 Nie musisz zaczynać od długiej opcji. Rozmowa **Zapytaj behawiorystę (do 15 minut)** sprawdza się właśnie przy takich spacerach: opowiadasz, jak wygląda typowy spacer, co już próbowałaś/próbowałeś i co dziś nie działa. Wychodzisz z ustaleniem pierwszego kierunku działania.
 
-[Zapytaj behawiorystę – 79 zł](/zapytaj) · [Zobacz, jak pracuję dla opiekunów psów](/psy)
+[Zapytaj behawiorystę – 79 zł](/zapytaj) · [Zobacz, jak pracuję dla opiekunów psów](/problemy#pies)

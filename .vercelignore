@@ -1,6 +1,9 @@
 .git
 .codex/
 AGENTS.md
+android/
+*.keystore
+*.jks
 .next
 .next-codex-verify
 output/**

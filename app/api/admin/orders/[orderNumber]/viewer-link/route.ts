@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 import { NextResponse } from 'next/server'
-import { getAdminAccessSecret, getAdminAuthChallengeHeaders, hasValidAdminAuthorization } from '@/lib/admin-auth'
+import { getAdminAccessSecret, getAdminAuthChallengeHeaders, isAdminRequestAuthorized } from '@/lib/admin-auth'
 import { buildCommerceCheckoutHref } from '@/lib/commerce'
 import { ensureCommerceOrderViewerToken, getCommerceOrder } from '@/lib/server/commerce-store'
 
@@ -13,7 +13,7 @@ import { ensureCommerceOrderViewerToken, getCommerceOrder } from '@/lib/server/c
  */
 export async function POST(request: Request, props: { params: Promise<{ orderNumber: string }> }) {
   const secret = getAdminAccessSecret()
-  if (!hasValidAdminAuthorization(request.headers.get('authorization'), secret)) {
+  if (!await isAdminRequestAuthorized(request.headers, secret)) {
     return NextResponse.json({ ok: false, error: 'Brak autoryzacji.' }, { status: 401, headers: getAdminAuthChallengeHeaders() })
   }
 

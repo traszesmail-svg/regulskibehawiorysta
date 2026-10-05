@@ -1681,12 +1681,15 @@ test('Next 15 request APIs await dynamic request data', () => {
   const paymentSource = readSource('app', 'payment', 'page.tsx')
   const roomSource = readSource('app', 'pokoj', 'page.tsx')
 
-  for (const source of [caseMapReviewSource, leadBookingsSource, leadBookingSource, callSource, checkoutSource, confirmationSource, waitingSource, paymentSource]) {
+  for (const source of [callSource, checkoutSource, confirmationSource, waitingSource, paymentSource]) {
     assert.match(source, /await headers\(\)/)
+  }
+  for (const source of [caseMapReviewSource, leadBookingsSource, leadBookingSource]) {
+    assert.match(source, /await isAdminRequestAuthorized\(request\.headers, secret\)/)
   }
   assert.match(accountSource, /await cookies\(\)/)
   assert.match(roomSource, /await cookies\(\)/)
-  assert.match(leadBookingSource, /async function checkAuth\(\)/)
+  assert.match(leadBookingSource, /async function checkAuth\(request: Request\)/)
   assert.match(waitingSource, /async function buildRequestReviewUrl/)
 })
 

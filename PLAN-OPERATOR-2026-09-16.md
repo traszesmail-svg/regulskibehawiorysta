@@ -1,6 +1,21 @@
 # Operator, panel właściciela i płatności
 
-Ustalenia użytkownika z 16 września 2026 uzupełniają PLAN-GLOWNY.md. Urządzenie robocze: Motorola One Vision. Karta wymaga doładowania. Do tego czasu żadnych testowych połączeń ani SMS-ów. Nie utożsamiamy stanu ACTIVE z odebraniem rozmowy przez człowieka.
+Ustalenia użytkownika z 16 września 2026 uzupełniają PLAN-GLOWNY.md. Urządzenie robocze: Motorola One Vision. Warunki i dziennik z września są historyczne; aktualny status poniżej ma pierwszeństwo. Nie utożsamiamy stanu ACTIVE z odebraniem rozmowy przez człowieka.
+
+## Aktualizacja po audycie 05.10.2026
+
+- Treść i układ strony publicznej są zamrożone decyzją właściciela. Prace dotyczą Operatora i napraw technicznych.
+- Produkcja używa trwałego Supabase i bramki SMS telefonu. Telefon melduje `1.5.4`, ładowanie i baterię; aktualny status sieci i domyślnego dialera jest nieznany. Sam meldunek nie potwierdza możliwości rozmowy ani odbioru SMS.
+- `PHONE_CALL_PROVIDER=manual_sim`; automat Revolut jest wyłączony. Ręczny BLIK pozostaje podstawową ścieżką.
+- Kolejka, callback modemu, autostart usługi SMS, raporty po utracie internetu, odczyt Revolut i lokalny briefing TTS istnieją. Przycisk `tel:` panelu dzwoni z telefonu właściciela, nie wydaje zdalnego polecenia Motoroli.
+- Aktualny manifest Androida nie rejestruje starego `PhoneAgentService` ani `AgentInCallService`. Ręczne pobranie sprawy, wybieranie i raportowanie w aplikacji nie stanowią bezobsługowej automatyki. Nie potwierdzono zdalnego mostu głosowego, telekonferencji, auto-rozłączania ani TTS w słuchawce właściciela.
+- W kodzie poprawiono trwały zapis heartbeat z uczciwym błędem, oczekiwanie na generowanie przypomnień, rygorystyczne i idempotentne zdarzenia rozmowy, trwałą deduplikację i jednoznaczne dopasowanie wpłat, sesję logowania w akcjach panelu oraz starzenie danych i rozróżnienie zajętości od dostępności Live.
+- Przed przyszłym uruchomieniem automatycznego rozliczania wymagane jest atomowe zatwierdzenie płatności z claimem transakcji i aktualizacją rezerwacji; ta pozostała praca nie jest częścią obecnej ręcznej ścieżki produkcyjnej.
+- Migracja ledgeru Revolut: `supabase/migrations/20261005001_revolut_payment_reconciliation_ledger.sql`. Wdrożenie SQL oraz rzeczywisty harmonogram watchdoga wymagają potwierdzenia administracyjnego w Supabase. Plik migracji nie jest dowodem jej wykonania.
+- Końcowa kontrola ADB wykazała Motorolę `1.5.4`, usługę SMS na pierwszym planie, ładowanie USB i uprawnienia SMS/połączeń. Hasło dotychczasowego klucza podpisu nadal nie jest dostępne. Źródła `1.5.5` i niepodpisana kompilacja kandydata nie oznaczają instalacji ani odbioru funkcji na Motoroli.
+- Pełne osobne podsumowanie rozmowy nie istnieje w bieżącym modelu; jest pole rekomendowanego następnego kroku, zamknięcie rozmowy, rekomendacja PDF i kod do pełnej konsultacji. Pokój klienta i dwa pytania przez 7 dni są odrębnymi mechanizmami.
+
+Odbiór następuje dopiero po testach wydania i kontrolowanym SMS/telefonie z potwierdzeniem odbiorcy. Starsze deklaracje „wdrożono” w dzienniku opisują ówczesne raporty, nie potwierdzony bieżący stan całej automatyki.
 
 ## Kolejność i kryteria zakończenia
 
@@ -12,7 +27,7 @@ Ustalenia użytkownika z 16 września 2026 uzupełniają PLAN-GLOWNY.md. Urządz
 6. Połączenia projektu: opłacona rezerwacja, właściwy numer i SIM, jawny tryb uruchamiania, podgląd sprawy, limit czasu liczony od faktycznego połączenia, odzyskanie stanu po awarii. Lektor (synteza mowy TTS / briefing głosowy): odczytanie kluczowych informacji o sprawie (imię klienta, zwierzak, wiek, zgłoszony problem) przed/w trakcie inicjowania połączenia, aby behawiorysta miał pełny kontekst w słuchawce. Ręczne dzwonienie istnieje; pełna automatyka rezerwacji nie jest ukończona.
 7. Integracja i odbiór. Testy lokalne i symulowane bez SMS/rozmów. Po doładowaniu jeden uzgodniony SMS i telefon na numer użytkownika, potwierdzenie odbioru przez niego. Następnie pełna próbna rezerwacja, wpłata, SMS, dostępność, rozmowa, zakończenie. Nie oznaczać całości jako gotowej wcześniej.
 
-## Stan wejściowy
+## Historyczny stan wejściowy — 16.09
 
 - Naprawiono brak FOREGROUND_SERVICE; usługa uruchamia się na Motoroli.
 - Dodano callbacki wysyłki części SMS; ponawianie raportów nadal do wykonania.
@@ -25,7 +40,7 @@ Ustalenia użytkownika z 16 września 2026 uzupełniają PLAN-GLOWNY.md. Urządz
 
 - Stan Motoroli i kolejka SMS są trwale zapisane w Supabase (`phone_agent_state`, `phone_agent_sms_queue`). Pobranie SMS jest atomowe: jedna wiadomość może zostać przydzielona tylko jednemu odpytywaniu telefonu.
 - Potwierdzenie SMS z Androida oznacza wynik przekazania do modemu, a nie odebranie wiadomości przez klienta. Przy utracie internetu telefon ponawia wyłącznie raport wyniku; nie wysyła tej samej wiadomości po raz drugi.
-- Watchdog jest uruchamiany co minutę przez darmowy Supabase `pg_cron` i `pg_net`, z tym samym sekretem w Vault, którego używają istniejące schedulery. Nie wymaga Vercel Pro.
+- Watchdog ma przygotowany harmonogram co minutę przez Supabase `pg_cron` i `pg_net`. Przed deklaracją, że działa samoczynnie, trzeba sprawdzić aktywny job i historię wykonań na produkcji.
 - Supabase Free wystarcza do pilota, ale projekt może zostać usypiany po tygodniu zbyt małej aktywności i nie daje gwarancji ciągłości ani automatycznych kopii zapasowych. Przejście na Pro ma sens dopiero przed regularnymi płatnymi rezerwacjami.
 
 ## Dziennik
@@ -46,8 +61,8 @@ Ustalenia użytkownika z 16 września 2026 uzupełniają PLAN-GLOWNY.md. Urządz
 
 ## Kolejne kroki (zatwierdzona kolejność)
 
-1. **KROK 1 (Wykonany):** Spójność dokumentacji i uaktualnienie planów (`PLAN-GLOWNY.md`, `PLAN-OPERATOR-2026-09-16.md`).
-2. **KROK 2 (W toku):** Kompilacja i instalacja wersji APK 1.5.1 na Motoroli (zawierającej autostart po restarcie oraz poprawkę odczytu powiadomień Revolut).
-3. **KROK 3:** Kontrolowany test fizyczny z udziałem właściciela: próbna rezerwacja, odbiór SMS z karty SIM na telefon prywatny (+48505848889), weryfikacja widoku w `/admin` i lektora na Motoroli.
+1. **KROK 1:** Naprawy wskazane audytem 05.10, testy backendu i logowania, kontrola faktycznego widoku panelu desktop/mobile, wdrożenie z automatem Revolut wyłączonym.
+2. **KROK 2:** Odtwarzalny Android z aktualnymi wersjami źródeł i procesu budowania; podpis dotychczasowym kluczem i instalacja po zapewnieniu dostępu do klucza oraz Motoroli.
+3. **KROK 3:** Kontrolowany test fizyczny z udziałem właściciela: próbna rezerwacja, odbiór SMS z karty SIM na uzgodniony telefon prywatny, weryfikacja `/admin`, briefingu, restartu i odzyskania po utracie internetu. Zdalne rozmowy i limit czasu wymagają osobnego wdrożenia i odbioru.
 4. **KROK 4:** Uruchomienie komercyjnego pilotażu zwykłego `Zapytaj 15 min` za 79 zł (3–5 rezerwacji).
 5. **KROK 5:** Tryb Live „Zapytaj teraz” (104 zł) sterowany z prywatnego telefonu właściciela (PWA / panel `/admin`).

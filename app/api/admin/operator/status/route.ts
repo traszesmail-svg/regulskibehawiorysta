@@ -24,7 +24,7 @@ export async function GET() {
       getPhoneAgentDeviceState(),
       getZapytajLiveStatus(),
       listSmsQueue(50),
-      listBookings().catch(() => [] as BookingRecord[]),
+      listBookings(),
     ])
 
     const now = new Date()

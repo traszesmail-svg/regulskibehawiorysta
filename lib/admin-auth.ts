@@ -69,8 +69,23 @@ export async function hasValidAdminSession(token: string | undefined, secret = r
   if (!secret || !token) return false
   const [version, expiresAtRaw, signature, ...extra] = token.split('.')
   const expiresAt = Number(expiresAtRaw)
-  if (version !== 'v1' || extra.length || !Number.isSafeInteger(expiresAt) || expiresAt <= Math.floor(Date.now() / 1000)) return false
+  if (version !== 'v1' || typeof signature !== 'string' || extra.length || !Number.isSafeInteger(expiresAt) || expiresAt <= Math.floor(Date.now() / 1000)) return false
   return safeCompare(signature, await signAdminSession(`v1.${expiresAt}`, secret))
+}
+
+function readCookieValue(cookieHeader: string | null, name: string): string | undefined {
+  if (!cookieHeader) return undefined
+  for (const part of cookieHeader.split(';')) {
+    const [key, ...value] = part.trim().split('=')
+    if (key === name) return value.join('=')
+  }
+  return undefined
+}
+
+export async function isAdminRequestAuthorized(headers: Headers, secret = readAdminAccessSecret()): Promise<boolean> {
+  if (!secret) return false
+  if (hasValidAdminAuthorization(headers.get('authorization'), secret)) return true
+  return hasValidAdminSession(readCookieValue(headers.get('cookie'), ADMIN_SESSION_COOKIE), secret)
 }
 
 export function getAdminAuthChallengeHeaders(): Record<string, string> {

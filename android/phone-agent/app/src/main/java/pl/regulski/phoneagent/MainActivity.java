@@ -29,6 +29,9 @@ public final class MainActivity extends Activity {
     private String currentJobId = null;
     private String currentJobPhone = null;
     private String currentVoiceBriefing = null;
+    private boolean jobClaimed = false;
+    private boolean claimInFlight = false;
+    private boolean reportInFlight = false;
 
     private Button speakBriefingButton;
     private Button stopSpeakingButton;
@@ -49,7 +52,7 @@ public final class MainActivity extends Activity {
         layout.setPadding(pad, pad, pad, pad);
         scroll.addView(layout);
 
-        String appVersion = "1.5.2";
+        String appVersion = "1.5.5";
         try {
             appVersion = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
         } catch (Exception ignored) {}
@@ -121,6 +124,25 @@ public final class MainActivity extends Activity {
 
         layout.addView(reportRow);
 
+        Button resetJob = new Button(this);
+        resetJob.setText("Zamknij lokalny podgląd sprawy");
+        resetJob.setOnClickListener(v -> {
+            if (claimInFlight || reportInFlight) return;
+            new android.app.AlertDialog.Builder(this)
+                .setMessage("Zamknij dopiero po sprawdzeniu stanu w panelu. Zapisany raport zostanie usunięty z telefonu. To nie kończy rozmowy na serwerze ani nie wybiera numeru.")
+                .setPositiveButton("Zamknij podgląd", (dialog, which) -> {
+                    jobClaimed = false;
+                    currentJobId = null;
+                    currentJobPhone = null;
+                    currentVoiceBriefing = null;
+                    preferences.edit().remove("manual_report_event").remove("manual_report_error").commit();
+                    jobDetailsView.setText("Lokalna sprawa zamknięta.");
+                    saveManualJob();
+                    updateManualButtons();
+                }).setNegativeButton("Anuluj", null).show();
+        });
+        layout.addView(resetJob);
+
         // ==================== SEKCJA 2: POŁĄCZENIE RĘCZNE ====================
         layout.addView(sectionHeader("POŁĄCZENIE RĘCZNE"));
 
@@ -131,6 +153,10 @@ public final class MainActivity extends Activity {
         Button manualCallBtn = new Button(this);
         manualCallBtn.setText("Zadzwoń pod wpisany numer");
         manualCallBtn.setOnClickListener(v -> {
+            if (jobClaimed || claimInFlight || reportInFlight) {
+                status.setText("Najpierw zapisz wynik przejętej sprawy. Nie rozpoczynam drugiego połączenia.");
+                return;
+            }
             String number = manualCallNumber.getText().toString().trim();
             dialNumber(number);
         });
@@ -206,6 +232,9 @@ public final class MainActivity extends Activity {
         layout.addView(status);
 
         setContentView(scroll);
+        restoreManualJob();
+        String pendingReport = preferences.getString("manual_report_event", "");
+        if (jobClaimed && !pendingReport.isEmpty()) reportJobEvent(pendingReport, preferences.getString("manual_report_error", null));
 
         if (getIntent().getBooleanExtra("start_sms", false)) {
             startMonitoring(true);
@@ -271,7 +300,7 @@ public final class MainActivity extends Activity {
                         tts.setSpeechRate(0.95f);
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                             android.media.AudioAttributes audioAttributes = new android.media.AudioAttributes.Builder()
-                                .setUsage(android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION)
+                                .setUsage(android.media.AudioAttributes.USAGE_MEDIA)
                                 .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SPEECH)
                                 .build();
                             tts.setAudioAttributes(audioAttributes);
@@ -294,7 +323,10 @@ public final class MainActivity extends Activity {
     }
 
     private void speakBriefing(String text) {
-        android.util.Log.i("PhoneAgent", "speakBriefing żądanie: " + text + ", ttsReady=" + ttsReady);
+        if (jobClaimed || claimInFlight) {
+            status.setText("Briefing jest dostępny przed rozmową. Nie odczytuję danych sprawy podczas połączenia.");
+            return;
+        }
         if (text == null || text.trim().isEmpty()) {
             status.setText("Brak tekstu briefingu do odczytania.");
             return;
@@ -305,38 +337,26 @@ public final class MainActivity extends Activity {
             return;
         }
         try {
-            android.media.AudioManager am = (android.media.AudioManager) getSystemService(Context.AUDIO_SERVICE);
-            if (am != null) {
-                // KLUCZOWE: MODE_IN_CALL bez głośnika.
-                // STREAM_VOICE_CALL w tym trybie idzie przez sprzętowy tor głosowy DSP
-                // i jest mieszany do uplinku rozmowy (rozmówca słyszy TTS).
-                // setSpeakerphoneOn(true) włącza głośnik i AEC wycisza mikrofon → rozmówca nic nie słyszy.
-                am.setMode(android.media.AudioManager.MODE_IN_CALL);
-                am.setSpeakerphoneOn(false);  // WYŁĄCZ głośnik – TTS idzie przez DSP do linii
-                int maxVol = am.getStreamMaxVolume(android.media.AudioManager.STREAM_VOICE_CALL);
-                am.setStreamVolume(android.media.AudioManager.STREAM_VOICE_CALL, maxVol, 0);
-                android.util.Log.i("PhoneAgent", "STREAM_VOICE_CALL vol=" + maxVol + " speakerphone=OFF mode=IN_CALL");
-            }
             tts.stop();
             tts.setSpeechRate(0.85f);
 
-            // Ustaw AudioAttributes na VOICE_COMMUNICATION żeby TTS szedł w tor głosowy
+            // Local preview only. This does not inject audio into a GSM call.
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 android.media.AudioAttributes voiceAttr = new android.media.AudioAttributes.Builder()
-                    .setUsage(android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION)
+                    .setUsage(android.media.AudioAttributes.USAGE_MEDIA)
                     .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SPEECH)
                     .build();
                 tts.setAudioAttributes(voiceAttr);
 
                 android.os.Bundle params = new android.os.Bundle();
-                params.putInt(TextToSpeech.Engine.KEY_PARAM_STREAM, android.media.AudioManager.STREAM_VOICE_CALL);
+                params.putInt(TextToSpeech.Engine.KEY_PARAM_STREAM, android.media.AudioManager.STREAM_MUSIC);
                 params.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 1.0f);
                 int speakRes = tts.speak(text, TextToSpeech.QUEUE_FLUSH, params, "briefing_" + System.currentTimeMillis());
                 android.util.Log.i("PhoneAgent", "tts.speak wynik: " + speakRes);
             } else {
                 tts.speak(text, TextToSpeech.QUEUE_FLUSH, null);
             }
-            status.setText("Lektor czyta: " + text);
+            status.setText("Lektor odczytuje lokalny briefing przed rozmową.");
         } catch (Exception e) {
             android.util.Log.e("PhoneAgent", "Błąd odczytu lektora: " + e.getMessage(), e);
             status.setText("Błąd odczytu lektora: " + e.getMessage());
@@ -353,6 +373,10 @@ public final class MainActivity extends Activity {
     }
 
     private void fetchCurrentJob() {
+        if (jobClaimed || claimInFlight || reportInFlight) {
+            status.setText("Zachowano przejętą sprawę. Najpierw zapisz wynik rozmowy; numer nie zostanie wybrany ponownie.");
+            return;
+        }
         status.setText("Pobieram bieżące zlecenie z serwera...");
         final ApiClient client = api();
         executor.execute(() -> {
@@ -360,10 +384,12 @@ public final class MainActivity extends Activity {
                 JSONObject res = client.get("/api/phone-agent/job");
                 JSONObject job = res.optJSONObject("job");
                 runOnUiThread(() -> {
+                    if (jobClaimed || claimInFlight || reportInFlight) return;
                     if (job == null) {
                         currentJobId = null;
                         currentJobPhone = null;
                         currentVoiceBriefing = null;
+                        saveManualJob();
                         jobDetailsView.setText("Brak oczekujących zleceń rozmowy (phone_agent_pending).");
                         speakBriefingButton.setEnabled(false);
                         stopSpeakingButton.setEnabled(false);
@@ -407,9 +433,10 @@ public final class MainActivity extends Activity {
                     speakBriefingButton.setEnabled(true);
                     stopSpeakingButton.setEnabled(true);
                     callJobButton.setEnabled(true);
-                    reportSuccessButton.setEnabled(true);
-                    reportNoAnswerButton.setEnabled(true);
-                    reportFailedButton.setEnabled(true);
+                    reportSuccessButton.setEnabled(false);
+                    reportNoAnswerButton.setEnabled(false);
+                    reportFailedButton.setEnabled(false);
+                    saveManualJob();
 
                     status.setText("Pobrano zlecenie dla: " + owner + " (" + currentJobPhone + ")");
                 });
@@ -420,49 +447,130 @@ public final class MainActivity extends Activity {
     }
 
     private void callCurrentJob() {
-        if (currentJobId == null || currentJobPhone == null) {
-            status.setText("Brak pobranego zlecenia do wykonania połączenia.");
+        String normalized = normalizeDialNumber(currentJobPhone);
+        boolean permission = checkSelfPermission(android.Manifest.permission.CALL_PHONE) == android.content.pm.PackageManager.PERMISSION_GRANTED;
+        if (!permission) {
+            requestPermissions(new String[]{android.Manifest.permission.CALL_PHONE}, 8);
+            status.setText("Po nadaniu uprawnienia ponownie wybierz połączenie.");
+            return;
+        }
+        if (!CallSessionGuard.canClaim(currentJobId, normalized, permission, claimInFlight, jobClaimed)) {
+            status.setText("Brak poprawnej nowej sprawy albo zadanie zostało już przejęte.");
             return;
         }
         final String jobId = currentJobId;
-        final String phone = currentJobPhone;
+        final String phone = normalized;
         final ApiClient client = api();
-
+        claimInFlight = true;
+        updateManualButtons();
+        stopSpeaking();
         status.setText("Rejestruję rozpoczęcie połączenia (claimed)...");
         executor.execute(() -> {
             try {
                 JSONObject payload = new JSONObject();
                 payload.put("bookingId", jobId);
                 payload.put("event", "claimed");
-                client.post("/api/phone-agent/job", payload);
-            } catch (Exception ignored) {}
-            runOnUiThread(() -> dialNumber(phone));
+                JSONObject response = client.post("/api/phone-agent/job", payload);
+                if (!response.optBoolean("ok") || !"phone_agent_dialing".equals(response.optString("state"))) throw new Exception("Serwer nie potwierdził przejęcia zadania.");
+                final boolean duplicate = response.optBoolean("idempotent");
+                runOnUiThread(() -> {
+                    claimInFlight = false;
+                    jobClaimed = true;
+                    if (!saveManualJob()) {
+                        updateManualButtons();
+                        status.setText("Nie zapisano stanu sprawy. Nie wybieram numeru; sprawdź zadanie ręcznie w panelu.");
+                        return;
+                    }
+                    updateManualButtons();
+                    if (duplicate) status.setText("Zadanie było wcześniej przejęte. Nie wybieram numeru ponownie. Sprawdź stan rozmowy przed raportem.");
+                    else if (!dialNumber(phone)) reportJobEvent("failed", "Telefon nie uruchomił połączenia.");
+                });
+            } catch (Exception error) {
+                runOnUiThread(() -> {
+                    claimInFlight = false;
+                    updateManualButtons();
+                    status.setText("Nie potwierdzono przejęcia zadania. Nie wybieram numeru: " + error.getMessage());
+                });
+            }
         });
     }
 
     private void reportJobEvent(String event, String errorMsg) {
-        if (currentJobId == null) {
+        if (!CallSessionGuard.canReport(currentJobId, jobClaimed, reportInFlight)) {
             status.setText("Brak aktywnego zlecenia do zaraportowania.");
             return;
         }
         final String jobId = currentJobId;
         final ApiClient client = api();
+        String pending = preferences.getString("manual_report_event", "");
+        if (!pending.isEmpty() && !pending.equals(event)) {
+            status.setText("Najpierw ponów zapisany raport: " + pending + ". Nie zastępuję go innym wynikiem.");
+            return;
+        }
+        if (!preferences.edit().putString("manual_report_event", event).putString("manual_report_error", errorMsg).commit()) {
+            status.setText("Nie udało się zachować raportu. Ponów ręcznie.");
+            return;
+        }
+        reportInFlight = true;
+        updateManualButtons();
         status.setText("Wysyłam raport: " + event + "...");
         executor.execute(() -> {
             try {
                 JSONObject payload = new JSONObject();
                 payload.put("bookingId", jobId);
                 payload.put("event", event);
+                if (CallSessionGuard.isManualCompletion(event)) payload.put("manualCompletion", true);
                 if (errorMsg != null) payload.put("error", errorMsg);
-                client.post("/api/phone-agent/job", payload);
+                JSONObject result = client.post("/api/phone-agent/job", payload);
+                if (!result.optBoolean("ok")) throw new Exception("Serwer nie potwierdził raportu.");
                 runOnUiThread(() -> {
+                    reportInFlight = false;
+                    jobClaimed = false;
+                    currentJobId = null;
+                    currentJobPhone = null;
+                    currentVoiceBriefing = null;
+                    preferences.edit().remove("manual_report_event").remove("manual_report_error").commit();
+                    saveManualJob();
+                    updateManualButtons();
                     status.setText("Raport '" + event + "' zapisany pomyślnie na serwerze.");
                     fetchCurrentJob();
                 });
             } catch (Exception e) {
-                runOnUiThread(() -> status.setText("Błąd wysyłania raportu " + event + ": " + e.getMessage()));
+                runOnUiThread(() -> {
+                    reportInFlight = false;
+                    updateManualButtons();
+                    status.setText("Raport zachowano. Ponów ten sam wynik po odzyskaniu połączenia: " + e.getMessage());
+                });
             }
         });
+    }
+
+    private boolean saveManualJob() {
+        return preferences.edit().putString("manual_job_id", currentJobId).putString("manual_job_phone", currentJobPhone)
+            .putString("manual_job_briefing", currentVoiceBriefing).putBoolean("manual_job_claimed", jobClaimed)
+            .putString("manual_job_details", jobDetailsView.getText().toString()).commit();
+    }
+
+    private void restoreManualJob() {
+        currentJobId = preferences.getString("manual_job_id", null);
+        currentJobPhone = preferences.getString("manual_job_phone", null);
+        currentVoiceBriefing = preferences.getString("manual_job_briefing", null);
+        jobClaimed = preferences.getBoolean("manual_job_claimed", false) && currentJobId != null;
+        if (currentJobId != null) {
+            jobDetailsView.setText(preferences.getString("manual_job_details", "Zachowana sprawa."));
+            manualCallNumber.setText(currentJobPhone);
+        }
+        updateManualButtons();
+    }
+
+    private void updateManualButtons() {
+        boolean busy = claimInFlight || reportInFlight;
+        callJobButton.setEnabled(currentJobId != null && !jobClaimed && !busy);
+        speakBriefingButton.setEnabled(currentVoiceBriefing != null && !jobClaimed && !busy);
+        stopSpeakingButton.setEnabled(currentVoiceBriefing != null);
+        reportSuccessButton.setEnabled(jobClaimed && !busy);
+        reportNoAnswerButton.setEnabled(jobClaimed && !busy);
+        reportFailedButton.setEnabled(jobClaimed && !busy);
     }
 
     private String normalizeDialNumber(String raw) {
@@ -474,21 +582,24 @@ public final class MainActivity extends Activity {
         return null;
     }
 
-    private void dialNumber(String number) {
+    private boolean dialNumber(String number) {
         String normalizedNumber = normalizeDialNumber(number);
         if (normalizedNumber == null) {
             status.setText("Podaj poprawny numer telefonu.");
-            return;
+            return false;
         }
         if (checkSelfPermission(android.Manifest.permission.CALL_PHONE) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{android.Manifest.permission.CALL_PHONE, android.Manifest.permission.ANSWER_PHONE_CALLS}, 8);
-            return;
+            return false;
         }
         try {
+            stopSpeaking();
             startActivity(new Intent(Intent.ACTION_CALL, android.net.Uri.fromParts("tel", normalizedNumber, null)));
             status.setText("Nawiązywanie połączenia z " + number);
+            return true;
         } catch (Exception error) {
             status.setText("Nie udało się rozpocząć połączenia: " + error.getMessage());
+            return false;
         }
     }
 
@@ -574,7 +685,7 @@ public final class MainActivity extends Activity {
             try {
                 JSONObject payload = new JSONObject();
                 payload.put("network", "Ręczny test");
-                String version = "1.5.2";
+                String version = "1.5.5";
                 try {
                     version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
                 } catch (Exception ignored) {}

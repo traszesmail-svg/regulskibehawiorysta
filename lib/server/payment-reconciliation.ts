@@ -1,4 +1,5 @@
-import { listBookings, markBookingPaid } from '@/lib/server/db'
+import { createHash } from 'node:crypto'
+import { claimPaymentReconciliation, listBookings, markBookingPaid } from '@/lib/server/db'
 import type { BookingRecord } from '@/lib/types'
 
 export type PaymentNotificationPayload = {
@@ -6,6 +7,7 @@ export type PaymentNotificationPayload = {
   title?: string | null
   text?: string | null
   timestamp?: string | null
+  transactionId?: string | null
 }
 
 export type PaymentReconciliationResult =
@@ -68,13 +70,14 @@ export function isIncomingPaymentNotification(title: string, text: string): bool
 export function extractAmountFromNotification(title: string, text: string): number | null {
   const combined = `${title} ${text}`.replace(/\s+/g, ' ')
 
-  // Look for patterns strictly in PLN / zł
-  const match = combined.match(/(\d{2,4}(?:[.,]\d{2})?)\s*(?:zł|pln)/i)
-  if (!match) return null
-
-  const normalized = match[1].replace(',', '.')
-  const parsed = parseFloat(normalized)
-  return Number.isFinite(parsed) && parsed > 0 ? Math.round(parsed * 100) / 100 : null
+  // Reject different amounts and partial matches inside unsupported number
+  // formats. Repeated copies of the same amount in title/text are harmless.
+  const amounts = new Set<number>()
+  for (const match of combined.matchAll(/(?<![\d.,])((?:\d{1,3}(?: \d{3})+|\d+)(?:[.,]\d{2})?)\s*(?:zł|pln)(?![a-z])/gi)) {
+    const parsed = Number(match[1].replaceAll(' ', '').replace(',', '.'))
+    if (Number.isFinite(parsed) && parsed > 0) amounts.add(Math.round(parsed * 100) / 100)
+  }
+  return amounts.size === 1 ? [...amounts][0] : null
 }
 
 export function extractSenderFromNotification(title: string, text: string): string | null {
@@ -86,44 +89,25 @@ export function extractSenderFromNotification(title: string, text: string): stri
   return match ? match[1].trim() : null
 }
 
-export function extractPhoneOrRefFromNotification(title: string, text: string): string | null {
-  const combined = `${title} ${text}`
-  const phoneMatch = combined.match(/(?:\+?48\s*)?([4-9]\d{2}[\s-]?\d{3}[\s-]?\d{3})/)
-  if (phoneMatch) {
-    return phoneMatch[1].replace(/[\s-]/g, '')
-  }
-
-  const uuidMatch = combined.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i)
-  if (uuidMatch) {
-    return uuidMatch[0].toLowerCase()
-  }
-
-  return null
+function normalizePolishPhoneDigits(value: string | null | undefined): string | null {
+  const digits = (value ?? '').replace(/\D/g, '')
+  if (/^48\d{9}$/.test(digits)) return digits.slice(2)
+  return /^\d{9}$/.test(digits) ? digits : null
 }
 
-export function safeNameMatches(bookingOwner: string, candidate: string): boolean {
-  const normOwner = bookingOwner.toLowerCase().trim()
-  const normCandidate = candidate.toLowerCase().trim()
+function extractReferencesFromNotification(title: string, text: string) {
+  const combined = title + ' ' + text
+  const uuid = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi
+  const bookingIds = [...new Set([...combined.matchAll(uuid)].map(match => match[0].toLowerCase()))]
+  const withoutUuids = combined.replace(uuid, ' ')
+  const phones = [...new Set([...withoutUuids.matchAll(/(?<![0-9a-z])(?:\+?48[\s-]*)?([4-9]\d{2}[\s-]?\d{3}[\s-]?\d{3})(?![0-9a-z])/gi)].map(match => match[1].replace(/[\s-]/g, '')))]
+  return { bookingIds, phones }
+}
 
-  if (normOwner === normCandidate) return true
-
-  const ownerParts = normOwner.split(/\s+/).filter((p) => p.length >= 3)
-  const candidateParts = normCandidate.split(/\s+/).filter((p) => p.length >= 3)
-
-  // Must match at least 2 parts (first and last name)
-  if (ownerParts.length >= 2 && candidateParts.length >= 2) {
-    const matchingCount = ownerParts.filter((part) => candidateParts.includes(part)).length
-    return matchingCount >= 2
-  }
-
-  // If candidate has only 1 part (e.g. just surname), it must be at least 5 chars AND exact match to owner's last name
-  if (candidateParts.length === 1 && ownerParts.length >= 2) {
-    const candidateSurname = candidateParts[0]
-    const ownerSurname = ownerParts[ownerParts.length - 1]
-    return candidateSurname.length >= 5 && candidateSurname === ownerSurname
-  }
-
-  return false
+function getRevolutNotificationFingerprint(payload: PaymentNotificationPayload): string | null {
+  const transactionId = payload.transactionId?.trim()
+  if (!transactionId || !/^[a-zA-Z0-9._:-]{8,160}$/.test(transactionId)) return null
+  return 'revolut:' + createHash('sha256').update(transactionId.toLowerCase()).digest('hex')
 }
 
 export async function reconcilePaymentNotification(
@@ -131,6 +115,10 @@ export async function reconcilePaymentNotification(
 ): Promise<PaymentReconciliationResult> {
   const title = (payload.title ?? '').trim()
   const text = (payload.text ?? '').trim()
+
+  if (payload.packageName !== 'com.revolut.revolut') {
+    return { matched: false, reason: 'Automatyczne rozliczanie obsługuje wyłącznie powiadomienia aplikacji Revolut.' }
+  }
 
   if (!title && !text) {
     return { matched: false, reason: 'Powiadomienie nie zawiera treści.' }
@@ -151,22 +139,32 @@ export async function reconcilePaymentNotification(
   }
 
   const parsedSender = extractSenderFromNotification(title, text)
-  const phoneOrRef = extractPhoneOrRefFromNotification(title, text)
+  const fingerprint = getRevolutNotificationFingerprint(payload)
+  if (!fingerprint) {
+    return {
+      matched: false,
+      reason: 'Brak wiarygodnego identyfikatora transakcji Revolut. Wymagana weryfikacja ręczna.',
+      parsedAmount,
+      parsedSender,
+      requiresManualReview: true,
+    }
+  }
+
+  const { bookingIds, phones } = extractReferencesFromNotification(title, text)
+  if (bookingIds.length > 1 || (bookingIds.length === 0 && phones.length > 1)) {
+    return { matched: false, reason: 'Powiadomienie zawiera różne identyfikatory rezerwacji lub numery. Wymagana weryfikacja ręczna.', parsedAmount, parsedSender, requiresManualReview: true }
+  }
+  const bookingId = bookingIds[0] ?? null
+  const phone = phones[0] ?? null
   const allBookings = await listBookings()
 
-  // Filter candidates: unpaid or pending review, matching amount, not cancelled/expired
+  // A candidate must be awaiting payment in both state columns. Never trust
+  // one stale column to re-credit a paid, rejected, or refunded booking.
   const candidates = allBookings.filter((booking) => {
-    const isPending =
-      booking.paymentStatus === 'pending_manual_review' ||
-      booking.paymentStatus === 'unpaid' ||
-      booking.bookingStatus === 'pending_manual_payment' ||
-      booking.bookingStatus === 'pending'
-    const notTerminated =
-      booking.bookingStatus !== 'cancelled' &&
-      booking.bookingStatus !== 'expired' &&
-      booking.bookingStatus !== 'done'
-
-    return isPending && notTerminated && Math.abs(booking.amount - parsedAmount) < 0.01
+    const awaitingPayment =
+      (booking.bookingStatus === 'pending' && booking.paymentStatus === 'unpaid') ||
+      (booking.bookingStatus === 'pending_manual_payment' && booking.paymentStatus === 'pending_manual_review')
+    return awaitingPayment && Math.abs(booking.amount - parsedAmount) < 0.01
   })
 
   if (candidates.length === 0) {
@@ -180,25 +178,17 @@ export async function reconcilePaymentNotification(
 
   let matchedBooking: BookingRecord | null = null
 
-  // 3a. Direct match by UUID / booking ID or phone in title
-  if (phoneOrRef) {
-    matchedBooking =
-      candidates.find(
-        (b) =>
-          b.id.toLowerCase() === phoneOrRef.toLowerCase() ||
-          (b.phone && b.phone.replace(/\D/g, '').includes(phoneOrRef)),
-      ) ?? null
-  }
-
-  // 3b. Safe name match (requires full name / 2 parts, not single common word)
-  if (!matchedBooking && parsedSender) {
-    const nameMatches = candidates.filter((b) => safeNameMatches(b.ownerName, parsedSender))
-    if (nameMatches.length === 1) {
-      matchedBooking = nameMatches[0]
-    } else if (nameMatches.length > 1) {
+  // UUID takes precedence. A phone is accepted only as a complete normalized
+  // number and only when it identifies exactly one pending booking.
+  if (bookingId) {
+    matchedBooking = candidates.find((booking) => booking.id.toLowerCase() === bookingId) ?? null
+  } else if (phone) {
+    const phoneMatches = candidates.filter((booking) => normalizePolishPhoneDigits(booking.phone) === phone)
+    if (phoneMatches.length === 1) matchedBooking = phoneMatches[0]
+    if (phoneMatches.length > 1) {
       return {
         matched: false,
-        reason: `Niejednoznaczność: znaleziono ${nameMatches.length} rezerwacji o pasującym nazwisku na kwotę ${parsedAmount} zł. Wymagana weryfikacja ręczna.`,
+        reason: 'Niejednoznaczny numer telefonu dla tej kwoty. Wymagana weryfikacja ręczna.',
         parsedAmount,
         parsedSender,
         requiresManualReview: true,
@@ -206,7 +196,8 @@ export async function reconcilePaymentNotification(
     }
   }
 
-  // 3c. Strict security rule per PLAN-OPERATOR-2026-09-16: NEVER pick oldest candidate by amount alone!
+  // Never resolve by sender name or amount alone: a surname and a notification
+  // without a booking UUID/exact phone are insufficient evidence of payment.
   if (!matchedBooking) {
     return {
       matched: false,
@@ -217,18 +208,23 @@ export async function reconcilePaymentNotification(
     }
   }
 
-  // 4. Duplicate prevention: if already paid, do not process again
-  if (matchedBooking.paymentStatus === 'paid') {
+  // The ledger is a durable uniqueness boundary in Supabase (and its local
+  // equivalent in development). If its migration is absent, the call throws
+  // and the route fails closed instead of crediting a payment twice.
+  const claimed = await claimPaymentReconciliation(fingerprint, matchedBooking.id, parsedAmount)
+  if (!claimed) {
     return {
       matched: false,
-      reason: `Rezerwacja ${matchedBooking.id} została już wcześniej opłacona.`,
+      reason: 'To powiadomienie Revolut zostało już obsłużone albo wymaga ręcznej weryfikacji.',
       parsedAmount,
       parsedSender,
+      requiresManualReview: true,
     }
   }
 
-  // 5. Mark as paid - single dispatch handles SMS confirmation via phone agent queue (no duplicate SMS)
-  const ref = `revolut:${payload.packageName || 'app'}:${(title || text).slice(0, 40)}`
+  // Marking remains after the durable claim. A process failure here can only
+  // require manual review; it cannot produce a second automatic credit.
+  const ref = fingerprint
   await markBookingPaid(matchedBooking.id, {
     paymentMethod: 'manual',
     paymentReference: ref,

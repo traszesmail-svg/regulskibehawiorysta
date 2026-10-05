@@ -22,6 +22,7 @@ data/
 !data/testimonials.json
 data/payment-orders.json
 data/promo-codes.json
+data/payment-reconciliation-claims.json
 output/
 
 CHATGPT_*.txt

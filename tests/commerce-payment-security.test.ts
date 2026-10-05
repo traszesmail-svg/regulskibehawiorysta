@@ -12,6 +12,8 @@ import {
   buildCommerceWaitingHref,
 } from '@/lib/commerce'
 import { POST as postCommercePaymentReport } from '@/app/api/orders/[orderNumber]/report-payment/route'
+import { POST as postAdminViewerLink } from '@/app/api/admin/orders/[orderNumber]/viewer-link/route'
+import { createAdminSessionToken } from '@/lib/admin-auth'
 import {
   COMMERCE_MANUAL_NOTIFICATION_CLAIM_STALE_AFTER_MS,
   claimCommerceManualPaymentAdminNotification,
@@ -121,10 +123,26 @@ test('legacy order viewer tokens can only be reissued from an authenticated owne
     const migrated = await ensureCommerceOrderViewerToken(order)
     assert.match(migrated.viewerToken, /^[A-Za-z0-9_-]{40,}$/)
     assert.ok(await getCommerceOrderForViewer(migrated.orderNumber, migrated.viewerToken))
+    const previousSecret = process.env.ADMIN_ACCESS_SECRET
+    process.env.ADMIN_ACCESS_SECRET = 'commerce-cookie-test-secret'
+    try {
+      const params = { params: Promise.resolve({ orderNumber: migrated.orderNumber }) }
+      const denied = await postAdminViewerLink(new Request('http://localhost/api/admin/orders/test/viewer-link', { method: 'POST' }), params)
+      assert.equal(denied.status, 401)
+      const token = await createAdminSessionToken()
+      const allowed = await postAdminViewerLink(new Request('http://localhost/api/admin/orders/test/viewer-link', {
+        method: 'POST', headers: { cookie: 'rb_admin_session=' + token },
+      }), params)
+      assert.equal(allowed.status, 200)
+      const payload = await allowed.json()
+      assert.equal(new URL(payload.checkoutUrl, 'http://localhost').searchParams.get('viewer'), migrated.viewerToken)
+    } finally {
+      previousSecret === undefined ? delete process.env.ADMIN_ACCESS_SECRET : process.env.ADMIN_ACCESS_SECRET = previousSecret
+    }
   })
 
   const migrationRoute = readSource('app', 'api', 'admin', 'orders', '[orderNumber]', 'viewer-link', 'route.ts')
-  assert.match(migrationRoute, /hasValidAdminAuthorization/)
+  assert.match(migrationRoute, /await isAdminRequestAuthorized\(request\.headers, secret\)/)
   assert.match(migrationRoute, /getAdminAuthChallengeHeaders/)
   assert.match(migrationRoute, /ensureCommerceOrderViewerToken/)
   assert.match(migrationRoute, /buildCommerceCheckoutHref/)

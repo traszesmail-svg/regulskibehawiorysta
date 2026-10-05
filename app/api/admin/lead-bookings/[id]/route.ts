@@ -2,8 +2,7 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 import { NextResponse } from 'next/server'
-import { headers } from 'next/headers'
-import { getAdminAccessSecret, hasValidAdminAuthorization } from '@/lib/admin-auth'
+import { getAdminAccessSecret, isAdminRequestAuthorized } from '@/lib/admin-auth'
 import {
   getLeadBookingById,
   updateLeadBooking,
@@ -11,13 +10,12 @@ import {
 } from '@/lib/server/lead-bookings'
 import { buildGoogleCalendarUrlForEvent, parseWarsawDateTime } from '@/lib/server/google-calendar'
 
-async function checkAuth() {
+async function checkAuth(request: Request) {
   const secret = getAdminAccessSecret()
   if (!secret) {
     return { ok: false as const, response: NextResponse.json({ error: 'Admin secret not configured.' }, { status: 503 }) }
   }
-  const authHeader = (await headers()).get('authorization')
-  if (!hasValidAdminAuthorization(authHeader, secret)) {
+  if (!await isAdminRequestAuthorized(request.headers, secret)) {
     return {
       ok: false as const,
       response: NextResponse.json({ error: 'Unauthorized' }, {
@@ -31,7 +29,7 @@ async function checkAuth() {
 
 export async function GET(_: Request, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
-  const auth = await checkAuth()
+  const auth = await checkAuth(_)
   if (!auth.ok) return auth.response
 
   const booking = await getLeadBookingById(params.id)
@@ -52,7 +50,7 @@ const SERVICE_DURATION_MINUTES: Record<string, number> = {
 
 export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
-  const auth = await checkAuth()
+  const auth = await checkAuth(request)
   if (!auth.ok) return auth.response
 
   let body: Record<string, unknown>

@@ -344,7 +344,8 @@ test('revolut and blik notification is disabled by default and requires an expli
         body: JSON.stringify({
           packageName: 'com.revolut.revolut',
           title: 'Otrzymałeś 79,00 zł',
-          text: 'Jan Kowalski przesłał Ci 79,00 zł',
+          text: 'Jan Kowalski przesłał Ci 79,00 zł ' + created.booking.id,
+          transactionId: 'revolut-test-transaction-0001',
         }),
       })
       const resAuth = await postPaymentNotification(reqAuth)
@@ -354,6 +355,20 @@ test('revolut and blik notification is disabled by default and requires an expli
       assert.equal(dataAuth.result.matched, true)
       assert.equal(dataAuth.result.bookingId, created.booking.id)
       assert.equal(dataAuth.result.amount, 79)
+
+      const duplicate = await postPaymentNotification(new NextRequest('http://localhost:3000/api/phone-agent/payment-notification', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer secret-token-rev', 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          packageName: 'com.revolut.revolut',
+          title: 'Otrzymałeś 79,00 zł',
+          text: 'Jan Kowalski przesłał Ci 79,00 zł ' + created.booking.id,
+          transactionId: 'revolut-test-transaction-0001',
+        }),
+      }))
+      const duplicateData = await duplicate.json()
+      assert.equal(duplicate.status, 200)
+      assert.equal(duplicateData.ok, false)
 
       // 7. Verify booking in DB is now paid and confirmed
       const afterBooking = await getBookingById(created.booking.id)
@@ -411,7 +426,22 @@ test('phone job lifecycle: claimed, no_answer retry scheduling, and dropped reco
       assert.ok(dataGet.job)
       assert.equal(dataGet.job.id, created.booking.id)
 
-      // 2. Report "no_answer" (1st attempt) => schedules 2nd attempt in 2 minutes
+      const prematureEnd = await postJob(new NextRequest('http://localhost:3000/api/phone-agent/job', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer secret-token-job', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookingId: created.booking.id, event: 'ended' }),
+      }))
+      assert.equal(prematureEnd.status, 409)
+
+      // 2. Claim before reporting a dial result.
+      const claim = await postJob(new NextRequest('http://localhost:3000/api/phone-agent/job', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer secret-token-job', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookingId: created.booking.id, event: 'claimed' }),
+      }))
+      assert.equal(claim.status, 200)
+
+      // 3. Report "no_answer" (1st attempt) => schedules 2nd attempt in 2 minutes
       const reqNoAnswer = new NextRequest('http://localhost:3000/api/phone-agent/job', {
         method: 'POST',
         headers: {
@@ -428,12 +458,21 @@ test('phone job lifecycle: claimed, no_answer retry scheduling, and dropped reco
       assert.ok(bAfterNoAnswer?.callNextAttemptAt)
       assert.match(bAfterNoAnswer?.callLastError || '', /2\. próbę za 2 minuty/)
 
-      // 3. Right now GET job should skip because callNextAttemptAt is in future
+      // 4. Right now GET job should skip because callNextAttemptAt is in future
       const resGetSkipped = await getJob(reqGet)
       const dataGetSkipped = await resGetSkipped.json()
       assert.equal(dataGetSkipped.job, null)
 
-      // 4. Report "started" => call is active
+      // 5. A retry must be claimable only after its due time.
+      await updateBookingCallState(created.booking.id, { callNextAttemptAt: new Date(Date.now() - 1000).toISOString() })
+      const retryClaim = await postJob(new NextRequest('http://localhost:3000/api/phone-agent/job', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer secret-token-job', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookingId: created.booking.id, event: 'claimed' }),
+      }))
+      assert.equal(retryClaim.status, 200)
+
+      // 6. Report "started" => call is active
       const reqStarted = new NextRequest('http://localhost:3000/api/phone-agent/job', {
         method: 'POST',
         headers: {
@@ -449,7 +488,14 @@ test('phone job lifecycle: claimed, no_answer retry scheduling, and dropped reco
       assert.equal(bStarted?.callStatus, 'phone_agent_active')
       assert.ok(bStarted?.callAnsweredAt)
 
-      // 5. Report "dropped" => schedules quick reconnect in 30 seconds
+      const staleFailure = await postJob(new NextRequest('http://localhost:3000/api/phone-agent/job', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer secret-token-job', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookingId: created.booking.id, event: 'failed', error: 'stary blad' }),
+      }))
+      assert.equal(staleFailure.status, 409)
+
+      // 7. Report "dropped" => schedules quick reconnect in 30 seconds
       const reqDropped = new NextRequest('http://localhost:3000/api/phone-agent/job', {
         method: 'POST',
         headers: {
@@ -465,7 +511,22 @@ test('phone job lifecycle: claimed, no_answer retry scheduling, and dropped reco
       assert.equal(bDropped?.callStatus, 'phone_agent_pending')
       assert.match(bDropped?.callLastError || '', /wznowienie za 30 sekund/)
 
-      // 6. Report "ended" => completed
+      // 8. A delayed retry is claimed and started before completion.
+      await updateBookingCallState(created.booking.id, { callNextAttemptAt: new Date(Date.now() - 1000).toISOString() })
+      const reconnectClaim = await postJob(new NextRequest('http://localhost:3000/api/phone-agent/job', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer secret-token-job', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookingId: created.booking.id, event: 'claimed' }),
+      }))
+      assert.equal(reconnectClaim.status, 200)
+      const reconnectStarted = await postJob(new NextRequest('http://localhost:3000/api/phone-agent/job', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer secret-token-job', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookingId: created.booking.id, event: 'started' }),
+      }))
+      assert.equal(reconnectStarted.status, 200)
+
+      // 9. Report "ended" => completed
       const reqEnded = new NextRequest('http://localhost:3000/api/phone-agent/job', {
         method: 'POST',
         headers: {

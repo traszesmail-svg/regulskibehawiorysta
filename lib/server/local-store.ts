@@ -98,7 +98,15 @@ function getStorePaths() {
     funnelEventsFile: path.join(dataDir, 'funnel-events.json'),
     pricingSettingsFile: path.join(dataDir, 'pricing-settings.json'),
     usersFile: path.join(dataDir, 'users.json'),
+    paymentReconciliationClaimsFile: path.join(dataDir, 'payment-reconciliation-claims.json'),
   }
+}
+
+type PaymentReconciliationClaim = {
+  fingerprint: string
+  bookingId: string
+  amount: number
+  createdAt: string
 }
 
 function getBookingFunnelEventProperties(booking: BookingRecord) {
@@ -133,13 +141,14 @@ async function ensureFile(filePath: string, fallbackValue: unknown) {
 
 async function ensureStoreFiles() {
   const nowIso = new Date().toISOString()
-  const { dataDir, availabilityFile, bookingsFile, funnelEventsFile, pricingSettingsFile, usersFile } = getStorePaths()
+  const { dataDir, availabilityFile, bookingsFile, funnelEventsFile, pricingSettingsFile, usersFile, paymentReconciliationClaimsFile } = getStorePaths()
   await mkdir(dataDir, { recursive: true })
   await ensureFile(availabilityFile, createSeedAvailability(nowIso))
   await ensureFile(bookingsFile, [])
   await ensureFile(funnelEventsFile, [])
   await ensureFile(pricingSettingsFile, { amount: DEFAULT_PRICE_PLN, updatedAt: null })
   await ensureFile(usersFile, [])
+  await ensureFile(paymentReconciliationClaimsFile, [])
 }
 
 function isTransientLocalStoreReadError(error: unknown) {
@@ -988,6 +997,51 @@ export async function updateBookingCallState(
     booking.updatedAt = new Date().toISOString()
     await persistStore(store)
     return booking
+  })
+}
+
+export async function transitionBookingCallState(
+  bookingId: string,
+  expectedStatuses: string[],
+  patch: Parameters<typeof updateBookingCallState>[1],
+): Promise<BookingRecord | null> {
+  return withLock(async () => {
+    const store = await readStore()
+    const booking = store.bookings.find((item) => item.id === bookingId)
+    if (!booking || booking.paymentStatus !== 'paid' ||
+      ['done', 'cancelled', 'expired'].includes(booking.bookingStatus) ||
+      !expectedStatuses.includes(booking.callStatus ?? '')) return null
+
+    if (patch.callId !== undefined) booking.callId = patch.callId
+    if (patch.callStatus !== undefined) booking.callStatus = patch.callStatus
+    if (patch.startedAt !== undefined) booking.startedAt = patch.startedAt
+    if (patch.callAttempt !== undefined) booking.callAttempt = patch.callAttempt
+    if (patch.callAnsweredAt !== undefined) booking.callAnsweredAt = patch.callAnsweredAt
+    if (patch.callNextAttemptAt !== undefined) booking.callNextAttemptAt = patch.callNextAttemptAt
+    if (patch.callLastError !== undefined) booking.callLastError = patch.callLastError
+    if (patch.callRecoveryUsed !== undefined) booking.callRecoveryUsed = patch.callRecoveryUsed
+    if (patch.callRecoveryTokenHash !== undefined) booking.callRecoveryTokenHash = patch.callRecoveryTokenHash
+    if (patch.callRecoveryExpiresAt !== undefined) booking.callRecoveryExpiresAt = patch.callRecoveryExpiresAt
+    booking.updatedAt = new Date().toISOString()
+    await persistStore(store)
+    return booking
+  })
+}
+
+export async function claimPaymentReconciliation(
+  fingerprint: string,
+  bookingId: string,
+  amount: number,
+): Promise<boolean> {
+  return withLock(async () => {
+    const { paymentReconciliationClaimsFile } = getStorePaths()
+    await ensureStoreFiles()
+    const claims = await readJson<PaymentReconciliationClaim[]>(paymentReconciliationClaimsFile)
+    if (claims.some((claim) => claim.fingerprint === fingerprint)) return false
+
+    claims.push({ fingerprint, bookingId, amount, createdAt: new Date().toISOString() })
+    await writeJson(paymentReconciliationClaimsFile, claims)
+    return true
   })
 }
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { hasValidPhoneAgentAuthorization } from '@/lib/server/phone-agent'
-import { hasValidAdminAuthorization } from '@/lib/admin-auth'
+import { isAdminRequestAuthorized } from '@/lib/admin-auth'
 import { runPhoneAgentWatchdogCheck } from '@/lib/server/phone-agent-store'
 
 export const dynamic = 'force-dynamic'
@@ -8,7 +8,7 @@ export const revalidate = 0
 
 export async function POST(request: NextRequest) {
   const auth = request.headers.get('authorization')
-  const isAuthorized = hasValidPhoneAgentAuthorization(auth) || hasValidAdminAuthorization(auth)
+  const isAuthorized = hasValidPhoneAgentAuthorization(auth) || await isAdminRequestAuthorized(request.headers)
 
   if (!isAuthorized) {
     return NextResponse.json({ error: 'Brak autoryzacji.' }, { status: 401 })

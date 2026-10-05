@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import type { OperatorStatusData } from '@/components/AdminOperatorMobileCard'
 import type { BookingRecord } from '@/lib/types'
 import { useRouter } from 'next/navigation'
+import { useOperatorStatus } from '@/components/useOperatorStatus'
+import { getOperatorStatusPresentation } from '@/lib/operator-status-presentation'
 
 type OwnerPocketDashboardProps = {
   operatorData: OperatorStatusData | null
@@ -19,27 +21,15 @@ export function OwnerPocketDashboard({
   onSwitchToDesktop,
 }: OwnerPocketDashboardProps) {
   const router = useRouter()
-  const [data, setData] = useState<OperatorStatusData | null>(initialOperatorData)
+  const { data, error: statusError, refresh: refreshStatus } = useOperatorStatus(initialOperatorData)
   const [liveLoading, setLiveLoading] = useState(false)
   const [approvingId, setApprovingId] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
   const [liveCountdown, setLiveCountdown] = useState<string | null>(null)
-
-  // Auto-refresh status co 10 sekund
-  async function refreshStatus() {
-    try {
-      const res = await fetch('/api/admin/operator/status', { cache: 'no-store' })
-      if (res.ok) {
-        const json = (await res.json()) as OperatorStatusData
-        setData(json)
-      }
-    } catch {
-      // Ignoruj przejściowe błędy sieci w tle
-    }
-  }
+  const [now, setNow] = useState(() => Date.now())
 
   useEffect(() => {
-    const timer = setInterval(refreshStatus, 10000)
+    const timer = setInterval(() => setNow(Date.now()), 1000)
     return () => clearInterval(timer)
   }, [])
 
@@ -102,7 +92,7 @@ export function OwnerPocketDashboard({
         body: JSON.stringify({ action: 'approve' }),
       })
       if (!res.ok) throw new Error('Nie udało się zatwierdzić wpłaty')
-      setMessage('✅ Wpłata zatwierdzona! Klient otrzymał potwierdzenie.')
+      setMessage('✅ Wpłata zatwierdzona.')
       router.refresh()
     } catch (e: any) {
       setMessage(`❌ ${e.message}`)
@@ -112,13 +102,15 @@ export function OwnerPocketDashboard({
   }
 
   const live = data?.live
-  const isLiveActive = live?.status === 'available_now' || live?.status === 'in_call' || live?.status === 'payment_pending'
+  const presentation = getOperatorStatusPresentation(data, now, Boolean(statusError))
+  const isLiveActive = presentation.modeEnabled
+  const liveExplanation = presentation.liveExplanation
   const device = data?.device
-  const isDeviceOnline = Boolean(device?.isOnline)
+  const isDeviceOnline = presentation.deviceOnline
   const nextBooking = data?.nextUpcomingBooking
 
   // Dzisiejsza data w formacie YYYY-MM-DD
-  const todayIso = new Date().toISOString().slice(0, 10)
+  const todayIso = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Warsaw' }).format(new Date())
   const todayAppointments = upcomingBookings.filter((b) => b.bookingDate === todayIso)
 
   return (
@@ -131,12 +123,12 @@ export function OwnerPocketDashboard({
             Centrum Operacyjne
           </div>
           <h1 style={{ fontSize: '1.45rem', margin: '2px 0 0 0', fontWeight: 800, color: '#222' }}>
-            Cześć, Piotr 👋
+            Panel właściciela
           </h1>
         </div>
         <button
           type="button"
-          onClick={() => { void refreshStatus(); router.refresh() }}
+          onClick={() => { void refreshStatus().then(ok => { if (ok) router.refresh() }) }}
           style={{
             background: '#f0f3f2',
             border: 'none',
@@ -180,6 +172,10 @@ export function OwnerPocketDashboard({
           </button>
         </div>
       ) : null}
+      {statusError ? <div className="error-box" style={{ marginBottom: 14, order: 1 }}>Status operatora: {statusError}</div> : null}
+      <div style={{ fontSize: '0.78rem', color: '#6b7280', marginBottom: 10, order: 1 }}>
+        Ostatnia aktualizacja: {presentation.lastUpdateLabel}{!presentation.dataCurrent ? ' — dane nieaktualne' : ''}
+      </div>
 
       {/* ========================================================================= */}
       {/* 4. DOSTĘPNOŚĆ LIVE                                                        */}
@@ -197,7 +193,7 @@ export function OwnerPocketDashboard({
           transition: 'all 0.3s ease',
         }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <span
               style={{
@@ -210,7 +206,7 @@ export function OwnerPocketDashboard({
               }}
             />
             <span style={{ fontWeight: 700, fontSize: '0.95rem', letterSpacing: '0.02em', textTransform: 'uppercase' }}>
-              {isLiveActive ? 'JESTEŚ DOSTĘPNY NA ŻYWO' : 'TRYB LIVE: WYŁĄCZONY'}
+              {presentation.liveLabel}
             </span>
           </div>
           {isLiveActive && liveCountdown ? (
@@ -221,9 +217,7 @@ export function OwnerPocketDashboard({
         </div>
 
         <p style={{ margin: '0 0 16px 0', fontSize: '0.88rem', opacity: isLiveActive ? 0.9 : 0.75, lineHeight: 1.4 }}>
-          {isLiveActive
-            ? 'Klienci widzą na stronie głównej, że możesz odebrać telefon w ciągu kilku minut.'
-            : 'Włącz, gdy masz wolną chwilę i chcesz przyjąć natychmiastową rozmowę (104 zł).'}
+          {liveExplanation}
         </p>
 
         <div style={{ display: 'flex', gap: 10 }}>
@@ -514,16 +508,18 @@ export function OwnerPocketDashboard({
           alignItems: 'center',
           fontSize: '0.8rem',
           color: '#4b5563',
+          flexWrap: 'wrap',
+          gap: 8,
           marginBottom: 20,
           order: 7,
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: isDeviceOnline ? '#10b981' : '#ef4444' }} />
-          <span>Motorola SIM: <strong>{isDeviceOnline ? 'ONLINE' : 'OFFLINE'}</strong></span>
+          <span>Motorola SIM: <strong>{presentation.deviceLabel}</strong></span>
         </div>
         <div>
-          Bateria: <strong>{device?.batteryLevel ?? 100}% {device?.isCharging ? '⚡' : ''}</strong>
+          Bateria: <strong>{device?.batteryLevel ?? 'brak danych'}{device?.batteryLevel !== null && device?.batteryLevel !== undefined ? '%' : ''} {device?.isCharging ? '⚡' : ''}</strong>
         </div>
         <div>
           SMS: <strong>{data?.smsSummary.sentCount ?? 0} wysłano</strong>

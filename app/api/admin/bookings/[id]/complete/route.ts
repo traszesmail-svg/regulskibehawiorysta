@@ -4,15 +4,13 @@ export const runtime = 'nodejs'
 
 import { NextResponse } from 'next/server'
 import { getPublishedMaterialyGuideBySlug } from '@/lib/materialy-catalog'
-import { getAdminAccessSecret, hasValidAdminAuthorization } from '@/lib/admin-auth'
-import { getBookingForViewer, markBookingDone } from '@/lib/server/db'
+import { isAdminRequestAuthorized } from '@/lib/admin-auth'
+import { getBookingForAdmin, markBookingDone } from '@/lib/server/db'
 import { ConfigurationError } from '@/lib/server/env'
 
 export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
   const params = await props.params
-  const authorization = request.headers.get('authorization')
-
-  if (!hasValidAdminAuthorization(authorization, getAdminAccessSecret())) {
+  if (!await isAdminRequestAuthorized(request.headers)) {
     return NextResponse.json({ error: 'Brak autoryzacji.' }, { status: 401 })
   }
 
@@ -21,7 +19,7 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
       recommendedNextStep?: unknown
       recommendedMaterialSlug?: unknown
     }
-    const viewerBooking = await getBookingForViewer(params.id, null, authorization)
+    const viewerBooking = await getBookingForAdmin(params.id, request.headers)
 
     if (!viewerBooking) {
       return NextResponse.json({ error: 'Nie znaleziono rezerwacji.' }, { status: 404 })

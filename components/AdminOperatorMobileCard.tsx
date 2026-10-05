@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import type { PhoneAgentDeviceState } from '@/lib/server/phone-agent-store'
 import type { ZapytajLiveStatusDto } from '@/lib/zapytaj-flow'
+import { getOperatorStatusPresentation } from '@/lib/operator-status-presentation'
+import { useOperatorStatus } from '@/components/useOperatorStatus'
 
 export type OperatorStatusData = {
   device: PhoneAgentDeviceState
@@ -47,28 +49,16 @@ export type OperatorStatusData = {
 }
 
 export function AdminOperatorMobileCard({ initialData }: { initialData?: OperatorStatusData | null }) {
-  const [data, setData] = useState<OperatorStatusData | null>(initialData ?? null)
+  const { data, error: statusError, refresh } = useOperatorStatus(initialData)
   const [loadingAction, setLoadingAction] = useState<'enable' | 'disable' | 'refresh' | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
   const [actionSuccess, setActionSuccess] = useState<string | null>(null)
   const [liveCountdown, setLiveCountdown] = useState<string | null>(null)
   const [showInstallHelp, setShowInstallHelp] = useState(false)
-
-  async function fetchStatus() {
-    try {
-      const res = await fetch('/api/admin/operator/status', { cache: 'no-store' })
-      if (!res.ok) throw new Error(`Błąd HTTP ${res.status}`)
-      const json = (await res.json()) as OperatorStatusData
-      setData(json)
-    } catch {
-      // Keep existing data on background poll failure
-    }
-  }
+  const [now, setNow] = useState(() => Date.now())
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      void fetchStatus()
-    }, 15000)
+    const timer = setInterval(() => setNow(Date.now()), 1000)
     return () => clearInterval(timer)
   }, [])
 
@@ -110,7 +100,7 @@ export function AdminOperatorMobileCard({ initialData }: { initialData?: Operato
       try { payload = JSON.parse(raw) as { error?: string } } catch {}
       if (!res.ok) throw new Error(payload.error ?? (res.status === 401 ? 'Sesja panelu wygasła. Odśwież stronę i zaloguj się ponownie.' : 'Błąd zmiany statusu'))
       setActionSuccess(action === 'enable' ? 'Dostępność Live włączona na 1 godzinę.' : 'Dostępność Live wyłączona.')
-      await fetchStatus()
+      await refresh()
     } catch (e) {
       setActionError(e instanceof Error ? e.message : 'Nie udało się zmienić dostępności')
     } finally {
@@ -122,7 +112,7 @@ export function AdminOperatorMobileCard({ initialData }: { initialData?: Operato
     setLoadingAction('refresh')
     setActionError(null)
     try {
-      await fetchStatus()
+      await refresh()
     } finally {
       setLoadingAction(null)
     }
@@ -130,8 +120,10 @@ export function AdminOperatorMobileCard({ initialData }: { initialData?: Operato
 
   const device = data?.device
   const live = data?.live
-  const isOnline = Boolean(device?.isOnline)
-  const isLiveActive = live?.status === 'available_now' || live?.status === 'in_call' || live?.status === 'payment_pending'
+  const presentation = getOperatorStatusPresentation(data, now, Boolean(statusError))
+  const isOnline = presentation.deviceOnline
+  const isLiveActive = presentation.modeEnabled
+  const liveExplanation = presentation.liveExplanation
 
   const formatLastSeen = (seconds: number | null | undefined) => {
     if (seconds === null || seconds === undefined) return 'brak danych'
@@ -200,8 +192,11 @@ export function AdminOperatorMobileCard({ initialData }: { initialData?: Operato
         </div>
       ) : null}
 
-      {actionError ? <div className="error-box" style={{ marginBottom: 10 }}>{actionError}</div> : null}
+      {actionError || statusError ? <div className="error-box" style={{ marginBottom: 10 }}>{actionError ?? statusError}</div> : null}
       {actionSuccess ? <div className="success-inline" style={{ marginBottom: 10 }}>{actionSuccess}</div> : null}
+      <div style={{ fontSize: '0.78rem', marginBottom: 10 }}>
+        Ostatnia aktualizacja: {presentation.lastUpdateLabel}{!presentation.dataCurrent ? ' — dane nieaktualne' : ''}
+      </div>
 
       {/* Grid 1: Status telefonu i stan Live */}
       <div
@@ -221,27 +216,27 @@ export function AdminOperatorMobileCard({ initialData }: { initialData?: Operato
             padding: '12px 14px',
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
             <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>📱 Motorola One Vision (Stacja SIM)</span>
             <span
               className={`status-pill ${isOnline ? 'status-paid' : 'status-pending'}`}
               style={{ padding: '2px 8px', fontSize: '0.75rem' }}
             >
-              {isOnline ? 'ONLINE' : 'OFFLINE'}
+              {presentation.deviceLabel}
             </span>
           </div>
 
           <div style={{ fontSize: '0.82rem', display: 'grid', gap: 3, color: 'var(--ink, #222)' }}>
             <div>
-              <strong>Meldunek:</strong> {formatLastSeen(device?.lastSeenSeconds)}
+              <strong>Meldunek:</strong> {formatLastSeen(presentation.heartbeatAgeSeconds)}
             </div>
             <div>
               <strong>Bateria:</strong>{' '}
-              {device?.batteryLevel !== null && device?.batteryLevel !== undefined ? `${device.batteryLevel}%` : 'brak'}
+              {device?.batteryLevel !== null && device?.batteryLevel !== undefined ? `${device.batteryLevel}%` : 'brak danych'}
               {device?.isCharging ? ' ⚡ (ładowanie USB)' : ''}
             </div>
             <div>
-              <strong>Wersja APK:</strong> {device?.appVersion || 'v1.5.2'}
+              <strong>Wersja APK:</strong> {device?.appVersion || 'brak danych'}
             </div>
           </div>
         </div>
@@ -255,20 +250,20 @@ export function AdminOperatorMobileCard({ initialData }: { initialData?: Operato
             padding: '12px 14px',
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
             <span style={{ fontWeight: 700, fontSize: '0.92rem' }}>⚡ Tryb Live („Zapytaj teraz”)</span>
             <span
               className={`status-pill ${isLiveActive ? 'status-paid' : 'status-pending'}`}
               style={{ padding: '2px 8px', fontSize: '0.75rem', fontWeight: 700 }}
             >
-              {isLiveActive ? 'AKTYWNY' : 'WYŁĄCZONY'}
+              {presentation.liveLabel}
             </span>
           </div>
 
           <div style={{ fontSize: '0.82rem', marginBottom: 8 }}>
             {isLiveActive ? (
               <div>
-                <span style={{ color: '#155724', fontWeight: 600 }}>Jesteś widoczny dla klientów na stronie głównej!</span>
+                <span style={{ color: '#155724', fontWeight: 600 }}>{liveExplanation}</span>
                 {liveCountdown ? (
                   <div style={{ marginTop: 4, display: 'inline-flex', alignItems: 'center', gap: 6, background: '#28a745', color: '#fff', padding: '3px 8px', borderRadius: 6, fontSize: '0.78rem', fontWeight: 700 }}>
                     Pozostało: {liveCountdown}
@@ -276,7 +271,7 @@ export function AdminOperatorMobileCard({ initialData }: { initialData?: Operato
                 ) : null}
               </div>
             ) : (
-              <span style={{ color: 'var(--muted, #666)' }}>Klienci widzą tylko standardowe terminy z kalendarza.</span>
+              <span style={{ color: 'var(--muted, #666)' }}>{liveExplanation}</span>
             )}
           </div>
 

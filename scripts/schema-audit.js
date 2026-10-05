@@ -154,6 +154,16 @@ const REQUIRED_SCHEMA_MARKERS = [
     needle: 'unsubscribe_token text',
     expectedCount: 1,
   },
+  {
+    label: 'revolut_payment_reconciliation_claims',
+    needle: 'create table if not exists public.revolut_payment_reconciliation_claims',
+    expectedCount: 1,
+  },
+  {
+    label: 'claim_revolut_payment_notification',
+    needle: 'create or replace function public.claim_revolut_payment_notification(',
+    expectedCount: 1,
+  },
 ]
 
 const REQUIRED_FILES = [
@@ -177,6 +187,7 @@ const REQUIRED_FILES = [
   'supabase/migrations/20260326_sms_payment_confirmation.sql',
   'supabase/migrations/20260718001_growth_signup_marketing_opt_in.sql',
   'supabase/migrations/20260718002_repair_reminder_scheduler.sql',
+  'supabase/migrations/20261005001_revolut_payment_reconciliation_ledger.sql',
 ]
 
 function normalizeSchemaText(schemaText) {

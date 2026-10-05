@@ -1,10 +1,22 @@
 import assert from 'node:assert/strict'
-import { describe, it } from 'node:test'
+import { after, before, describe, it } from 'node:test'
+import { createLocalDataSandbox } from '@/scripts/lib/local-data-sandbox'
 import { upsertZapytajLiveNotification } from '@/lib/server/zapytaj-notifications'
 import { POST as notifyRoute } from '@/app/api/zapytaj/notify/route'
 import { GET as availabilityRoute } from '@/app/api/zapytaj/availability/route'
 
 describe('homepage and zapytaj live availability verification', () => {
+  let sandbox: Awaited<ReturnType<typeof createLocalDataSandbox>>
+  const previousMode = process.env.APP_DATA_MODE
+  before(async () => {
+    sandbox = await createLocalDataSandbox('homepage-live-availability')
+    process.env.APP_DATA_MODE = 'local'
+  })
+  after(async () => {
+    previousMode === undefined ? delete process.env.APP_DATA_MODE : process.env.APP_DATA_MODE = previousMode
+    await sandbox?.cleanup()
+  })
+
   it('1. home i /zapytaj korzystaja z tego samego zrodla dostepnosci (/api/zapytaj/availability)', async () => {
     const response = await availabilityRoute(new Request('http://localhost/api/zapytaj/availability'))
     assert.equal(response.status, 200)

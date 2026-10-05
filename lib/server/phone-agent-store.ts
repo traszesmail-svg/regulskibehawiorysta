@@ -119,10 +119,15 @@ type PhoneAgentSmsRow = {
   idempotency_key: string
 }
 
-function getPhoneAgentSupabase() {
+function getPhoneAgentSupabase(signal?: AbortSignal) {
   const config = getSupabaseServerConfig('trwały stan telefonu i kolejka SMS')
   return createClient(config.url, config.serviceRoleKey, {
     auth: { autoRefreshToken: false, persistSession: false },
+    global: signal
+      ? {
+          fetch: (input, init) => fetch(input, { ...init, signal }),
+        }
+      : undefined,
   })
 }
 
@@ -159,19 +164,14 @@ let memoryDeviceState: StoredDeviceState | null = null
 
 async function readStoredDeviceState(): Promise<StoredDeviceState> {
   if (resolveDataMode('odczyt stanu telefonu') === 'supabase') {
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 5000)
     try {
-      const queryPromise = getPhoneAgentSupabase()
+      const { data, error } = await getPhoneAgentSupabase(controller.signal)
         .from('phone_agent_state')
         .select('last_heartbeat_at, battery_level, is_charging, network, is_default_dialer, app_version, last_outage_alert_sent_at, updated_at')
         .eq('id', 'main')
         .maybeSingle<PhoneAgentStateRow>()
-
-      const { data, error } = await Promise.race([
-        queryPromise,
-        new Promise<{ data: null; error: Error }>((_, reject) =>
-          setTimeout(() => reject(new Error('Supabase read timeout (5s)')), 5000),
-        ),
-      ])
 
       if (error) throw error
       if (data) {
@@ -179,11 +179,11 @@ async function readStoredDeviceState(): Promise<StoredDeviceState> {
         memoryDeviceState = state
         return state
       }
-      return memoryDeviceState || emptyStoredDeviceState()
-    } catch (err) {
-      console.warn('[phone-agent-store] Supabase state read failed, using fallback:', err)
-      if (memoryDeviceState) return memoryDeviceState
       return emptyStoredDeviceState()
+    } catch (error) {
+      throw new Error('Nie udało się odczytać trwałego stanu telefonu.', { cause: error })
+    } finally {
+      clearTimeout(timeout)
     }
   }
   try {
@@ -210,10 +210,11 @@ function emptyStoredDeviceState(): StoredDeviceState {
 }
 
 async function writeStoredDeviceState(state: StoredDeviceState): Promise<void> {
-  memoryDeviceState = state
   if (resolveDataMode('zapis stanu telefonu') === 'supabase') {
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 5000)
     try {
-      const upsertPromise = getPhoneAgentSupabase().from('phone_agent_state').upsert({
+      const { error } = await getPhoneAgentSupabase(controller.signal).from('phone_agent_state').upsert({
         id: 'main',
         last_heartbeat_at: state.lastHeartbeatAt,
         battery_level: state.batteryLevel,
@@ -225,16 +226,12 @@ async function writeStoredDeviceState(state: StoredDeviceState): Promise<void> {
         updated_at: state.updatedAt,
       })
 
-      const { error } = await Promise.race([
-        upsertPromise,
-        new Promise<{ error: Error }>((_, reject) =>
-          setTimeout(() => reject(new Error('Supabase upsert timeout (5s)')), 5000),
-        ),
-      ])
-
       if (error) throw error
-    } catch (err) {
-      console.warn('[phone-agent-store] Supabase state write failed or timed out:', err)
+      memoryDeviceState = state
+    } catch (error) {
+      throw new Error('Nie udało się trwale zapisać meldunku telefonu.', { cause: error })
+    } finally {
+      clearTimeout(timeout)
     }
     return
   }
@@ -244,6 +241,7 @@ async function writeStoredDeviceState(state: StoredDeviceState): Promise<void> {
   await writeFile(tempPath, JSON.stringify(state, null, 2), 'utf8')
   const { rename } = await import('fs/promises')
   await rename(tempPath, filePath)
+  memoryDeviceState = state
 }
 
 export async function recordPhoneAgentHeartbeat(input: PhoneAgentHeartbeatInput): Promise<PhoneAgentDeviceState> {
@@ -321,11 +319,6 @@ export async function runPhoneAgentWatchdogCheck(): Promise<{
     const lastAlertMs = stored.lastOutageAlertSentAt ? now - new Date(stored.lastOutageAlertSentAt).getTime() : Infinity
     const shouldSendAlert = lastAlertMs > WATCHDOG_ALERT_THROTTLE_MS
 
-    if (shouldSendAlert) {
-      stored.lastOutageAlertSentAt = new Date().toISOString()
-      await writeStoredDeviceState(stored)
-    }
-
     return { isOnline: false, shouldSendAlert, lastSeenMinutes, stored }
   })
 
@@ -334,31 +327,51 @@ export async function runPhoneAgentWatchdogCheck(): Promise<{
   }
 
   // 1. Disable live availability on site immediately (outside store lock to prevent deadlocks)
-  try {
-    await disableZapytajLive()
-  } catch (e) {
-    console.warn('[phone-agent-watchdog] failed to disable live:', e)
-  }
+  // A failed safety action must fail the check, allowing the scheduler to
+  // retry. Do not announce that Live was disabled when persistence failed.
+  await disableZapytajLive()
 
   let alertsSent = false
   if (shouldSendAlert) {
     // 2. Send push notification to owner
     try {
-      await sendPhoneAgentOutagePushToOwner({ lastSeenMinutes })
+      const push = await sendPhoneAgentOutagePushToOwner({ lastSeenMinutes })
+      alertsSent = push.sent > 0
     } catch (e) {
       console.warn('[phone-agent-watchdog] push notification failed:', e)
     }
 
     // 3. Send outage alert email to owner
     try {
-      await sendPhoneAgentOutageAlertEmail({
+      const email = await sendPhoneAgentOutageAlertEmail({
         lastSeenMinutes,
         lastHeartbeatAt: stored.lastHeartbeatAt,
       })
-      alertsSent = true
+      alertsSent = alertsSent || email.status === 'sent'
     } catch (e) {
       console.warn('[phone-agent-watchdog] email alert failed:', e)
     }
+  }
+
+  if (alertsSent) {
+    // Update the alert column only, conditional on the same outage. Never
+    // overwrite a concurrent fresh heartbeat with an old offline snapshot.
+    await withStoreLock(async () => {
+      const alertedAt = new Date().toISOString()
+      if (resolveDataMode('zapis alertu telefonu') === 'supabase') {
+        const { error } = await getPhoneAgentSupabase()
+          .from('phone_agent_state')
+          .update({ last_outage_alert_sent_at: alertedAt })
+          .eq('id', 'main')
+          .eq('last_heartbeat_at', stored.lastHeartbeatAt!)
+        if (error) throw error
+      } else {
+        const current = await readStoredDeviceState()
+        if (current.lastHeartbeatAt === stored.lastHeartbeatAt) {
+          await writeStoredDeviceState({ ...current, lastOutageAlertSentAt: alertedAt })
+        }
+      }
+    })
   }
 
   return {
@@ -636,12 +649,7 @@ export async function generateUpcomingBookingSmsReminders(): Promise<{
   reminders60mCreated: number
   reminders15mCreated: number
 }> {
-  let bookings: Awaited<ReturnType<typeof listBookings>> = []
-  try {
-    bookings = await listBookings()
-  } catch {
-    return { reminders60mCreated: 0, reminders15mCreated: 0 }
-  }
+  const bookings = await listBookings()
   const now = Date.now()
   let reminders60mCreated = 0
   let reminders15mCreated = 0

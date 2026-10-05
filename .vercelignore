@@ -52,3 +52,4 @@ qa-reports/**
 do-przegladu/**
 *.log
 *.pid
+raportopus.md

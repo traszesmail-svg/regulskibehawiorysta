@@ -50,12 +50,25 @@ export async function POST(request: NextRequest) {
       urgentReminders = { ok: false }
     }
 
-    // Check and generate upcoming SMS reminders in background without delaying heartbeat response
-    generateUpcomingBookingSmsReminders().catch((e) =>
-      console.warn('[phone-agent-heartbeat] sms reminders check error:', e),
-    )
+    // Await queue persistence. Returning before it completes could make the
+    // phone report a successful heartbeat while a reminder was lost.
+    let bookingSmsReminders: Awaited<ReturnType<typeof generateUpcomingBookingSmsReminders>>
+    try {
+      bookingSmsReminders = await generateUpcomingBookingSmsReminders()
+    } catch (error) {
+      return NextResponse.json(
+        {
+          ok: false,
+          heartbeatPersisted: true,
+          state,
+          urgentReminders,
+          error: error instanceof Error ? error.message : 'Nie udało się trwale zapisać przypomnień SMS.',
+        },
+        { status: 503, headers: { 'Cache-Control': 'no-store' } },
+      )
+    }
 
-    return NextResponse.json({ ok: true, state, urgentReminders }, { headers: { 'Cache-Control': 'no-store' } })
+    return NextResponse.json({ ok: true, state, urgentReminders, bookingSmsReminders }, { headers: { 'Cache-Control': 'no-store' } })
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Nie udało się zapisać meldunku telefonu.' },

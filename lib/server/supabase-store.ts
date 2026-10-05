@@ -2091,6 +2091,53 @@ export async function updateBookingCallState(
   if (error) throw error
   return data ? mapBookingRow(data as unknown as BookingRow) : null
 }
+
+export async function transitionBookingCallState(
+  bookingId: string,
+  expectedStatuses: string[],
+  patch: Parameters<typeof updateBookingCallState>[1],
+): Promise<BookingRecord | null> {
+  if (expectedStatuses.length === 0) return null
+  const update: Record<string, string | number | boolean | null> = { updated_at: new Date().toISOString() }
+  if (patch.callId !== undefined) update.call_id = patch.callId
+  if (patch.callStatus !== undefined) update.call_status = patch.callStatus
+  if (patch.startedAt !== undefined) update.started_at = patch.startedAt
+  if (patch.callAttempt !== undefined) update.call_attempt = patch.callAttempt
+  if (patch.callAnsweredAt !== undefined) update.call_answered_at = patch.callAnsweredAt
+  if (patch.callNextAttemptAt !== undefined) update.call_next_attempt_at = patch.callNextAttemptAt
+  if (patch.callLastError !== undefined) update.call_last_error = patch.callLastError
+  if (patch.callRecoveryUsed !== undefined) update.call_recovery_used = patch.callRecoveryUsed
+  if (patch.callRecoveryTokenHash !== undefined) update.call_recovery_token_hash = patch.callRecoveryTokenHash
+  if (patch.callRecoveryExpiresAt !== undefined) update.call_recovery_expires_at = patch.callRecoveryExpiresAt
+
+  const { data, error } = await getSupabaseAdmin()
+    .from('bookings')
+    .update(update)
+    .eq('id', bookingId)
+    .in('call_status', expectedStatuses)
+    .eq('payment_status', 'paid')
+    .not('booking_status', 'in', '(done,cancelled,expired)')
+    .select(BOOKING_SELECT_COLUMNS)
+    .maybeSingle()
+  if (error) throw error
+  return data ? mapBookingRow(data as unknown as BookingRow) : null
+}
+
+export async function claimPaymentReconciliation(
+  fingerprint: string,
+  bookingId: string,
+  amount: number,
+): Promise<boolean> {
+  const { data, error } = await getSupabaseAdmin().rpc('claim_revolut_payment_notification', {
+    p_fingerprint: fingerprint,
+    p_booking_id: bookingId,
+    p_amount: amount,
+  })
+  if (error) {
+    throw new Error(`Nie można bezpiecznie zarejestrować powiadomienia Revolut: ${error.message}`)
+  }
+  return data === true
+}
 export async function attachPayuOrder(
   bookingId: string,
   paymentData: { payuOrderId: string; payuOrderStatus?: string | null },

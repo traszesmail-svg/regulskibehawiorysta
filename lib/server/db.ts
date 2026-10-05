@@ -1,4 +1,4 @@
-import { getAdminAccessSecret, hasValidAdminAuthorization } from '@/lib/admin-auth'
+import { getAdminAccessSecret, hasValidAdminAuthorization, isAdminRequestAuthorized } from '@/lib/admin-auth'
 import type { UrgentNowRequestRecord } from '@/lib/urgent-now'
 import * as localStore from '@/lib/server/local-store'
 import { reportRuntimeModeUsage, resolveDataMode } from '@/lib/server/env'
@@ -171,6 +171,15 @@ export async function respondUrgentNowRequest(input: Parameters<StoreProvider['r
   return getProvider().respondUrgentNowRequest(input)
 }
 
+export async function getBookingForAdmin(id: string, requestHeaders: Headers) {
+  const secret = getAdminAccessSecret()
+  if (!secret || !await isAdminRequestAuthorized(requestHeaders, secret)) return null
+  const booking = await getBookingById(id)
+  if (booking) return booking
+  const lead = await getLeadBookingById(id)
+  return lead ? mapLeadBookingToBookingRecord(lead) : null
+}
+
 export async function markUrgentNoResponseSms(input: Parameters<StoreProvider['markUrgentNoResponseSms']>[0]) {
   return getProvider().markUrgentNoResponseSms(input)
 }
@@ -201,6 +210,22 @@ export async function updateBookingCallState(
   patch: Parameters<StoreProvider['updateBookingCallState']>[1],
 ) {
   return getProvider().updateBookingCallState(bookingId, patch)
+}
+
+export async function transitionBookingCallState(
+  bookingId: string,
+  expectedStatuses: string[],
+  patch: Parameters<StoreProvider['transitionBookingCallState']>[2],
+) {
+  return getProvider().transitionBookingCallState(bookingId, expectedStatuses, patch)
+}
+
+export async function claimPaymentReconciliation(
+  fingerprint: string,
+  bookingId: string,
+  amount: number,
+) {
+  return getProvider().claimPaymentReconciliation(fingerprint, bookingId, amount)
 }
 
 export async function moveBookingToRecoverySlot(

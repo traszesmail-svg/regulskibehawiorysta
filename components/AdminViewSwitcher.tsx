@@ -24,7 +24,12 @@ export function AdminViewSwitcher({
 
   useEffect(() => {
     setMounted(true)
-    const saved = localStorage.getItem('admin_view_preference')
+    let saved: string | null = null
+    try {
+      saved = localStorage.getItem('admin_view_preference')
+    } catch {
+      saved = null
+    }
     if (saved === 'desktop' || saved === 'mobile') {
       setViewMode(saved)
     } else {

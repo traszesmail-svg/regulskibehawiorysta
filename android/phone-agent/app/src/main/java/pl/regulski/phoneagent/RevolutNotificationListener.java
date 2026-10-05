@@ -37,9 +37,6 @@ public final class RevolutNotificationListener extends NotificationListenerServi
         CharSequence textSeq = extras.getCharSequence(Notification.EXTRA_TEXT);
         String text = textSeq != null ? textSeq.toString() : "";
 
-        String combined = (title + " " + text).toLowerCase();
-        boolean hasPaymentKeywords = combined.contains("zł") || combined.contains("pln") || combined.contains("przelew") || combined.contains("wpływ") || combined.contains("otrzymałeś");
-
         if (!isRevolut) {
             return;
         }
@@ -47,6 +44,8 @@ public final class RevolutNotificationListener extends NotificationListenerServi
         final String finalPkg = pkg;
         final String finalTitle = title;
         final String finalText = text;
+        final String notificationKey = sbn.getKey();
+        final long postedAt = sbn.getPostTime();
 
         executor.execute(() -> {
             try {
@@ -54,7 +53,9 @@ public final class RevolutNotificationListener extends NotificationListenerServi
                 payload.put("packageName", finalPkg);
                 payload.put("title", finalTitle);
                 payload.put("text", finalText);
-                payload.put("timestamp", String.valueOf(System.currentTimeMillis()));
+                payload.put("timestamp", String.valueOf(postedAt));
+                payload.put("notificationKey", notificationKey);
+                // A notification key/time is not a bank transaction ID.
 
                 api().post("/api/phone-agent/payment-notification", payload);
             } catch (Exception ignored) {}

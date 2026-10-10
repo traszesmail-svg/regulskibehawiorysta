@@ -42,4 +42,5 @@ end;
 $$;
 
 revoke all on function public.claim_revolut_payment_notification(text, uuid, numeric) from public;
+revoke all on function public.claim_revolut_payment_notification(text, uuid, numeric) from anon, authenticated;
 grant execute on function public.claim_revolut_payment_notification(text, uuid, numeric) to service_role;

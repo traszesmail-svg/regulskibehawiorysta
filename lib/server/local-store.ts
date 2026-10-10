@@ -1045,6 +1045,129 @@ export async function claimPaymentReconciliation(
   })
 }
 
+/**
+ * Local test equivalent of the Supabase reconciliation RPC. The process lock
+ * serializes the claim and conditional booking update; external effects run
+ * only for the single caller which completed that state transition.
+ */
+export async function reconcileRevolutPaymentNotification(
+  fingerprint: string,
+  bookingId: string,
+  amount: number,
+): Promise<BookingRecord | null> {
+  // Keep local mode fail-closed just like the Supabase RPC. This function is
+  // exported through the shared data layer, so its safety must not depend on
+  // callers having already parsed a phone notification.
+  if (!/^revolut:[0-9a-f]{64}$/.test(fingerprint)) {
+    throw new Error('Nieprawidłowy odcisk powiadomienia Revolut.')
+  }
+  if (!Number.isFinite(amount) || amount <= 0 || Number(amount.toFixed(2)) !== amount) {
+    throw new Error('Nieprawidłowa kwota płatności Revolut.')
+  }
+
+  const paidBooking = await withLock(async () => {
+    const store = await readStore()
+    const { paymentReconciliationClaimsFile } = getStorePaths()
+    const claims = await readJson<PaymentReconciliationClaim[]>(paymentReconciliationClaimsFile)
+    const booking = store.bookings.find((item) => item.id === bookingId)
+    const awaitingPayment =
+      (booking?.bookingStatus === 'pending' && booking.paymentStatus === 'unpaid') ||
+      (booking?.bookingStatus === 'pending_manual_payment' && booking.paymentStatus === 'pending_manual_review')
+
+    // Match the database RPC's CAS before claiming. A stale amount, cancelled
+    // booking, or already-prepared SMS must stay out of the automatic path.
+    if (
+      !booking ||
+      !awaitingPayment ||
+      Math.abs(booking.amount - amount) >= 0.01 ||
+      booking.smsConfirmationStatus !== null ||
+      claims.some((claim) => claim.fingerprint === fingerprint)
+    ) {
+      return null
+    }
+
+    const nowIso = new Date().toISOString()
+    const slots = resolveBookingSlots(store.availability, booking)
+    booking.bookingStatus = 'confirmed'
+    booking.paymentStatus = 'paid'
+    booking.paymentMethod = 'manual'
+    booking.paymentReference = fingerprint
+    booking.paidAt = nowIso
+    booking.cancelledAt = null
+    booking.expiredAt = null
+    booking.paymentRejectedAt = null
+    booking.paymentRejectedReason = null
+    booking.meetingUrl = normalizeMeetingUrl(booking.id, booking.meetingUrl)
+    booking.customerPhoneNormalized = booking.customerPhoneNormalized ?? normalizePolishPhone(booking.phone)?.e164 ?? null
+    booking.smsConfirmationStatus = 'processing'
+    booking.smsConfirmationSentAt = null
+    booking.smsProviderMessageId = null
+    booking.smsErrorCode = null
+    booking.smsErrorMessage = null
+    booking.updatedAt = nowIso
+
+    if (slots.length > 0) {
+      bookSlots(slots, booking.id, nowIso)
+    }
+
+    appendFunnelEvent(store, {
+      eventType: 'payment_completed',
+      bookingId: booking.id,
+      qaBooking: Boolean(booking.qaBooking),
+      source: 'server',
+      properties: {
+        ...getBookingFunnelEventProperties(booking),
+        payment_method: booking.paymentMethod,
+        payment_reference: booking.paymentReference,
+        payment_status: booking.paymentStatus,
+      },
+    })
+    appendFunnelEvent(store, {
+      eventType: 'booking_confirmed',
+      bookingId: booking.id,
+      qaBooking: Boolean(booking.qaBooking),
+      source: 'server',
+      properties: {
+        ...getBookingFunnelEventProperties(booking),
+        payment_method: booking.paymentMethod,
+        payment_status: booking.paymentStatus,
+        booking_status: booking.bookingStatus,
+      },
+    })
+
+    // Persist the successful CAS first. If that fails, no fingerprint is
+    // consumed; if the claim write fails afterwards, subsequent CAS checks
+    // still prevent an automatic retry and the caller receives an error.
+    await persistStore(store)
+    claims.push({ fingerprint, bookingId, amount, createdAt: nowIso })
+    await writeJson(paymentReconciliationClaimsFile, claims)
+    return { ...booking }
+  })
+
+  if (!paidBooking) return null
+
+  await sendBookingConfirmationEmail(paidBooking)
+  await sendBookingPaymentConfirmedOwnerEmail(paidBooking)
+  const smsResult = await sendPaymentConfirmationSms(paidBooking)
+
+  return withLock(async () => {
+    const store = await readStore()
+    const booking = store.bookings.find((item) => item.id === bookingId)
+    if (!booking || booking.paymentStatus !== 'paid' || booking.smsConfirmationStatus !== 'processing') {
+      throw new Error('Nie można bezpiecznie zapisać wyniku SMS po automatycznym księgowaniu Revolut.')
+    }
+    booking.smsConfirmationStatus = smsResult.status
+    booking.customerPhoneNormalized = smsResult.normalizedPhone ?? booking.customerPhoneNormalized ?? null
+    booking.smsConfirmationSentAt = smsResult.status === 'sent' ? new Date().toISOString() : null
+    booking.smsProviderMessageId = smsResult.providerMessageId ?? null
+    booking.smsErrorCode = smsResult.errorCode ?? null
+    booking.smsErrorMessage = smsResult.errorMessage ?? null
+    booking.updatedAt = new Date().toISOString()
+    await persistStore(store)
+    return { ...booking }
+  })
+}
+
 export async function moveBookingToRecoverySlot(
   bookingId: string,
   recoveryToken: string,

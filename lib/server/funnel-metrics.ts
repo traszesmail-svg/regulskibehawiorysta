@@ -245,7 +245,9 @@ export function buildFunnelMetricsSnapshot({
       }
 
       eventCount += 1
-      lastEventAt = event.createdAt
+      if (lastEventAt === null || Date.parse(event.createdAt) > Date.parse(lastEventAt)) {
+        lastEventAt = event.createdAt
+      }
 
       const normalizedType = normalizeFunnelEventType(event.eventType)
       if (normalizedType && normalizedType in stageCounts) {

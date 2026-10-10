@@ -160,6 +160,21 @@ const REQUIRED_SCHEMA_MARKERS: SchemaMarker[] = [
     needle: 'claim_token_hash text not null',
     expectedCount: 1,
   },
+  {
+    label: 'revolut_payment_reconciliation_claims',
+    needle: 'create table if not exists public.revolut_payment_reconciliation_claims',
+    expectedCount: 1,
+  },
+  {
+    label: 'claim_revolut_payment_notification',
+    needle: 'create or replace function public.claim_revolut_payment_notification(',
+    expectedCount: 1,
+  },
+  {
+    label: 'reconcile_revolut_payment_notification',
+    needle: 'create or replace function public.reconcile_revolut_payment_notification(',
+    expectedCount: 1,
+  },
 ]
 
 const REQUIRED_FILES = [
@@ -180,6 +195,10 @@ const REQUIRED_FILES = [
   'supabase/migrations/20260901007_recommendation_material.sql',
   'supabase/migrations/20260901008_community_promo_campaigns.sql',
   'supabase/migrations/20260326_sms_payment_confirmation.sql',
+  'supabase/migrations/20261005001_revolut_payment_reconciliation_ledger.sql',
+  'supabase/migrations/20261007001_atomic_revolut_payment_reconciliation.sql',
+  'supabase/migrations/20261007002_cron_history_retention.sql',
+  'supabase/migrations/20261007003_revolut_rpc_permissions.sql',
 ]
 
 function normalizeSchemaText(schemaText: string) {

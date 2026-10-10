@@ -65,10 +65,10 @@ export async function listUrgentNowRequests() {
   return [...store.requests].sort((left, right) => right.createdAt.localeCompare(left.createdAt))
 }
 
-export async function createUrgentNowRequest(input: CreateUrgentNowRequestInput) {
+export async function createUrgentNowRequest(input: CreateUrgentNowRequestInput, nowDate = new Date()) {
   const next = createQueue.then(async () => {
-    const now = new Date().toISOString()
-    const { isWeekend } = getWarsawDateAndDay(new Date(now))
+    const now = nowDate.toISOString()
+    const { isWeekend } = getWarsawDateAndDay(nowDate)
     if (isWeekend) throw new Error('URGENT_NOW_WEEKEND')
     const store = await readStore()
     const acceptedForTarget = countZapytajNowPaymentLinkRequestsForDate(store.requests, input.requestedDate)

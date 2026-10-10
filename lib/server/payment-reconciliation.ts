@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import { claimPaymentReconciliation, listBookings, markBookingPaid } from '@/lib/server/db'
+import { listBookings, reconcileRevolutPaymentNotification } from '@/lib/server/db'
 import type { BookingRecord } from '@/lib/types'
 
 export type PaymentNotificationPayload = {
@@ -211,8 +211,8 @@ export async function reconcilePaymentNotification(
   // The ledger is a durable uniqueness boundary in Supabase (and its local
   // equivalent in development). If its migration is absent, the call throws
   // and the route fails closed instead of crediting a payment twice.
-  const claimed = await claimPaymentReconciliation(fingerprint, matchedBooking.id, parsedAmount)
-  if (!claimed) {
+  const paidBooking = await reconcileRevolutPaymentNotification(fingerprint, matchedBooking.id, parsedAmount)
+  if (!paidBooking) {
     return {
       matched: false,
       reason: 'To powiadomienie Revolut zostało już obsłużone albo wymaga ręcznej weryfikacji.',
@@ -222,22 +222,13 @@ export async function reconcilePaymentNotification(
     }
   }
 
-  // Marking remains after the durable claim. A process failure here can only
-  // require manual review; it cannot produce a second automatic credit.
-  const ref = fingerprint
-  await markBookingPaid(matchedBooking.id, {
-    paymentMethod: 'manual',
-    paymentReference: ref,
-    triggerPaymentConfirmationSms: true,
-  })
-
   return {
     matched: true,
-    bookingId: matchedBooking.id,
+    bookingId: paidBooking.id,
     amount: parsedAmount,
-    ownerName: matchedBooking.ownerName,
-    bookingDate: matchedBooking.bookingDate,
-    bookingTime: matchedBooking.bookingTime,
-    summary: `Zaksięgowano wpłatę ${parsedAmount} zł dla rezerwacji ${matchedBooking.id} (${matchedBooking.ownerName}).`,
+    ownerName: paidBooking.ownerName,
+    bookingDate: paidBooking.bookingDate,
+    bookingTime: paidBooking.bookingTime,
+    summary: `Zaksięgowano wpłatę ${parsedAmount} zł dla rezerwacji ${paidBooking.id} (${paidBooking.ownerName}).`,
   }
 }

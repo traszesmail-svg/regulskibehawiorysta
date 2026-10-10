@@ -164,6 +164,11 @@ const REQUIRED_SCHEMA_MARKERS = [
     needle: 'create or replace function public.claim_revolut_payment_notification(',
     expectedCount: 1,
   },
+  {
+    label: 'reconcile_revolut_payment_notification',
+    needle: 'create or replace function public.reconcile_revolut_payment_notification(',
+    expectedCount: 1,
+  },
 ]
 
 const REQUIRED_FILES = [
@@ -188,6 +193,9 @@ const REQUIRED_FILES = [
   'supabase/migrations/20260718001_growth_signup_marketing_opt_in.sql',
   'supabase/migrations/20260718002_repair_reminder_scheduler.sql',
   'supabase/migrations/20261005001_revolut_payment_reconciliation_ledger.sql',
+  'supabase/migrations/20261007001_atomic_revolut_payment_reconciliation.sql',
+  'supabase/migrations/20261007002_cron_history_retention.sql',
+  'supabase/migrations/20261007003_revolut_rpc_permissions.sql',
 ]
 
 function normalizeSchemaText(schemaText) {

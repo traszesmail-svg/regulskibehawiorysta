@@ -105,8 +105,13 @@ if (-not $KeystorePath -or -not $KeystoreAlias -or -not $KeystorePassword) {
 
 Write-Host "8. Podpisywanie APK stałym kluczem..."
 $outApk = $OutputApk
-& $apksigner sign --ks $KeystorePath --ks-pass "pass:$KeystorePassword" --ks-key-alias $KeystoreAlias --key-pass "pass:$KeystorePassword" --v1-signing-enabled true --v2-signing-enabled true --v3-signing-enabled true --out $outApk "$buildDir\app-aligned.apk"
-if ($LASTEXITCODE -ne 0) { throw "Błąd apksigner" }
+$env:REGULSKI_APKSIGNER_PASSWORD = $KeystorePassword
+try {
+    & $apksigner sign --ks $KeystorePath --ks-pass env:REGULSKI_APKSIGNER_PASSWORD --ks-key-alias $KeystoreAlias --key-pass env:REGULSKI_APKSIGNER_PASSWORD --v1-signing-enabled true --v2-signing-enabled true --v3-signing-enabled true --out $outApk "$buildDir\app-aligned.apk"
+    if ($LASTEXITCODE -ne 0) { throw "Błąd apksigner" }
+} finally {
+    Remove-Item Env:REGULSKI_APKSIGNER_PASSWORD -ErrorAction SilentlyContinue
+}
 
 Write-Host "9. Weryfikacja podpisu..."
 & $apksigner verify --verbose $outApk

@@ -2138,6 +2138,85 @@ export async function claimPaymentReconciliation(
   }
   return data === true
 }
+
+/**
+ * The RPC owns the transaction: it reserves the notification fingerprint and
+ * conditionally changes the booking only while its exact amount and unpaid
+ * status still match. Do not split this back into a claim followed by update.
+ */
+export async function reconcileRevolutPaymentNotification(
+  fingerprint: string,
+  bookingId: string,
+  amount: number,
+): Promise<BookingRecord | null> {
+  const supabase = getSupabaseAdmin()
+  const { data, error } = await supabase.rpc('reconcile_revolut_payment_notification', {
+    p_fingerprint: fingerprint,
+    p_booking_id: bookingId,
+    p_amount: amount,
+  })
+
+  if (error) {
+    throw new Error(`Nie można bezpiecznie zaksięgować powiadomienia Revolut: ${error.message}`)
+  }
+
+  const row = Array.isArray(data) ? data[0] : data
+  if (!row) return null
+  let booking = mapBookingRow(row as BookingRow)
+
+  // Only the single successful RPC result reaches these effects. The RPC set
+  // sms_confirmation_status to processing, so a duplicate caller cannot send
+  // another payment confirmation even before the phone agent sees the queue.
+  await recordServerFunnelEvent(supabase, {
+    eventType: 'payment_completed',
+    bookingId: booking.id,
+    qaBooking: Boolean(booking.qaBooking),
+    source: 'server',
+    properties: {
+      ...getBookingFunnelEventProperties(booking),
+      payment_method: booking.paymentMethod ?? null,
+      payment_reference: booking.paymentReference ?? null,
+      payment_status: booking.paymentStatus,
+    },
+  })
+  await recordServerFunnelEvent(supabase, {
+    eventType: 'booking_confirmed',
+    bookingId: booking.id,
+    qaBooking: Boolean(booking.qaBooking),
+    source: 'server',
+    properties: {
+      ...getBookingFunnelEventProperties(booking),
+      payment_method: booking.paymentMethod ?? null,
+      payment_status: booking.paymentStatus,
+      booking_status: booking.bookingStatus,
+    },
+  })
+
+  await sendBookingConfirmationEmail(booking)
+  await sendBookingPaymentConfirmedOwnerEmail(booking)
+  const smsResult = await sendPaymentConfirmationSms(booking)
+  const smsUpdate = await supabase
+    .from('bookings')
+    .update({
+      customer_phone_normalized: smsResult.normalizedPhone ?? booking.customerPhoneNormalized ?? null,
+      sms_confirmation_status: smsResult.status,
+      sms_confirmation_sent_at: smsResult.status === 'sent' ? new Date().toISOString() : null,
+      sms_provider_message_id: smsResult.providerMessageId ?? null,
+      sms_error_code: smsResult.errorCode ?? null,
+      sms_error_message: smsResult.errorMessage ?? null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', bookingId)
+    .eq('booking_status', 'confirmed')
+    .eq('payment_status', 'paid')
+    .eq('sms_confirmation_status', 'processing')
+    .select(BOOKING_SELECT_COLUMNS)
+    .maybeSingle()
+
+  if (smsUpdate.error) throw smsUpdate.error
+  if (smsUpdate.data) booking = mapBookingRow(smsUpdate.data as unknown as BookingRow)
+  return booking
+}
 export async function attachPayuOrder(
   bookingId: string,
   paymentData: { payuOrderId: string; payuOrderStatus?: string | null },

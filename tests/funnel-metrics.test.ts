@@ -143,6 +143,10 @@ test('funnel metrics snapshot keeps QA out of production counts and renders the 
   assert.equal(window24h?.caseMap.conversions.startToCompleted, '100.0%')
   assert.equal(window24h?.caseMap.conversions.serviceClickToBookingStart, '100.0%')
 
+  assert.equal(window24h?.lastEventAt, '2026-04-06T09:10:40.000Z')
+  assert.equal(window7d?.lastEventAt, '2026-04-06T09:10:40.000Z')
+  assert.equal(windowAll?.lastEventAt, '2026-04-06T09:10:40.000Z')
+
   assert.equal(window7d?.eventCount, 16)
   assert.equal(windowAll?.eventCount, 17)
   assert.match(report, /Raport Funnel Metrics/)
@@ -152,4 +156,113 @@ test('funnel metrics snapshot keeps QA out of production counts and renders the 
   assert.match(report, /Completed -> confirmed: 100.0%/)
   assert.match(report, /Booking drop: 1/)
   assert.match(report, /Mapa service click: 1/)
+})
+
+test('funnel metrics resolves the latest event date regardless of event ordering', () => {
+  const now = new Date('2026-04-06T12:00:00.000Z')
+  const e1 = makeEvent('view_page', '2026-04-06T08:00:00.000Z')
+  const e2 = makeEvent('booking_start', '2026-04-06T10:00:00.000Z')
+  const e3 = makeEvent('payment_completed', '2026-04-06T09:00:00.000Z')
+
+  const ascending = [e1, e3, e2]
+  const descending = [e2, e3, e1]
+  const mixed = [e3, e1, e2]
+
+  for (const list of [ascending, descending, mixed]) {
+    const snapshot = buildFunnelMetricsSnapshot({ events: list, bookings: [], now })
+    const w24h = snapshot.windows.find((w) => w.window === '24h')
+    const w7d = snapshot.windows.find((w) => w.window === '7d')
+    const wAll = snapshot.windows.find((w) => w.window === 'all')
+
+    assert.equal(w24h?.lastEventAt, '2026-04-06T10:00:00.000Z')
+    assert.equal(w7d?.lastEventAt, '2026-04-06T10:00:00.000Z')
+    assert.equal(wAll?.lastEventAt, '2026-04-06T10:00:00.000Z')
+  }
+})
+
+test('funnel metrics ignores newer QA events, invalid dates, and future events when determining lastEventAt', () => {
+  const now = new Date('2026-04-06T12:00:00.000Z')
+  const events = [
+    makeEvent('view_page', '2026-04-06T10:00:00.000Z'),
+    makeEvent('payment_completed', '2026-04-06T11:50:00.000Z', true),
+    makeEvent('booking_start', 'invalid-date-string'),
+    makeEvent('payment_completed', '2026-04-06T13:00:00.000Z'),
+  ]
+
+  const snapshot = buildFunnelMetricsSnapshot({ events, bookings: [], now })
+  const w24h = snapshot.windows.find((w) => w.window === '24h')
+  assert.equal(w24h?.lastEventAt, '2026-04-06T10:00:00.000Z')
+  assert.equal(w24h?.eventCount, 1)
+  assert.equal(w24h?.qaEventCount, 1)
+})
+
+test('funnel metrics sets lastEventAt to null for empty events or QA-only events', () => {
+  const now = new Date('2026-04-06T12:00:00.000Z')
+
+  const emptySnapshot = buildFunnelMetricsSnapshot({ events: [], bookings: [], now })
+  for (const w of emptySnapshot.windows) {
+    assert.equal(w.lastEventAt, null)
+    assert.equal(w.eventCount, 0)
+  }
+
+  const qaOnlyEvents = [
+    makeEvent('view_page', '2026-04-06T10:00:00.000Z', true),
+    makeEvent('booking_start', '2026-04-06T11:00:00.000Z', true),
+  ]
+  const qaSnapshot = buildFunnelMetricsSnapshot({ events: qaOnlyEvents, bookings: [], now })
+  for (const w of qaSnapshot.windows) {
+    assert.equal(w.lastEventAt, null)
+    assert.equal(w.eventCount, 0)
+  }
+})
+
+test('event older than seven days affects only the all window', () => {
+  const now = new Date('2026-04-06T12:00:00.000Z')
+  const oldEvent = makeEvent('view_page', '2026-03-25T10:00:00.000Z')
+
+  const snapshot = buildFunnelMetricsSnapshot({ events: [oldEvent], bookings: [], now })
+  const w24h = snapshot.windows.find((w) => w.window === '24h')
+  const w7d = snapshot.windows.find((w) => w.window === '7d')
+  const wAll = snapshot.windows.find((w) => w.window === 'all')
+
+  assert.equal(w24h?.lastEventAt, null)
+  assert.equal(w24h?.eventCount, 0)
+  assert.equal(w7d?.lastEventAt, null)
+  assert.equal(w7d?.eventCount, 0)
+  assert.equal(wAll?.lastEventAt, '2026-03-25T10:00:00.000Z')
+  assert.equal(wAll?.eventCount, 1)
+})
+
+test('10:00Z wins over 11:00+02:00 because it is later in absolute time', () => {
+  const now = new Date('2026-04-06T12:00:00.000Z')
+  const utcEvent = makeEvent('booking_start', '2026-04-06T10:00:00.000Z')
+  const offsetEvent = makeEvent('view_page', '2026-04-06T11:00:00+02:00')
+
+  const snapshot1 = buildFunnelMetricsSnapshot({ events: [utcEvent, offsetEvent], bookings: [], now })
+  const w1 = snapshot1.windows.find((w) => w.window === '24h')
+  assert.equal(w1?.lastEventAt, '2026-04-06T10:00:00.000Z')
+
+  const snapshot2 = buildFunnelMetricsSnapshot({ events: [offsetEvent, utcEvent], bookings: [], now })
+  const w2 = snapshot2.windows.find((w) => w.window === '24h')
+  assert.equal(w2?.lastEventAt, '2026-04-06T10:00:00.000Z')
+})
+
+test('counts, conversions, and input array mutation are preserved', () => {
+  const now = new Date('2026-04-06T12:00:00.000Z')
+  const events: FunnelEventRecord[] = [
+    makeEvent('view_page', '2026-04-06T08:00:00.000Z'),
+    makeEvent('funnel_entry_15_min', '2026-04-06T09:00:00.000Z'),
+  ]
+  const originalEventsCopy = [...events]
+
+  const snapshot = buildFunnelMetricsSnapshot({ events, bookings: [], now })
+  const w24h = snapshot.windows.find((w) => w.window === '24h')
+
+  assert.equal(w24h?.eventCount, 2)
+  assert.equal(w24h?.stageCounts.view_page, 1)
+  assert.equal(w24h?.stageCounts.funnel_entry_15_min, 1)
+  assert.equal(w24h?.conversions.viewToEntry15, '100.0%')
+  assert.equal(w24h?.lastEventAt, '2026-04-06T09:00:00.000Z')
+
+  assert.deepEqual(events, originalEventsCopy)
 })

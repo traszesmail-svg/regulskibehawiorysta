@@ -113,11 +113,16 @@ test('atomiczny local queue przyjmuje tylko dwa równoległe linki dla docelowej
     species: 'pies' as const, topicId: 'inne' as const, topicLabel: 'Inne', message: 'Testowe zgłoszenie z opisem.',
     requestedDate: '2026-10-05', requestedTime: '13:30',
   }
+  const weekdayNow = new Date('2026-10-01T10:00:00.000Z')
   try {
-    const attempts = await Promise.allSettled([createUrgentNowRequest(input), createUrgentNowRequest(input), createUrgentNowRequest(input)])
+    const attempts = await Promise.allSettled([
+      createUrgentNowRequest(input, weekdayNow),
+      createUrgentNowRequest(input, weekdayNow),
+      createUrgentNowRequest(input, weekdayNow),
+    ])
     assert.equal(attempts.filter((result) => result.status === 'fulfilled').length, 2)
     assert.equal(attempts.filter((result) => result.status === 'rejected' && result.reason instanceof Error && result.reason.message.includes('URGENT_NOW_DAILY_LIMIT')).length, 1)
-    const notify = await createUrgentNowRequest({ ...input, contactPreference: 'notify_only' })
+    const notify = await createUrgentNowRequest({ ...input, contactPreference: 'notify_only' }, weekdayNow)
     assert.equal(notify.contactPreference, 'notify_only')
     assert.equal(notify.requestedDate, input.requestedDate)
     assert.equal(notify.requestedTime, input.requestedTime)
@@ -127,10 +132,10 @@ test('atomiczny local queue przyjmuje tylko dwa równoległe linki dla docelowej
     assert.equal(marked?.noResponseSmsStatus, 'failed')
     assert.equal((await listUrgentNowRequests()).find((request) => request.id === notify.id)?.noResponseSmsStatus, 'failed')
 
-    const heldCapacity = await createUrgentNowRequest({ ...input, requestedDate: '2026-10-06', activeBookingCount: 1 })
+    const heldCapacity = await createUrgentNowRequest({ ...input, requestedDate: '2026-10-06', activeBookingCount: 1 }, weekdayNow)
     assert.equal(heldCapacity.requestedDate, '2026-10-06')
     await assert.rejects(
-      createUrgentNowRequest({ ...input, requestedDate: '2026-10-06', activeBookingCount: 1 }),
+      createUrgentNowRequest({ ...input, requestedDate: '2026-10-06', activeBookingCount: 1 }, weekdayNow),
       /URGENT_NOW_DAILY_LIMIT/,
     )
   } finally {

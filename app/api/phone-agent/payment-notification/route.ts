@@ -36,8 +36,11 @@ export async function POST(request: NextRequest) {
     )
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Błąd przetwarzania powiadomienia o płatności.' },
-      { status: 503 },
+      {
+        error: 'Nie zaksięgowano wpłaty automatycznie. Zweryfikuj ją ręcznie w panelu.',
+        requiresManualReview: true,
+      },
+      { status: 503, headers: { 'Cache-Control': 'no-store' } },
     )
   }
 }

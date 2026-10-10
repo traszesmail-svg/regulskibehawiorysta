@@ -24,11 +24,13 @@ Serwer Next.js i Supabase zarządzają rezerwacjami oraz trwałą kolejką. Tele
    - Automat wymaga prawdziwego bankowego `transactionId`, kwoty PLN, jednoznacznej rezerwacji i migracji ledgeru Supabase. Klucz/czas powiadomienia nie jest identyfikatorem bankowym. Listener wysyła je tylko jako metadane; bez bankowego ID wynik pozostaje do ręcznej weryfikacji.
 
 ## Granice gotowości
-- Źródła i manifest nowego kandydata: `1.5.5` / `10505`. Kontrola ADB 05.10 potwierdziła Motorolę z `1.5.4` / `10504`, uruchomionym SmsQueueService, uprawnieniami SMS/CALL_PHONE i ładowaniem USB. Nowe wydanie nie jest jeszcze zainstalowane.
+- Motorola `ZY323XJ2V7` ma zainstalowane wydanie `1.5.5` / `10505`. Odbiór ADB 10.10 potwierdził uruchomiony `SmsQueueService`, `CALL_PHONE` i `ANSWER_PHONE_CALLS` oraz jawnie cofnięte `SEND_SMS`. Ekran aplikacji potwierdził tryb monitorowania bez wysyłki SMS.
+- Kontrolowany SMS z 08.10 został już przekazany do modemu i nie wolno go ponawiać. Rozmowa kontrolna nadal wymaga osobnej zgody, ustalonego numeru i udziału odbiorcy.
+- Heartbeat z telefonu 10.10 dochodził do endpointu, ale Vercel zwracał `503` z błędem trwałego odczytu stanu telefonu. Diagnostyka bazy Supabase zwracała kod `544` z timeoutem połączenia mimo statusu projektu `ACTIVE_HEALTHY`. Do czasu przywrócenia trwałego odczytu telefon pozostaje w bezpiecznym trybie monitor-only, a brak świeżego heartbeat nie może być raportowany jako gotowość produkcyjna.
 - `PHONE_CALL_PROVIDER=manual_sim` i `PHONE_AGENT_AUTO_PAYMENT_RECONCILIATION=false` pozostają bezpiecznymi ustawieniami domyślnymi.
 - Endpoint watchdoga jest gotowy pod chroniony scheduler (`/api/cron/phone-agent-watchdog`), ale bez skonfigurowanego zewnętrznego harmonogramu nie działa samoczynnie.
-- Budowanie APK produkcyjnego wymaga stałego klucza poza repozytorium: `PHONE_AGENT_KEYSTORE_PATH`, `PHONE_AGENT_KEYSTORE_ALIAS`, `PHONE_AGENT_KEYSTORE_PASSWORD`. Parametr `-AllowEphemeralTestSigning` służy wyłącznie do jednorazowego testu.
-  Nie zastępuj klucza wydania nowym kluczem; aktualizacja musi zachować podpis oraz dane aplikacji. Test na urządzeniu obejmuje raport po utracie internetu, ponowne uruchomienie, odbiór SMS i rozmowę z potwierdzeniem właściciela.
+- Produkcyjny klucz znajduje się poza repozytorium, a hasło jest chronione przez Windows DPAPI `CurrentUser`. Kolejne wydania buduje `build-release.ps1`; instalacja przez `install-release.ps1` zachowuje dane aplikacji, cofa `SEND_SMS` i uruchamia monitorowanie bez SMS.
+  Nie zastępuj klucza wydania bez jawnej decyzji właściciela. Test na urządzeniu obejmuje raport po utracie internetu, ponowne uruchomienie, odbiór SMS i rozmowę z potwierdzeniem właściciela.
 
 ## Pliki instalacyjne
 - Niepodpisany kandydat z kontroli kompilacji: `../../output/operator-20261005/regulski-telefon-1.5.5-unsigned.apk`. Nie jest plikiem do instalacji. Poprzednie APK i klucz pozostają zachowane; nie są równoważnymi kopiami bieżącego wydania.
@@ -36,8 +38,8 @@ Serwer Next.js i Supabase zarządzają rezerwacjami oraz trwałą kolejką. Tele
 
 ```powershell
 ./build-apk.ps1 -UnsignedCandidate -BuildDirectory C:\projekt\regulskibehawiorysta\output\operator-build-qa -OutputApk C:\projekt\regulskibehawiorysta\output\operator-qa-unsigned.apk
-# Po skonfigurowaniu dotychczasowego klucza, podpisane wydanie:
-./build-apk.ps1 -OutputApk C:\projekt\regulskibehawiorysta\output\regulski-telefon-1.5.5-release.apk
+# Podpisane wydanie ze stałą tożsamością produkcyjną:
+./build-release.ps1 -OutputApk C:\projekt\regulskibehawiorysta\output\regulski-telefon-1.5.5-release.apk
 ```
 
 - `tests/CallSessionGuardTest.java` sprawdza blokady podwójnego wybierania i raportowania na JVM. `tests/run-journal-tests.ps1` wymaga urządzenia i instaluje osobny pakiet testowy; samo skompilowanie aplikacji nie zastępuje tego testu.

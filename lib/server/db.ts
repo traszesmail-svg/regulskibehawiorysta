@@ -228,6 +228,20 @@ export async function claimPaymentReconciliation(
   return getProvider().claimPaymentReconciliation(fingerprint, bookingId, amount)
 }
 
+/**
+ * Credits a Revolut notification only when its fingerprint can be reserved and
+ * the booking is still awaiting exactly that payment. Providers must make this
+ * one conditional operation: callers use its single successful return as the
+ * idempotency boundary for follow-up notifications.
+ */
+export async function reconcileRevolutPaymentNotification(
+  fingerprint: string,
+  bookingId: string,
+  amount: number,
+) {
+  return getProvider().reconcileRevolutPaymentNotification(fingerprint, bookingId, amount)
+}
+
 export async function moveBookingToRecoverySlot(
   bookingId: string,
   recoveryToken: string,

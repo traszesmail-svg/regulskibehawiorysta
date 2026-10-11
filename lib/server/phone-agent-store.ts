@@ -421,63 +421,73 @@ function isUuid(id: string | null | undefined): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)
 }
 
-export async function enqueueSms(input: EnqueueSmsInput): Promise<SmsQueueItem> {
-  return withStoreLock(async () => {
-    if (resolveDataMode('dodanie SMS do kolejki') === 'supabase') {
-      const normalized = normalizePolishPhone(input.phone)
-      const phone = normalized ? normalized.e164 : input.phone.trim()
-      const now = new Date().toISOString()
-      const supabase = getPhoneAgentSupabase()
-      const { data, error } = await supabase
-        .from('phone_agent_sms_queue')
-        .insert({
-          booking_id: isUuid(input.bookingId) ? input.bookingId : null,
-          phone,
-          message: input.message.trim(),
-          type: input.type,
-          scheduled_for: input.scheduledFor ?? now,
-          idempotency_key: input.idempotencyKey,
-        })
-        .select('id, booking_id, phone, message, type, status, scheduled_for, created_at, sent_at, error, idempotency_key')
-        .single<PhoneAgentSmsRow>()
-      if (data) return toPhoneAgentSmsItem(data)
-      if (error?.code !== '23505') throw error
-      const { data: existing, error: existingError } = await supabase
-        .from('phone_agent_sms_queue')
-        .select('id, booking_id, phone, message, type, status, scheduled_for, created_at, sent_at, error, idempotency_key')
-        .eq('idempotency_key', input.idempotencyKey)
-        .single<PhoneAgentSmsRow>()
-      if (existingError || !existing) throw existingError ?? new Error('Brak istniejącego SMS-a po wykryciu duplikatu.')
-      return toPhoneAgentSmsItem(existing)
-    }
-    const items = await readStoredSmsQueue()
-    const existing = items.find((item) => item.idempotencyKey === input.idempotencyKey)
-    if (existing) {
-      return existing
-    }
+export async function readStoredSmsQueueUnderLock(): Promise<SmsQueueItem[]> {
+  return readStoredSmsQueue()
+}
 
+export async function writeStoredSmsQueueUnderLock(items: SmsQueueItem[]): Promise<void> {
+  return writeStoredSmsQueue(items)
+}
+
+export async function enqueueSmsUnderLock(input: EnqueueSmsInput): Promise<SmsQueueItem> {
+  if (resolveDataMode('dodanie SMS do kolejki') === 'supabase') {
     const normalized = normalizePolishPhone(input.phone)
-    const targetPhone = normalized ? normalized.e164 : input.phone.trim()
+    const phone = normalized ? normalized.e164 : input.phone.trim()
     const now = new Date().toISOString()
+    const supabase = getPhoneAgentSupabase()
+    const { data, error } = await supabase
+      .from('phone_agent_sms_queue')
+      .insert({
+        booking_id: isUuid(input.bookingId) ? input.bookingId : null,
+        phone,
+        message: input.message.trim(),
+        type: input.type,
+        scheduled_for: input.scheduledFor ?? now,
+        idempotency_key: input.idempotencyKey,
+      })
+      .select('id, booking_id, phone, message, type, status, scheduled_for, created_at, sent_at, error, idempotency_key')
+      .single<PhoneAgentSmsRow>()
+    if (data) return toPhoneAgentSmsItem(data)
+    if (error?.code !== '23505') throw error
+    const { data: existing, error: existingError } = await supabase
+      .from('phone_agent_sms_queue')
+      .select('id, booking_id, phone, message, type, status, scheduled_for, created_at, sent_at, error, idempotency_key')
+      .eq('idempotency_key', input.idempotencyKey)
+      .single<PhoneAgentSmsRow>()
+    if (existingError || !existing) throw existingError ?? new Error('Brak istniejącego SMS-a po wykryciu duplikatu.')
+    return toPhoneAgentSmsItem(existing)
+  }
+  const items = await readStoredSmsQueue()
+  const existing = items.find((item) => item.idempotencyKey === input.idempotencyKey)
+  if (existing) {
+    return existing
+  }
 
-    const newItem: SmsQueueItem = {
-      id: randomUUID(),
-      bookingId: input.bookingId ?? null,
-      phone: targetPhone,
-      message: input.message.trim(),
-      type: input.type,
-      status: 'pending',
-      scheduledFor: input.scheduledFor ?? now,
-      createdAt: now,
-      sentAt: null,
-      error: null,
-      idempotencyKey: input.idempotencyKey,
-    }
+  const normalized = normalizePolishPhone(input.phone)
+  const targetPhone = normalized ? normalized.e164 : input.phone.trim()
+  const now = new Date().toISOString()
 
-    items.push(newItem)
-    await writeStoredSmsQueue(items)
-    return newItem
-  })
+  const newItem: SmsQueueItem = {
+    id: randomUUID(),
+    bookingId: input.bookingId ?? null,
+    phone: targetPhone,
+    message: input.message.trim(),
+    type: input.type,
+    status: 'pending',
+    scheduledFor: input.scheduledFor ?? now,
+    createdAt: now,
+    sentAt: null,
+    error: null,
+    idempotencyKey: input.idempotencyKey,
+  }
+
+  items.push(newItem)
+  await writeStoredSmsQueue(items)
+  return newItem
+}
+
+export async function enqueueSms(input: EnqueueSmsInput): Promise<SmsQueueItem> {
+  return withStoreLock(async () => enqueueSmsUnderLock(input))
 }
 
 export async function cancelPendingBookingSms(bookingId: string, reason = 'booking_cancelled'): Promise<number> {
@@ -645,67 +655,73 @@ export async function listSmsQueue(limit = 50): Promise<SmsQueueItem[]> {
   })
 }
 
-export async function getSmsQueueItemById(id: string): Promise<SmsQueueItem | null> {
-  return withStoreLock(async () => {
-    if (resolveDataMode('odczyt pojedynczego SMS') === 'supabase') {
-      try {
-        const { data, error } = await getPhoneAgentSupabase()
-          .from('phone_agent_sms_queue')
-          .select('id, booking_id, phone, message, type, status, scheduled_for, created_at, sent_at, error, idempotency_key')
-          .eq('id', id)
-          .maybeSingle<PhoneAgentSmsRow>()
-        if (error) throw error
-        return data ? toPhoneAgentSmsItem(data) : null
-      } catch (err) {
-        console.warn('[phone-agent-store] getSmsQueueItemById error:', err)
-        return null
-      }
+export async function getSmsQueueItemByIdUnderLock(id: string): Promise<SmsQueueItem | null> {
+  if (resolveDataMode('odczyt pojedynczego SMS') === 'supabase') {
+    try {
+      const { data, error } = await getPhoneAgentSupabase()
+        .from('phone_agent_sms_queue')
+        .select('id, booking_id, phone, message, type, status, scheduled_for, created_at, sent_at, error, idempotency_key')
+        .eq('id', id)
+        .maybeSingle<PhoneAgentSmsRow>()
+      if (error) throw error
+      return data ? toPhoneAgentSmsItem(data) : null
+    } catch (err) {
+      console.warn('[phone-agent-store] getSmsQueueItemById error:', err)
+      return null
     }
-    const items = await readStoredSmsQueue()
-    const item = items.find((it) => it.id === id)
-    return item ? { ...item } : null
-  })
+  }
+  const items = await readStoredSmsQueue()
+  const item = items.find((it) => it.id === id)
+  return item ? { ...item } : null
+}
+
+export async function getSmsQueueItemById(id: string): Promise<SmsQueueItem | null> {
+  return withStoreLock(async () => getSmsQueueItemByIdUnderLock(id))
+}
+
+export async function getSmsQueueItemByIdempotencyKeyUnderLock(key: string): Promise<SmsQueueItem | null> {
+  if (resolveDataMode('odczyt SMS po kluczu idempotencji') === 'supabase') {
+    try {
+      const { data, error } = await getPhoneAgentSupabase()
+        .from('phone_agent_sms_queue')
+        .select('id, booking_id, phone, message, type, status, scheduled_for, created_at, sent_at, error, idempotency_key')
+        .eq('idempotency_key', key)
+        .maybeSingle<PhoneAgentSmsRow>()
+      if (error) throw error
+      return data ? toPhoneAgentSmsItem(data) : null
+    } catch (err) {
+      console.warn('[phone-agent-store] getSmsQueueItemByIdempotencyKey error:', err)
+      return null
+    }
+  }
+  const items = await readStoredSmsQueue()
+  const item = items.find((it) => it.idempotencyKey === key)
+  return item ? { ...item } : null
 }
 
 export async function getSmsQueueItemByIdempotencyKey(key: string): Promise<SmsQueueItem | null> {
-  return withStoreLock(async () => {
-    if (resolveDataMode('odczyt SMS po kluczu idempotencji') === 'supabase') {
-      try {
-        const { data, error } = await getPhoneAgentSupabase()
-          .from('phone_agent_sms_queue')
-          .select('id, booking_id, phone, message, type, status, scheduled_for, created_at, sent_at, error, idempotency_key')
-          .eq('idempotency_key', key)
-          .maybeSingle<PhoneAgentSmsRow>()
-        if (error) throw error
-        return data ? toPhoneAgentSmsItem(data) : null
-      } catch (err) {
-        console.warn('[phone-agent-store] getSmsQueueItemByIdempotencyKey error:', err)
-        return null
-      }
-    }
-    const items = await readStoredSmsQueue()
-    const item = items.find((it) => it.idempotencyKey === key)
-    return item ? { ...item } : null
-  })
+  return withStoreLock(async () => getSmsQueueItemByIdempotencyKeyUnderLock(key))
+}
+
+export async function deleteSmsQueueItemUnderLock(id: string): Promise<boolean> {
+  if (resolveDataMode('usunięcie SMS z kolejki') === 'supabase') {
+    const { error } = await getPhoneAgentSupabase()
+      .from('phone_agent_sms_queue')
+      .delete()
+      .eq('id', id)
+    if (error) throw error
+    return true
+  }
+  const items = await readStoredSmsQueue()
+  const index = items.findIndex((it) => it.id === id)
+  if (index === -1) return false
+  items.splice(index, 1)
+  await writeStoredSmsQueue(items)
+  return true
 }
 
 export async function deleteSmsQueueItem(id: string): Promise<boolean> {
-  return withStoreLock(async () => {
-    if (resolveDataMode('usunięcie SMS z kolejki') === 'supabase') {
-      const { error } = await getPhoneAgentSupabase()
-        .from('phone_agent_sms_queue')
-        .delete()
-        .eq('id', id)
-      if (error) throw error
-      return true
-    }
-    const items = await readStoredSmsQueue()
-    const index = items.findIndex((it) => it.id === id)
-    if (index === -1) return false
-    items.splice(index, 1)
-    await writeStoredSmsQueue(items)
-    return true
-  })
+  return withStoreLock(async () => deleteSmsQueueItemUnderLock(id))
 }
 
 export async function generateUpcomingBookingSmsReminders(): Promise<{

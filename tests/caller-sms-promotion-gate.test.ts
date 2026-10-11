@@ -5,6 +5,7 @@ import {
   generateCallerSms,
   getCallerSmsPreparationById,
   promoteCallerSmsToQueue,
+  setPromotionBoundaryHookForTest,
   validateTechnicalTestMessage,
   listCallerSmsPreparations,
   isStage4PromotionEnabled,
@@ -13,7 +14,7 @@ import {
   CONTROLLED_TECHNICAL_TEST_MARKER,
   STAGE4_RUNTIME_FLAG_ENV,
 } from '@/lib/server/db'
-import { listSmsQueue } from '@/lib/server/phone-agent-store'
+import { listSmsQueue, claimNextPendingSms } from '@/lib/server/phone-agent-store'
 import { POST as promoteSmsApiRoute } from '@/app/api/phone-agent/caller-sms/promote/route'
 import { NextRequest } from 'next/server'
 import type { CallerClassificationResult } from '@/lib/server/caller-classification-types'
@@ -922,31 +923,39 @@ test('13. Wymuszony błąd na granicy insert/update dowodzi pełnego rollbacku: 
         })
         assert.equal(prep.status, 'prepared')
 
-        // Invoke promotion with forced failure at insert/update boundary
-        await assert.rejects(
-          promoteCallerSmsToQueue({
-            preparationId: prep.id,
-            approvalId: 'approval-boundary-fail-1',
-            rawPhone: TEST_PHONE,
-            isControlledTechnicalTest: true,
-            dryRun: false,
-            adminAuthorized: true,
-            secretOverride: TEST_SECRET,
-            _simulateBoundaryFailure: true,
-          }),
-          /SIMULATED_BOUNDARY_FAILURE/,
-        )
+        // Test-only fault injection via boundary hook
+        setPromotionBoundaryHookForTest(async () => {
+          throw new Error('SIMULATED_BOUNDARY_FAILURE: forced failure at insert/update boundary')
+        })
 
-        // Verify full rollback: 0 items in queue
-        const queueItems = await listSmsQueue()
-        assert.equal(queueItems.length, 0, 'Kolejka phone_agent_sms_queue nie zawiera osieroconego wpisu (pełny rollback)')
+        try {
+          // Invoke promotion with forced failure at insert/update boundary
+          await assert.rejects(
+            promoteCallerSmsToQueue({
+              preparationId: prep.id,
+              approvalId: 'approval-boundary-fail-1',
+              rawPhone: TEST_PHONE,
+              isControlledTechnicalTest: true,
+              dryRun: false,
+              adminAuthorized: true,
+              secretOverride: TEST_SECRET,
+            }),
+            /SIMULATED_BOUNDARY_FAILURE/,
+          )
 
-        // Verify preparation record was NOT altered
-        const prepAfter = await getCallerSmsPreparationById(prep.id)
-        assert.equal(prepAfter?.status, 'prepared', 'Status preparation pozostaje "prepared"')
-        assert.equal(prepAfter?.promotedAt, null, 'promotedAt w rekordzie preparation pozostaje null')
-        assert.equal(prepAfter?.queueItemId, null, 'queueItemId w rekordzie preparation pozostaje null')
-        assert.equal(prepAfter?.approvalId, null, 'approvalId w rekordzie preparation pozostaje null')
+          // Verify full rollback: 0 items in queue
+          const queueItems = await listSmsQueue()
+          assert.equal(queueItems.length, 0, 'Kolejka phone_agent_sms_queue nie zawiera osieroconego wpisu (pełny rollback)')
+
+          // Verify preparation record was NOT altered
+          const prepAfter = await getCallerSmsPreparationById(prep.id)
+          assert.equal(prepAfter?.status, 'prepared', 'Status preparation pozostaje "prepared"')
+          assert.equal(prepAfter?.promotedAt, null, 'promotedAt w rekordzie preparation pozostaje null')
+          assert.equal(prepAfter?.queueItemId, null, 'queueItemId w rekordzie preparation pozostaje null')
+          assert.equal(prepAfter?.approvalId, null, 'approvalId w rekordzie preparation pozostaje null')
+        } finally {
+          setPromotionBoundaryHookForTest(null)
+        }
       },
     )
   } finally {
@@ -954,7 +963,7 @@ test('13. Wymuszony błąd na granicy insert/update dowodzi pełnego rollbacku: 
   }
 })
 
-test('14. Niepoprawny błąd backendu: odpowiedź API nie zawiera surowego message ani szczegółów bazy', async () => {
+test('14. Niepoprawny błąd backendu: odpowiedź API nie zawiera surowego message ani szczegółów bazy (test-only injection)', async () => {
   const sandbox = await createLocalDataSandbox('stage4-safe-error-api', process.cwd())
   try {
     await withEnv(
@@ -973,7 +982,182 @@ test('14. Niepoprawny błąd backendu: odpowiedź API nie zawiera surowego messa
           dryRun: false,
         })
 
-        // Request triggering boundary failure / internal error
+        // Controlled test-only fault injection via boundary hook (HTTP body contains NO test fields)
+        setPromotionBoundaryHookForTest(async () => {
+          throw new Error('SIMULATED_BOUNDARY_FAILURE: forced failure at insert/update boundary')
+        })
+
+        try {
+          const req = new NextRequest('http://localhost/api/phone-agent/caller-sms/promote', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: createAdminBasicAuthHeader(),
+            },
+            body: JSON.stringify({
+              preparationId: prep.id,
+              approvalId: 'approval-safe-err',
+              rawPhone: TEST_PHONE,
+              isControlledTechnicalTest: true,
+              dryRun: false,
+            }),
+          })
+
+          const res = await promoteSmsApiRoute(req)
+          assert.equal(res.status, 500, 'Wewnętrzny błąd backendu zwraca status 500')
+          const json = (await res.json()) as any
+
+          assert.equal(json.ok, false)
+          assert.equal(
+            json.error,
+            'Błąd wewnętrzny bramki promocji SMS (fail-closed)',
+            'Odpowiedź musi zawierać bezpieczny stały komunikat błędu',
+          )
+          assert.equal(json.code, 'PROMOTION_INTERNAL_ERROR')
+
+          // Assert response does NOT leak raw error message, database details or secrets
+          const rawResponseStr = JSON.stringify(json)
+          assert.equal(rawResponseStr.includes('SIMULATED_BOUNDARY_FAILURE'), false)
+          assert.equal(rawResponseStr.includes('insert/update'), false)
+          assert.equal(rawResponseStr.includes('postgres'), false)
+          assert.equal(rawResponseStr.includes('caller_sms_preparations'), false)
+          assert.equal(rawResponseStr.includes('phone_agent_sms_queue'), false)
+          assert.equal(rawResponseStr.includes(TEST_PHONE), false)
+
+          // Queue and preparation still intact
+          assert.equal((await listSmsQueue()).length, 0)
+          assert.equal((await getCallerSmsPreparationById(prep.id))?.status, 'prepared')
+        } finally {
+          setPromotionBoundaryHookForTest(null)
+        }
+      },
+    )
+  } finally {
+    await sandbox.cleanup()
+  }
+})
+
+test('15. Współbieżność: kontrolowana pauza/błąd na granicy - obserwator (claim/list) nie widzi osieroconego pending item, po awarii oba stany niezmienione', async () => {
+  const sandbox = await createLocalDataSandbox('stage4-boundary-pause-concurrency', process.cwd())
+  try {
+    await withEnv(
+      {
+        APP_DATA_MODE: 'local',
+        CALL_SESSION_PHONE_SECRET: TEST_SECRET,
+        ADMIN_ACCESS_SECRET: TEST_ADMIN_SECRET,
+        STAGE4_CONTROLLED_SMS_PROMOTION_ENABLED: 'true',
+      },
+      async () => {
+        const { computeCallerPhoneFingerprint } = await import('@/lib/server/call-session-security')
+        const fp = computeCallerPhoneFingerprint(TEST_PHONE, TEST_SECRET)
+
+        const prep = await generateCallerSms(createDummyClassification('unknown_number', fp), {
+          idempotencyKey: 'prep-concurrency-pause-test',
+          dryRun: false,
+        })
+        assert.equal(prep.status, 'prepared')
+
+        // Setup boundary hook that pauses execution at the boundary
+        let hookReached = false
+        let unblockHook: ((err?: Error) => void) | null = null
+        const hookWaitPromise = new Promise<void>((resolve, reject) => {
+          unblockHook = (err?: Error) => {
+            if (err) reject(err)
+            else resolve()
+          }
+        })
+
+        let enteredResolve: () => void
+        const hookEnteredPromise = new Promise<void>((resolve) => {
+          enteredResolve = resolve
+        })
+
+        setPromotionBoundaryHookForTest(async ({ queueItemId }) => {
+          hookReached = true
+          assert.ok(queueItemId, 'Wpis w kolejce został tymczasowo utworzony w ramach sekcji krytycznej')
+          enteredResolve()
+          // Wait for test to launch concurrent observers and signal resume/failure
+          await hookWaitPromise
+        })
+
+        try {
+          // 1. Start promotion in background (it will pause at the boundary hook)
+          const promotionPromise = promoteCallerSmsToQueue({
+            preparationId: prep.id,
+            approvalId: 'approval-boundary-pause-1',
+            rawPhone: TEST_PHONE,
+            isControlledTechnicalTest: true,
+            dryRun: false,
+            adminAuthorized: true,
+            secretOverride: TEST_SECRET,
+          })
+
+          // Wait until promotion has definitely reached the boundary and holds the lock
+          await hookEnteredPromise
+          assert.equal(hookReached, true, 'Promocja dotarła do granicy i trzyma blokadę')
+
+          // 2. Launch concurrent observers (claimNextPendingSms and listSmsQueue)
+          // Because promotion holds withStoreLock, these calls are queued behind it.
+          const claimPromise = claimNextPendingSms()
+          const listPromise = listSmsQueue()
+
+          // Give a brief tick to ensure promises are registered in the queue
+          await new Promise((r) => setTimeout(r, 20))
+
+          // 3. Unblock the boundary hook WITH A FAILURE
+          unblockHook!(new Error('SIMULATED_BOUNDARY_CRASH: awaria zasilania na granicy transakcji'))
+
+          // 4. Expect promotion to reject with the error
+          await assert.rejects(promotionPromise, /SIMULATED_BOUNDARY_CRASH/)
+
+          // 5. Concurrently queued observers should now resolve AFTER rollback has completed
+          const claimedItem = await claimPromise
+          const queueList = await listPromise
+
+          // Assert observer NEVER claimed or saw the orphaned pending item
+          assert.equal(claimedItem, null, 'Obserwator claimNextPendingSms nie widział osieroconego pending item (zwrócił null)')
+          assert.equal(queueList.length, 0, 'Obserwator listSmsQueue nie widział osieroconego pending item (0 wpisów)')
+
+          // 6. Assert both states are completely unchanged
+          const prepAfter = await getCallerSmsPreparationById(prep.id)
+          assert.equal(prepAfter?.status, 'prepared', 'Status preparation pozostał niezmieniony ("prepared")')
+          assert.equal(prepAfter?.promotedAt, null, 'promotedAt w rekordzie preparation pozostał null')
+          assert.equal(prepAfter?.queueItemId, null, 'queueItemId w rekordzie preparation pozostał null')
+          assert.equal(prepAfter?.approvalId, null, 'approvalId w rekordzie preparation pozostał null')
+
+          const queueAfter = await listSmsQueue()
+          assert.equal(queueAfter.length, 0, 'Kolejka pozostała całkowicie pusta po rollbacku')
+        } finally {
+          setPromotionBoundaryHookForTest(null)
+        }
+      },
+    )
+  } finally {
+    await sandbox.cleanup()
+  }
+})
+
+test('16. Endpoint HTTP ignoruje pole _simulateBoundaryFailure i nie pozwala na fault injection przez żądanie', async () => {
+  const sandbox = await createLocalDataSandbox('stage4-ignore-http-fault-injection', process.cwd())
+  try {
+    await withEnv(
+      {
+        APP_DATA_MODE: 'local',
+        CALL_SESSION_PHONE_SECRET: TEST_SECRET,
+        ADMIN_ACCESS_SECRET: TEST_ADMIN_SECRET,
+        STAGE4_CONTROLLED_SMS_PROMOTION_ENABLED: 'true',
+      },
+      async () => {
+        const { computeCallerPhoneFingerprint } = await import('@/lib/server/call-session-security')
+        const fp = computeCallerPhoneFingerprint(TEST_PHONE, TEST_SECRET)
+
+        const prep = await generateCallerSms(createDummyClassification('unknown_number', fp), {
+          idempotencyKey: 'prep-ignore-http-test',
+          dryRun: false,
+        })
+        assert.equal(prep.status, 'prepared')
+
+        // Request explicitly provides _simulateBoundaryFailure: true in body
         const req = new NextRequest('http://localhost/api/phone-agent/caller-sms/promote', {
           method: 'POST',
           headers: {
@@ -982,38 +1166,71 @@ test('14. Niepoprawny błąd backendu: odpowiedź API nie zawiera surowego messa
           },
           body: JSON.stringify({
             preparationId: prep.id,
-            approvalId: 'approval-safe-err',
+            approvalId: 'approval-ignore-body-fault',
             rawPhone: TEST_PHONE,
             isControlledTechnicalTest: true,
             dryRun: false,
-            _simulateBoundaryFailure: true,
+            _simulateBoundaryFailure: true, // Should be COMPLETELY ignored by endpoint!
           }),
         })
 
         const res = await promoteSmsApiRoute(req)
-        assert.equal(res.status, 500, 'Wewnętrzny błąd backendu zwraca status 500')
+        assert.equal(res.status, 200, 'Żądanie musi zakończyć się sukcesem 200, ponieważ pole testowe z body jest ignorowane')
         const json = (await res.json()) as any
+        assert.equal(json.ok, true)
+        assert.equal(json.status, 'promoted')
+        assert.equal(json.preview, false)
 
+        // Queue item was created successfully (not aborted by the ignored field)
+        const queueItems = await listSmsQueue()
+        assert.equal(queueItems.length, 1, 'Kolejka zawiera poprawnie utworzony wpis')
+
+        const prepAfter = await getCallerSmsPreparationById(prep.id)
+        assert.equal(prepAfter?.status, 'promoted')
+      },
+    )
+  } finally {
+    await sandbox.cleanup()
+  }
+})
+
+test('17. Bezpieczna odpowiedź 500 przez test-only dependency injection handlera API', async () => {
+  const sandbox = await createLocalDataSandbox('stage4-di-500-test', process.cwd())
+  try {
+    await withEnv(
+      {
+        APP_DATA_MODE: 'local',
+        ADMIN_ACCESS_SECRET: TEST_ADMIN_SECRET,
+        STAGE4_CONTROLLED_SMS_PROMOTION_ENABLED: 'true',
+      },
+      async () => {
+        const req = new NextRequest('http://localhost/api/phone-agent/caller-sms/promote', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: createAdminBasicAuthHeader(),
+          },
+          body: JSON.stringify({
+            preparationId: 'prep-123',
+            approvalId: 'approval-123',
+            rawPhone: TEST_PHONE,
+            isControlledTechnicalTest: true,
+            dryRun: false,
+          }),
+        })
+
+        // Test-only mock via deps parameter
+        const res = await promoteSmsApiRoute(req, {
+          promoter: async () => {
+            throw new Error('SIMULATED_UNHANDLED_EXCEPTION: crash in promoter')
+          },
+        })
+
+        assert.equal(res.status, 500)
+        const json = (await res.json()) as any
         assert.equal(json.ok, false)
-        assert.equal(
-          json.error,
-          'Błąd wewnętrzny bramki promocji SMS (fail-closed)',
-          'Odpowiedź musi zawierać bezpieczny stały komunikat błędu',
-        )
+        assert.equal(json.error, 'Błąd wewnętrzny bramki promocji SMS (fail-closed)')
         assert.equal(json.code, 'PROMOTION_INTERNAL_ERROR')
-
-        // Assert response does NOT leak raw error message, database details or secrets
-        const rawResponseStr = JSON.stringify(json)
-        assert.equal(rawResponseStr.includes('SIMULATED_BOUNDARY_FAILURE'), false)
-        assert.equal(rawResponseStr.includes('insert/update'), false)
-        assert.equal(rawResponseStr.includes('postgres'), false)
-        assert.equal(rawResponseStr.includes('caller_sms_preparations'), false)
-        assert.equal(rawResponseStr.includes('phone_agent_sms_queue'), false)
-        assert.equal(rawResponseStr.includes(TEST_PHONE), false)
-
-        // Queue and preparation still intact
-        assert.equal((await listSmsQueue()).length, 0)
-        assert.equal((await getCallerSmsPreparationById(prep.id))?.status, 'prepared')
       },
     )
   } finally {

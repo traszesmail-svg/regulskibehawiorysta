@@ -386,7 +386,7 @@ const REQUIRED_SCHEMA_MARKERS = [
   },
   {
     label: 'promote_caller_sms_to_queue.grant_signature',
-    needle: 'grant execute on function public.promote_caller_sms_to_queue(uuid, text, text, text, text, timestamptz, integer, boolean) to service_role;',
+    needle: 'grant execute on function public.promote_caller_sms_to_queue(uuid, text, text, text, text, timestamptz, integer) to service_role;',
     expectedCount: 1,
   },
 ]

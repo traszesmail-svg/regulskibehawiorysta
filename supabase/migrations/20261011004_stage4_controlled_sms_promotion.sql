@@ -36,8 +36,7 @@ create or replace function public.promote_caller_sms_to_queue(
   p_caller_phone_fingerprint text,
   p_message text,
   p_now timestamptz default timezone('utc', now()),
-  p_max_age_seconds integer default 1800,
-  p_simulate_boundary_failure boolean default false
+  p_max_age_seconds integer default 1800
 )
 returns jsonb
 language plpgsql
@@ -213,11 +212,6 @@ begin
   )
   returning * into v_queue_item;
 
-  -- Simulated failure point at insert/update boundary for transactional rollback verification
-  if p_simulate_boundary_failure then
-    raise exception 'simulated_boundary_failure: wymuszony błąd na granicy insert/update';
-  end if;
-
   -- 13. Atomic update caller_sms_preparations
   update public.caller_sms_preparations
   set
@@ -242,5 +236,5 @@ begin
 end;
 $$;
 
-revoke all on function public.promote_caller_sms_to_queue(uuid, text, text, text, text, timestamptz, integer, boolean) from public, anon, authenticated;
-grant execute on function public.promote_caller_sms_to_queue(uuid, text, text, text, text, timestamptz, integer, boolean) to service_role;
+revoke all on function public.promote_caller_sms_to_queue(uuid, text, text, text, text, timestamptz, integer) from public, anon, authenticated;
+grant execute on function public.promote_caller_sms_to_queue(uuid, text, text, text, text, timestamptz, integer) to service_role;

@@ -428,6 +428,7 @@ export {
   listCallerSmsPreparations,
   getCallerSmsPreparationById,
   promoteCallerSmsToQueue,
+  setPromotionBoundaryHookForTest,
   validateOfficialTargetUrl,
   validateSmsMessageContent,
   validateTechnicalTestMessage,
@@ -440,6 +441,8 @@ export {
   STAGE4_RUNTIME_FLAG_ENV,
   CONTROLLED_TECHNICAL_TEST_MARKER,
   DEFAULT_PROMOTION_EXPIRY_MS,
+  type PromotionBoundaryHook,
+  type PromotionBoundaryHookContext,
 } from './caller-sms-policy'
 
 export type {

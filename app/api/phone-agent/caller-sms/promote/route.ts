@@ -10,7 +10,15 @@ import {
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
-export async function POST(request: NextRequest) {
+export type PromoteRouteDependencies = {
+  promoter?: typeof promoteCallerSmsToQueue
+}
+
+export async function POST(
+  request: NextRequest,
+  deps?: PromoteRouteDependencies,
+) {
+  const promoteFn = deps?.promoter ?? promoteCallerSmsToQueue
   // 1. Admin authorization check: phone-agent token alone is NOT sufficient
   const isAdmin = await isAdminRequestAuthorized(request.headers)
   if (!isAdmin) {
@@ -72,7 +80,6 @@ export async function POST(request: NextRequest) {
   // dryRun defaults to true unless explicitly requested as false
   const dryRun = body?.dryRun === false ? false : true
   const messageOverride = typeof body?.message === 'string' ? body.message : undefined
-  const simulateBoundaryFailure = body?._simulateBoundaryFailure === true
 
   // 3. Runtime flag check: mutations are strictly disabled unless enabled in runtime configuration
   if (!dryRun && !isStage4PromotionEnabled()) {
@@ -88,7 +95,7 @@ export async function POST(request: NextRequest) {
 
   // 4. Run promotion gate logic
   try {
-    const result = await promoteCallerSmsToQueue({
+    const result = await promoteFn({
       preparationId,
       approvalId,
       rawPhone,
@@ -96,7 +103,6 @@ export async function POST(request: NextRequest) {
       dryRun,
       messageOverride,
       adminAuthorized: true,
-      _simulateBoundaryFailure: simulateBoundaryFailure,
     })
 
     if (!result.ok) {

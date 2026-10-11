@@ -12,9 +12,15 @@ import {
 } from '@/lib/server/call-session-security'
 import {
   deleteSmsQueueItem,
+  deleteSmsQueueItemUnderLock,
   enqueueSms,
+  enqueueSmsUnderLock,
   getSmsQueueItemById,
+  getSmsQueueItemByIdUnderLock,
   getSmsQueueItemByIdempotencyKey,
+  getSmsQueueItemByIdempotencyKeyUnderLock,
+  readStoredSmsQueueUnderLock,
+  writeStoredSmsQueueUnderLock,
   withStoreLock,
   type SmsQueueItem,
 } from '@/lib/server/phone-agent-store'
@@ -758,6 +764,29 @@ export function isStage4PromotionEnabled(): boolean {
   return process.env.STAGE4_CONTROLLED_SMS_PROMOTION_ENABLED?.trim().toLowerCase() === 'true'
 }
 
+export type PromotionBoundaryHookContext = {
+  preparationId: string
+  approvalId: string
+  queueItemId: string
+  preparation: CallerSmsPreparationRecord
+}
+
+export type PromotionBoundaryHook = (
+  context: PromotionBoundaryHookContext,
+) => Promise<void> | void
+
+let testBoundaryHook: PromotionBoundaryHook | null = null
+
+/**
+ * Test-only hook to simulate boundary pause or failure inside the atomic critical section.
+ * NEVER exposed to HTTP or runtime configuration.
+ */
+export function setPromotionBoundaryHookForTest(
+  hook: PromotionBoundaryHook | null,
+): void {
+  testBoundaryHook = hook
+}
+
 export function validateTechnicalTestMessage(
   candidateMessage: string,
   targetUrl: string | null,
@@ -1167,7 +1196,6 @@ export async function promoteCallerSmsToQueue(
         p_message: validatedMessage,
         p_now: nowIso,
         p_max_age_seconds: Math.floor(maxAgeMs / 1000),
-        p_simulate_boundary_failure: Boolean(options._simulateBoundaryFailure),
       },
     )
 
@@ -1223,10 +1251,11 @@ export async function promoteCallerSmsToQueue(
     }
   }
 
-  // 7. Local store mode with atomic thread-safe lock
+  // 7. Local store mode with atomic thread-safe critical section across queue and preparations
   return withCallerSmsLock(async () => {
-    const snapshot = await readCallerSmsStoreSnapshot()
-    const preparation = snapshot.preparations.find((p) => p.id === preparationId)
+    return withStoreLock(async () => {
+      const snapshot = await readCallerSmsStoreSnapshot()
+      const preparation = snapshot.preparations.find((p) => p.id === preparationId)
 
       if (!preparation) {
         return {
@@ -1268,8 +1297,8 @@ export async function promoteCallerSmsToQueue(
       if (preparation.status === 'promoted' || preparation.approvalId) {
         if (preparation.approvalId === approvalId) {
           const queueItem = preparation.queueItemId
-            ? await getSmsQueueItemById(preparation.queueItemId)
-            : await getSmsQueueItemByIdempotencyKey(`stage4_promo:${approvalId}`)
+            ? await getSmsQueueItemByIdUnderLock(preparation.queueItemId)
+            : await getSmsQueueItemByIdempotencyKeyUnderLock(`stage4_promo:${approvalId}`)
 
           if (queueItem && queueItem.message !== validatedMessage) {
             return {
@@ -1371,12 +1400,15 @@ export async function promoteCallerSmsToQueue(
         }
       }
 
-      // Live execution in local store mode with atomic rollback
-      let createdQueueItem: SmsQueueItem | null = null
+      // Live execution in local store mode with atomic critical section spanning
+      // queue item enqueue, preparation update, and snapshot write.
+      // Any error triggers complete rollback before the lock is released.
+      const previousQueueSnapshot = await readStoredSmsQueueUnderLock()
       const originalPreparation = { ...preparation }
+      let createdQueueItem: SmsQueueItem | null = null
 
       try {
-        const queueItem = await enqueueSms({
+        const queueItem = await enqueueSmsUnderLock({
           phone: normalized.e164,
           message: validatedMessage,
           type: 'custom',
@@ -1384,8 +1416,15 @@ export async function promoteCallerSmsToQueue(
         })
         createdQueueItem = queueItem
 
-        if (options._simulateBoundaryFailure) {
-          throw new Error('SIMULATED_BOUNDARY_FAILURE: forced failure at insert/update boundary')
+        // Test-only boundary hook for pause / fault-injection verification.
+        // Never exposed via HTTP.
+        if (testBoundaryHook) {
+          await testBoundaryHook({
+            preparationId: preparation.id,
+            approvalId,
+            queueItemId: queueItem.id,
+            preparation,
+          })
         }
 
         preparation.status = 'promoted'
@@ -1406,10 +1445,11 @@ export async function promoteCallerSmsToQueue(
         }
       } catch (err) {
         if (createdQueueItem) {
-          await deleteSmsQueueItem(createdQueueItem.id)
+          await writeStoredSmsQueueUnderLock(previousQueueSnapshot)
         }
         Object.assign(preparation, originalPreparation)
         throw err
       }
+    })
   })
 }

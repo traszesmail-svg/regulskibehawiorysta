@@ -206,3 +206,32 @@ export function computeCallSessionOperationHash(input: OperationHashInput): stri
 
   return createHash('sha256').update(canonicalizePayload(descriptor)).digest('hex')
 }
+
+export interface CallerClassificationRequestHashInput {
+  phoneFingerprint: string | null
+  phoneSemantic?: string | null
+  rawPhone?: string | null
+}
+
+export function computeCallerClassificationRequestHash(
+  input: CallerClassificationRequestHashInput,
+): string {
+  let semantic = input.phoneSemantic
+  if (!semantic) {
+    if (input.phoneFingerprint) {
+      semantic = input.phoneFingerprint
+    } else if (input.rawPhone) {
+      semantic = `raw_sha256:${createHash('sha256').update(input.rawPhone.trim()).digest('hex')}`
+    } else {
+      semantic = 'unknown'
+    }
+  }
+
+  const descriptor = {
+    operation: 'classify_incoming_caller',
+    callerPhoneFingerprint: input.phoneFingerprint ?? null,
+    phoneSemantic: semantic,
+  }
+
+  return createHash('sha256').update(canonicalizePayload(descriptor)).digest('hex')
+}

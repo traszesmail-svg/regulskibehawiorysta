@@ -415,6 +415,111 @@ export const REQUIRED_SCHEMA_MARKERS: SchemaMarker[] = [
     needle: 'grant execute on function public.promote_caller_sms_to_queue(uuid, text, text, text, text, timestamptz, integer) to service_role;',
     expectedCount: 1,
   },
+  {
+    label: 'urgent_intake_requests',
+    needle: 'create table if not exists public.urgent_intake_requests',
+    expectedCount: 1,
+  },
+  {
+    label: 'urgent_intake_requests.day_choice_check',
+    needle: "check (day_choice in ('today', 'tomorrow'))",
+    expectedCount: 1,
+  },
+  {
+    label: 'urgent_intake_requests.no_booking_before_payment',
+    needle: "check (booking_id is null or state = 'payment_confirmed')",
+    expectedCount: 1,
+  },
+  {
+    label: 'urgent_intake_events',
+    needle: 'create table if not exists public.urgent_intake_events',
+    expectedCount: 1,
+  },
+  {
+    label: 'availability_notification_requests',
+    needle: 'create table if not exists public.availability_notification_requests',
+    expectedCount: 1,
+  },
+  {
+    label: 'availability_notification_requests.no_booking_before_payment',
+    needle: "check (booking_id is null or state in ('accepted_paid', 'consumed'))",
+    expectedCount: 1,
+  },
+  {
+    label: 'availability_notification_events',
+    needle: 'create table if not exists public.availability_notification_events',
+    expectedCount: 1,
+  },
+  {
+    label: 'consultation_talk_entitlements',
+    needle: 'create table if not exists public.consultation_talk_entitlements',
+    expectedCount: 1,
+  },
+  {
+    label: 'consultation_talk_entitlements.payment_reference_not_empty',
+    needle: 'check (length(trim(payment_reference)) > 0)',
+    expectedCount: 1,
+  },
+  {
+    label: 'consultation_talk_entitlement_events',
+    needle: 'create table if not exists public.consultation_talk_entitlement_events',
+    expectedCount: 1,
+  },
+  {
+    label: 'create_urgent_intake_request',
+    needle: 'create or replace function public.create_urgent_intake_request(',
+    expectedCount: 1,
+  },
+  {
+    label: 'propose_urgent_intake_timeslot',
+    needle: 'create or replace function public.propose_urgent_intake_timeslot(',
+    expectedCount: 1,
+  },
+  {
+    label: 'confirm_urgent_intake_payment',
+    needle: 'create or replace function public.confirm_urgent_intake_payment(',
+    expectedCount: 1,
+  },
+  {
+    label: 'transition_urgent_intake_state',
+    needle: 'create or replace function public.transition_urgent_intake_state(',
+    expectedCount: 1,
+  },
+  {
+    label: 'create_availability_notification_request',
+    needle: 'create or replace function public.create_availability_notification_request(',
+    expectedCount: 1,
+  },
+  {
+    label: 'offer_availability_notification',
+    needle: 'create or replace function public.offer_availability_notification(',
+    expectedCount: 1,
+  },
+  {
+    label: 'confirm_notification_offer_payment',
+    needle: 'create or replace function public.confirm_notification_offer_payment(',
+    expectedCount: 1,
+  },
+  {
+    label: 'transition_availability_notification_state',
+    needle: 'create or replace function public.transition_availability_notification_state(',
+    expectedCount: 1,
+  },
+  {
+    label: 'create_talk_entitlement',
+    needle: 'create or replace function public.create_talk_entitlement(',
+    expectedCount: 1,
+  },
+  {
+    label: 'consume_talk_entitlement',
+    needle: 'create or replace function public.consume_talk_entitlement(',
+    expectedCount: 1,
+  },
+  {
+    label: 'revoke_talk_entitlement',
+    needle: 'create or replace function public.revoke_talk_entitlement(',
+    expectedCount: 1,
+  },
 ]
 
 export const REQUIRED_FILES = [
@@ -450,6 +555,7 @@ export const REQUIRED_FILES = [
   'supabase/migrations/20261011002_caller_classification_audit.sql',
   'supabase/migrations/20261011003_caller_sms_preparations.sql',
   'supabase/migrations/20261011004_stage4_controlled_sms_promotion.sql',
+  'supabase/migrations/20261011005_section16_autonomous_intake_and_entitlements.sql',
 ]
 
 function normalizeSchemaText(schemaText: string) {

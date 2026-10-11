@@ -397,3 +397,12 @@ export async function updateBookingQuiz(
   }
   return null
 }
+
+export {
+  createCallSession,
+  transitionCallSession,
+  getCallSessionById,
+  getCallSessionByBookingId,
+  findActiveCallSessionByPhoneFingerprint,
+  listCallSessionEvents,
+} from './call-session-store'

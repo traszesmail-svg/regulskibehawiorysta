@@ -264,3 +264,11 @@ export interface GroupedAvailability {
   label: string
   slots: AvailabilitySlot[]
 }
+
+export type {
+  CallSession,
+  CallSessionEvent,
+  CallSessionState,
+  CreateCallSessionInput,
+  TransitionCallSessionInput,
+} from './server/call-session-types'

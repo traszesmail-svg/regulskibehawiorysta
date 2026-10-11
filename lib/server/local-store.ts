@@ -1758,3 +1758,12 @@ export async function updateBookingQuiz(
     return booking
   })
 }
+
+export {
+  createCallSession,
+  transitionCallSession,
+  getCallSessionById,
+  getCallSessionByBookingId,
+  findActiveCallSessionByPhoneFingerprint,
+  listCallSessionEvents,
+} from './call-session-store'

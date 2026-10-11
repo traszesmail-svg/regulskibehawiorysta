@@ -204,6 +204,76 @@ const REQUIRED_SCHEMA_MARKERS = [
     needle: 'create or replace function public.reconcile_revolut_payment_notification(',
     expectedCount: 1,
   },
+  {
+    label: 'call_sessions',
+    needle: 'create table if not exists public.call_sessions',
+    expectedCount: 1,
+  },
+  {
+    label: 'call_sessions.caller_phone_fingerprint',
+    needle: 'caller_phone_fingerprint text not null',
+    expectedCount: 1,
+  },
+  {
+    label: 'call_sessions.caller_phone_masked',
+    needle: 'caller_phone_masked text not null',
+    expectedCount: 1,
+  },
+  {
+    label: 'call_sessions.remaining_seconds',
+    needle: 'remaining_seconds integer not null default 900 check (',
+    expectedCount: 1,
+  },
+  {
+    label: 'call_session_events',
+    needle: 'create table if not exists public.call_session_events',
+    expectedCount: 1,
+  },
+  {
+    label: 'call_session_events.call_session_id',
+    needle: 'call_session_id uuid not null references public.call_sessions(id) on delete cascade',
+    expectedCount: 1,
+  },
+  {
+    label: 'create_call_session',
+    needle: 'create or replace function public.create_call_session(',
+    expectedCount: 1,
+  },
+  {
+    label: 'transition_call_session',
+    needle: 'create or replace function public.transition_call_session(',
+    expectedCount: 1,
+  },
+  {
+    label: 'call_sessions.advisory_lock',
+    needle: "perform pg_advisory_xact_lock(hashtext('call_session_idempotency:' || p_idempotency_key));",
+    expectedCount: 2,
+  },
+  {
+    label: 'transition_call_session.active_resumed_time_only',
+    needle: "if coalesce(p_delta_seconds, 0) > 0 and v_old_state not in ('active', 'resumed') then",
+    expectedCount: 1,
+  },
+  {
+    label: 'create_call_session.revoke_signature',
+    needle: 'revoke all on function public.create_call_session(uuid, uuid, text, text, integer, timestamptz, text, jsonb, text) from public, anon, authenticated;',
+    expectedCount: 1,
+  },
+  {
+    label: 'transition_call_session.revoke_signature',
+    needle: 'revoke all on function public.transition_call_session(uuid, text, integer, integer, text, text, jsonb, text, timestamptz, timestamptz, timestamptz) from public, anon, authenticated;',
+    expectedCount: 1,
+  },
+  {
+    label: 'create_call_session.grant_signature',
+    needle: 'grant execute on function public.create_call_session(uuid, uuid, text, text, integer, timestamptz, text, jsonb, text) to service_role;',
+    expectedCount: 1,
+  },
+  {
+    label: 'transition_call_session.grant_signature',
+    needle: 'grant execute on function public.transition_call_session(uuid, text, integer, integer, text, text, jsonb, text, timestamptz, timestamptz, timestamptz) to service_role;',
+    expectedCount: 1,
+  },
 ]
 
 const REQUIRED_FILES = [
@@ -235,6 +305,7 @@ const REQUIRED_FILES = [
   'supabase/migrations/20261007002_cron_history_retention.sql',
   'supabase/migrations/20261007003_revolut_rpc_permissions.sql',
   'supabase/migrations/20261010002_remove_duplicate_availability_index.sql',
+  'supabase/migrations/20261011001_call_sessions_durable_model.sql',
 ]
 
 function normalizeSchemaText(schemaText) {

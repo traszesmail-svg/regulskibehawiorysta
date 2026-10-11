@@ -344,3 +344,115 @@ Nie udało się odzyskać konfiguracji klucza odpowiadającego certyfikatowi `d5
 - Na wskazany przez właściciela numer testowy wysłano dokładnie jeden SMS o treści oznaczonej jako kontrolny test techniczny. Wpis `7c6e1e8d-bf56-4c34-a7fa-f0b40bb8490a` przeszedł `pending -> claimed -> sent`; modem zgłosił `sent_at=2026-10-08T05:22:44.941Z`. Ten status potwierdza wysłanie przez modem, nie doręczenie do odbiorcy.
 - Po teście kolejka miała `pending=0` i `claimed=0`. Na 08.10 nie było potwierdzonych rezerwacji mogących wygenerować przypomnienie.
 - Przed cofnięciem tymczasowego uprawnienia `SEND_SMS` połączenie USB/ADB ponownie zniknęło. Rozmowa testowa nie została uruchomiona. Do czasu odzyskania ADB należy nacisnąć w aplikacji `Zatrzymaj operatora`; po odzyskaniu połączenia trzeba cofnąć `SEND_SMS`, uruchomić monitorowanie bez SMS i dopiero potem wykonać jedną rozmowę kontrolną.
+
+## 15. Plan funkcjonalny — połączenia przychodzące, oddzwanianie po przerwaniu i kontrolowane testy SMS
+
+### 15.1. Stan faktyczny i obecne ograniczenia techniczne
+- **Bieżący stan urządzenia i aplikacji:** Motorola `ZY323XJ2V7` z zainstalowanym wydaniem Operatora `1.5.6` ma trwale zaraportowane `is_default_dialer=false`. Uprawnienie `SEND_SMS` pozostaje cofnięte (`granted=false`), aplikacja działa w bezpiecznym trybie monitor-only (nasłuch kolejki bez wysyłki), a połączenia są skonfigurowane jako `PHONE_CALL_PROVIDER=manual_sim`.
+- **Brak wdrożonego automatu przychodzącego:** W systemie nie ma wdrożonej ani zarejestrowanej bezobsługowej usługi `InCallService`, automatycznego IVR, dwuliniowej telekonferencji ani mostka telekomunikacyjnego (voice bridge) zestawiającego klienta z właścicielem.
+- **Brak wykrywania odebrania i wznawiania czasu:** Nie istnieje zweryfikowany mechanizm wykrywania fizycznego odebrania połączenia przez obie strony, pomiaru przerw w transmisji głosu ani automatycznego zatrzymywania i wznawiania naliczania czasu konsultacji.
+- **Status funkcjonalności:** Funkcja ta jest **wymaganiem technicznym i biznesowym, a nie gotową ani uśpioną możliwością**. Samo występowanie historycznych klas w kodzie lub dawnych szkiców serwisów nie oznacza działającej usługi.
+
+### 15.2. Model stanów sesji i trwałość danych
+- **Model danych sesji (`call_sessions`):**
+  - `call_session_id` (UUID) — unikalny identyfikator techniczny sesji połączenia.
+  - `booking_id` (UUID) — klucz powiązanej rezerwacji konsultacji w Supabase.
+  - `caller_phone_fingerprint` (TEXT) oraz `caller_phone_masked` (TEXT) — bezpieczna identyfikacja dzwoniącego: deterministyczny HMAC/fingerprint (bez zapisu surowego numeru w call_sessions i logach) oraz zamaskowana wskazówka audytowa (np. `+48 600 *** 700`), zabezpieczone pod kątem RODO i polityki prywatności.
+  - `limit_seconds` (INTEGER) — całkowity limit czasu trwania konsultacji (domyślnie 900 s).
+  - `answered_at` (TIMESTAMPTZ) — potwierdzony moment odebrania połączenia przez strony.
+  - `interrupted_at` (TIMESTAMPTZ) — potwierdzony moment technicznego lub sieciowego przerwania aktywnej konsultacji.
+  - `resume_window_expires_at` (TIMESTAMPTZ) — znacznik wygaśnięcia okna na oddzwonienie po przerwaniu (np. 15 minut od interrupted_at).
+  - `elapsed_seconds` (INTEGER) — łączny efektywny czas trwania połączonej rozmowy przed przerwaniem (w sekundach).
+  - `remaining_seconds` (INTEGER) — pozostały limit czasu konsultacji (np. `limit_seconds - elapsed_seconds` dla konsultacji 15-minutowej).
+  - `version` (INTEGER) — numer wersji do ochrony współbieżności i atomowych aktualizacji CAS.
+  - `idempotency_key` (VARCHAR) — unikalny klucz operacji zabezpieczający przed duplikacją zdarzeń.
+  - `state` — aktualny stan automatu.
+- **Dopuszczalne statusy sesji:**
+  - `active` — aktywna, trwająca konsultacja telefoniczna z klientem.
+  - `interrupted` — potwierdzone przerwanie aktywnej rozmowy przed upływem limitu czasu.
+  - `waiting_for_owner` — klient oddzwonił w oknie ważności; aktywna sprawa została rozpoznana; klient słyszy komunikat o oczekiwaniu; trwa sygnalizacja do właściciela.
+  - `bridging` — faza zestawiania dwustronnego mostka audio pomiędzy klientem a właścicielem.
+  - `resumed` — mostek skutecznie zestawiony; konsultacja wznowiona; czas jest dalej odliczany z zachowanej puli `remaining_seconds`.
+  - `completed` — konsultacja zakończona (wyczerpanie limitu czasu lub formalne rozłączenie po zrealizowaniu sprawy).
+  - `failed` — błąd techniczny zestawienia, brak dostępności właściciela po wyczerpaniu prób lub wygaśnięcie dopuszczalnego okna na oddzwonienie.
+- **Zasada rozliczania czasu:**
+  - Czas oczekiwania klienta na linii w stanach `waiting_for_owner` oraz `bridging` **bezwzględnie nie zużywa limitu konsultacji**.
+  - Pula `remaining_seconds` zmniejsza się wyłącznie podczas aktywnego, połączonego dialogu stron (`active` oraz `resumed`).
+- **Idempotencja i audyt zdarzeń:**
+  - Każde przejście stanu i zdarzenie telefoniczne jest rejestrowane w trwałym dzienniku audytowym `call_session_events` z unikalnym kluczem idempotencji.
+  - Aktualizacje stanu sesji wymagają transakcyjnych blokad wiersza (CAS / row-level lock w PostgreSQL/Supabase), aby wykluczyć wyścigi i duplikację webhooków sieciowych.
+
+### 15.3. Rozdzielenie scenariuszy połączeń przychodzących
+- **Scenariusz A: Rozpoznany callback aktywnej konsultacji (oddzwonienie po przerwaniu)**
+  1. *Warunek:* Połączenie przychodzące z numeru powiązanego z rezerwacją w stanie `interrupted` w ramach dopuszczalnego okna powrotu (np. do 15 minut od potwierdzonego `interrupted_at`).
+  2. *Komunikat dla klienta:* Klient natychmiast słyszy komunikat głosowy informujący o rozpoznaniu aktywnej konsultacji i oczekiwaniu na ponowne połączenie z behawiorystą.
+  3. *Kontakt z właścicielem:* System sygnalizuje połączenie Operatora z właścicielem i przechodzi w fazę zestawiania (`bridging`).
+  4. *Wznowienie konsultacji:* Po skutecznym zestawieniu obu stron stan sesji przechodzi w `resumed`. Konsultacja jest kontynuowana z czasem `remaining_seconds` liczonym dokładnie od potwierdzonego momentu przerwania.
+  5. *Ochrona limitu:* Czas oczekiwania na połączenie z właścicielem nie pomniejsza limitu klienta.
+- **Scenariusz B: Połączenie nieuprawnione lub nowe (brak aktywnej konsultacji)**
+  1. *Warunek:* Połączenie przychodzące z numeru, dla którego nie ma aktywnej, opłaconej i przerwanej rezerwacji w bieżącym oknie czasowym (nowy numer, sprawa zakończona, brak opłaty lub termin w innym czasie).
+  2. *Komunikat głosowy:* Dzwoniący słyszy komunikat, że bezpośrednia rozmowa z behawiorystą wymaga wcześniejszego wybrania i opłacenia terminu w serwisie.
+  3. *Zakaz łączenia:* **Bezwzględny zakaz automatycznego łączenia dzwoniącego z właścicielem** — ochrona czasu i spokoju właściciela. Połączenie zostaje rozłączone po komunikacie.
+  4. *Idempotentny SMS z linkiem:* Po rozłączeniu system może zarejestrować w kolejce dokładnie jeden, idempotentny SMS kierujący do oficjalnego wyboru terminu w usłudze „Zapytaj behawiorystę”.
+  5. *Limit antyspamowy:* Obowiązuje ścisły limit maksymalnie 1 SMS na dany numer w ciągu 24 godzin, niezależnie od liczby kolejnych prób połączeń.
+
+### 15.4. Bramka decyzji architektonicznej (Decision Gate)
+- **Ograniczenia bieżącego trybu `manual_sim`:**
+  - Obecna architektura oparta o pojedynczą kartę SIM w smartfonie Motorola może nie zapewniać technicznej możliwości realizacji stabilnego, dwustronnego mostka głosowego (jednoczesne odebranie linii przychodzącej od klienta, zawieszenie jej, zestawienie połączenia do właściciela i zmostkowanie strumieni audio na poziomie hardware/modemu GSM).
+- **Porównanie wariantów przed podjęciem decyzji:**
+  - *Wariant 1 (Android Default Dialer / InCallService):*
+    Wymaga zmiany konfiguracji telefonu na `is_default_dialer=true`, implementacji pełnego `InCallService`, obsługi `TelecomManager`, `Conferenceable` i uprawnień systemowych dialera. Niesie krytyczne ryzyko blokad ze strony operatora GSM, braku obsługi multi-party call w danej taryfie, degradacji jakości audio oraz niestabilności na fizycznym urządzeniu.
+  - *Wariant 2 (Kontrolowany dostawca telekomunikacyjny / Chmurowy IVR / SIP Trunk):*
+    Ruch przychodzący kierowany jest na dedykowany numer obsługiwany przez profesjonalną platformę telekomunikacyjną (np. Zadarma PBX / Twilio / trunk SIP). Platforma zapewnia odtwarzanie zapowiedzi głosowych, webhooki do Supabase z precyzyjnymi znacznikami czasu odebrania i rozłączenia, stabilne mostkowanie połączeń do telefonu właściciela oraz bezwzględne rozłączanie po wyczerpaniu limitu sekund.
+- **Rygor bramki decyzyjnej:** Nie wolno deklarować wykonalności wariantu opartego na aplikacji Android bez fizycznego testu technicznego na urządzeniu i potwierdzenia obsługi przez kartę SIM. W razie jakichkolwiek ograniczeń sprzętowych lub operatora GSM, Wariant 2 stanowi właściwą ścieżkę realizacji.
+
+### 15.5. Kolejność etapów wdrożenia
+1. **Etap 1 — Serwerowy model sesji i idempotencja:** Zaprojektowanie i wdrożenie tabel `call_sessions` i `call_session_events` w Supabase, obsługa transakcyjnych funkcji RPC w PostgreSQL z blokadami wiersza i kluczami idempotencji.
+2. **Etap 2 — Klasyfikacja numeru i polityka prywatności:** Implementacja logiki dopasowywania dzwoniącego do rezerwacji, normalizacja E.164, maskowanie numerów w logach audytowych i weryfikacja zgodności z RODO.
+3. **Etap 3 — Generator bezpiecznego SMS:** Przygotowanie bezpiecznego szablonu wiadomości z oficjalnym linkiem do „Zapytaj behawiorystę”, obsługa idempotencji oraz limitera wysyłek (rate limit: max 1 SMS / 24h na numer).
+4. **Etap 4 — Kontrolowany test SMS:** Wykonanie pojedynczego testu SMS ściśle według zasad właściciela (wyłącznie na wskazany numer kontrolny właściciela, dokładnie 1 element kolejki na scenariusz, tekst oznaczony jako test techniczny, rozróżnienie modem sent od doręczenia).
+5. **Etap 5 — Prototyp inbound / IVR bez klientów:** Uruchomienie testowych zapowiedzi głosowych i klasyfikacji połączeń przychodzących w środowisku laboratoryjnym bez udziału numerów klientów.
+6. **Etap 6 — Mostkowanie i wznowienie czasu:** Implementacja logiki zestawiania mostka audio, wstrzymywania licznika przy przerwaniu oraz wznawiania odliczania `remaining_seconds` po skutecznym połączeniu stron.
+7. **Etap 7 — Test fizyczny z właścicielem:** Kontrolowany test ze wskazanym numerem kontrolnym właściciela z symulacją zerwania rozmowy, oddzwonienia przez klienta, odsłuchania komunikatu oczekiwania, zmostkowania z właścicielem i potwierdzenia zachowania pozostałego limitu czasu.
+8. **Etap 8 — Mały pilot produkcyjny:** Uruchomienie ograniczonego pilotażu (3–5 rezerwacji) wyłącznie po formalnej, pisemnej zgodzie właściciela i pozytywnym odbiorze wszystkich etapów 1–7.
+
+### 15.6. Kryteria odbioru, obsługa błędów, limity i ręczna ścieżka awaryjna
+- **Kryteria odbioru:**
+  - Czas klasyfikacji dzwoniącego i podjęcia decyzji przez automat poniżej 1,5 sekundy.
+  - Dla połączeń nieuprawnionych: 100% skuteczności odcięcia połączenia od telefonu właściciela; odtworzenie komunikatu IVR; zakolejkowanie maksymalnie jednego SMS-a w oknie 24 godzin.
+  - Dla uprawnionego callbacku: natychmiastowy komunikat o oczekiwaniu dla klienta; skuteczna sygnalizacja do właściciela; wznowienie sesji z czasem `remaining_seconds = limit - elapsed_seconds`.
+  - Czas spędzony w stanach `waiting_for_owner` oraz `bridging` nie jest odliczany od limitu konsultacji.
+  - Brak niezamaskowanych numerów telefonów i danych osobowych w publicznych logach i audycie.
+- **Przypadki błędów i obsługa awaryjna:**
+  - *Właściciel nie odpowiada / zajęty podczas próby zestawienia mostka:* Klient otrzymuje komunikat o chwilowej niedostępności behawiorysty i prośbie o kontakt przez panel; sesja nie traci pozostałego czasu; właściciel otrzymuje powiadomienie o przerwanej sprawie w panelu.
+  - *Kolejne zerwanie w trakcie wznowionej sesji:* Zapisanie nowego `interrupted_at`, aktualizacja `elapsed_seconds` i możliwość ponownego callbacku w ramach bieżącego okna czasowego.
+  - *Przekroczenie okna na oddzwonienie (np. > 15 minut):* Automatyczne przejście w stan `failed` / wygaśnięcie okna; wznowienie wymaga ręcznej decyzji w panelu, co chroni przed niekontrolowanymi połączeniami po godzinach.
+  - *Niedostępność bazy Supabase przy nadejściu połączenia:* Automat stosuje zasadę *fail-closed* — odtwarza bezpieczny komunikat o problemie technicznym i rozłącza, nie łącząc z właścicielem.
+- **Limity antyspamowe i ochrona sieci:**
+  - Maksymalnie 1 SMS z linkiem do „Zapytaj” na dany numer w ciągu 24 godzin.
+  - Ochrona przed zalewem połączeń (rate limiting częstotliwości prób połączeń z jednego numeru).
+  - **Bezwzględny zakaz automatycznego ponownego wybierania numeru (auto-redial)** po niepewnym rezultacie połączenia lub technicznym błędzie sieci.
+- **Obowiązek ręcznej ścieżki awaryjnej (Manual Fallback):**
+  - Panel administracyjny musi stale prezentować stan przerwanych konsultacji, zarejestrowany czas `elapsed_seconds` oraz pozostały limit.
+  - Właściciel zachowuje w panelu możliwość ręcznego zresetowania limitu, ręcznego zainicjowania połączenia wychodzącego, przedłużenia czasu lub oznaczenia sprawy jako zrealizowanej.
+  - Jakakolwiek niespójność automatu nie może uniemożliwić ręcznego dokończenia konsultacji z poziomu panelu.
+
+### 15.7. Zasady bezpieczeństwa i zakres autoryzacji
+- **Zgoda właściciela na testy SMS podczas nieobecności:** Właściciel zezwala na kontrolowane testy SMS wyłącznie pod rygorem bezwzględnego spełnienia wszystkich warunków:
+  1. Wysyłka dozwolona wyłącznie na uprzednio wskazany numer kontrolny należący do właściciela lub wskazanego uczestnika testu.
+  2. Dokładnie jeden element kolejki na dany scenariusz testowy.
+  3. Treść wiadomości musi być jednoznacznie oznaczona jako kontrolny test techniczny.
+  4. Całkowity zakaz wysyłki do jakichkolwiek numerów klientów.
+  5. Brak ślepego ponawiania wysyłek.
+  6. Ścisłe rozróżnienie potwierdzenia przyjęcia przez modem (`sent`) od faktycznego doręczenia sieciowego (`delivered`).
+- **Wyłączenia ze zgody:** Zgoda ta **nie obejmuje**:
+  - wykonywania połączeń testowych,
+  - automatycznego mostkowania połączeń,
+  - kontaktowania klientów,
+  - uruchamiania pilotażu,
+  - włączania automatycznego księgowania Revolut (`PHONE_AGENT_AUTO_PAYMENT_RECONCILIATION` pozostaje `false`).
+- **Zasady bieżącego etapu prac:**
+  - Nie wprowadzać zmian w sekcji zweryfikowanego stanu 1.5.6 ani we wcześniejszych sekcjach `PLAN-NA-JUTRO.md`.
+  - Nie modyfikować publicznego copy, layoutu ani żadnych innych plików produkcyjnych.
+  - Nie wysyłać żadnych wiadomości SMS ani nie inicjować połączeń telefonicznych.
+  - Nie wdrażać, nie commitować i nie pushować zmian do repozytorium zdalnego.

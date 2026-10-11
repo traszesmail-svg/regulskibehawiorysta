@@ -3169,3 +3169,12 @@ export async function updateBookingQuiz(
 
   return data ? mapBookingRow(data as unknown as BookingRow) : null
 }
+
+export {
+  createCallSession,
+  transitionCallSession,
+  getCallSessionById,
+  getCallSessionByBookingId,
+  findActiveCallSessionByPhoneFingerprint,
+  listCallSessionEvents,
+} from './call-session-store'

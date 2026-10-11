@@ -20,6 +20,7 @@ import {
   MAX_HOLD_EXPIRY_MINUTES,
   DEFAULT_HOLD_EXPIRY_MINUTES,
   validateIdempotencyKey,
+  computeSection16PayloadHash,
 } from './section16-policy'
 import {
   getUrgentIntakeRequest,
@@ -82,7 +83,7 @@ export interface ProcessOwnerProposalInput {
   requestId: string
   response: string
   idempotencyKey: string
-  expectedVersion?: number
+  expectedVersion: number
   holdDurationMinutes?: number
   now?: Date
   payload?: Record<string, unknown>
@@ -168,12 +169,12 @@ const STRICT_RESPONSE_REGEX = /^[0-9]{2}\.[0-9]{2}\.[0-9]{4}\.[0-9]{2}:[0-9]{2}$
 /**
  * Strictly parses owner response in exact canonical format DD.MM.RRRR.HH:MM.
  * Validates calendar validity, Europe/Warsaw timezone & DST (gap & overlap detection),
- * ensures proposal is strictly in future relative to `now`, and matches request's targetDate.
+ * and matches request's targetDate.
+ * Pure structural parsing: does NOT evaluate future vs `now`.
  */
-export function parseOwnerProposalResponse(
+export function parseOwnerProposalStructure(
   response: unknown,
   targetDate: string,
-  now: Date = new Date(),
 ): ParseOwnerProposalResult {
   if (typeof response !== 'string' || !STRICT_RESPONSE_REGEX.test(response)) {
     return {
@@ -291,19 +292,6 @@ export function parseOwnerProposalResponse(
   }
 
   const chosenUtcMs = candidates[0]
-  const nowMs = now.getTime()
-
-  // Strictly in the future relative to `now`
-  if (chosenUtcMs <= nowMs) {
-    return {
-      success: false,
-      error: new Section16UrgentProposalError(
-        'Proponowany termin musi być ściśle w przyszłości względem bieżącego czasu',
-        'PAST_OR_CURRENT_TIME',
-      ),
-    }
-  }
-
   const localAsUtcMs = Date.UTC(year, month - 1, day, hour, minute, 0, 0)
   const offsetHours = Math.round((localAsUtcMs - chosenUtcMs) / (3600 * 1000))
   const warsawOffset = offsetHours === 2 ? '+02:00' : '+01:00'
@@ -324,6 +312,49 @@ export function parseOwnerProposalResponse(
       warsawOffset,
     },
   }
+}
+
+export function parseOwnerProposalStructureOrThrow(
+  response: unknown,
+  targetDate: string,
+): ParsedOwnerProposal {
+  const result = parseOwnerProposalStructure(response, targetDate)
+  if (!result.success) {
+    throw result.error
+  }
+  return result.data
+}
+
+/**
+ * Strictly parses owner response in exact canonical format DD.MM.RRRR.HH:MM.
+ * Validates calendar validity, Europe/Warsaw timezone & DST (gap & overlap detection),
+ * ensures proposal is strictly in future relative to `now`, and matches request's targetDate.
+ */
+export function parseOwnerProposalResponse(
+  response: unknown,
+  targetDate: string,
+  now: Date = new Date(),
+): ParseOwnerProposalResult {
+  const structResult = parseOwnerProposalStructure(response, targetDate)
+  if (!structResult.success) {
+    return structResult
+  }
+
+  const chosenUtcMs = Date.parse(structResult.data.isoTimestamp)
+  const nowMs = now.getTime()
+
+  // Strictly in the future relative to `now`
+  if (chosenUtcMs <= nowMs) {
+    return {
+      success: false,
+      error: new Section16UrgentProposalError(
+        'Proponowany termin musi być ściśle w przyszłości względem bieżącego czasu',
+        'PAST_OR_CURRENT_TIME',
+      ),
+    }
+  }
+
+  return structResult
 }
 
 export function parseOwnerProposalResponseOrThrow(
@@ -367,8 +398,18 @@ export function prepareOwnerUrgentNotification(
     throw new Section16ValidationError(`Nieprawidłowy format targetDate: ${input.targetDate}`)
   }
 
-  const [y, m, d] = input.targetDate.split('-')
-  const polishTargetDate = `${d}.${m}.${y}`
+  const [yStr, mStr, dStr] = input.targetDate.split('-')
+  const year = Number(yStr)
+  const month = Number(mStr)
+  const day = Number(dStr)
+
+  if (month < 1 || month > 12 || day < 1 || day > getDaysInMonth(year, month)) {
+    throw new Section16ValidationError(
+      `Podana data docelowa nie istnieje w kalendarzu (${input.targetDate})`,
+    )
+  }
+
+  const polishTargetDate = `${dStr}.${mStr}.${yStr}`
   const dayLabel = input.dayChoice === 'today' ? 'dzisiaj' : 'jutro'
   const formatInstruction = `Format odpowiedzi: DD.MM.RRRR.HH:MM (np. ${polishTargetDate}.14:30)`
   const message = `Zgloszenie pilne [${trimmedId}]. Termin: ${dayLabel} (${polishTargetDate}). Odpowiedz scisle formatem: DD.MM.RRRR.HH:MM (np. ${polishTargetDate}.14:30)`
@@ -406,6 +447,21 @@ export async function processOwnerProposalAndSetHold(
   const idempotencyKey = validateIdempotencyKey(input.idempotencyKey)
   const now = input.now ?? new Date()
 
+  // 1. CAS expectedVersion: strictly required and validated as positive integer
+  if (
+    input.expectedVersion === undefined ||
+    input.expectedVersion === null ||
+    typeof input.expectedVersion !== 'number' ||
+    Number.isNaN(input.expectedVersion) ||
+    !Number.isInteger(input.expectedVersion) ||
+    input.expectedVersion <= 0
+  ) {
+    throw new Section16ValidationError(
+      'Wymagana jest poprawna wersja oczekiwana (expectedVersion jako dodatnia liczba całkowita)',
+    )
+  }
+
+  // 2. holdDurationMinutes: bounded integer in [MIN_HOLD_EXPIRY_MINUTES, MAX_HOLD_EXPIRY_MINUTES]
   let holdMinutes = DEFAULT_HOLD_EXPIRY_MINUTES
   if (input.holdDurationMinutes !== undefined) {
     if (
@@ -426,20 +482,74 @@ export async function processOwnerProposalAndSetHold(
     throw new Section16NotFoundError('UrgentIntakeRequest', input.requestId)
   }
 
+  // 3. Recognize existing event for idempotencyKey BEFORE time validations
+  const existingEvent = await getUrgentIntakeEventByIdempotencyKey(idempotencyKey)
+  if (existingEvent) {
+    // Conflict check 1: requestId
+    if (existingEvent.requestId !== input.requestId) {
+      throw new Section16IdempotencyConflictError(idempotencyKey)
+    }
+
+    // Conflict check 2: eventType
+    if (existingEvent.eventType !== 'timeslot_proposed') {
+      throw new Section16IdempotencyConflictError(idempotencyKey)
+    }
+
+    // Structural parsing of response (does NOT check future vs now)
+    const structResult = parseOwnerProposalStructure(input.response, existing.targetDate)
+    if (!structResult.success) {
+      throw new Section16IdempotencyConflictError(idempotencyKey)
+    }
+
+    // Reconstruct canonical payload to verify hash
+    const candidatePayload: Record<string, unknown> = {
+      ...(input.payload ?? {}),
+      response: input.response,
+      parsedProposal: {
+        formattedDate: structResult.data.formattedDate,
+        formattedTime: structResult.data.formattedTime,
+        isoTimestamp: structResult.data.isoTimestamp,
+        warsawOffset: structResult.data.warsawOffset,
+      },
+      holdDurationMinutes: holdMinutes,
+    }
+    const candidatePayloadHash = computeSection16PayloadHash(candidatePayload)
+
+    if (existingEvent.payloadHash !== candidatePayloadHash) {
+      throw new Section16IdempotencyConflictError(idempotencyKey)
+    }
+
+    // Also verify direct payload attributes if present
+    const evPayload = existingEvent.payload
+    if (evPayload && evPayload.holdDurationMinutes !== undefined && evPayload.holdDurationMinutes !== holdMinutes) {
+      throw new Section16IdempotencyConflictError(idempotencyKey)
+    }
+
+    // Exact idempotent retry:
+    // Return previously established record without any mutation or new events,
+    // even if now is past expiresAt, holdExpiresAt, or the proposed time.
+    return {
+      request: existing,
+      parsedProposal: structResult.data,
+      isRetry: true,
+    }
+  }
+
+  // 4. Fresh operation validations (fail-closed before mutation)
+  if (existing.state !== 'pending_proposal') {
+    throw new Section16TransitionError('UrgentIntakeRequest', existing.state, 'timeslot_proposed')
+  }
+
   if (Date.parse(existing.expiresAt) <= now.getTime()) {
     throw new Section16HoldExpiredError('Zgłoszenie pilne wygasło przed propozycją terminu')
   }
 
-  const parsed = parseOwnerProposalResponseOrThrow(input.response, existing.targetDate, now)
-
-  // If the existing request is not in 'pending_proposal', check if this is an idempotent retry
-  if (existing.state !== 'pending_proposal') {
-    const existingEvent = await getUrgentIntakeEventByIdempotencyKey(idempotencyKey)
-    if (!existingEvent) {
-      // Fresh operation on non-pending_proposal state is a state conflict (fail-closed)
-      throw new Section16TransitionError('UrgentIntakeRequest', existing.state, 'timeslot_proposed')
-    }
+  if (existing.version !== input.expectedVersion) {
+    throw new Section16ConcurrencyError(input.expectedVersion, existing.version)
   }
+
+  // Parse proposal response strictly in future relative to now
+  const parsed = parseOwnerProposalResponseOrThrow(input.response, existing.targetDate, now)
 
   const holdExpiresAt = new Date(now.getTime() + holdMinutes * 60 * 1000).toISOString()
   const payloadToStore: Record<string, unknown> = {
@@ -468,11 +578,9 @@ export async function processOwnerProposalAndSetHold(
     now,
   )
 
-  const isRetry = existing.state === 'timeslot_proposed' && updated.version === existing.version
-
   return {
     request: updated,
     parsedProposal: parsed,
-    isRetry,
+    isRetry: false,
   }
 }

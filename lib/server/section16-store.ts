@@ -8,6 +8,8 @@ import { getBookingById } from '@/lib/server/db'
 import {
   UrgentIntakeRequest,
   UrgentIntakeEvent,
+  UrgentIntakeDayChoice,
+  UrgentIntakeState,
   AvailabilityNotificationRequest,
   AvailabilityNotificationEvent,
   ConsultationTalkEntitlement,
@@ -155,7 +157,7 @@ function getSupabaseClient() {
   })
 }
 
-function mapRpcError(error: any): never {
+export function mapRpcError(error: any): never {
   const message = error?.message || String(error)
   if (message.includes('INVALID_IDEMPOTENCY_KEY')) {
     throw new Section16InvalidIdempotencyKeyError(message)
@@ -180,7 +182,12 @@ function mapRpcError(error: any): never {
   if (message.includes('ILLEGAL_TRANSITION') || message.includes('INVALID_STATE')) {
     throw new Section16TransitionError('Section16Entity', 'unknown', message)
   }
-  if (message.includes('HOLD_EXPIRED') || message.includes('OFFER_EXPIRED') || message.includes('ENTITLEMENT_EXPIRED')) {
+  if (
+    message.includes('HOLD_EXPIRED') ||
+    message.includes('OFFER_EXPIRED') ||
+    message.includes('ENTITLEMENT_EXPIRED') ||
+    message.includes('REQUEST_EXPIRED')
+  ) {
     throw new Section16HoldExpiredError(message)
   }
   if (
@@ -203,11 +210,317 @@ function mapRpcError(error: any): never {
     message.includes('INVALID_VALIDITY_WINDOW') ||
     message.includes('FINGERPRINT_MISMATCH') ||
     message.includes('PAYMENT_REFERENCE_MISMATCH') ||
-    message.includes('CONFLICTING_SOURCES')
+    message.includes('CONFLICTING_SOURCES') ||
+    message.includes('DATE_MISMATCH') ||
+    message.includes('INVALID_HOLD')
   ) {
     throw new Section16ValidationError(message)
   }
   throw new Section16DomainError(message, 'RPC_ERROR')
+}
+
+/**
+ * Maps Supabase / PostgREST snake_case row to UrgentIntakeRequest with strict runtime validation.
+ * Fails closed if any mandatory property is missing or of incorrect type.
+ */
+export function mapUrgentIntakeRequestRecord(raw: unknown): UrgentIntakeRequest {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+    throw new Section16ValidationError('Rekord UrgentIntakeRequest musi być niepustym obiektem')
+  }
+
+  const r = raw as Record<string, unknown>
+
+  const id = r.id
+  if (typeof id !== 'string' || id.trim().length === 0) {
+    throw new Section16ValidationError('Brak lub nieprawidłowe pole id w rekordzie UrgentIntakeRequest')
+  }
+
+  const dayChoiceRaw = r.day_choice ?? r.dayChoice
+  if (dayChoiceRaw !== 'today' && dayChoiceRaw !== 'tomorrow') {
+    throw new Section16ValidationError(
+      `Nieprawidłowe pole dayChoice w rekordzie UrgentIntakeRequest: ${String(dayChoiceRaw)}`,
+    )
+  }
+  const dayChoice = dayChoiceRaw as UrgentIntakeDayChoice
+
+  const targetDateRaw = r.target_date ?? r.targetDate
+  if (typeof targetDateRaw !== 'string' || !/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(targetDateRaw)) {
+    throw new Section16ValidationError(
+      `Brak lub nieprawidłowe pole targetDate w rekordzie UrgentIntakeRequest: ${String(targetDateRaw)}`,
+    )
+  }
+  const targetDate = targetDateRaw
+
+  const callerPhoneFingerprint = r.caller_phone_fingerprint ?? r.callerPhoneFingerprint
+  if (typeof callerPhoneFingerprint !== 'string' || callerPhoneFingerprint.trim().length === 0) {
+    throw new Section16ValidationError(
+      'Brak lub nieprawidłowe pole callerPhoneFingerprint w rekordzie UrgentIntakeRequest',
+    )
+  }
+
+  const callerPhoneMasked = r.caller_phone_masked ?? r.callerPhoneMasked
+  if (typeof callerPhoneMasked !== 'string' || callerPhoneMasked.trim().length === 0) {
+    throw new Section16ValidationError(
+      'Brak lub nieprawidłowe pole callerPhoneMasked w rekordzie UrgentIntakeRequest',
+    )
+  }
+
+  const contactCiphertextRaw = r.contact_ciphertext !== undefined ? r.contact_ciphertext : r.contactCiphertext
+  if (
+    contactCiphertextRaw !== null &&
+    contactCiphertextRaw !== undefined &&
+    typeof contactCiphertextRaw !== 'string'
+  ) {
+    throw new Section16ValidationError(
+      'Nieprawidłowy typ pola contactCiphertext w rekordzie UrgentIntakeRequest',
+    )
+  }
+  const contactCiphertext = (contactCiphertextRaw as string | null) ?? null
+
+  const clientNameRaw = r.client_name !== undefined ? r.client_name : r.clientName
+  if (clientNameRaw !== null && clientNameRaw !== undefined && typeof clientNameRaw !== 'string') {
+    throw new Section16ValidationError('Nieprawidłowy typ pola clientName w rekordzie UrgentIntakeRequest')
+  }
+  const clientName = (clientNameRaw as string | null) ?? null
+
+  const clientNotesRaw = r.client_notes !== undefined ? r.client_notes : r.clientNotes
+  if (clientNotesRaw !== null && clientNotesRaw !== undefined && typeof clientNotesRaw !== 'string') {
+    throw new Section16ValidationError('Nieprawidłowy typ pola clientNotes w rekordzie UrgentIntakeRequest')
+  }
+  const clientNotes = (clientNotesRaw as string | null) ?? null
+
+  const stateRaw = r.state
+  if (
+    typeof stateRaw !== 'string' ||
+    !['pending_proposal', 'timeslot_proposed', 'payment_confirmed', 'expired', 'cancelled', 'rejected'].includes(
+      stateRaw,
+    )
+  ) {
+    throw new Section16ValidationError(
+      `Brak lub nieprawidłowy stan (state) w rekordzie UrgentIntakeRequest: ${String(stateRaw)}`,
+    )
+  }
+  const state = stateRaw as UrgentIntakeState
+
+  const proposedDateRaw = r.proposed_date !== undefined ? r.proposed_date : r.proposedDate
+  if (proposedDateRaw !== null && proposedDateRaw !== undefined && typeof proposedDateRaw !== 'string') {
+    throw new Section16ValidationError('Nieprawidłowy typ pola proposedDate w rekordzie UrgentIntakeRequest')
+  }
+  const proposedDate = (proposedDateRaw as string | null) ?? null
+
+  const proposedTimeRaw = r.proposed_time !== undefined ? r.proposed_time : r.proposedTime
+  if (proposedTimeRaw !== null && proposedTimeRaw !== undefined && typeof proposedTimeRaw !== 'string') {
+    throw new Section16ValidationError('Nieprawidłowy typ pola proposedTime w rekordzie UrgentIntakeRequest')
+  }
+  const proposedTime = (proposedTimeRaw as string | null) ?? null
+
+  const proposedTimeslotIsoRaw =
+    r.proposed_timeslot_iso !== undefined ? r.proposed_timeslot_iso : r.proposedTimeslotIso
+  if (
+    proposedTimeslotIsoRaw !== null &&
+    proposedTimeslotIsoRaw !== undefined &&
+    typeof proposedTimeslotIsoRaw !== 'string'
+  ) {
+    throw new Section16ValidationError(
+      'Nieprawidłowy typ pola proposedTimeslotIso w rekordzie UrgentIntakeRequest',
+    )
+  }
+  const proposedTimeslotIso = (proposedTimeslotIsoRaw as string | null) ?? null
+
+  const holdExpiresAtRaw = r.hold_expires_at !== undefined ? r.hold_expires_at : r.holdExpiresAt
+  if (holdExpiresAtRaw !== null && holdExpiresAtRaw !== undefined && typeof holdExpiresAtRaw !== 'string') {
+    throw new Section16ValidationError('Nieprawidłowy typ pola holdExpiresAt w rekordzie UrgentIntakeRequest')
+  }
+  const holdExpiresAt = (holdExpiresAtRaw as string | null) ?? null
+
+  const expiresAtRaw = r.expires_at ?? r.expiresAt
+  if (typeof expiresAtRaw !== 'string' || expiresAtRaw.trim().length === 0) {
+    throw new Section16ValidationError(
+      'Brak lub nieprawidłowe pole expiresAt w rekordzie UrgentIntakeRequest',
+    )
+  }
+  const expiresAt = expiresAtRaw
+
+  const paymentReferenceRaw = r.payment_reference !== undefined ? r.payment_reference : r.paymentReference
+  if (
+    paymentReferenceRaw !== null &&
+    paymentReferenceRaw !== undefined &&
+    typeof paymentReferenceRaw !== 'string'
+  ) {
+    throw new Section16ValidationError(
+      'Nieprawidłowy typ pola paymentReference w rekordzie UrgentIntakeRequest',
+    )
+  }
+  const paymentReference = (paymentReferenceRaw as string | null) ?? null
+
+  const bookingIdRaw = r.booking_id !== undefined ? r.booking_id : r.bookingId
+  if (bookingIdRaw !== null && bookingIdRaw !== undefined && typeof bookingIdRaw !== 'string') {
+    throw new Section16ValidationError('Nieprawidłowy typ pola bookingId w rekordzie UrgentIntakeRequest')
+  }
+  const bookingId = (bookingIdRaw as string | null) ?? null
+
+  const versionRaw = r.version
+  if (
+    typeof versionRaw !== 'number' ||
+    !Number.isInteger(versionRaw) ||
+    versionRaw < 1 ||
+    Number.isNaN(versionRaw)
+  ) {
+    throw new Section16ValidationError(
+      `Brak lub nieprawidłowe pole version w rekordzie UrgentIntakeRequest: ${String(versionRaw)}`,
+    )
+  }
+  const version = versionRaw
+
+  const idempotencyKeyRaw = r.idempotency_key ?? r.idempotencyKey
+  if (typeof idempotencyKeyRaw !== 'string' || idempotencyKeyRaw.trim().length === 0) {
+    throw new Section16ValidationError(
+      'Brak lub nieprawidłowe pole idempotencyKey w rekordzie UrgentIntakeRequest',
+    )
+  }
+  const idempotencyKey = idempotencyKeyRaw.trim()
+
+  const createdAtRaw = r.created_at ?? r.createdAt
+  if (typeof createdAtRaw !== 'string' || createdAtRaw.trim().length === 0) {
+    throw new Section16ValidationError(
+      'Brak lub nieprawidłowe pole createdAt w rekordzie UrgentIntakeRequest',
+    )
+  }
+  const createdAt = createdAtRaw
+
+  const updatedAtRaw = r.updated_at ?? r.updatedAt
+  if (typeof updatedAtRaw !== 'string' || updatedAtRaw.trim().length === 0) {
+    throw new Section16ValidationError(
+      'Brak lub nieprawidłowe pole updatedAt w rekordzie UrgentIntakeRequest',
+    )
+  }
+  const updatedAt = updatedAtRaw
+
+  return {
+    id,
+    dayChoice,
+    targetDate,
+    callerPhoneFingerprint,
+    callerPhoneMasked,
+    contactCiphertext,
+    clientName,
+    clientNotes,
+    state,
+    proposedDate,
+    proposedTime,
+    proposedTimeslotIso,
+    holdExpiresAt,
+    expiresAt,
+    paymentReference,
+    bookingId,
+    version,
+    idempotencyKey,
+    createdAt,
+    updatedAt,
+  }
+}
+
+/**
+ * Maps Supabase / PostgREST snake_case row to UrgentIntakeEvent with strict runtime validation.
+ * Fails closed if any mandatory property is missing or of incorrect type.
+ */
+export function mapUrgentIntakeEventRecord(raw: unknown): UrgentIntakeEvent {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+    throw new Section16ValidationError('Rekord UrgentIntakeEvent musi być niepustym obiektem')
+  }
+
+  const r = raw as Record<string, unknown>
+
+  const id = r.id
+  if (typeof id !== 'string' || id.trim().length === 0) {
+    throw new Section16ValidationError('Brak lub nieprawidłowe pole id w rekordzie UrgentIntakeEvent')
+  }
+
+  const requestIdRaw = r.request_id ?? r.requestId
+  if (typeof requestIdRaw !== 'string' || requestIdRaw.trim().length === 0) {
+    throw new Section16ValidationError(
+      'Brak lub nieprawidłowe pole requestId w rekordzie UrgentIntakeEvent',
+    )
+  }
+  const requestId = requestIdRaw
+
+  const eventTypeRaw = r.event_type ?? r.eventType
+  if (typeof eventTypeRaw !== 'string' || eventTypeRaw.trim().length === 0) {
+    throw new Section16ValidationError(
+      'Brak lub nieprawidłowe pole eventType w rekordzie UrgentIntakeEvent',
+    )
+  }
+  const eventType = eventTypeRaw
+
+  const fromStateRaw = r.from_state !== undefined ? r.from_state : r.fromState
+  if (
+    fromStateRaw !== null &&
+    fromStateRaw !== undefined &&
+    (typeof fromStateRaw !== 'string' ||
+      !['pending_proposal', 'timeslot_proposed', 'payment_confirmed', 'expired', 'cancelled', 'rejected'].includes(
+        fromStateRaw,
+      ))
+  ) {
+    throw new Section16ValidationError(
+      `Nieprawidłowy stan fromState w rekordzie UrgentIntakeEvent: ${String(fromStateRaw)}`,
+    )
+  }
+  const fromState = (fromStateRaw as UrgentIntakeState | null) ?? null
+
+  const toStateRaw = r.to_state ?? r.toState
+  if (
+    typeof toStateRaw !== 'string' ||
+    !['pending_proposal', 'timeslot_proposed', 'payment_confirmed', 'expired', 'cancelled', 'rejected'].includes(
+      toStateRaw,
+    )
+  ) {
+    throw new Section16ValidationError(
+      `Brak lub nieprawidłowy stan toState w rekordzie UrgentIntakeEvent: ${String(toStateRaw)}`,
+    )
+  }
+  const toState = toStateRaw as UrgentIntakeState
+
+  const payloadRaw = r.payload
+  if (!payloadRaw || typeof payloadRaw !== 'object' || Array.isArray(payloadRaw)) {
+    throw new Section16ValidationError('Pole payload w rekordzie UrgentIntakeEvent musi być obiektem')
+  }
+  const payload = payloadRaw as Record<string, unknown>
+
+  const payloadHashRaw = r.payload_hash ?? r.payloadHash
+  if (typeof payloadHashRaw !== 'string' || payloadHashRaw.trim().length === 0) {
+    throw new Section16ValidationError(
+      'Brak lub nieprawidłowe pole payloadHash w rekordzie UrgentIntakeEvent',
+    )
+  }
+  const payloadHash = payloadHashRaw
+
+  const idempotencyKeyRaw = r.idempotency_key ?? r.idempotencyKey
+  if (typeof idempotencyKeyRaw !== 'string' || idempotencyKeyRaw.trim().length === 0) {
+    throw new Section16ValidationError(
+      'Brak lub nieprawidłowe pole idempotencyKey w rekordzie UrgentIntakeEvent',
+    )
+  }
+  const idempotencyKey = idempotencyKeyRaw.trim()
+
+  const createdAtRaw = r.created_at ?? r.createdAt
+  if (typeof createdAtRaw !== 'string' || createdAtRaw.trim().length === 0) {
+    throw new Section16ValidationError(
+      'Brak lub nieprawidłowe pole createdAt w rekordzie UrgentIntakeEvent',
+    )
+  }
+  const createdAt = createdAtRaw
+
+  return {
+    id,
+    requestId,
+    eventType,
+    fromState,
+    toState,
+    payload,
+    payloadHash,
+    idempotencyKey,
+    createdAt,
+  }
 }
 
 function getDataMode(): 'local' | 'supabase' {
@@ -258,7 +571,7 @@ export async function createUrgentIntakeRequest(
       p_payload_hash: payloadHash,
     })
     if (error) mapRpcError(error)
-    return data as UrgentIntakeRequest
+    return mapUrgentIntakeRequestRecord(data)
   }
 
   // Local / Test store execution
@@ -343,7 +656,7 @@ export async function proposeUrgentIntakeTimeslot(
       p_payload_hash: payloadHash,
     })
     if (error) mapRpcError(error)
-    return data as UrgentIntakeRequest
+    return mapUrgentIntakeRequestRecord(data)
   }
 
   return withStoreLock(async () => {
@@ -437,7 +750,7 @@ export async function confirmUrgentIntakePayment(
       p_payload_hash: payloadHash,
     })
     if (error) mapRpcError(error)
-    return data as UrgentIntakeRequest
+    return mapUrgentIntakeRequestRecord(data)
   }
 
   return withStoreLock(async () => {
@@ -522,7 +835,7 @@ export async function transitionUrgentIntakeState(
       p_payload_hash: payloadHash,
     })
     if (error) mapRpcError(error)
-    return data as UrgentIntakeRequest
+    return mapUrgentIntakeRequestRecord(data)
   }
 
   return withStoreLock(async () => {
@@ -583,7 +896,7 @@ export async function getUrgentIntakeRequest(id: string): Promise<UrgentIntakeRe
     const supabase = getSupabaseClient()
     const { data, error } = await supabase.from('urgent_intake_requests').select('*').eq('id', id).maybeSingle()
     if (error) throw new Section16DomainError(error.message, 'DB_ERROR')
-    return data as UrgentIntakeRequest | null
+    return data ? mapUrgentIntakeRequestRecord(data) : null
   }
 
   const store = await readStoreSnapshot()
@@ -602,7 +915,7 @@ export async function getUrgentIntakeEventByIdempotencyKey(
       .eq('idempotency_key', idempotencyKey)
       .maybeSingle()
     if (error) throw new Section16DomainError(error.message, 'DB_ERROR')
-    return data as UrgentIntakeEvent | null
+    return data ? mapUrgentIntakeEventRecord(data) : null
   }
 
   const store = await readStoreSnapshot()

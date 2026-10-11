@@ -1,13 +1,23 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import { createLocalDataSandbox } from '../scripts/lib/local-data-sandbox'
 import {
   createUrgentIntakeRequest,
   getUrgentIntakeRequest,
+  getUrgentIntakeEventByIdempotencyKey,
+  proposeUrgentIntakeTimeslot,
+  confirmUrgentIntakePayment,
+  transitionUrgentIntakeState,
+  mapRpcError,
+  mapUrgentIntakeRequestRecord,
+  mapUrgentIntakeEventRecord,
   resetSection16LocalStore,
   readSection16StoreSnapshot,
 } from '../lib/server/section16-store'
 import {
+  parseOwnerProposalStructure,
+  parseOwnerProposalStructureOrThrow,
   parseOwnerProposalResponse,
   parseOwnerProposalResponseOrThrow,
   prepareOwnerUrgentNotification,
@@ -295,6 +305,7 @@ test('6. Niezgodny targetDate: zakaz zmiany dnia oraz zachowanie po północy', 
         requestId: req.id,
         response: '13.10.2026.09:00',
         idempotencyKey: 'prop-after-midnight-001',
+        expectedVersion: req.version,
         now: pastMidnight,
       })
     },
@@ -406,6 +417,7 @@ test('8. Granice TTL 5/120: dopuszczanie granic i odrzucanie wartości spoza zak
     requestId: req.id,
     response: '12.10.2026.14:00',
     idempotencyKey: 'prop-ttl-default',
+    expectedVersion: req.version,
     now,
   })
   const expectedDefaultExpiry = new Date(now.getTime() + 30 * 60 * 1000).toISOString()
@@ -426,6 +438,7 @@ test('8. Granice TTL 5/120: dopuszczanie granic i odrzucanie wartości spoza zak
     response: '12.10.2026.14:00',
     holdDurationMinutes: 5,
     idempotencyKey: 'prop-ttl-min',
+    expectedVersion: reqMin.version,
     now,
   })
   assert.equal(resMin.request.holdExpiresAt, new Date(now.getTime() + 5 * 60 * 1000).toISOString())
@@ -445,6 +458,7 @@ test('8. Granice TTL 5/120: dopuszczanie granic i odrzucanie wartości spoza zak
     response: '12.10.2026.14:00',
     holdDurationMinutes: 120,
     idempotencyKey: 'prop-ttl-max',
+    expectedVersion: reqMax.version,
     now,
   })
   assert.equal(resMax.request.holdExpiresAt, new Date(now.getTime() + 120 * 60 * 1000).toISOString())
@@ -466,6 +480,7 @@ test('8. Granice TTL 5/120: dopuszczanie granic i odrzucanie wartości spoza zak
         response: '12.10.2026.14:00',
         holdDurationMinutes: 4,
         idempotencyKey: 'prop-ttl-inv-4',
+        expectedVersion: reqInvalid1.version,
         now,
       })
     },
@@ -480,6 +495,7 @@ test('8. Granice TTL 5/120: dopuszczanie granic i odrzucanie wartości spoza zak
         response: '12.10.2026.14:00',
         holdDurationMinutes: 121,
         idempotencyKey: 'prop-ttl-inv-121',
+        expectedVersion: reqInvalid1.version,
         now,
       })
     },
@@ -494,6 +510,7 @@ test('8. Granice TTL 5/120: dopuszczanie granic i odrzucanie wartości spoza zak
         response: '12.10.2026.14:00',
         holdDurationMinutes: 30.5,
         idempotencyKey: 'prop-ttl-inv-float',
+        expectedVersion: reqInvalid1.version,
         now,
       })
     },
@@ -531,6 +548,7 @@ test('9. Wymagany idempotency key: odrzucanie brakującego, pustego i nadmiarowe
           requestId: req.id,
           response: '12.10.2026.14:00',
           idempotencyKey: k,
+          expectedVersion: req.version,
           now,
         })
       },
@@ -580,6 +598,7 @@ test('10. Retry bez duplikatu zdarzenia: ponowne wywołanie z tym samym kluczem 
     response: '12.10.2026.15:00',
     idempotencyKey: 'prop-retry-key-001',
     holdDurationMinutes: 30,
+    expectedVersion: 1,
     now,
   })
   assert.equal(retry.request.state, 'timeslot_proposed')
@@ -625,6 +644,7 @@ test('11. Konflikt idempotencji/CAS/stanu: fail-closed na rozbieżnościach', as
     requestId: req.id,
     response: '12.10.2026.15:00',
     idempotencyKey: 'prop-base-key',
+    expectedVersion: 1,
     now,
   })
 
@@ -635,6 +655,7 @@ test('11. Konflikt idempotencji/CAS/stanu: fail-closed na rozbieżnościach', as
         requestId: req.id,
         response: '12.10.2026.16:00', // Different response!
         idempotencyKey: 'prop-base-key',
+        expectedVersion: 1,
         now,
       })
     },
@@ -648,6 +669,7 @@ test('11. Konflikt idempotencji/CAS/stanu: fail-closed na rozbieżnościach', as
         requestId: req.id,
         response: '12.10.2026.17:00',
         idempotencyKey: 'prop-fresh-key-on-existing',
+        expectedVersion: 2,
         now,
       })
     },
@@ -672,6 +694,7 @@ test('11. Konflikt idempotencji/CAS/stanu: fail-closed na rozbieżnościach', as
         requestId: expiredReq.id,
         response: '12.10.2026.15:00',
         idempotencyKey: 'prop-on-expired',
+        expectedVersion: expiredReq.version,
         now,
       })
     },
@@ -731,6 +754,7 @@ test('12. Brak wywołań SMS/płatności/kalendarza: izolacja granic i fail-clos
       requestId: req.id,
       response: '12.10.2026.14:00',
       idempotencyKey: 'prop-spy-boundaries',
+      expectedVersion: req.version,
       now,
     },
     spyBoundaries,
@@ -818,4 +842,521 @@ test('13. Brak PII w przygotowanym powiadomieniu: weryfikacja zawartości i dłu
     `Długość SMS (${prep.characterCount}) przekracza ${MAX_OWNER_NOTIFICATION_SMS_LENGTH}`,
   )
   assert.equal(prep.characterCount, prep.message.length)
+})
+
+// ---------------------------------------------------------------------------
+// 14. CAS EXPECTEDVERSION: FAIL-CLOSED BEZ MUTACJI I BEZ NOWEGO ZDARZENIA
+// ---------------------------------------------------------------------------
+test('14. CAS expectedVersion: brak/NaN/0/ujemne/ułamkowe fail-closed bez nowego zdarzenia', async () => {
+  const now = new Date('2026-10-12T08:00:00.000Z')
+  const req = await createUrgentIntakeRequest(
+    {
+      dayChoice: 'today',
+      targetDate: '2026-10-12',
+      rawPhone: '+48600111222',
+      idempotencyKey: 'intake-cas-audit-001',
+    },
+    now,
+  )
+
+  const snapBefore = await readSection16StoreSnapshot()
+  const initialEventCount = snapBefore.urgentEvents.length
+
+  const invalidVersions: any[] = [
+    undefined,
+    null,
+    Number.NaN,
+    0,
+    -1,
+    -42,
+    1.5,
+    2.718,
+    '1',
+    'one',
+  ]
+
+  for (let i = 0; i < invalidVersions.length; i++) {
+    const inv = invalidVersions[i]
+    await assert.rejects(
+      async () => {
+        await processOwnerProposalAndSetHold({
+          requestId: req.id,
+          response: '12.10.2026.15:00',
+          idempotencyKey: `prop-cas-invalid-${i}`,
+          expectedVersion: inv,
+          now,
+        })
+      },
+      (err: any) => {
+        assert.ok(err instanceof Section16ValidationError, `Oczekiwano Section16ValidationError dla ${String(inv)}`)
+        return true
+      },
+    )
+  }
+
+  // Assert fail-closed: zero new events created, record version unchanged
+  const snapAfter = await readSection16StoreSnapshot()
+  assert.equal(snapAfter.urgentEvents.length, initialEventCount, 'Żadne zdarzenie nie może powstać przy nieprawidłowym expectedVersion')
+
+  const unchangedReq = await getUrgentIntakeRequest(req.id)
+  assert.equal(unchangedReq?.version, 1, 'Wersja rekordu nie mogła ulec zmianie')
+  assert.equal(unchangedReq?.state, 'pending_proposal', 'Stan rekordu nie mógł ulec zmianie')
+})
+
+// ---------------------------------------------------------------------------
+// 15. DOKŁADNY RETRY PO EXPIRESAT, HOLDEXPIRESAT I PROPONOWANEJ GODZINIE
+// ---------------------------------------------------------------------------
+test('15. Dokładny retry po expiresAt, po holdExpiresAt i po proponowanej godzinie: ten sam rekord, isRetry: true, zero nowego zdarzenia i zero zmiany hold', async () => {
+  const t0 = new Date('2026-10-12T08:00:00.000Z')
+  const req = await createUrgentIntakeRequest(
+    {
+      dayChoice: 'today',
+      targetDate: '2026-10-12',
+      rawPhone: '+48600111222',
+      idempotencyKey: 'intake-retry-durable-001',
+      expiresAt: '2026-10-12T10:00:00.000Z', // Request expires at 10:00
+    },
+    t0,
+  )
+
+  // First call establishes proposal at 11:00 with 15 min hold (hold expires at 08:15)
+  const first = await processOwnerProposalAndSetHold({
+    requestId: req.id,
+    response: '12.10.2026.11:00',
+    idempotencyKey: 'retry-durable-prop-001',
+    holdDurationMinutes: 15,
+    expectedVersion: 1,
+    now: t0,
+  })
+
+  assert.equal(first.isRetry, false)
+  assert.equal(first.request.state, 'timeslot_proposed')
+  assert.equal(first.request.version, 2)
+  const initialHoldExpiresAt = first.request.holdExpiresAt
+  assert.equal(initialHoldExpiresAt, '2026-10-12T08:15:00.000Z')
+
+  const snapAfterFirst = await readSection16StoreSnapshot()
+  const eventCountAfterFirst = snapAfterFirst.urgentEvents.length
+
+  // Advance time far into the future (days later)
+  const tFuture = new Date('2026-10-15T12:00:00.000Z')
+  assert.ok(tFuture.getTime() > Date.parse(first.request.expiresAt), 'tFuture musi być po expiresAt')
+  assert.ok(tFuture.getTime() > Date.parse(initialHoldExpiresAt!), 'tFuture musi być po holdExpiresAt')
+  assert.ok(tFuture.getTime() > Date.parse(first.parsedProposal.isoTimestamp), 'tFuture musi być po zaproponowanym terminie')
+
+  // Exact retry with the original expectedVersion (1) and same payload
+  const retry = await processOwnerProposalAndSetHold({
+    requestId: req.id,
+    response: '12.10.2026.11:00',
+    idempotencyKey: 'retry-durable-prop-001',
+    holdDurationMinutes: 15,
+    expectedVersion: 1,
+    now: tFuture,
+  })
+
+  assert.equal(retry.isRetry, true, 'isRetry musi wynosić true')
+  assert.equal(retry.request.id, first.request.id)
+  assert.equal(retry.request.version, 2, 'Wersja nie może się zmienić')
+  assert.equal(retry.request.state, 'timeslot_proposed')
+  assert.equal(retry.request.holdExpiresAt, initialHoldExpiresAt, 'Czas blokady nie może ulec zmianie ani przedłużeniu')
+  assert.equal(retry.parsedProposal.isoTimestamp, first.parsedProposal.isoTimestamp)
+
+  const snapAfterRetry = await readSection16StoreSnapshot()
+  assert.equal(snapAfterRetry.urgentEvents.length, eventCountAfterFirst, 'Nie może powstać żadne nowe zdarzenie')
+})
+
+// ---------------------------------------------------------------------------
+// 16. RETRY Z INNYM REQUESTID / RESPONSE / TTL / PAYLOADEM -> IDEMPOTENCY_CONFLICT
+// ---------------------------------------------------------------------------
+test('16. Retry z tym samym kluczem, ale innym requestId/response/TTL/payload -> IDEMPOTENCY_CONFLICT', async () => {
+  const now = new Date('2026-10-12T08:00:00.000Z')
+  const reqA = await createUrgentIntakeRequest(
+    {
+      dayChoice: 'today',
+      targetDate: '2026-10-12',
+      rawPhone: '+48600111222',
+      idempotencyKey: 'intake-idem-matrix-a',
+    },
+    now,
+  )
+  const reqB = await createUrgentIntakeRequest(
+    {
+      dayChoice: 'today',
+      targetDate: '2026-10-12',
+      rawPhone: '+48600333444',
+      idempotencyKey: 'intake-idem-matrix-b',
+    },
+    now,
+  )
+
+  const conflictKey = 'prop-idem-conflict-matrix'
+  await processOwnerProposalAndSetHold({
+    requestId: reqA.id,
+    response: '12.10.2026.11:00',
+    idempotencyKey: conflictKey,
+    holdDurationMinutes: 30,
+    expectedVersion: 1,
+    payload: { source: 'unit-test' },
+    now,
+  })
+
+  // 16a. Different requestId
+  await assert.rejects(
+    async () => {
+      await processOwnerProposalAndSetHold({
+        requestId: reqB.id,
+        response: '12.10.2026.11:00',
+        idempotencyKey: conflictKey,
+        holdDurationMinutes: 30,
+        expectedVersion: 1,
+        payload: { source: 'unit-test' },
+        now,
+      })
+    },
+    (err: any) => err instanceof Section16IdempotencyConflictError,
+  )
+
+  // 16b. Different response
+  await assert.rejects(
+    async () => {
+      await processOwnerProposalAndSetHold({
+        requestId: reqA.id,
+        response: '12.10.2026.12:00',
+        idempotencyKey: conflictKey,
+        holdDurationMinutes: 30,
+        expectedVersion: 1,
+        payload: { source: 'unit-test' },
+        now,
+      })
+    },
+    (err: any) => err instanceof Section16IdempotencyConflictError,
+  )
+
+  // 16c. Malformed response
+  await assert.rejects(
+    async () => {
+      await processOwnerProposalAndSetHold({
+        requestId: reqA.id,
+        response: 'bad-response-format',
+        idempotencyKey: conflictKey,
+        holdDurationMinutes: 30,
+        expectedVersion: 1,
+        payload: { source: 'unit-test' },
+        now,
+      })
+    },
+    (err: any) => err instanceof Section16IdempotencyConflictError,
+  )
+
+  // 16d. Different holdDurationMinutes (TTL)
+  await assert.rejects(
+    async () => {
+      await processOwnerProposalAndSetHold({
+        requestId: reqA.id,
+        response: '12.10.2026.11:00',
+        idempotencyKey: conflictKey,
+        holdDurationMinutes: 60,
+        expectedVersion: 1,
+        payload: { source: 'unit-test' },
+        now,
+      })
+    },
+    (err: any) => err instanceof Section16IdempotencyConflictError,
+  )
+
+  // 16e. Different payload
+  await assert.rejects(
+    async () => {
+      await processOwnerProposalAndSetHold({
+        requestId: reqA.id,
+        response: '12.10.2026.11:00',
+        idempotencyKey: conflictKey,
+        holdDurationMinutes: 30,
+        expectedVersion: 1,
+        payload: { source: 'unit-test-modified' },
+        now,
+      })
+    },
+    (err: any) => err instanceof Section16IdempotencyConflictError,
+  )
+})
+
+// ---------------------------------------------------------------------------
+// 17. CZYSTE TESTY MAPPERÓW (SNAKE_CASE -> CAMELCASE) I FAIL-CLOSED
+// ---------------------------------------------------------------------------
+test('17. Czyste testy mapperów: realistyczny rekord Supabase snake_case i fail-closed na błędnych danych', () => {
+  // 17a. UrgentIntakeRequest mapper: valid realistic Supabase PostgREST record
+  const realisticSupabaseRequest = {
+    id: '918d3600-47b7-4b72-8f96-261ec4cf3615',
+    day_choice: 'today',
+    target_date: '2026-10-12',
+    caller_phone_fingerprint: 'call_fp:abc123456789',
+    caller_phone_masked: '+48 600 *** 222',
+    contact_ciphertext: 'enc:blob_1234567890abcdef',
+    client_name: 'Jan Testowy',
+    client_notes: 'Pilny przypadek',
+    state: 'timeslot_proposed',
+    proposed_date: '2026-10-12',
+    proposed_time: '14:30',
+    proposed_timeslot_iso: '2026-10-12T12:30:00.000Z',
+    hold_expires_at: '2026-10-12T13:00:00.000Z',
+    expires_at: '2026-10-13T08:00:00.000Z',
+    payment_reference: 'pay_ref_test_01',
+    booking_id: 'a0000000-0000-0000-0000-000000000001',
+    version: 2,
+    idempotency_key: 'idem-map-req-01',
+    created_at: '2026-10-12T08:00:00.000Z',
+    updated_at: '2026-10-12T08:05:00.000Z',
+  }
+
+  const mappedReq = mapUrgentIntakeRequestRecord(realisticSupabaseRequest)
+  assert.equal(mappedReq.id, realisticSupabaseRequest.id)
+  assert.equal(mappedReq.dayChoice, 'today')
+  assert.equal(mappedReq.targetDate, '2026-10-12')
+  assert.equal(mappedReq.callerPhoneFingerprint, 'call_fp:abc123456789')
+  assert.equal(mappedReq.callerPhoneMasked, '+48 600 *** 222')
+  assert.equal(mappedReq.contactCiphertext, 'enc:blob_1234567890abcdef')
+  assert.equal(mappedReq.clientName, 'Jan Testowy')
+  assert.equal(mappedReq.clientNotes, 'Pilny przypadek')
+  assert.equal(mappedReq.state, 'timeslot_proposed')
+  assert.equal(mappedReq.proposedDate, '2026-10-12')
+  assert.equal(mappedReq.proposedTime, '14:30')
+  assert.equal(mappedReq.proposedTimeslotIso, '2026-10-12T12:30:00.000Z')
+  assert.equal(mappedReq.holdExpiresAt, '2026-10-12T13:00:00.000Z')
+  assert.equal(mappedReq.expiresAt, '2026-10-13T08:00:00.000Z')
+  assert.equal(mappedReq.paymentReference, 'pay_ref_test_01')
+  assert.equal(mappedReq.bookingId, 'a0000000-0000-0000-0000-000000000001')
+  assert.equal(mappedReq.version, 2)
+  assert.equal(mappedReq.idempotencyKey, 'idem-map-req-01')
+  assert.equal(mappedReq.createdAt, '2026-10-12T08:00:00.000Z')
+  assert.equal(mappedReq.updatedAt, '2026-10-12T08:05:00.000Z')
+
+  // 17b. Negative tests for UrgentIntakeRequest mapper
+  assert.throws(() => mapUrgentIntakeRequestRecord(null), (err: any) => err instanceof Section16ValidationError)
+  assert.throws(() => mapUrgentIntakeRequestRecord('string'), (err: any) => err instanceof Section16ValidationError)
+  assert.throws(() => mapUrgentIntakeRequestRecord([]), (err: any) => err instanceof Section16ValidationError)
+  assert.throws(() => mapUrgentIntakeRequestRecord({ ...realisticSupabaseRequest, id: '' }), (err: any) => err instanceof Section16ValidationError)
+  assert.throws(() => mapUrgentIntakeRequestRecord({ ...realisticSupabaseRequest, day_choice: 'next_week' }), (err: any) => err instanceof Section16ValidationError)
+  assert.throws(() => mapUrgentIntakeRequestRecord({ ...realisticSupabaseRequest, target_date: 'invalid-date' }), (err: any) => err instanceof Section16ValidationError)
+  assert.throws(() => mapUrgentIntakeRequestRecord({ ...realisticSupabaseRequest, caller_phone_fingerprint: '' }), (err: any) => err instanceof Section16ValidationError)
+  assert.throws(() => mapUrgentIntakeRequestRecord({ ...realisticSupabaseRequest, caller_phone_masked: '' }), (err: any) => err instanceof Section16ValidationError)
+  assert.throws(() => mapUrgentIntakeRequestRecord({ ...realisticSupabaseRequest, state: 'unknown_state' }), (err: any) => err instanceof Section16ValidationError)
+  assert.throws(() => mapUrgentIntakeRequestRecord({ ...realisticSupabaseRequest, version: 0 }), (err: any) => err instanceof Section16ValidationError)
+  assert.throws(() => mapUrgentIntakeRequestRecord({ ...realisticSupabaseRequest, version: -5 }), (err: any) => err instanceof Section16ValidationError)
+  assert.throws(() => mapUrgentIntakeRequestRecord({ ...realisticSupabaseRequest, version: 1.5 }), (err: any) => err instanceof Section16ValidationError)
+  assert.throws(() => mapUrgentIntakeRequestRecord({ ...realisticSupabaseRequest, version: Number.NaN }), (err: any) => err instanceof Section16ValidationError)
+  assert.throws(() => mapUrgentIntakeRequestRecord({ ...realisticSupabaseRequest, idempotency_key: '' }), (err: any) => err instanceof Section16ValidationError)
+  assert.throws(() => mapUrgentIntakeRequestRecord({ ...realisticSupabaseRequest, expires_at: '' }), (err: any) => err instanceof Section16ValidationError)
+
+  // 17c. UrgentIntakeEvent mapper: valid realistic Supabase PostgREST record
+  const realisticSupabaseEvent = {
+    id: 'e1000000-0000-0000-0000-000000000001',
+    request_id: '918d3600-47b7-4b72-8f96-261ec4cf3615',
+    event_type: 'timeslot_proposed',
+    from_state: 'pending_proposal',
+    to_state: 'timeslot_proposed',
+    payload: { response: '12.10.2026.14:30', holdDurationMinutes: 30 },
+    payload_hash: 'hash1234567890abcdef',
+    idempotency_key: 'idem-map-event-01',
+    created_at: '2026-10-12T08:05:00.000Z',
+  }
+
+  const mappedEv = mapUrgentIntakeEventRecord(realisticSupabaseEvent)
+  assert.equal(mappedEv.id, realisticSupabaseEvent.id)
+  assert.equal(mappedEv.requestId, realisticSupabaseEvent.request_id)
+  assert.equal(mappedEv.eventType, 'timeslot_proposed')
+  assert.equal(mappedEv.fromState, 'pending_proposal')
+  assert.equal(mappedEv.toState, 'timeslot_proposed')
+  assert.deepEqual(mappedEv.payload, realisticSupabaseEvent.payload)
+  assert.equal(mappedEv.payloadHash, 'hash1234567890abcdef')
+  assert.equal(mappedEv.idempotencyKey, 'idem-map-event-01')
+  assert.equal(mappedEv.createdAt, '2026-10-12T08:05:00.000Z')
+
+  // 17d. Negative tests for UrgentIntakeEvent mapper
+  assert.throws(() => mapUrgentIntakeEventRecord(null), (err: any) => err instanceof Section16ValidationError)
+  assert.throws(() => mapUrgentIntakeEventRecord('string'), (err: any) => err instanceof Section16ValidationError)
+  assert.throws(() => mapUrgentIntakeEventRecord({ ...realisticSupabaseEvent, id: '' }), (err: any) => err instanceof Section16ValidationError)
+  assert.throws(() => mapUrgentIntakeEventRecord({ ...realisticSupabaseEvent, request_id: '' }), (err: any) => err instanceof Section16ValidationError)
+  assert.throws(() => mapUrgentIntakeEventRecord({ ...realisticSupabaseEvent, event_type: '' }), (err: any) => err instanceof Section16ValidationError)
+  assert.throws(() => mapUrgentIntakeEventRecord({ ...realisticSupabaseEvent, to_state: 'bad_state' }), (err: any) => err instanceof Section16ValidationError)
+  assert.throws(() => mapUrgentIntakeEventRecord({ ...realisticSupabaseEvent, from_state: 'bad_state' }), (err: any) => err instanceof Section16ValidationError)
+  assert.throws(() => mapUrgentIntakeEventRecord({ ...realisticSupabaseEvent, payload: null }), (err: any) => err instanceof Section16ValidationError)
+  assert.throws(() => mapUrgentIntakeEventRecord({ ...realisticSupabaseEvent, payload: 'not-an-object' }), (err: any) => err instanceof Section16ValidationError)
+  assert.throws(() => mapUrgentIntakeEventRecord({ ...realisticSupabaseEvent, payload_hash: '' }), (err: any) => err instanceof Section16ValidationError)
+  assert.throws(() => mapUrgentIntakeEventRecord({ ...realisticSupabaseEvent, idempotency_key: '' }), (err: any) => err instanceof Section16ValidationError)
+  assert.throws(() => mapUrgentIntakeEventRecord({ ...realisticSupabaseEvent, created_at: '' }), (err: any) => err instanceof Section16ValidationError)
+})
+
+// ---------------------------------------------------------------------------
+// 18. PARYTET SUPABASE: WYNIKI PILNYCH RPC I ODCZYTÓW PRZECHODZĄ PRZEZ MAPPER
+// ---------------------------------------------------------------------------
+test('18. Parytet Supabase: wyniki pilnych RPC i odczytów przechodzą przez mapper (audyt statyczny)', () => {
+  const storeSource = readFileSync('lib/server/section16-store.ts', 'utf8')
+
+  // 18a. create_urgent_intake_request uses mapUrgentIntakeRequestRecord
+  assert.ok(
+    storeSource.includes("create_urgent_intake_request'") &&
+      storeSource.includes('return mapUrgentIntakeRequestRecord(data)'),
+    'create_urgent_intake_request musi przekazywać wynik przez mapUrgentIntakeRequestRecord',
+  )
+
+  // 18b. propose_urgent_intake_timeslot uses mapUrgentIntakeRequestRecord
+  assert.ok(
+    storeSource.includes("propose_urgent_intake_timeslot'"),
+    'propose_urgent_intake_timeslot musi być wywoływane w sekcji supabase',
+  )
+
+  // 18c. confirm_urgent_intake_payment uses mapUrgentIntakeRequestRecord
+  assert.ok(
+    storeSource.includes("confirm_urgent_intake_payment'"),
+    'confirm_urgent_intake_payment musi być wywoływane w sekcji supabase',
+  )
+
+  // 18d. transition_urgent_intake_state uses mapUrgentIntakeRequestRecord
+  assert.ok(
+    storeSource.includes("transition_urgent_intake_state'"),
+    'transition_urgent_intake_state musi być wywoływane w sekcji supabase',
+  )
+
+  // 18e. getUrgentIntakeRequest uses mapUrgentIntakeRequestRecord
+  assert.ok(
+    storeSource.includes("from('urgent_intake_requests')") &&
+      storeSource.includes('mapUrgentIntakeRequestRecord(data)'),
+    'getUrgentIntakeRequest w sekcji supabase musi mapować dane przez mapUrgentIntakeRequestRecord',
+  )
+
+  // 18f. getUrgentIntakeEventByIdempotencyKey uses mapUrgentIntakeEventRecord
+  assert.ok(
+    storeSource.includes("from('urgent_intake_events')") &&
+      storeSource.includes('mapUrgentIntakeEventRecord(data)'),
+    'getUrgentIntakeEventByIdempotencyKey w sekcji supabase musi mapować dane przez mapUrgentIntakeEventRecord',
+  )
+
+  // 18g. Zero unsafe raw cast in urgent path
+  assert.ok(
+    !storeSource.includes('data as UrgentIntakeRequest'),
+    'Zakaz pozostawiania niebezpiecznego "data as UrgentIntakeRequest" w store',
+  )
+  assert.ok(
+    !storeSource.includes('data as UrgentIntakeEvent'),
+    'Zakaz pozostawiania niebezpiecznego "data as UrgentIntakeEvent" w store',
+  )
+})
+
+// ---------------------------------------------------------------------------
+// 19. MAPOWANIE BŁĘDÓW RPC: REQUEST_EXPIRED, DATE_MISMATCH, INVALID_HOLD
+// ---------------------------------------------------------------------------
+test('19. Mapowanie błędów RPC: REQUEST_EXPIRED, DATE_MISMATCH, INVALID_HOLD na właściwe błędy', () => {
+  // REQUEST_EXPIRED -> Section16HoldExpiredError
+  assert.throws(
+    () => mapRpcError({ message: 'REQUEST_EXPIRED: Zgłoszenie pilne wygasło przed propozycją terminu' }),
+    (err: any) => {
+      assert.ok(err instanceof Section16HoldExpiredError)
+      assert.equal(err.code, 'HOLD_EXPIRED')
+      return true
+    },
+  )
+
+  // DATE_MISMATCH -> Section16ValidationError
+  assert.throws(
+    () => mapRpcError({ message: 'DATE_MISMATCH: Proponowana data 2026-10-13 nie zgadza się z wybranym dniem docelowym 2026-10-12' }),
+    (err: any) => {
+      assert.ok(err instanceof Section16ValidationError)
+      assert.equal(err.code, 'VALIDATION_ERROR')
+      return true
+    },
+  )
+
+  // INVALID_HOLD -> Section16ValidationError
+  assert.throws(
+    () => mapRpcError({ message: 'INVALID_HOLD: Czas wygaśnięcia blokady musi być w przyszłości' }),
+    (err: any) => {
+      assert.ok(err instanceof Section16ValidationError)
+      assert.equal(err.code, 'VALIDATION_ERROR')
+      return true
+    },
+  )
+})
+
+// ---------------------------------------------------------------------------
+// 20. NIEISTNIEJĄCY TARGETDATE W PRZYGOTOWANIU POWIADOMIENIA -> ODRZUCENIE
+// ---------------------------------------------------------------------------
+test('20. Nieistniejący targetDate w przygotowaniu powiadomienia: odrzucenie kalendarzowe', () => {
+  const invalidTargetDates = [
+    '2026-02-29', // 2026 nie jest przestępny
+    '2026-02-30',
+    '2026-02-31',
+    '2026-04-31', // Kwiecień ma 30 dni
+    '2026-06-31', // Czerwiec ma 30 dni
+    '2026-09-31', // Wrzesień ma 30 dni
+    '2026-11-31', // Listopad ma 30 dni
+    '2026-13-10', // Miesiąc 13
+    '2026-00-10', // Miesiąc 0
+    '2026-10-00', // Dzień 0
+    '2026-10-32', // Dzień 32
+  ]
+
+  for (const invalidDate of invalidTargetDates) {
+    assert.throws(
+      () => {
+        prepareOwnerUrgentNotification({
+          requestId: 'test-req-calendar-01',
+          dayChoice: 'today',
+          targetDate: invalidDate,
+        })
+      },
+      (err: any) => {
+        assert.ok(err instanceof Section16ValidationError, `Oczekiwano błędu dla daty ${invalidDate}`)
+        return true
+      },
+    )
+  }
+
+  // Poprawne daty nie mogą rzucać błędów
+  const validLeap = prepareOwnerUrgentNotification({
+    requestId: 'test-req-calendar-ok1',
+    dayChoice: 'today',
+    targetDate: '2024-02-29', // 2024 jest przestępny
+  })
+  assert.ok(validLeap.message.includes('29.02.2024'))
+
+  const validStandard = prepareOwnerUrgentNotification({
+    requestId: 'test-req-calendar-ok2',
+    dayChoice: 'tomorrow',
+    targetDate: '2026-10-13',
+  })
+  assert.ok(validStandard.message.includes('13.10.2026'))
+})
+
+// ---------------------------------------------------------------------------
+// 21. ROZDZIAŁ PARSERA STRUKTURALNEGO OD REGUŁY ŚCIŚLE W PRZYSZŁOŚCI
+// ---------------------------------------------------------------------------
+test('21. Rozdział parsera strukturalnego od reguły ściśle w przyszłości', () => {
+  // Propozycja w czasie przeszłym względem zegara referencyjnego
+  const pastRef = new Date('2026-10-12T16:00:00.000Z')
+
+  // 1. Parser strukturalny parsuje poprawnie strukturę, kalendarz i DST bez błędu czasu
+  const structResult = parseOwnerProposalStructure('12.10.2026.14:00', '2026-10-12')
+  assert.equal(structResult.success, true)
+  if (structResult.success) {
+    assert.equal(structResult.data.formattedDate, '2026-10-12')
+    assert.equal(structResult.data.formattedTime, '14:00')
+    assert.equal(structResult.data.isoTimestamp, '2026-10-12T12:00:00.000Z')
+    assert.equal(structResult.data.warsawOffset, '+02:00')
+  }
+
+  const structOrThrow = parseOwnerProposalStructureOrThrow('12.10.2026.14:00', '2026-10-12')
+  assert.equal(structOrThrow.formattedTime, '14:00')
+
+  // 2. Parser z walidacją czasu względem `pastRef` (gdzie 14:00 jest w przeszłości) odrzuca termin
+  const timeResult = parseOwnerProposalResponse('12.10.2026.14:00', '2026-10-12', pastRef)
+  assert.equal(timeResult.success, false)
+  if (!timeResult.success) {
+    assert.equal(timeResult.error.code, 'PAST_OR_CURRENT_TIME')
+  }
+
+  assert.throws(
+    () => parseOwnerProposalResponseOrThrow('12.10.2026.14:00', '2026-10-12', pastRef),
+    (err: any) => err.code === 'PAST_OR_CURRENT_TIME',
+  )
 })

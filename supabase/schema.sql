@@ -92,6 +92,121 @@ create table if not exists public.bookings (
   updated_at timestamptz not null default timezone('utc', now())
 );
 
+create table if not exists public.lead_bookings (
+  id uuid primary key default gen_random_uuid(),
+  access_token text not null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  status text not null default 'pending',
+  service text not null,
+  service_label text not null,
+  service_price text not null,
+  name text not null,
+  email text not null,
+  species text not null,
+  description text not null,
+  preferred_slots text not null default '',
+  confirmed_date text,
+  confirmed_time text,
+  payment_link text,
+  payment_method text,
+  paid_at timestamptz,
+  call_room_url text,
+  calendar_url text,
+  admin_notes text,
+  call_id text,
+  call_status text,
+  started_at timestamptz,
+  questions_remaining integer,
+  questions_expires_at timestamptz
+);
+
+create index if not exists lead_bookings_questions_expires_idx
+  on public.lead_bookings (questions_expires_at)
+  where questions_expires_at is not null;
+
+alter table public.lead_bookings enable row level security;
+
+drop policy if exists "Service role full access" on public.lead_bookings;
+create policy "Service role full access" on public.lead_bookings
+  for all using (true) with check (true);
+
+create table if not exists public.phone_agent_state (
+  id text primary key check (id = 'main'),
+  last_heartbeat_at timestamptz,
+  battery_level integer check (battery_level is null or battery_level between 0 and 100),
+  is_charging boolean,
+  network text,
+  is_default_dialer boolean,
+  app_version text,
+  last_outage_alert_sent_at timestamptz,
+  updated_at timestamptz not null default timezone('utc', now())
+);
+
+create table if not exists public.phone_agent_sms_queue (
+  id uuid primary key default gen_random_uuid(),
+  booking_id uuid references public.bookings(id) on delete set null,
+  phone text not null,
+  message text not null check (length(btrim(message)) between 1 and 2000),
+  type text not null check (type in ('reminder_60m', 'reminder_15m', 'payment_confirmed', 'custom')),
+  status text not null default 'pending' check (status in ('pending', 'claimed', 'sent', 'failed')),
+  scheduled_for timestamptz not null default timezone('utc', now()),
+  claimed_at timestamptz,
+  created_at timestamptz not null default timezone('utc', now()),
+  sent_at timestamptz,
+  error text,
+  idempotency_key text not null unique
+);
+
+create index if not exists phone_agent_sms_queue_claim_idx
+  on public.phone_agent_sms_queue (status, scheduled_for, created_at);
+
+create or replace function public.claim_next_phone_agent_sms()
+returns public.phone_agent_sms_queue
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  claimed public.phone_agent_sms_queue;
+begin
+  with candidate as (
+    select id
+    from public.phone_agent_sms_queue
+    where status = 'pending' and scheduled_for <= timezone('utc', now())
+    order by scheduled_for asc, created_at asc
+    for update skip locked
+    limit 1
+  )
+  update public.phone_agent_sms_queue queue
+  set status = 'claimed', claimed_at = timezone('utc', now())
+  from candidate
+  where queue.id = candidate.id
+  returning queue.* into claimed;
+
+  return claimed;
+end;
+$$;
+
+alter table public.phone_agent_state enable row level security;
+alter table public.phone_agent_sms_queue enable row level security;
+revoke all on table public.phone_agent_state from anon, authenticated;
+revoke all on table public.phone_agent_sms_queue from anon, authenticated;
+revoke all on function public.claim_next_phone_agent_sms() from public;
+grant select, insert, update, delete on table public.phone_agent_state to service_role;
+grant select, insert, update, delete on table public.phone_agent_sms_queue to service_role;
+grant execute on function public.claim_next_phone_agent_sms() to service_role;
+
+create table if not exists public.zapytaj_live_status (
+  id text primary key,
+  state jsonb not null default '{}'::jsonb,
+  updated_at timestamptz not null default timezone('utc', now())
+);
+
+alter table public.zapytaj_live_status enable row level security;
+revoke all on table public.zapytaj_live_status from anon, authenticated;
+grant select, insert, update, delete on table public.zapytaj_live_status to service_role;
+
 create table if not exists public.revolut_payment_reconciliation_claims (
   notification_fingerprint text primary key check (notification_fingerprint like 'revolut:%'),
   booking_id uuid not null references public.bookings(id) on delete restrict,
@@ -563,7 +678,6 @@ create unique index if not exists growth_signups_unsubscribe_token_idx
   where unsubscribe_token is not null;
 create index if not exists growth_signups_followup_queue_idx
   on public.growth_signups(kind, marketing_opt_in, marketing_unsubscribed_at, created_at);
-create index if not exists availability_date_idx on public.availability(booking_date, booking_time);
 create index if not exists availability_booked_idx on public.availability(is_booked);
 create index if not exists promo_campaigns_created_at_idx on public.promo_campaigns(created_at desc);
 create index if not exists promo_campaigns_status_idx on public.promo_campaigns(status, created_at desc);

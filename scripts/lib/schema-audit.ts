@@ -124,8 +124,48 @@ const REQUIRED_SCHEMA_MARKERS: SchemaMarker[] = [
     expectedCount: 1,
   },
   {
+    label: 'bookings.questions_expires_at',
+    needle: 'questions_expires_at timestamptz',
+    expectedCount: 1,
+  },
+  {
     label: 'bookings.customer_access_token_hash',
     needle: "customer_access_token_hash text not null default ''",
+    expectedCount: 1,
+  },
+  {
+    label: 'lead_bookings',
+    needle: 'create table if not exists public.lead_bookings',
+    expectedCount: 1,
+  },
+  {
+    label: 'lead_bookings.questions_expires_at',
+    needle: 'questions_expires_at timestamptz',
+    expectedCount: 2,
+  },
+  {
+    label: 'lead_bookings.voip_fields',
+    needle: 'questions_remaining integer',
+    expectedCount: 2,
+  },
+  {
+    label: 'phone_agent_state',
+    needle: 'create table if not exists public.phone_agent_state',
+    expectedCount: 1,
+  },
+  {
+    label: 'phone_agent_sms_queue',
+    needle: 'create table if not exists public.phone_agent_sms_queue',
+    expectedCount: 1,
+  },
+  {
+    label: 'claim_next_phone_agent_sms',
+    needle: 'create or replace function public.claim_next_phone_agent_sms()',
+    expectedCount: 1,
+  },
+  {
+    label: 'zapytaj_live_status',
+    needle: 'create table if not exists public.zapytaj_live_status',
     expectedCount: 1,
   },
   {
@@ -161,6 +201,21 @@ const REQUIRED_SCHEMA_MARKERS: SchemaMarker[] = [
     expectedCount: 1,
   },
   {
+    label: 'growth_signups',
+    needle: 'create table if not exists public.growth_signups',
+    expectedCount: 1,
+  },
+  {
+    label: 'growth_signups.marketing_opt_in',
+    needle: 'marketing_opt_in boolean not null default false',
+    expectedCount: 1,
+  },
+  {
+    label: 'growth_signups.unsubscribe_token',
+    needle: 'unsubscribe_token text',
+    expectedCount: 1,
+  },
+  {
     label: 'revolut_payment_reconciliation_claims',
     needle: 'create table if not exists public.revolut_payment_reconciliation_claims',
     expectedCount: 1,
@@ -178,6 +233,9 @@ const REQUIRED_SCHEMA_MARKERS: SchemaMarker[] = [
 ]
 
 const REQUIRED_FILES = [
+  'supabase/migrations/20260501_lead_bookings.sql',
+  'supabase/migrations/20260712001_bookings_voip_fields.sql',
+  'supabase/migrations/20260902001_questions_expiry.sql',
   'supabase/migrations/20260325_manual_payment_and_payu.sql',
   'supabase/migrations/20260406002_qa_checkout.sql',
   'supabase/migrations/20260601001_promo_codes.sql',
@@ -187,6 +245,7 @@ const REQUIRED_FILES = [
   'supabase/migrations/20260717001_case_map_analytics_and_profile_claims.sql',
   'supabase/migrations/20260717002_case_map_profile_claim_tokens.sql',
   'supabase/migrations/20260901001_zapytaj_flow.sql',
+  'supabase/migrations/20260917001_phone_agent_durable_state.sql',
   'supabase/migrations/20260901002_zapytaj_live_notifications.sql',
   'supabase/migrations/20260901003_zapytaj_call_recovery.sql',
   'supabase/migrations/20260901004_zapytaj_zadarma_scheduler.sql',
@@ -195,10 +254,13 @@ const REQUIRED_FILES = [
   'supabase/migrations/20260901007_recommendation_material.sql',
   'supabase/migrations/20260901008_community_promo_campaigns.sql',
   'supabase/migrations/20260326_sms_payment_confirmation.sql',
+  'supabase/migrations/20260718001_growth_signup_marketing_opt_in.sql',
+  'supabase/migrations/20260718002_repair_reminder_scheduler.sql',
   'supabase/migrations/20261005001_revolut_payment_reconciliation_ledger.sql',
   'supabase/migrations/20261007001_atomic_revolut_payment_reconciliation.sql',
   'supabase/migrations/20261007002_cron_history_retention.sql',
   'supabase/migrations/20261007003_revolut_rpc_permissions.sql',
+  'supabase/migrations/20261010002_remove_duplicate_availability_index.sql',
 ]
 
 function normalizeSchemaText(schemaText: string) {
@@ -241,7 +303,7 @@ function buildSummary(result: Pick<SchemaAuditResult, 'missingFiles' | 'missingM
   }
 
   if (missingSections.length === 0) {
-    return 'Canonical Supabase schema and rollout migrations are in sync.'
+    return 'Canonical Supabase schema contains required runtime tables and rollout markers.'
   }
 
   return `Supabase schema audit failed: ${missingSections.join('; ')}.`

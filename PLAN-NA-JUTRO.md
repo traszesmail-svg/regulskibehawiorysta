@@ -2,12 +2,12 @@
 
 ## Stan bieżący — 10.10.2026
 
-- Motorola `ZY323XJ2V7` jest ponownie dostępna przez ADB i ma aplikację `1.5.5` / `10505`.
-- Tymczasowe `SEND_SMS` po kontrolowanym SMS-ie z 08.10 zostało cofnięte. Odczyt pakietu potwierdził `granted=false`.
-- `SmsQueueService` działa, a ekran aplikacji potwierdził: `Monitorowanie uruchomione. Wysyłka SMS wyłączona.` Kontrolnego SMS-a nie ponawiać.
-- Telefon ma połączenie Wi-Fi z internetem, ale automatyczny i ręczny heartbeat kończą się błędem `Nie udało się odczytać trwałego stanu telefonu.` Logi Vercel potwierdzają odpowiedź `503` co minutę, a publiczna dostępność działa awaryjnie z `storageAvailable:false`, `liveError:true` i `slotsError:true`. Supabase Management API widzi projekt jako `ACTIVE_HEALTHY`, lecz diagnostyka bazy zwraca `DbConfigLoginRoleStatusError` / kod `544` z timeoutem połączenia. To aktualna blokada konkretnego projektu lub jego połączenia; nie traktować jej jako błędu ADB ani pozwolenia na obejście trwałego magazynu.
-- Automatyczne uzgadnianie Revolut pozostaje wyłączone. Lokalny zakres atomowego księgowania, migracji, metryk i skryptów wydania jest domykany testami; nie wdrażać ani nie włączać automatu bez osobnego odbioru.
-- Rozmowa kontrolna nie została wykonana. Wymaga osobnej zgody, ustalonego numeru kontrolnego i udziału odbiorcy; wcześniejszy test SMS nie jest zgodą na połączenie.
+- Motorola `ZY323XJ2V7` jest dostępna przez ADB; zainstalowano podpisane wydanie Operatora `1.5.6` / `10506`, z zachowaniem danych aplikacji.
+- `SmsQueueService` działa jako usługa foreground. `CALL_PHONE` i `ANSWER_PHONE_CALLS` są przyznane (`granted=true`); `SEND_SMS` pozostaje cofnięte (`granted=false`). Telefon działa w bezpiecznym trybie monitor-only (nasłuch kolejki bez wysyłki SMS z karty SIM).
+- Heartbeat zapisuje się trwale w Supabase. O 18:54 czasu warszawskiego serwer zapisał wersję `1.5.6`, baterię `100%`, ładowanie `true` (`is_charging=true`), sieć `Wi-Fi` oraz `is_default_dialer=false`; logcat potwierdza odpowiedź serwera. Wcześniejsze błędy meldunku ustały po odzyskaniu dostępności bazy.
+- Po wdrożeniu nie pojawiły się nowe wpisy SMS. Kolejka ma `pending=0`, `claimed=0`, `sent=8`, `failed=5`; ostatni wysłany SMS to uzgodniony test z 08.10. Nie ponawiać go.
+- Publiczny endpoint dostępności (`/api/zapytaj/availability`) zwraca HTTP `200`. Migracja `20261010002` usunęła redundantny indeks `availability_date_idx` przy zachowaniu klucza unikalnego `availability_booking_date_booking_time_key`. `PHONE_AGENT_AUTO_PAYMENT_RECONCILIATION` pozostaje `false`.
+- Rozmowa kontrolna nie została wykonana. Następny krok fizyczny wymaga osobnej zgody właściciela, wskazanego numeru kontrolnego i udziału odbiorcy. Nie kontaktować klientów.
 
 Poniższe sekcje zachowują historię realizacji. W razie sprzeczności obowiązuje najnowsza sekcja stanu.
 

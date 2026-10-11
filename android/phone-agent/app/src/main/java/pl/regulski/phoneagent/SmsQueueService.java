@@ -9,9 +9,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.os.BatteryManager;
 import android.os.Handler;
 import android.os.IBinder;
+import android.telecom.TelecomManager;
 import android.telephony.SmsManager;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
@@ -150,6 +154,11 @@ public final class SmsQueueService extends Service {
                 if (level >= 0 && scale > 0) body.put("batteryLevel", (int) (level * 100f / scale));
                 if (!running) return;
                 int charge = battery == null ? -1 : battery.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+                if (charge >= 0) body.put("isCharging", charge == BatteryManager.BATTERY_STATUS_CHARGING);
+                String network = getNetworkTransport();
+                if (network != null) body.put("network", network);
+                String defaultDialer = getDefaultDialerPackage();
+                if (defaultDialer != null) body.put("isDefaultDialer", getPackageName().equals(defaultDialer));
                 String version = "1.5.2";
                 try {
                     version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
@@ -159,5 +168,30 @@ public final class SmsQueueService extends Service {
                 android.util.Log.i("RegulskiOperator", "Meldunek potwierdzony przez serwer.");
             } catch (Exception ignored) { android.util.Log.w("RegulskiOperator", "Brak potwierdzenia meldunku; kolejna próba za minutę."); }
         });
+    }
+    private String getNetworkTransport() {
+        try {
+            ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            Network activeNetwork = manager == null ? null : manager.getActiveNetwork();
+            if (activeNetwork == null) return "offline";
+            NetworkCapabilities capabilities = manager.getNetworkCapabilities(activeNetwork);
+            if (capabilities == null) return "unknown";
+            if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) return "Wi-Fi";
+            if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) return "mobile";
+            if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) return "Ethernet";
+            if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) return "VPN";
+            return "other";
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    private String getDefaultDialerPackage() {
+        try {
+            TelecomManager manager = (TelecomManager) getSystemService(Context.TELECOM_SERVICE);
+            return manager == null ? null : manager.getDefaultDialerPackage();
+        } catch (Exception ignored) {
+            return null;
+        }
     }
 }

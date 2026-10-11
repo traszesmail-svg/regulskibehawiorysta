@@ -52,7 +52,7 @@ public final class MainActivity extends Activity {
         layout.setPadding(pad, pad, pad, pad);
         scroll.addView(layout);
 
-        String appVersion = "1.5.5";
+        String appVersion = "1.5.6";
         try {
             appVersion = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
         } catch (Exception ignored) {}
@@ -685,7 +685,7 @@ public final class MainActivity extends Activity {
             try {
                 JSONObject payload = new JSONObject();
                 payload.put("network", "Ręczny test");
-                String version = "1.5.5";
+                String version = "1.5.6";
                 try {
                     version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
                 } catch (Exception ignored) {}

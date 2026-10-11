@@ -903,7 +903,23 @@ async function releasePromoClaimsAfterCleanup(bookingIds: string[]) {
   }
 }
 
-async function cleanupExpiredReservations() {
+let expiredReservationsCleanup: Promise<void> | null = null
+
+function cleanupExpiredReservations(): Promise<void> {
+  if (expiredReservationsCleanup) return expiredReservationsCleanup
+
+  // Parallel availability reads share one cleanup pass instead of racing the
+  // same expired locks and pending bookings against each other.
+  const pending = performExpiredReservationsCleanup()
+  expiredReservationsCleanup = pending
+  const clearPending = () => {
+    if (expiredReservationsCleanup === pending) expiredReservationsCleanup = null
+  }
+  void pending.then(clearPending, clearPending)
+  return pending
+}
+
+async function performExpiredReservationsCleanup() {
   const supabase = getSupabaseAdmin()
   const nowIso = new Date().toISOString()
   const expiredBookingIds = new Set<string>()

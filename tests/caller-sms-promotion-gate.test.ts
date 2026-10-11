@@ -16,6 +16,7 @@ import {
 } from '@/lib/server/db'
 import { listSmsQueue, claimNextPendingSms } from '@/lib/server/phone-agent-store'
 import { POST as promoteSmsApiRoute } from '@/app/api/phone-agent/caller-sms/promote/route'
+import { handleCallerSmsPromoteRequest } from '@/lib/server/caller-sms-promote-handler'
 import { NextRequest } from 'next/server'
 import type { CallerClassificationResult } from '@/lib/server/caller-classification-types'
 
@@ -1220,7 +1221,7 @@ test('17. Bezpieczna odpowiedź 500 przez test-only dependency injection handler
         })
 
         // Test-only mock via deps parameter
-        const res = await promoteSmsApiRoute(req, {
+        const res = await handleCallerSmsPromoteRequest(req, {
           promoter: async () => {
             throw new Error('SIMULATED_UNHANDLED_EXCEPTION: crash in promoter')
           },

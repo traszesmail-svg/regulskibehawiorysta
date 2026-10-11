@@ -1629,8 +1629,10 @@ create sequence if not exists public.availability_notification_queue_seq
   minvalue 1
   no cycle;
 
-revoke all on sequence public.availability_notification_queue_seq from anon, authenticated;
-grant usage, select, update on sequence public.availability_notification_queue_seq to service_role;
+revoke all on sequence public.availability_notification_queue_seq from public, anon, authenticated;
+revoke all on sequence public.availability_notification_queue_seq from service_role;
+grant usage, select on sequence public.availability_notification_queue_seq to service_role;
+
 
 
 -- 1. URGENT INTAKE REQUESTS (Path A: Pilna pomoc dziś / jutro)
@@ -1808,18 +1810,28 @@ alter table public.availability_notification_events enable row level security;
 alter table public.consultation_talk_entitlements enable row level security;
 alter table public.consultation_talk_entitlement_events enable row level security;
 
-revoke all on table public.urgent_intake_requests from anon, authenticated;
-revoke all on table public.urgent_intake_events from anon, authenticated;
-revoke all on table public.availability_notification_requests from anon, authenticated;
-revoke all on table public.availability_notification_events from anon, authenticated;
-revoke all on table public.consultation_talk_entitlements from anon, authenticated;
-revoke all on table public.consultation_talk_entitlement_events from anon, authenticated;
-
+revoke all on table public.urgent_intake_requests from public, anon, authenticated;
+revoke all on table public.urgent_intake_requests from service_role;
 grant select, insert, update on table public.urgent_intake_requests to service_role;
+
+revoke all on table public.urgent_intake_events from public, anon, authenticated;
+revoke all on table public.urgent_intake_events from service_role;
 grant select, insert on table public.urgent_intake_events to service_role;
+
+revoke all on table public.availability_notification_requests from public, anon, authenticated;
+revoke all on table public.availability_notification_requests from service_role;
 grant select, insert, update on table public.availability_notification_requests to service_role;
+
+revoke all on table public.availability_notification_events from public, anon, authenticated;
+revoke all on table public.availability_notification_events from service_role;
 grant select, insert on table public.availability_notification_events to service_role;
+
+revoke all on table public.consultation_talk_entitlements from public, anon, authenticated;
+revoke all on table public.consultation_talk_entitlements from service_role;
 grant select, insert, update on table public.consultation_talk_entitlements to service_role;
+
+revoke all on table public.consultation_talk_entitlement_events from public, anon, authenticated;
+revoke all on table public.consultation_talk_entitlement_events from service_role;
 grant select, insert on table public.consultation_talk_entitlement_events to service_role;
 
 

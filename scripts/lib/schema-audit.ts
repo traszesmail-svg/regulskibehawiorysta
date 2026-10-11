@@ -520,6 +520,111 @@ export const REQUIRED_SCHEMA_MARKERS: SchemaMarker[] = [
     needle: 'create or replace function public.revoke_talk_entitlement(',
     expectedCount: 1,
   },
+  {
+    label: 'availability_notification_queue_seq.revoke_anon_auth',
+    needle: 'revoke all on sequence public.availability_notification_queue_seq from public, anon, authenticated;',
+    expectedCount: 1,
+  },
+  {
+    label: 'availability_notification_queue_seq.revoke_service_role',
+    needle: 'revoke all on sequence public.availability_notification_queue_seq from service_role;',
+    expectedCount: 1,
+  },
+  {
+    label: 'availability_notification_queue_seq.grant_service_role',
+    needle: 'grant usage, select on sequence public.availability_notification_queue_seq to service_role;',
+    expectedCount: 1,
+  },
+  {
+    label: 'urgent_intake_requests.revoke_anon_auth',
+    needle: 'revoke all on table public.urgent_intake_requests from public, anon, authenticated;',
+    expectedCount: 1,
+  },
+  {
+    label: 'urgent_intake_requests.revoke_service_role',
+    needle: 'revoke all on table public.urgent_intake_requests from service_role;',
+    expectedCount: 1,
+  },
+  {
+    label: 'urgent_intake_requests.grant_service_role',
+    needle: 'grant select, insert, update on table public.urgent_intake_requests to service_role;',
+    expectedCount: 1,
+  },
+  {
+    label: 'urgent_intake_events.revoke_anon_auth',
+    needle: 'revoke all on table public.urgent_intake_events from public, anon, authenticated;',
+    expectedCount: 1,
+  },
+  {
+    label: 'urgent_intake_events.revoke_service_role',
+    needle: 'revoke all on table public.urgent_intake_events from service_role;',
+    expectedCount: 1,
+  },
+  {
+    label: 'urgent_intake_events.grant_service_role',
+    needle: 'grant select, insert on table public.urgent_intake_events to service_role;',
+    expectedCount: 1,
+  },
+  {
+    label: 'availability_notification_requests.revoke_anon_auth',
+    needle: 'revoke all on table public.availability_notification_requests from public, anon, authenticated;',
+    expectedCount: 1,
+  },
+  {
+    label: 'availability_notification_requests.revoke_service_role',
+    needle: 'revoke all on table public.availability_notification_requests from service_role;',
+    expectedCount: 1,
+  },
+  {
+    label: 'availability_notification_requests.grant_service_role',
+    needle: 'grant select, insert, update on table public.availability_notification_requests to service_role;',
+    expectedCount: 1,
+  },
+  {
+    label: 'availability_notification_events.revoke_anon_auth',
+    needle: 'revoke all on table public.availability_notification_events from public, anon, authenticated;',
+    expectedCount: 1,
+  },
+  {
+    label: 'availability_notification_events.revoke_service_role',
+    needle: 'revoke all on table public.availability_notification_events from service_role;',
+    expectedCount: 1,
+  },
+  {
+    label: 'availability_notification_events.grant_service_role',
+    needle: 'grant select, insert on table public.availability_notification_events to service_role;',
+    expectedCount: 1,
+  },
+  {
+    label: 'consultation_talk_entitlements.revoke_anon_auth',
+    needle: 'revoke all on table public.consultation_talk_entitlements from public, anon, authenticated;',
+    expectedCount: 1,
+  },
+  {
+    label: 'consultation_talk_entitlements.revoke_service_role',
+    needle: 'revoke all on table public.consultation_talk_entitlements from service_role;',
+    expectedCount: 1,
+  },
+  {
+    label: 'consultation_talk_entitlements.grant_service_role',
+    needle: 'grant select, insert, update on table public.consultation_talk_entitlements to service_role;',
+    expectedCount: 1,
+  },
+  {
+    label: 'consultation_talk_entitlement_events.revoke_anon_auth',
+    needle: 'revoke all on table public.consultation_talk_entitlement_events from public, anon, authenticated;',
+    expectedCount: 1,
+  },
+  {
+    label: 'consultation_talk_entitlement_events.revoke_service_role',
+    needle: 'revoke all on table public.consultation_talk_entitlement_events from service_role;',
+    expectedCount: 1,
+  },
+  {
+    label: 'consultation_talk_entitlement_events.grant_service_role',
+    needle: 'grant select, insert on table public.consultation_talk_entitlement_events to service_role;',
+    expectedCount: 1,
+  },
 ]
 
 export const REQUIRED_FILES = [
@@ -556,6 +661,7 @@ export const REQUIRED_FILES = [
   'supabase/migrations/20261011003_caller_sms_preparations.sql',
   'supabase/migrations/20261011004_stage4_controlled_sms_promotion.sql',
   'supabase/migrations/20261011005_section16_autonomous_intake_and_entitlements.sql',
+  'supabase/migrations/20261011006_section16_append_only_acl.sql',
 ]
 
 function normalizeSchemaText(schemaText: string) {

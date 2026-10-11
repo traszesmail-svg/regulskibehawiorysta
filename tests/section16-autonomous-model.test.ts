@@ -797,7 +797,7 @@ test('Talk Entitlements: revocation transitions active to revoked', async () => 
 // 6. STATIC SCHEMA AUDIT & TRANSITIONS INTEGRITY
 // ============================================================================
 
-test('Static schema audit: migration 20261011005 and canonical markers are fully satisfied', () => {
+test('Static schema audit: migrations 20261011005, 20261011006 and canonical markers are fully satisfied', () => {
   const audit = getSupabaseSchemaAudit()
   assert.equal(audit.ok, true, audit.summary)
   assert.equal(audit.missingFiles.length, 0)
@@ -1715,4 +1715,397 @@ test('Static SQL audit: schema and migration enforce sequence, unique queue posi
     assert.ok(sql.includes("substring(contact_ciphertext from 5) !~* '([0-9][\\s.-]*){9}'"), 'Brak blokady jawnego telefonu w contact_ciphertext SQL')
     assert.ok(sql.includes("substring(contact_ciphertext from 5) !~* '[a-zA-Z0-9_.+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}'"), 'Brak blokady jawnego emaila w contact_ciphertext SQL')
   }
+})
+
+// ============================================================================
+// SECTION 16 ACL CONTRACT AUDIT (APPEND-ONLY & MONOTONIC SEQUENCE PRIVILEGES)
+// ============================================================================
+
+interface PrivilegeMap {
+  [objectName: string]: {
+    [role: string]: Set<string>
+  }
+}
+
+const ALL_TABLE_PRIVILEGES = ['select', 'insert', 'update', 'delete', 'truncate', 'references', 'trigger']
+const ALL_SEQUENCE_PRIVILEGES = ['usage', 'select', 'update']
+const ALL_FUNCTION_PRIVILEGES = ['execute']
+
+const SECTION16_MAIN_TABLES = [
+  'public.urgent_intake_requests',
+  'public.availability_notification_requests',
+  'public.consultation_talk_entitlements',
+]
+
+const SECTION16_EVENT_TABLES = [
+  'public.urgent_intake_events',
+  'public.availability_notification_events',
+  'public.consultation_talk_entitlement_events',
+]
+
+const SECTION16_SEQUENCE = 'public.availability_notification_queue_seq'
+
+const SECTION16_RPCS = [
+  'public.create_urgent_intake_request',
+  'public.propose_urgent_intake_timeslot',
+  'public.confirm_urgent_intake_payment',
+  'public.transition_urgent_intake_state',
+  'public.create_availability_notification_request',
+  'public.offer_availability_notification',
+  'public.confirm_notification_offer_payment',
+  'public.transition_availability_notification_state',
+  'public.create_talk_entitlement',
+  'public.consume_talk_entitlement',
+  'public.revoke_talk_entitlement',
+]
+
+function createDefaultPrivilegeState(): PrivilegeMap {
+  const map: PrivilegeMap = {}
+  for (const t of [...SECTION16_MAIN_TABLES, ...SECTION16_EVENT_TABLES]) {
+    map[t] = {
+      // Simulate PostgreSQL default privileges (pg_default_acl) in Supabase schema public
+      service_role: new Set(ALL_TABLE_PRIVILEGES),
+      anon: new Set(),
+      authenticated: new Set(),
+      public: new Set(),
+    }
+  }
+  map[SECTION16_SEQUENCE] = {
+    service_role: new Set(ALL_SEQUENCE_PRIVILEGES),
+    anon: new Set(),
+    authenticated: new Set(),
+    public: new Set(),
+  }
+  for (const rpc of SECTION16_RPCS) {
+    map[rpc] = {
+      service_role: new Set(),
+      anon: new Set(),
+      authenticated: new Set(),
+      public: new Set(),
+    }
+  }
+  return map
+}
+
+function parseAndApplySqlPrivileges(sql: string, state: PrivilegeMap) {
+  const cleanSql = sql.replace(/--.*$/gm, '')
+  const statements = cleanSql
+    .split(';')
+    .map(s => s.trim().replace(/\s+/g, ' '))
+    .filter(s => s.length > 0)
+
+  for (const stmt of statements) {
+    const revokeMatch = stmt.match(/^revoke\s+(.+?)\s+on\s+(table|sequence|function)\s+([a-zA-Z0-9_.]+)(?:\(.*?\))?\s+from\s+(.+)$/i)
+    if (revokeMatch) {
+      const [, rawPrivs, kind, rawObj, rawRoles] = revokeMatch
+      const obj = rawObj.toLowerCase().startsWith('public.') ? rawObj.toLowerCase() : `public.${rawObj.toLowerCase()}`
+      const roles = rawRoles.split(',').map(r => r.trim().toLowerCase())
+
+      if (!state[obj]) {
+        state[obj] = {
+          service_role: new Set(),
+          anon: new Set(),
+          authenticated: new Set(),
+          public: new Set(),
+        }
+      }
+
+      const privsToRevoke = rawPrivs.trim().toLowerCase().startsWith('all')
+        ? (kind.toLowerCase() === 'table' ? ALL_TABLE_PRIVILEGES : kind.toLowerCase() === 'sequence' ? ALL_SEQUENCE_PRIVILEGES : ALL_FUNCTION_PRIVILEGES)
+        : rawPrivs.split(',').map(p => p.trim().toLowerCase())
+
+      for (const role of roles) {
+        if (!state[obj][role]) {
+          state[obj][role] = new Set()
+        }
+        for (const p of privsToRevoke) {
+          state[obj][role].delete(p)
+        }
+      }
+      continue
+    }
+
+    const grantMatch = stmt.match(/^grant\s+(.+?)\s+on\s+(table|sequence|function)\s+([a-zA-Z0-9_.]+)(?:\(.*?\))?\s+to\s+(.+)$/i)
+    if (grantMatch) {
+      const [, rawPrivs, kind, rawObj, rawRoles] = grantMatch
+      const obj = rawObj.toLowerCase().startsWith('public.') ? rawObj.toLowerCase() : `public.${rawObj.toLowerCase()}`
+      const roles = rawRoles.split(',').map(r => r.trim().toLowerCase())
+
+      if (!state[obj]) {
+        state[obj] = {
+          service_role: new Set(),
+          anon: new Set(),
+          authenticated: new Set(),
+          public: new Set(),
+        }
+      }
+
+      const privsToGrant = rawPrivs.trim().toLowerCase().startsWith('all')
+        ? (kind.toLowerCase() === 'table' ? ALL_TABLE_PRIVILEGES : kind.toLowerCase() === 'sequence' ? ALL_SEQUENCE_PRIVILEGES : ALL_FUNCTION_PRIVILEGES)
+        : rawPrivs.split(',').map(p => p.trim().toLowerCase())
+
+      for (const role of roles) {
+        if (!state[obj][role]) {
+          state[obj][role] = new Set()
+        }
+        for (const p of privsToGrant) {
+          state[obj][role].add(p)
+        }
+      }
+      continue
+    }
+  }
+}
+
+test('Section 16 ACL contract: migration 20261011006 strips default privileges and enforces strict append-only ACL', () => {
+  const mig11005 = readFileSync('supabase/migrations/20261011005_section16_autonomous_intake_and_entitlements.sql', 'utf8')
+  const mig11006 = readFileSync('supabase/migrations/20261011006_section16_append_only_acl.sql', 'utf8')
+
+  const state = createDefaultPrivilegeState()
+  parseAndApplySqlPrivileges(mig11005, state)
+  parseAndApplySqlPrivileges(mig11006, state)
+
+  // 1. Event tables: service_role has ONLY SELECT and INSERT (append-only)
+  for (const table of SECTION16_EVENT_TABLES) {
+    const srPrivs = [...state[table].service_role].sort()
+    assert.deepEqual(
+      srPrivs,
+      ['insert', 'select'],
+      `${table} service_role privileges must be exactly SELECT, INSERT (found ${srPrivs.join(', ')})`,
+    )
+    for (const forbidden of ['update', 'delete', 'truncate', 'references', 'trigger']) {
+      assert.equal(
+        state[table].service_role.has(forbidden),
+        false,
+        `${table} must NOT grant ${forbidden} to service_role`,
+      )
+    }
+    // zero rights for public, anon, authenticated
+    for (const role of ['anon', 'authenticated', 'public']) {
+      assert.equal(
+        state[table][role].size,
+        0,
+        `${table} must have 0 privileges for ${role}`,
+      )
+    }
+  }
+
+  // 2. Main tables: service_role has ONLY SELECT, INSERT, UPDATE (no DELETE/TRUNCATE/REFERENCES/TRIGGER)
+  for (const table of SECTION16_MAIN_TABLES) {
+    const srPrivs = [...state[table].service_role].sort()
+    assert.deepEqual(
+      srPrivs,
+      ['insert', 'select', 'update'],
+      `${table} service_role privileges must be exactly SELECT, INSERT, UPDATE (found ${srPrivs.join(', ')})`,
+    )
+    for (const forbidden of ['delete', 'truncate', 'references', 'trigger']) {
+      assert.equal(
+        state[table].service_role.has(forbidden),
+        false,
+        `${table} must NOT grant ${forbidden} to service_role`,
+      )
+    }
+    // zero rights for public, anon, authenticated
+    for (const role of ['anon', 'authenticated', 'public']) {
+      assert.equal(
+        state[table][role].size,
+        0,
+        `${table} must have 0 privileges for ${role}`,
+      )
+    }
+  }
+
+  // 3. Dedicated sequence: service_role has ONLY USAGE, SELECT (NO UPDATE -> setval is blocked)
+  const seqPrivs = [...state[SECTION16_SEQUENCE].service_role].sort()
+  assert.deepEqual(
+    seqPrivs,
+    ['select', 'usage'],
+    `${SECTION16_SEQUENCE} service_role privileges must be exactly USAGE, SELECT (found ${seqPrivs.join(', ')})`,
+  )
+  assert.equal(
+    state[SECTION16_SEQUENCE].service_role.has('update'),
+    false,
+    `${SECTION16_SEQUENCE} must NOT grant UPDATE to service_role (blocks setval)`,
+  )
+  for (const role of ['anon', 'authenticated', 'public']) {
+    assert.equal(
+      state[SECTION16_SEQUENCE][role].size,
+      0,
+      `${SECTION16_SEQUENCE} must have 0 privileges for ${role}`,
+    )
+  }
+
+  // 4. Mutating RPCs: execute only for service_role, zero for public, anon, authenticated
+  for (const rpc of SECTION16_RPCS) {
+    assert.deepEqual(
+      [...state[rpc].service_role].sort(),
+      ['execute'],
+      `${rpc} service_role must have EXECUTE`,
+    )
+    for (const role of ['anon', 'authenticated', 'public']) {
+      assert.equal(
+        state[rpc][role].size,
+        0,
+        `${rpc} must have 0 privileges for ${role}`,
+      )
+    }
+  }
+})
+
+test('Section 16 ACL contract: canonical schema.sql guarantees identical minimal ACL on fresh install', () => {
+  const schemaSql = readFileSync('supabase/schema.sql', 'utf8')
+  const state = createDefaultPrivilegeState()
+  parseAndApplySqlPrivileges(schemaSql, state)
+
+  // Event tables
+  for (const table of SECTION16_EVENT_TABLES) {
+    assert.deepEqual(
+      [...state[table].service_role].sort(),
+      ['insert', 'select'],
+      `${table} fresh install must have exactly SELECT, INSERT for service_role`,
+    )
+    for (const role of ['anon', 'authenticated', 'public']) {
+      assert.equal(state[table][role].size, 0, `${table} fresh install must have 0 for ${role}`)
+    }
+  }
+
+  // Main tables
+  for (const table of SECTION16_MAIN_TABLES) {
+    assert.deepEqual(
+      [...state[table].service_role].sort(),
+      ['insert', 'select', 'update'],
+      `${table} fresh install must have exactly SELECT, INSERT, UPDATE for service_role`,
+    )
+    for (const role of ['anon', 'authenticated', 'public']) {
+      assert.equal(state[table][role].size, 0, `${table} fresh install must have 0 for ${role}`)
+    }
+  }
+
+  // Sequence
+  assert.deepEqual(
+    [...state[SECTION16_SEQUENCE].service_role].sort(),
+    ['select', 'usage'],
+    `${SECTION16_SEQUENCE} fresh install must have exactly USAGE, SELECT for service_role`,
+  )
+  assert.equal(
+    state[SECTION16_SEQUENCE].service_role.has('update'),
+    false,
+    `${SECTION16_SEQUENCE} fresh install must NOT have UPDATE for service_role`,
+  )
+  for (const role of ['anon', 'authenticated', 'public']) {
+    assert.equal(state[SECTION16_SEQUENCE][role].size, 0, `${SECTION16_SEQUENCE} fresh install must have 0 for ${role}`)
+  }
+
+  // RPCs
+  for (const rpc of SECTION16_RPCS) {
+    assert.deepEqual([...state[rpc].service_role].sort(), ['execute'])
+    for (const role of ['anon', 'authenticated', 'public']) {
+      assert.equal(state[rpc][role].size, 0)
+    }
+  }
+})
+
+test('Section 16 ACL contract: static AST asserts explicit REVOKE ALL before GRANT and absence of prohibited grants', () => {
+  const mig11006 = readFileSync('supabase/migrations/20261011006_section16_append_only_acl.sql', 'utf8')
+
+  // Check sequence: revoke all from service_role before grant
+  const seqRevokeIdx = mig11006.indexOf('revoke all on sequence public.availability_notification_queue_seq from service_role;')
+  const seqGrantIdx = mig11006.indexOf('grant usage, select on sequence public.availability_notification_queue_seq to service_role;')
+  assert.ok(seqRevokeIdx !== -1, 'Brak revoke all on sequence from service_role')
+  assert.ok(seqGrantIdx !== -1, 'Brak grant usage, select on sequence to service_role')
+  assert.ok(seqRevokeIdx < seqGrantIdx, 'Revoke all on sequence musi poprzedzać grant')
+
+  // Ensure sequence never receives UPDATE
+  assert.equal(
+    /grant\s+[^;]*\bupdate\b[^;]*\bon\s+sequence\s+public\.availability_notification_queue_seq/i.test(mig11006),
+    false,
+    'Sekwencja nie może otrzymać UPDATE',
+  )
+
+  // Check all event tables: revoke all from service_role before grant
+  for (const table of SECTION16_EVENT_TABLES) {
+    const rawName = table.replace('public.', '')
+    const revokeIdx = mig11006.indexOf(`revoke all on table public.${rawName} from service_role;`)
+    const grantIdx = mig11006.indexOf(`grant select, insert on table public.${rawName} to service_role;`)
+    assert.ok(revokeIdx !== -1, `Brak revoke all on table ${rawName} from service_role`)
+    assert.ok(grantIdx !== -1, `Brak grant select, insert on table ${rawName} to service_role`)
+    assert.ok(revokeIdx < grantIdx, `Revoke all on table ${rawName} musi poprzedzać grant`)
+
+    // Check no prohibited privileges
+    const grantRegex = new RegExp(`grant\\s+([^;]+?)\\s+on\\s+table\\s+public\\.${rawName}\\s+to\\s+service_role;`, 'i')
+    const match = mig11006.match(grantRegex)
+    assert.ok(match, `Brak dopasowania grantu dla ${rawName}`)
+    const granted = match[1].split(',').map(s => s.trim().toLowerCase())
+    for (const forbidden of ['update', 'delete', 'truncate', 'references', 'trigger']) {
+      assert.equal(
+        granted.includes(forbidden),
+        false,
+        `${rawName} nie może mieć ${forbidden} w grant`,
+      )
+    }
+  }
+
+  // Check all main tables: revoke all from service_role before grant
+  for (const table of SECTION16_MAIN_TABLES) {
+    const rawName = table.replace('public.', '')
+    const revokeIdx = mig11006.indexOf(`revoke all on table public.${rawName} from service_role;`)
+    const grantIdx = mig11006.indexOf(`grant select, insert, update on table public.${rawName} to service_role;`)
+    assert.ok(revokeIdx !== -1, `Brak revoke all on table ${rawName} from service_role`)
+    assert.ok(grantIdx !== -1, `Brak grant select, insert, update on table ${rawName} to service_role`)
+    assert.ok(revokeIdx < grantIdx, `Revoke all on table ${rawName} musi poprzedzać grant`)
+
+    const grantRegex = new RegExp(`grant\\s+([^;]+?)\\s+on\\s+table\\s+public\\.${rawName}\\s+to\\s+service_role;`, 'i')
+    const match = mig11006.match(grantRegex)
+    assert.ok(match, `Brak dopasowania grantu dla ${rawName}`)
+    const granted = match[1].split(',').map(s => s.trim().toLowerCase())
+    for (const forbidden of ['delete', 'truncate', 'references', 'trigger']) {
+      assert.equal(
+        granted.includes(forbidden),
+        false,
+        `${rawName} nie może mieć ${forbidden} w grant`,
+      )
+    }
+  }
+
+  // Ensure NO grant statements exist for public, anon, or authenticated
+  const unsafeGrantRegex = /grant\s+[^;]+?\s+to\s+[^;]*\b(public|anon|authenticated)\b/i
+  assert.equal(
+    unsafeGrantRegex.test(mig11006),
+    false,
+    'Migracja 20261011006 nie może nadawać uprawnień rolom public, anon ani authenticated',
+  )
+})
+
+test('Section 16 ACL contract: negative validation catches simulated ACL leaks and regressions', () => {
+  // Test 1: Leaked UPDATE on event table is caught
+  const leakedEventState = createDefaultPrivilegeState()
+  parseAndApplySqlPrivileges(`
+    revoke all on table public.urgent_intake_events from service_role;
+    grant select, insert, update on table public.urgent_intake_events to service_role;
+  `, leakedEventState)
+  assert.equal(leakedEventState['public.urgent_intake_events'].service_role.has('update'), true)
+
+  // Test 2: Leaked UPDATE on sequence is caught
+  const leakedSeqState = createDefaultPrivilegeState()
+  parseAndApplySqlPrivileges(`
+    revoke all on sequence public.availability_notification_queue_seq from service_role;
+    grant usage, select, update on sequence public.availability_notification_queue_seq to service_role;
+  `, leakedSeqState)
+  assert.equal(leakedSeqState['public.availability_notification_queue_seq'].service_role.has('update'), true)
+
+  // Test 3: Unstripped default privileges (omitted revoke) are caught
+  const unstrippedState = createDefaultPrivilegeState()
+  parseAndApplySqlPrivileges(`
+    grant select, insert on table public.urgent_intake_events to service_role;
+  `, unstrippedState)
+  // Since revoke all was omitted, default privileges (delete, truncate, etc.) still remain!
+  assert.equal(unstrippedState['public.urgent_intake_events'].service_role.has('delete'), true)
+  assert.equal(unstrippedState['public.urgent_intake_events'].service_role.has('truncate'), true)
+
+  // Test 4: Leaked anon grant is caught
+  const leakedAnonState = createDefaultPrivilegeState()
+  parseAndApplySqlPrivileges(`
+    grant select on table public.urgent_intake_events to anon;
+  `, leakedAnonState)
+  assert.equal(leakedAnonState['public.urgent_intake_events'].anon.has('select'), true)
 })

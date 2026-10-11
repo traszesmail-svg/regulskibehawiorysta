@@ -534,3 +534,12 @@ Nie udało się odzyskać konfiguracji klucza odpowiadającego certyfikatowi `d5
 - Czas oczekiwania i komunikatów nie zużywa czasu konsultacji; sygnały oraz pytania uzupełniające są zgodne z zatwierdzoną ofertą.
 - Publiczne usunięcie nawigacji/statusu wymaga odbioru funkcjonalnego, responsywnego i wizualnego na desktopie i urządzeniu mobilnym.
 - Bieżąca zgoda obejmuje wyłącznie zapisanie i dopracowanie planu. Nie obejmuje wysyłania SMS-ów, wykonywania połączeń, kontaktowania byłych klientów, uruchamiania kodów lecznic, zmiany publicznego interfejsu ani rozpoczęcia pilotażu.
+
+### 16.9. Pilot testowy płatności (0,01 zł), uprawnień i materiałów PDF (zapis na przyszłość)
+- **Grupa docelowa:** wyłącznie świadomie zatwierdzeni uczestnicy projektu testowego.
+- **Dostęp i linki:** po umówieniu rozmowy uczestnicy otrzymują oficjalny link do dedykowanej strony testowej.
+- **Kwota testowa (0,01 zł):** testowa rezerwacja/rozmowa oraz każdy wskazany testowy PDF mają ustaloną cenę `0,01 zł`, aby zweryfikować pełny przepływ transakcyjny: płatność, idempotentne nadanie dostępu i pobranie materiału.
+- **Dostęp do materiałów PDF:** plik PDF staje się dostępny dopiero po idempotentnym potwierdzeniu płatności, wyłącznie przez ograniczony czasowo / jednorazowy bezpieczny link, z pełnym audytem bez danych wrażliwych.
+- **Bramka regulaminowa i kwotowa operatora:** przed techniczną realizacją należy bezwzględnie zweryfikować minimalną kwotę transakcji oraz regulamin operatora płatności. Jeśli kwota `0,01 zł` nie jest dopuszczalna przez operatora, należy użyć najniższej dozwolonej kwoty lub formalnego trybu sandbox/test — kategorycznie nie wolno udawać realnej płatności.
+- **Księgowość i oznaczenia:** należy formalnie uwzględnić zasady księgowania, dokument sprzedaży / ewentualny zwrot oraz jednoznaczne oznaczenie transakcji etykietą `TEST`.
+- **Rygor uprawnień i status:** ten zapis stanowi wyłącznie formalną specyfikację planistyczną na przyszłość i NIE upoważnia obecnie do tworzenia produktów, inicjowania płatności, generowania i wysyłania linków ani do jakiegokolwiek kontaktu z uczestnikami. Realizacja nastąpi w osobnym etapie po odrębnym odbiorze technicznym.

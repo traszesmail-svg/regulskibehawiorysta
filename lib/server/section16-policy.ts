@@ -10,6 +10,7 @@ import {
   Section16InvalidTimezoneError,
   Section16PrivacyError,
   Section16ValidationError,
+  Section16InvalidIdempotencyKeyError,
 } from './section16-types'
 
 // Limits & Defaults (Safe parameters with validated bounds)
@@ -149,6 +150,25 @@ export function validateContactCiphertextContract(ciphertext?: string | null): v
       'Niedozwolona próba zapisu jawnego numeru lub adresu email w polu contactCiphertext',
     )
   }
+}
+
+/**
+ * Validates the idempotencyKey contract: mandatory string of length 1-128 after trim.
+ * Rejects missing, empty, whitespace-only, non-string, or >128 char keys (fail-closed).
+ */
+export function validateIdempotencyKey(key?: unknown): string {
+  if (typeof key !== 'string') {
+    throw new Section16InvalidIdempotencyKeyError(
+      'Wymagany jest niepusty klucz idempotencji (idempotencyKey jako ciąg znaków)',
+    )
+  }
+  const trimmed = key.trim()
+  if (trimmed.length < 1 || trimmed.length > 128) {
+    throw new Section16InvalidIdempotencyKeyError(
+      'Klucz idempotencji (idempotencyKey) musi mieć długość od 1 do 128 znaków po usunięciu białych znaków',
+    )
+  }
+  return trimmed
 }
 
 /**

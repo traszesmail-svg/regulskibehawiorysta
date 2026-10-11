@@ -186,6 +186,13 @@ export class Section16ValidationError extends Section16DomainError {
   }
 }
 
+export class Section16InvalidIdempotencyKeyError extends Section16ValidationError {
+  constructor(message = 'Wymagany jest prawidłowy klucz idempotencji (1-128 znaków)') {
+    super(message)
+    this.name = 'Section16InvalidIdempotencyKeyError'
+  }
+}
+
 // Data Entities
 export interface UrgentIntakeRequest {
   id: string
@@ -205,7 +212,7 @@ export interface UrgentIntakeRequest {
   paymentReference: string | null
   bookingId: string | null
   version: number
-  idempotencyKey: string | null
+  idempotencyKey: string
   createdAt: string
   updatedAt: string
 }
@@ -238,7 +245,7 @@ export interface AvailabilityNotificationRequest {
   bookingId: string | null
   expiresAt: string
   version: number
-  idempotencyKey: string | null
+  idempotencyKey: string
   createdAt: string
   updatedAt: string
 }
@@ -270,7 +277,7 @@ export interface ConsultationTalkEntitlement {
   consumedAt: string | null
   consumedCallSessionId: string | null
   version: number
-  idempotencyKey: string | null
+  idempotencyKey: string
   createdAt: string
   updatedAt: string
 }
@@ -299,7 +306,7 @@ export interface CreateUrgentIntakeInput {
   clientName?: string | null
   clientNotes?: string | null
   expiresAt?: string | null
-  idempotencyKey?: string | null
+  idempotencyKey: string
   payload?: Record<string, unknown>
 }
 
@@ -310,7 +317,7 @@ export interface ProposeUrgentTimeslotInput {
   proposedTime: string // HH:MM
   proposedTimeslotIso?: string | null
   holdExpiresAt?: string | null // defaults to fail-closed duration e.g. 15-30m
-  idempotencyKey?: string | null
+  idempotencyKey: string
   payload?: Record<string, unknown>
 }
 
@@ -319,7 +326,7 @@ export interface ConfirmUrgentPaymentInput {
   expectedVersion?: number
   paymentReference: string
   bookingId?: string | null
-  idempotencyKey?: string | null
+  idempotencyKey: string
   payload?: Record<string, unknown>
 }
 
@@ -328,7 +335,7 @@ export interface TransitionUrgentIntakeInput {
   targetState: 'expired' | 'cancelled' | 'rejected'
   expectedVersion?: number
   reason?: string | null
-  idempotencyKey?: string | null
+  idempotencyKey: string
   payload?: Record<string, unknown>
 }
 
@@ -341,7 +348,7 @@ export interface CreateAvailabilityNotificationInput {
   channel?: 'sms' | 'email'
   clientName?: string | null
   expiresAt?: string | null
-  idempotencyKey?: string | null
+  idempotencyKey: string
   payload?: Record<string, unknown>
 }
 
@@ -349,7 +356,7 @@ export interface OfferAvailabilityNotificationInput {
   requestId: string
   expectedVersion?: number
   offerExpiresAt?: string | null
-  idempotencyKey?: string | null
+  idempotencyKey: string
   payload?: Record<string, unknown>
 }
 
@@ -358,7 +365,7 @@ export interface ConfirmNotificationPaymentInput {
   expectedVersion?: number
   paymentReference: string
   bookingId?: string | null
-  idempotencyKey?: string | null
+  idempotencyKey: string
   payload?: Record<string, unknown>
 }
 
@@ -367,7 +374,7 @@ export interface TransitionAvailabilityNotificationInput {
   targetState: 'consumed' | 'expired' | 'cancelled'
   expectedVersion?: number
   reason?: string | null
-  idempotencyKey?: string | null
+  idempotencyKey: string
   payload?: Record<string, unknown>
 }
 
@@ -383,7 +390,7 @@ export interface CreateTalkEntitlementInput {
   allocatedSeconds?: number
   validFrom: string
   validUntil: string
-  idempotencyKey?: string | null
+  idempotencyKey: string
   payload?: Record<string, unknown>
 }
 
@@ -391,7 +398,7 @@ export interface ConsumeTalkEntitlementInput {
   entitlementId: string
   callSessionId: string
   expectedVersion?: number
-  idempotencyKey?: string | null
+  idempotencyKey: string
   payload?: Record<string, unknown>
 }
 
@@ -399,6 +406,6 @@ export interface RevokeTalkEntitlementInput {
   entitlementId: string
   expectedVersion?: number
   reason?: string | null
-  idempotencyKey?: string | null
+  idempotencyKey: string
   payload?: Record<string, unknown>
 }

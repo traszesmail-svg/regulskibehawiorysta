@@ -3,6 +3,18 @@
 -- for Urgent Intake (today/tomorrow), Availability Notifications ("Powiadom mnie"),
 -- and Future Timed Talk Entitlements.
 
+-- 0. DEDICATED SEQUENCE FOR AVAILABILITY NOTIFICATIONS QUEUE
+create sequence if not exists public.availability_notification_queue_seq
+  as bigint
+  start with 1
+  increment by 1
+  minvalue 1
+  no cycle;
+
+revoke all on sequence public.availability_notification_queue_seq from anon, authenticated;
+grant usage, select, update on sequence public.availability_notification_queue_seq to service_role;
+
+
 -- 1. URGENT INTAKE REQUESTS (Path A: Pilna pomoc dziś / jutro)
 create table if not exists public.urgent_intake_requests (
   id uuid primary key default gen_random_uuid(),
@@ -10,7 +22,14 @@ create table if not exists public.urgent_intake_requests (
   target_date date not null,
   caller_phone_fingerprint text not null,
   caller_phone_masked text not null,
-  contact_ciphertext text check (contact_ciphertext is null or length(contact_ciphertext) >= 16),
+  contact_ciphertext text check (
+    contact_ciphertext is null or (
+      length(trim(contact_ciphertext)) >= 16
+      and contact_ciphertext like 'enc:%'
+      and substring(contact_ciphertext from 5) !~* '([0-9][\s.-]*){9}'
+      and substring(contact_ciphertext from 5) !~* '[a-zA-Z0-9_.+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
+    )
+  ),
   client_name text,
   client_notes text,
   state text not null default 'pending_proposal' check (state in ('pending_proposal', 'timeslot_proposed', 'payment_confirmed', 'expired', 'cancelled', 'rejected')),
@@ -22,7 +41,7 @@ create table if not exists public.urgent_intake_requests (
   payment_reference text,
   booking_id uuid references public.bookings(id) on delete set null,
   version integer not null default 1 check (version >= 1),
-  idempotency_key text unique,
+  idempotency_key text not null unique check (length(trim(idempotency_key)) between 1 and 128),
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now()),
   check (booking_id is null or state = 'payment_confirmed'),
@@ -46,8 +65,8 @@ create table if not exists public.urgent_intake_events (
   from_state text check (from_state is null or from_state in ('pending_proposal', 'timeslot_proposed', 'payment_confirmed', 'expired', 'cancelled', 'rejected')),
   to_state text not null check (to_state in ('pending_proposal', 'timeslot_proposed', 'payment_confirmed', 'expired', 'cancelled', 'rejected')),
   payload jsonb not null default '{}'::jsonb,
-  payload_hash text not null,
-  idempotency_key text not null unique,
+  payload_hash text not null check (length(trim(payload_hash)) > 0),
+  idempotency_key text not null unique check (length(trim(idempotency_key)) between 1 and 128),
   created_at timestamptz not null default timezone('utc', now())
 );
 
@@ -60,11 +79,18 @@ create table if not exists public.availability_notification_requests (
   id uuid primary key default gen_random_uuid(),
   caller_phone_fingerprint text not null,
   caller_phone_masked text not null,
-  contact_ciphertext text check (contact_ciphertext is null or length(contact_ciphertext) >= 16),
+  contact_ciphertext text check (
+    contact_ciphertext is null or (
+      length(trim(contact_ciphertext)) >= 16
+      and contact_ciphertext like 'enc:%'
+      and substring(contact_ciphertext from 5) !~* '([0-9][\s.-]*){9}'
+      and substring(contact_ciphertext from 5) !~* '[a-zA-Z0-9_.+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
+    )
+  ),
   channel text not null default 'sms' check (channel in ('sms', 'email')),
   client_name text,
   state text not null default 'queued' check (state in ('queued', 'offer_sent', 'accepted_paid', 'expired', 'cancelled', 'consumed')),
-  queue_position integer not null default 1 check (queue_position > 0),
+  queue_position bigint not null default nextval('public.availability_notification_queue_seq') check (queue_position > 0),
   offered_at timestamptz,
   offer_expires_at timestamptz,
   accepted_at timestamptz,
@@ -72,9 +98,10 @@ create table if not exists public.availability_notification_requests (
   booking_id uuid references public.bookings(id) on delete set null,
   expires_at timestamptz not null,
   version integer not null default 1 check (version >= 1),
-  idempotency_key text unique,
+  idempotency_key text not null unique check (length(trim(idempotency_key)) between 1 and 128),
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now()),
+  constraint availability_notification_requests_queue_position_key unique (queue_position),
   check (booking_id is null or state in ('accepted_paid', 'consumed')),
   check (state <> 'offer_sent' or (offered_at is not null and offer_expires_at is not null)),
   check (state <> 'accepted_paid' or (payment_reference is not null and accepted_at is not null))
@@ -96,8 +123,8 @@ create table if not exists public.availability_notification_events (
   from_state text check (from_state is null or from_state in ('queued', 'offer_sent', 'accepted_paid', 'expired', 'cancelled', 'consumed')),
   to_state text not null check (to_state in ('queued', 'offer_sent', 'accepted_paid', 'expired', 'cancelled', 'consumed')),
   payload jsonb not null default '{}'::jsonb,
-  payload_hash text not null,
-  idempotency_key text not null unique,
+  payload_hash text not null check (length(trim(payload_hash)) > 0),
+  idempotency_key text not null unique check (length(trim(idempotency_key)) between 1 and 128),
   created_at timestamptz not null default timezone('utc', now())
 );
 
@@ -121,11 +148,12 @@ create table if not exists public.consultation_talk_entitlements (
   consumed_at timestamptz,
   consumed_call_session_id uuid references public.call_sessions(id) on delete set null,
   version integer not null default 1 check (version >= 1),
-  idempotency_key text unique,
+  idempotency_key text not null unique check (length(trim(idempotency_key)) between 1 and 128),
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now()),
   check (valid_until > valid_from),
   check (length(trim(payment_reference)) > 0),
+  check (urgent_request_id is not null or notification_request_id is not null or booking_id is not null),
   check (state <> 'consumed' or (consumed_at is not null and consumed_call_session_id is not null))
 );
 
@@ -145,8 +173,8 @@ create table if not exists public.consultation_talk_entitlement_events (
   from_state text check (from_state is null or from_state in ('active', 'consumed', 'expired', 'revoked')),
   to_state text not null check (to_state in ('active', 'consumed', 'expired', 'revoked')),
   payload jsonb not null default '{}'::jsonb,
-  payload_hash text not null,
-  idempotency_key text not null unique,
+  payload_hash text not null check (length(trim(payload_hash)) > 0),
+  idempotency_key text not null unique check (length(trim(idempotency_key)) between 1 and 128),
   created_at timestamptz not null default timezone('utc', now())
 );
 
@@ -204,6 +232,28 @@ declare
   v_today date := (timezone('utc', now()) at time zone 'Europe/Warsaw')::date;
   v_new_id uuid := coalesce(p_request_id, gen_random_uuid());
 begin
+  if p_idempotency_key is null or length(trim(p_idempotency_key)) = 0 or length(trim(p_idempotency_key)) > 128 then
+    raise exception 'INVALID_IDEMPOTENCY_KEY: Klucz idempotencji jest wymagany i musi mieć od 1 do 128 znaków';
+  end if;
+
+  if p_payload_hash is null or length(trim(p_payload_hash)) = 0 then
+    raise exception 'INVALID_PAYLOAD_HASH: Hash payloadu jest wymagany';
+  end if;
+
+  perform pg_advisory_xact_lock(hashtext('urgent_intake_idempotency:' || p_idempotency_key));
+
+  select * into v_existing_event
+  from public.urgent_intake_events
+  where idempotency_key = p_idempotency_key;
+
+  if found then
+    if v_existing_event.payload_hash <> p_payload_hash then
+      raise exception 'IDEMPOTENCY_CONFLICT: Klucz % został już użyty z innym ładunkiem', p_idempotency_key;
+    end if;
+    select * into v_req from public.urgent_intake_requests where id = v_existing_event.request_id;
+    return v_req;
+  end if;
+
   if p_day_choice not in ('today', 'tomorrow') then
     raise exception 'INVALID_DAY_CHOICE: Wybór dnia musi wynosić "today" lub "tomorrow"';
   end if;
@@ -220,24 +270,16 @@ begin
     raise exception 'INVALID_FINGERPRINT: Wymagany jest fingerprint numeru telefonu';
   end if;
 
-  if p_expires_at is null or p_expires_at <= timezone('utc', now()) then
-    raise exception 'INVALID_EXPIRY: Czas wygaśnięcia musi znajdować się w przyszłości';
+  if p_contact_ciphertext is not null then
+    if length(trim(p_contact_ciphertext)) < 16 or p_contact_ciphertext not like 'enc:%'
+       or substring(p_contact_ciphertext from 5) ~* '([0-9][\s.-]*){9}'
+       or substring(p_contact_ciphertext from 5) ~* '[a-zA-Z0-9_.+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}' then
+      raise exception 'INVALID_CONTACT_CIPHERTEXT: contact_ciphertext musi mieć prefiks enc:, min. 16 znaków i nie może zawierać jawnego telefonu ani e-maila';
+    end if;
   end if;
 
-  if p_idempotency_key is not null then
-    perform pg_advisory_xact_lock(hashtext('urgent_intake_idempotency:' || p_idempotency_key));
-
-    select * into v_existing_event
-    from public.urgent_intake_events
-    where idempotency_key = p_idempotency_key;
-
-    if found then
-      if p_payload_hash is not null and v_existing_event.payload_hash <> p_payload_hash then
-        raise exception 'IDEMPOTENCY_CONFLICT: Klucz % został już użyty z innym ładunkiem', p_idempotency_key;
-      end if;
-      select * into v_req from public.urgent_intake_requests where id = v_existing_event.request_id;
-      return v_req;
-    end if;
+  if p_expires_at is null or p_expires_at <= timezone('utc', now()) then
+    raise exception 'INVALID_EXPIRY: Czas wygaśnięcia musi znajdować się w przyszłości';
   end if;
 
   insert into public.urgent_intake_requests (
@@ -273,25 +315,23 @@ begin
   )
   returning * into v_req;
 
-  if p_idempotency_key is not null then
-    insert into public.urgent_intake_events (
-      request_id,
-      event_type,
-      from_state,
-      to_state,
-      payload,
-      payload_hash,
-      idempotency_key
-    ) values (
-      v_req.id,
-      'request_created',
-      null,
-      'pending_proposal',
-      coalesce(p_payload, '{}'::jsonb),
-      coalesce(p_payload_hash, ''),
-      p_idempotency_key
-    );
-  end if;
+  insert into public.urgent_intake_events (
+    request_id,
+    event_type,
+    from_state,
+    to_state,
+    payload,
+    payload_hash,
+    idempotency_key
+  ) values (
+    v_req.id,
+    'request_created',
+    null,
+    'pending_proposal',
+    coalesce(p_payload, '{}'::jsonb),
+    p_payload_hash,
+    p_idempotency_key
+  );
 
   return v_req;
 end;
@@ -318,23 +358,29 @@ declare
   v_existing_event public.urgent_intake_events%rowtype;
   v_now timestamptz := timezone('utc', now());
 begin
-  if p_idempotency_key is not null then
-    perform pg_advisory_xact_lock(hashtext('urgent_intake_idempotency:' || p_idempotency_key));
+  if p_idempotency_key is null or length(trim(p_idempotency_key)) = 0 or length(trim(p_idempotency_key)) > 128 then
+    raise exception 'INVALID_IDEMPOTENCY_KEY: Klucz idempotencji jest wymagany i musi mieć od 1 do 128 znaków';
+  end if;
 
-    select * into v_existing_event
-    from public.urgent_intake_events
-    where idempotency_key = p_idempotency_key;
+  if p_payload_hash is null or length(trim(p_payload_hash)) = 0 then
+    raise exception 'INVALID_PAYLOAD_HASH: Hash payloadu jest wymagany';
+  end if;
 
-    if found then
-      if p_payload_hash is not null and v_existing_event.payload_hash <> p_payload_hash then
-        raise exception 'IDEMPOTENCY_CONFLICT: Klucz % został już użyty z innym ładunkiem', p_idempotency_key;
-      end if;
-      if v_existing_event.request_id <> p_request_id then
-        raise exception 'IDEMPOTENCY_CONFLICT: Klucz % został użyty dla innego zgłoszenia', p_idempotency_key;
-      end if;
-      select * into v_req from public.urgent_intake_requests where id = p_request_id;
-      return v_req;
+  perform pg_advisory_xact_lock(hashtext('urgent_intake_idempotency:' || p_idempotency_key));
+
+  select * into v_existing_event
+  from public.urgent_intake_events
+  where idempotency_key = p_idempotency_key;
+
+  if found then
+    if v_existing_event.payload_hash <> p_payload_hash then
+      raise exception 'IDEMPOTENCY_CONFLICT: Klucz % został już użyty z innym ładunkiem', p_idempotency_key;
     end if;
+    if v_existing_event.request_id <> p_request_id then
+      raise exception 'IDEMPOTENCY_CONFLICT: Klucz % został użyty dla innego zgłoszenia', p_idempotency_key;
+    end if;
+    select * into v_req from public.urgent_intake_requests where id = p_request_id;
+    return v_req;
   end if;
 
   select * into v_req
@@ -381,25 +427,23 @@ begin
   where id = p_request_id
   returning * into v_req;
 
-  if p_idempotency_key is not null then
-    insert into public.urgent_intake_events (
-      request_id,
-      event_type,
-      from_state,
-      to_state,
-      payload,
-      payload_hash,
-      idempotency_key
-    ) values (
-      v_req.id,
-      'timeslot_proposed',
-      'pending_proposal',
-      'timeslot_proposed',
-      coalesce(p_payload, '{}'::jsonb),
-      coalesce(p_payload_hash, ''),
-      p_idempotency_key
-    );
-  end if;
+  insert into public.urgent_intake_events (
+    request_id,
+    event_type,
+    from_state,
+    to_state,
+    payload,
+    payload_hash,
+    idempotency_key
+  ) values (
+    v_req.id,
+    'timeslot_proposed',
+    'pending_proposal',
+    'timeslot_proposed',
+    coalesce(p_payload, '{}'::jsonb),
+    p_payload_hash,
+    p_idempotency_key
+  );
 
   return v_req;
 end;
@@ -424,23 +468,29 @@ declare
   v_existing_event public.urgent_intake_events%rowtype;
   v_now timestamptz := timezone('utc', now());
 begin
-  if p_idempotency_key is not null then
-    perform pg_advisory_xact_lock(hashtext('urgent_intake_idempotency:' || p_idempotency_key));
+  if p_idempotency_key is null or length(trim(p_idempotency_key)) = 0 or length(trim(p_idempotency_key)) > 128 then
+    raise exception 'INVALID_IDEMPOTENCY_KEY: Klucz idempotencji jest wymagany i musi mieć od 1 do 128 znaków';
+  end if;
 
-    select * into v_existing_event
-    from public.urgent_intake_events
-    where idempotency_key = p_idempotency_key;
+  if p_payload_hash is null or length(trim(p_payload_hash)) = 0 then
+    raise exception 'INVALID_PAYLOAD_HASH: Hash payloadu jest wymagany';
+  end if;
 
-    if found then
-      if p_payload_hash is not null and v_existing_event.payload_hash <> p_payload_hash then
-        raise exception 'IDEMPOTENCY_CONFLICT: Klucz % został już użyty z innym ładunkiem', p_idempotency_key;
-      end if;
-      if v_existing_event.request_id <> p_request_id then
-        raise exception 'IDEMPOTENCY_CONFLICT: Klucz % został użyty dla innego zgłoszenia', p_idempotency_key;
-      end if;
-      select * into v_req from public.urgent_intake_requests where id = p_request_id;
-      return v_req;
+  perform pg_advisory_xact_lock(hashtext('urgent_intake_idempotency:' || p_idempotency_key));
+
+  select * into v_existing_event
+  from public.urgent_intake_events
+  where idempotency_key = p_idempotency_key;
+
+  if found then
+    if v_existing_event.payload_hash <> p_payload_hash then
+      raise exception 'IDEMPOTENCY_CONFLICT: Klucz % został już użyty z innym ładunkiem', p_idempotency_key;
     end if;
+    if v_existing_event.request_id <> p_request_id then
+      raise exception 'IDEMPOTENCY_CONFLICT: Klucz % został użyty dla innego zgłoszenia', p_idempotency_key;
+    end if;
+    select * into v_req from public.urgent_intake_requests where id = p_request_id;
+    return v_req;
   end if;
 
   select * into v_req
@@ -481,25 +531,23 @@ begin
   where id = p_request_id
   returning * into v_req;
 
-  if p_idempotency_key is not null then
-    insert into public.urgent_intake_events (
-      request_id,
-      event_type,
-      from_state,
-      to_state,
-      payload,
-      payload_hash,
-      idempotency_key
-    ) values (
-      v_req.id,
-      'payment_confirmed',
-      'timeslot_proposed',
-      'payment_confirmed',
-      coalesce(p_payload, '{}'::jsonb),
-      coalesce(p_payload_hash, ''),
-      p_idempotency_key
-    );
-  end if;
+  insert into public.urgent_intake_events (
+    request_id,
+    event_type,
+    from_state,
+    to_state,
+    payload,
+    payload_hash,
+    idempotency_key
+  ) values (
+    v_req.id,
+    'payment_confirmed',
+    'timeslot_proposed',
+    'payment_confirmed',
+    coalesce(p_payload, '{}'::jsonb),
+    p_payload_hash,
+    p_idempotency_key
+  );
 
   return v_req;
 end;
@@ -525,27 +573,33 @@ declare
   v_old_state text;
   v_now timestamptz := timezone('utc', now());
 begin
+  if p_idempotency_key is null or length(trim(p_idempotency_key)) = 0 or length(trim(p_idempotency_key)) > 128 then
+    raise exception 'INVALID_IDEMPOTENCY_KEY: Klucz idempotencji jest wymagany i musi mieć od 1 do 128 znaków';
+  end if;
+
+  if p_payload_hash is null or length(trim(p_payload_hash)) = 0 then
+    raise exception 'INVALID_PAYLOAD_HASH: Hash payloadu jest wymagany';
+  end if;
+
   if p_target_state not in ('expired', 'cancelled', 'rejected') then
     raise exception 'INVALID_TARGET_STATE: Dozwolone cele przejścia to: expired, cancelled, rejected';
   end if;
 
-  if p_idempotency_key is not null then
-    perform pg_advisory_xact_lock(hashtext('urgent_intake_idempotency:' || p_idempotency_key));
+  perform pg_advisory_xact_lock(hashtext('urgent_intake_idempotency:' || p_idempotency_key));
 
-    select * into v_existing_event
-    from public.urgent_intake_events
-    where idempotency_key = p_idempotency_key;
+  select * into v_existing_event
+  from public.urgent_intake_events
+  where idempotency_key = p_idempotency_key;
 
-    if found then
-      if p_payload_hash is not null and v_existing_event.payload_hash <> p_payload_hash then
-        raise exception 'IDEMPOTENCY_CONFLICT: Klucz % został już użyty z innym ładunkiem', p_idempotency_key;
-      end if;
-      if v_existing_event.request_id <> p_request_id then
-        raise exception 'IDEMPOTENCY_CONFLICT: Klucz % został użyty dla innego zgłoszenia', p_idempotency_key;
-      end if;
-      select * into v_req from public.urgent_intake_requests where id = p_request_id;
-      return v_req;
+  if found then
+    if v_existing_event.payload_hash <> p_payload_hash then
+      raise exception 'IDEMPOTENCY_CONFLICT: Klucz % został już użyty z innym ładunkiem', p_idempotency_key;
     end if;
+    if v_existing_event.request_id <> p_request_id then
+      raise exception 'IDEMPOTENCY_CONFLICT: Klucz % został użyty dla innego zgłoszenia', p_idempotency_key;
+    end if;
+    select * into v_req from public.urgent_intake_requests where id = p_request_id;
+    return v_req;
   end if;
 
   select * into v_req
@@ -579,25 +633,23 @@ begin
   where id = p_request_id
   returning * into v_req;
 
-  if p_idempotency_key is not null then
-    insert into public.urgent_intake_events (
-      request_id,
-      event_type,
-      from_state,
-      to_state,
-      payload,
-      payload_hash,
-      idempotency_key
-    ) values (
-      v_req.id,
-      coalesce(p_reason, p_target_state),
-      v_old_state,
-      p_target_state,
-      coalesce(p_payload, '{}'::jsonb),
-      coalesce(p_payload_hash, ''),
-      p_idempotency_key
-    );
-  end if;
+  insert into public.urgent_intake_events (
+    request_id,
+    event_type,
+    from_state,
+    to_state,
+    payload,
+    payload_hash,
+    idempotency_key
+  ) values (
+    v_req.id,
+    coalesce(p_reason, p_target_state),
+    v_old_state,
+    p_target_state,
+    coalesce(p_payload, '{}'::jsonb),
+    p_payload_hash,
+    p_idempotency_key
+  );
 
   return v_req;
 end;
@@ -627,9 +679,31 @@ declare
   v_req public.availability_notification_requests%rowtype;
   v_existing_event public.availability_notification_events%rowtype;
   v_new_id uuid := coalesce(p_request_id, gen_random_uuid());
-  v_next_pos integer;
+  v_next_pos bigint;
   v_channel text := coalesce(p_channel, 'sms');
 begin
+  if p_idempotency_key is null or length(trim(p_idempotency_key)) = 0 or length(trim(p_idempotency_key)) > 128 then
+    raise exception 'INVALID_IDEMPOTENCY_KEY: Klucz idempotencji jest wymagany i musi mieć od 1 do 128 znaków';
+  end if;
+
+  if p_payload_hash is null or length(trim(p_payload_hash)) = 0 then
+    raise exception 'INVALID_PAYLOAD_HASH: Hash payloadu jest wymagany';
+  end if;
+
+  perform pg_advisory_xact_lock(hashtext('avail_notif_idempotency:' || p_idempotency_key));
+
+  select * into v_existing_event
+  from public.availability_notification_events
+  where idempotency_key = p_idempotency_key;
+
+  if found then
+    if v_existing_event.payload_hash <> p_payload_hash then
+      raise exception 'IDEMPOTENCY_CONFLICT: Klucz % został już użyty z innym ładunkiem', p_idempotency_key;
+    end if;
+    select * into v_req from public.availability_notification_requests where id = v_existing_event.request_id;
+    return v_req;
+  end if;
+
   if v_channel not in ('sms', 'email') then
     raise exception 'INVALID_CHANNEL: Kanał musi wynosić "sms" lub "email"';
   end if;
@@ -638,30 +712,20 @@ begin
     raise exception 'INVALID_FINGERPRINT: Wymagany jest fingerprint numeru telefonu';
   end if;
 
+  if p_contact_ciphertext is not null then
+    if length(trim(p_contact_ciphertext)) < 16 or p_contact_ciphertext not like 'enc:%'
+       or substring(p_contact_ciphertext from 5) ~* '([0-9][\s.-]*){9}'
+       or substring(p_contact_ciphertext from 5) ~* '[a-zA-Z0-9_.+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}' then
+      raise exception 'INVALID_CONTACT_CIPHERTEXT: contact_ciphertext musi mieć prefiks enc:, min. 16 znaków i nie może zawierać jawnego telefonu ani e-maila';
+    end if;
+  end if;
+
   if p_expires_at is null or p_expires_at <= timezone('utc', now()) then
     raise exception 'INVALID_EXPIRY: Czas wygaśnięcia musi znajdować się w przyszłości';
   end if;
 
-  if p_idempotency_key is not null then
-    perform pg_advisory_xact_lock(hashtext('avail_notif_idempotency:' || p_idempotency_key));
-
-    select * into v_existing_event
-    from public.availability_notification_events
-    where idempotency_key = p_idempotency_key;
-
-    if found then
-      if p_payload_hash is not null and v_existing_event.payload_hash <> p_payload_hash then
-        raise exception 'IDEMPOTENCY_CONFLICT: Klucz % został już użyty z innym ładunkiem', p_idempotency_key;
-      end if;
-      select * into v_req from public.availability_notification_requests where id = v_existing_event.request_id;
-      return v_req;
-    end if;
-  end if;
-
-  -- Lock queue sequence safely
-  select coalesce(max(queue_position), 0) + 1 into v_next_pos
-  from public.availability_notification_requests
-  where state = 'queued';
+  -- Monotonic, concurrency-safe, never-reused sequence allocation
+  v_next_pos := nextval('public.availability_notification_queue_seq');
 
   insert into public.availability_notification_requests (
     id,
@@ -694,25 +758,23 @@ begin
   )
   returning * into v_req;
 
-  if p_idempotency_key is not null then
-    insert into public.availability_notification_events (
-      request_id,
-      event_type,
-      from_state,
-      to_state,
-      payload,
-      payload_hash,
-      idempotency_key
-    ) values (
-      v_req.id,
-      'notification_queued',
-      null,
-      'queued',
-      coalesce(p_payload, '{}'::jsonb),
-      coalesce(p_payload_hash, ''),
-      p_idempotency_key
-    );
-  end if;
+  insert into public.availability_notification_events (
+    request_id,
+    event_type,
+    from_state,
+    to_state,
+    payload,
+    payload_hash,
+    idempotency_key
+  ) values (
+    v_req.id,
+    'notification_queued',
+    null,
+    'queued',
+    coalesce(p_payload, '{}'::jsonb),
+    p_payload_hash,
+    p_idempotency_key
+  );
 
   return v_req;
 end;
@@ -736,23 +798,29 @@ declare
   v_existing_event public.availability_notification_events%rowtype;
   v_now timestamptz := timezone('utc', now());
 begin
-  if p_idempotency_key is not null then
-    perform pg_advisory_xact_lock(hashtext('avail_notif_idempotency:' || p_idempotency_key));
+  if p_idempotency_key is null or length(trim(p_idempotency_key)) = 0 or length(trim(p_idempotency_key)) > 128 then
+    raise exception 'INVALID_IDEMPOTENCY_KEY: Klucz idempotencji jest wymagany i musi mieć od 1 do 128 znaków';
+  end if;
 
-    select * into v_existing_event
-    from public.availability_notification_events
-    where idempotency_key = p_idempotency_key;
+  if p_payload_hash is null or length(trim(p_payload_hash)) = 0 then
+    raise exception 'INVALID_PAYLOAD_HASH: Hash payloadu jest wymagany';
+  end if;
 
-    if found then
-      if p_payload_hash is not null and v_existing_event.payload_hash <> p_payload_hash then
-        raise exception 'IDEMPOTENCY_CONFLICT: Klucz % został już użyty z innym ładunkiem', p_idempotency_key;
-      end if;
-      if v_existing_event.request_id <> p_request_id then
-        raise exception 'IDEMPOTENCY_CONFLICT: Klucz % został użyty dla innego zgłoszenia', p_idempotency_key;
-      end if;
-      select * into v_req from public.availability_notification_requests where id = p_request_id;
-      return v_req;
+  perform pg_advisory_xact_lock(hashtext('avail_notif_idempotency:' || p_idempotency_key));
+
+  select * into v_existing_event
+  from public.availability_notification_events
+  where idempotency_key = p_idempotency_key;
+
+  if found then
+    if v_existing_event.payload_hash <> p_payload_hash then
+      raise exception 'IDEMPOTENCY_CONFLICT: Klucz % został już użyty z innym ładunkiem', p_idempotency_key;
     end if;
+    if v_existing_event.request_id <> p_request_id then
+      raise exception 'IDEMPOTENCY_CONFLICT: Klucz % został użyty dla innego zgłoszenia', p_idempotency_key;
+    end if;
+    select * into v_req from public.availability_notification_requests where id = p_request_id;
+    return v_req;
   end if;
 
   select * into v_req
@@ -793,25 +861,23 @@ begin
   where id = p_request_id
   returning * into v_req;
 
-  if p_idempotency_key is not null then
-    insert into public.availability_notification_events (
-      request_id,
-      event_type,
-      from_state,
-      to_state,
-      payload,
-      payload_hash,
-      idempotency_key
-    ) values (
-      v_req.id,
-      'offer_sent',
-      'queued',
-      'offer_sent',
-      coalesce(p_payload, '{}'::jsonb),
-      coalesce(p_payload_hash, ''),
-      p_idempotency_key
-    );
-  end if;
+  insert into public.availability_notification_events (
+    request_id,
+    event_type,
+    from_state,
+    to_state,
+    payload,
+    payload_hash,
+    idempotency_key
+  ) values (
+    v_req.id,
+    'offer_sent',
+    'queued',
+    'offer_sent',
+    coalesce(p_payload, '{}'::jsonb),
+    p_payload_hash,
+    p_idempotency_key
+  );
 
   return v_req;
 end;
@@ -836,23 +902,29 @@ declare
   v_existing_event public.availability_notification_events%rowtype;
   v_now timestamptz := timezone('utc', now());
 begin
-  if p_idempotency_key is not null then
-    perform pg_advisory_xact_lock(hashtext('avail_notif_idempotency:' || p_idempotency_key));
+  if p_idempotency_key is null or length(trim(p_idempotency_key)) = 0 or length(trim(p_idempotency_key)) > 128 then
+    raise exception 'INVALID_IDEMPOTENCY_KEY: Klucz idempotencji jest wymagany i musi mieć od 1 do 128 znaków';
+  end if;
 
-    select * into v_existing_event
-    from public.availability_notification_events
-    where idempotency_key = p_idempotency_key;
+  if p_payload_hash is null or length(trim(p_payload_hash)) = 0 then
+    raise exception 'INVALID_PAYLOAD_HASH: Hash payloadu jest wymagany';
+  end if;
 
-    if found then
-      if p_payload_hash is not null and v_existing_event.payload_hash <> p_payload_hash then
-        raise exception 'IDEMPOTENCY_CONFLICT: Klucz % został już użyty z innym ładunkiem', p_idempotency_key;
-      end if;
-      if v_existing_event.request_id <> p_request_id then
-        raise exception 'IDEMPOTENCY_CONFLICT: Klucz % został użyty dla innego zgłoszenia', p_idempotency_key;
-      end if;
-      select * into v_req from public.availability_notification_requests where id = p_request_id;
-      return v_req;
+  perform pg_advisory_xact_lock(hashtext('avail_notif_idempotency:' || p_idempotency_key));
+
+  select * into v_existing_event
+  from public.availability_notification_events
+  where idempotency_key = p_idempotency_key;
+
+  if found then
+    if v_existing_event.payload_hash <> p_payload_hash then
+      raise exception 'IDEMPOTENCY_CONFLICT: Klucz % został już użyty z innym ładunkiem', p_idempotency_key;
     end if;
+    if v_existing_event.request_id <> p_request_id then
+      raise exception 'IDEMPOTENCY_CONFLICT: Klucz % został użyty dla innego zgłoszenia', p_idempotency_key;
+    end if;
+    select * into v_req from public.availability_notification_requests where id = p_request_id;
+    return v_req;
   end if;
 
   select * into v_req
@@ -894,25 +966,23 @@ begin
   where id = p_request_id
   returning * into v_req;
 
-  if p_idempotency_key is not null then
-    insert into public.availability_notification_events (
-      request_id,
-      event_type,
-      from_state,
-      to_state,
-      payload,
-      payload_hash,
-      idempotency_key
-    ) values (
-      v_req.id,
-      'offer_accepted_paid',
-      'offer_sent',
-      'accepted_paid',
-      coalesce(p_payload, '{}'::jsonb),
-      coalesce(p_payload_hash, ''),
-      p_idempotency_key
-    );
-  end if;
+  insert into public.availability_notification_events (
+    request_id,
+    event_type,
+    from_state,
+    to_state,
+    payload,
+    payload_hash,
+    idempotency_key
+  ) values (
+    v_req.id,
+    'offer_accepted_paid',
+    'offer_sent',
+    'accepted_paid',
+    coalesce(p_payload, '{}'::jsonb),
+    p_payload_hash,
+    p_idempotency_key
+  );
 
   return v_req;
 end;
@@ -938,27 +1008,33 @@ declare
   v_old_state text;
   v_now timestamptz := timezone('utc', now());
 begin
+  if p_idempotency_key is null or length(trim(p_idempotency_key)) = 0 or length(trim(p_idempotency_key)) > 128 then
+    raise exception 'INVALID_IDEMPOTENCY_KEY: Klucz idempotencji jest wymagany i musi mieć od 1 do 128 znaków';
+  end if;
+
+  if p_payload_hash is null or length(trim(p_payload_hash)) = 0 then
+    raise exception 'INVALID_PAYLOAD_HASH: Hash payloadu jest wymagany';
+  end if;
+
   if p_target_state not in ('consumed', 'expired', 'cancelled') then
     raise exception 'INVALID_TARGET_STATE: Dozwolone cele przejścia to: consumed, expired, cancelled';
   end if;
 
-  if p_idempotency_key is not null then
-    perform pg_advisory_xact_lock(hashtext('avail_notif_idempotency:' || p_idempotency_key));
+  perform pg_advisory_xact_lock(hashtext('avail_notif_idempotency:' || p_idempotency_key));
 
-    select * into v_existing_event
-    from public.availability_notification_events
-    where idempotency_key = p_idempotency_key;
+  select * into v_existing_event
+  from public.availability_notification_events
+  where idempotency_key = p_idempotency_key;
 
-    if found then
-      if p_payload_hash is not null and v_existing_event.payload_hash <> p_payload_hash then
-        raise exception 'IDEMPOTENCY_CONFLICT: Klucz % został już użyty z innym ładunkiem', p_idempotency_key;
-      end if;
-      if v_existing_event.request_id <> p_request_id then
-        raise exception 'IDEMPOTENCY_CONFLICT: Klucz % został użyty dla innego zgłoszenia', p_idempotency_key;
-      end if;
-      select * into v_req from public.availability_notification_requests where id = p_request_id;
-      return v_req;
+  if found then
+    if v_existing_event.payload_hash <> p_payload_hash then
+      raise exception 'IDEMPOTENCY_CONFLICT: Klucz % został już użyty z innym ładunkiem', p_idempotency_key;
     end if;
+    if v_existing_event.request_id <> p_request_id then
+      raise exception 'IDEMPOTENCY_CONFLICT: Klucz % został użyty dla innego zgłoszenia', p_idempotency_key;
+    end if;
+    select * into v_req from public.availability_notification_requests where id = p_request_id;
+    return v_req;
   end if;
 
   select * into v_req
@@ -992,25 +1068,23 @@ begin
   where id = p_request_id
   returning * into v_req;
 
-  if p_idempotency_key is not null then
-    insert into public.availability_notification_events (
-      request_id,
-      event_type,
-      from_state,
-      to_state,
-      payload,
-      payload_hash,
-      idempotency_key
-    ) values (
-      v_req.id,
-      coalesce(p_reason, p_target_state),
-      v_old_state,
-      p_target_state,
-      coalesce(p_payload, '{}'::jsonb),
-      coalesce(p_payload_hash, ''),
-      p_idempotency_key
-    );
-  end if;
+  insert into public.availability_notification_events (
+    request_id,
+    event_type,
+    from_state,
+    to_state,
+    payload,
+    payload_hash,
+    idempotency_key
+  ) values (
+    v_req.id,
+    coalesce(p_reason, p_target_state),
+    v_old_state,
+    p_target_state,
+    coalesce(p_payload, '{}'::jsonb),
+    p_payload_hash,
+    p_idempotency_key
+  );
 
   return v_req;
 end;
@@ -1042,9 +1116,34 @@ as $$
 declare
   v_ent public.consultation_talk_entitlements%rowtype;
   v_existing_event public.consultation_talk_entitlement_events%rowtype;
+  v_urg_req public.urgent_intake_requests%rowtype;
+  v_notif_req public.availability_notification_requests%rowtype;
+  v_booking public.bookings%rowtype;
   v_new_id uuid := coalesce(p_entitlement_id, gen_random_uuid());
   v_allocated integer := coalesce(p_allocated_seconds, 900);
 begin
+  if p_idempotency_key is null or length(trim(p_idempotency_key)) = 0 or length(trim(p_idempotency_key)) > 128 then
+    raise exception 'INVALID_IDEMPOTENCY_KEY: Klucz idempotencji jest wymagany i musi mieć od 1 do 128 znaków';
+  end if;
+
+  if p_payload_hash is null or length(trim(p_payload_hash)) = 0 then
+    raise exception 'INVALID_PAYLOAD_HASH: Hash payloadu jest wymagany';
+  end if;
+
+  perform pg_advisory_xact_lock(hashtext('talk_entitlement_idempotency:' || p_idempotency_key));
+
+  select * into v_existing_event
+  from public.consultation_talk_entitlement_events
+  where idempotency_key = p_idempotency_key;
+
+  if found then
+    if v_existing_event.payload_hash <> p_payload_hash then
+      raise exception 'IDEMPOTENCY_CONFLICT: Klucz % został już użyty z innym ładunkiem', p_idempotency_key;
+    end if;
+    select * into v_ent from public.consultation_talk_entitlements where id = v_existing_event.entitlement_id;
+    return v_ent;
+  end if;
+
   if p_payment_reference is null or length(trim(p_payment_reference)) = 0 then
     raise exception 'PAYMENT_REQUIRED: Uprawnienie do rozmowy bezwzględnie wymaga potwierdzonej płatności';
   end if;
@@ -1057,19 +1156,68 @@ begin
     raise exception 'INVALID_FINGERPRINT: Wymagany jest fingerprint numeru telefonu';
   end if;
 
-  if p_idempotency_key is not null then
-    perform pg_advisory_xact_lock(hashtext('talk_entitlement_idempotency:' || p_idempotency_key));
+  -- Binding to authoritative paid source: at least one source required
+  if p_urgent_request_id is null and p_notification_request_id is null and p_booking_id is null then
+    raise exception 'PAYMENT_SOURCE_REQUIRED: Uprawnienie do rozmowy wymaga co najmniej jednego autorytatywnego opłaconego źródła (urgent_request_id, notification_request_id lub booking_id)';
+  end if;
 
-    select * into v_existing_event
-    from public.consultation_talk_entitlement_events
-    where idempotency_key = p_idempotency_key;
+  if p_urgent_request_id is not null then
+    select * into v_urg_req from public.urgent_intake_requests where id = p_urgent_request_id;
+    if not found then
+      raise exception 'SOURCE_NOT_FOUND: Zgłoszenie pilne % nie istnieje', p_urgent_request_id;
+    end if;
+    if v_urg_req.state <> 'payment_confirmed' then
+      raise exception 'UNPAID_SOURCE: Zgłoszenie pilne % nie posiada potwierdzonej płatności (stan: %)', p_urgent_request_id, v_urg_req.state;
+    end if;
+    if v_urg_req.caller_phone_fingerprint <> p_caller_phone_fingerprint then
+      raise exception 'FINGERPRINT_MISMATCH: Fingerprint numeru telefonu nie zgadza się ze zgłoszeniem pilnym';
+    end if;
+    if v_urg_req.payment_reference <> trim(p_payment_reference) then
+      raise exception 'PAYMENT_REFERENCE_MISMATCH: Referencja płatności nie zgadza się ze zgłoszeniem pilnym';
+    end if;
+    if p_booking_id is not null and v_urg_req.booking_id is not null and p_booking_id <> v_urg_req.booking_id then
+      raise exception 'CONFLICTING_SOURCES: Podany booking_id nie zgadza się z rezerwacją przypisaną do zgłoszenia pilnego';
+    end if;
+  end if;
 
-    if found then
-      if p_payload_hash is not null and v_existing_event.payload_hash <> p_payload_hash then
-        raise exception 'IDEMPOTENCY_CONFLICT: Klucz % został już użyty z innym ładunkiem', p_idempotency_key;
-      end if;
-      select * into v_ent from public.consultation_talk_entitlements where id = v_existing_event.entitlement_id;
-      return v_ent;
+  if p_notification_request_id is not null then
+    select * into v_notif_req from public.availability_notification_requests where id = p_notification_request_id;
+    if not found then
+      raise exception 'SOURCE_NOT_FOUND: Zgłoszenie powiadomienia % nie istnieje', p_notification_request_id;
+    end if;
+    if v_notif_req.state <> 'accepted_paid' then
+      raise exception 'UNPAID_SOURCE: Zgłoszenie powiadomienia % nie posiada opłaconej oferty (stan: %)', p_notification_request_id, v_notif_req.state;
+    end if;
+    if v_notif_req.caller_phone_fingerprint <> p_caller_phone_fingerprint then
+      raise exception 'FINGERPRINT_MISMATCH: Fingerprint numeru telefonu nie zgadza się ze zgłoszeniem powiadomienia';
+    end if;
+    if v_notif_req.payment_reference <> trim(p_payment_reference) then
+      raise exception 'PAYMENT_REFERENCE_MISMATCH: Referencja płatności nie zgadza się ze zgłoszeniem powiadomienia';
+    end if;
+    if p_booking_id is not null and v_notif_req.booking_id is not null and p_booking_id <> v_notif_req.booking_id then
+      raise exception 'CONFLICTING_SOURCES: Podany booking_id nie zgadza się z rezerwacją przypisaną do zgłoszenia powiadomienia';
+    end if;
+  end if;
+
+  if p_urgent_request_id is not null and p_notification_request_id is not null then
+    if v_urg_req.payment_reference <> v_notif_req.payment_reference or v_urg_req.caller_phone_fingerprint <> v_notif_req.caller_phone_fingerprint then
+      raise exception 'CONFLICTING_SOURCES: Źródła płatności nie są ze sobą zgodne';
+    end if;
+    if v_urg_req.booking_id is not null and v_notif_req.booking_id is not null and v_urg_req.booking_id <> v_notif_req.booking_id then
+      raise exception 'CONFLICTING_SOURCES: Rezerwacje w źródłach nie są ze sobą zgodne';
+    end if;
+  end if;
+
+  if p_booking_id is not null then
+    select * into v_booking from public.bookings where id = p_booking_id;
+    if not found then
+      raise exception 'BOOKING_NOT_FOUND: Rezerwacja % nie istnieje', p_booking_id;
+    end if;
+    if v_booking.payment_status <> 'paid' or v_booking.paid_at is null or v_booking.booking_status in ('cancelled', 'expired') then
+      raise exception 'UNPAID_BOOKING: Rezerwacja % nie posiada potwierdzonego statusu płatności (stan: %)', p_booking_id, v_booking.payment_status;
+    end if;
+    if v_booking.payment_reference is not null and trim(v_booking.payment_reference) <> trim(p_payment_reference) then
+      raise exception 'PAYMENT_REFERENCE_MISMATCH: Referencja płatności nie zgadza się z rezerwacją';
     end if;
   end if;
 
@@ -1093,7 +1241,7 @@ begin
     v_new_id,
     p_caller_phone_fingerprint,
     p_caller_phone_masked,
-    p_booking_id,
+    coalesce(p_booking_id, v_urg_req.booking_id, v_notif_req.booking_id),
     trim(p_payment_reference),
     p_urgent_request_id,
     p_notification_request_id,
@@ -1108,25 +1256,23 @@ begin
   )
   returning * into v_ent;
 
-  if p_idempotency_key is not null then
-    insert into public.consultation_talk_entitlement_events (
-      entitlement_id,
-      event_type,
-      from_state,
-      to_state,
-      payload,
-      payload_hash,
-      idempotency_key
-    ) values (
-      v_ent.id,
-      'entitlement_created',
-      null,
-      'active',
-      coalesce(p_payload, '{}'::jsonb),
-      coalesce(p_payload_hash, ''),
-      p_idempotency_key
-    );
-  end if;
+  insert into public.consultation_talk_entitlement_events (
+    entitlement_id,
+    event_type,
+    from_state,
+    to_state,
+    payload,
+    payload_hash,
+    idempotency_key
+  ) values (
+    v_ent.id,
+    'entitlement_created',
+    null,
+    'active',
+    coalesce(p_payload, '{}'::jsonb),
+    p_payload_hash,
+    p_idempotency_key
+  );
 
   return v_ent;
 end;
@@ -1150,23 +1296,29 @@ declare
   v_existing_event public.consultation_talk_entitlement_events%rowtype;
   v_now timestamptz := timezone('utc', now());
 begin
-  if p_idempotency_key is not null then
-    perform pg_advisory_xact_lock(hashtext('talk_entitlement_idempotency:' || p_idempotency_key));
+  if p_idempotency_key is null or length(trim(p_idempotency_key)) = 0 or length(trim(p_idempotency_key)) > 128 then
+    raise exception 'INVALID_IDEMPOTENCY_KEY: Klucz idempotencji jest wymagany i musi mieć od 1 do 128 znaków';
+  end if;
 
-    select * into v_existing_event
-    from public.consultation_talk_entitlement_events
-    where idempotency_key = p_idempotency_key;
+  if p_payload_hash is null or length(trim(p_payload_hash)) = 0 then
+    raise exception 'INVALID_PAYLOAD_HASH: Hash payloadu jest wymagany';
+  end if;
 
-    if found then
-      if p_payload_hash is not null and v_existing_event.payload_hash <> p_payload_hash then
-        raise exception 'IDEMPOTENCY_CONFLICT: Klucz % został już użyty z innym ładunkiem', p_idempotency_key;
-      end if;
-      if v_existing_event.entitlement_id <> p_entitlement_id then
-        raise exception 'IDEMPOTENCY_CONFLICT: Klucz % został użyty dla innego uprawnienia', p_idempotency_key;
-      end if;
-      select * into v_ent from public.consultation_talk_entitlements where id = p_entitlement_id;
-      return v_ent;
+  perform pg_advisory_xact_lock(hashtext('talk_entitlement_idempotency:' || p_idempotency_key));
+
+  select * into v_existing_event
+  from public.consultation_talk_entitlement_events
+  where idempotency_key = p_idempotency_key;
+
+  if found then
+    if v_existing_event.payload_hash <> p_payload_hash then
+      raise exception 'IDEMPOTENCY_CONFLICT: Klucz % został już użyty z innym ładunkiem', p_idempotency_key;
     end if;
+    if v_existing_event.entitlement_id <> p_entitlement_id then
+      raise exception 'IDEMPOTENCY_CONFLICT: Klucz % został użyty dla innego uprawnienia', p_idempotency_key;
+    end if;
+    select * into v_ent from public.consultation_talk_entitlements where id = p_entitlement_id;
+    return v_ent;
   end if;
 
   select * into v_ent
@@ -1211,25 +1363,23 @@ begin
   where id = p_entitlement_id
   returning * into v_ent;
 
-  if p_idempotency_key is not null then
-    insert into public.consultation_talk_entitlement_events (
-      entitlement_id,
-      event_type,
-      from_state,
-      to_state,
-      payload,
-      payload_hash,
-      idempotency_key
-    ) values (
-      v_ent.id,
-      'entitlement_consumed',
-      'active',
-      'consumed',
-      coalesce(p_payload, '{}'::jsonb),
-      coalesce(p_payload_hash, ''),
-      p_idempotency_key
-    );
-  end if;
+  insert into public.consultation_talk_entitlement_events (
+    entitlement_id,
+    event_type,
+    from_state,
+    to_state,
+    payload,
+    payload_hash,
+    idempotency_key
+  ) values (
+    v_ent.id,
+    'entitlement_consumed',
+    'active',
+    'consumed',
+    coalesce(p_payload, '{}'::jsonb),
+    p_payload_hash,
+    p_idempotency_key
+  );
 
   return v_ent;
 end;
@@ -1253,23 +1403,29 @@ declare
   v_existing_event public.consultation_talk_entitlement_events%rowtype;
   v_now timestamptz := timezone('utc', now());
 begin
-  if p_idempotency_key is not null then
-    perform pg_advisory_xact_lock(hashtext('talk_entitlement_idempotency:' || p_idempotency_key));
+  if p_idempotency_key is null or length(trim(p_idempotency_key)) = 0 or length(trim(p_idempotency_key)) > 128 then
+    raise exception 'INVALID_IDEMPOTENCY_KEY: Klucz idempotencji jest wymagany i musi mieć od 1 do 128 znaków';
+  end if;
 
-    select * into v_existing_event
-    from public.consultation_talk_entitlement_events
-    where idempotency_key = p_idempotency_key;
+  if p_payload_hash is null or length(trim(p_payload_hash)) = 0 then
+    raise exception 'INVALID_PAYLOAD_HASH: Hash payloadu jest wymagany';
+  end if;
 
-    if found then
-      if p_payload_hash is not null and v_existing_event.payload_hash <> p_payload_hash then
-        raise exception 'IDEMPOTENCY_CONFLICT: Klucz % został już użyty z innym ładunkiem', p_idempotency_key;
-      end if;
-      if v_existing_event.entitlement_id <> p_entitlement_id then
-        raise exception 'IDEMPOTENCY_CONFLICT: Klucz % został użyty dla innego uprawnienia', p_idempotency_key;
-      end if;
-      select * into v_ent from public.consultation_talk_entitlements where id = p_entitlement_id;
-      return v_ent;
+  perform pg_advisory_xact_lock(hashtext('talk_entitlement_idempotency:' || p_idempotency_key));
+
+  select * into v_existing_event
+  from public.consultation_talk_entitlement_events
+  where idempotency_key = p_idempotency_key;
+
+  if found then
+    if v_existing_event.payload_hash <> p_payload_hash then
+      raise exception 'IDEMPOTENCY_CONFLICT: Klucz % został już użyty z innym ładunkiem', p_idempotency_key;
     end if;
+    if v_existing_event.entitlement_id <> p_entitlement_id then
+      raise exception 'IDEMPOTENCY_CONFLICT: Klucz % został użyty dla innego uprawnienia', p_idempotency_key;
+    end if;
+    select * into v_ent from public.consultation_talk_entitlements where id = p_entitlement_id;
+    return v_ent;
   end if;
 
   select * into v_ent
@@ -1297,25 +1453,23 @@ begin
   where id = p_entitlement_id
   returning * into v_ent;
 
-  if p_idempotency_key is not null then
-    insert into public.consultation_talk_entitlement_events (
-      entitlement_id,
-      event_type,
-      from_state,
-      to_state,
-      payload,
-      payload_hash,
-      idempotency_key
-    ) values (
-      v_ent.id,
-      coalesce(p_reason, 'entitlement_revoked'),
-      'active',
-      'revoked',
-      coalesce(p_payload, '{}'::jsonb),
-      coalesce(p_payload_hash, ''),
-      p_idempotency_key
-    );
-  end if;
+  insert into public.consultation_talk_entitlement_events (
+    entitlement_id,
+    event_type,
+    from_state,
+    to_state,
+    payload,
+    payload_hash,
+    idempotency_key
+  ) values (
+    v_ent.id,
+    coalesce(p_reason, 'entitlement_revoked'),
+    'active',
+    'revoked',
+    coalesce(p_payload, '{}'::jsonb),
+    p_payload_hash,
+    p_idempotency_key
+  );
 
   return v_ent;
 end;

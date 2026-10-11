@@ -405,6 +405,16 @@ export const REQUIRED_SCHEMA_MARKERS: SchemaMarker[] = [
     needle: 'grant execute on function public.prepare_caller_sms(text, text, text, text, text, text, text, text, text, text, text, timestamptz) to service_role;',
     expectedCount: 1,
   },
+  {
+    label: 'promote_caller_sms_to_queue',
+    needle: 'create or replace function public.promote_caller_sms_to_queue(',
+    expectedCount: 1,
+  },
+  {
+    label: 'promote_caller_sms_to_queue.grant_signature',
+    needle: 'grant execute on function public.promote_caller_sms_to_queue(uuid, text, text, text, text, timestamptz, integer, boolean) to service_role;',
+    expectedCount: 1,
+  },
 ]
 
 export const REQUIRED_FILES = [

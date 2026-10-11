@@ -75,6 +75,7 @@ export interface PromoteCallerSmsOptions {
   maxAgeMs?: number
   secretOverride?: string
   adminAuthorized?: boolean
+  _simulateBoundaryFailure?: boolean
 }
 
 export type PromoteCallerSmsStatus =

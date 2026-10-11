@@ -824,3 +824,199 @@ test('11. Dowód zerowej wysyłki / zerowego wpływu: provider calls = 0, brak l
     await sandbox.cleanup()
   }
 })
+
+test('12. Flaga STAGE4_CONTROLLED_SMS_PROMOTION=true przy braku/false kanonicznej flagi NIE aktywuje promocji', async () => {
+  const sandbox = await createLocalDataSandbox('stage4-legacy-flag-ignored', process.cwd())
+  try {
+    // A: STAGE4_CONTROLLED_SMS_PROMOTION=true but canonical STAGE4_CONTROLLED_SMS_PROMOTION_ENABLED is unset
+    await withEnv(
+      {
+        APP_DATA_MODE: 'local',
+        CALL_SESSION_PHONE_SECRET: TEST_SECRET,
+        ADMIN_ACCESS_SECRET: TEST_ADMIN_SECRET,
+        STAGE4_CONTROLLED_SMS_PROMOTION: 'true',
+        STAGE4_CONTROLLED_SMS_PROMOTION_ENABLED: null,
+      },
+      async () => {
+        assert.equal(
+          isStage4PromotionEnabled(),
+          false,
+          'Sama nieudokumentowana flaga STAGE4_CONTROLLED_SMS_PROMOTION nie może aktywować promocji',
+        )
+
+        const { computeCallerPhoneFingerprint } = await import('@/lib/server/call-session-security')
+        const fp = computeCallerPhoneFingerprint(TEST_PHONE, TEST_SECRET)
+        const prep = await generateCallerSms(createDummyClassification('unknown_number', fp), {
+          idempotencyKey: 'prep-legacy-flag-test',
+          dryRun: false,
+        })
+
+        const req = new NextRequest('http://localhost/api/phone-agent/caller-sms/promote', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: createAdminBasicAuthHeader(),
+          },
+          body: JSON.stringify({
+            preparationId: prep.id,
+            approvalId: 'approval-legacy-flag',
+            rawPhone: TEST_PHONE,
+            isControlledTechnicalTest: true,
+            dryRun: false,
+          }),
+        })
+        const res = await promoteSmsApiRoute(req)
+        assert.equal(res.status, 403, 'Przy braku kanonicznej flagi żądanie mutacji musi zwrócić 403')
+        const json = (await res.json()) as any
+        assert.equal(json.ok, false)
+        assert.match(json.error, /Bramka promocji SMS Etapu 4 jest wyłączona/i)
+        assert.equal((await listSmsQueue()).length, 0, 'Kolejka pozostaje pusta')
+      },
+    )
+
+    // B: STAGE4_CONTROLLED_SMS_PROMOTION=true but canonical flag is explicitly 'false'
+    await withEnv(
+      {
+        APP_DATA_MODE: 'local',
+        STAGE4_CONTROLLED_SMS_PROMOTION: 'true',
+        STAGE4_CONTROLLED_SMS_PROMOTION_ENABLED: 'false',
+      },
+      async () => {
+        assert.equal(isStage4PromotionEnabled(), false)
+      },
+    )
+
+    // C: STAGE4_CONTROLLED_SMS_PROMOTION=true and canonical flag has non-true value ('1', 'yes')
+    await withEnv(
+      {
+        APP_DATA_MODE: 'local',
+        STAGE4_CONTROLLED_SMS_PROMOTION: 'true',
+        STAGE4_CONTROLLED_SMS_PROMOTION_ENABLED: 'yes',
+      },
+      async () => {
+        assert.equal(isStage4PromotionEnabled(), false)
+      },
+    )
+  } finally {
+    await sandbox.cleanup()
+  }
+})
+
+test('13. Wymuszony błąd na granicy insert/update dowodzi pełnego rollbacku: brak queue item i brak zmiany preparation', async () => {
+  const sandbox = await createLocalDataSandbox('stage4-boundary-rollback', process.cwd())
+  try {
+    await withEnv(
+      {
+        APP_DATA_MODE: 'local',
+        CALL_SESSION_PHONE_SECRET: TEST_SECRET,
+        ADMIN_ACCESS_SECRET: TEST_ADMIN_SECRET,
+        STAGE4_CONTROLLED_SMS_PROMOTION_ENABLED: 'true',
+      },
+      async () => {
+        const { computeCallerPhoneFingerprint } = await import('@/lib/server/call-session-security')
+        const fp = computeCallerPhoneFingerprint(TEST_PHONE, TEST_SECRET)
+
+        const prep = await generateCallerSms(createDummyClassification('unknown_number', fp), {
+          idempotencyKey: 'prep-boundary-rollback',
+          dryRun: false,
+        })
+        assert.equal(prep.status, 'prepared')
+
+        // Invoke promotion with forced failure at insert/update boundary
+        await assert.rejects(
+          promoteCallerSmsToQueue({
+            preparationId: prep.id,
+            approvalId: 'approval-boundary-fail-1',
+            rawPhone: TEST_PHONE,
+            isControlledTechnicalTest: true,
+            dryRun: false,
+            adminAuthorized: true,
+            secretOverride: TEST_SECRET,
+            _simulateBoundaryFailure: true,
+          }),
+          /SIMULATED_BOUNDARY_FAILURE/,
+        )
+
+        // Verify full rollback: 0 items in queue
+        const queueItems = await listSmsQueue()
+        assert.equal(queueItems.length, 0, 'Kolejka phone_agent_sms_queue nie zawiera osieroconego wpisu (pełny rollback)')
+
+        // Verify preparation record was NOT altered
+        const prepAfter = await getCallerSmsPreparationById(prep.id)
+        assert.equal(prepAfter?.status, 'prepared', 'Status preparation pozostaje "prepared"')
+        assert.equal(prepAfter?.promotedAt, null, 'promotedAt w rekordzie preparation pozostaje null')
+        assert.equal(prepAfter?.queueItemId, null, 'queueItemId w rekordzie preparation pozostaje null')
+        assert.equal(prepAfter?.approvalId, null, 'approvalId w rekordzie preparation pozostaje null')
+      },
+    )
+  } finally {
+    await sandbox.cleanup()
+  }
+})
+
+test('14. Niepoprawny błąd backendu: odpowiedź API nie zawiera surowego message ani szczegółów bazy', async () => {
+  const sandbox = await createLocalDataSandbox('stage4-safe-error-api', process.cwd())
+  try {
+    await withEnv(
+      {
+        APP_DATA_MODE: 'local',
+        CALL_SESSION_PHONE_SECRET: TEST_SECRET,
+        ADMIN_ACCESS_SECRET: TEST_ADMIN_SECRET,
+        STAGE4_CONTROLLED_SMS_PROMOTION_ENABLED: 'true',
+      },
+      async () => {
+        const { computeCallerPhoneFingerprint } = await import('@/lib/server/call-session-security')
+        const fp = computeCallerPhoneFingerprint(TEST_PHONE, TEST_SECRET)
+
+        const prep = await generateCallerSms(createDummyClassification('unknown_number', fp), {
+          idempotencyKey: 'prep-safe-error-test',
+          dryRun: false,
+        })
+
+        // Request triggering boundary failure / internal error
+        const req = new NextRequest('http://localhost/api/phone-agent/caller-sms/promote', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: createAdminBasicAuthHeader(),
+          },
+          body: JSON.stringify({
+            preparationId: prep.id,
+            approvalId: 'approval-safe-err',
+            rawPhone: TEST_PHONE,
+            isControlledTechnicalTest: true,
+            dryRun: false,
+            _simulateBoundaryFailure: true,
+          }),
+        })
+
+        const res = await promoteSmsApiRoute(req)
+        assert.equal(res.status, 500, 'Wewnętrzny błąd backendu zwraca status 500')
+        const json = (await res.json()) as any
+
+        assert.equal(json.ok, false)
+        assert.equal(
+          json.error,
+          'Błąd wewnętrzny bramki promocji SMS (fail-closed)',
+          'Odpowiedź musi zawierać bezpieczny stały komunikat błędu',
+        )
+        assert.equal(json.code, 'PROMOTION_INTERNAL_ERROR')
+
+        // Assert response does NOT leak raw error message, database details or secrets
+        const rawResponseStr = JSON.stringify(json)
+        assert.equal(rawResponseStr.includes('SIMULATED_BOUNDARY_FAILURE'), false)
+        assert.equal(rawResponseStr.includes('insert/update'), false)
+        assert.equal(rawResponseStr.includes('postgres'), false)
+        assert.equal(rawResponseStr.includes('caller_sms_preparations'), false)
+        assert.equal(rawResponseStr.includes('phone_agent_sms_queue'), false)
+        assert.equal(rawResponseStr.includes(TEST_PHONE), false)
+
+        // Queue and preparation still intact
+        assert.equal((await listSmsQueue()).length, 0)
+        assert.equal((await getCallerSmsPreparationById(prep.id))?.status, 'prepared')
+      },
+    )
+  } finally {
+    await sandbox.cleanup()
+  }
+})

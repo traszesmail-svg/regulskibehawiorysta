@@ -11,9 +11,11 @@ import {
   computePayloadHash,
 } from '@/lib/server/call-session-security'
 import {
+  deleteSmsQueueItem,
   enqueueSms,
   getSmsQueueItemById,
   getSmsQueueItemByIdempotencyKey,
+  withStoreLock,
   type SmsQueueItem,
 } from '@/lib/server/phone-agent-store'
 import { classifyIncomingCaller } from '@/lib/server/caller-classifier'
@@ -135,6 +137,22 @@ function mapSupabaseRowToPreparationRecord(row: any): CallerSmsPreparationRecord
     promotedAt: row.promoted_at ? String(row.promoted_at) : null,
     queueItemId: row.queue_item_id ? String(row.queue_item_id) : null,
     approvalId: row.approval_id ? String(row.approval_id) : null,
+  }
+}
+
+function mapSupabaseRowToSmsQueueItem(row: any): SmsQueueItem {
+  return {
+    id: String(row.id),
+    bookingId: row.booking_id ? String(row.booking_id) : null,
+    phone: String(row.phone),
+    message: String(row.message),
+    type: row.type,
+    status: row.status,
+    scheduledFor: String(row.scheduled_for),
+    createdAt: String(row.created_at),
+    sentAt: row.sent_at ? String(row.sent_at) : null,
+    error: row.error ? String(row.error) : null,
+    idempotencyKey: String(row.idempotency_key),
   }
 }
 
@@ -737,10 +755,7 @@ export const TECHNICAL_TEST_REGEX = /\[?TEST\s+TECHNICZNY\]?/i
 export const DEFAULT_PROMOTION_EXPIRY_MS = 30 * 60 * 1000 // 30 minutes
 
 export function isStage4PromotionEnabled(): boolean {
-  return (
-    process.env.STAGE4_CONTROLLED_SMS_PROMOTION_ENABLED?.trim().toLowerCase() === 'true' ||
-    process.env.STAGE4_CONTROLLED_SMS_PROMOTION?.trim().toLowerCase() === 'true'
-  )
+  return process.env.STAGE4_CONTROLLED_SMS_PROMOTION_ENABLED?.trim().toLowerCase() === 'true'
 }
 
 export function validateTechnicalTestMessage(
@@ -1141,39 +1156,70 @@ export async function promoteCallerSmsToQueue(
       }
     }
 
-    // Live execution in Supabase mode
-    const queueItem = await enqueueSms({
-      phone: normalized.e164,
-      message: validatedMessage,
-      type: 'custom',
-      idempotencyKey: `stage4_promo:${approvalId}`,
-    })
+    // Live execution in Supabase mode via atomic RPC
+    const { data: rpcData, error: rpcError } = await supabase.rpc(
+      'promote_caller_sms_to_queue',
+      {
+        p_preparation_id: preparation.id,
+        p_approval_id: approvalId,
+        p_phone: normalized.e164,
+        p_caller_phone_fingerprint: computedFingerprint,
+        p_message: validatedMessage,
+        p_now: nowIso,
+        p_max_age_seconds: Math.floor(maxAgeMs / 1000),
+        p_simulate_boundary_failure: Boolean(options._simulateBoundaryFailure),
+      },
+    )
 
-    const { data: updatedData, error: updateError } = await supabase
-      .from('caller_sms_preparations')
-      .update({
-        status: 'promoted',
-        promoted_at: nowIso,
-        queue_item_id: queueItem.id,
-        approval_id: approvalId,
-      })
-      .eq('id', preparation.id)
-      .eq('status', 'prepared')
-      .select('*')
-      .single()
+    if (rpcError) {
+      const errMsg = rpcError.message || ''
+      if (errMsg.includes('idempotency_conflict')) {
+        return {
+          ok: false,
+          status: 'idempotency_conflict',
+          preview: false,
+          rejectionReason: errMsg,
+          preparation: null,
+          queueItem: null,
+        }
+      }
+      if (
+        errMsg.includes('rate_limit_exceeded') ||
+        errMsg.includes('fingerprint_mismatch') ||
+        errMsg.includes('expired') ||
+        errMsg.includes('invalid_status') ||
+        errMsg.includes('inadmissible_decision') ||
+        errMsg.includes('already_promoted') ||
+        errMsg.includes('invalid_message') ||
+        errMsg.includes('not_found')
+      ) {
+        return {
+          ok: false,
+          status: 'rejected',
+          preview: false,
+          rejectionReason: errMsg,
+          preparation: null,
+          queueItem: null,
+        }
+      }
+      throw new Error(`Błąd atomowej promocji SMS w Supabase: ${errMsg}`)
+    }
 
-    if (updateError || !updatedData) {
-      throw new Error(`Błąd aktualizacji statusu promocji SMS w Supabase: ${updateError?.message ?? 'nieznany błąd'}`)
+    const rpcResult = rpcData as {
+      status: PromoteCallerSmsStatus
+      is_retry: boolean
+      queue_item: any
+      preparation: any
     }
 
     return {
       ok: true,
-      status: 'promoted',
+      status: rpcResult.status,
       preview: false,
-      isRetry: false,
+      isRetry: Boolean(rpcResult.is_retry),
       rejectionReason: null,
-      preparation: mapSupabaseRowToPreparationRecord(updatedData),
-      queueItem,
+      preparation: mapSupabaseRowToPreparationRecord(rpcResult.preparation),
+      queueItem: mapSupabaseRowToSmsQueueItem(rpcResult.queue_item),
     }
   }
 
@@ -1182,172 +1228,188 @@ export async function promoteCallerSmsToQueue(
     const snapshot = await readCallerSmsStoreSnapshot()
     const preparation = snapshot.preparations.find((p) => p.id === preparationId)
 
-    if (!preparation) {
-      return {
-        ok: false,
-        status: 'rejected',
-        preview: isDryRun,
-        rejectionReason: 'Nie znaleziono rekordu przygotowania SMS o podanym ID (fail-closed)',
-        preparation: null,
-        queueItem: null,
+      if (!preparation) {
+        return {
+          ok: false,
+          status: 'rejected',
+          preview: isDryRun,
+          rejectionReason: 'Nie znaleziono rekordu przygotowania SMS o podanym ID (fail-closed)',
+          preparation: null,
+          queueItem: null,
+        }
       }
-    }
 
-    const prepValidation = validatePreparationRecord(preparation)
-    if (!prepValidation.isValid) {
-      return {
-        ok: false,
-        status: prepValidation.status ?? 'rejected',
-        preview: isDryRun,
-        rejectionReason: prepValidation.error!,
-        preparation: null,
-        queueItem: null,
+      const prepValidation = validatePreparationRecord(preparation)
+      if (!prepValidation.isValid) {
+        return {
+          ok: false,
+          status: prepValidation.status ?? 'rejected',
+          preview: isDryRun,
+          rejectionReason: prepValidation.error!,
+          preparation: null,
+          queueItem: null,
+        }
       }
-    }
 
-    const msgValidation = resolveTargetMessage(preparation)
-    if (!msgValidation.isValid || !msgValidation.message) {
-      return {
-        ok: false,
-        status: 'rejected',
-        preview: isDryRun,
-        rejectionReason: msgValidation.error ?? 'Błąd walidacji treści testu technicznego (fail-closed)',
-        preparation: null,
-        queueItem: null,
+      const msgValidation = resolveTargetMessage(preparation)
+      if (!msgValidation.isValid || !msgValidation.message) {
+        return {
+          ok: false,
+          status: 'rejected',
+          preview: isDryRun,
+          rejectionReason: msgValidation.error ?? 'Błąd walidacji treści testu technicznego (fail-closed)',
+          preparation: null,
+          queueItem: null,
+        }
       }
-    }
-    const validatedMessage = msgValidation.message
+      const validatedMessage = msgValidation.message
 
-    // Check exact retry vs conflict on preparation
-    if (preparation.status === 'promoted' || preparation.approvalId) {
-      if (preparation.approvalId === approvalId) {
-        const queueItem = preparation.queueItemId
-          ? await getSmsQueueItemById(preparation.queueItemId)
-          : await getSmsQueueItemByIdempotencyKey(`stage4_promo:${approvalId}`)
+      // Check exact retry vs conflict on preparation
+      if (preparation.status === 'promoted' || preparation.approvalId) {
+        if (preparation.approvalId === approvalId) {
+          const queueItem = preparation.queueItemId
+            ? await getSmsQueueItemById(preparation.queueItemId)
+            : await getSmsQueueItemByIdempotencyKey(`stage4_promo:${approvalId}`)
 
-        if (queueItem && queueItem.message !== validatedMessage) {
+          if (queueItem && queueItem.message !== validatedMessage) {
+            return {
+              ok: false,
+              status: 'idempotency_conflict',
+              preview: isDryRun,
+              rejectionReason: 'idempotency_conflict: niezgodna treść wiadomości dla ponowionego approvalId (fail-closed)',
+              preparation: null,
+              queueItem: null,
+            }
+          }
+
           return {
-            ok: false,
-            status: 'idempotency_conflict',
+            ok: true,
+            status: 'retry_matched',
             preview: isDryRun,
-            rejectionReason: 'idempotency_conflict: niezgodna treść wiadomości dla ponowionego approvalId (fail-closed)',
-            preparation: null,
-            queueItem: null,
+            isRetry: true,
+            rejectionReason: null,
+            preparation,
+            queueItem,
           }
         }
 
         return {
-          ok: true,
-          status: 'retry_matched',
+          ok: false,
+          status: 'rejected',
           preview: isDryRun,
-          isRetry: true,
-          rejectionReason: null,
-          preparation,
-          queueItem,
+          rejectionReason: 'Rekord przygotowania został już wykorzystany dla innego zatwierdzenia (fail-closed)',
+          preparation: null,
+          queueItem: null,
         }
       }
 
-      return {
-        ok: false,
-        status: 'rejected',
-        preview: isDryRun,
-        rejectionReason: 'Rekord przygotowania został już wykorzystany dla innego zatwierdzenia (fail-closed)',
-        preparation: null,
-        queueItem: null,
+      // Check if approvalId was used for another preparation
+      const otherPrep = snapshot.preparations.find(
+        (p) => p.approvalId === approvalId && p.id !== preparation.id,
+      )
+      if (otherPrep) {
+        return {
+          ok: false,
+          status: 'idempotency_conflict',
+          preview: isDryRun,
+          rejectionReason: 'idempotency_conflict: approvalId został już użyty dla innego rekordu przygotowania (fail-closed)',
+          preparation: null,
+          queueItem: null,
+        }
       }
-    }
 
-    // Check if approvalId was used for another preparation
-    const otherPrep = snapshot.preparations.find(
-      (p) => p.approvalId === approvalId && p.id !== preparation.id,
-    )
-    if (otherPrep) {
-      return {
-        ok: false,
-        status: 'idempotency_conflict',
-        preview: isDryRun,
-        rejectionReason: 'idempotency_conflict: approvalId został już użyty dla innego rekordu przygotowania (fail-closed)',
-        preparation: null,
-        queueItem: null,
+      // Check 24-hour rate limit on promotions
+      const recentPromoted = snapshot.preparations.find((p) => {
+        if (p.callerPhoneFingerprint !== computedFingerprint) return false
+        if (p.status !== 'promoted' || !p.promotedAt) return false
+        if (p.id === preparation.id) return false
+        const promoTime = new Date(p.promotedAt).getTime()
+        return nowMs - promoTime < CALLER_SMS_RATE_LIMIT_MS
+      })
+
+      if (recentPromoted) {
+        return {
+          ok: false,
+          status: 'rejected',
+          preview: isDryRun,
+          rejectionReason: 'rate_limit_exceeded: limit 1 promowanego SMS na 24h na numer został już wykorzystany (fail-closed)',
+          preparation: null,
+          queueItem: null,
+        }
       }
-    }
 
-    // Check 24-hour rate limit on promotions
-    const recentPromoted = snapshot.preparations.find((p) => {
-      if (p.callerPhoneFingerprint !== computedFingerprint) return false
-      if (p.status !== 'promoted' || !p.promotedAt) return false
-      if (p.id === preparation.id) return false
-      const promoTime = new Date(p.promotedAt).getTime()
-      return nowMs - promoTime < CALLER_SMS_RATE_LIMIT_MS
-    })
-
-    if (recentPromoted) {
-      return {
-        ok: false,
-        status: 'rejected',
-        preview: isDryRun,
-        rejectionReason: 'rate_limit_exceeded: limit 1 promowanego SMS na 24h na numer został już wykorzystany (fail-closed)',
-        preparation: null,
-        queueItem: null,
+      // Dry-run preview
+      if (isDryRun) {
+        const previewQueueItem: SmsQueueItem = {
+          id: `preview-${randomUUID()}`,
+          bookingId: null,
+          phone: normalized.e164,
+          message: validatedMessage,
+          type: 'custom',
+          status: 'pending',
+          scheduledFor: nowIso,
+          createdAt: nowIso,
+          sentAt: null,
+          error: null,
+          idempotencyKey: `stage4_promo:${approvalId}`,
+        }
+        const previewPreparation: CallerSmsPreparationRecord = {
+          ...preparation,
+          status: 'promoted',
+          promotedAt: nowIso,
+          queueItemId: previewQueueItem.id,
+          approvalId,
+        }
+        return {
+          ok: true,
+          status: 'preview',
+          preview: true,
+          isRetry: false,
+          rejectionReason: null,
+          preparation: previewPreparation,
+          queueItem: previewQueueItem,
+        }
       }
-    }
 
-    // Dry-run preview
-    if (isDryRun) {
-      const previewQueueItem: SmsQueueItem = {
-        id: `preview-${randomUUID()}`,
-        bookingId: null,
-        phone: normalized.e164,
-        message: validatedMessage,
-        type: 'custom',
-        status: 'pending',
-        scheduledFor: nowIso,
-        createdAt: nowIso,
-        sentAt: null,
-        error: null,
-        idempotencyKey: `stage4_promo:${approvalId}`,
+      // Live execution in local store mode with atomic rollback
+      let createdQueueItem: SmsQueueItem | null = null
+      const originalPreparation = { ...preparation }
+
+      try {
+        const queueItem = await enqueueSms({
+          phone: normalized.e164,
+          message: validatedMessage,
+          type: 'custom',
+          idempotencyKey: `stage4_promo:${approvalId}`,
+        })
+        createdQueueItem = queueItem
+
+        if (options._simulateBoundaryFailure) {
+          throw new Error('SIMULATED_BOUNDARY_FAILURE: forced failure at insert/update boundary')
+        }
+
+        preparation.status = 'promoted'
+        preparation.promotedAt = nowIso
+        preparation.queueItemId = queueItem.id
+        preparation.approvalId = approvalId
+
+        await writeCallerSmsStoreSnapshot(snapshot)
+
+        return {
+          ok: true,
+          status: 'promoted',
+          preview: false,
+          isRetry: false,
+          rejectionReason: null,
+          preparation: { ...preparation },
+          queueItem,
+        }
+      } catch (err) {
+        if (createdQueueItem) {
+          await deleteSmsQueueItem(createdQueueItem.id)
+        }
+        Object.assign(preparation, originalPreparation)
+        throw err
       }
-      const previewPreparation: CallerSmsPreparationRecord = {
-        ...preparation,
-        status: 'promoted',
-        promotedAt: nowIso,
-        queueItemId: previewQueueItem.id,
-        approvalId,
-      }
-      return {
-        ok: true,
-        status: 'preview',
-        preview: true,
-        isRetry: false,
-        rejectionReason: null,
-        preparation: previewPreparation,
-        queueItem: previewQueueItem,
-      }
-    }
-
-    // Live execution in local store mode
-    const queueItem = await enqueueSms({
-      phone: normalized.e164,
-      message: validatedMessage,
-      type: 'custom',
-      idempotencyKey: `stage4_promo:${approvalId}`,
-    })
-
-    preparation.status = 'promoted'
-    preparation.promotedAt = nowIso
-    preparation.queueItemId = queueItem.id
-    preparation.approvalId = approvalId
-
-    await writeCallerSmsStoreSnapshot(snapshot)
-
-    return {
-      ok: true,
-      status: 'promoted',
-      preview: false,
-      isRetry: false,
-      rejectionReason: null,
-      preparation: { ...preparation },
-      queueItem,
-    }
   })
 }

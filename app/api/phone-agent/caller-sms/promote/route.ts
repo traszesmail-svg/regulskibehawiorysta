@@ -72,6 +72,7 @@ export async function POST(request: NextRequest) {
   // dryRun defaults to true unless explicitly requested as false
   const dryRun = body?.dryRun === false ? false : true
   const messageOverride = typeof body?.message === 'string' ? body.message : undefined
+  const simulateBoundaryFailure = body?._simulateBoundaryFailure === true
 
   // 3. Runtime flag check: mutations are strictly disabled unless enabled in runtime configuration
   if (!dryRun && !isStage4PromotionEnabled()) {
@@ -95,6 +96,7 @@ export async function POST(request: NextRequest) {
       dryRun,
       messageOverride,
       adminAuthorized: true,
+      _simulateBoundaryFailure: simulateBoundaryFailure,
     })
 
     if (!result.ok) {
@@ -128,10 +130,23 @@ export async function POST(request: NextRequest) {
       { headers: { 'Cache-Control': 'no-store' } },
     )
   } catch (error: any) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    const sanitizedError = errorMessage
+      .replace(/\+?\d{9,15}/g, '[REDACTED_PHONE]')
+      .replace(/key=[^\s&]+/gi, 'key=[REDACTED]')
+      .replace(/secret=[^\s&]+/gi, 'secret=[REDACTED]')
+      .replace(/password=[^\s&]+/gi, 'password=[REDACTED]')
+      .replace(/bearer\s+[^\s]+/gi, 'bearer [REDACTED]')
+
+    console.error(
+      `[caller-sms/promote] Błąd wewnętrzny bramki promocji SMS: ${sanitizedError}`,
+    )
+
     return NextResponse.json(
       {
         ok: false,
-        error: error?.message || 'Błąd wewnętrzny bramki promocji SMS (fail-closed)',
+        error: 'Błąd wewnętrzny bramki promocji SMS (fail-closed)',
+        code: 'PROMOTION_INTERNAL_ERROR',
       },
       { status: 500, headers: { 'Cache-Control': 'no-store' } },
     )

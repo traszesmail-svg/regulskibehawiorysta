@@ -66,7 +66,7 @@ export type EnqueueSmsInput = {
 }
 
 let storeQueue = Promise.resolve()
-function withStoreLock<T>(work: () => Promise<T>): Promise<T> {
+export function withStoreLock<T>(work: () => Promise<T>): Promise<T> {
   if (getDataModeStatus().active === 'supabase') {
     return work()
   }
@@ -686,6 +686,25 @@ export async function getSmsQueueItemByIdempotencyKey(key: string): Promise<SmsQ
     const items = await readStoredSmsQueue()
     const item = items.find((it) => it.idempotencyKey === key)
     return item ? { ...item } : null
+  })
+}
+
+export async function deleteSmsQueueItem(id: string): Promise<boolean> {
+  return withStoreLock(async () => {
+    if (resolveDataMode('usunięcie SMS z kolejki') === 'supabase') {
+      const { error } = await getPhoneAgentSupabase()
+        .from('phone_agent_sms_queue')
+        .delete()
+        .eq('id', id)
+      if (error) throw error
+      return true
+    }
+    const items = await readStoredSmsQueue()
+    const index = items.findIndex((it) => it.id === id)
+    if (index === -1) return false
+    items.splice(index, 1)
+    await writeStoredSmsQueue(items)
+    return true
   })
 }
 

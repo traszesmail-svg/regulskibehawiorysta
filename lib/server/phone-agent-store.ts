@@ -645,6 +645,50 @@ export async function listSmsQueue(limit = 50): Promise<SmsQueueItem[]> {
   })
 }
 
+export async function getSmsQueueItemById(id: string): Promise<SmsQueueItem | null> {
+  return withStoreLock(async () => {
+    if (resolveDataMode('odczyt pojedynczego SMS') === 'supabase') {
+      try {
+        const { data, error } = await getPhoneAgentSupabase()
+          .from('phone_agent_sms_queue')
+          .select('id, booking_id, phone, message, type, status, scheduled_for, created_at, sent_at, error, idempotency_key')
+          .eq('id', id)
+          .maybeSingle<PhoneAgentSmsRow>()
+        if (error) throw error
+        return data ? toPhoneAgentSmsItem(data) : null
+      } catch (err) {
+        console.warn('[phone-agent-store] getSmsQueueItemById error:', err)
+        return null
+      }
+    }
+    const items = await readStoredSmsQueue()
+    const item = items.find((it) => it.id === id)
+    return item ? { ...item } : null
+  })
+}
+
+export async function getSmsQueueItemByIdempotencyKey(key: string): Promise<SmsQueueItem | null> {
+  return withStoreLock(async () => {
+    if (resolveDataMode('odczyt SMS po kluczu idempotencji') === 'supabase') {
+      try {
+        const { data, error } = await getPhoneAgentSupabase()
+          .from('phone_agent_sms_queue')
+          .select('id, booking_id, phone, message, type, status, scheduled_for, created_at, sent_at, error, idempotency_key')
+          .eq('idempotency_key', key)
+          .maybeSingle<PhoneAgentSmsRow>()
+        if (error) throw error
+        return data ? toPhoneAgentSmsItem(data) : null
+      } catch (err) {
+        console.warn('[phone-agent-store] getSmsQueueItemByIdempotencyKey error:', err)
+        return null
+      }
+    }
+    const items = await readStoredSmsQueue()
+    const item = items.find((it) => it.idempotencyKey === key)
+    return item ? { ...item } : null
+  })
+}
+
 export async function generateUpcomingBookingSmsReminders(): Promise<{
   reminders60mCreated: number
   reminders15mCreated: number

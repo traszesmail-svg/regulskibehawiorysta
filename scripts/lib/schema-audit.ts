@@ -357,7 +357,7 @@ export const REQUIRED_SCHEMA_MARKERS: SchemaMarker[] = [
   },
   {
     label: 'caller_sms_preparations.status_check',
-    needle: "status text not null check (status in ('prepared', 'do_not_send'))",
+    needle: "status text not null check (status in ('prepared', 'do_not_send', 'promoted'))",
     expectedCount: 1,
   },
   {
@@ -376,6 +376,11 @@ export const REQUIRED_SCHEMA_MARKERS: SchemaMarker[] = [
     expectedCount: 1,
   },
   {
+    label: 'caller_sms_preparations.approval_id_idx',
+    needle: 'create unique index if not exists caller_sms_preparations_approval_id_idx on public.caller_sms_preparations (approval_id) where approval_id is not null;',
+    expectedCount: 1,
+  },
+  {
     label: 'caller_sms_preparations.rls',
     needle: 'alter table public.caller_sms_preparations enable row level security;',
     expectedCount: 1,
@@ -387,7 +392,7 @@ export const REQUIRED_SCHEMA_MARKERS: SchemaMarker[] = [
   },
   {
     label: 'caller_sms_preparations.grant_service_role',
-    needle: 'grant select, insert on table public.caller_sms_preparations to service_role;',
+    needle: 'grant select, insert, update on table public.caller_sms_preparations to service_role;',
     expectedCount: 1,
   },
   {
@@ -434,6 +439,7 @@ export const REQUIRED_FILES = [
   'supabase/migrations/20261011001_call_sessions_durable_model.sql',
   'supabase/migrations/20261011002_caller_classification_audit.sql',
   'supabase/migrations/20261011003_caller_sms_preparations.sql',
+  'supabase/migrations/20261011004_stage4_controlled_sms_promotion.sql',
 ]
 
 function normalizeSchemaText(schemaText: string) {

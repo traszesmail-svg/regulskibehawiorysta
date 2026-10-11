@@ -1241,7 +1241,7 @@ create table if not exists public.caller_sms_preparations (
   caller_phone_masked text not null,
   decision text not null check (decision in ('eligible_callback', 'session_in_progress', 'paid_booking_no_session', 'unpaid_booking', 'unknown_number', 'session_completed', 'callback_window_expired', 'ambiguous_match', 'invalid_phone', 'missing_secret', 'store_error', 'audit_error', 'idempotency_conflict')),
   action text not null check (action in ('send', 'do_not_send')),
-  status text not null check (status in ('prepared', 'do_not_send')),
+  status text not null check (status in ('prepared', 'do_not_send', 'promoted')),
   message text check (message is null or (length(message) > 0 and length(message) <= 160)),
   target_url text check (target_url is null or (length(target_url) > 0 and length(target_url) <= 256)),
   rejection_reason text check (rejection_reason is null or length(rejection_reason) <= 512),
@@ -1249,7 +1249,10 @@ create table if not exists public.caller_sms_preparations (
   request_hash text not null check (length(request_hash) >= 16),
   payload_hash text not null check (length(payload_hash) >= 16),
   prepared_at timestamptz not null default timezone('utc', now()),
-  created_at timestamptz not null default timezone('utc', now())
+  created_at timestamptz not null default timezone('utc', now()),
+  promoted_at timestamptz,
+  queue_item_id uuid references public.phone_agent_sms_queue(id) on delete set null,
+  approval_id text
 );
 
 create index if not exists caller_sms_preparations_fingerprint_idx
@@ -1261,9 +1264,21 @@ create index if not exists caller_sms_preparations_idempotency_key_idx
 create index if not exists caller_sms_preparations_created_at_idx
   on public.caller_sms_preparations (created_at desc);
 
+create unique index if not exists caller_sms_preparations_approval_id_idx
+  on public.caller_sms_preparations (approval_id)
+  where approval_id is not null;
+
+create index if not exists caller_sms_preparations_promoted_at_idx
+  on public.caller_sms_preparations (promoted_at desc)
+  where promoted_at is not null;
+
+create index if not exists caller_sms_preparations_queue_item_id_idx
+  on public.caller_sms_preparations (queue_item_id)
+  where queue_item_id is not null;
+
 alter table public.caller_sms_preparations enable row level security;
 revoke all on table public.caller_sms_preparations from anon, authenticated;
-grant select, insert on table public.caller_sms_preparations to service_role;
+grant select, insert, update on table public.caller_sms_preparations to service_role;
 
 create or replace function public.prepare_caller_sms(
   p_caller_phone_fingerprint text,

@@ -10,7 +10,7 @@ export const CALLER_SMS_RATE_LIMIT_HOURS = 24
 export const CALLER_SMS_RATE_LIMIT_MS = CALLER_SMS_RATE_LIMIT_HOURS * 60 * 60 * 1000
 
 export type CallerSmsAction = 'send' | 'do_not_send'
-export type CallerSmsStatus = 'prepared' | 'do_not_send'
+export type CallerSmsStatus = 'prepared' | 'do_not_send' | 'promoted'
 
 export const ADMISSIBLE_CALLER_SMS_DECISIONS = [
   'unknown_number',
@@ -49,6 +49,9 @@ export interface CallerSmsPreparationRecord {
   payloadHash: string | null
   preparedAt: string
   createdAt: string
+  promotedAt?: string | null
+  queueItemId?: string | null
+  approvalId?: string | null
 }
 
 export interface GenerateCallerSmsOptions {
@@ -59,6 +62,36 @@ export interface GenerateCallerSmsOptions {
   messageTemplateOverride?: string
   secretOverride?: string
   recordPreparation?: boolean
+}
+
+export interface PromoteCallerSmsOptions {
+  preparationId: string
+  approvalId: string
+  rawPhone: string
+  isControlledTechnicalTest: boolean
+  dryRun?: boolean
+  messageOverride?: string
+  now?: Date
+  maxAgeMs?: number
+  secretOverride?: string
+  adminAuthorized?: boolean
+}
+
+export type PromoteCallerSmsStatus =
+  | 'promoted'
+  | 'preview'
+  | 'rejected'
+  | 'idempotency_conflict'
+  | 'retry_matched'
+
+export interface PromoteCallerSmsResult {
+  ok: boolean
+  status: PromoteCallerSmsStatus
+  preview: boolean
+  isRetry?: boolean
+  rejectionReason: string | null
+  preparation: CallerSmsPreparationRecord | null
+  queueItem: import('./phone-agent-store').SmsQueueItem | null
 }
 
 export interface CallerSmsPolicyEvaluation {

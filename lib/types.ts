@@ -272,3 +272,10 @@ export type {
   CreateCallSessionInput,
   TransitionCallSessionInput,
 } from './server/call-session-types'
+
+export type {
+  CallerClassificationDecision,
+  CallerClassificationResult,
+  CallerDecisionAuditRecord,
+  ClassifyCallerOptions,
+} from './server/caller-classification-types'

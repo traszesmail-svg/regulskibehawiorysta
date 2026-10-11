@@ -380,6 +380,16 @@ async function localFindActiveCallSessionByPhoneFingerprint(fingerprint: string)
   })
 }
 
+async function localFindCallSessionsByPhoneFingerprint(fingerprint: string): Promise<CallSession[]> {
+  return withStoreLock(async () => {
+    const snapshot = await readStoreSnapshot()
+    return snapshot.sessions
+      .filter((s) => s.callerPhoneFingerprint === fingerprint)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .map(normalizeSessionRecord)
+  })
+}
+
 async function localListCallSessionEvents(sessionId: string): Promise<CallSessionEvent[]> {
   return withStoreLock(async () => {
     const snapshot = await readStoreSnapshot()
@@ -569,6 +579,20 @@ async function supabaseFindActiveCallSessionByPhoneFingerprint(fingerprint: stri
   return data ? mapSupabaseRow(data) : null
 }
 
+async function supabaseFindCallSessionsByPhoneFingerprint(fingerprint: string): Promise<CallSession[]> {
+  const supabase = getSupabaseClient()
+  const { data, error } = await supabase
+    .from('call_sessions')
+    .select('*')
+    .eq('caller_phone_fingerprint', fingerprint)
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    throw new Error(`Błąd wyszukiwania sesji po fingerprint: ${error.message}`)
+  }
+  return (data || []).map(mapSupabaseRow)
+}
+
 async function supabaseListCallSessionEvents(sessionId: string): Promise<CallSessionEvent[]> {
   const supabase = getSupabaseClient()
   const { data, error } = await supabase
@@ -629,6 +653,12 @@ export async function findActiveCallSessionByPhoneFingerprint(fingerprint: strin
     : localFindActiveCallSessionByPhoneFingerprint(fingerprint)
 }
 
+export async function findCallSessionsByPhoneFingerprint(fingerprint: string): Promise<CallSession[]> {
+  return shouldUseSupabase()
+    ? supabaseFindCallSessionsByPhoneFingerprint(fingerprint)
+    : localFindCallSessionsByPhoneFingerprint(fingerprint)
+}
+
 export async function listCallSessionEvents(sessionId: string): Promise<CallSessionEvent[]> {
   return shouldUseSupabase() ? supabaseListCallSessionEvents(sessionId) : localListCallSessionEvents(sessionId)
 }
@@ -640,5 +670,6 @@ export const localStore = {
   getCallSessionById: localGetCallSessionById,
   getCallSessionByBookingId: localGetCallSessionByBookingId,
   findActiveCallSessionByPhoneFingerprint: localFindActiveCallSessionByPhoneFingerprint,
+  findCallSessionsByPhoneFingerprint: localFindCallSessionsByPhoneFingerprint,
   listCallSessionEvents: localListCallSessionEvents,
 }

@@ -404,5 +404,19 @@ export {
   getCallSessionById,
   getCallSessionByBookingId,
   findActiveCallSessionByPhoneFingerprint,
+  findCallSessionsByPhoneFingerprint,
   listCallSessionEvents,
 } from './call-session-store'
+
+export {
+  classifyIncomingCaller,
+  recordCallerDecisionAudit,
+  listCallerDecisionAudits,
+} from './caller-classifier'
+
+export type {
+  CallerClassificationDecision,
+  CallerClassificationResult,
+  CallerDecisionAuditRecord,
+  ClassifyCallerOptions,
+} from './caller-classification-types'

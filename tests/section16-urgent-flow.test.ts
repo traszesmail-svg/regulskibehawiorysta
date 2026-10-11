@@ -591,6 +591,7 @@ test('10. Retry bez duplikatu zdarzenia: ponowne wywołanie z tym samym kluczem 
   const snapAfterFirst = await readSection16StoreSnapshot()
   const eventsForReq1 = snapAfterFirst.urgentEvents.filter((e) => e.requestId === req.id)
   assert.equal(eventsForReq1.length, 2) // request_created + timeslot_proposed
+  assert.equal(eventsForReq1[1].payload?.expectedVersion, 1, 'Zapisane zdarzenie musi mieć payload.expectedVersion zgodne z wersją pierwotną')
 
   // Second call (exact retry)
   const retry = await processOwnerProposalAndSetHold({
@@ -1000,6 +1001,12 @@ test('16. Retry z tym samym kluczem, ale innym requestId/response/TTL/payload ->
     now,
   })
 
+  // Verify stored event has payload.expectedVersion === 1
+  const snapAfterInit = await readSection16StoreSnapshot()
+  const initialEvent = snapAfterInit.urgentEvents.find((e) => e.idempotencyKey === conflictKey)
+  assert.ok(initialEvent)
+  assert.equal(initialEvent.payload?.expectedVersion, 1, 'Zapisane zdarzenie ma payload.expectedVersion zgodne z wersją pierwotną')
+
   // 16a. Different requestId
   await assert.rejects(
     async () => {
@@ -1074,6 +1081,38 @@ test('16. Retry z tym samym kluczem, ale innym requestId/response/TTL/payload ->
         holdDurationMinutes: 30,
         expectedVersion: 1,
         payload: { source: 'unit-test-modified' },
+        now,
+      })
+    },
+    (err: any) => err instanceof Section16IdempotencyConflictError,
+  )
+
+  // 16f. Different expectedVersion (2 instead of 1) -> IDEMPOTENCY_CONFLICT
+  await assert.rejects(
+    async () => {
+      await processOwnerProposalAndSetHold({
+        requestId: reqA.id,
+        response: '12.10.2026.11:00',
+        idempotencyKey: conflictKey,
+        holdDurationMinutes: 30,
+        expectedVersion: 2,
+        payload: { source: 'unit-test' },
+        now,
+      })
+    },
+    (err: any) => err instanceof Section16IdempotencyConflictError,
+  )
+
+  // 16g. Different expectedVersion (999 instead of 1) -> IDEMPOTENCY_CONFLICT
+  await assert.rejects(
+    async () => {
+      await processOwnerProposalAndSetHold({
+        requestId: reqA.id,
+        response: '12.10.2026.11:00',
+        idempotencyKey: conflictKey,
+        holdDurationMinutes: 30,
+        expectedVersion: 999,
+        payload: { source: 'unit-test' },
         now,
       })
     },
@@ -1358,5 +1397,119 @@ test('21. Rozdział parsera strukturalnego od reguły ściśle w przyszłości',
   assert.throws(
     () => parseOwnerProposalResponseOrThrow('12.10.2026.14:00', '2026-10-12', pastRef),
     (err: any) => err.code === 'PAST_OR_CURRENT_TIME',
+  )
+})
+
+// ---------------------------------------------------------------------------
+// 22. REGRESJA: EXPECTEDVERSION W TOŻSAMOŚCI RETRY I KANONICZNYM PAYLOADZIE ZDARZENIA
+// ---------------------------------------------------------------------------
+test('22. Regresja: expectedVersion w tożsamości retry i kanonicznym payloadzie zdarzenia', async () => {
+  const now = new Date('2026-10-12T08:00:00.000Z')
+  const req = await createUrgentIntakeRequest(
+    {
+      dayChoice: 'today',
+      targetDate: '2026-10-12',
+      rawPhone: '+48600111222',
+      idempotencyKey: 'intake-cas-retry-reg-001',
+    },
+    now,
+  )
+
+  const idempotencyKey = 'prop-cas-retry-reg-001'
+  const first = await processOwnerProposalAndSetHold({
+    requestId: req.id,
+    response: '12.10.2026.11:00',
+    idempotencyKey,
+    holdDurationMinutes: 30,
+    expectedVersion: 1,
+    payload: { channel: 'sms' },
+    now,
+  })
+
+  assert.equal(first.isRetry, false)
+  assert.equal(first.request.state, 'timeslot_proposed')
+  assert.equal(first.request.version, 2)
+
+  // Potwierdź, że zapisane zdarzenie ma payload.expectedVersion zgodne z wersją pierwotną (1)
+  const snapAfterFirst = await readSection16StoreSnapshot()
+  const event = snapAfterFirst.urgentEvents.find((e) => e.idempotencyKey === idempotencyKey)
+  assert.ok(event, 'Zdarzenie timeslot_proposed musi istnieć')
+  assert.equal(
+    event.payload?.expectedVersion,
+    1,
+    'Zapisane zdarzenie ma payload.expectedVersion zgodne z wersją pierwotną',
+  )
+
+  const eventsCountBefore = snapAfterFirst.urgentEvents.length
+  const reqBefore = snapAfterFirst.urgentIntakes.find((r) => r.id === req.id)
+
+  // Retry z tym samym kluczem i identycznymi pozostałymi danymi, ale expectedVersion: 2 -> IDEMPOTENCY_CONFLICT
+  await assert.rejects(
+    async () => {
+      await processOwnerProposalAndSetHold({
+        requestId: req.id,
+        response: '12.10.2026.11:00',
+        idempotencyKey,
+        holdDurationMinutes: 30,
+        expectedVersion: 2,
+        payload: { channel: 'sms' },
+        now,
+      })
+    },
+    (err: any) => err instanceof Section16IdempotencyConflictError,
+  )
+
+  // Retry z tym samym kluczem i identycznymi pozostałymi danymi, ale expectedVersion: 999 -> IDEMPOTENCY_CONFLICT
+  await assert.rejects(
+    async () => {
+      await processOwnerProposalAndSetHold({
+        requestId: req.id,
+        response: '12.10.2026.11:00',
+        idempotencyKey,
+        holdDurationMinutes: 30,
+        expectedVersion: 999,
+        payload: { channel: 'sms' },
+        now,
+      })
+    },
+    (err: any) => err instanceof Section16IdempotencyConflictError,
+  )
+
+  // Zero nowego zdarzenia i zero zmiany rekordu
+  const snapAfterConflicts = await readSection16StoreSnapshot()
+  assert.equal(
+    snapAfterConflicts.urgentEvents.length,
+    eventsCountBefore,
+    'Zero nowego zdarzenia po odrzuceniu retry ze zmienioną expectedVersion',
+  )
+  const reqAfterConflicts = snapAfterConflicts.urgentIntakes.find((r) => r.id === req.id)
+  assert.deepEqual(
+    reqAfterConflicts,
+    reqBefore,
+    'Zero zmiany rekordu po odrzuceniu retry ze zmienioną expectedVersion',
+  )
+
+  // Retry z pierwotną expectedVersion: 1 po upływie czasu działa bez błędu, zwraca isRetry: true, zero nowego zdarzenia i zero mutacji
+  const tFuture = new Date('2026-10-15T12:00:00.000Z')
+  const retryOk = await processOwnerProposalAndSetHold({
+    requestId: req.id,
+    response: '12.10.2026.11:00',
+    idempotencyKey,
+    holdDurationMinutes: 30,
+    expectedVersion: 1,
+    payload: { channel: 'sms' },
+    now: tFuture,
+  })
+
+  assert.equal(retryOk.isRetry, true)
+  assert.equal(retryOk.request.id, req.id)
+  assert.equal(retryOk.request.version, 2)
+  assert.equal(retryOk.request.state, 'timeslot_proposed')
+
+  const snapAfterOkRetry = await readSection16StoreSnapshot()
+  assert.equal(
+    snapAfterOkRetry.urgentEvents.length,
+    eventsCountBefore,
+    'Zero nowego zdarzenia po poprawnym retry z oryginalną expectedVersion',
   )
 })

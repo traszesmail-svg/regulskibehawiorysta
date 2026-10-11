@@ -504,6 +504,7 @@ export async function processOwnerProposalAndSetHold(
     // Reconstruct canonical payload to verify hash
     const candidatePayload: Record<string, unknown> = {
       ...(input.payload ?? {}),
+      expectedVersion: input.expectedVersion,
       response: input.response,
       parsedProposal: {
         formattedDate: structResult.data.formattedDate,
@@ -522,6 +523,9 @@ export async function processOwnerProposalAndSetHold(
     // Also verify direct payload attributes if present
     const evPayload = existingEvent.payload
     if (evPayload && evPayload.holdDurationMinutes !== undefined && evPayload.holdDurationMinutes !== holdMinutes) {
+      throw new Section16IdempotencyConflictError(idempotencyKey)
+    }
+    if (evPayload && evPayload.expectedVersion !== undefined && evPayload.expectedVersion !== input.expectedVersion) {
       throw new Section16IdempotencyConflictError(idempotencyKey)
     }
 
@@ -554,6 +558,7 @@ export async function processOwnerProposalAndSetHold(
   const holdExpiresAt = new Date(now.getTime() + holdMinutes * 60 * 1000).toISOString()
   const payloadToStore: Record<string, unknown> = {
     ...(input.payload ?? {}),
+    expectedVersion: input.expectedVersion,
     response: input.response,
     parsedProposal: {
       formattedDate: parsed.formattedDate,

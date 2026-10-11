@@ -456,3 +456,81 @@ Nie udało się odzyskać konfiguracji klucza odpowiadającego certyfikatowi `d5
   - Nie modyfikować publicznego copy, layoutu ani żadnych innych plików produkcyjnych.
   - Nie wysyłać żadnych wiadomości SMS ani nie inicjować połączeń telefonicznych.
   - Nie wdrażać, nie commitować i nie pushować zmian do repozytorium zdalnego.
+
+## 16. Docelowy model „Zapytaj teraz”, rozmów kontrolnych i partnerstw z lecznicami
+
+### 16.1. Decyzja produktowa dotycząca wejścia do usługi
+- Usunąć „Zapytaj” z górnego paska oraz zrezygnować z publicznego wskaźnika `ONLINE` / dostępności behawiorysty. Zmiana nie może zostać wdrożona przed przygotowaniem i odbiorem nowych, czytelnych wejść do dwóch poniższych ścieżek.
+- Klient wybiera jedną z dwóch jednoznacznych opcji:
+  1. **„Potrzebuję pilnej pomocy dziś lub jutro”** — prośba o konkretny pilny termin.
+  2. **„Powiadom mnie, gdy behawiorysta będzie dostępny”** — zapis na jednorazowe powiadomienie o możliwości rozpoczęcia płatnej rozmowy.
+- Brak płatności oznacza brak potwierdzonej rezerwacji, brak wpisu w kalendarzu oraz brak automatycznego prawa do rozmowy. Wyjątkiem może być wyłącznie prawidłowo rozliczony kod partnerski pokrywający 100% ceny.
+- Publiczny interfejs nie może sugerować natychmiastowego połączenia, dopóki system nie ma potwierdzonej dostępności, płatności i technicznej możliwości zestawienia rozmowy.
+
+### 16.2. Ścieżka A — pilny termin dziś lub jutro
+1. Klient wybiera `dzisiaj` albo `jutro`, podaje minimalny wymagany zakres danych i wysyła prośbę o termin pilny.
+2. Właściciel otrzymuje jeden SMS z informacją o nowej prośbie i wybranym dniu. Wiadomość nie może zawierać nadmiarowych danych wrażliwych.
+3. Właściciel odpowiada wyłącznie datą i godziną w kanonicznym formacie `DD.MM.RRRR.HH:MM`, np. `01.12.2026.12:15`.
+4. Parser akceptuje tylko dokładny format, prawidłową datę i przyszłą godzinę zgodną z dozwolonym dniem. Każda odpowiedź niejednoznaczna ma zostać odrzucona z czytelną informacją dla właściciela; system nie może zgadywać terminu.
+5. Po poprawnej odpowiedzi system zakłada krótką, wygasającą blokadę terminu i wysyła klientowi jeden bezpieczny, jednorazowy link do płatności.
+6. Dopiero potwierdzona i idempotentnie rozliczona płatność zmienia blokadę w rezerwację oraz dodaje termin do kalendarza właściciela.
+7. Brak płatności przed wygaśnięciem zwalnia termin. Konflikt kalendarza, powtórzony webhook lub spóźniona płatność muszą być obsługiwane fail-closed, bez podwójnej rezerwacji.
+
+### 16.3. Ścieżka B — powiadomienie o dostępności
+1. Klient zapisuje się na jednorazowe powiadomienie, nie widząc publicznego statusu online.
+2. Gdy właściciel świadomie oznaczy gotowość do obsługi, system wybiera oczekujące zgłoszenia zgodnie z ustaloną kolejnością i wysyła ograniczony czasowo link do płatności.
+3. Po potwierdzeniu płatności właściciel otrzymuje powiadomienie, a klient uzyskuje czasowo ograniczone uprawnienie do rozmowy.
+4. Sposób rozpoczęcia rozmowy wymaga osobnej decyzji i odbioru technicznego:
+   - system zestawia kontrolowane połączenie, albo
+   - klient sam dzwoni z numeru rozpoznawanego jako opłacona, aktywna sesja.
+5. Samodzielne połączenie klienta nie może otwierać stałego dostępu do prywatnego czasu właściciela. Uprawnienie musi być związane z opłaconą rezerwacją, numerem/fingerprintem, oknem czasowym i pozostałym limitem rozmowy.
+6. Bezpieczna ścieżka ręczna pozostaje dostępna, jeżeli automatyczne zestawienie lub rozpoznanie numeru nie zadziała.
+
+### 16.4. Briefing właściciela i komunikaty dla klienta
+- Podczas oczekiwania na zestawienie rozmowy właściciel słyszy syntetyczny briefing sprawy: identyfikator rezerwacji, temat, krótki opis klienta, wybrany wariant usługi oraz pozostały limit czasu. Nie odczytywać zbędnych danych wrażliwych.
+- Klient przed właściwym połączeniem słyszy krótkie zasady konsultacji, informację o długości rozmowy, rozpoczęciu naliczania dopiero po faktycznym zestawieniu stron oraz o zachowaniu niewykorzystanego czasu po potwierdzonym przerwaniu.
+- Komunikat przed rozmową wyjaśnia znaczenie każdego sygnału dźwiękowego używanego podczas konsultacji, w szczególności ostrzeżeń o zbliżającym się końcu czasu.
+- Komunikat informuje również, ile pytań uzupełniających przysługuje klientowi po rozmowie, w jakim terminie można je zadać i jaką drogą. Liczba pytań i okres ważności muszą wynikać z zatwierdzonej oferty, a nie z założenia technicznego.
+- Oczekiwanie, briefing, komunikaty organizacyjne oraz stany `waiting_for_owner` i `bridging` nie pomniejszają opłaconego czasu konsultacji.
+- Dokładne momenty sygnałów, ich brzmienie, liczba pytań i treści nagrań są parametrami wymagającymi zatwierdzenia właściciela oraz testu zrozumiałości. Sygnały nie mogą zagłuszać rozmowy ani być mylone z awarią sieci.
+
+### 16.5. Kontrolowany pilotaż z byłymi klientami
+- Celem pilotażu jest sprawdzenie całego procesu na zamkniętej grupie byłych klientów świadomie wybranych przez właściciela.
+- Właściciel dostarcza finalną, zamkniętą listę numerów oraz potwierdza podstawę kontaktu, zgodę uczestników lub inną właściwą podstawę prawną. Sam status „były klient” nie jest automatycznie zgodą na marketing ani testy telefoniczne.
+- Operator kontaktuje wyłącznie numery z zatwierdzonej listy, w dozwolonych godzinach i według zatwierdzonego skryptu. Na początku rozmowy jasno przedstawia podmiot i informuje, że jest to test techniczny systemu.
+- Po rozmowie system może wysłać dokładnie jeden SMS z oficjalnym, bezpiecznym linkiem do wyboru terminu. Brak odebrania połączenia nie upoważnia automatycznie do serii ponowień lub SMS-ów.
+- W wybranym dniu Operator wykonuje zaplanowane połączenie testowe, odtwarza wymagane komunikaty i realizuje wyłącznie uzgodniony scenariusz.
+- Obowiązują: możliwość natychmiastowej rezygnacji, lista „nie kontaktować”, ograniczenie liczby prób, brak ślepego ponawiania, maskowanie numerów w logach i audyt wyniku każdego etapu.
+- Startować od jednego świadomego uczestnika. Rozszerzenie grupy jest dozwolone dopiero po odbiorze pierwszego pełnego scenariusza.
+- Ta sekcja jest planem, a nie bieżącą zgodą na połączenia. Uruchomienie wymaga osobno: listy numerów, zatwierdzonego tekstu, godzin testu i wyraźnego polecenia właściciela.
+
+### 16.6. Kody partnerskie dla lecznic weterynaryjnych
+- Każda lecznica może otrzymać własny kod partnerski z rabatem 30%, 50% albo 100%, terminem ważności, limitem użyć i jednoznacznym identyfikatorem partnera.
+- Klient wysyła kod SMS-em na oficjalny numer Operatora. System normalizuje treść, sprawdza kod po stronie serwera i stosuje limity zapobiegające zgadywaniu kodów oraz zalewaniu SMS-ami.
+- Prawidłowy kod powoduje wysłanie jednego zwrotnego SMS-a z bezpiecznym, jednorazowym linkiem do dedykowanego terminarza.
+- Strona partnerska pokazuje zatwierdzone logo lecznicy, cenę podstawową, wysokość rabatu i kwotę końcową. Logo i nazwa mogą być publikowane dopiero po otrzymaniu właściwego pliku oraz zgody partnera.
+- Rabat jest obliczany wyłącznie po stronie serwera na podstawie aktywnej ceny usługi. Parametry URL ani dane z przeglądarki nie mogą ustalać rabatu.
+- Dla rabatu 30% lub 50% termin zostaje potwierdzony po opłaceniu pozostałej kwoty.
+- Dla rabatu 100% nie uruchamiać bramki płatniczej i nie oznaczać rezerwacji fałszywie jako zwykłej płatności klienta. Użyć osobnego, audytowalnego statusu typu `partner_covered` / „pokryte kodem partnerskim”.
+- Jeden kod nie może zostać wykorzystany poza ustalonym zakresem ani wielokrotnie przez powtórzenie webhooka lub odświeżenie linku. Wymagane są idempotencja, limity per kod/per numer, wygaśnięcie linku i ręczna możliwość zablokowania kodu.
+- Główna publiczna strona nie otrzymuje automatycznie brandingu partnera. Logo lecznicy występuje tylko w zatwierdzonym, dedykowanym przepływie partnerskim.
+- Przed implementacją właściciel rozstrzyga: kto finansuje rabat, czy lecznica ma limit miesięczny, czy kody są wspólne czy jednorazowe, jakie dane i raporty otrzymuje partner oraz jak wygląda rozliczenie podatkowe i księgowe.
+
+### 16.7. Kolejność realizacji nowego modelu
+1. **Decyzje biznesowe i treści:** zatwierdzić format SMS z terminem, czas blokady, teksty komunikatów, momenty sygnałów, liczbę pytań, zasady samodzielnego dzwonienia, skrypt pilota i reguły finansowania kodów.
+2. **Model danych i bezpieczeństwo:** zaprojektować trwałe, idempotentne rekordy próśb pilnych, propozycji terminu, blokad, powiadomień online, uprawnień do rozmowy, kampanii testowych, partnerów i użyć kodów.
+3. **Ścieżka pilnego terminu:** wdrożyć wybór dziś/jutro, SMS do właściciela, ścisły parser odpowiedzi, blokadę terminu, link płatniczy oraz wpis do kalendarza dopiero po płatności.
+4. **Ścieżka powiadomienia online:** wdrożyć kolejkę oczekujących, ręczne oznaczenie gotowości, jednorazowy link płatniczy i czasowe uprawnienie do rozmowy.
+5. **Zmiana publicznej nawigacji:** usunąć „Zapytaj” z górnego paska i publiczny status online dopiero po odbiorze obu nowych wejść oraz sprawdzeniu desktop/mobile, dostępności i analityki.
+6. **Audio i telefonia:** wdrożyć briefing, zasady dla klienta, sygnały czasu i obsługę pytań po rozstrzygnięciu bramki Android Default Dialer kontra kontrolowany dostawca SIP/IVR.
+7. **Pilot jednej osoby:** przeprowadzić pełny scenariusz z jednym zatwierdzonym uczestnikiem i zebrać dowody techniczne oraz jakościowe.
+8. **Partner leczniczy:** uruchomić jeden kod jednej lecznicy w środowisku kontrolowanym, osobno sprawdzając rabaty 30%, 50% i 100%.
+9. **Ograniczony pilot produkcyjny:** rozszerzyć zakres dopiero po pozytywnym odbiorze wcześniejszych etapów i odrębnej zgodzie właściciela.
+
+### 16.8. Kryteria odbioru i aktualny zakres zgody
+- Każda zmiana stanu ma klucz idempotencji i pełny audyt bez surowych numerów telefonu w publicznych logach.
+- Żaden SMS, webhook płatniczy ani ponowienie żądania nie może stworzyć dwóch rezerwacji, dwóch wpisów w kalendarzu lub dwóch uprawnień do rozmowy.
+- Termin nie jest potwierdzony przed płatnością, z wyjątkiem jawnie rozliczonego rabatu partnerskiego 100%.
+- Czas oczekiwania i komunikatów nie zużywa czasu konsultacji; sygnały oraz pytania uzupełniające są zgodne z zatwierdzoną ofertą.
+- Publiczne usunięcie nawigacji/statusu wymaga odbioru funkcjonalnego, responsywnego i wizualnego na desktopie i urządzeniu mobilnym.
+- Bieżąca zgoda obejmuje wyłącznie zapisanie i dopracowanie planu. Nie obejmuje wysyłania SMS-ów, wykonywania połączeń, kontaktowania byłych klientów, uruchamiania kodów lecznic, zmiany publicznego interfejsu ani rozpoczęcia pilotażu.

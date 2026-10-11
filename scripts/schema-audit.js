@@ -324,6 +324,56 @@ const REQUIRED_SCHEMA_MARKERS = [
     needle: 'grant select, insert on table public.caller_classification_audits to service_role;',
     expectedCount: 1,
   },
+  {
+    label: 'caller_sms_preparations',
+    needle: 'create table if not exists public.caller_sms_preparations',
+    expectedCount: 1,
+  },
+  {
+    label: 'caller_sms_preparations.status_check',
+    needle: "status text not null check (status in ('prepared', 'do_not_send'))",
+    expectedCount: 1,
+  },
+  {
+    label: 'caller_sms_preparations.fingerprint_idx',
+    needle: 'create index if not exists caller_sms_preparations_fingerprint_idx on public.caller_sms_preparations (caller_phone_fingerprint, prepared_at desc);',
+    expectedCount: 1,
+  },
+  {
+    label: 'caller_sms_preparations.idempotency_key_idx',
+    needle: 'create index if not exists caller_sms_preparations_idempotency_key_idx on public.caller_sms_preparations (idempotency_key);',
+    expectedCount: 1,
+  },
+  {
+    label: 'caller_sms_preparations.created_at_idx',
+    needle: 'create index if not exists caller_sms_preparations_created_at_idx on public.caller_sms_preparations (created_at desc);',
+    expectedCount: 1,
+  },
+  {
+    label: 'caller_sms_preparations.rls',
+    needle: 'alter table public.caller_sms_preparations enable row level security;',
+    expectedCount: 1,
+  },
+  {
+    label: 'caller_sms_preparations.revoke_anon_auth',
+    needle: 'revoke all on table public.caller_sms_preparations from anon, authenticated;',
+    expectedCount: 1,
+  },
+  {
+    label: 'caller_sms_preparations.grant_service_role',
+    needle: 'grant select, insert on table public.caller_sms_preparations to service_role;',
+    expectedCount: 1,
+  },
+  {
+    label: 'prepare_caller_sms',
+    needle: 'create or replace function public.prepare_caller_sms(',
+    expectedCount: 1,
+  },
+  {
+    label: 'prepare_caller_sms.grant_signature',
+    needle: 'grant execute on function public.prepare_caller_sms(text, text, text, text, text, text, text, text, text, text, text, timestamptz) to service_role;',
+    expectedCount: 1,
+  },
 ]
 
 const REQUIRED_FILES = [
@@ -357,6 +407,7 @@ const REQUIRED_FILES = [
   'supabase/migrations/20261010002_remove_duplicate_availability_index.sql',
   'supabase/migrations/20261011001_call_sessions_durable_model.sql',
   'supabase/migrations/20261011002_caller_classification_audit.sql',
+  'supabase/migrations/20261011003_caller_sms_preparations.sql',
 ]
 
 function normalizeSchemaText(schemaText) {

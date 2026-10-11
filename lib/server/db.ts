@@ -420,3 +420,27 @@ export type {
   CallerDecisionAuditRecord,
   ClassifyCallerOptions,
 } from './caller-classification-types'
+
+export {
+  generateCallerSms,
+  evaluateCallerSmsPolicy,
+  processCallerSmsForInboundCall,
+  listCallerSmsPreparations,
+  validateOfficialTargetUrl,
+  validateSmsMessageContent,
+  computeCallerSmsRequestHash,
+  computeCallerSmsIdempotencyKey,
+  DEFAULT_OFFICIAL_BOOKING_URL,
+  DEFAULT_OFFICIAL_SMS_MESSAGE,
+  FALLBACK_OFFICIAL_SMS_MESSAGE,
+} from './caller-sms-policy'
+
+export type {
+  CallerSmsAction,
+  CallerSmsStatus,
+  CallerSmsPreparationRecord,
+  GenerateCallerSmsOptions,
+  CallerSmsPolicyEvaluation,
+  AdmissibleCallerSmsDecision,
+  BlockedCallerSmsDecision,
+} from './caller-sms-types'

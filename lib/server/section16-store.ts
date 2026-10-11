@@ -590,6 +590,26 @@ export async function getUrgentIntakeRequest(id: string): Promise<UrgentIntakeRe
   return store.urgentIntakes.find((r) => r.id === id) ?? null
 }
 
+export async function getUrgentIntakeEventByIdempotencyKey(
+  idempotencyKey: string,
+): Promise<UrgentIntakeEvent | null> {
+  const mode = getDataMode()
+  if (mode === 'supabase') {
+    const supabase = getSupabaseClient()
+    const { data, error } = await supabase
+      .from('urgent_intake_events')
+      .select('*')
+      .eq('idempotency_key', idempotencyKey)
+      .maybeSingle()
+    if (error) throw new Section16DomainError(error.message, 'DB_ERROR')
+    return data as UrgentIntakeEvent | null
+  }
+
+  const store = await readStoreSnapshot()
+  return store.urgentEvents.find((e) => e.idempotencyKey === idempotencyKey) ?? null
+}
+
+
 // ---------------------------------------------------------------------------
 // PATH B: AVAILABILITY NOTIFICATION REQUESTS
 // ---------------------------------------------------------------------------

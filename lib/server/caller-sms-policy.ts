@@ -245,6 +245,10 @@ export function evaluateCallerSmsPolicy(
 
   // 1. Fail-closed: Blocked decisions
   if ((BLOCKED_CALLER_SMS_DECISIONS as readonly string[]).includes(decision)) {
+    const rejectionReason =
+      decision === 'paid_booking_no_session'
+        ? 'Klient opłacił rezerwację bez przerwanej sesji - ponowny wybór terminu wykluczony ze względu na ryzyko podwójnej płatności (fail-closed)'
+        : `Decyzja klasyfikatora "${decision}" wyklucza wysyłkę wiadomości SMS (polityka fail-closed)`
     return {
       action: 'do_not_send',
       status: 'do_not_send',
@@ -253,7 +257,7 @@ export function evaluateCallerSmsPolicy(
       callerPhoneMasked: masked,
       message: null,
       targetUrl: null,
-      rejectionReason: `Decyzja klasyfikatora "${decision}" wyklucza wysyłkę wiadomości SMS (polityka fail-closed)`,
+      rejectionReason,
       isAdmissible: false,
     }
   }
@@ -353,20 +357,147 @@ export async function generateCallerSms(
   // 1. Evaluate policy
   const policy = evaluateCallerSmsPolicy(classification, options)
 
-  // 2. Resolve or compute deterministic idempotency key
-  let idempotencyKey = options?.idempotencyKey?.trim() || null
-  if (!idempotencyKey) {
-    if (policy.callerPhoneFingerprint) {
-      idempotencyKey = computeCallerSmsIdempotencyKey({
+  const isDryRun = options?.dryRun === true || options?.recordPreparation === false
+  const rawKey = typeof options?.idempotencyKey === 'string' ? options.idempotencyKey.trim() : ''
+
+  // 2. Pure preview mode: does not mutate durable storage
+  if (isDryRun) {
+    if (rawKey.length > 128) {
+      return {
+        id: `fail-closed-${randomUUID()}`,
+        action: 'do_not_send',
+        status: 'do_not_send',
+        decision: policy.decision,
         callerPhoneFingerprint: policy.callerPhoneFingerprint,
-        evaluatedAt: classification.evaluatedAt || nowIso,
-      })
-    } else {
-      idempotencyKey = `sms_prep_anon_${randomUUID().replace(/-/g, '').slice(0, 24)}`
+        callerPhoneMasked: policy.callerPhoneMasked,
+        message: null,
+        targetUrl: null,
+        rejectionReason: 'Parametr idempotencyKey przekracza maksymalną dopuszczalną długość (128 znaków) (fail-closed)',
+        idempotencyKey: null,
+        requestHash: computeCallerSmsRequestHash({
+          callerPhoneFingerprint: policy.callerPhoneFingerprint,
+          decision: policy.decision,
+          targetUrl: '',
+          message: '',
+          action: 'do_not_send',
+        }),
+        payloadHash: computePayloadHash({
+          decision: policy.decision,
+          callerPhoneFingerprint: policy.callerPhoneFingerprint,
+          action: 'do_not_send',
+          targetUrl: null,
+          message: null,
+          rejectionReason: 'Parametr idempotencyKey przekracza maksymalną dopuszczalną długość (128 znaków) (fail-closed)',
+        }),
+        preparedAt: nowIso,
+        createdAt: nowIso,
+      }
+    }
+
+    // Pure preview supports missing key without mutation or fake idempotency guarantees
+    const previewIdempotencyKey = rawKey.length > 0 ? rawKey : null
+    const requestHash = computeCallerSmsRequestHash({
+      callerPhoneFingerprint: policy.callerPhoneFingerprint,
+      decision: policy.decision,
+      targetUrl: policy.targetUrl ?? '',
+      message: policy.message ?? '',
+      action: policy.action,
+    })
+    const payloadHash = computePayloadHash({
+      decision: policy.decision,
+      callerPhoneFingerprint: policy.callerPhoneFingerprint,
+      action: policy.action,
+      targetUrl: policy.targetUrl,
+      message: policy.message,
+      rejectionReason: policy.rejectionReason,
+    })
+
+    return {
+      id: `preview-${randomUUID()}`,
+      action: policy.action,
+      status: policy.status,
+      decision: policy.decision,
+      callerPhoneFingerprint: policy.callerPhoneFingerprint,
+      callerPhoneMasked: policy.callerPhoneMasked,
+      message: policy.message,
+      targetUrl: policy.targetUrl,
+      rejectionReason: policy.rejectionReason,
+      idempotencyKey: previewIdempotencyKey,
+      requestHash,
+      payloadHash,
+      preparedAt: nowIso,
+      createdAt: nowIso,
     }
   }
 
-  // 3. Compute deterministic request hash & payload hash
+  // 3. Durable preparation mode: must fail-closed if key is missing, whitespace, or >128 chars
+  if (!rawKey) {
+    return {
+      id: `fail-closed-${randomUUID()}`,
+      action: 'do_not_send',
+      status: 'do_not_send',
+      decision: policy.decision,
+      callerPhoneFingerprint: policy.callerPhoneFingerprint,
+      callerPhoneMasked: policy.callerPhoneMasked,
+      message: null,
+      targetUrl: null,
+      rejectionReason: 'Brak wymaganego klucza idempotencji dla trwałego przygotowania SMS (fail-closed)',
+      idempotencyKey: null,
+      requestHash: computeCallerSmsRequestHash({
+        callerPhoneFingerprint: policy.callerPhoneFingerprint,
+        decision: policy.decision,
+        targetUrl: '',
+        message: '',
+        action: 'do_not_send',
+      }),
+      payloadHash: computePayloadHash({
+        decision: policy.decision,
+        callerPhoneFingerprint: policy.callerPhoneFingerprint,
+        action: 'do_not_send',
+        targetUrl: null,
+        message: null,
+        rejectionReason: 'Brak wymaganego klucza idempotencji dla trwałego przygotowania SMS (fail-closed)',
+      }),
+      preparedAt: nowIso,
+      createdAt: nowIso,
+    }
+  }
+
+  if (rawKey.length > 128) {
+    return {
+      id: `fail-closed-${randomUUID()}`,
+      action: 'do_not_send',
+      status: 'do_not_send',
+      decision: policy.decision,
+      callerPhoneFingerprint: policy.callerPhoneFingerprint,
+      callerPhoneMasked: policy.callerPhoneMasked,
+      message: null,
+      targetUrl: null,
+      rejectionReason: 'Parametr idempotencyKey przekracza maksymalną dopuszczalną długość (128 znaków) (fail-closed)',
+      idempotencyKey: null,
+      requestHash: computeCallerSmsRequestHash({
+        callerPhoneFingerprint: policy.callerPhoneFingerprint,
+        decision: policy.decision,
+        targetUrl: '',
+        message: '',
+        action: 'do_not_send',
+      }),
+      payloadHash: computePayloadHash({
+        decision: policy.decision,
+        callerPhoneFingerprint: policy.callerPhoneFingerprint,
+        action: 'do_not_send',
+        targetUrl: null,
+        message: null,
+        rejectionReason: 'Parametr idempotencyKey przekracza maksymalną dopuszczalną długość (128 znaków) (fail-closed)',
+      }),
+      preparedAt: nowIso,
+      createdAt: nowIso,
+    }
+  }
+
+  const idempotencyKey = rawKey
+
+  // 4. Compute deterministic hashes
   const requestHash = computeCallerSmsRequestHash({
     callerPhoneFingerprint: policy.callerPhoneFingerprint,
     decision: policy.decision,
@@ -384,17 +515,17 @@ export async function generateCallerSms(
     rejectionReason: policy.rejectionReason,
   })
 
-  // 4. Dry-run mode: return evaluation preview without mutating durable storage
-  if (options?.dryRun === true || options?.recordPreparation === false) {
+  // 5. Blocked policy evaluation: fail-closed without mutating durable storage (e.g. paid_booking_no_session)
+  if (policy.action === 'do_not_send') {
     return {
-      id: `preview-${randomUUID()}`,
-      action: policy.action,
-      status: policy.status,
+      id: `blocked-${randomUUID()}`,
+      action: 'do_not_send',
+      status: 'do_not_send',
       decision: policy.decision,
       callerPhoneFingerprint: policy.callerPhoneFingerprint,
       callerPhoneMasked: policy.callerPhoneMasked,
-      message: policy.message,
-      targetUrl: policy.targetUrl,
+      message: null,
+      targetUrl: null,
       rejectionReason: policy.rejectionReason,
       idempotencyKey,
       requestHash,
@@ -404,7 +535,7 @@ export async function generateCallerSms(
     }
   }
 
-  // 5. Supabase execution mode
+  // 6. Supabase execution mode
   if (shouldUseSupabase()) {
     try {
       const supabase = getSupabaseClient()
@@ -442,86 +573,48 @@ export async function generateCallerSms(
             createdAt: nowIso,
           }
         }
-        if (policy.action === 'do_not_send') {
-          return {
-            id: randomUUID(),
-            action: 'do_not_send',
-            status: 'do_not_send',
-            decision: policy.decision,
-            callerPhoneFingerprint: policy.callerPhoneFingerprint,
-            callerPhoneMasked: policy.callerPhoneMasked,
-            message: null,
-            targetUrl: null,
-            rejectionReason: policy.rejectionReason ?? 'store_error',
-            idempotencyKey,
-            requestHash,
-            payloadHash,
-            preparedAt: nowIso,
-            createdAt: nowIso,
-          }
-        }
         throw new Error(`Błąd trwałego przygotowania SMS w Supabase: ${error.message}`)
       }
 
       return mapSupabaseRowToPreparationRecord(data)
     } catch (err: any) {
-      if (policy.action === 'do_not_send') {
-        return {
-          id: randomUUID(),
-          action: 'do_not_send',
-          status: 'do_not_send',
-          decision: policy.decision,
-          callerPhoneFingerprint: policy.callerPhoneFingerprint,
-          callerPhoneMasked: policy.callerPhoneMasked,
-          message: null,
-          targetUrl: null,
-          rejectionReason: policy.rejectionReason ?? 'Błąd bazy danych (fail-closed)',
-          idempotencyKey,
-          requestHash,
-          payloadHash,
-          preparedAt: nowIso,
-          createdAt: nowIso,
-        }
-      }
       throw err
     }
   }
 
-  // 6. Local store execution mode (with thread-safe lock and atomic snapshot persistence)
+  // 7. Local store execution mode (with thread-safe lock and atomic snapshot persistence)
   return withCallerSmsLock(async () => {
     const snapshot = await readCallerSmsStoreSnapshot()
 
-    // 6a. Idempotency check
-    if (idempotencyKey) {
-      const existing = snapshot.preparations.find((p) => p.idempotencyKey === idempotencyKey)
-      if (existing) {
-        if (existing.requestHash === requestHash) {
-          // Exact retry -> return existing record
-          return existing
-        }
+    // 7a. Idempotency check on incoming event key
+    const existing = snapshot.preparations.find((p) => p.idempotencyKey === idempotencyKey)
+    if (existing) {
+      if (existing.requestHash === requestHash) {
+        // Exact retry -> return existing record
+        return existing
+      }
 
-        // Conflict: same key, different request/payload
-        return {
-          id: randomUUID(),
-          action: 'do_not_send',
-          status: 'do_not_send',
-          decision: policy.decision,
-          callerPhoneFingerprint: policy.callerPhoneFingerprint,
-          callerPhoneMasked: policy.callerPhoneMasked,
-          message: null,
-          targetUrl: null,
-          rejectionReason: 'idempotency_conflict: klucz idempotencji został już użyty dla innego żądania (fail-closed)',
-          idempotencyKey,
-          requestHash,
-          payloadHash,
-          preparedAt: nowIso,
-          createdAt: nowIso,
-        }
+      // Conflict: same key, different request/payload
+      return {
+        id: randomUUID(),
+        action: 'do_not_send',
+        status: 'do_not_send',
+        decision: policy.decision,
+        callerPhoneFingerprint: policy.callerPhoneFingerprint,
+        callerPhoneMasked: policy.callerPhoneMasked,
+        message: null,
+        targetUrl: null,
+        rejectionReason: 'idempotency_conflict: klucz idempotencji został już użyty dla innego żądania (fail-closed)',
+        idempotencyKey,
+        requestHash,
+        payloadHash,
+        preparedAt: nowIso,
+        createdAt: nowIso,
       }
     }
 
-    // 6b. Rate-limit check (1 SMS per 24 hours per phone fingerprint)
-    if (policy.action === 'send' && policy.callerPhoneFingerprint) {
+    // 7b. Rate-limit check (1 SMS per 24 hours per phone fingerprint)
+    if (policy.callerPhoneFingerprint) {
       const recentPrepared = snapshot.preparations.find((p) => {
         if (p.callerPhoneFingerprint !== policy.callerPhoneFingerprint) return false
         if (p.status !== 'prepared') return false
@@ -547,15 +640,13 @@ export async function generateCallerSms(
           createdAt: nowIso,
         }
 
-        if (options?.recordPreparation !== false) {
-          snapshot.preparations.push(rateLimitedRecord)
-          await writeCallerSmsStoreSnapshot(snapshot)
-        }
+        snapshot.preparations.push(rateLimitedRecord)
+        await writeCallerSmsStoreSnapshot(snapshot)
         return rateLimitedRecord
       }
     }
 
-    // 6c. Record prepared SMS or blocked decision
+    // 7c. Record prepared SMS
     const newRecord: CallerSmsPreparationRecord = {
       id: randomUUID(),
       action: policy.action,
@@ -573,10 +664,8 @@ export async function generateCallerSms(
       createdAt: nowIso,
     }
 
-    if (options?.recordPreparation !== false) {
-      snapshot.preparations.push(newRecord)
-      await writeCallerSmsStoreSnapshot(snapshot)
-    }
+    snapshot.preparations.push(newRecord)
+    await writeCallerSmsStoreSnapshot(snapshot)
 
     return newRecord
   })

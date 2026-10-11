@@ -23,7 +23,13 @@ import { isCommerceTestModeAllowed } from '@/lib/server/commerce-service'
 import { getQaCheckoutEligibility, getQaCheckoutPaymentReference, getPublicManualPaymentConfig } from '@/lib/server/payment-options'
 import { getOnlinePaymentRuntime, getOnlinePaymentRuntimeForConsultation } from '@/lib/server/online-payments'
 import { buildTodayUrgentSlotCandidates, isTodayUrgentSlotCandidate } from '@/lib/urgent-now'
-import { auditSupabaseSchemaText, getSupabaseSchemaAudit } from '@/scripts/lib/schema-audit'
+import { createRequire } from 'node:module'
+import {
+  auditSupabaseSchemaText,
+  getSupabaseSchemaAudit,
+  REQUIRED_FILES,
+  REQUIRED_SCHEMA_MARKERS,
+} from '@/scripts/lib/schema-audit'
 import { getDefaultProductionEnvSnapshotPath } from '@/scripts/lib/env-file'
 
 function readSource(...parts: string[]) {
@@ -1936,6 +1942,25 @@ test('schema audit keeps the canonical production schema shape in sync', () => {
   assert.equal(audit.missingMarkers.length, 0)
   assert.equal(brokenAudit.ok, false)
   assert.match(brokenAudit.summary, /qa_booking/)
+
+  // Drift check: scripts/schema-audit.js (CJS) vs scripts/lib/schema-audit.ts (TS)
+  const req = createRequire(import.meta.url)
+  const jsSchemaAudit = req('../scripts/schema-audit.js')
+  const jsAudit = jsSchemaAudit.getSupabaseSchemaAudit()
+
+  assert.equal(jsAudit.ok, true, 'JS schema audit must pass')
+  assert.equal(jsAudit.missingFiles.length, 0)
+  assert.equal(jsAudit.missingMarkers.length, 0)
+  assert.deepEqual(
+    REQUIRED_SCHEMA_MARKERS,
+    jsSchemaAudit.REQUIRED_SCHEMA_MARKERS,
+    'Drift check: TS and JS schema audit markers must match',
+  )
+  assert.deepEqual(
+    REQUIRED_FILES,
+    jsSchemaAudit.REQUIRED_FILES,
+    'Drift check: TS and JS schema audit required files must match',
+  )
 })
 
 test('default production env snapshot path prefers the current production snapshot', () => {

@@ -73,7 +73,7 @@ function createDummyClassification(
   }
 }
 
-test('1. Macierz decyzji: 8 decyzji wykluczonych (blokada fail-closed) oraz 5 decyzji dopuszczalnych', async () => {
+test('1. Macierz decyzji: 9 decyzji wykluczonych (blokada fail-closed) oraz 4 decyzje dopuszczalne', async () => {
   const sandbox = await createLocalDataSandbox('caller-sms-matrix', process.cwd())
   try {
     await withEnv(
@@ -82,10 +82,11 @@ test('1. Macierz decyzji: 8 decyzji wykluczonych (blokada fail-closed) oraz 5 de
         CALL_SESSION_PHONE_SECRET: TEST_SECRET,
       },
       async () => {
-        // 8 blocked decisions
+        // 9 blocked decisions (including paid_booking_no_session)
         const blockedDecisions = [
           'eligible_callback',
           'session_in_progress',
+          'paid_booking_no_session',
           'ambiguous_match',
           'invalid_phone',
           'missing_secret',
@@ -111,13 +112,12 @@ test('1. Macierz decyzji: 8 decyzji wykluczonych (blokada fail-closed) oraz 5 de
           assert.ok(prep.rejectionReason)
         }
 
-        // 5 admissible decisions
+        // 4 admissible decisions
         const admissibleDecisions = [
           'unknown_number',
           'session_completed',
           'callback_window_expired',
           'unpaid_booking',
-          'paid_booking_no_session',
         ] as const
 
         for (const dec of admissibleDecisions) {
@@ -467,13 +467,13 @@ test('9. Prywatność i brak PII: wiadomość nie zawiera numeru telefonu, UUID 
           email: 'jan@example.com',
           slotId: slot.id,
         })
-        await markBookingPaid(booking.booking.id, { paymentMethod: 'payu', paymentReference: 'pay-priv-1' })
 
-        // Process caller SMS for an inbound call
+        // Process caller SMS for an inbound call (unpaid_booking is admissible)
         const { classification, sms } = await processCallerSmsForInboundCall(TEST_PHONE, {
           idempotencyKey: 'privacy-check-key',
         })
 
+        assert.equal(classification.decision, 'unpaid_booking')
         assert.equal(sms.action, 'send')
         assert.equal(sms.status, 'prepared')
         const message = sms.message!
@@ -636,6 +636,215 @@ test('11. Autoryzowane API (/api/phone-agent/caller-sms): brak auth -> 401, domy
         // 5. Outbound SMS queue still completely untouched
         const queue = await listSmsQueue()
         assert.equal(queue.length, 0, 'Kolejka phone_agent_sms_queue nie została zmodyfikowana przez API')
+      },
+    )
+  } finally {
+    await sandbox.cleanup()
+  }
+})
+
+test('12. Polityka paid_booking_no_session: opłacony klient bez przerwanej sesji zawsze zwraca do_not_send, nie przygotowuje rekordu i nie zużywa limitu 24h', async () => {
+  const sandbox = await createLocalDataSandbox('caller-sms-paid-no-session', process.cwd())
+  try {
+    await withEnv(
+      {
+        APP_DATA_MODE: 'local',
+        CALL_SESSION_PHONE_SECRET: TEST_SECRET,
+      },
+      async () => {
+        const slot = await createAvailabilitySlot('2030-05-20', '10:00')
+        const booking = await createPendingBooking({
+          ownerName: 'Marek Nowak',
+          serviceType: 'szybka-konsultacja-15-min',
+          problemType: 'separacja',
+          animalType: 'Pies',
+          petAge: '2 lata',
+          durationNotes: 'Szczeka gdy zostaje sam',
+          description: 'Pies boi się sam w domu',
+          phone: TEST_PHONE,
+          email: 'marek@example.com',
+          slotId: slot.id,
+        })
+        await markBookingPaid(booking.booking.id, { paymentMethod: 'payu', paymentReference: 'pay-paid-no-sess-1' })
+
+        // 1. Inbound call by paid customer without session -> decision is paid_booking_no_session
+        const t0 = new Date('2026-10-11T10:00:00.000Z')
+        const { classification, sms } = await processCallerSmsForInboundCall(TEST_PHONE, {
+          idempotencyKey: 'paid-no-session-key-1',
+          dryRun: false,
+          now: t0,
+        })
+
+        // (1) Must always return do_not_send
+        assert.equal(classification.decision, 'paid_booking_no_session')
+        assert.equal(sms.action, 'do_not_send')
+        assert.equal(sms.status, 'do_not_send')
+        assert.equal(sms.message, null)
+        assert.equal(sms.targetUrl, null)
+        assert.match(sms.rejectionReason ?? '', /podwójnej płatności/i)
+
+        // (2) Does NOT prepare a record in store ("blokowane bez rekordu")
+        const preparations = await listCallerSmsPreparations({
+          fingerprint: classification.callerPhoneFingerprint!,
+        })
+        assert.equal(preparations.length, 0, 'paid_booking_no_session nie może tworzyć rekordu w caller_sms_preparations')
+
+        // (3) Does NOT consume 24h rate limit: an admissible event 1 hour later for the same phone succeeds
+        const t1h = new Date('2026-10-11T11:00:00.000Z')
+        const admissibleClassification: CallerClassificationResult = {
+          decision: 'session_completed',
+          allowCall: false,
+          reason: 'Sesja ukończona, klient może zarezerwować nową konsultację',
+          callerPhoneFingerprint: classification.callerPhoneFingerprint,
+          callerPhoneMasked: classification.callerPhoneMasked,
+          bookingId: booking.booking.id,
+          sessionId: 'session-completed-uuid-1',
+          remainingSeconds: 0,
+          resumeWindowExpiresAt: null,
+          evaluatedAt: t1h.toISOString(),
+        }
+
+        const laterSms = await generateCallerSms(admissibleClassification, {
+          idempotencyKey: 'session-completed-key-1',
+          dryRun: false,
+          now: t1h,
+        })
+
+        assert.equal(laterSms.action, 'send', 'Zdarzenie dopuszczalne musi pozwolić na wysyłkę, limit 24h nie został zużyty')
+        assert.equal(laterSms.status, 'prepared')
+        assert.ok(laterSms.message?.includes('https://regulskibehawiorysta.pl/zapytaj'))
+
+        // Verify only 1 prepared record exists in store (from later admissible call)
+        const finalPreparations = await listCallerSmsPreparations({
+          fingerprint: classification.callerPhoneFingerprint!,
+        })
+        assert.equal(finalPreparations.length, 1)
+        assert.equal(finalPreparations[0].idempotencyKey, 'session-completed-key-1')
+        assert.equal(finalPreparations[0].status, 'prepared')
+      },
+    )
+  } finally {
+    await sandbox.cleanup()
+  }
+})
+
+test('13. Wymóg klucza idempotencji (API i biblioteka): brak/whitespace/za długi klucz fail-closed, retry na kluczu zdarzenia, preview bez klucza bez mutacji', async () => {
+  const sandbox = await createLocalDataSandbox('caller-sms-idempotency-rules', process.cwd())
+  try {
+    await withEnv(
+      {
+        APP_DATA_MODE: 'local',
+        CALL_SESSION_PHONE_SECRET: TEST_SECRET,
+        PHONE_AGENT_TOKEN: TEST_PHONE_AGENT_TOKEN,
+      },
+      async () => {
+        // --- A. Endpoint POST /api/phone-agent/caller-sms ---
+        // A1. Missing key (preview and dryRun:false) -> 400 Bad Request
+        const missingKeyPreviewReq = new NextRequest('http://localhost/api/phone-agent/caller-sms', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${TEST_PHONE_AGENT_TOKEN}` },
+          body: JSON.stringify({ phone: TEST_PHONE, dryRun: true }),
+        })
+        const missingKeyPreviewRes = await callerSmsApiRoute(missingKeyPreviewReq)
+        assert.equal(missingKeyPreviewRes.status, 400)
+        const missingKeyPreviewJson = (await missingKeyPreviewRes.json()) as any
+        assert.equal(missingKeyPreviewJson.ok, false)
+        assert.equal(missingKeyPreviewJson.action, 'do_not_send')
+        assert.match(missingKeyPreviewJson.error, /idempotencyKey/i)
+
+        const missingKeyDurableReq = new NextRequest('http://localhost/api/phone-agent/caller-sms', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${TEST_PHONE_AGENT_TOKEN}` },
+          body: JSON.stringify({ phone: TEST_PHONE, dryRun: false }),
+        })
+        const missingKeyDurableRes = await callerSmsApiRoute(missingKeyDurableReq)
+        assert.equal(missingKeyDurableRes.status, 400)
+
+        // A2. Whitespace key -> 400 Bad Request
+        const wsKeyReq = new NextRequest('http://localhost/api/phone-agent/caller-sms', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${TEST_PHONE_AGENT_TOKEN}` },
+          body: JSON.stringify({ phone: TEST_PHONE, idempotencyKey: '   ', dryRun: false }),
+        })
+        const wsKeyRes = await callerSmsApiRoute(wsKeyReq)
+        assert.equal(wsKeyRes.status, 400)
+
+        // A3. Too long key (>128 chars) -> 400 Bad Request
+        const tooLongKey = 'k'.repeat(129)
+        const tooLongReq = new NextRequest('http://localhost/api/phone-agent/caller-sms', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${TEST_PHONE_AGENT_TOKEN}` },
+          body: JSON.stringify({ phone: TEST_PHONE, idempotencyKey: tooLongKey, dryRun: false }),
+        })
+        const tooLongRes = await callerSmsApiRoute(tooLongReq)
+        assert.equal(tooLongRes.status, 400)
+
+        // Verify API invalid key requests caused ZERO mutations in store
+        assert.equal((await listCallerSmsPreparations()).length, 0, 'Brak mutacji po niepoprawnych żądaniach API')
+
+        // --- B. Biblioteka generateCallerSms ---
+        const dummyClassification = createDummyClassification('unknown_number', {
+          callerPhoneFingerprint: 'call_fp:lib_idemp_fingerprint_999',
+        })
+
+        // B1. Trwałe przygotowanie (dryRun: false) bez klucza -> fail-closed (do_not_send)
+        const missingKeyPrep = await generateCallerSms(dummyClassification, { dryRun: false })
+        assert.equal(missingKeyPrep.action, 'do_not_send')
+        assert.equal(missingKeyPrep.status, 'do_not_send')
+        assert.equal(missingKeyPrep.idempotencyKey, null)
+        assert.match(missingKeyPrep.rejectionReason ?? '', /Brak wymaganego klucza idempotencji/i)
+        assert.equal((await listCallerSmsPreparations()).length, 0, 'Brak mutacji przy braku klucza')
+
+        // B2. Trwałe przygotowanie (dryRun: false) z whitespace kluczem -> fail-closed
+        const wsKeyPrep = await generateCallerSms(dummyClassification, { idempotencyKey: '   \t  ', dryRun: false })
+        assert.equal(wsKeyPrep.action, 'do_not_send')
+        assert.equal(wsKeyPrep.status, 'do_not_send')
+        assert.equal(wsKeyPrep.idempotencyKey, null)
+        assert.equal((await listCallerSmsPreparations()).length, 0, 'Brak mutacji przy whitespace kluczu')
+
+        // B3. Trwałe przygotowanie (dryRun: false) z za długim kluczem -> fail-closed
+        const tooLongPrep = await generateCallerSms(dummyClassification, { idempotencyKey: tooLongKey, dryRun: false })
+        assert.equal(tooLongPrep.action, 'do_not_send')
+        assert.equal(tooLongPrep.status, 'do_not_send')
+        assert.equal(tooLongPrep.idempotencyKey, null)
+        assert.match(tooLongPrep.rejectionReason ?? '', /przekracza maksymalną dopuszczalną długość/i)
+        assert.equal((await listCallerSmsPreparations()).length, 0, 'Brak mutacji przy za długim kluczu')
+
+        // B4. Czysty preview bez klucza: wspiera brak klucza, nie tworzy sztucznego klucza ani gwarancji idempotencji, brak mutacji
+        const purePreview = await generateCallerSms(dummyClassification, { dryRun: true })
+        assert.equal(purePreview.action, 'send')
+        assert.equal(purePreview.status, 'prepared')
+        assert.equal(purePreview.idempotencyKey, null, 'Czysty preview bez klucza ma idempotencyKey=null')
+        assert.equal((await listCallerSmsPreparations()).length, 0, 'Preview bez klucza nie mutuje bazy')
+
+        // --- C. Exact retry na kluczu zdarzenia przychodzącego ---
+        const eventKey = 'event-incoming-call-98765'
+        const firstDurable = await generateCallerSms(dummyClassification, { idempotencyKey: eventKey, dryRun: false })
+        assert.equal(firstDurable.action, 'send')
+        assert.equal(firstDurable.status, 'prepared')
+        assert.equal(firstDurable.idempotencyKey, eventKey)
+        assert.equal((await listCallerSmsPreparations()).length, 1)
+
+        // Retry with exact same event key and same input returns identical record
+        const retryDurable = await generateCallerSms(dummyClassification, { idempotencyKey: eventKey, dryRun: false })
+        assert.equal(retryDurable.id, firstDurable.id)
+        assert.equal(retryDurable.preparedAt, firstDurable.preparedAt)
+        assert.equal(retryDurable.requestHash, firstDurable.requestHash)
+        assert.equal((await listCallerSmsPreparations()).length, 1, 'Exact retry nie tworzy dodatkowego rekordu')
+
+        // Retry with same event key but mismatched payload triggers idempotency conflict
+        const conflictClassification = createDummyClassification('unknown_number', {
+          callerPhoneFingerprint: 'call_fp:different_fingerprint_000',
+        })
+        const conflictDurable = await generateCallerSms(conflictClassification, { idempotencyKey: eventKey, dryRun: false })
+        assert.equal(conflictDurable.action, 'do_not_send')
+        assert.equal(conflictDurable.status, 'do_not_send')
+        assert.match(conflictDurable.rejectionReason ?? '', /idempotency_conflict/i)
+        assert.equal((await listCallerSmsPreparations()).length, 1, 'Konflikt nie mutuje rekordu')
+
+        // Zero queueing or sending
+        const smsQueue = await listSmsQueue()
+        assert.equal(smsQueue.length, 0, 'Kolejka phone_agent_sms_queue pozostaje pusta')
       },
     )
   } finally {

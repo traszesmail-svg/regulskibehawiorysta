@@ -39,6 +39,17 @@ export async function POST(request: NextRequest) {
   const phone = typeof body?.phone === 'string' ? body.phone.trim() : ''
   const rawKey = typeof body?.idempotencyKey === 'string' ? body.idempotencyKey.trim() : ''
 
+  if (!rawKey) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: 'Wymagany jest niepusty parametr idempotencyKey (maksymalnie 128 znaków).',
+        action: 'do_not_send',
+      },
+      { status: 400, headers: { 'Cache-Control': 'no-store' } },
+    )
+  }
+
   if (rawKey.length > MAX_IDEMPOTENCY_KEY_LENGTH) {
     return NextResponse.json(
       {
@@ -56,7 +67,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const { classification, sms } = await processCallerSmsForInboundCall(phone, {
-      idempotencyKey: rawKey || undefined,
+      idempotencyKey: rawKey,
       dryRun,
     })
 

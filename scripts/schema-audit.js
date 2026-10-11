@@ -535,6 +535,8 @@ if (require.main === module) {
 }
 
 module.exports = {
+  REQUIRED_SCHEMA_MARKERS,
+  REQUIRED_FILES,
   auditSupabaseSchemaText,
   getSupabaseSchemaAudit,
 }

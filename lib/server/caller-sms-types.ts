@@ -17,12 +17,12 @@ export const ADMISSIBLE_CALLER_SMS_DECISIONS = [
   'session_completed',
   'callback_window_expired',
   'unpaid_booking',
-  'paid_booking_no_session',
 ] as const
 
 export const BLOCKED_CALLER_SMS_DECISIONS = [
   'eligible_callback',
   'session_in_progress',
+  'paid_booking_no_session',
   'ambiguous_match',
   'invalid_phone',
   'missing_secret',

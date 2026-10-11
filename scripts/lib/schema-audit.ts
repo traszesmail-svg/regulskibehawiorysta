@@ -300,6 +300,56 @@ const REQUIRED_SCHEMA_MARKERS: SchemaMarker[] = [
     needle: 'grant execute on function public.transition_call_session(uuid, text, integer, integer, text, text, jsonb, text, timestamptz, timestamptz, timestamptz) to service_role;',
     expectedCount: 1,
   },
+  {
+    label: 'caller_classification_audits',
+    needle: 'create table if not exists public.caller_classification_audits',
+    expectedCount: 1,
+  },
+  {
+    label: 'caller_classification_audits.decision_check',
+    needle: "decision text not null check (decision in ('eligible_callback', 'session_in_progress', 'paid_booking_no_session', 'unpaid_booking', 'unknown_number', 'session_completed', 'callback_window_expired', 'ambiguous_match', 'invalid_phone', 'missing_secret', 'store_error', 'audit_error', 'idempotency_conflict'))",
+    expectedCount: 1,
+  },
+  {
+    label: 'caller_classification_audits.request_hash',
+    needle: 'request_hash text check (request_hash is null or length(request_hash) >= 16)',
+    expectedCount: 1,
+  },
+  {
+    label: 'caller_classification_audits.payload_hash',
+    needle: 'payload_hash text check (payload_hash is null or length(payload_hash) >= 16)',
+    expectedCount: 1,
+  },
+  {
+    label: 'caller_classification_audits.fingerprint_idx',
+    needle: 'create index if not exists caller_classification_audits_fingerprint_idx on public.caller_classification_audits (caller_phone_fingerprint, created_at desc);',
+    expectedCount: 1,
+  },
+  {
+    label: 'caller_classification_audits.idempotency_key_idx',
+    needle: 'create index if not exists caller_classification_audits_idempotency_key_idx on public.caller_classification_audits (idempotency_key);',
+    expectedCount: 1,
+  },
+  {
+    label: 'caller_classification_audits.created_at_idx',
+    needle: 'create index if not exists caller_classification_audits_created_at_idx on public.caller_classification_audits (created_at desc);',
+    expectedCount: 1,
+  },
+  {
+    label: 'caller_classification_audits.rls',
+    needle: 'alter table public.caller_classification_audits enable row level security;',
+    expectedCount: 1,
+  },
+  {
+    label: 'caller_classification_audits.revoke_anon_auth',
+    needle: 'revoke all on table public.caller_classification_audits from anon, authenticated;',
+    expectedCount: 1,
+  },
+  {
+    label: 'caller_classification_audits.grant_service_role',
+    needle: 'grant select, insert on table public.caller_classification_audits to service_role;',
+    expectedCount: 1,
+  },
 ]
 
 const REQUIRED_FILES = [
@@ -332,6 +382,7 @@ const REQUIRED_FILES = [
   'supabase/migrations/20261007003_revolut_rpc_permissions.sql',
   'supabase/migrations/20261010002_remove_duplicate_availability_index.sql',
   'supabase/migrations/20261011001_call_sessions_durable_model.sql',
+  'supabase/migrations/20261011002_caller_classification_audit.sql',
 ]
 
 function normalizeSchemaText(schemaText: string) {

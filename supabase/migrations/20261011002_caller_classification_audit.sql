@@ -1,5 +1,4 @@
 -- Caller classification decision audit log.
--- Prepared for future migration rollout; do NOT deploy during Stage 2.
 
 create table if not exists public.caller_classification_audits (
   id uuid primary key default gen_random_uuid(),

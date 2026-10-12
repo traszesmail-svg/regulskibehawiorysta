@@ -15,9 +15,16 @@ try {
         (Join-Path $PSScriptRoot '..\app\src\main\java\pl\regulski\phoneagent\TwoLegConferenceState.java'),
         (Join-Path $PSScriptRoot '..\app\src\main\java\pl\regulski\phoneagent\TwoLegTelecomAdapter.java'),
         (Join-Path $PSScriptRoot '..\app\src\main\java\pl\regulski\phoneagent\ConferencePhoneMasker.java'),
+        (Join-Path $PSScriptRoot '..\app\src\main\java\pl\regulski\phoneagent\ConferenceScheduler.java'),
+        (Join-Path $PSScriptRoot '..\app\src\main\java\pl\regulski\phoneagent\ConferenceRuntimeScheduler.java'),
+        (Join-Path $PSScriptRoot '..\app\src\main\java\pl\regulski\phoneagent\ConferencePrerequisites.java'),
+        (Join-Path $PSScriptRoot '..\app\src\main\java\pl\regulski\phoneagent\InCallServiceBridge.java'),
         (Join-Path $PSScriptRoot '..\app\src\main\java\pl\regulski\phoneagent\TwoLegConferenceController.java'),
+        (Join-Path $PSScriptRoot '..\app\src\main\java\pl\regulski\phoneagent\ConferenceSessionCoordinator.java'),
         (Join-Path $PSScriptRoot 'CallSessionGuardTest.java'),
-        (Join-Path $PSScriptRoot 'TwoLegConferenceControllerTest.java')
+        (Join-Path $PSScriptRoot 'TwoLegConferenceControllerTest.java'),
+        (Join-Path $PSScriptRoot 'ConferenceSessionCoordinatorTest.java'),
+        (Join-Path $PSScriptRoot 'ConferencePrivacyAuditTest.java')
     )
 
     & $javac -encoding UTF-8 -d $buildDir $sources
@@ -30,6 +37,14 @@ try {
     Write-Host "Running TwoLegConferenceControllerTest..."
     & $java -cp $buildDir pl.regulski.phoneagent.TwoLegConferenceControllerTest
     if ($LASTEXITCODE -ne 0) { throw "TwoLegConferenceControllerTest failed" }
+
+    Write-Host "Running ConferenceSessionCoordinatorTest..."
+    & $java -cp $buildDir pl.regulski.phoneagent.ConferenceSessionCoordinatorTest
+    if ($LASTEXITCODE -ne 0) { throw "ConferenceSessionCoordinatorTest failed" }
+
+    Write-Host "Running ConferencePrivacyAuditTest..."
+    & $java -cp $buildDir pl.regulski.phoneagent.ConferencePrivacyAuditTest
+    if ($LASTEXITCODE -ne 0) { throw "ConferencePrivacyAuditTest failed" }
 
     Write-Host "ALL JVM TESTS PASSED!"
 } finally {

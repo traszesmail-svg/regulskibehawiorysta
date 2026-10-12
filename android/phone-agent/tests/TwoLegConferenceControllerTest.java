@@ -32,6 +32,15 @@ public final class TwoLegConferenceControllerTest {
         boolean failMerge = false;
         List<String> disconnectedCalls = new ArrayList<>();
 
+        int placeClientCallCount = 0;
+        boolean failClientDial = false;
+
+        @Override
+        public boolean placeClientCall(String clientNumber) {
+            placeClientCallCount++;
+            return !failClientDial;
+        }
+
         @Override
         public boolean placeOwnerCall(String ownerNumber) {
             placeOwnerCallCount++;

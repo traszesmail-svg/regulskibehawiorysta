@@ -5,6 +5,11 @@ package pl.regulski.phoneagent;
  * Allows pure, isolated JVM testing with fake adapters as well as real InCallService operations.
  */
 public interface TwoLegTelecomAdapter {
+    /** Places the first leg call to the client. Returns true if request was accepted by platform. */
+    default boolean placeClientCall(String clientNumber) {
+        return true;
+    }
+
     /** Places the second leg call to the owner. Returns true if request was accepted by platform. */
     boolean placeOwnerCall(String ownerNumber);
 

@@ -13,8 +13,12 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.CheckBox;
 import android.app.role.RoleManager;
 import android.telecom.TelecomManager;
+import android.telephony.TelephonyManager;
+import android.content.pm.PackageManager;
+import android.Manifest;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,6 +29,10 @@ public final class MainActivity extends Activity {
     private EditText serverInput, tokenInput, manualCallNumber;
     private TextView status, jobDetailsView, dialerRoleStatusView, twoLegStatusView;
     private Button requestRoleButton;
+    private EditText twoLegClientInput, twoLegOwnerInput;
+    private CheckBox twoLegConsentCheck;
+    private Button startTwoLegButton, abortTwoLegButton;
+    private ConferenceSessionCoordinator coordinator;
     private SharedPreferences preferences;
     private TextToSpeech tts;
     private volatile boolean ttsReady = false;
@@ -48,6 +56,15 @@ public final class MainActivity extends Activity {
         preferences = getSharedPreferences("phone_agent", Context.MODE_PRIVATE);
         initTts();
 
+        if (!ConferenceSessionCoordinator.isInitialized()) {
+            ConferenceRuntimeScheduler scheduler = new ConferenceRuntimeScheduler();
+            ProductionTelecomAdapter adapter = new ProductionTelecomAdapter(this);
+            AndroidConferencePrerequisites prereqs = new AndroidConferencePrerequisites(this);
+            ConferenceSessionCoordinator.initialize(adapter, scheduler, Clock.SYSTEM, prereqs);
+        }
+        ConferenceSessionCoordinator.setInCallServiceBridge(AgentInCallService.BRIDGE);
+        coordinator = ConferenceSessionCoordinator.getInstance();
+
         ScrollView scroll = new ScrollView(this);
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);
@@ -55,7 +72,7 @@ public final class MainActivity extends Activity {
         layout.setPadding(pad, pad, pad, pad);
         scroll.addView(layout);
 
-        String appVersion = "1.5.7";
+        String appVersion = "1.5.8";
         try {
             appVersion = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
         } catch (Exception ignored) {}
@@ -173,6 +190,14 @@ public final class MainActivity extends Activity {
         // ==================== SEKCJA 2.5: CENTRALA GSM — DWIE LINIE & ROLA DIALERA ====================
         layout.addView(sectionHeader("CENTRALA GSM — DWIE LINIE & ROLA DIALERA"));
 
+        TextView noticeBanner = new TextView(this);
+        noticeBanner.setText("UWAGA: Centrala sieciowa — Motorola nie jest aparatem rozmówcy!\nAudio rozmówców jest miksowane w sieci operatora GSM. Przed merge mikrofon centrali zostaje wyciszony lokalnie (setMuted), a głośnik zablokowany (ROUTE_EARPIECE). Zachowanie toru audio pozostaje nieweryfikowalne bez fizycznego testu operatora.");
+        noticeBanner.setTextSize(12);
+        noticeBanner.setBackgroundColor(0xFFFFF3CD);
+        noticeBanner.setTextColor(0xFF856404);
+        noticeBanner.setPadding(16, 16, 16, 16);
+        layout.addView(noticeBanner);
+
         dialerRoleStatusView = new TextView(this);
         dialerRoleStatusView.setTextSize(13);
         dialerRoleStatusView.setBackgroundColor(0xFFEFEFEF);
@@ -184,10 +209,43 @@ public final class MainActivity extends Activity {
         requestRoleButton.setOnClickListener(v -> requestDialerRole());
         layout.addView(requestRoleButton);
 
+        twoLegClientInput = field("Numer klienta (Noga 1) — wpisz podczas testu", "");
+        twoLegClientInput.setInputType(android.text.InputType.TYPE_CLASS_PHONE);
+        layout.addView(twoLegClientInput);
+
+        twoLegOwnerInput = field("Numer właściciela (Noga 2) — wpisz podczas testu", "");
+        twoLegOwnerInput.setInputType(android.text.InputType.TYPE_CLASS_PHONE);
+        layout.addView(twoLegOwnerInput);
+
+        twoLegConsentCheck = new CheckBox(this);
+        twoLegConsentCheck.setText("Krok 1: Potwierdzam świadome uruchomienie testu centrali GSM (brak połączeń do osób trzecich)");
+        twoLegConsentCheck.setTextSize(13);
+        layout.addView(twoLegConsentCheck);
+
+        startTwoLegButton = new Button(this);
+        startTwoLegButton.setText("Krok 2: Uruchom kontrolowaną sesję centrali");
+        startTwoLegButton.setOnClickListener(v -> initiateControlledTwoLegFlow());
+        layout.addView(startTwoLegButton);
+
         twoLegStatusView = new TextView(this);
         twoLegStatusView.setTextSize(13);
         twoLegStatusView.setPadding(0, 10, 0, 10);
         layout.addView(twoLegStatusView);
+
+        abortTwoLegButton = new Button(this);
+        abortTwoLegButton.setText("PRZERWIJ I ROZŁĄCZ OBA POŁĄCZENIA");
+        abortTwoLegButton.setBackgroundColor(0xFFD32F2F);
+        abortTwoLegButton.setTextColor(0xFFFFFFFF);
+        abortTwoLegButton.setTypeface(null, android.graphics.Typeface.BOLD);
+        abortTwoLegButton.setPadding(16, 24, 16, 24);
+        abortTwoLegButton.setOnClickListener(v -> {
+            coordinator.abortSession("Ręczne przerwanie z ekranu centrali");
+            AgentInCallService.disconnectAll();
+            endActiveCall();
+            status.setText("Sesja centrali przerwana ręcznie. Wszystkie połączenia rozłączone.");
+            updateDialerStatus();
+        });
+        layout.addView(abortTwoLegButton);
 
         // ==================== SEKCJA 3: WYSYŁKA SMS & MODEM ====================
         layout.addView(sectionHeader("WYSYŁKA SMS & MODEM SIM"));
@@ -708,7 +766,7 @@ public final class MainActivity extends Activity {
             try {
                 JSONObject payload = new JSONObject();
                 payload.put("network", "Ręczny test");
-                String version = "1.5.7";
+                String version = "1.5.8";
                 try {
                     version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
                 } catch (Exception ignored) {}
@@ -740,9 +798,27 @@ public final class MainActivity extends Activity {
         TelecomManager tm = (TelecomManager) getSystemService(TELECOM_SERVICE);
         String currentDefault = tm != null ? tm.getDefaultDialerPackage() : "brak";
 
+        boolean callPhoneGranted = checkSelfPermission(Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED;
+        boolean answerCallsGranted = checkSelfPermission(Manifest.permission.ANSWER_PHONE_CALLS) == PackageManager.PERMISSION_GRANTED;
+
+        TelephonyManager telephony = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+        boolean simReady = telephony != null && telephony.getSimState() == TelephonyManager.SIM_STATE_READY;
+        boolean hasActiveCall = AgentInCallService.hasActiveCall();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && tm != null) {
+            try {
+                if (checkSelfPermission(Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
+                    hasActiveCall = hasActiveCall || tm.isInCall();
+                }
+            } catch (Exception ignored) {}
+        }
+
         StringBuilder sb = new StringBuilder();
         sb.append("Rola domyślnego dialera: ").append(held ? "PRZYZNANA" : "NIEPRZYZNANA").append("\n");
         sb.append("Bieżący dialer systemowy: ").append(currentDefault != null ? currentDefault : "brak").append("\n");
+        sb.append("Uprawnienie CALL_PHONE: ").append(callPhoneGranted ? "PRZYZNANE" : "BRAK").append("\n");
+        sb.append("Uprawnienie ANSWER_PHONE_CALLS: ").append(answerCallsGranted ? "PRZYZNANE" : "BRAK").append("\n");
+        sb.append("Karta SIM: ").append(simReady ? "GOTOWA (SIM_STATE_READY)" : "BRAK / NIEGOTOWA").append("\n");
+        sb.append("Stan połączeń Telecom: ").append(hasActiveCall ? "ZAJĘTY (trwa połączenie)" : "0 (brak aktywnych połączeń)").append("\n");
         sb.append("Usługa InCall: pl.regulski.phoneagent.AgentInCallService\n");
         sb.append("Status konferencji GSM: UNVERIFIED_UNTIL_PHYSICAL_TWO_LEG_TEST\n");
         sb.append("Bezpieczeństwo: automatyczne połączenia centrali są WYŁĄCZONE.");
@@ -754,10 +830,73 @@ public final class MainActivity extends Activity {
         }
 
         if (twoLegStatusView != null) {
-            TwoLegConferenceController ctrl = AgentInCallService.getActiveController();
-            String stateName = ctrl != null ? ctrl.getState().name() : "IDLE";
-            twoLegStatusView.setText("Stan automatu centrali: " + stateName + "\n(Gotowość do odrębnego fizycznego testu dwóch linii)");
+            TwoLegConferenceState sessionState = coordinator != null ? coordinator.getState() : TwoLegConferenceState.IDLE;
+            StringBuilder ss = new StringBuilder();
+            ss.append("Stan automatu centrali: ").append(sessionState.name()).append("\n");
+            if (coordinator != null && coordinator.isSessionActive()) {
+                ss.append("Czas trwania konsultacji: ").append(coordinator.getConsultationElapsedSeconds()).append("s / 900s\n");
+                ss.append("Klient: ").append(coordinator.getMaskedClientNumber()).append("\n");
+                ss.append("Właściciel: ").append(coordinator.getMaskedOwnerNumber()).append("\n");
+            }
+            if (coordinator != null && coordinator.getFailureReason() != null) {
+                ss.append("Powód zatrzymania: ").append(coordinator.getFailureReason()).append("\n");
+            }
+            ss.append("(Gotowość do odrębnego fizycznego testu dwóch linii)");
+            twoLegStatusView.setText(ss.toString());
         }
+
+        if (abortTwoLegButton != null) {
+            boolean canAbort = (coordinator != null && coordinator.isSessionActive()) || AgentInCallService.hasActiveCall();
+            abortTwoLegButton.setEnabled(canAbort);
+        }
+    }
+
+    private void initiateControlledTwoLegFlow() {
+        if (twoLegConsentCheck == null || !twoLegConsentCheck.isChecked()) {
+            status.setText("Zaznacz Krok 1 (świadoma zgoda na test centrali) przed uruchomieniem.");
+            return;
+        }
+
+        String clientRaw = twoLegClientInput != null ? twoLegClientInput.getText().toString().trim() : "";
+        String ownerRaw = twoLegOwnerInput != null ? twoLegOwnerInput.getText().toString().trim() : "";
+        final String cleanClient = ConferenceSessionCoordinator.normalizePhoneNumber(clientRaw);
+        final String cleanOwner = ConferenceSessionCoordinator.normalizePhoneNumber(ownerRaw);
+
+        if (cleanClient == null || cleanOwner == null) {
+            status.setText("Wprowadź poprawne numery obu uczestników (np. 9 cyfr lub format +48...).");
+            return;
+        }
+
+        if (coordinator == null) {
+            status.setText("Koordynator sesji centrali nie został zainicjowany.");
+            return;
+        }
+
+        String prereqErr = coordinator.verifyPrerequisites();
+        if (prereqErr != null) {
+            status.setText("Nie można uruchomić centrali: " + prereqErr);
+            return;
+        }
+
+        new android.app.AlertDialog.Builder(this)
+            .setTitle("Potwierdzenie testu centrali dwóch linii")
+            .setMessage("Centrala sieciowa GSM:\n" +
+                "Motorola zainicjuje połączenie z 1. nogą (klient). Po odebraniu linia zostanie zawieszona, a Motorola połączy drugą nogę z właścicielem i wywoła polecenie scalenia w konferencję.\n\n" +
+                "UWAGA: Motorola NIE jest aparatem rozmówcy — tor audio jest miksowane w sieci GSM operatora, a mikrofon centrali zostaje wyciszony lokalnie.\n\n" +
+                "Czy na pewno rozpocząć kontrolowany test?")
+            .setPositiveButton("POTWIERDZAM I ROZPOCZYNAM", (dialog, which) -> {
+                boolean started = coordinator.startSession(cleanClient, cleanOwner, 900, (oldState, newState, reason) -> {
+                    runOnUiThread(() -> updateDialerStatus());
+                });
+                if (!started) {
+                    status.setText("Nie udało się rozpocząć sesji centrali (błąd walidacji lub stan zajętości).");
+                } else {
+                    status.setText("Rozpoczęto kontrolowaną sesję centrali GSM.");
+                }
+                updateDialerStatus();
+            })
+            .setNegativeButton("Anuluj", null)
+            .show();
     }
 
     private void requestDialerRole() {

@@ -7,14 +7,14 @@ import java.util.List;
  * Deterministic, fail-closed state machine controlling two-leg GSM operator consultation calls.
  *
  * Sequence:
- * 1. IDLE -> DIALING_CLIENT (Initiate client leg)
+ * 1. IDLE -> DIALING_CLIENT (Initiate client leg via adapter.placeClientCall)
  * 2. CLIENT_ACTIVE (Client answers; confirmed hard Call.STATE_ACTIVE)
  * 3. CLIENT_HOLDING (Client is held by Telecom)
- * 4. DIALING_OWNER (Initiate second leg to owner; 45s answer timeout)
- * 5. OWNER_ACTIVE (Owner answers; confirmed hard Call.STATE_ACTIVE)
+ * 4. DIALING_OWNER (Initiate second leg to owner; 45s answer timeout via scheduler)
+ * 5. OWNER_ACTIVE (Owner answers; confirmed hard Call.STATE_ACTIVE; 15s merge timeout via scheduler)
  * 6. MERGE_PENDING (Conference capability verified, mute enabled, merge requested)
  * 7. CONFERENCE_ACTIVE (Carrier conference merged; CONSULTATION BILLING TIMER STARTS HERE)
- * 8. COMPLETED / FAILED (Clean termination; zero auto-redial; fail-closed on any failure)
+ * 8. COMPLETED / FAILED (Clean termination; zero auto-redial; fail-closed on any failure; timer cleanup)
  */
 public final class TwoLegConferenceController {
 
@@ -25,6 +25,9 @@ public final class TwoLegConferenceController {
     private final TwoLegTelecomAdapter adapter;
     private final Clock clock;
     private final List<StateChangeListener> listeners = new ArrayList<>();
+
+    private ConferenceScheduler scheduler;
+    private long sessionId = 1;
 
     private TwoLegConferenceState state = TwoLegConferenceState.IDLE;
     private String clientCallId;
@@ -43,14 +46,25 @@ public final class TwoLegConferenceController {
     private boolean localMuted = false;
     private boolean earpieceEnforced = false;
 
-    public TwoLegConferenceController(TwoLegTelecomAdapter adapter, Clock clock) {
+    public TwoLegConferenceController(TwoLegTelecomAdapter adapter, Clock clock, ConferenceScheduler scheduler, long sessionId) {
         if (adapter == null) throw new IllegalArgumentException("adapter cannot be null");
         this.adapter = adapter;
         this.clock = clock != null ? clock : Clock.SYSTEM;
+        this.scheduler = scheduler;
+        this.sessionId = sessionId;
+    }
+
+    public TwoLegConferenceController(TwoLegTelecomAdapter adapter, Clock clock) {
+        this(adapter, clock, null, 1);
     }
 
     public TwoLegConferenceController(TwoLegTelecomAdapter adapter) {
-        this(adapter, Clock.SYSTEM);
+        this(adapter, Clock.SYSTEM, null, 1);
+    }
+
+    public synchronized void setScheduler(ConferenceScheduler scheduler, long sessionId) {
+        this.scheduler = scheduler;
+        this.sessionId = sessionId;
     }
 
     public synchronized void addListener(StateChangeListener listener) {
@@ -80,11 +94,16 @@ public final class TwoLegConferenceController {
     }
 
     public synchronized String getMaskedClientNumber() {
-        return ConferencePhoneMasker.mask(rawClientNumber);
+        return rawClientNumber != null ? ConferencePhoneMasker.mask(rawClientNumber) : "brak";
     }
 
     public synchronized String getMaskedOwnerNumber() {
-        return ConferencePhoneMasker.mask(rawOwnerNumber);
+        return rawOwnerNumber != null ? ConferencePhoneMasker.mask(rawOwnerNumber) : "brak";
+    }
+
+    public synchronized void clearSensitiveNumbers() {
+        this.rawClientNumber = null;
+        this.rawOwnerNumber = null;
     }
 
     /** Strict rule: no automatic redial under any circumstance. */
@@ -107,7 +126,7 @@ public final class TwoLegConferenceController {
         return 0;
     }
 
-    /** Initiates the controlled flow. Does not place actual calls itself; changes state to DIALING_CLIENT. */
+    /** Initiates the controlled flow. Places first leg call via adapter and transitions to DIALING_CLIENT. */
     public synchronized boolean startConferenceFlow(String clientNumber, String ownerNumber, long maxSeconds) {
         if (state != TwoLegConferenceState.IDLE) {
             return false;
@@ -128,6 +147,11 @@ public final class TwoLegConferenceController {
         this.earpieceEnforced = false;
 
         transitionTo(TwoLegConferenceState.DIALING_CLIENT, "Rozpoczęto wybieranie pierwszej linii (klient)");
+        boolean dialSuccess = adapter.placeClientCall(this.rawClientNumber);
+        if (!dialSuccess) {
+            failClosed("Nie udało się zainicjować pierwszej linii do klienta.");
+            return false;
+        }
         return true;
     }
 
@@ -185,6 +209,14 @@ public final class TwoLegConferenceController {
         if (ownerDialAttempted) return;
         ownerDialAttempted = true;
         transitionTo(TwoLegConferenceState.DIALING_OWNER, "Wybieranie drugiej linii (właściciel)");
+        if (scheduler != null) {
+            scheduler.scheduleOwnerDialTimeout(sessionId, 45000L, new Runnable() {
+                @Override
+                public void run() {
+                    onOwnerDialTimeout();
+                }
+            });
+        }
         boolean dialSuccess = adapter.placeOwnerCall(rawOwnerNumber);
         if (!dialSuccess) {
             failClosed("Nie udało się zainicjować drugiej linii do właściciela.");
@@ -205,7 +237,15 @@ public final class TwoLegConferenceController {
         if (telecomState == 4 /* Call.STATE_ACTIVE */) {
             if (state == TwoLegConferenceState.DIALING_OWNER) {
                 transitionTo(TwoLegConferenceState.OWNER_ACTIVE, "Właściciel odebrał połączenie (STATE_ACTIVE)");
-                // Wait for conference capability confirmation before merge.
+                if (scheduler != null) {
+                    scheduler.cancelOwnerDialTimeout();
+                    scheduler.scheduleMergeTimeout(sessionId, 15000L, new Runnable() {
+                        @Override
+                        public void run() {
+                            onMergeTimeout();
+                        }
+                    });
+                }
             }
             return;
         }
@@ -261,6 +301,15 @@ public final class TwoLegConferenceController {
             earpieceEnforced = true;
             adapter.ensureEarpieceAudioRoute();
             transitionTo(TwoLegConferenceState.CONFERENCE_ACTIVE, "Konferencja operatora aktywna. Start naliczania limitu.");
+            if (scheduler != null) {
+                scheduler.cancelMergeTimeout();
+                scheduler.scheduleConsultationTick(sessionId, 1000L, 1000L, new Runnable() {
+                    @Override
+                    public void run() {
+                        onConsultationTimeTick();
+                    }
+                });
+            }
         }
     }
 
@@ -317,6 +366,12 @@ public final class TwoLegConferenceController {
     private void transitionTo(TwoLegConferenceState next, String reason) {
         TwoLegConferenceState old = this.state;
         this.state = next;
+        if (next == TwoLegConferenceState.COMPLETED || next == TwoLegConferenceState.FAILED) {
+            if (scheduler != null) {
+                scheduler.cancelAll();
+            }
+            clearSensitiveNumbers();
+        }
         for (StateChangeListener l : listeners) {
             try {
                 l.onStateChanged(old, next, reason);

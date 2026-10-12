@@ -2,6 +2,7 @@ package pl.regulski.phoneagent;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.telecom.Call;
@@ -20,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * and qualifies the app for the RoleManager.ROLE_DIALER role.
  *
  * Implements TwoLegTelecomAdapter to drive TwoLegConferenceController safely and fail-closed.
+ * Zero PII logging: never logs getDetails(), getHandle(), Uri, or participant numbers.
  */
 public final class AgentInCallService extends InCallService implements TwoLegTelecomAdapter {
     private static final String TAG = "AgentInCallService";
@@ -29,6 +31,18 @@ public final class AgentInCallService extends InCallService implements TwoLegTel
     private final Map<String, Call> callsById = new ConcurrentHashMap<>();
     private String clientCallId;
     private String ownerCallId;
+
+    public static final InCallServiceBridge BRIDGE = new InCallServiceBridge() {
+        @Override
+        public void setActiveController(TwoLegConferenceController controller) {
+            AgentInCallService.setActiveController(controller);
+        }
+
+        @Override
+        public TwoLegConferenceController getActiveController() {
+            return AgentInCallService.getActiveController();
+        }
+    };
 
     public static AgentInCallService getInstance() {
         return instance;
@@ -46,16 +60,25 @@ public final class AgentInCallService extends InCallService implements TwoLegTel
     public void onCreate() {
         super.onCreate();
         instance = this;
-        Log.i(TAG, "AgentInCallService created and bound by Telecom");
+        ConferenceSessionCoordinator.setInCallServiceBridge(BRIDGE);
+        Log.i(TAG, "AgentInCallService utworzona i powiązana przez Telecom");
     }
 
     @Override
     public void onDestroy() {
-        Log.i(TAG, "AgentInCallService destroyed");
+        Log.i(TAG, "AgentInCallService niszczona");
+        if (ConferenceSessionCoordinator.isInitialized()) {
+            ConferenceSessionCoordinator coordinator = ConferenceSessionCoordinator.getInstance();
+            if (coordinator.isSessionActive()) {
+                coordinator.abortSession("AgentInCallService zniszczona przez system");
+            }
+        }
+        disconnectAll();
+        callsById.clear();
+        activeController = null;
         if (instance == this) {
             instance = null;
         }
-        callsById.clear();
         super.onDestroy();
     }
 
@@ -65,7 +88,14 @@ public final class AgentInCallService extends InCallService implements TwoLegTel
         if (call == null) return;
         final String callId = Integer.toHexString(System.identityHashCode(call));
         callsById.put(callId, call);
-        Log.i(TAG, "onCallAdded: id=" + callId + " details=" + call.getDetails());
+        Log.i(TAG, "onCallAdded: id=" + callId);
+
+        // Bring In-Call UI to front so user always has the large Abort button
+        try {
+            Intent uiIntent = new Intent(this, MainActivity.class);
+            uiIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(uiIntent);
+        } catch (Exception ignored) {}
 
         TwoLegConferenceController controller = activeController;
         if (controller != null) {
@@ -80,6 +110,8 @@ public final class AgentInCallService extends InCallService implements TwoLegTel
                 // Parent conference call created by Telecom
                 controller.onConferenceActive(callId);
             }
+        } else {
+            Log.w(TAG, "onCallAdded: brak aktywnego kontrolera dla callId=" + callId + " (fail-closed)");
         }
 
         call.registerCallback(new Call.Callback() {
@@ -147,18 +179,35 @@ public final class AgentInCallService extends InCallService implements TwoLegTel
     // ================= TwoLegTelecomAdapter Implementation =================
 
     @Override
+    public boolean placeClientCall(String clientNumber) {
+        if (clientNumber == null || clientNumber.trim().isEmpty()) return false;
+        try {
+            TelecomManager tm = (TelecomManager) getSystemService(Context.TELECOM_SERVICE);
+            if (tm != null && checkSelfPermission(Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED) {
+                Uri uri = Uri.fromParts("tel", clientNumber.trim(), null);
+                Log.i(TAG, "Inicjowanie pierwszej linii centrali do klienta");
+                tm.placeCall(uri, null);
+                return true;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Błąd podczas placeClientCall: " + e.getClass().getSimpleName());
+        }
+        return false;
+    }
+
+    @Override
     public boolean placeOwnerCall(String ownerNumber) {
         if (ownerNumber == null || ownerNumber.trim().isEmpty()) return false;
         try {
             TelecomManager tm = (TelecomManager) getSystemService(Context.TELECOM_SERVICE);
             if (tm != null && checkSelfPermission(Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED) {
                 Uri uri = Uri.fromParts("tel", ownerNumber.trim(), null);
-                Log.i(TAG, "Inicjowanie drugiej linii do właściciela: " + ConferencePhoneMasker.mask(ownerNumber));
+                Log.i(TAG, "Inicjowanie drugiej linii centrali do właściciela");
                 tm.placeCall(uri, null);
                 return true;
             }
         } catch (Exception e) {
-            Log.e(TAG, "Błąd podczas placeOwnerCall", e);
+            Log.e(TAG, "Błąd podczas placeOwnerCall: " + e.getClass().getSimpleName());
         }
         return false;
     }
@@ -172,7 +221,7 @@ public final class AgentInCallService extends InCallService implements TwoLegTel
                 call.hold();
                 return true;
             } catch (Exception e) {
-                Log.e(TAG, "Błąd hold() dla id=" + callId, e);
+                Log.e(TAG, "Błąd hold() dla id=" + callId + ": " + e.getClass().getSimpleName());
             }
         }
         return false;
@@ -187,7 +236,7 @@ public final class AgentInCallService extends InCallService implements TwoLegTel
                 call.unhold();
                 return true;
             } catch (Exception e) {
-                Log.e(TAG, "Błąd unhold() dla id=" + callId, e);
+                Log.e(TAG, "Błąd unhold() dla id=" + callId + ": " + e.getClass().getSimpleName());
             }
         }
         return false;
@@ -203,7 +252,7 @@ public final class AgentInCallService extends InCallService implements TwoLegTel
                 c1.conference(c2);
                 return true;
             } catch (Exception e) {
-                Log.e(TAG, "Błąd call.conference()", e);
+                Log.e(TAG, "Błąd call.conference(): " + e.getClass().getSimpleName());
             }
         } else if (c1 != null) {
             try {
@@ -213,7 +262,7 @@ public final class AgentInCallService extends InCallService implements TwoLegTel
                     return true;
                 }
             } catch (Exception e) {
-                Log.e(TAG, "Błąd conferenceable call.conference()", e);
+                Log.e(TAG, "Błąd conferenceable call.conference(): " + e.getClass().getSimpleName());
             }
         }
         return false;
@@ -232,7 +281,7 @@ public final class AgentInCallService extends InCallService implements TwoLegTel
                 call.disconnect();
                 return true;
             } catch (Exception e) {
-                Log.e(TAG, "Błąd disconnect() dla id=" + callId, e);
+                Log.e(TAG, "Błąd disconnect() dla id=" + callId + ": " + e.getClass().getSimpleName());
             }
         }
         return false;
@@ -244,7 +293,7 @@ public final class AgentInCallService extends InCallService implements TwoLegTel
             Log.i(TAG, "Ustawiam lokalne wyciszenie mikrofonu centrali: " + muted);
             setMuted(muted);
         } catch (Exception e) {
-            Log.e(TAG, "Błąd setMuted(" + muted + ")", e);
+            Log.e(TAG, "Błąd setMuted(" + muted + "): " + e.getClass().getSimpleName());
         }
     }
 
@@ -254,7 +303,7 @@ public final class AgentInCallService extends InCallService implements TwoLegTel
             Log.i(TAG, "Wymuszam tor earpiece (blokada głośnika zewnętrznego)");
             setAudioRoute(CallAudioState.ROUTE_EARPIECE);
         } catch (Exception e) {
-            Log.e(TAG, "Błąd setAudioRoute(ROUTE_EARPIECE)", e);
+            Log.e(TAG, "Błąd setAudioRoute(ROUTE_EARPIECE): " + e.getClass().getSimpleName());
         }
     }
 
@@ -263,7 +312,6 @@ public final class AgentInCallService extends InCallService implements TwoLegTel
             Call c = callsById.get(callId);
             if (c != null) return c;
         }
-        // Fallback: if only one call exists
         if (!callsById.isEmpty()) {
             return callsById.values().iterator().next();
         }

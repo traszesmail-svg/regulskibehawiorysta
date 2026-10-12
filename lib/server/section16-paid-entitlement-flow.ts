@@ -18,13 +18,17 @@ import {
   validateIdempotencyKey,
   computeSection16PayloadHash,
   sanitizePayload,
+  computePaymentReferenceHash,
 } from './section16-policy'
 import {
   getAvailabilityNotificationRequest,
   createTalkEntitlement,
   getTalkEntitlement,
   getTalkEntitlementEventByIdempotencyKey,
+  SECTION16_UUID_REGEX,
 } from './section16-store'
+
+export { computePaymentReferenceHash }
 
 export const PAID_ENTITLEMENT_ACTION_TYPE = 'grant_paid_availability_talk_entitlement'
 
@@ -46,6 +50,29 @@ export function validateGrantActionId(actionId: unknown): string {
   }
   return actionId
 }
+
+export function validateNotificationRequestId(id: unknown): string {
+  if (typeof id !== 'string' || !SECTION16_UUID_REGEX.test(id.trim())) {
+    throw new Section16ValidationError(
+      'Wymagany jest prawidłowy identyfikator zgłoszenia powiadomienia w formacie UUID (notificationRequestId)',
+    )
+  }
+  return id.trim()
+}
+
+export const RESERVED_PAID_ENTITLEMENT_CANONICAL_KEYS = Object.freeze([
+  'actionType',
+  'notificationRequestId',
+  'actionId',
+  'allocatedSeconds',
+  'validForMinutes',
+  'paymentReference',
+  'payment_reference',
+  'paymentReferenceHash',
+  'bookingId',
+  'metadata',
+] as const)
+
 
 export function validateAllocatedSeconds(allocatedSeconds: unknown): number {
   if (
@@ -200,15 +227,7 @@ export async function grantTalkEntitlementForPaidAvailability(
   boundaries: PaidEntitlementFlowIntegrationBoundaries = DEFAULT_PAID_ENTITLEMENT_FLOW_BOUNDARIES,
 ): Promise<GrantTalkEntitlementForPaidAvailabilityResult> {
   // 1. Strict validation of input parameters (fail-closed)
-  if (
-    typeof input.notificationRequestId !== 'string' ||
-    input.notificationRequestId.trim().length === 0
-  ) {
-    throw new Section16ValidationError(
-      'Wymagany jest identyfikator zgłoszenia powiadomienia (notificationRequestId)',
-    )
-  }
-  const notificationRequestId = input.notificationRequestId.trim()
+  const notificationRequestId = validateNotificationRequestId(input.notificationRequestId)
   const idempotencyKey = validateIdempotencyKey(input.idempotencyKey)
   const actionId = validateGrantActionId(input.actionId)
   const allocatedSeconds = validateAllocatedSeconds(input.allocatedSeconds)
@@ -225,7 +244,95 @@ export async function grantTalkEntitlementForPaidAvailability(
     throw new Section16NotFoundError('AvailabilityNotificationRequest', notificationRequestId)
   }
 
-  // 3. Strict state verification: must be exactly accepted_paid
+  // 3. Build canonical event payload & idempotency identity
+  // Isolate client payload: strip reserved canonical keys so caller can NEVER tamper with
+  // canonical operation identity or inject raw paymentReference into audit events.
+  const sanitizedClientPayload = sanitizePayload(input.payload ?? {})
+  const clientMetadata: Record<string, unknown> = {}
+  if (
+    sanitizedClientPayload &&
+    typeof sanitizedClientPayload === 'object' &&
+    !Array.isArray(sanitizedClientPayload)
+  ) {
+    for (const [key, value] of Object.entries(sanitizedClientPayload)) {
+      if (
+        !RESERVED_PAID_ENTITLEMENT_CANONICAL_KEYS.includes(
+          key as (typeof RESERVED_PAID_ENTITLEMENT_CANONICAL_KEYS)[number],
+        )
+      ) {
+        clientMetadata[key] = value
+      }
+    }
+  }
+
+  const paymentReferenceHash = computePaymentReferenceHash(notifReq.paymentReference)
+
+  const canonicalPayload: Record<string, unknown> = {
+    ...clientMetadata,
+    metadata: clientMetadata,
+    actionType: PAID_ENTITLEMENT_ACTION_TYPE,
+    notificationRequestId,
+    actionId,
+    allocatedSeconds,
+    validForMinutes,
+    paymentReferenceHash,
+    bookingId: notifReq.bookingId ?? null,
+  }
+  const payloadHash = computeSection16PayloadHash(canonicalPayload)
+
+  // 4. Exact retry check: if an event already exists with this idempotencyKey
+  const existingEvent = await getTalkEntitlementEventByIdempotencyKey(idempotencyKey)
+  if (existingEvent) {
+    const evPayload = (existingEvent.payload ?? {}) as Record<string, unknown>
+
+    if (evPayload.actionId !== undefined && evPayload.actionId !== actionId) {
+      throw new Section16IdempotencyConflictError(idempotencyKey)
+    }
+    if (
+      evPayload.notificationRequestId !== undefined &&
+      evPayload.notificationRequestId !== notificationRequestId
+    ) {
+      throw new Section16IdempotencyConflictError(idempotencyKey)
+    }
+    if (
+      evPayload.allocatedSeconds !== undefined &&
+      evPayload.allocatedSeconds !== allocatedSeconds
+    ) {
+      throw new Section16IdempotencyConflictError(idempotencyKey)
+    }
+    if (
+      evPayload.validForMinutes !== undefined &&
+      evPayload.validForMinutes !== validForMinutes
+    ) {
+      throw new Section16IdempotencyConflictError(idempotencyKey)
+    }
+
+    if (existingEvent.payloadHash !== payloadHash) {
+      throw new Section16IdempotencyConflictError(idempotencyKey)
+    }
+
+    const existingEnt = await getTalkEntitlement(existingEvent.entitlementId)
+    if (!existingEnt) {
+      throw new Section16NotFoundError('ConsultationTalkEntitlement', existingEvent.entitlementId)
+    }
+
+    if (
+      existingEnt.notificationRequestId &&
+      existingEnt.notificationRequestId !== notificationRequestId
+    ) {
+      throw new Section16IdempotencyConflictError(idempotencyKey)
+    }
+
+    // Exact retry: return existing entitlement and descriptor without mutation or new event,
+    // even after validUntil, and even after source state transitioned to consumed, cancelled, or expired.
+    return {
+      entitlement: existingEnt,
+      descriptor: createPaidTalkEntitlementDescriptor(existingEnt, actionId),
+      isRetry: true,
+    }
+  }
+
+  // 5. First attempt strict state verification: must be exactly accepted_paid
   if (notifReq.state !== 'accepted_paid') {
     if (
       notifReq.state === 'consumed' ||
@@ -239,7 +346,7 @@ export async function grantTalkEntitlementForPaidAvailability(
     )
   }
 
-  // 4. Require non-empty paymentReference and valid acceptedAt
+  // 6. First attempt: require non-empty paymentReference and valid acceptedAt
   if (!notifReq.paymentReference || notifReq.paymentReference.trim().length === 0) {
     throw new Section16PaymentRequiredError(
       'Zgłoszenie powiadomienia nie posiada referencji płatności',
@@ -256,7 +363,7 @@ export async function grantTalkEntitlementForPaidAvailability(
     )
   }
 
-  // 5. Verify payment occurred before offer expiration: acceptedAt <= offerExpiresAt
+  // 7. First attempt: verify payment occurred before offer expiration: acceptedAt <= offerExpiresAt
   if (notifReq.offerExpiresAt) {
     const acceptedTime = Date.parse(notifReq.acceptedAt)
     const offerExpiresTime = Date.parse(notifReq.offerExpiresAt)
@@ -267,40 +374,6 @@ export async function grantTalkEntitlementForPaidAvailability(
     }
   }
 
-  // 6. Build canonical event payload & idempotency identity
-  // Note: validity duration (validForMinutes) and talk duration (allocatedSeconds)
-  // are preserved in idempotency identity, ensuring exact retry produces identical hash
-  // regardless of later clock time.
-  const sanitizedClientPayload = sanitizePayload(input.payload ?? {})
-  const canonicalPayload: Record<string, unknown> = {
-    actionType: PAID_ENTITLEMENT_ACTION_TYPE,
-    notificationRequestId,
-    actionId,
-    allocatedSeconds,
-    validForMinutes,
-    paymentReference: notifReq.paymentReference.trim(),
-    bookingId: notifReq.bookingId ?? null,
-    ...sanitizedClientPayload,
-  }
-  const payloadHash = computeSection16PayloadHash(canonicalPayload)
-
-  // 7. Check if an event already exists with this idempotencyKey
-  const existingEvent = await getTalkEntitlementEventByIdempotencyKey(idempotencyKey)
-  if (existingEvent) {
-    if (existingEvent.payloadHash !== payloadHash) {
-      throw new Section16IdempotencyConflictError(idempotencyKey)
-    }
-    const existingEnt = await getTalkEntitlement(existingEvent.entitlementId)
-    if (!existingEnt) {
-      throw new Section16NotFoundError('ConsultationTalkEntitlement', existingEvent.entitlementId)
-    }
-    return {
-      entitlement: existingEnt,
-      descriptor: createPaidTalkEntitlementDescriptor(existingEnt, actionId),
-      isRetry: true,
-    }
-  }
-
   // 8. Calculate validity window for the new entitlement
   const validFromIso = nowDate.toISOString()
   const validUntilDate = new Date(nowDate.getTime() + validForMinutes * 60 * 1000)
@@ -308,6 +381,7 @@ export async function grantTalkEntitlementForPaidAvailability(
 
   // 9. Create talk entitlement atomically via store
   // Derives callerPhoneFingerprint, callerPhoneMasked, paymentReference, and bookingId ONLY from authoritative source
+  // Note: payload stored in event is canonicalPayload containing paymentReferenceHash (zero raw paymentReference)
   const entitlement = await createTalkEntitlement(
     {
       callerPhoneFingerprint: notifReq.callerPhoneFingerprint,

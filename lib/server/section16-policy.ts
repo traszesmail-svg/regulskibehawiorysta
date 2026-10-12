@@ -179,9 +179,20 @@ export function computeSection16PayloadHash(payload: unknown): string {
   return createHash('sha256').update(canonicalizePayload(sanitized)).digest('hex')
 }
 
+/**
+ * Computes deterministic SHA-256 hash of a payment reference for non-PII / non-financial audit identity.
+ */
+export function computePaymentReferenceHash(paymentReference?: string | null): string {
+  if (!paymentReference || typeof paymentReference !== 'string' || !paymentReference.trim()) {
+    return ''
+  }
+  return createHash('sha256').update(paymentReference.trim()).digest('hex')
+}
+
 export {
   computeCallerPhoneFingerprint,
   computeCallerPhoneMasked,
   sanitizePayload,
   canonicalizePayload,
 }
+

@@ -19,8 +19,12 @@ import {
   grantTalkEntitlementForPaidAvailability,
   createPaidTalkEntitlementDescriptor,
   validateGrantActionId,
+  validateNotificationRequestId,
   validateAllocatedSeconds,
   validateValidForMinutes,
+  computePaymentReferenceHash,
+  RESERVED_PAID_ENTITLEMENT_CANONICAL_KEYS,
+  PAID_ENTITLEMENT_ACTION_TYPE,
   CANONICAL_UUID_V4_REGEX,
   MIN_TALK_ENTITLEMENT_ALLOCATED_SECONDS,
   MAX_TALK_ENTITLEMENT_ALLOCATED_SECONDS,
@@ -1068,3 +1072,449 @@ test('11. Statyczny audyt migracji, canonical schema, ACL i użycia mapperów', 
     Section16ValidationError,
   )
 })
+
+// ---------------------------------------------------------------------------
+// 12. WALIDACJA UUID DLA NOTIFICATIONREQUESTID (FAIL-CLOSED)
+// ---------------------------------------------------------------------------
+test('12. Walidacja UUID dla notificationRequestId (fail-closed)', async () => {
+  const validActionId = 'c3d4e5f6-a1b2-4c3d-8e4f-5a6b7c8d9e03'
+  const now = new Date('2026-10-12T10:00:00.000Z')
+
+  // A. Bezpośrednia funkcja walidująca
+  for (const badId of [
+    '',
+    '   ',
+    'not-a-uuid',
+    '12345',
+    'c3d4e5f6-a1b2-4c3d-8e4f-5a6b7c8d9e0z', // niepoprawny znak
+    'c3d4e5f6-a1b2-4c3d-8e4f-5a6b7c8d9e03-extra',
+    null,
+    undefined,
+    12345,
+    {},
+  ]) {
+    assert.throws(
+      () => validateNotificationRequestId(badId),
+      Section16ValidationError,
+      `Brak fail-closed walidacji dla notificationRequestId: ${String(badId)}`,
+    )
+  }
+
+  const validUuid = 'f47ac10b-58cc-4372-a567-0e02b2c3d479'
+  assert.equal(validateNotificationRequestId(validUuid), validUuid)
+  assert.equal(validateNotificationRequestId(`  ${validUuid}  `), validUuid)
+
+  // B. Fail-closed w grantTalkEntitlementForPaidAvailability
+  await assert.rejects(
+    () =>
+      grantTalkEntitlementForPaidAvailability({
+        notificationRequestId: 'not-a-uuid',
+        idempotencyKey: 'bad-uuid-req-key',
+        actionId: validActionId,
+        allocatedSeconds: 900,
+        validForMinutes: 60,
+        now,
+      }),
+    Section16ValidationError,
+  )
+})
+
+// ---------------------------------------------------------------------------
+// 13. PRÓBA NADPISANIA PÓL ZAREZERWOWANYCH PRZEZ INPUT.PAYLOAD NIE ZMIENIA KANONICZNEJ TOŻSAMOŚCI ANI WARTOŚCI SERWEROWYCH
+// ---------------------------------------------------------------------------
+test('13. Próba nadpisania pól zarezerwowanych przez input.payload nie zmienia kanonicznej tożsamości ani wartości serwerowych', async () => {
+  const { req } = await setupPaidAvailabilityRequest()
+  const validActionId = 'a1b2c3d4-e5f6-4a1b-8c2d-e3f4a5b6c701'
+  const idempotencyKey = 'tamper-proof-payload-key'
+  const now = new Date('2026-10-12T10:00:00.000Z')
+
+  // Złośliwy payload próbujący nadpisać każde pole kontrolowane przez serwer
+  const maliciousPayload = {
+    actionType: 'malicious_injected_action_type',
+    notificationRequestId: '00000000-0000-4000-8000-000000000001',
+    actionId: '00000000-0000-4000-8000-000000000002',
+    allocatedSeconds: 7199,
+    validForMinutes: 1440,
+    paymentReference: 'fake_raw_payment_reference_123',
+    payment_reference: 'fake_raw_payment_reference_456',
+    paymentReferenceHash: 'fake_sha256_hash_value_injected_by_attacker',
+    bookingId: '00000000-0000-4000-8000-000000000003',
+    metadata: { injected: true },
+    customNote: 'legitimate_client_note',
+  }
+
+  const result = await grantTalkEntitlementForPaidAvailability({
+    notificationRequestId: req.id,
+    idempotencyKey,
+    actionId: validActionId,
+    allocatedSeconds: 900,
+    validForMinutes: 60,
+    now,
+    payload: maliciousPayload,
+  })
+
+  // Wartości serwerowe w rekordzie entitlementu i descriptorze pozostają nienaruszone
+  assert.equal(result.entitlement.allocatedSeconds, 900)
+  assert.equal(result.entitlement.notificationRequestId, req.id)
+  assert.equal(result.entitlement.paymentReference, req.paymentReference)
+  assert.equal(result.descriptor.actionId, validActionId)
+  assert.equal(result.descriptor.allocatedSeconds, 900)
+  assert.equal(result.descriptor.notificationRequestId, req.id)
+
+  // Kanoniczny payload w zdarzeniu audytowym
+  const snapshot = await readSection16StoreSnapshot()
+  const event = snapshot.talkEvents.find((e) => e.idempotencyKey === idempotencyKey)
+  assert.ok(event, 'Zdarzenie audytowe musi zostać zapisane')
+
+  const eventPayload = event.payload as Record<string, unknown>
+  assert.equal(eventPayload.actionType, PAID_ENTITLEMENT_ACTION_TYPE)
+  assert.equal(eventPayload.notificationRequestId, req.id)
+  assert.equal(eventPayload.actionId, validActionId)
+  assert.equal(eventPayload.allocatedSeconds, 900)
+  assert.equal(eventPayload.validForMinutes, 60)
+  assert.equal(
+    eventPayload.paymentReferenceHash,
+    computePaymentReferenceHash(req.paymentReference),
+  )
+  assert.equal(eventPayload.bookingId, req.bookingId ?? null)
+  assert.equal(eventPayload.paymentReference, undefined)
+  assert.equal(eventPayload.payment_reference, undefined)
+
+  // Metadane klienta są zachowane i bezpiecznie odizolowane
+  assert.equal(eventPayload.customNote, 'legitimate_client_note')
+  const metadata = eventPayload.metadata as Record<string, unknown>
+  assert.ok(metadata)
+  assert.equal(metadata.customNote, 'legitimate_client_note')
+  for (const reservedKey of RESERVED_PAID_ENTITLEMENT_CANONICAL_KEYS) {
+    assert.equal(
+      reservedKey in metadata,
+      false,
+      `Klucz zarezerwowany ${reservedKey} nie może występować w metadata klienta`,
+    )
+  }
+
+  // Identyczny retry przechodzi jako exact retry
+  const retryResult = await grantTalkEntitlementForPaidAvailability({
+    notificationRequestId: req.id,
+    idempotencyKey,
+    actionId: validActionId,
+    allocatedSeconds: 900,
+    validForMinutes: 60,
+    now,
+    payload: maliciousPayload,
+  })
+  assert.equal(retryResult.isRetry, true)
+  assert.equal(retryResult.entitlement.id, result.entitlement.id)
+
+  // Zmiana metadanych klienta powoduje IDEMPOTENCY_CONFLICT
+  await assert.rejects(
+    () =>
+      grantTalkEntitlementForPaidAvailability({
+        notificationRequestId: req.id,
+        idempotencyKey,
+        actionId: validActionId,
+        allocatedSeconds: 900,
+        validForMinutes: 60,
+        now,
+        payload: { ...maliciousPayload, customNote: 'modified_client_note' },
+      }),
+    Section16IdempotencyConflictError,
+  )
+})
+
+// ---------------------------------------------------------------------------
+// 14. SERIALIZOWANY EVENT PAYLOAD NIE ZAWIERA SUROWEGO PAYMENTREFERENCE, ZMIANA REFERENCJI POWODUJE KONFLIKT PRZEZ HASH
+// ---------------------------------------------------------------------------
+test('14. Serializowany event payload nie zawiera surowego paymentReference, zmiana referencji powoduje konflikt przez hash', async () => {
+  const secretPaymentRef = 'revolut:secret_audit_tx_9988776655'
+  const { req } = await setupPaidAvailabilityRequest({
+    paymentReference: secretPaymentRef,
+  })
+  const actionId = 'b2c3d4e5-f6a1-4b2c-9d3e-f4a5b6c7d802'
+  const idempotencyKey = 'no-raw-payment-ref-event-key'
+  const now = new Date('2026-10-12T10:00:00.000Z')
+
+  await grantTalkEntitlementForPaidAvailability({
+    notificationRequestId: req.id,
+    idempotencyKey,
+    actionId,
+    allocatedSeconds: 900,
+    validForMinutes: 60,
+    now,
+  })
+
+  const snapshot = await readSection16StoreSnapshot()
+  const event = snapshot.talkEvents.find((e) => e.idempotencyKey === idempotencyKey)
+  assert.ok(event)
+
+  // Sprawdź cały zserializowany JSON/string snapshot zdarzenia
+  const serializedEventPayload = JSON.stringify(event.payload)
+  assert.equal(
+    serializedEventPayload.includes(secretPaymentRef),
+    false,
+    'Zserializowany event payload bezwzględnie NIE może zawierać surowej referencji płatności',
+  )
+  assert.equal(
+    /"paymentReference"\s*:/.test(serializedEventPayload),
+    false,
+    'Event payload nie może zawierać klucza "paymentReference"',
+  )
+  assert.equal(
+    /"payment_reference"\s*:/.test(serializedEventPayload),
+    false,
+    'Event payload nie może zawierać klucza "payment_reference"',
+  )
+
+  // Sprawdź cały snapshot wszystkich zdarzeń
+  const serializedAllEvents = JSON.stringify(snapshot.talkEvents)
+  assert.equal(
+    serializedAllEvents.includes(secretPaymentRef),
+    false,
+    'Żadne zdarzenie audytowe w store nie może zawierać surowej referencji płatności',
+  )
+
+  // Zweryfikuj obecność deterministycznego SHA-256
+  const expectedHash = computePaymentReferenceHash(secretPaymentRef)
+  assert.equal((event.payload as Record<string, unknown>).paymentReferenceHash, expectedHash)
+
+  // Symulacja: zmiana autorytatywnej referencji w źródle powoduje konflikt przez hash przy próbie retry
+  await updateSection16StoreSnapshot((s) => {
+    const item = s.notificationRequests.find((r) => r.id === req.id)
+    if (item) {
+      item.paymentReference = 'revolut:tampered_after_grant_0001'
+    }
+  })
+
+  await assert.rejects(
+    () =>
+      grantTalkEntitlementForPaidAvailability({
+        notificationRequestId: req.id,
+        idempotencyKey,
+        actionId,
+        allocatedSeconds: 900,
+        validForMinutes: 60,
+        now,
+      }),
+    Section16IdempotencyConflictError,
+  )
+})
+
+// ---------------------------------------------------------------------------
+// 15. EXACT RETRY PO ZMIANIE STANU ŹRÓDŁA NA CONSUMED, CANCELLED I EXPIRED; PIERWSZA PRÓBA ODRZUCANA; KONFLIKT FAIL-CLOSED
+// ---------------------------------------------------------------------------
+test('15. Exact retry po zmianie stanu źródła na consumed, cancelled i expired; pierwsza próba odrzucana; konflikt fail-closed', async () => {
+  const { req } = await setupPaidAvailabilityRequest()
+  const actionId = 'd4e5f6a1-b2c3-4d4e-8f5a-6b7c8d9e0f04'
+  const idempotencyKey = 'durable-retry-across-states-key'
+  const grantNow = new Date('2026-10-12T10:00:00.000Z')
+
+  // 1. Poprawny pierwszy grant w stanie accepted_paid
+  const firstResult = await grantTalkEntitlementForPaidAvailability({
+    notificationRequestId: req.id,
+    idempotencyKey,
+    actionId,
+    allocatedSeconds: 900,
+    validForMinutes: 60,
+    now: grantNow,
+  })
+  assert.equal(firstResult.isRetry, false)
+  const establishedEntitlementId = firstResult.entitlement.id
+  const establishedValidFrom = firstResult.entitlement.validFrom
+  const establishedValidUntil = firstResult.entitlement.validUntil
+
+  const snap1 = await readSection16StoreSnapshot()
+  const initialEventCount = snap1.talkEvents.length
+
+  // 2. Stan źródła przechodzi w CONSUMED -> exact retry zwraca ten sam entitlement bez mutacji i bez nowego eventu
+  await transitionAvailabilityNotificationState(
+    {
+      requestId: req.id,
+      targetState: 'consumed',
+      expectedVersion: req.version,
+      idempotencyKey: 'trans-req-to-consumed-durable',
+    },
+    grantNow,
+  )
+
+  const consumedReq = await getAvailabilityNotificationRequest(req.id)
+  assert.equal(consumedReq?.state, 'consumed')
+
+  const retryConsumed = await grantTalkEntitlementForPaidAvailability({
+    notificationRequestId: req.id,
+    idempotencyKey,
+    actionId,
+    allocatedSeconds: 900,
+    validForMinutes: 60,
+    now: new Date('2026-10-12T10:15:00.000Z'),
+  })
+  assert.equal(retryConsumed.isRetry, true)
+  assert.equal(retryConsumed.entitlement.id, establishedEntitlementId)
+  assert.equal(retryConsumed.entitlement.validFrom, establishedValidFrom)
+  assert.equal(retryConsumed.entitlement.validUntil, establishedValidUntil)
+
+  const snap2 = await readSection16StoreSnapshot()
+  assert.equal(snap2.talkEvents.length, initialEventCount, 'Zero nowego eventu po retry w stanie consumed')
+
+  // 3. Stan źródła przechodzi w CANCELLED -> exact retry nadal działa bez problemu
+  await updateSection16StoreSnapshot((s) => {
+    const item = s.notificationRequests.find((r) => r.id === req.id)
+    if (item) item.state = 'cancelled'
+  })
+
+  const retryCancelled = await grantTalkEntitlementForPaidAvailability({
+    notificationRequestId: req.id,
+    idempotencyKey,
+    actionId,
+    allocatedSeconds: 900,
+    validForMinutes: 60,
+    now: new Date('2026-10-12T10:30:00.000Z'),
+  })
+  assert.equal(retryCancelled.isRetry, true)
+  assert.equal(retryCancelled.entitlement.id, establishedEntitlementId)
+  assert.equal(retryCancelled.entitlement.validFrom, establishedValidFrom)
+  assert.equal(retryCancelled.entitlement.validUntil, establishedValidUntil)
+
+  const snap3 = await readSection16StoreSnapshot()
+  assert.equal(snap3.talkEvents.length, initialEventCount, 'Zero nowego eventu po retry w stanie cancelled')
+
+  // 4. Stan źródła przechodzi w EXPIRED -> exact retry nadal zwraca ten sam entitlement
+  await updateSection16StoreSnapshot((s) => {
+    const item = s.notificationRequests.find((r) => r.id === req.id)
+    if (item) item.state = 'expired'
+  })
+
+  const retryExpired = await grantTalkEntitlementForPaidAvailability({
+    notificationRequestId: req.id,
+    idempotencyKey,
+    actionId,
+    allocatedSeconds: 900,
+    validForMinutes: 60,
+    now: new Date('2026-10-12T12:00:00.000Z'), // Po wygaśnięciu
+  })
+  assert.equal(retryExpired.isRetry, true)
+  assert.equal(retryExpired.entitlement.id, establishedEntitlementId)
+  assert.equal(retryExpired.entitlement.validFrom, establishedValidFrom)
+  assert.equal(retryExpired.entitlement.validUntil, establishedValidUntil)
+
+  const snap4 = await readSection16StoreSnapshot()
+  assert.equal(snap4.talkEvents.length, initialEventCount, 'Zero nowego eventu po retry w stanie expired')
+
+  // 5. Konfliktowe retry w tych stanach nadal fail-closed z IDEMPOTENCY_CONFLICT
+  // A. Zmiana actionId
+  await assert.rejects(
+    () =>
+      grantTalkEntitlementForPaidAvailability({
+        notificationRequestId: req.id,
+        idempotencyKey,
+        actionId: 'e5f6a1b2-c3d4-4e5f-af6b-7c8d9e0f1a05',
+        allocatedSeconds: 900,
+        validForMinutes: 60,
+        now: grantNow,
+      }),
+    Section16IdempotencyConflictError,
+  )
+
+  // B. Zmiana allocatedSeconds
+  await assert.rejects(
+    () =>
+      grantTalkEntitlementForPaidAvailability({
+        notificationRequestId: req.id,
+        idempotencyKey,
+        actionId,
+        allocatedSeconds: 1200,
+        validForMinutes: 60,
+        now: grantNow,
+      }),
+    Section16IdempotencyConflictError,
+  )
+
+  // C. Zmiana validForMinutes
+  await assert.rejects(
+    () =>
+      grantTalkEntitlementForPaidAvailability({
+        notificationRequestId: req.id,
+        idempotencyKey,
+        actionId,
+        allocatedSeconds: 900,
+        validForMinutes: 120,
+        now: grantNow,
+      }),
+    Section16IdempotencyConflictError,
+  )
+
+  // D. Zmiana payloadu / metadata
+  await assert.rejects(
+    () =>
+      grantTalkEntitlementForPaidAvailability({
+        notificationRequestId: req.id,
+        idempotencyKey,
+        actionId,
+        allocatedSeconds: 900,
+        validForMinutes: 60,
+        now: grantNow,
+        payload: { note: 'changed_during_expired_retry' },
+      }),
+    Section16IdempotencyConflictError,
+  )
+
+  // 6. Pierwsza próba (bez istniejącego zdarzenia) w stanach consumed, cancelled, expired jest bezwzględnie odrzucana
+  const { req: freshConsumed } = await setupPaidAvailabilityRequest({ phone: '+48600111901' })
+  await transitionAvailabilityNotificationState(
+    {
+      requestId: freshConsumed.id,
+      targetState: 'consumed',
+      expectedVersion: freshConsumed.version,
+      idempotencyKey: 'fresh-consumed-trans',
+    },
+    grantNow,
+  )
+  await assert.rejects(
+    () =>
+      grantTalkEntitlementForPaidAvailability({
+        notificationRequestId: freshConsumed.id,
+        idempotencyKey: 'fresh-first-attempt-consumed',
+        actionId,
+        allocatedSeconds: 900,
+        validForMinutes: 60,
+        now: grantNow,
+      }),
+    Section16TerminalStateError,
+  )
+
+  const { req: freshCancelled } = await setupPaidAvailabilityRequest({ phone: '+48600111902' })
+  await updateSection16StoreSnapshot((s) => {
+    const item = s.notificationRequests.find((r) => r.id === freshCancelled.id)
+    if (item) item.state = 'cancelled'
+  })
+  await assert.rejects(
+    () =>
+      grantTalkEntitlementForPaidAvailability({
+        notificationRequestId: freshCancelled.id,
+        idempotencyKey: 'fresh-first-attempt-cancelled',
+        actionId,
+        allocatedSeconds: 900,
+        validForMinutes: 60,
+        now: grantNow,
+      }),
+    Section16TerminalStateError,
+  )
+
+  const { req: freshExpired } = await setupPaidAvailabilityRequest({ phone: '+48600111903' })
+  await updateSection16StoreSnapshot((s) => {
+    const item = s.notificationRequests.find((r) => r.id === freshExpired.id)
+    if (item) item.state = 'expired'
+  })
+  await assert.rejects(
+    () =>
+      grantTalkEntitlementForPaidAvailability({
+        notificationRequestId: freshExpired.id,
+        idempotencyKey: 'fresh-first-attempt-expired',
+        actionId,
+        allocatedSeconds: 900,
+        validForMinutes: 60,
+        now: grantNow,
+      }),
+    Section16TerminalStateError,
+  )
+})
+

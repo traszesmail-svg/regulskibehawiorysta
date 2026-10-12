@@ -864,7 +864,7 @@ export function mapAvailabilityNotificationEventRecord(raw: unknown): Availabili
   }
 }
 
-const SECTION16_UUID_REGEX =
+export const SECTION16_UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 function validateRecordUuid(value: unknown, fieldName: string, entityName: string): string {
@@ -2051,6 +2051,17 @@ export async function createTalkEntitlement(
   if (!input.urgentRequestId && !input.notificationRequestId && !input.bookingId) {
     throw new Section16PaymentRequiredError(
       'Uprawnienie do rozmowy wymaga co najmniej jednego autorytatywnego opłaconego źródła (urgentRequestId, notificationRequestId lub bookingId)',
+    )
+  }
+
+  if (
+    input.notificationRequestId !== undefined &&
+    input.notificationRequestId !== null &&
+    (typeof input.notificationRequestId !== 'string' ||
+      !SECTION16_UUID_REGEX.test(input.notificationRequestId.trim()))
+  ) {
+    throw new Section16ValidationError(
+      'notificationRequestId musi być poprawnym identyfikatorem UUID',
     )
   }
 

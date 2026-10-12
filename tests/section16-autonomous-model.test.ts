@@ -292,9 +292,10 @@ test('Path A: timeslot hold expiration prevents payment confirmation', async () 
     Section16HoldExpiredError,
   )
 
-  // Verify state transitioned to expired
+  // Verify state is NOT mutated by rejected operation (PostgreSQL parity: rollback on exception)
   const updated = await getUrgentIntakeRequest(intake.id)
-  assert.equal(updated?.state, 'expired')
+  assert.equal(updated?.state, 'timeslot_proposed')
+  assert.equal(updated?.version, 2)
 })
 
 test('Path A: CAS version mismatch rejects transition', async () => {
@@ -491,7 +492,7 @@ test('Path B: valid lifecycle (queued -> offer_sent -> accepted_paid -> consumed
   assert.equal(consumed.version, 4)
 })
 
-test('Path B: offer expiration rejects late payment and transitions to expired', async () => {
+test('Path B: offer expiration rejects late payment without mutation', async () => {
   const now = new Date('2026-10-11T12:00:00Z')
   const req = await createAvailabilityNotificationRequest(
     {
@@ -528,8 +529,10 @@ test('Path B: offer expiration rejects late payment and transitions to expired',
     Section16HoldExpiredError,
   )
 
+  // Verify state is NOT mutated by rejected operation (PostgreSQL parity: rollback on exception)
   const updated = await getAvailabilityNotificationRequest(req.id)
-  assert.equal(updated?.state, 'expired')
+  assert.equal(updated?.state, 'offer_sent')
+  assert.equal(updated?.version, 2)
 })
 
 test('Path B: cannot mark consumed directly from queued or offer_sent', async () => {
@@ -666,7 +669,7 @@ test('Talk Entitlements: valid lifecycle (create active -> consume with callSess
   )
 })
 
-test('Talk Entitlements: consumption after validUntil is rejected and marked expired', async () => {
+test('Talk Entitlements: consumption after validUntil is rejected without mutation', async () => {
   const now = new Date('2026-10-11T12:00:00Z')
   const validUntil = new Date(now.getTime() + 2 * 3600 * 1000).toISOString() // 2h window
   const phone = '+48 600 777 888'
@@ -729,8 +732,10 @@ test('Talk Entitlements: consumption after validUntil is rejected and marked exp
     Section16HoldExpiredError,
   )
 
+  // Verify state is NOT mutated by rejected operation (PostgreSQL parity: rollback on exception)
   const updated = await getTalkEntitlement(entitlement.id)
-  assert.equal(updated?.state, 'expired')
+  assert.equal(updated?.state, 'active')
+  assert.equal(updated?.version, 1)
 })
 
 test('Talk Entitlements: revocation transitions active to revoked', async () => {

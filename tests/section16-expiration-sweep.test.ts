@@ -11,6 +11,11 @@ import {
   mapRpcError,
   sweepExpiredSection16Records,
   setSupabaseClientOverrideForTest,
+  proposeUrgentIntakeTimeslot,
+  confirmUrgentIntakePayment,
+  offerAvailabilityNotification,
+  confirmNotificationOfferPayment,
+  consumeTalkEntitlement,
 } from '../lib/server/section16-store'
 import { sanitizePayload } from '../lib/server/call-session-security'
 import {
@@ -27,6 +32,9 @@ import {
 } from '../lib/server/section16-policy'
 import {
   Section16ValidationError,
+  Section16HoldExpiredError,
+  Section16TerminalStateError,
+  Section16TransitionError,
   isValidUrgentIntakeTransition,
   isValidAvailabilityNotificationTransition,
   isValidTalkEntitlementTransition,
@@ -1257,4 +1265,610 @@ test('12. Celowany test regresyjny globalnego sanitizera: kanoniczny UUID nienar
   assert.equal(sanitizedEventPayload.clientNote, 'Zadzwoń pod [REDACTED_PHONE] po 17:00 jutro')
   assert.equal(sanitizedEventPayload.safeDescription, 'Automated expiration sweep run')
 })
+
+test('13. Korekta parytetu: propozycja terminu pilnego po expiresAt (reject-without-mutation -> sweep -> retry)', async () => {
+  const baseTime = new Date('2026-10-12T08:00:00.000Z')
+  const pastExpiresAt = '2026-10-12T07:00:00.000Z'
+  const id = await createUrgentIntakeWithDeadlines({
+    state: 'pending_proposal',
+    expiresAt: pastExpiresAt,
+    version: 1,
+  })
+
+  // 1. Snapshot przed odrzuconą operacją
+  const snapBefore = await readSection16StoreSnapshot()
+  const recBefore = snapBefore.urgentIntakes.find((r) => r.id === id)!
+  const eventCountBefore = snapBefore.urgentEvents.length
+
+  // 2. Odrzucenie po terminie: rzuca kontrolowany błąd, nie mutuje rekordu ani nie tworzy zdarzenia
+  await assert.rejects(
+    () =>
+      proposeUrgentIntakeTimeslot(
+        {
+          requestId: id,
+          proposedDate: '2026-10-12',
+          proposedTime: '10:00',
+          idempotencyKey: 'late-prop-key-1',
+        },
+        baseTime,
+      ),
+    (err: any) =>
+      err instanceof Section16HoldExpiredError &&
+      err.message.includes('Zgłoszenie pilne wygasło przed propozycją terminu'),
+  )
+
+  const snapAfterReject = await readSection16StoreSnapshot()
+  const recAfterReject = snapAfterReject.urgentIntakes.find((r) => r.id === id)!
+  assert.deepEqual(recAfterReject, recBefore, 'Snapshot badanego rekordu po odrzuceniu musi być semantycznie identyczny')
+  assert.equal(snapAfterReject.urgentEvents.length, eventCountBefore, 'Liczba zdarzeń po odrzuceniu nie może ulec zmianie')
+
+  // 3. Sweep wygasza rekord z jednym eventem i jednym zwiększeniem wersji
+  const sweepResult = await runSection16ExpirationSweep({
+    batchLimit: 50,
+    now: baseTime,
+  })
+  assert.equal(sweepResult.urgentIntakesExpired, 1)
+  assert.equal(sweepResult.totalExpired, 1)
+
+  const snapAfterSweep = await readSection16StoreSnapshot()
+  const recSwept = snapAfterSweep.urgentIntakes.find((r) => r.id === id)!
+  assert.equal(recSwept.state, 'expired')
+  assert.equal(recSwept.version, recBefore.version + 1)
+  assert.equal(recSwept.updatedAt, baseTime.toISOString())
+  assert.equal(snapAfterSweep.urgentEvents.length, eventCountBefore + 1)
+
+  const sweepEvt = snapAfterSweep.urgentEvents.find(
+    (e) => e.requestId === id && e.eventType === 'intake_expired',
+  )!
+  assert.ok(sweepEvt)
+  assert.equal(sweepEvt.fromState, 'pending_proposal')
+  assert.equal(sweepEvt.toState, 'expired')
+
+  // 4. Ponowny sweep z tym samym czasem zwraca zera i nie tworzy duplikatu
+  const sweepRetry = await runSection16ExpirationSweep({
+    batchLimit: 50,
+    now: baseTime,
+  })
+  assert.equal(sweepRetry.totalExpired, 0)
+  assert.equal(sweepRetry.urgentIntakesExpired, 0)
+  const snapAfterSweepRetry = await readSection16StoreSnapshot()
+  assert.equal(snapAfterSweepRetry.urgentEvents.length, snapAfterSweep.urgentEvents.length)
+
+  // 5. Po sweepie ponowienie operacji biznesowej jest odrzucone jako stan terminalny bez mutacji
+  await assert.rejects(
+    () =>
+      proposeUrgentIntakeTimeslot(
+        {
+          requestId: id,
+          proposedDate: '2026-10-12',
+          proposedTime: '10:00',
+          idempotencyKey: 'post-sweep-prop-key',
+        },
+        baseTime,
+      ),
+    Section16TerminalStateError,
+  )
+  const snapAfterPostSweepRetry = await readSection16StoreSnapshot()
+  assert.deepEqual(snapAfterPostSweepRetry.urgentIntakes.find((r) => r.id === id), recSwept)
+  assert.equal(snapAfterPostSweepRetry.urgentEvents.length, snapAfterSweep.urgentEvents.length)
+
+  // 6. Istniejący exact retry z już zapisanym eventem nadal ma pierwszeństwo (zwraca istniejący rekord bez mutacji)
+  const exactRetryId = await createUrgentIntakeWithDeadlines({
+    state: 'timeslot_proposed',
+    expiresAt: '2026-10-12T07:00:00.000Z',
+    holdExpiresAt: '2026-10-12T07:30:00.000Z',
+    version: 2,
+  })
+  const exactKey = 'exact-prop-prior-key'
+  const exactPayload = { custom: 'exact-val' }
+  const exactPayloadHash = computeSection16PayloadHash(exactPayload)
+  await updateSection16StoreSnapshot((store) => {
+    store.urgentEvents.push({
+      id: randomUUID(),
+      requestId: exactRetryId,
+      eventType: 'timeslot_proposed',
+      fromState: 'pending_proposal',
+      toState: 'timeslot_proposed',
+      payload: exactPayload,
+      payloadHash: exactPayloadHash,
+      idempotencyKey: exactKey,
+      createdAt: '2026-10-12T06:30:00.000Z',
+    })
+  })
+  const snapBeforeExactRetry = await readSection16StoreSnapshot()
+  const exactRes = await proposeUrgentIntakeTimeslot(
+    {
+      requestId: exactRetryId,
+      proposedDate: '2026-10-12',
+      proposedTime: '14:00',
+      idempotencyKey: exactKey,
+      payload: exactPayload,
+    },
+    baseTime,
+  )
+  assert.equal(exactRes.id, exactRetryId)
+  assert.equal(exactRes.state, 'timeslot_proposed')
+  const snapAfterExactRetry = await readSection16StoreSnapshot()
+  assert.equal(snapAfterExactRetry.urgentEvents.length, snapBeforeExactRetry.urgentEvents.length)
+})
+
+test('14. Korekta parytetu: potwierdzenie płatności pilnej po holdExpiresAt (reject-without-mutation -> sweep -> retry)', async () => {
+  const baseTime = new Date('2026-10-12T08:30:00.000Z')
+  const id = await createUrgentIntakeWithDeadlines({
+    state: 'timeslot_proposed',
+    expiresAt: '2026-10-12T12:00:00.000Z',
+    holdExpiresAt: '2026-10-12T08:15:00.000Z',
+    version: 2,
+  })
+
+  // 1. Snapshot przed odrzuconą operacją
+  const snapBefore = await readSection16StoreSnapshot()
+  const recBefore = snapBefore.urgentIntakes.find((r) => r.id === id)!
+  const eventCountBefore = snapBefore.urgentEvents.length
+
+  // 2. Odrzucenie po holdExpiresAt: kontrolowany błąd, zero mutacji
+  await assert.rejects(
+    () =>
+      confirmUrgentIntakePayment(
+        {
+          requestId: id,
+          paymentReference: 'tx_late_urg_pay',
+          idempotencyKey: 'late-urg-pay-key',
+        },
+        baseTime,
+      ),
+    (err: any) =>
+      err instanceof Section16HoldExpiredError &&
+      err.message.includes('Proponowany termin i blokada wygasły przed opłaceniem'),
+  )
+
+  const snapAfterReject = await readSection16StoreSnapshot()
+  const recAfterReject = snapAfterReject.urgentIntakes.find((r) => r.id === id)!
+  assert.deepEqual(recAfterReject, recBefore)
+  assert.equal(snapAfterReject.urgentEvents.length, eventCountBefore)
+
+  // 3. Sweep wygasza rekord z jednym eventem i version + 1
+  const sweepResult = await runSection16ExpirationSweep({
+    batchLimit: 50,
+    now: baseTime,
+  })
+  assert.equal(sweepResult.urgentIntakesExpired, 1)
+  assert.equal(sweepResult.totalExpired, 1)
+
+  const snapAfterSweep = await readSection16StoreSnapshot()
+  const recSwept = snapAfterSweep.urgentIntakes.find((r) => r.id === id)!
+  assert.equal(recSwept.state, 'expired')
+  assert.equal(recSwept.version, recBefore.version + 1)
+  assert.equal(snapAfterSweep.urgentEvents.length, eventCountBefore + 1)
+
+  const sweepEvt = snapAfterSweep.urgentEvents.find(
+    (e) => e.requestId === id && e.eventType === 'intake_expired',
+  )!
+  assert.ok(sweepEvt)
+  assert.equal(sweepEvt.fromState, 'timeslot_proposed')
+  assert.equal(sweepEvt.toState, 'expired')
+
+  // 4. Ponowny sweep z tym samym czasem zwraca zera
+  const sweepRetry = await runSection16ExpirationSweep({
+    batchLimit: 50,
+    now: baseTime,
+  })
+  assert.equal(sweepRetry.totalExpired, 0)
+  assert.equal(sweepRetry.urgentIntakesExpired, 0)
+
+  // 5. Po sweepie próba confirmUrgentIntakePayment odrzucona jako transition error bez mutacji
+  await assert.rejects(
+    () =>
+      confirmUrgentIntakePayment(
+        {
+          requestId: id,
+          paymentReference: 'tx_late_urg_pay_retry',
+          idempotencyKey: 'post-sweep-pay-key',
+        },
+        baseTime,
+      ),
+    Section16TransitionError,
+  )
+  const snapAfterPostSweep = await readSection16StoreSnapshot()
+  assert.deepEqual(snapAfterPostSweep.urgentIntakes.find((r) => r.id === id), recSwept)
+  assert.equal(snapAfterPostSweep.urgentEvents.length, snapAfterSweep.urgentEvents.length)
+
+  // 6. Istniejący exact retry z zapisanym eventem zwraca sukces bez mutacji
+  const exactId = await createUrgentIntakeWithDeadlines({
+    state: 'payment_confirmed',
+    expiresAt: '2026-10-12T07:00:00.000Z',
+    holdExpiresAt: '2026-10-12T07:30:00.000Z',
+    paymentReference: 'tx_exact_prior_pay',
+    version: 3,
+  })
+  const exactKey = 'exact-pay-prior-key'
+  const exactPayload = { confirmed: true }
+  const exactPayloadHash = computeSection16PayloadHash(exactPayload)
+  await updateSection16StoreSnapshot((store) => {
+    store.urgentEvents.push({
+      id: randomUUID(),
+      requestId: exactId,
+      eventType: 'payment_confirmed',
+      fromState: 'timeslot_proposed',
+      toState: 'payment_confirmed',
+      payload: exactPayload,
+      payloadHash: exactPayloadHash,
+      idempotencyKey: exactKey,
+      createdAt: '2026-10-12T07:10:00.000Z',
+    })
+  })
+  const snapBeforeExact = await readSection16StoreSnapshot()
+  const exactRes = await confirmUrgentIntakePayment(
+    {
+      requestId: exactId,
+      paymentReference: 'tx_exact_prior_pay',
+      idempotencyKey: exactKey,
+      payload: exactPayload,
+    },
+    baseTime,
+  )
+  assert.equal(exactRes.id, exactId)
+  assert.equal(exactRes.state, 'payment_confirmed')
+  const snapAfterExact = await readSection16StoreSnapshot()
+  assert.equal(snapAfterExact.urgentEvents.length, snapBeforeExact.urgentEvents.length)
+})
+
+test('15. Korekta parytetu: wysłanie oferty availability po expiresAt (reject-without-mutation -> sweep -> retry)', async () => {
+  const baseTime = new Date('2026-10-12T09:00:00.000Z')
+  const id = await createAvailabilityRequestWithDeadlines({
+    state: 'queued',
+    expiresAt: '2026-10-12T08:00:00.000Z',
+    version: 1,
+  })
+
+  // 1. Snapshot przed odrzuceniem
+  const snapBefore = await readSection16StoreSnapshot()
+  const recBefore = snapBefore.notificationRequests.find((r) => r.id === id)!
+  const eventCountBefore = snapBefore.notificationEvents.length
+
+  // 2. Odrzucenie po expiresAt: rzuca błąd, zero mutacji
+  await assert.rejects(
+    () =>
+      offerAvailabilityNotification(
+        {
+          requestId: id,
+          idempotencyKey: 'late-avail-offer-key',
+        },
+        baseTime,
+      ),
+    (err: any) =>
+      err instanceof Section16HoldExpiredError &&
+      err.message.includes('Zgłoszenie w kolejce wygasło'),
+  )
+
+  const snapAfterReject = await readSection16StoreSnapshot()
+  const recAfterReject = snapAfterReject.notificationRequests.find((r) => r.id === id)!
+  assert.deepEqual(recAfterReject, recBefore)
+  assert.equal(snapAfterReject.notificationEvents.length, eventCountBefore)
+
+  // 3. Sweep wygasza rekord z jednym eventem i version + 1
+  const sweepResult = await runSection16ExpirationSweep({
+    batchLimit: 50,
+    now: baseTime,
+  })
+  assert.equal(sweepResult.availabilityNotificationsExpired, 1)
+  assert.equal(sweepResult.totalExpired, 1)
+
+  const snapAfterSweep = await readSection16StoreSnapshot()
+  const recSwept = snapAfterSweep.notificationRequests.find((r) => r.id === id)!
+  assert.equal(recSwept.state, 'expired')
+  assert.equal(recSwept.version, recBefore.version + 1)
+  assert.equal(snapAfterSweep.notificationEvents.length, eventCountBefore + 1)
+
+  const sweepEvt = snapAfterSweep.notificationEvents.find(
+    (e) => e.requestId === id && e.eventType === 'notification_expired',
+  )!
+  assert.ok(sweepEvt)
+  assert.equal(sweepEvt.fromState, 'queued')
+  assert.equal(sweepEvt.toState, 'expired')
+
+  // 4. Ponowny sweep z tym samym czasem zwraca zera
+  const sweepRetry = await runSection16ExpirationSweep({
+    batchLimit: 50,
+    now: baseTime,
+  })
+  assert.equal(sweepRetry.totalExpired, 0)
+  assert.equal(sweepRetry.availabilityNotificationsExpired, 0)
+
+  // 5. Po sweepie oferta odrzucona jako stan terminalny bez mutacji
+  await assert.rejects(
+    () =>
+      offerAvailabilityNotification(
+        {
+          requestId: id,
+          idempotencyKey: 'post-sweep-offer-key',
+        },
+        baseTime,
+      ),
+    Section16TerminalStateError,
+  )
+  const snapAfterPostSweep = await readSection16StoreSnapshot()
+  assert.deepEqual(snapAfterPostSweep.notificationRequests.find((r) => r.id === id), recSwept)
+  assert.equal(snapAfterPostSweep.notificationEvents.length, snapAfterSweep.notificationEvents.length)
+
+  // 6. Istniejący exact retry z zapisanym eventem zwraca ofertę bez mutacji
+  const exactId = await createAvailabilityRequestWithDeadlines({
+    state: 'offer_sent',
+    expiresAt: '2026-10-12T07:00:00.000Z',
+    offerExpiresAt: '2026-10-12T07:15:00.000Z',
+    version: 2,
+  })
+  const exactKey = 'exact-offer-prior-key'
+  const exactPayload = { offerSent: true }
+  const exactPayloadHash = computeSection16PayloadHash(exactPayload)
+  await updateSection16StoreSnapshot((store) => {
+    store.notificationEvents.push({
+      id: randomUUID(),
+      requestId: exactId,
+      eventType: 'offer_sent',
+      fromState: 'queued',
+      toState: 'offer_sent',
+      payload: exactPayload,
+      payloadHash: exactPayloadHash,
+      idempotencyKey: exactKey,
+      createdAt: '2026-10-12T07:00:00.000Z',
+    })
+  })
+  const snapBeforeExact = await readSection16StoreSnapshot()
+  const exactRes = await offerAvailabilityNotification(
+    {
+      requestId: exactId,
+      idempotencyKey: exactKey,
+      payload: exactPayload,
+    },
+    baseTime,
+  )
+  assert.equal(exactRes.id, exactId)
+  assert.equal(exactRes.state, 'offer_sent')
+  const snapAfterExact = await readSection16StoreSnapshot()
+  assert.equal(snapAfterExact.notificationEvents.length, snapBeforeExact.notificationEvents.length)
+})
+
+test('16. Korekta parytetu: potwierdzenie płatności oferty po offerExpiresAt (reject-without-mutation -> sweep -> retry)', async () => {
+  const baseTime = new Date('2026-10-12T08:30:00.000Z')
+  const id = await createAvailabilityRequestWithDeadlines({
+    state: 'offer_sent',
+    expiresAt: '2026-10-12T12:00:00.000Z',
+    offerExpiresAt: '2026-10-12T08:15:00.000Z',
+    version: 2,
+  })
+
+  // 1. Snapshot przed odrzuceniem
+  const snapBefore = await readSection16StoreSnapshot()
+  const recBefore = snapBefore.notificationRequests.find((r) => r.id === id)!
+  const eventCountBefore = snapBefore.notificationEvents.length
+
+  // 2. Odrzucenie po offerExpiresAt: błąd, zero mutacji
+  await assert.rejects(
+    () =>
+      confirmNotificationOfferPayment(
+        {
+          requestId: id,
+          paymentReference: 'tx_late_offer_pay',
+          idempotencyKey: 'late-offer-pay-key',
+        },
+        baseTime,
+      ),
+    (err: any) =>
+      err instanceof Section16HoldExpiredError &&
+      err.message.includes('Oferta dostępności wygasła przed opłaceniem'),
+  )
+
+  const snapAfterReject = await readSection16StoreSnapshot()
+  const recAfterReject = snapAfterReject.notificationRequests.find((r) => r.id === id)!
+  assert.deepEqual(recAfterReject, recBefore)
+  assert.equal(snapAfterReject.notificationEvents.length, eventCountBefore)
+
+  // 3. Sweep wygasza rekord z jednym eventem i version + 1
+  const sweepResult = await runSection16ExpirationSweep({
+    batchLimit: 50,
+    now: baseTime,
+  })
+  assert.equal(sweepResult.availabilityNotificationsExpired, 1)
+  assert.equal(sweepResult.totalExpired, 1)
+
+  const snapAfterSweep = await readSection16StoreSnapshot()
+  const recSwept = snapAfterSweep.notificationRequests.find((r) => r.id === id)!
+  assert.equal(recSwept.state, 'expired')
+  assert.equal(recSwept.version, recBefore.version + 1)
+  assert.equal(snapAfterSweep.notificationEvents.length, eventCountBefore + 1)
+
+  const sweepEvt = snapAfterSweep.notificationEvents.find(
+    (e) => e.requestId === id && e.eventType === 'notification_expired',
+  )!
+  assert.ok(sweepEvt)
+  assert.equal(sweepEvt.fromState, 'offer_sent')
+  assert.equal(sweepEvt.toState, 'expired')
+
+  // 4. Ponowny sweep z tym samym czasem zwraca zera
+  const sweepRetry = await runSection16ExpirationSweep({
+    batchLimit: 50,
+    now: baseTime,
+  })
+  assert.equal(sweepRetry.totalExpired, 0)
+  assert.equal(sweepRetry.availabilityNotificationsExpired, 0)
+
+  // 5. Po sweepie próba opłacenia odrzucona jako transition error bez mutacji
+  await assert.rejects(
+    () =>
+      confirmNotificationOfferPayment(
+        {
+          requestId: id,
+          paymentReference: 'tx_late_offer_pay_retry',
+          idempotencyKey: 'post-sweep-offer-pay-key',
+        },
+        baseTime,
+      ),
+    Section16TransitionError,
+  )
+  const snapAfterPostSweep = await readSection16StoreSnapshot()
+  assert.deepEqual(snapAfterPostSweep.notificationRequests.find((r) => r.id === id), recSwept)
+  assert.equal(snapAfterPostSweep.notificationEvents.length, snapAfterSweep.notificationEvents.length)
+
+  // 6. Istniejący exact retry z zapisanym eventem zwraca sukces bez mutacji
+  const exactId = await createAvailabilityRequestWithDeadlines({
+    state: 'accepted_paid',
+    expiresAt: '2026-10-12T07:00:00.000Z',
+    offerExpiresAt: '2026-10-12T07:15:00.000Z',
+    paymentReference: 'tx_exact_prior_offer_pay',
+    version: 3,
+  })
+  const exactKey = 'exact-offer-pay-prior-key'
+  const exactPayload = { paid: true }
+  const exactPayloadHash = computeSection16PayloadHash(exactPayload)
+  await updateSection16StoreSnapshot((store) => {
+    store.notificationEvents.push({
+      id: randomUUID(),
+      requestId: exactId,
+      eventType: 'offer_accepted_paid',
+      fromState: 'offer_sent',
+      toState: 'accepted_paid',
+      payload: exactPayload,
+      payloadHash: exactPayloadHash,
+      idempotencyKey: exactKey,
+      createdAt: '2026-10-12T07:10:00.000Z',
+    })
+  })
+  const snapBeforeExact = await readSection16StoreSnapshot()
+  const exactRes = await confirmNotificationOfferPayment(
+    {
+      requestId: exactId,
+      paymentReference: 'tx_exact_prior_offer_pay',
+      idempotencyKey: exactKey,
+      payload: exactPayload,
+    },
+    baseTime,
+  )
+  assert.equal(exactRes.id, exactId)
+  assert.equal(exactRes.state, 'accepted_paid')
+  const snapAfterExact = await readSection16StoreSnapshot()
+  assert.equal(snapAfterExact.notificationEvents.length, snapBeforeExact.notificationEvents.length)
+})
+
+test('17. Korekta parytetu: konsumpcja talk entitlementu po validUntil (reject-without-mutation -> sweep -> retry)', async () => {
+  const baseTime = new Date('2026-10-12T09:00:00.000Z')
+  const id = await createTalkEntitlementWithDeadlines({
+    state: 'active',
+    validFrom: '2026-10-12T06:00:00.000Z',
+    validUntil: '2026-10-12T08:00:00.000Z',
+    version: 1,
+  })
+
+  // 1. Snapshot przed odrzuceniem
+  const snapBefore = await readSection16StoreSnapshot()
+  const recBefore = snapBefore.talkEntitlements.find((r) => r.id === id)!
+  const eventCountBefore = snapBefore.talkEvents.length
+
+  // 2. Odrzucenie po validUntil: błąd, zero mutacji
+  await assert.rejects(
+    () =>
+      consumeTalkEntitlement(
+        {
+          entitlementId: id,
+          callSessionId: randomUUID(),
+          idempotencyKey: 'late-consume-key',
+        },
+        baseTime,
+      ),
+    (err: any) =>
+      err instanceof Section16HoldExpiredError &&
+      err.message.includes('Uprawnienie do rozmowy wygasło'),
+  )
+
+  const snapAfterReject = await readSection16StoreSnapshot()
+  const recAfterReject = snapAfterReject.talkEntitlements.find((r) => r.id === id)!
+  assert.deepEqual(recAfterReject, recBefore)
+  assert.equal(snapAfterReject.talkEvents.length, eventCountBefore)
+
+  // 3. Sweep wygasza rekord z jednym eventem i version + 1
+  const sweepResult = await runSection16ExpirationSweep({
+    batchLimit: 50,
+    now: baseTime,
+  })
+  assert.equal(sweepResult.talkEntitlementsExpired, 1)
+  assert.equal(sweepResult.totalExpired, 1)
+
+  const snapAfterSweep = await readSection16StoreSnapshot()
+  const recSwept = snapAfterSweep.talkEntitlements.find((r) => r.id === id)!
+  assert.equal(recSwept.state, 'expired')
+  assert.equal(recSwept.version, recBefore.version + 1)
+  assert.equal(snapAfterSweep.talkEvents.length, eventCountBefore + 1)
+
+  const sweepEvt = snapAfterSweep.talkEvents.find(
+    (e) => e.entitlementId === id && e.eventType === 'entitlement_expired',
+  )!
+  assert.ok(sweepEvt)
+  assert.equal(sweepEvt.fromState, 'active')
+  assert.equal(sweepEvt.toState, 'expired')
+
+  // 4. Ponowny sweep z tym samym czasem zwraca zera
+  const sweepRetry = await runSection16ExpirationSweep({
+    batchLimit: 50,
+    now: baseTime,
+  })
+  assert.equal(sweepRetry.totalExpired, 0)
+  assert.equal(sweepRetry.talkEntitlementsExpired, 0)
+
+  // 5. Po sweepie próba consumeTalkEntitlement odrzucona jako transition error bez mutacji
+  await assert.rejects(
+    () =>
+      consumeTalkEntitlement(
+        {
+          entitlementId: id,
+          callSessionId: randomUUID(),
+          idempotencyKey: 'post-sweep-consume-key',
+        },
+        baseTime,
+      ),
+    Section16TransitionError,
+  )
+  const snapAfterPostSweep = await readSection16StoreSnapshot()
+  assert.deepEqual(snapAfterPostSweep.talkEntitlements.find((r) => r.id === id), recSwept)
+  assert.equal(snapAfterPostSweep.talkEvents.length, snapAfterSweep.talkEvents.length)
+
+  // 6. Istniejący exact retry z zapisanym eventem zwraca sukces bez mutacji
+  const callSessionId = randomUUID()
+  const exactId = await createTalkEntitlementWithDeadlines({
+    state: 'consumed',
+    validFrom: '2026-10-12T06:00:00.000Z',
+    validUntil: '2026-10-12T08:00:00.000Z',
+    version: 2,
+  })
+  const exactKey = 'exact-consume-prior-key'
+  const exactPayload = { callSessionId }
+  const exactPayloadHash = computeSection16PayloadHash(exactPayload)
+  await updateSection16StoreSnapshot((store) => {
+    store.talkEvents.push({
+      id: randomUUID(),
+      entitlementId: exactId,
+      eventType: 'entitlement_consumed',
+      fromState: 'active',
+      toState: 'consumed',
+      payload: exactPayload,
+      payloadHash: exactPayloadHash,
+      idempotencyKey: exactKey,
+      createdAt: '2026-10-12T07:30:00.000Z',
+    })
+  })
+  const snapBeforeExact = await readSection16StoreSnapshot()
+  const exactRes = await consumeTalkEntitlement(
+    {
+      entitlementId: exactId,
+      callSessionId,
+      idempotencyKey: exactKey,
+      payload: exactPayload,
+    },
+    baseTime,
+  )
+  assert.equal(exactRes.id, exactId)
+  assert.equal(exactRes.state, 'consumed')
+  const snapAfterExact = await readSection16StoreSnapshot()
+  assert.equal(snapAfterExact.talkEvents.length, snapBeforeExact.talkEvents.length)
+})
+
 

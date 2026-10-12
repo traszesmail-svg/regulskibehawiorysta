@@ -1388,10 +1388,8 @@ export async function proposeUrgentIntakeTimeslot(
     }
 
     if (Date.parse(req.expiresAt) <= nowDate.getTime()) {
-      req.state = 'expired'
-      req.updatedAt = nowDate.toISOString()
-      req.version += 1
-      await writeStoreSnapshot(store)
+      // PostgreSQL parity: RAISE EXCEPTION rolls back statement/transaction without mutating state or version.
+      // Sweeper (sweepExpiredSection16Records) is the authoritative mechanism to expire records and emit events.
       throw new Section16HoldExpiredError('Zgłoszenie pilne wygasło przed propozycją terminu')
     }
 
@@ -1482,10 +1480,8 @@ export async function confirmUrgentIntakePayment(
     }
 
     if (req.holdExpiresAt && Date.parse(req.holdExpiresAt) <= nowDate.getTime()) {
-      req.state = 'expired'
-      req.updatedAt = nowDate.toISOString()
-      req.version += 1
-      await writeStoreSnapshot(store)
+      // PostgreSQL parity: RAISE EXCEPTION rolls back statement/transaction without mutating state or version.
+      // Sweeper (sweepExpiredSection16Records) is the authoritative mechanism to expire records and emit events.
       throw new Section16HoldExpiredError('Proponowany termin i blokada wygasły przed opłaceniem')
     }
 
@@ -1781,10 +1777,8 @@ export async function offerAvailabilityNotification(
     }
 
     if (Date.parse(req.expiresAt) <= nowDate.getTime()) {
-      req.state = 'expired'
-      req.updatedAt = nowDate.toISOString()
-      req.version += 1
-      await writeStoreSnapshot(store)
+      // PostgreSQL parity: RAISE EXCEPTION rolls back statement/transaction without mutating state or version.
+      // Sweeper (sweepExpiredSection16Records) is the authoritative mechanism to expire records and emit events.
       throw new Section16HoldExpiredError('Zgłoszenie w kolejce wygasło')
     }
 
@@ -1867,10 +1861,8 @@ export async function confirmNotificationOfferPayment(
     }
 
     if (req.offerExpiresAt && Date.parse(req.offerExpiresAt) <= nowDate.getTime()) {
-      req.state = 'expired'
-      req.updatedAt = nowDate.toISOString()
-      req.version += 1
-      await writeStoreSnapshot(store)
+      // PostgreSQL parity: RAISE EXCEPTION rolls back statement/transaction without mutating state or version.
+      // Sweeper (sweepExpiredSection16Records) is the authoritative mechanism to expire records and emit events.
       throw new Section16HoldExpiredError('Oferta dostępności wygasła przed opłaceniem')
     }
 
@@ -2314,10 +2306,8 @@ export async function consumeTalkEntitlement(
     }
 
     if (nowTime > Date.parse(ent.validUntil)) {
-      ent.state = 'expired'
-      ent.updatedAt = nowDate.toISOString()
-      ent.version += 1
-      await writeStoreSnapshot(store)
+      // PostgreSQL parity: RAISE EXCEPTION rolls back statement/transaction without mutating state or version.
+      // Sweeper (sweepExpiredSection16Records) is the authoritative mechanism to expire records and emit events.
       throw new Section16HoldExpiredError('Uprawnienie do rozmowy wygasło')
     }
 

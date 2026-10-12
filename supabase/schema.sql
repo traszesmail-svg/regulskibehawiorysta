@@ -1786,6 +1786,10 @@ create index if not exists consultation_talk_entitlements_booking_idx
 create index if not exists consultation_talk_entitlements_idempotency_key_idx
   on public.consultation_talk_entitlements (idempotency_key);
 
+create unique index if not exists consultation_talk_entitlements_notification_request_id_idx
+  on public.consultation_talk_entitlements (notification_request_id)
+  where notification_request_id is not null;
+
 create table if not exists public.consultation_talk_entitlement_events (
   id uuid primary key default gen_random_uuid(),
   entitlement_id uuid not null references public.consultation_talk_entitlements(id) on delete cascade,
@@ -2811,7 +2815,8 @@ begin
   end if;
 
   if p_notification_request_id is not null then
-    select * into v_notif_req from public.availability_notification_requests where id = p_notification_request_id;
+    -- Transactional row lock on authoritative source
+    select * into v_notif_req from public.availability_notification_requests where id = p_notification_request_id for update;
     if not found then
       raise exception 'SOURCE_NOT_FOUND: Zgłoszenie powiadomienia % nie istnieje', p_notification_request_id;
     end if;
@@ -2826,6 +2831,12 @@ begin
     end if;
     if p_booking_id is not null and v_notif_req.booking_id is not null and p_booking_id <> v_notif_req.booking_id then
       raise exception 'CONFLICTING_SOURCES: Podany booking_id nie zgadza się z rezerwacją przypisaną do zgłoszenia powiadomienia';
+    end if;
+
+    -- Deterministic check for existing entitlement under different idempotency key
+    select * into v_ent from public.consultation_talk_entitlements where notification_request_id = p_notification_request_id;
+    if found then
+      raise exception 'ENTITLEMENT_ALREADY_EXISTS: Dla opłaconej oferty % istnieje już uprawnienie do rozmowy (id: %)', p_notification_request_id, v_ent.id;
     end if;
   end if;
 

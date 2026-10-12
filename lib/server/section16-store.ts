@@ -15,6 +15,7 @@ import {
   AvailabilityNotificationState,
   ConsultationTalkEntitlement,
   ConsultationTalkEntitlementEvent,
+  TalkEntitlementState,
   CreateUrgentIntakeInput,
   ProposeUrgentTimeslotInput,
   ConfirmUrgentPaymentInput,
@@ -37,6 +38,7 @@ import {
   Section16ValidationError,
   Section16InvalidIdempotencyKeyError,
   Section16PrivacyError,
+  Section16EntitlementAlreadyExistsError,
   isValidUrgentIntakeTransition,
   isTerminalUrgentIntakeState,
   isValidAvailabilityNotificationTransition,
@@ -151,6 +153,16 @@ export async function readSection16StoreSnapshot(): Promise<Section16StoreSnapsh
   return readStoreSnapshot()
 }
 
+export async function updateSection16StoreSnapshot(
+  updater: (snapshot: Section16StoreSnapshot) => void | Promise<void>,
+): Promise<void> {
+  await withStoreLock(async () => {
+    const store = await readStoreSnapshot()
+    await updater(store)
+    await writeStoreSnapshot(store)
+  })
+}
+
 function getSupabaseClient() {
   const config = getSupabaseServerConfig('section16 autonomous data model')
   return createClient(config.url, config.serviceRoleKey, {
@@ -166,6 +178,9 @@ export function mapRpcError(error: any): never {
   if (message.includes('IDEMPOTENCY_CONFLICT')) {
     throw new Section16IdempotencyConflictError(message)
   }
+  if (message.includes('ENTITLEMENT_ALREADY_EXISTS')) {
+    throw new Section16EntitlementAlreadyExistsError(message)
+  }
   if (message.includes('CONCURRENCY_CONFLICT')) {
     throw new Section16ConcurrencyError(0, 0)
   }
@@ -180,7 +195,11 @@ export function mapRpcError(error: any): never {
   if (message.includes('TERMINAL_STATE')) {
     throw new Section16TerminalStateError('Section16Entity', message)
   }
-  if (message.includes('ILLEGAL_TRANSITION') || message.includes('INVALID_STATE')) {
+  if (
+    message.includes('ILLEGAL_TRANSITION') ||
+    message.includes('INVALID_STATE') ||
+    message.includes('INVALID_TARGET_STATE')
+  ) {
     throw new Section16TransitionError('Section16Entity', 'unknown', message)
   }
   if (
@@ -195,7 +214,8 @@ export function mapRpcError(error: any): never {
     message.includes('PAYMENT_REQUIRED') ||
     message.includes('PAYMENT_SOURCE_REQUIRED') ||
     message.includes('UNPAID_SOURCE') ||
-    message.includes('UNPAID_BOOKING')
+    message.includes('UNPAID_BOOKING') ||
+    message.includes('MISSING_PAYMENT_REFERENCE')
   ) {
     throw new Section16PaymentRequiredError(message)
   }
@@ -214,7 +234,10 @@ export function mapRpcError(error: any): never {
     message.includes('PAYMENT_REFERENCE_MISMATCH') ||
     message.includes('CONFLICTING_SOURCES') ||
     message.includes('DATE_MISMATCH') ||
-    message.includes('INVALID_HOLD')
+    message.includes('INVALID_HOLD') ||
+    message.includes('ENTITLEMENT_NOT_YET_VALID') ||
+    message.includes('MISSING_SESSION_ID') ||
+    message.includes('INVALID_PAYLOAD_HASH')
   ) {
     throw new Section16ValidationError(message)
   }
@@ -831,6 +854,355 @@ export function mapAvailabilityNotificationEventRecord(raw: unknown): Availabili
   return {
     id,
     requestId,
+    eventType,
+    fromState,
+    toState,
+    payload,
+    payloadHash,
+    idempotencyKey,
+    createdAt,
+  }
+}
+
+const SECTION16_UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+function validateRecordUuid(value: unknown, fieldName: string, entityName: string): string {
+  if (typeof value !== 'string' || !SECTION16_UUID_REGEX.test(value.trim())) {
+    throw new Section16ValidationError(
+      `Brak lub nieprawidłowe pole ${fieldName} (wymagany UUID) w rekordzie ${entityName}: ${String(value)}`,
+    )
+  }
+  return value.trim()
+}
+
+function validateRecordNullableUuid(
+  value: unknown,
+  fieldName: string,
+  entityName: string,
+): string | null {
+  if (value === null || value === undefined) {
+    return null
+  }
+  if (typeof value !== 'string' || !SECTION16_UUID_REGEX.test(value.trim())) {
+    throw new Section16ValidationError(
+      `Nieprawidłowy format pola ${fieldName} (wymagany UUID lub null) w rekordzie ${entityName}: ${String(value)}`,
+    )
+  }
+  return value.trim()
+}
+
+/**
+ * Maps Supabase / PostgREST snake_case row to ConsultationTalkEntitlement with strict runtime validation.
+ * Fails closed if any mandatory property is missing or of incorrect type.
+ */
+export function mapConsultationTalkEntitlementRecord(raw: unknown): ConsultationTalkEntitlement {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+    throw new Section16ValidationError('Rekord ConsultationTalkEntitlement musi być niepustym obiektem')
+  }
+
+  const r = raw as Record<string, unknown>
+
+  const id = validateRecordUuid(r.id, 'id', 'ConsultationTalkEntitlement')
+
+  const callerPhoneFingerprint = r.caller_phone_fingerprint ?? r.callerPhoneFingerprint
+  if (typeof callerPhoneFingerprint !== 'string' || callerPhoneFingerprint.trim().length === 0) {
+    throw new Section16ValidationError(
+      'Brak lub nieprawidłowe pole callerPhoneFingerprint w rekordzie ConsultationTalkEntitlement',
+    )
+  }
+
+  const callerPhoneMasked = r.caller_phone_masked ?? r.callerPhoneMasked
+  if (typeof callerPhoneMasked !== 'string' || callerPhoneMasked.trim().length === 0) {
+    throw new Section16ValidationError(
+      'Brak lub nieprawidłowe pole callerPhoneMasked w rekordzie ConsultationTalkEntitlement',
+    )
+  }
+
+  const bookingId = validateRecordNullableUuid(
+    r.booking_id !== undefined ? r.booking_id : r.bookingId,
+    'bookingId',
+    'ConsultationTalkEntitlement',
+  )
+
+  const paymentReferenceRaw = r.payment_reference ?? r.paymentReference
+  if (typeof paymentReferenceRaw !== 'string' || paymentReferenceRaw.trim().length === 0) {
+    throw new Section16ValidationError(
+      'Brak lub nieprawidłowe pole paymentReference w rekordzie ConsultationTalkEntitlement',
+    )
+  }
+  const paymentReference = paymentReferenceRaw.trim()
+
+  const urgentRequestId = validateRecordNullableUuid(
+    r.urgent_request_id !== undefined ? r.urgent_request_id : r.urgentRequestId,
+    'urgentRequestId',
+    'ConsultationTalkEntitlement',
+  )
+
+  const notificationRequestId = validateRecordNullableUuid(
+    r.notification_request_id !== undefined ? r.notification_request_id : r.notificationRequestId,
+    'notificationRequestId',
+    'ConsultationTalkEntitlement',
+  )
+
+  if (!urgentRequestId && !notificationRequestId && !bookingId) {
+    throw new Section16ValidationError(
+      'Wymagane jest co najmniej jedno źródło (urgentRequestId, notificationRequestId lub bookingId) w rekordzie ConsultationTalkEntitlement',
+    )
+  }
+
+  const allocatedSecondsRaw = r.allocated_seconds !== undefined ? r.allocated_seconds : r.allocatedSeconds
+  let allocatedSeconds: number
+  if (typeof allocatedSecondsRaw === 'number') {
+    if (
+      !Number.isInteger(allocatedSecondsRaw) ||
+      allocatedSecondsRaw <= 0 ||
+      !Number.isSafeInteger(allocatedSecondsRaw)
+    ) {
+      throw new Section16ValidationError(
+        `Brak lub nieprawidłowe pole allocatedSeconds w rekordzie ConsultationTalkEntitlement: ${String(allocatedSecondsRaw)}`,
+      )
+    }
+    allocatedSeconds = allocatedSecondsRaw
+  } else if (typeof allocatedSecondsRaw === 'string' && /^[1-9][0-9]*$/.test(allocatedSecondsRaw.trim())) {
+    const parsed = Number(allocatedSecondsRaw.trim())
+    if (!Number.isSafeInteger(parsed) || parsed <= 0) {
+      throw new Section16ValidationError(
+        `Brak lub nieprawidłowe pole allocatedSeconds w rekordzie ConsultationTalkEntitlement: ${String(allocatedSecondsRaw)}`,
+      )
+    }
+    allocatedSeconds = parsed
+  } else {
+    throw new Section16ValidationError(
+      `Brak lub nieprawidłowe pole allocatedSeconds w rekordzie ConsultationTalkEntitlement: ${String(allocatedSecondsRaw)}`,
+    )
+  }
+
+  const validFromRaw = r.valid_from ?? r.validFrom
+  if (
+    typeof validFromRaw !== 'string' ||
+    validFromRaw.trim().length === 0 ||
+    Number.isNaN(Date.parse(validFromRaw))
+  ) {
+    throw new Section16ValidationError(
+      'Brak lub nieprawidłowe pole validFrom w rekordzie ConsultationTalkEntitlement',
+    )
+  }
+  const validFrom = validFromRaw
+
+  const validUntilRaw = r.valid_until ?? r.validUntil
+  if (
+    typeof validUntilRaw !== 'string' ||
+    validUntilRaw.trim().length === 0 ||
+    Number.isNaN(Date.parse(validUntilRaw))
+  ) {
+    throw new Section16ValidationError(
+      'Brak lub nieprawidłowe pole validUntil w rekordzie ConsultationTalkEntitlement',
+    )
+  }
+  const validUntil = validUntilRaw
+
+  if (Date.parse(validUntil) <= Date.parse(validFrom)) {
+    throw new Section16ValidationError(
+      'Nieprawidłowe okno ważności: validUntil musi być późniejsze niż validFrom w rekordzie ConsultationTalkEntitlement',
+    )
+  }
+
+  const stateRaw = r.state
+  if (
+    typeof stateRaw !== 'string' ||
+    !['active', 'consumed', 'expired', 'revoked'].includes(stateRaw)
+  ) {
+    throw new Section16ValidationError(
+      `Brak lub nieprawidłowy stan (state) w rekordzie ConsultationTalkEntitlement: ${String(stateRaw)}`,
+    )
+  }
+  const state = stateRaw as TalkEntitlementState
+
+  const consumedAtRaw = r.consumed_at !== undefined ? r.consumed_at : r.consumedAt
+  if (consumedAtRaw !== null && consumedAtRaw !== undefined) {
+    if (
+      typeof consumedAtRaw !== 'string' ||
+      consumedAtRaw.trim().length === 0 ||
+      Number.isNaN(Date.parse(consumedAtRaw))
+    ) {
+      throw new Section16ValidationError(
+        'Nieprawidłowy format pola consumedAt w rekordzie ConsultationTalkEntitlement',
+      )
+    }
+  }
+  const consumedAt = (consumedAtRaw as string | null) ?? null
+
+  const consumedCallSessionId = validateRecordNullableUuid(
+    r.consumed_call_session_id !== undefined ? r.consumed_call_session_id : r.consumedCallSessionId,
+    'consumedCallSessionId',
+    'ConsultationTalkEntitlement',
+  )
+
+  if (state === 'consumed' && (!consumedAt || !consumedCallSessionId)) {
+    throw new Section16ValidationError(
+      'Stan consumed wymaga obecności niepustych pól consumedAt i consumedCallSessionId w rekordzie ConsultationTalkEntitlement',
+    )
+  }
+
+  const versionRaw = r.version
+  if (
+    typeof versionRaw !== 'number' ||
+    !Number.isInteger(versionRaw) ||
+    versionRaw < 1 ||
+    Number.isNaN(versionRaw)
+  ) {
+    throw new Section16ValidationError(
+      `Brak lub nieprawidłowe pole version w rekordzie ConsultationTalkEntitlement: ${String(versionRaw)}`,
+    )
+  }
+  const version = versionRaw
+
+  const idempotencyKeyRaw = r.idempotency_key ?? r.idempotencyKey
+  if (typeof idempotencyKeyRaw !== 'string' || idempotencyKeyRaw.trim().length === 0) {
+    throw new Section16ValidationError(
+      'Brak lub nieprawidłowe pole idempotencyKey w rekordzie ConsultationTalkEntitlement',
+    )
+  }
+  const idempotencyKey = idempotencyKeyRaw.trim()
+
+  const createdAtRaw = r.created_at ?? r.createdAt
+  if (
+    typeof createdAtRaw !== 'string' ||
+    createdAtRaw.trim().length === 0 ||
+    Number.isNaN(Date.parse(createdAtRaw))
+  ) {
+    throw new Section16ValidationError(
+      'Brak lub nieprawidłowe pole createdAt w rekordzie ConsultationTalkEntitlement',
+    )
+  }
+  const createdAt = createdAtRaw
+
+  const updatedAtRaw = r.updated_at ?? r.updatedAt
+  if (
+    typeof updatedAtRaw !== 'string' ||
+    updatedAtRaw.trim().length === 0 ||
+    Number.isNaN(Date.parse(updatedAtRaw))
+  ) {
+    throw new Section16ValidationError(
+      'Brak lub nieprawidłowe pole updatedAt w rekordzie ConsultationTalkEntitlement',
+    )
+  }
+  const updatedAt = updatedAtRaw
+
+  return {
+    id,
+    callerPhoneFingerprint,
+    callerPhoneMasked,
+    bookingId,
+    paymentReference,
+    urgentRequestId,
+    notificationRequestId,
+    allocatedSeconds,
+    validFrom,
+    validUntil,
+    state,
+    consumedAt,
+    consumedCallSessionId,
+    version,
+    idempotencyKey,
+    createdAt,
+    updatedAt,
+  }
+}
+
+/**
+ * Maps Supabase / PostgREST snake_case row to ConsultationTalkEntitlementEvent with strict runtime validation.
+ * Fails closed if any mandatory property is missing or of incorrect type.
+ */
+export function mapConsultationTalkEntitlementEventRecord(
+  raw: unknown,
+): ConsultationTalkEntitlementEvent {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+    throw new Section16ValidationError('Rekord ConsultationTalkEntitlementEvent musi być niepustym obiektem')
+  }
+
+  const r = raw as Record<string, unknown>
+
+  const id = validateRecordUuid(r.id, 'id', 'ConsultationTalkEntitlementEvent')
+
+  const entitlementId = validateRecordUuid(
+    r.entitlement_id ?? r.entitlementId,
+    'entitlementId',
+    'ConsultationTalkEntitlementEvent',
+  )
+
+  const eventTypeRaw = r.event_type ?? r.eventType
+  if (typeof eventTypeRaw !== 'string' || eventTypeRaw.trim().length === 0) {
+    throw new Section16ValidationError(
+      'Brak lub nieprawidłowe pole eventType w rekordzie ConsultationTalkEntitlementEvent',
+    )
+  }
+  const eventType = eventTypeRaw
+
+  const fromStateRaw = r.from_state !== undefined ? r.from_state : r.fromState
+  if (
+    fromStateRaw !== null &&
+    fromStateRaw !== undefined &&
+    (typeof fromStateRaw !== 'string' ||
+      !['active', 'consumed', 'expired', 'revoked'].includes(fromStateRaw))
+  ) {
+    throw new Section16ValidationError(
+      `Nieprawidłowy stan fromState w rekordzie ConsultationTalkEntitlementEvent: ${String(fromStateRaw)}`,
+    )
+  }
+  const fromState = (fromStateRaw as TalkEntitlementState | null) ?? null
+
+  const toStateRaw = r.to_state ?? r.toState
+  if (
+    typeof toStateRaw !== 'string' ||
+    !['active', 'consumed', 'expired', 'revoked'].includes(toStateRaw)
+  ) {
+    throw new Section16ValidationError(
+      `Brak lub nieprawidłowy stan toState w rekordzie ConsultationTalkEntitlementEvent: ${String(toStateRaw)}`,
+    )
+  }
+  const toState = toStateRaw as TalkEntitlementState
+
+  const payloadRaw = r.payload
+  if (!payloadRaw || typeof payloadRaw !== 'object' || Array.isArray(payloadRaw)) {
+    throw new Section16ValidationError(
+      'Pole payload w rekordzie ConsultationTalkEntitlementEvent musi być obiektem',
+    )
+  }
+  const payload = payloadRaw as Record<string, unknown>
+
+  const payloadHashRaw = r.payload_hash ?? r.payloadHash
+  if (typeof payloadHashRaw !== 'string' || payloadHashRaw.trim().length === 0) {
+    throw new Section16ValidationError(
+      'Brak lub nieprawidłowe pole payloadHash w rekordzie ConsultationTalkEntitlementEvent',
+    )
+  }
+  const payloadHash = payloadHashRaw
+
+  const idempotencyKeyRaw = r.idempotency_key ?? r.idempotencyKey
+  if (typeof idempotencyKeyRaw !== 'string' || idempotencyKeyRaw.trim().length === 0) {
+    throw new Section16ValidationError(
+      'Brak lub nieprawidłowe pole idempotencyKey w rekordzie ConsultationTalkEntitlementEvent',
+    )
+  }
+  const idempotencyKey = idempotencyKeyRaw.trim()
+
+  const createdAtRaw = r.created_at ?? r.createdAt
+  if (
+    typeof createdAtRaw !== 'string' ||
+    createdAtRaw.trim().length === 0 ||
+    Number.isNaN(Date.parse(createdAtRaw))
+  ) {
+    throw new Section16ValidationError(
+      'Brak lub nieprawidłowe pole createdAt w rekordzie ConsultationTalkEntitlementEvent',
+    )
+  }
+  const createdAt = createdAtRaw
+
+  return {
+    id,
+    entitlementId,
     eventType,
     fromState,
     toState,
@@ -1705,11 +2077,20 @@ export async function createTalkEntitlement(
       p_payload_hash: payloadHash,
     })
     if (error) mapRpcError(error)
-    return data as ConsultationTalkEntitlement
+    return mapConsultationTalkEntitlementRecord(data)
   }
 
   return withStoreLock(async () => {
     const store = await readStoreSnapshot()
+
+    const existingEvent = store.talkEvents.find((e) => e.idempotencyKey === idempotencyKey)
+    if (existingEvent) {
+      if (existingEvent.payloadHash !== payloadHash) {
+        throw new Section16IdempotencyConflictError(idempotencyKey)
+      }
+      const existingEnt = store.talkEntitlements.find((t) => t.id === existingEvent.entitlementId)
+      if (existingEnt) return existingEnt
+    }
 
     let urgReq: UrgentIntakeRequest | undefined
     if (input.urgentRequestId) {
@@ -1765,6 +2146,15 @@ export async function createTalkEntitlement(
           'Podany bookingId nie zgadza się z rezerwacją przypisaną do zgłoszenia powiadomienia',
         )
       }
+
+      const existingForNotif = store.talkEntitlements.find(
+        (t) => t.notificationRequestId === input.notificationRequestId,
+      )
+      if (existingForNotif) {
+        throw new Section16EntitlementAlreadyExistsError(
+          `Dla opłaconej oferty ${input.notificationRequestId} istnieje już uprawnienie do rozmowy (id: ${existingForNotif.id})`,
+        )
+      }
     }
 
     if (urgReq && notifReq) {
@@ -1804,15 +2194,6 @@ export async function createTalkEntitlement(
           throw new Section16ValidationError('Fingerprint numeru telefonu nie zgadza się z rezerwacją')
         }
       }
-    }
-
-    const existingEvent = store.talkEvents.find((e) => e.idempotencyKey === idempotencyKey)
-    if (existingEvent) {
-      if (existingEvent.payloadHash !== payloadHash) {
-        throw new Section16IdempotencyConflictError(idempotencyKey)
-      }
-      const existingEnt = store.talkEntitlements.find((t) => t.id === existingEvent.entitlementId)
-      if (existingEnt) return existingEnt
     }
 
     const nowIso = nowDate.toISOString()
@@ -1875,7 +2256,7 @@ export async function consumeTalkEntitlement(
       p_payload_hash: payloadHash,
     })
     if (error) mapRpcError(error)
-    return data as ConsultationTalkEntitlement
+    return mapConsultationTalkEntitlementRecord(data)
   }
 
   return withStoreLock(async () => {
@@ -1964,7 +2345,7 @@ export async function revokeTalkEntitlement(
       p_payload_hash: payloadHash,
     })
     if (error) mapRpcError(error)
-    return data as ConsultationTalkEntitlement
+    return mapConsultationTalkEntitlementRecord(data)
   }
 
   return withStoreLock(async () => {
@@ -2020,9 +2401,28 @@ export async function getTalkEntitlement(id: string): Promise<ConsultationTalkEn
     const supabase = getSupabaseClient()
     const { data, error } = await supabase.from('consultation_talk_entitlements').select('*').eq('id', id).maybeSingle()
     if (error) throw new Section16DomainError(error.message, 'DB_ERROR')
-    return data as ConsultationTalkEntitlement | null
+    return data ? mapConsultationTalkEntitlementRecord(data) : null
   }
 
   const store = await readStoreSnapshot()
   return store.talkEntitlements.find((t) => t.id === id) ?? null
+}
+
+export async function getTalkEntitlementEventByIdempotencyKey(
+  idempotencyKey: string,
+): Promise<ConsultationTalkEntitlementEvent | null> {
+  const mode = getDataMode()
+  if (mode === 'supabase') {
+    const supabase = getSupabaseClient()
+    const { data, error } = await supabase
+      .from('consultation_talk_entitlement_events')
+      .select('*')
+      .eq('idempotency_key', idempotencyKey)
+      .maybeSingle()
+    if (error) throw new Section16DomainError(error.message, 'DB_ERROR')
+    return data ? mapConsultationTalkEntitlementEventRecord(data) : null
+  }
+
+  const store = await readStoreSnapshot()
+  return store.talkEvents.find((e) => e.idempotencyKey === idempotencyKey) ?? null
 }

@@ -193,6 +193,13 @@ export class Section16InvalidIdempotencyKeyError extends Section16ValidationErro
   }
 }
 
+export class Section16EntitlementAlreadyExistsError extends Section16DomainError {
+  constructor(message = 'Dla tego źródła istnieje już uprawnienie do rozmowy') {
+    super(message, 'ENTITLEMENT_ALREADY_EXISTS')
+    this.name = 'Section16EntitlementAlreadyExistsError'
+  }
+}
+
 // Data Entities
 export interface UrgentIntakeRequest {
   id: string

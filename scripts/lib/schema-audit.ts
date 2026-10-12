@@ -625,6 +625,11 @@ export const REQUIRED_SCHEMA_MARKERS: SchemaMarker[] = [
     needle: 'grant select, insert on table public.consultation_talk_entitlement_events to service_role;',
     expectedCount: 1,
   },
+  {
+    label: 'consultation_talk_entitlements.notification_request_id_idx',
+    needle: 'create unique index if not exists consultation_talk_entitlements_notification_request_id_idx on public.consultation_talk_entitlements (notification_request_id) where notification_request_id is not null;',
+    expectedCount: 1,
+  },
 ]
 
 export const REQUIRED_FILES = [
@@ -662,6 +667,7 @@ export const REQUIRED_FILES = [
   'supabase/migrations/20261011004_stage4_controlled_sms_promotion.sql',
   'supabase/migrations/20261011005_section16_autonomous_intake_and_entitlements.sql',
   'supabase/migrations/20261011006_section16_append_only_acl.sql',
+  'supabase/migrations/20261011007_section16_single_entitlement_for_paid_source.sql',
 ]
 
 function normalizeSchemaText(schemaText: string) {

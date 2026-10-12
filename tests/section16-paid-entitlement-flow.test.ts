@@ -24,6 +24,8 @@ import {
   validateValidForMinutes,
   computePaymentReferenceHash,
   RESERVED_PAID_ENTITLEMENT_CANONICAL_KEYS,
+  REDACTED_PAYMENT_REFERENCE_MARKER,
+  redactPaymentReferenceFromMetadata,
   PAID_ENTITLEMENT_ACTION_TYPE,
   CANONICAL_UUID_V4_REGEX,
   MIN_TALK_ENTITLEMENT_ALLOCATED_SECONDS,
@@ -1180,8 +1182,13 @@ test('13. Próba nadpisania pól zarezerwowanych przez input.payload nie zmienia
   assert.equal(eventPayload.paymentReference, undefined)
   assert.equal(eventPayload.payment_reference, undefined)
 
-  // Metadane klienta są zachowane i bezpiecznie odizolowane
-  assert.equal(eventPayload.customNote, 'legitimate_client_note')
+  // Metadane klienta są zachowane i bezpiecznie odizolowane wyłącznie pod kluczem metadata (brak na poziomie głównym)
+  assert.equal(eventPayload.customNote, undefined)
+  assert.equal(
+    'customNote' in eventPayload,
+    false,
+    'Dozwolone pole klienta nie może występować na głównym poziomie payloadu zdarzenia',
+  )
   const metadata = eventPayload.metadata as Record<string, unknown>
   assert.ok(metadata)
   assert.equal(metadata.customNote, 'legitimate_client_note')
@@ -1234,21 +1241,41 @@ test('14. Serializowany event payload nie zawiera surowego paymentReference, zmi
   const idempotencyKey = 'no-raw-payment-ref-event-key'
   const now = new Date('2026-10-12T10:00:00.000Z')
 
-  await grantTalkEntitlementForPaidAvailability({
+  // Caller przekazuje surową autorytatywną referencję pod arbitralnym kluczem, w zagnieżdżonym obiekcie,
+  // tablicy, jako fragment dłuższego tekstu, w kluczu obiektu oraz niesekretne pole klienta.
+  const clientPayload = {
+    note: secretPaymentRef,
+    auditMessage: `Wpłata ${secretPaymentRef} została zaksięgowana w banku`,
+    nested: {
+      innerRef: secretPaymentRef,
+      extra: `Ref: ${secretPaymentRef}`,
+    },
+    tags: ['bezpieczny_tag', secretPaymentRef, `prefix_${secretPaymentRef}_suffix`],
+    [secretPaymentRef]: 'wartość_pod_kluczem_referencji',
+    harmlessField: 'kontakt_przez_sms',
+  }
+
+  const result = await grantTalkEntitlementForPaidAvailability({
     notificationRequestId: req.id,
     idempotencyKey,
     actionId,
     allocatedSeconds: 900,
     validForMinutes: 60,
     now,
+    payload: clientPayload,
   })
+
+  assert.equal(result.isRetry, false)
+  assert.ok(result.entitlement)
 
   const snapshot = await readSection16StoreSnapshot()
   const event = snapshot.talkEvents.find((e) => e.idempotencyKey === idempotencyKey)
-  assert.ok(event)
+  assert.ok(event, 'Zdarzenie audytowe musi zostać zapisane')
 
-  // Sprawdź cały zserializowany JSON/string snapshot zdarzenia
+  const eventPayload = event.payload as Record<string, unknown>
   const serializedEventPayload = JSON.stringify(event.payload)
+
+  // 1. Surowa autorytatywna referencja nie może wystąpić w całym zserializowanym payloadzie
   assert.equal(
     serializedEventPayload.includes(secretPaymentRef),
     false,
@@ -1265,7 +1292,14 @@ test('14. Serializowany event payload nie zawiera surowego paymentReference, zmi
     'Event payload nie może zawierać klucza "payment_reference"',
   )
 
-  // Sprawdź cały snapshot wszystkich zdarzeń
+  // 2. Znacznik redakcji występuje zamiast surowej referencji
+  assert.equal(
+    serializedEventPayload.includes(REDACTED_PAYMENT_REFERENCE_MARKER),
+    true,
+    'Znacznik redakcji [REDACTED_PAYMENT_REFERENCE] musi występować w serializowanym payloadzie zdarzenia',
+  )
+
+  // 3. Żadne zdarzenie audytowe w store nie może zawierać surowej referencji
   const serializedAllEvents = JSON.stringify(snapshot.talkEvents)
   assert.equal(
     serializedAllEvents.includes(secretPaymentRef),
@@ -1273,11 +1307,69 @@ test('14. Serializowany event payload nie zawiera surowego paymentReference, zmi
     'Żadne zdarzenie audytowe w store nie może zawierać surowej referencji płatności',
   )
 
-  // Zweryfikuj obecność deterministycznego SHA-256
-  const expectedHash = computePaymentReferenceHash(secretPaymentRef)
-  assert.equal((event.payload as Record<string, unknown>).paymentReferenceHash, expectedHash)
+  // 4. Dozwolone pola klienta występują wyłącznie w event.payload.metadata, a nie na głównym poziomie
+  assert.equal('note' in eventPayload, false, 'note nie może występować na głównym poziomie payloadu')
+  assert.equal('auditMessage' in eventPayload, false, 'auditMessage nie może występować na głównym poziomie')
+  assert.equal('nested' in eventPayload, false, 'nested nie może występować na głównym poziomie')
+  assert.equal('tags' in eventPayload, false, 'tags nie może występować na głównym poziomie')
+  assert.equal('harmlessField' in eventPayload, false, 'harmlessField nie może występować na głównym poziomie')
+  assert.equal(secretPaymentRef in eventPayload, false, 'Klucz z surową referencją nie może występować na głównym poziomie')
+  assert.equal(REDACTED_PAYMENT_REFERENCE_MARKER in eventPayload, false, 'Znacznik redakcji nie może występować jako klucz główny')
 
-  // Symulacja: zmiana autorytatywnej referencji w źródle powoduje konflikt przez hash przy próbie retry
+  // 5. Struktura metadata zawiera zredagowane wartości i zachowane niesekretne metadane
+  const metadata = eventPayload.metadata as Record<string, unknown>
+  assert.ok(metadata, 'metadata musi być obiektem')
+  assert.equal(metadata.note, REDACTED_PAYMENT_REFERENCE_MARKER)
+  assert.equal(
+    metadata.auditMessage,
+    `Wpłata ${REDACTED_PAYMENT_REFERENCE_MARKER} została zaksięgowana w banku`,
+  )
+  const nested = metadata.nested as Record<string, unknown>
+  assert.equal(nested.innerRef, REDACTED_PAYMENT_REFERENCE_MARKER)
+  assert.equal(nested.extra, `Ref: ${REDACTED_PAYMENT_REFERENCE_MARKER}`)
+  assert.deepEqual(metadata.tags, [
+    'bezpieczny_tag',
+    REDACTED_PAYMENT_REFERENCE_MARKER,
+    `prefix_${REDACTED_PAYMENT_REFERENCE_MARKER}_suffix`,
+  ])
+  assert.equal(metadata[REDACTED_PAYMENT_REFERENCE_MARKER], 'wartość_pod_kluczem_referencji')
+  assert.equal(metadata.harmlessField, 'kontakt_przez_sms')
+
+  // 6. Zweryfikuj obecność deterministycznego SHA-256
+  const expectedHash = computePaymentReferenceHash(secretPaymentRef)
+  assert.equal(eventPayload.paymentReferenceHash, expectedHash)
+
+  // 7. Exact retry z identycznym payloadem nadal działa i nie tworzy nowego zdarzenia
+  const retryResult = await grantTalkEntitlementForPaidAvailability({
+    notificationRequestId: req.id,
+    idempotencyKey,
+    actionId,
+    allocatedSeconds: 900,
+    validForMinutes: 60,
+    now,
+    payload: clientPayload,
+  })
+  assert.equal(retryResult.isRetry, true)
+  assert.equal(retryResult.entitlement.id, result.entitlement.id)
+  const snapshotAfterRetry = await readSection16StoreSnapshot()
+  assert.equal(snapshotAfterRetry.talkEvents.length, snapshot.talkEvents.length)
+
+  // 8. Zmiana niesekretnej metadata powoduje konflikt (IDEMPOTENCY_CONFLICT)
+  await assert.rejects(
+    () =>
+      grantTalkEntitlementForPaidAvailability({
+        notificationRequestId: req.id,
+        idempotencyKey,
+        actionId,
+        allocatedSeconds: 900,
+        validForMinutes: 60,
+        now,
+        payload: { ...clientPayload, harmlessField: 'kontakt_przez_telefon' },
+      }),
+    Section16IdempotencyConflictError,
+  )
+
+  // 9. Zmiana autorytatywnej referencji w źródle powoduje konflikt przez hash przy próbie retry
   await updateSection16StoreSnapshot((s) => {
     const item = s.notificationRequests.find((r) => r.id === req.id)
     if (item) {
@@ -1294,8 +1386,41 @@ test('14. Serializowany event payload nie zawiera surowego paymentReference, zmi
         allocatedSeconds: 900,
         validForMinutes: 60,
         now,
+        payload: clientPayload,
       }),
     Section16IdempotencyConflictError,
+  )
+
+  // 10. Bezpośrednie testy jednostkowe redactPaymentReferenceFromMetadata (edge cases)
+  assert.equal(redactPaymentReferenceFromMetadata('tekst', null), 'tekst')
+  assert.equal(redactPaymentReferenceFromMetadata('tekst', undefined), 'tekst')
+  assert.equal(redactPaymentReferenceFromMetadata('tekst', '   '), 'tekst')
+  assert.equal(redactPaymentReferenceFromMetadata(42, 'ref'), 42)
+  assert.equal(redactPaymentReferenceFromMetadata(true, 'ref'), true)
+  assert.equal(redactPaymentReferenceFromMetadata(null, 'ref'), null)
+
+  const deeplyNested = {
+    level1: {
+      level2: {
+        level3: {
+          secret: 'ref_123',
+          arr: ['ref_123', { inside: 'ref_123' }],
+        },
+      },
+    },
+  }
+  const redactedDeep = redactPaymentReferenceFromMetadata(deeplyNested, 'ref_123')
+  assert.equal(
+    redactedDeep.level1.level2.level3.secret,
+    REDACTED_PAYMENT_REFERENCE_MARKER,
+  )
+  assert.equal(
+    redactedDeep.level1.level2.level3.arr[0],
+    REDACTED_PAYMENT_REFERENCE_MARKER,
+  )
+  assert.equal(
+    (redactedDeep.level1.level2.level3.arr[1] as Record<string, unknown>).inside,
+    REDACTED_PAYMENT_REFERENCE_MARKER,
   )
 })
 

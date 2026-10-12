@@ -73,6 +73,49 @@ export const RESERVED_PAID_ENTITLEMENT_CANONICAL_KEYS = Object.freeze([
   'metadata',
 ] as const)
 
+export const REDACTED_PAYMENT_REFERENCE_MARKER = '[REDACTED_PAYMENT_REFERENCE]'
+
+/**
+ * Deterministically and recursively redacts any occurrence of the authoritative raw payment reference
+ * within strings, arrays, nested objects, and object keys inside metadata.
+ * Does not mutate server canonical fields.
+ */
+export function redactPaymentReferenceFromMetadata<T>(
+  value: T,
+  paymentReference?: string | null,
+): T {
+  if (
+    !paymentReference ||
+    typeof paymentReference !== 'string' ||
+    !paymentReference.trim()
+  ) {
+    return value
+  }
+
+  const target = paymentReference.trim()
+
+  function redactRecursive(val: unknown): unknown {
+    if (typeof val === 'string') {
+      return val.replaceAll(target, REDACTED_PAYMENT_REFERENCE_MARKER)
+    }
+    if (val === null || val === undefined || typeof val !== 'object') {
+      return val
+    }
+    if (Array.isArray(val)) {
+      return val.map((item) => redactRecursive(item))
+    }
+    const record = val as Record<string, unknown>
+    const result: Record<string, unknown> = {}
+    for (const [key, propVal] of Object.entries(record)) {
+      const redactedKey = key.replaceAll(target, REDACTED_PAYMENT_REFERENCE_MARKER)
+      result[redactedKey] = redactRecursive(propVal)
+    }
+    return result
+  }
+
+  return redactRecursive(value) as T
+}
+
 
 export function validateAllocatedSeconds(allocatedSeconds: unknown): number {
   if (
@@ -245,9 +288,15 @@ export async function grantTalkEntitlementForPaidAvailability(
   }
 
   // 3. Build canonical event payload & idempotency identity
-  // Isolate client payload: strip reserved canonical keys so caller can NEVER tamper with
+  // Isolate client metadata: strip reserved canonical keys so caller can NEVER tamper with
   // canonical operation identity or inject raw paymentReference into audit events.
-  const sanitizedClientPayload = sanitizePayload(input.payload ?? {})
+  // Metadata is stored strictly once, isolated under the 'metadata' key, with recursive
+  // deterministic redaction of the authoritative raw payment reference before and after sanitization.
+  const rawClientPayload = redactPaymentReferenceFromMetadata(
+    input.payload ?? {},
+    notifReq.paymentReference,
+  )
+  const sanitizedClientPayload = sanitizePayload(rawClientPayload)
   const clientMetadata: Record<string, unknown> = {}
   if (
     sanitizedClientPayload &&
@@ -265,11 +314,14 @@ export async function grantTalkEntitlementForPaidAvailability(
     }
   }
 
+  const redactedMetadata = redactPaymentReferenceFromMetadata(
+    clientMetadata,
+    notifReq.paymentReference,
+  )
+
   const paymentReferenceHash = computePaymentReferenceHash(notifReq.paymentReference)
 
   const canonicalPayload: Record<string, unknown> = {
-    ...clientMetadata,
-    metadata: clientMetadata,
     actionType: PAID_ENTITLEMENT_ACTION_TYPE,
     notificationRequestId,
     actionId,
@@ -277,6 +329,7 @@ export async function grantTalkEntitlementForPaidAvailability(
     validForMinutes,
     paymentReferenceHash,
     bookingId: notifReq.bookingId ?? null,
+    metadata: redactedMetadata,
   }
   const payloadHash = computeSection16PayloadHash(canonicalPayload)
 

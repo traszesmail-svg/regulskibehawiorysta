@@ -3149,8 +3149,7 @@ grant execute on function public.revoke_talk_entitlement(uuid, integer, text, te
 
 -- 9. PERIODIC EXPIRATION SWEEP (STAGE 5)
 create or replace function public.sweep_expired_section16_records(
-  p_batch_limit integer default 100,
-  p_now timestamptz default null
+  p_batch_limit integer default 100
 )
 returns jsonb
 language plpgsql
@@ -3158,7 +3157,7 @@ security definer
 set search_path = public, pg_temp
 as $$
 declare
-  v_now timestamptz := coalesce(p_now, timezone('utc', now()));
+  v_now timestamptz := statement_timestamp();
   v_remaining_budget integer;
   v_urgent_count integer := 0;
   v_avail_count integer := 0;
@@ -3407,5 +3406,5 @@ begin
 end;
 $$;
 
-revoke all on function public.sweep_expired_section16_records(integer, timestamptz) from public, anon, authenticated;
-grant execute on function public.sweep_expired_section16_records(integer, timestamptz) to service_role;
+revoke all on function public.sweep_expired_section16_records(integer) from public, anon, authenticated;
+grant execute on function public.sweep_expired_section16_records(integer) to service_role;

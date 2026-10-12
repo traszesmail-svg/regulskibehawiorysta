@@ -166,7 +166,16 @@ export async function updateSection16StoreSnapshot(
   })
 }
 
+let supabaseClientOverride: any = null
+
+export function setSupabaseClientOverrideForTest(client: any | null): void {
+  supabaseClientOverride = client
+}
+
 function getSupabaseClient() {
+  if (supabaseClientOverride) {
+    return supabaseClientOverride
+  }
   const config = getSupabaseServerConfig('section16 autonomous data model')
   return createClient(config.url, config.serviceRoleKey, {
     auth: { persistSession: false, autoRefreshToken: false },
@@ -1217,8 +1226,12 @@ export function mapConsultationTalkEntitlementEventRecord(
   }
 }
 
-function getDataMode(): 'local' | 'supabase' {
+export function getSection16DataMode(): 'local' | 'supabase' {
   return resolveDataMode('section16 autonomous data model')
+}
+
+function getDataMode(): 'local' | 'supabase' {
+  return getSection16DataMode()
 }
 
 // ---------------------------------------------------------------------------
@@ -2770,10 +2783,15 @@ export async function sweepExpiredSection16Records(
   const mode = getDataMode()
 
   if (mode === 'supabase') {
+    if (nowDate !== undefined && nowDate !== null) {
+      throw new Section16ValidationError(
+        'Sterowanie czasem sweepu (now) jest niedozwolone w trybie Supabase. Produkcyjny sweep pobiera czas wyłącznie z bazy danych (statement_timestamp()).',
+      )
+    }
+
     const supabase = getSupabaseClient()
     const { data, error } = await supabase.rpc('sweep_expired_section16_records', {
       p_batch_limit: validatedLimit,
-      p_now: nowDate ? nowDate.toISOString() : null,
     })
 
     if (error) {

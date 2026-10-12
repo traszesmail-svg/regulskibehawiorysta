@@ -637,12 +637,12 @@ export const REQUIRED_SCHEMA_MARKERS: SchemaMarker[] = [
   },
   {
     label: 'sweep_expired_section16_records.revoke_anon_auth',
-    needle: 'revoke all on function public.sweep_expired_section16_records(integer, timestamptz) from public, anon, authenticated;',
+    needle: 'revoke all on function public.sweep_expired_section16_records(integer) from public, anon, authenticated;',
     expectedCount: 1,
   },
   {
     label: 'sweep_expired_section16_records.grant_service_role',
-    needle: 'grant execute on function public.sweep_expired_section16_records(integer, timestamptz) to service_role;',
+    needle: 'grant execute on function public.sweep_expired_section16_records(integer) to service_role;',
     expectedCount: 1,
   },
 ]

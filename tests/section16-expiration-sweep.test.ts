@@ -9,7 +9,10 @@ import {
   updateSection16StoreSnapshot,
   mapSection16SweepResult,
   mapRpcError,
+  sweepExpiredSection16Records,
+  setSupabaseClientOverrideForTest,
 } from '../lib/server/section16-store'
+import { sanitizePayload } from '../lib/server/call-session-security'
 import {
   runSection16ExpirationSweep,
   validateSweepBatchLimit,
@@ -827,23 +830,25 @@ test('8. RPC oraz ACL są service-role-only; brak execute dla public/anon/auth; 
 
   // A. Migration 20261011008 checks
   assert.ok(
-    migSql.includes('create or replace function public.sweep_expired_section16_records('),
-    'Migracja musi definiować sweep_expired_section16_records',
+    migSql.includes('create or replace function public.sweep_expired_section16_records(\n  p_batch_limit integer default 100\n)'),
+    'Migracja musi definiować sweep_expired_section16_records z parametrem p_batch_limit integer',
   )
+  assert.equal(migSql.includes('p_now'), false, 'Migracja nie może zawierać parametru ani referencji p_now')
+  assert.ok(migSql.includes('statement_timestamp()'), 'Migracja musi pobierać czas wyłącznie z PostgreSQL statement_timestamp()')
   assert.ok(migSql.includes('security definer'), 'RPC musi być security definer')
   assert.ok(migSql.includes('set search_path = public, pg_temp'), 'RPC musi mieć bezpieczny search_path')
   assert.ok(migSql.includes('for update skip locked'), 'RPC musi stosować FOR UPDATE SKIP LOCKED')
   assert.ok(
     migSql.includes(
-      'revoke all on function public.sweep_expired_section16_records(integer, timestamptz) from public, anon, authenticated;',
+      'revoke all on function public.sweep_expired_section16_records(integer) from public, anon, authenticated;',
     ),
-    'RPC musi odbierać execute rolom public, anon, authenticated',
+    'RPC musi odbierać execute rolom public, anon, authenticated dla sygnatury (integer)',
   )
   assert.ok(
     migSql.includes(
-      'grant execute on function public.sweep_expired_section16_records(integer, timestamptz) to service_role;',
+      'grant execute on function public.sweep_expired_section16_records(integer) to service_role;',
     ),
-    'RPC musi nadawać execute wyłącznie dla service_role',
+    'RPC musi nadawać execute wyłącznie dla service_role dla sygnatury (integer)',
   )
 
   // Verify no grants to public/anon/authenticated
@@ -851,20 +856,26 @@ test('8. RPC oraz ACL są service-role-only; brak execute dla public/anon/auth; 
 
   // B. Canonical schema checks
   assert.ok(
-    schemaSql.includes('create or replace function public.sweep_expired_section16_records('),
-    'Schema musi definiować sweep_expired_section16_records',
+    schemaSql.includes('create or replace function public.sweep_expired_section16_records(\n  p_batch_limit integer default 100\n)'),
+    'Schema musi definiować sweep_expired_section16_records z parametrem p_batch_limit integer',
+  )
+  const sweepFnIndex = schemaSql.indexOf('create or replace function public.sweep_expired_section16_records(')
+  const sweepFnEnd = schemaSql.indexOf('revoke all on function public.sweep_expired_section16_records(integer)', sweepFnIndex)
+  const sweepFunctionChunk = schemaSql.slice(sweepFnIndex, sweepFnEnd)
+  assert.equal(sweepFunctionChunk.includes('p_now'), false, 'Ciało funkcji w schema.sql nie może zawierać p_now')
+  assert.ok(sweepFunctionChunk.includes('statement_timestamp()'), 'Ciało funkcji w schema.sql musi pobierać czas z statement_timestamp()')
+
+  assert.ok(
+    schemaSql.includes(
+      'revoke all on function public.sweep_expired_section16_records(integer) from public, anon, authenticated;',
+    ),
+    'Schema musi zawierać revoke na sweep_expired_section16_records(integer)',
   )
   assert.ok(
     schemaSql.includes(
-      'revoke all on function public.sweep_expired_section16_records(integer, timestamptz) from public, anon, authenticated;',
+      'grant execute on function public.sweep_expired_section16_records(integer) to service_role;',
     ),
-    'Schema musi zawierać revoke na sweep_expired_section16_records',
-  )
-  assert.ok(
-    schemaSql.includes(
-      'grant execute on function public.sweep_expired_section16_records(integer, timestamptz) to service_role;',
-    ),
-    'Schema musi zawierać grant service_role na sweep_expired_section16_records',
+    'Schema musi zawierać grant service_role na sweep_expired_section16_records(integer)',
   )
 
   // C. ACL from 20261011006 remains intact
@@ -992,3 +1003,258 @@ test('10. Regresja Stage 2–4 pozostaje zielona', () => {
   assert.equal(isValidTalkEntitlementTransition('revoked', 'expired'), false)
   assert.equal(isValidTalkEntitlementTransition('expired', 'active'), false)
 })
+
+// ============================================================================
+// 11. WARSTWA SUPABASE: RPC OTRZYMUJE TYLKO P_BATCH_LIMIT, OPTIONS.NOW FAILS-CLOSED PRZED RPC
+// ============================================================================
+test('11. Warstwa Supabase: RPC otrzymuje tylko p_batch_limit, options.now fails-closed przed RPC, a local fallback obsługuje injected now', async () => {
+  const previousMode = process.env.APP_DATA_MODE
+  const previousUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const previousKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  process.env.APP_DATA_MODE = 'supabase'
+  process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://mock-test.supabase.co'
+  process.env.SUPABASE_SERVICE_ROLE_KEY = 'sb_secret_mock_test_fixture_service_role_key'
+
+  try {
+    // A. Mock Supabase client weryfikuje, że RPC otrzymuje wyłącznie p_batch_limit (brak p_now)
+    let capturedRpc = ''
+    let capturedArgs: Record<string, unknown> | null = null
+
+    setSupabaseClientOverrideForTest({
+      rpc: async (fn: string, args: Record<string, unknown>) => {
+        capturedRpc = fn
+        capturedArgs = args
+        return {
+          data: {
+            urgent_intakes_expired: 1,
+            availability_notifications_expired: 2,
+            talk_entitlements_expired: 0,
+            total_expired: 3,
+            batch_limit: args.p_batch_limit,
+            swept_at: '2026-10-12T10:00:00.000Z',
+          },
+          error: null,
+        }
+      },
+    })
+
+    const sweepRes = await runSection16ExpirationSweep({ batchLimit: 42 })
+    assert.equal(capturedRpc, 'sweep_expired_section16_records')
+    assert.deepEqual(capturedArgs, { p_batch_limit: 42 })
+    assert.equal('p_now' in (capturedArgs ?? {}), false, 'RPC w Supabase nie może otrzymywać p_now')
+    assert.equal(sweepRes.totalExpired, 3)
+    assert.equal(sweepRes.batchLimit, 42)
+    assert.equal(sweepRes.sweptAt, '2026-10-12T10:00:00.000Z')
+
+    // B. Próba podania options.now w trybie Supabase ma fail-closed przed RPC
+    let rpcCalledOnOptionsNow = false
+    setSupabaseClientOverrideForTest({
+      rpc: async () => {
+        rpcCalledOnOptionsNow = true
+        return { data: null, error: null }
+      },
+    })
+
+    await assert.rejects(
+      async () => {
+        await runSection16ExpirationSweep({ batchLimit: 10, now: new Date() })
+      },
+      (err: any) => {
+        assert.ok(err instanceof Section16ValidationError)
+        assert.ok(
+          err.message.includes('options.now') || err.message.includes('now'),
+          'Komunikat błędu musi informować o zakazie podawania now w trybie Supabase',
+        )
+        return true
+      },
+    )
+    assert.equal(
+      rpcCalledOnOptionsNow,
+      false,
+      'RPC nie może zostać wywołane gdy caller podał options.now w trybie Supabase',
+    )
+
+    // C. Bezpośrednie wywołanie store sweepExpiredSection16Records z now w trybie Supabase ma fail-closed przed RPC
+    let rpcCalledOnDirectNow = false
+    setSupabaseClientOverrideForTest({
+      rpc: async () => {
+        rpcCalledOnDirectNow = true
+        return { data: null, error: null }
+      },
+    })
+
+    await assert.rejects(
+      async () => {
+        await sweepExpiredSection16Records(10, new Date())
+      },
+      (err: any) => {
+        assert.ok(err instanceof Section16ValidationError)
+        assert.ok(
+          err.message.includes('now'),
+          'Komunikat błędu musi informować o zakazie podawania now w trybie Supabase',
+        )
+        return true
+      },
+    )
+    assert.equal(
+      rpcCalledOnDirectNow,
+      false,
+      'RPC nie może zostać wywołane przy bezpośrednim przekazaniu now w trybie Supabase',
+    )
+
+    // D. Statyczny audyt kodu section16-store.ts potwierdzający brak p_now w wywołaniu RPC
+    const storeCode = readFileSync('lib/server/section16-store.ts', 'utf8')
+    assert.ok(
+      storeCode.includes("supabase.rpc('sweep_expired_section16_records', {\n      p_batch_limit: validatedLimit,\n    })"),
+      'Store musi wywoływać RPC przekazując wyłącznie p_batch_limit',
+    )
+    const rpcCallSnippet = storeCode.slice(
+      storeCode.indexOf("supabase.rpc('sweep_expired_section16_records'"),
+      storeCode.indexOf("supabase.rpc('sweep_expired_section16_records'") + 120,
+    )
+    assert.equal(rpcCallSnippet.includes('p_now'), false, 'Ciało wywołania RPC w store nie może zawierać p_now')
+  } finally {
+    setSupabaseClientOverrideForTest(null)
+    process.env.APP_DATA_MODE = previousMode ?? 'local'
+    if (previousUrl === undefined) delete process.env.NEXT_PUBLIC_SUPABASE_URL
+    else process.env.NEXT_PUBLIC_SUPABASE_URL = previousUrl
+    if (previousKey === undefined) delete process.env.SUPABASE_SERVICE_ROLE_KEY
+    else process.env.SUPABASE_SERVICE_ROLE_KEY = previousKey
+  }
+
+  // E. W trybie local JSON fallback injected now jest dozwolone i działa poprawnie
+  process.env.APP_DATA_MODE = 'local'
+  const localSweepWithNow = await runSection16ExpirationSweep({
+    batchLimit: 10,
+    now: new Date('2026-10-12T12:00:00.000Z'),
+  })
+  assert.equal(typeof localSweepWithNow.totalExpired, 'number')
+  assert.equal(localSweepWithNow.sweptAt, '2026-10-12T12:00:00.000Z')
+
+  // F. W trybie local JSON fallback bez parametru now domyślnie używany jest lokalny czas
+  const localSweepDefault = await runSection16ExpirationSweep({ batchLimit: 10 })
+  assert.equal(typeof localSweepDefault.totalExpired, 'number')
+  assert.ok(Date.parse(localSweepDefault.sweptAt) > 0)
+})
+
+// ============================================================================
+// 12. CELOWANY TEST REGRESYJNY GLOBALNEGO SANITIZERA (UUID VS TELEFON I DANE WRAŻLIWE)
+// ============================================================================
+test('12. Celowany test regresyjny globalnego sanitizera: kanoniczny UUID nienaruszony, telefony i dane wrażliwe redagowane', () => {
+  // A. Samodzielny kanoniczny UUID v4 pozostaje niezmieniony (brak fałszywego dopasowania do regexu telefonu)
+  const canonicalUuids = [
+    'cde9326e-75b1-4f0d-8274-e13708d3f285',
+    '38848486-b93e-4763-315c-e04bf4f3d86d',
+    // Przypadki brzegowe: UUID zawierające ciąg cyfr, które w luźnym regexie telefonu mogłyby dać false positive
+    '12345678-1234-4234-8234-123456789abc',
+    '12345678-1000-4000-8000-000000000000',
+    '00000000-0000-0000-0000-000000000000',
+    '98765432-1000-4000-8000-000000000000',
+    'CDE9326E-75B1-4F0D-8274-E13708D3F285', // wielkie litery
+  ]
+
+  for (const uuid of canonicalUuids) {
+    const sanitizedObj = sanitizePayload({ requestId: uuid, actionId: uuid })
+    assert.equal(
+      sanitizedObj.requestId,
+      uuid,
+      `Samodzielny kanoniczny UUID (${uuid}) musi pozostać niezmieniony`,
+    )
+    assert.equal(
+      sanitizedObj.actionId,
+      uuid,
+      `Samodzielny kanoniczny UUID w actionId (${uuid}) musi pozostać niezmieniony`,
+    )
+  }
+
+  // B. Prawdziwe numery telefonów (samodzielne) są bezwzględnie redagowane
+  const rawPhones = [
+    '+48 501 234 567',
+    '+48501234567',
+    '501234567',
+    '501-234-567',
+    '501.234.567',
+    '0048 501 234 567',
+    '0048501234567',
+    '+48 600 700 800',
+    '600700800',
+  ]
+
+  for (const phone of rawPhones) {
+    const sanitized = sanitizePayload({ contactInfo: phone })
+    assert.equal(
+      sanitized.contactInfo,
+      '[REDACTED_PHONE]',
+      `Prawdziwy numer telefonu (${phone}) musi zostać zredagowany`,
+    )
+  }
+
+  // C. Numer telefonu osadzony w zwykłym tekście jest redagowany (zachowując kontekst tekstu lub maskując całość przy braku innych cyfr)
+  const textWithPhones = [
+    {
+      input: 'Klient prosi o kontakt pod numerem 501 234 567 po 17:00',
+      expected: 'Klient prosi o kontakt pod numerem [REDACTED_PHONE] po 17:00',
+    },
+    {
+      input: 'Wiadomość z kodem 1234 oraz tel 501-234-567 dla klienta',
+      expected: 'Wiadomość z kodem 1234 oraz tel [REDACTED_PHONE] dla klienta',
+    },
+    {
+      input: 'Kontakt: 500600700 oraz backup: 501234567',
+      expected: 'Kontakt: [REDACTED_PHONE] oraz backup: [REDACTED_PHONE]',
+    },
+    {
+      input: 'Zadzwoń: +48-501-234-567 pilne!',
+      expected: '[REDACTED_PHONE]', // Gdy w tekście są tylko cyfry numeru telefonu, normalizePolishPhone chroni cały ciąg
+    },
+  ]
+
+  for (const { input, expected } of textWithPhones) {
+    const sanitized = sanitizePayload({ note: input })
+    assert.equal(
+      sanitized.note,
+      expected,
+      `Numer osadzony w tekście (${input}) musi zostać zredagowany`,
+    )
+  }
+
+  // D. Wrażliwe klucze nadal wymuszają redakcję niezależnie od wartości
+  assert.equal(
+    sanitizePayload({ phone: 'cde9326e-75b1-4f0d-8274-e13708d3f285' }).phone,
+    '[REDACTED_PHONE]',
+    'Klucz phone musi redagować nawet jeśli wartością jest UUID',
+  )
+  assert.equal(
+    sanitizePayload({ caller_phone: '12345678-1234-4234-8234-123456789abc' }).caller_phone,
+    '[REDACTED_PHONE]',
+    'Klucz caller_phone musi redagować nawet jeśli wartością jest UUID',
+  )
+  assert.equal(
+    sanitizePayload({ secret_token: 'secret-api-key-value' }).secret_token,
+    '[REDACTED]',
+    'Klucz sekretu musi być redagowany do [REDACTED]',
+  )
+  assert.equal(
+    sanitizePayload({ password: 'user-password' }).password,
+    '[REDACTED]',
+    'Klucz hasła musi być redagowany do [REDACTED]',
+  )
+
+  // E. Złożony payload zdarzenia audytowego zachowuje tożsamość rekordu, a redaguje dane prywatne
+  const eventPayload = {
+    action: 'sweep_expired',
+    requestId: 'cde9326e-75b1-4f0d-8274-e13708d3f285',
+    entitlementId: '12345678-1234-4234-8234-123456789abc',
+    clientNote: 'Zadzwoń pod +48 501 234 567 po 17:00 jutro',
+    safeDescription: 'Automated expiration sweep run',
+  }
+
+  const sanitizedEventPayload = sanitizePayload(eventPayload)
+  assert.equal(sanitizedEventPayload.action, 'sweep_expired')
+  assert.equal(sanitizedEventPayload.requestId, 'cde9326e-75b1-4f0d-8274-e13708d3f285')
+  assert.equal(sanitizedEventPayload.entitlementId, '12345678-1234-4234-8234-123456789abc')
+  assert.equal(sanitizedEventPayload.clientNote, 'Zadzwoń pod [REDACTED_PHONE] po 17:00 jutro')
+  assert.equal(sanitizedEventPayload.safeDescription, 'Automated expiration sweep run')
+})
+

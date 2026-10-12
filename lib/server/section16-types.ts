@@ -429,5 +429,11 @@ export interface Section16SweepResult {
 
 export interface Section16ExpirationSweepOptions {
   batchLimit: number
+  /**
+   * Opcjonalny czas referencyjny do testów granic czasu i symulacji wyłącznie w trybie local JSON fallback.
+   * W trybie Supabase (produkcja) podanie tego parametru jest zabronione i powoduje natychmiastowy błąd
+   * Section16ValidationError (fail-closed) przed wywołaniem RPC; czas sweepu pobierany jest wyłącznie
+   * z zegara PostgreSQL (statement_timestamp()).
+   */
   now?: Date
 }

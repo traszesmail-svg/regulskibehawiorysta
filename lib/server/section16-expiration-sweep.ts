@@ -17,6 +17,7 @@ import {
 import {
   sweepExpiredSection16Records,
   mapSection16SweepResult,
+  getSection16DataMode,
 } from './section16-store'
 
 export {
@@ -35,8 +36,9 @@ export type {
 /**
  * Executes a single, bounded, atomic sweep of expired Section 16 records.
  * Fails closed if batchLimit is missing or outside [1..500].
- * In test mode, options.now may be provided to simulate time boundaries.
- * In production mode, options.now should be omitted so DB server time is authoritative.
+ * In test mode (local JSON fallback), options.now may be provided to simulate time boundaries.
+ * In production mode (Supabase), options.now is strictly prohibited (fails closed with Section16ValidationError);
+ * authoritative sweep time is determined exclusively by the PostgreSQL database clock (statement_timestamp()).
  */
 export async function runSection16ExpirationSweep(
   options: Section16ExpirationSweepOptions,
@@ -54,6 +56,11 @@ export async function runSection16ExpirationSweep(
     if (!(options.now instanceof Date) || Number.isNaN(options.now.getTime())) {
       throw new Section16ValidationError(
         'Opcjonalny parametr now musi być prawidłowym obiektem Date',
+      )
+    }
+    if (getSection16DataMode() === 'supabase') {
+      throw new Section16ValidationError(
+        'Sterowanie czasem sweepu (options.now) jest niedozwolone w trybie Supabase. Produkcyjny sweep pobiera czas wyłącznie z bazy danych (statement_timestamp()).',
       )
     }
     validatedNow = options.now

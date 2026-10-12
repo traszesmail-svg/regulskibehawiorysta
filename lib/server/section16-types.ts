@@ -416,3 +416,18 @@ export interface RevokeTalkEntitlementInput {
   idempotencyKey: string
   payload?: Record<string, unknown>
 }
+
+// Stage 5: Periodic Expiration Sweep Types
+export interface Section16SweepResult {
+  urgentIntakesExpired: number
+  availabilityNotificationsExpired: number
+  talkEntitlementsExpired: number
+  totalExpired: number
+  batchLimit: number
+  sweptAt: string
+}
+
+export interface Section16ExpirationSweepOptions {
+  batchLimit: number
+  now?: Date
+}

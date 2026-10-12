@@ -27,6 +27,8 @@ import {
   CreateTalkEntitlementInput,
   ConsumeTalkEntitlementInput,
   RevokeTalkEntitlementInput,
+  Section16SweepResult,
+  Section16ExpirationSweepOptions,
   Section16DomainError,
   Section16NotFoundError,
   Section16TerminalStateError,
@@ -60,6 +62,7 @@ import {
   DEFAULT_OFFER_EXPIRY_MINUTES,
   DEFAULT_NOTIFICATION_QUEUE_EXPIRY_DAYS,
   DEFAULT_TALK_ENTITLEMENT_ALLOCATED_SECONDS,
+  validateSweepBatchLimit,
 } from './section16-policy'
 
 export interface Section16StoreSnapshot {
@@ -223,6 +226,7 @@ export function mapRpcError(error: any): never {
     throw new Section16PrivacyError(message)
   }
   if (
+    message.includes('INVALID_BATCH_LIMIT') ||
     message.includes('INVALID_DAY_CHOICE') ||
     message.includes('INVALID_TARGET_DATE') ||
     message.includes('INVALID_FINGERPRINT') ||
@@ -2436,4 +2440,348 @@ export async function getTalkEntitlementEventByIdempotencyKey(
 
   const store = await readStoreSnapshot()
   return store.talkEvents.find((e) => e.idempotencyKey === idempotencyKey) ?? null
+}
+
+// ---------------------------------------------------------------------------
+// STAGE 5: PERIODIC EXPIRATION SWEEP
+// ---------------------------------------------------------------------------
+
+/**
+ * Maps Supabase / PostgREST snake_case row to Section16SweepResult with strict runtime validation.
+ * Fails closed if any mandatory property is missing or of incorrect type.
+ */
+export function mapSection16SweepResult(raw: unknown): Section16SweepResult {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+    throw new Section16ValidationError('Wynik sweepu sekcji 16 musi być niepustym obiektem')
+  }
+
+  const r = raw as Record<string, unknown>
+
+  const urgentRaw = r.urgent_intakes_expired ?? r.urgentIntakesExpired
+  if (typeof urgentRaw !== 'number' || !Number.isInteger(urgentRaw) || urgentRaw < 0) {
+    throw new Section16ValidationError(
+      `Brak lub nieprawidłowa liczba urgentIntakesExpired w wyniku sweepu: ${String(urgentRaw)}`,
+    )
+  }
+
+  const availRaw = r.availability_notifications_expired ?? r.availabilityNotificationsExpired
+  if (typeof availRaw !== 'number' || !Number.isInteger(availRaw) || availRaw < 0) {
+    throw new Section16ValidationError(
+      `Brak lub nieprawidłowa liczba availabilityNotificationsExpired w wyniku sweepu: ${String(availRaw)}`,
+    )
+  }
+
+  const talkRaw = r.talk_entitlements_expired ?? r.talkEntitlementsExpired
+  if (typeof talkRaw !== 'number' || !Number.isInteger(talkRaw) || talkRaw < 0) {
+    throw new Section16ValidationError(
+      `Brak lub nieprawidłowa liczba talkEntitlementsExpired w wyniku sweepu: ${String(talkRaw)}`,
+    )
+  }
+
+  const totalRaw = r.total_expired ?? r.totalExpired
+  if (typeof totalRaw !== 'number' || !Number.isInteger(totalRaw) || totalRaw < 0) {
+    throw new Section16ValidationError(
+      `Brak lub nieprawidłowa liczba totalExpired w wyniku sweepu: ${String(totalRaw)}`,
+    )
+  }
+
+  if (totalRaw !== urgentRaw + availRaw + talkRaw) {
+    throw new Section16ValidationError(
+      `Niespójna suma totalExpired (${totalRaw}) z sumą składowych (${urgentRaw + availRaw + talkRaw})`,
+    )
+  }
+
+  const batchLimitRaw = r.batch_limit ?? r.batchLimit
+  if (typeof batchLimitRaw !== 'number' || !Number.isInteger(batchLimitRaw) || batchLimitRaw < 1) {
+    throw new Section16ValidationError(
+      `Brak lub nieprawidłowy batchLimit w wyniku sweepu: ${String(batchLimitRaw)}`,
+    )
+  }
+
+  const sweptAtRaw = r.swept_at ?? r.sweptAt
+  if (
+    typeof sweptAtRaw !== 'string' ||
+    sweptAtRaw.trim().length === 0 ||
+    Number.isNaN(Date.parse(sweptAtRaw))
+  ) {
+    throw new Section16ValidationError(
+      `Brak lub nieprawidłowy znacznik czasu sweptAt w wyniku sweepu: ${String(sweptAtRaw)}`,
+    )
+  }
+
+  return {
+    urgentIntakesExpired: urgentRaw,
+    availabilityNotificationsExpired: availRaw,
+    talkEntitlementsExpired: talkRaw,
+    totalExpired: totalRaw,
+    batchLimit: batchLimitRaw,
+    sweptAt: sweptAtRaw,
+  }
+}
+
+export async function sweepExpiredSection16RecordsLocal(
+  batchLimit: number,
+  nowDate: Date = new Date(),
+): Promise<Section16SweepResult> {
+  const validatedLimit = validateSweepBatchLimit(batchLimit)
+  const nowMs = nowDate.getTime()
+  const nowIso = nowDate.toISOString()
+
+  return withStoreLock(async () => {
+    const store = await readStoreSnapshot()
+    let remainingBudget = validatedLimit
+    let urgentCount = 0
+    let availCount = 0
+    let talkCount = 0
+
+    // 1. urgent_intake_requests
+    // Eligible:
+    // - pending_proposal when expiresAt <= now
+    // - timeslot_proposed when holdExpiresAt <= now OR expiresAt <= now
+    // Protected: payment_confirmed, expired, cancelled, rejected (never swept)
+    const eligibleUrgent = store.urgentIntakes
+      .filter((r) => {
+        if (r.state === 'pending_proposal') {
+          return Date.parse(r.expiresAt) <= nowMs
+        }
+        if (r.state === 'timeslot_proposed') {
+          const holdMs = r.holdExpiresAt ? Date.parse(r.holdExpiresAt) : Infinity
+          const expMs = Date.parse(r.expiresAt)
+          return holdMs <= nowMs || expMs <= nowMs
+        }
+        return false
+      })
+      .sort((a, b) => {
+        const timeA = Date.parse(a.holdExpiresAt ?? a.expiresAt)
+        const timeB = Date.parse(b.holdExpiresAt ?? b.expiresAt)
+        if (timeA !== timeB) return timeA - timeB
+        return a.id.localeCompare(b.id)
+      })
+      .slice(0, remainingBudget)
+
+    for (const req of eligibleUrgent) {
+      let reason: string
+      let deadline: string
+      if (req.state === 'pending_proposal') {
+        reason = 'intake_proposal_window_expired'
+        deadline = req.expiresAt
+      } else if (req.holdExpiresAt && Date.parse(req.holdExpiresAt) <= nowMs) {
+        reason = 'timeslot_hold_expired'
+        deadline = req.holdExpiresAt
+      } else {
+        reason = 'intake_overall_window_expired'
+        deadline = req.expiresAt
+      }
+
+      const idempotencyKey = `sweep:urgent_intake:${req.id}:v${req.version}:${req.state}:expired`
+      if (store.urgentEvents.some((e) => e.idempotencyKey === idempotencyKey)) {
+        continue
+      }
+
+      const payload = {
+        action: 'sweep_expired',
+        reason,
+        requestId: req.id,
+        fromState: req.state,
+        toState: 'expired',
+        deadline,
+        expiredAt: nowIso,
+      }
+      const payloadHash = computeSection16PayloadHash(payload)
+      const fromState = req.state
+
+      req.state = 'expired'
+      req.version += 1
+      req.updatedAt = nowIso
+
+      store.urgentEvents.push({
+        id: randomUUID(),
+        requestId: req.id,
+        eventType: 'intake_expired',
+        fromState,
+        toState: 'expired',
+        payload,
+        payloadHash,
+        idempotencyKey,
+        createdAt: nowIso,
+      })
+
+      urgentCount += 1
+    }
+
+    remainingBudget -= urgentCount
+
+    // 2. availability_notification_requests
+    // Eligible:
+    // - queued when expiresAt <= now
+    // - offer_sent when offerExpiresAt <= now OR expiresAt <= now
+    // Protected: accepted_paid, consumed, expired, cancelled (never swept)
+    if (remainingBudget > 0) {
+      const eligibleAvail = store.notificationRequests
+        .filter((r) => {
+          if (r.state === 'queued') {
+            return Date.parse(r.expiresAt) <= nowMs
+          }
+          if (r.state === 'offer_sent') {
+            const offerMs = r.offerExpiresAt ? Date.parse(r.offerExpiresAt) : Infinity
+            const expMs = Date.parse(r.expiresAt)
+            return offerMs <= nowMs || expMs <= nowMs
+          }
+          return false
+        })
+        .sort((a, b) => {
+          const timeA = Date.parse(a.offerExpiresAt ?? a.expiresAt)
+          const timeB = Date.parse(b.offerExpiresAt ?? b.expiresAt)
+          if (timeA !== timeB) return timeA - timeB
+          return a.id.localeCompare(b.id)
+        })
+        .slice(0, remainingBudget)
+
+      for (const req of eligibleAvail) {
+        let reason: string
+        let deadline: string
+        if (req.state === 'queued') {
+          reason = 'queue_window_expired'
+          deadline = req.expiresAt
+        } else if (req.offerExpiresAt && Date.parse(req.offerExpiresAt) <= nowMs) {
+          reason = 'offer_window_expired'
+          deadline = req.offerExpiresAt
+        } else {
+          reason = 'notification_overall_window_expired'
+          deadline = req.expiresAt
+        }
+
+        const idempotencyKey = `sweep:availability_notification:${req.id}:v${req.version}:${req.state}:expired`
+        if (store.notificationEvents.some((e) => e.idempotencyKey === idempotencyKey)) {
+          continue
+        }
+
+        const payload = {
+          action: 'sweep_expired',
+          reason,
+          requestId: req.id,
+          fromState: req.state,
+          toState: 'expired',
+          deadline,
+          expiredAt: nowIso,
+        }
+        const payloadHash = computeSection16PayloadHash(payload)
+        const fromState = req.state
+
+        req.state = 'expired'
+        req.version += 1
+        req.updatedAt = nowIso
+
+        store.notificationEvents.push({
+          id: randomUUID(),
+          requestId: req.id,
+          eventType: 'notification_expired',
+          fromState,
+          toState: 'expired',
+          payload,
+          payloadHash,
+          idempotencyKey,
+          createdAt: nowIso,
+        })
+
+        availCount += 1
+      }
+
+      remainingBudget -= availCount
+    }
+
+    // 3. consultation_talk_entitlements
+    // Eligible:
+    // - active when validUntil <= now
+    // Protected: consumed, expired, revoked (never swept)
+    if (remainingBudget > 0) {
+      const eligibleTalk = store.talkEntitlements
+        .filter((e) => e.state === 'active' && Date.parse(e.validUntil) <= nowMs)
+        .sort((a, b) => {
+          const timeA = Date.parse(a.validUntil)
+          const timeB = Date.parse(b.validUntil)
+          if (timeA !== timeB) return timeA - timeB
+          return a.id.localeCompare(b.id)
+        })
+        .slice(0, remainingBudget)
+
+      for (const ent of eligibleTalk) {
+        const reason = 'validity_window_expired'
+        const deadline = ent.validUntil
+        const idempotencyKey = `sweep:talk_entitlement:${ent.id}:v${ent.version}:${ent.state}:expired`
+
+        if (store.talkEvents.some((e) => e.idempotencyKey === idempotencyKey)) {
+          continue
+        }
+
+        const payload = {
+          action: 'sweep_expired',
+          reason,
+          entitlementId: ent.id,
+          fromState: ent.state,
+          toState: 'expired',
+          deadline,
+          expiredAt: nowIso,
+        }
+        const payloadHash = computeSection16PayloadHash(payload)
+        const fromState = ent.state
+
+        ent.state = 'expired'
+        ent.version += 1
+        ent.updatedAt = nowIso
+
+        store.talkEvents.push({
+          id: randomUUID(),
+          entitlementId: ent.id,
+          eventType: 'entitlement_expired',
+          fromState,
+          toState: 'expired',
+          payload,
+          payloadHash,
+          idempotencyKey,
+          createdAt: nowIso,
+        })
+
+        talkCount += 1
+      }
+    }
+
+    const totalExpired = urgentCount + availCount + talkCount
+    if (totalExpired > 0) {
+      await writeStoreSnapshot(store)
+    }
+
+    return {
+      urgentIntakesExpired: urgentCount,
+      availabilityNotificationsExpired: availCount,
+      talkEntitlementsExpired: talkCount,
+      totalExpired,
+      batchLimit: validatedLimit,
+      sweptAt: nowIso,
+    }
+  })
+}
+
+export async function sweepExpiredSection16Records(
+  batchLimit: number,
+  nowDate?: Date,
+): Promise<Section16SweepResult> {
+  const validatedLimit = validateSweepBatchLimit(batchLimit)
+  const mode = getDataMode()
+
+  if (mode === 'supabase') {
+    const supabase = getSupabaseClient()
+    const { data, error } = await supabase.rpc('sweep_expired_section16_records', {
+      p_batch_limit: validatedLimit,
+      p_now: nowDate ? nowDate.toISOString() : null,
+    })
+
+    if (error) {
+      mapRpcError(error)
+    }
+
+    return mapSection16SweepResult(data)
+  }
+
+  return sweepExpiredSection16RecordsLocal(validatedLimit, nowDate ?? new Date())
 }

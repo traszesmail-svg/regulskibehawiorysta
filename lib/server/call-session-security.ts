@@ -90,6 +90,9 @@ function sanitizeString(value: string, key?: string): string {
   if (normalizePolishPhone(value)) {
     return '[REDACTED_PHONE]'
   }
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value.trim())) {
+    return value
+  }
   const phoneInTextRegex = /(?:(?:\+|00)?48[\s.-]*)?(?:\d[\s.-]*){8}\d/g
   return value.replace(phoneInTextRegex, '[REDACTED_PHONE]')
 }

@@ -630,6 +630,21 @@ export const REQUIRED_SCHEMA_MARKERS: SchemaMarker[] = [
     needle: 'create unique index if not exists consultation_talk_entitlements_notification_request_id_idx on public.consultation_talk_entitlements (notification_request_id) where notification_request_id is not null;',
     expectedCount: 1,
   },
+  {
+    label: 'sweep_expired_section16_records',
+    needle: 'create or replace function public.sweep_expired_section16_records(',
+    expectedCount: 1,
+  },
+  {
+    label: 'sweep_expired_section16_records.revoke_anon_auth',
+    needle: 'revoke all on function public.sweep_expired_section16_records(integer, timestamptz) from public, anon, authenticated;',
+    expectedCount: 1,
+  },
+  {
+    label: 'sweep_expired_section16_records.grant_service_role',
+    needle: 'grant execute on function public.sweep_expired_section16_records(integer, timestamptz) to service_role;',
+    expectedCount: 1,
+  },
 ]
 
 export const REQUIRED_FILES = [
@@ -668,6 +683,7 @@ export const REQUIRED_FILES = [
   'supabase/migrations/20261011005_section16_autonomous_intake_and_entitlements.sql',
   'supabase/migrations/20261011006_section16_append_only_acl.sql',
   'supabase/migrations/20261011007_section16_single_entitlement_for_paid_source.sql',
+  'supabase/migrations/20261011008_section16_expiration_sweep.sql',
 ]
 
 function normalizeSchemaText(schemaText: string) {

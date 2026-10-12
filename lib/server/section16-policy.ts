@@ -27,6 +27,11 @@ export const DEFAULT_NOTIFICATION_QUEUE_EXPIRY_DAYS = 7
 export const DEFAULT_TALK_ENTITLEMENT_ALLOCATED_SECONDS = 900 // 15 min
 export const DEFAULT_TALK_ENTITLEMENT_VALIDITY_HOURS = 48
 
+// Stage 5: Sweep batch bounds
+export const MIN_SWEEP_BATCH_LIMIT = 1
+export const MAX_SWEEP_BATCH_LIMIT = 500
+export const DEFAULT_SWEEP_BATCH_LIMIT = 100
+
 export interface WarsawDateDetails {
   date: string // YYYY-MM-DD
   time: string // HH:MM
@@ -187,6 +192,24 @@ export function computePaymentReferenceHash(paymentReference?: string | null): s
     return ''
   }
   return createHash('sha256').update(paymentReference.trim()).digest('hex')
+}
+
+/**
+ * Validates the batchLimit for the expiration sweep: mandatory integer between 1 and 500.
+ * Rejects missing, NaN, floats, negative, zero, or oversized limits (fail-closed).
+ */
+export function validateSweepBatchLimit(limit: unknown): number {
+  if (
+    typeof limit !== 'number' ||
+    !Number.isInteger(limit) ||
+    limit < MIN_SWEEP_BATCH_LIMIT ||
+    limit > MAX_SWEEP_BATCH_LIMIT
+  ) {
+    throw new Section16ValidationError(
+      `Wymagany jest prawidłowy limit batch (batchLimit) jako liczba całkowita z zakresu ${MIN_SWEEP_BATCH_LIMIT}..${MAX_SWEEP_BATCH_LIMIT}`,
+    )
+  }
+  return limit
 }
 
 export {

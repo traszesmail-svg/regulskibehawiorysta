@@ -12,6 +12,7 @@ import {
   UrgentIntakeState,
   AvailabilityNotificationRequest,
   AvailabilityNotificationEvent,
+  AvailabilityNotificationState,
   ConsultationTalkEntitlement,
   ConsultationTalkEntitlementEvent,
   CreateUrgentIntakeInput,
@@ -206,6 +207,7 @@ export function mapRpcError(error: any): never {
     message.includes('INVALID_TARGET_DATE') ||
     message.includes('INVALID_FINGERPRINT') ||
     message.includes('INVALID_EXPIRY') ||
+    message.includes('INVALID_OFFER_EXPIRY') ||
     message.includes('INVALID_CHANNEL') ||
     message.includes('INVALID_VALIDITY_WINDOW') ||
     message.includes('FINGERPRINT_MISMATCH') ||
@@ -506,6 +508,322 @@ export function mapUrgentIntakeEventRecord(raw: unknown): UrgentIntakeEvent {
   if (typeof createdAtRaw !== 'string' || createdAtRaw.trim().length === 0) {
     throw new Section16ValidationError(
       'Brak lub nieprawidłowe pole createdAt w rekordzie UrgentIntakeEvent',
+    )
+  }
+  const createdAt = createdAtRaw
+
+  return {
+    id,
+    requestId,
+    eventType,
+    fromState,
+    toState,
+    payload,
+    payloadHash,
+    idempotencyKey,
+    createdAt,
+  }
+}
+
+/**
+ * Maps Supabase / PostgREST snake_case row to AvailabilityNotificationRequest with strict runtime validation.
+ * Fails closed if any mandatory property is missing or of incorrect type.
+ */
+export function mapAvailabilityNotificationRequestRecord(raw: unknown): AvailabilityNotificationRequest {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+    throw new Section16ValidationError('Rekord AvailabilityNotificationRequest musi być niepustym obiektem')
+  }
+
+  const r = raw as Record<string, unknown>
+
+  const id = r.id
+  if (typeof id !== 'string' || id.trim().length === 0) {
+    throw new Section16ValidationError('Brak lub nieprawidłowe pole id w rekordzie AvailabilityNotificationRequest')
+  }
+
+  const callerPhoneFingerprint = r.caller_phone_fingerprint ?? r.callerPhoneFingerprint
+  if (typeof callerPhoneFingerprint !== 'string' || callerPhoneFingerprint.trim().length === 0) {
+    throw new Section16ValidationError(
+      'Brak lub nieprawidłowe pole callerPhoneFingerprint w rekordzie AvailabilityNotificationRequest',
+    )
+  }
+
+  const callerPhoneMasked = r.caller_phone_masked ?? r.callerPhoneMasked
+  if (typeof callerPhoneMasked !== 'string' || callerPhoneMasked.trim().length === 0) {
+    throw new Section16ValidationError(
+      'Brak lub nieprawidłowe pole callerPhoneMasked w rekordzie AvailabilityNotificationRequest',
+    )
+  }
+
+  const contactCiphertextRaw = r.contact_ciphertext !== undefined ? r.contact_ciphertext : r.contactCiphertext
+  if (
+    contactCiphertextRaw !== null &&
+    contactCiphertextRaw !== undefined &&
+    typeof contactCiphertextRaw !== 'string'
+  ) {
+    throw new Section16ValidationError(
+      'Nieprawidłowy typ pola contactCiphertext w rekordzie AvailabilityNotificationRequest',
+    )
+  }
+  const contactCiphertext = (contactCiphertextRaw as string | null) ?? null
+
+  const channelRaw = r.channel
+  if (channelRaw !== 'sms' && channelRaw !== 'email') {
+    throw new Section16ValidationError(
+      `Brak lub nieprawidłowy kanał (channel) w rekordzie AvailabilityNotificationRequest: ${String(channelRaw)}`,
+    )
+  }
+  const channel = channelRaw as 'sms' | 'email'
+
+  const clientNameRaw = r.client_name !== undefined ? r.client_name : r.clientName
+  if (clientNameRaw !== null && clientNameRaw !== undefined && typeof clientNameRaw !== 'string') {
+    throw new Section16ValidationError(
+      'Nieprawidłowy typ pola clientName w rekordzie AvailabilityNotificationRequest',
+    )
+  }
+  const clientName = (clientNameRaw as string | null) ?? null
+
+  const stateRaw = r.state
+  if (
+    typeof stateRaw !== 'string' ||
+    !['queued', 'offer_sent', 'accepted_paid', 'expired', 'cancelled', 'consumed'].includes(stateRaw)
+  ) {
+    throw new Section16ValidationError(
+      `Brak lub nieprawidłowy stan (state) w rekordzie AvailabilityNotificationRequest: ${String(stateRaw)}`,
+    )
+  }
+  const state = stateRaw as AvailabilityNotificationState
+
+  const queuePositionRaw = r.queue_position !== undefined ? r.queue_position : r.queuePosition
+  let queuePosition: number
+  if (typeof queuePositionRaw === 'number') {
+    if (!Number.isInteger(queuePositionRaw) || queuePositionRaw <= 0 || !Number.isSafeInteger(queuePositionRaw)) {
+      throw new Section16ValidationError(
+        `Brak lub nieprawidłowe pole queuePosition w rekordzie AvailabilityNotificationRequest: ${String(queuePositionRaw)}`,
+      )
+    }
+    queuePosition = queuePositionRaw
+  } else if (typeof queuePositionRaw === 'string' && /^[1-9][0-9]*$/.test(queuePositionRaw.trim())) {
+    const parsed = Number(queuePositionRaw.trim())
+    if (!Number.isSafeInteger(parsed) || parsed <= 0) {
+      throw new Section16ValidationError(
+        `Brak lub nieprawidłowe pole queuePosition w rekordzie AvailabilityNotificationRequest: ${String(queuePositionRaw)}`,
+      )
+    }
+    queuePosition = parsed
+  } else {
+    throw new Section16ValidationError(
+      `Brak lub nieprawidłowe pole queuePosition w rekordzie AvailabilityNotificationRequest: ${String(queuePositionRaw)}`,
+    )
+  }
+
+  const offeredAtRaw = r.offered_at !== undefined ? r.offered_at : r.offeredAt
+  if (offeredAtRaw !== null && offeredAtRaw !== undefined) {
+    if (typeof offeredAtRaw !== 'string' || offeredAtRaw.trim().length === 0 || Number.isNaN(Date.parse(offeredAtRaw))) {
+      throw new Section16ValidationError(
+        'Nieprawidłowy format pola offeredAt w rekordzie AvailabilityNotificationRequest',
+      )
+    }
+  }
+  const offeredAt = (offeredAtRaw as string | null) ?? null
+
+  const offerExpiresAtRaw = r.offer_expires_at !== undefined ? r.offer_expires_at : r.offerExpiresAt
+  if (offerExpiresAtRaw !== null && offerExpiresAtRaw !== undefined) {
+    if (
+      typeof offerExpiresAtRaw !== 'string' ||
+      offerExpiresAtRaw.trim().length === 0 ||
+      Number.isNaN(Date.parse(offerExpiresAtRaw))
+    ) {
+      throw new Section16ValidationError(
+        'Nieprawidłowy format pola offerExpiresAt w rekordzie AvailabilityNotificationRequest',
+      )
+    }
+  }
+  const offerExpiresAt = (offerExpiresAtRaw as string | null) ?? null
+
+  const acceptedAtRaw = r.accepted_at !== undefined ? r.accepted_at : r.acceptedAt
+  if (acceptedAtRaw !== null && acceptedAtRaw !== undefined) {
+    if (
+      typeof acceptedAtRaw !== 'string' ||
+      acceptedAtRaw.trim().length === 0 ||
+      Number.isNaN(Date.parse(acceptedAtRaw))
+    ) {
+      throw new Section16ValidationError(
+        'Nieprawidłowy format pola acceptedAt w rekordzie AvailabilityNotificationRequest',
+      )
+    }
+  }
+  const acceptedAt = (acceptedAtRaw as string | null) ?? null
+
+  const paymentReferenceRaw = r.payment_reference !== undefined ? r.payment_reference : r.paymentReference
+  if (
+    paymentReferenceRaw !== null &&
+    paymentReferenceRaw !== undefined &&
+    typeof paymentReferenceRaw !== 'string'
+  ) {
+    throw new Section16ValidationError(
+      'Nieprawidłowy typ pola paymentReference w rekordzie AvailabilityNotificationRequest',
+    )
+  }
+  const paymentReference = (paymentReferenceRaw as string | null) ?? null
+
+  const bookingIdRaw = r.booking_id !== undefined ? r.booking_id : r.bookingId
+  if (bookingIdRaw !== null && bookingIdRaw !== undefined && typeof bookingIdRaw !== 'string') {
+    throw new Section16ValidationError(
+      'Nieprawidłowy typ pola bookingId w rekordzie AvailabilityNotificationRequest',
+    )
+  }
+  const bookingId = (bookingIdRaw as string | null) ?? null
+
+  const expiresAtRaw = r.expires_at ?? r.expiresAt
+  if (typeof expiresAtRaw !== 'string' || expiresAtRaw.trim().length === 0 || Number.isNaN(Date.parse(expiresAtRaw))) {
+    throw new Section16ValidationError(
+      'Brak lub nieprawidłowe pole expiresAt w rekordzie AvailabilityNotificationRequest',
+    )
+  }
+  const expiresAt = expiresAtRaw
+
+  const versionRaw = r.version
+  if (
+    typeof versionRaw !== 'number' ||
+    !Number.isInteger(versionRaw) ||
+    versionRaw < 1 ||
+    Number.isNaN(versionRaw)
+  ) {
+    throw new Section16ValidationError(
+      `Brak lub nieprawidłowe pole version w rekordzie AvailabilityNotificationRequest: ${String(versionRaw)}`,
+    )
+  }
+  const version = versionRaw
+
+  const idempotencyKeyRaw = r.idempotency_key ?? r.idempotencyKey
+  if (typeof idempotencyKeyRaw !== 'string' || idempotencyKeyRaw.trim().length === 0) {
+    throw new Section16ValidationError(
+      'Brak lub nieprawidłowe pole idempotencyKey w rekordzie AvailabilityNotificationRequest',
+    )
+  }
+  const idempotencyKey = idempotencyKeyRaw.trim()
+
+  const createdAtRaw = r.created_at ?? r.createdAt
+  if (typeof createdAtRaw !== 'string' || createdAtRaw.trim().length === 0 || Number.isNaN(Date.parse(createdAtRaw))) {
+    throw new Section16ValidationError(
+      'Brak lub nieprawidłowe pole createdAt w rekordzie AvailabilityNotificationRequest',
+    )
+  }
+  const createdAt = createdAtRaw
+
+  const updatedAtRaw = r.updated_at ?? r.updatedAt
+  if (typeof updatedAtRaw !== 'string' || updatedAtRaw.trim().length === 0 || Number.isNaN(Date.parse(updatedAtRaw))) {
+    throw new Section16ValidationError(
+      'Brak lub nieprawidłowe pole updatedAt w rekordzie AvailabilityNotificationRequest',
+    )
+  }
+  const updatedAt = updatedAtRaw
+
+  return {
+    id,
+    callerPhoneFingerprint,
+    callerPhoneMasked,
+    contactCiphertext,
+    channel,
+    clientName,
+    state,
+    queuePosition,
+    offeredAt,
+    offerExpiresAt,
+    acceptedAt,
+    paymentReference,
+    bookingId,
+    expiresAt,
+    version,
+    idempotencyKey,
+    createdAt,
+    updatedAt,
+  }
+}
+
+/**
+ * Maps Supabase / PostgREST snake_case row to AvailabilityNotificationEvent with strict runtime validation.
+ * Fails closed if any mandatory property is missing or of incorrect type.
+ */
+export function mapAvailabilityNotificationEventRecord(raw: unknown): AvailabilityNotificationEvent {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+    throw new Section16ValidationError('Rekord AvailabilityNotificationEvent musi być niepustym obiektem')
+  }
+
+  const r = raw as Record<string, unknown>
+
+  const id = r.id
+  if (typeof id !== 'string' || id.trim().length === 0) {
+    throw new Section16ValidationError('Brak lub nieprawidłowe pole id w rekordzie AvailabilityNotificationEvent')
+  }
+
+  const requestIdRaw = r.request_id ?? r.requestId
+  if (typeof requestIdRaw !== 'string' || requestIdRaw.trim().length === 0) {
+    throw new Section16ValidationError(
+      'Brak lub nieprawidłowe pole requestId w rekordzie AvailabilityNotificationEvent',
+    )
+  }
+  const requestId = requestIdRaw
+
+  const eventTypeRaw = r.event_type ?? r.eventType
+  if (typeof eventTypeRaw !== 'string' || eventTypeRaw.trim().length === 0) {
+    throw new Section16ValidationError(
+      'Brak lub nieprawidłowe pole eventType w rekordzie AvailabilityNotificationEvent',
+    )
+  }
+  const eventType = eventTypeRaw
+
+  const fromStateRaw = r.from_state !== undefined ? r.from_state : r.fromState
+  if (
+    fromStateRaw !== null &&
+    fromStateRaw !== undefined &&
+    (typeof fromStateRaw !== 'string' ||
+      !['queued', 'offer_sent', 'accepted_paid', 'expired', 'cancelled', 'consumed'].includes(fromStateRaw))
+  ) {
+    throw new Section16ValidationError(
+      `Nieprawidłowy stan fromState w rekordzie AvailabilityNotificationEvent: ${String(fromStateRaw)}`,
+    )
+  }
+  const fromState = (fromStateRaw as AvailabilityNotificationState | null) ?? null
+
+  const toStateRaw = r.to_state ?? r.toState
+  if (
+    typeof toStateRaw !== 'string' ||
+    !['queued', 'offer_sent', 'accepted_paid', 'expired', 'cancelled', 'consumed'].includes(toStateRaw)
+  ) {
+    throw new Section16ValidationError(
+      `Brak lub nieprawidłowy stan toState w rekordzie AvailabilityNotificationEvent: ${String(toStateRaw)}`,
+    )
+  }
+  const toState = toStateRaw as AvailabilityNotificationState
+
+  const payloadRaw = r.payload
+  if (!payloadRaw || typeof payloadRaw !== 'object' || Array.isArray(payloadRaw)) {
+    throw new Section16ValidationError('Pole payload w rekordzie AvailabilityNotificationEvent musi być obiektem')
+  }
+  const payload = payloadRaw as Record<string, unknown>
+
+  const payloadHashRaw = r.payload_hash ?? r.payloadHash
+  if (typeof payloadHashRaw !== 'string' || payloadHashRaw.trim().length === 0) {
+    throw new Section16ValidationError(
+      'Brak lub nieprawidłowe pole payloadHash w rekordzie AvailabilityNotificationEvent',
+    )
+  }
+  const payloadHash = payloadHashRaw
+
+  const idempotencyKeyRaw = r.idempotency_key ?? r.idempotencyKey
+  if (typeof idempotencyKeyRaw !== 'string' || idempotencyKeyRaw.trim().length === 0) {
+    throw new Section16ValidationError(
+      'Brak lub nieprawidłowe pole idempotencyKey w rekordzie AvailabilityNotificationEvent',
+    )
+  }
+  const idempotencyKey = idempotencyKeyRaw.trim()
+
+  const createdAtRaw = r.created_at ?? r.createdAt
+  if (typeof createdAtRaw !== 'string' || createdAtRaw.trim().length === 0 || Number.isNaN(Date.parse(createdAtRaw))) {
+    throw new Section16ValidationError(
+      'Brak lub nieprawidłowe pole createdAt w rekordzie AvailabilityNotificationEvent',
     )
   }
   const createdAt = createdAtRaw
@@ -965,7 +1283,7 @@ export async function createAvailabilityNotificationRequest(
       p_payload_hash: payloadHash,
     })
     if (error) mapRpcError(error)
-    return data as AvailabilityNotificationRequest
+    return mapAvailabilityNotificationRequestRecord(data)
   }
 
   return withStoreLock(async () => {
@@ -1049,7 +1367,7 @@ export async function offerAvailabilityNotification(
       p_payload_hash: payloadHash,
     })
     if (error) mapRpcError(error)
-    return data as AvailabilityNotificationRequest
+    return mapAvailabilityNotificationRequestRecord(data)
   }
 
   return withStoreLock(async () => {
@@ -1135,7 +1453,7 @@ export async function confirmNotificationOfferPayment(
       p_payload_hash: payloadHash,
     })
     if (error) mapRpcError(error)
-    return data as AvailabilityNotificationRequest
+    return mapAvailabilityNotificationRequestRecord(data)
   }
 
   return withStoreLock(async () => {
@@ -1221,7 +1539,7 @@ export async function transitionAvailabilityNotificationState(
       p_payload_hash: payloadHash,
     })
     if (error) mapRpcError(error)
-    return data as AvailabilityNotificationRequest
+    return mapAvailabilityNotificationRequestRecord(data)
   }
 
   return withStoreLock(async () => {
@@ -1282,11 +1600,56 @@ export async function getAvailabilityNotificationRequest(id: string): Promise<Av
     const supabase = getSupabaseClient()
     const { data, error } = await supabase.from('availability_notification_requests').select('*').eq('id', id).maybeSingle()
     if (error) throw new Section16DomainError(error.message, 'DB_ERROR')
-    return data as AvailabilityNotificationRequest | null
+    return data ? mapAvailabilityNotificationRequestRecord(data) : null
   }
 
   const store = await readStoreSnapshot()
   return store.notificationRequests.find((r) => r.id === id) ?? null
+}
+
+export async function getAvailabilityNotificationEventByIdempotencyKey(
+  idempotencyKey: string,
+): Promise<AvailabilityNotificationEvent | null> {
+  const mode = getDataMode()
+  if (mode === 'supabase') {
+    const supabase = getSupabaseClient()
+    const { data, error } = await supabase
+      .from('availability_notification_events')
+      .select('*')
+      .eq('idempotency_key', idempotencyKey)
+      .maybeSingle()
+    if (error) throw new Section16DomainError(error.message, 'DB_ERROR')
+    return data ? mapAvailabilityNotificationEventRecord(data) : null
+  }
+
+  const store = await readStoreSnapshot()
+  return store.notificationEvents.find((e) => e.idempotencyKey === idempotencyKey) ?? null
+}
+
+export async function getFirstActiveQueuedAvailabilityNotificationRequest(
+  nowDate: Date = new Date(),
+): Promise<AvailabilityNotificationRequest | null> {
+  const mode = getDataMode()
+  if (mode === 'supabase') {
+    const supabase = getSupabaseClient()
+    const { data, error } = await supabase
+      .from('availability_notification_requests')
+      .select('*')
+      .eq('state', 'queued')
+      .gt('expires_at', nowDate.toISOString())
+      .order('queue_position', { ascending: true })
+      .limit(1)
+      .maybeSingle()
+    if (error) throw new Section16DomainError(error.message, 'DB_ERROR')
+    return data ? mapAvailabilityNotificationRequestRecord(data) : null
+  }
+
+  const store = await readStoreSnapshot()
+  const activeQueued = store.notificationRequests
+    .filter((r) => r.state === 'queued' && Date.parse(r.expiresAt) > nowDate.getTime())
+    .sort((a, b) => a.queuePosition - b.queuePosition)
+
+  return activeQueued[0] ?? null
 }
 
 // ---------------------------------------------------------------------------

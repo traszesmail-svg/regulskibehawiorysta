@@ -13,6 +13,8 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.app.role.RoleManager;
+import android.telecom.TelecomManager;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -21,7 +23,8 @@ import org.json.JSONObject;
 public final class MainActivity extends Activity {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private EditText serverInput, tokenInput, manualCallNumber;
-    private TextView status, jobDetailsView;
+    private TextView status, jobDetailsView, dialerRoleStatusView, twoLegStatusView;
+    private Button requestRoleButton;
     private SharedPreferences preferences;
     private TextToSpeech tts;
     private volatile boolean ttsReady = false;
@@ -52,7 +55,7 @@ public final class MainActivity extends Activity {
         layout.setPadding(pad, pad, pad, pad);
         scroll.addView(layout);
 
-        String appVersion = "1.5.6";
+        String appVersion = "1.5.7";
         try {
             appVersion = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
         } catch (Exception ignored) {}
@@ -167,6 +170,25 @@ public final class MainActivity extends Activity {
         endCallBtn.setOnClickListener(v -> endActiveCall());
         layout.addView(endCallBtn);
 
+        // ==================== SEKCJA 2.5: CENTRALA GSM — DWIE LINIE & ROLA DIALERA ====================
+        layout.addView(sectionHeader("CENTRALA GSM — DWIE LINIE & ROLA DIALERA"));
+
+        dialerRoleStatusView = new TextView(this);
+        dialerRoleStatusView.setTextSize(13);
+        dialerRoleStatusView.setBackgroundColor(0xFFEFEFEF);
+        dialerRoleStatusView.setPadding(16, 16, 16, 16);
+        layout.addView(dialerRoleStatusView);
+
+        requestRoleButton = new Button(this);
+        requestRoleButton.setText("Poproś o rolę domyślnego telefonu (dialera)");
+        requestRoleButton.setOnClickListener(v -> requestDialerRole());
+        layout.addView(requestRoleButton);
+
+        twoLegStatusView = new TextView(this);
+        twoLegStatusView.setTextSize(13);
+        twoLegStatusView.setPadding(0, 10, 0, 10);
+        layout.addView(twoLegStatusView);
+
         // ==================== SEKCJA 3: WYSYŁKA SMS & MODEM ====================
         layout.addView(sectionHeader("WYSYŁKA SMS & MODEM SIM"));
 
@@ -253,6 +275,7 @@ public final class MainActivity extends Activity {
             if (speakBriefingButton != null) speakBriefingButton.setEnabled(true);
             if (stopSpeakingButton != null) stopSpeakingButton.setEnabled(true);
         }
+        updateDialerStatus();
     }
 
     @Override protected void onNewIntent(Intent intent) {
@@ -685,7 +708,7 @@ public final class MainActivity extends Activity {
             try {
                 JSONObject payload = new JSONObject();
                 payload.put("network", "Ręczny test");
-                String version = "1.5.6";
+                String version = "1.5.7";
                 try {
                     version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
                 } catch (Exception ignored) {}
@@ -696,6 +719,77 @@ public final class MainActivity extends Activity {
                 runOnUiThread(() -> status.setText("Błąd meldunku testowego: " + e.getMessage()));
             }
         });
+    }
+
+    private boolean isDefaultDialerHeld() {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                RoleManager rm = getSystemService(RoleManager.class);
+                if (rm != null) return rm.isRoleHeld(RoleManager.ROLE_DIALER);
+            }
+            TelecomManager tm = (TelecomManager) getSystemService(TELECOM_SERVICE);
+            return tm != null && getPackageName().equals(tm.getDefaultDialerPackage());
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    private void updateDialerStatus() {
+        if (dialerRoleStatusView == null) return;
+        boolean held = isDefaultDialerHeld();
+        TelecomManager tm = (TelecomManager) getSystemService(TELECOM_SERVICE);
+        String currentDefault = tm != null ? tm.getDefaultDialerPackage() : "brak";
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Rola domyślnego dialera: ").append(held ? "PRZYZNANA" : "NIEPRZYZNANA").append("\n");
+        sb.append("Bieżący dialer systemowy: ").append(currentDefault != null ? currentDefault : "brak").append("\n");
+        sb.append("Usługa InCall: pl.regulski.phoneagent.AgentInCallService\n");
+        sb.append("Status konferencji GSM: UNVERIFIED_UNTIL_PHYSICAL_TWO_LEG_TEST\n");
+        sb.append("Bezpieczeństwo: automatyczne połączenia centrali są WYŁĄCZONE.");
+        dialerRoleStatusView.setText(sb.toString());
+
+        if (requestRoleButton != null) {
+            requestRoleButton.setEnabled(!held);
+            requestRoleButton.setText(held ? "Rola domyślnego dialera jest aktywna" : "Poproś o rolę domyślnego telefonu (dialera)");
+        }
+
+        if (twoLegStatusView != null) {
+            TwoLegConferenceController ctrl = AgentInCallService.getActiveController();
+            String stateName = ctrl != null ? ctrl.getState().name() : "IDLE";
+            twoLegStatusView.setText("Stan automatu centrali: " + stateName + "\n(Gotowość do odrębnego fizycznego testu dwóch linii)");
+        }
+    }
+
+    private void requestDialerRole() {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                RoleManager rm = getSystemService(RoleManager.class);
+                if (rm != null && rm.isRoleAvailable(RoleManager.ROLE_DIALER)) {
+                    Intent roleIntent = rm.createRequestRoleIntent(RoleManager.ROLE_DIALER);
+                    startActivityForResult(roleIntent, 101);
+                    return;
+                }
+            }
+            Intent changeIntent = new Intent(TelecomManager.ACTION_CHANGE_DEFAULT_DIALER)
+                .putExtra(TelecomManager.EXTRA_CHANGE_DEFAULT_DIALER_PACKAGE_NAME, getPackageName());
+            startActivityForResult(changeIntent, 101);
+        } catch (Exception e) {
+            status.setText("Nie udało się otworzyć okna żądania roli: " + e.getMessage());
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateDialerStatus();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 101) {
+            updateDialerStatus();
+        }
     }
 
     @Override public void onDestroy() {

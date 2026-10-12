@@ -19,6 +19,8 @@ import {
 import {
   processOwnerAvailabilityReady,
   createAvailabilityOfferDescriptor,
+  validateOwnerActionId,
+  CANONICAL_UUID_V4_REGEX,
   Section16AvailabilityFlowError,
   Section16QueueEmptyError,
   DEFAULT_AVAILABILITY_FLOW_BOUNDARIES,
@@ -93,7 +95,7 @@ test('1. Kolejność FIFO i monotoniczne pozycje bez ponownego użycia', async (
   // 1st offer must pick req1 (queuePosition 1)
   const result1 = await processOwnerAvailabilityReady({
     ownerConfirmedReady: true,
-    ownerActionId: 'action-fifo-001',
+    ownerActionId: 'a1b2c3d4-e5f6-4a1b-8c2d-e3f4a5b6c701',
     idempotencyKey: 'idemp-fifo-001',
     now,
   })
@@ -105,7 +107,7 @@ test('1. Kolejność FIFO i monotoniczne pozycje bez ponownego użycia', async (
   // 2nd offer must pick req2 (queuePosition 2)
   const result2 = await processOwnerAvailabilityReady({
     ownerConfirmedReady: true,
-    ownerActionId: 'action-fifo-002',
+    ownerActionId: 'a1b2c3d4-e5f6-4a1b-8c2d-e3f4a5b6c702',
     idempotencyKey: 'idemp-fifo-002',
     now,
   })
@@ -117,7 +119,7 @@ test('1. Kolejność FIFO i monotoniczne pozycje bez ponownego użycia', async (
   // 3rd offer must pick req3 (queuePosition 3)
   const result3 = await processOwnerAvailabilityReady({
     ownerConfirmedReady: true,
-    ownerActionId: 'action-fifo-003',
+    ownerActionId: 'a1b2c3d4-e5f6-4a1b-8c2d-e3f4a5b6c703',
     idempotencyKey: 'idemp-fifo-003',
     now,
   })
@@ -131,7 +133,7 @@ test('1. Kolejność FIFO i monotoniczne pozycje bez ponownego użycia', async (
     () =>
       processOwnerAvailabilityReady({
         ownerConfirmedReady: true,
-        ownerActionId: 'action-fifo-004',
+        ownerActionId: 'a1b2c3d4-e5f6-4a1b-8c2d-e3f4a5b6c704',
         idempotencyKey: 'idemp-fifo-004',
         now,
       }),
@@ -268,7 +270,7 @@ test('2. Pomijanie wygasłych oraz wszystkich stanów innych niż queued', async
   // Process readiness: must skip all above and select reqActive
   const result = await processOwnerAvailabilityReady({
     ownerConfirmedReady: true,
-    ownerActionId: 'action-skip-001',
+    ownerActionId: 'b1b2c3d4-e5f6-4a1b-8c2d-e3f4a5b6c701',
     idempotencyKey: 'idemp-skip-001',
     now,
   })
@@ -306,7 +308,7 @@ test('3. Brak/false ownerConfirmedReady, brak/błędny ownerActionId i idempoten
       () =>
         processOwnerAvailabilityReady({
           ownerConfirmedReady: badReady,
-          ownerActionId: 'act-valid-001',
+          ownerActionId: 'c1b2c3d4-e5f6-4a1b-8c2d-e3f4a5b6c701',
           idempotencyKey: 'idemp-valid-001',
           now,
         }),
@@ -318,8 +320,67 @@ test('3. Brak/false ownerConfirmedReady, brak/błędny ownerActionId i idempoten
     )
   }
 
-  // 3b. ownerActionId missing, empty, whitespace, non-string, or >128 chars
-  for (const badActionId of ['', '   ', undefined as any, null as any, 123 as any, 'a'.repeat(129)]) {
+  // 3b. ownerActionId: strictly canonical UUID v4 (rejects short/predictable strings, zero UUID, bad version/variant, spaces, prefixes/suffixes)
+  const invalidActionIds: any[] = [
+    // Previously accepted non-UUID / short / predictable strings
+    'act-001',
+    'act-valid-001',
+    'action-fifo-001',
+    'owner-action-xyz',
+    '12345',
+    'quick-action',
+
+    // Missing, empty, whitespace, non-string
+    undefined,
+    null,
+    '',
+    '   ',
+    123,
+    true,
+    false,
+    {},
+    [],
+
+    // Zero / nil UUID (RFC 4122 nil UUID)
+    '00000000-0000-0000-0000-000000000000',
+
+    // Wrong version (e.g. v1, v2, v3, v5, v7)
+    '30000000-0000-1000-8000-000000000001', // v1
+    '30000000-0000-2000-8000-000000000001', // v2
+    '30000000-0000-3000-8000-000000000001', // v3
+    '30000000-0000-5000-8000-000000000001', // v5
+    '30000000-0000-7000-8000-000000000001', // v7
+
+    // Wrong variant (RFC 4122 variant bits 10xx -> [89ab])
+    '30000000-0000-4000-0000-000000000001', // variant 0
+    '30000000-0000-4000-7000-000000000001', // variant 7
+    '30000000-0000-4000-c000-000000000001', // variant c (Microsoft GUID)
+    '30000000-0000-4000-f000-000000000001', // variant f
+
+    // Spaces (leading, trailing, internal)
+    ' 30000000-0000-4000-8000-000000000001',
+    '30000000-0000-4000-8000-000000000001 ',
+    '30000000-0000 4000-8000-000000000001',
+
+    // Prefixes and suffixes
+    'urn:uuid:30000000-0000-4000-8000-000000000001',
+    'act-30000000-0000-4000-8000-000000000001',
+    '30000000-0000-4000-8000-000000000001-action',
+
+    // Uppercase characters (non-canonical)
+    '30000000-0000-4000-8000-00000000000A',
+    '30000000-0000-4000-8000-00000000000F',
+
+    // Non-hex characters
+    '30000000-0000-4000-8000-00000000000g',
+
+    // Length invalid
+    '30000000-0000-4000-8000-00000000000', // 35 chars
+    '30000000-0000-4000-8000-0000000000001', // 37 chars
+    'a'.repeat(129),
+  ]
+
+  for (const badActionId of invalidActionIds) {
     await assert.rejects(
       () =>
         processOwnerAvailabilityReady({
@@ -329,8 +390,19 @@ test('3. Brak/false ownerConfirmedReady, brak/błędny ownerActionId i idempoten
           now,
         }),
       (err: any) => err instanceof Section16ValidationError,
+      `Oczekiwano Section16ValidationError dla nieprawidłowego ownerActionId: ${String(badActionId)}`,
+    )
+    assert.throws(
+      () => validateOwnerActionId(badActionId),
+      (err: any) => err instanceof Section16ValidationError,
     )
   }
+
+  // Direct validator unit check on valid deterministic UUID v4
+  assert.equal(
+    validateOwnerActionId('c1b2c3d4-e5f6-4a1b-8c2d-e3f4a5b6c701'),
+    'c1b2c3d4-e5f6-4a1b-8c2d-e3f4a5b6c701',
+  )
 
   // 3c. idempotencyKey missing, empty, whitespace, non-string, or >128 chars
   for (const badKey of ['', '   ', undefined as any, null as any, 123 as any, 'k'.repeat(129)]) {
@@ -338,7 +410,7 @@ test('3. Brak/false ownerConfirmedReady, brak/błędny ownerActionId i idempoten
       () =>
         processOwnerAvailabilityReady({
           ownerConfirmedReady: true,
-          ownerActionId: 'act-valid-003',
+          ownerActionId: 'c1b2c3d4-e5f6-4a1b-8c2d-e3f4a5b6c702',
           idempotencyKey: badKey,
           now,
         }),
@@ -364,7 +436,7 @@ test('4. TTL 5/60, domyślne 15 oraz wartości poza zakresem', async () => {
   )
   const resDefault = await processOwnerAvailabilityReady({
     ownerConfirmedReady: true,
-    ownerActionId: 'act-ttl-001',
+    ownerActionId: 'd1b2c3d4-e5f6-4a1b-8c2d-e3f4a5b6c701',
     idempotencyKey: 'idemp-ttl-001',
     now,
   })
@@ -381,7 +453,7 @@ test('4. TTL 5/60, domyślne 15 oraz wartości poza zakresem', async () => {
   )
   const resMin = await processOwnerAvailabilityReady({
     ownerConfirmedReady: true,
-    ownerActionId: 'act-ttl-002',
+    ownerActionId: 'd1b2c3d4-e5f6-4a1b-8c2d-e3f4a5b6c702',
     idempotencyKey: 'idemp-ttl-002',
     offerTtlMinutes: 5,
     now,
@@ -399,7 +471,7 @@ test('4. TTL 5/60, domyślne 15 oraz wartości poza zakresem', async () => {
   )
   const resMax = await processOwnerAvailabilityReady({
     ownerConfirmedReady: true,
-    ownerActionId: 'act-ttl-003',
+    ownerActionId: 'd1b2c3d4-e5f6-4a1b-8c2d-e3f4a5b6c703',
     idempotencyKey: 'idemp-ttl-003',
     offerTtlMinutes: 60,
     now,
@@ -421,7 +493,7 @@ test('4. TTL 5/60, domyślne 15 oraz wartości poza zakresem', async () => {
       () =>
         processOwnerAvailabilityReady({
           ownerConfirmedReady: true,
-          ownerActionId: 'act-ttl-bad',
+          ownerActionId: 'd1b2c3d4-e5f6-4a1b-8c2d-e3f4a5b6c704',
           idempotencyKey: `idemp-ttl-bad-${badTtl}`,
           offerTtlMinutes: badTtl,
           now,
@@ -453,7 +525,7 @@ test('5. Obowiązkowy CAS, konflikt wersji i równoległe próby', async () => {
     () =>
       processOwnerAvailabilityReady({
         ownerConfirmedReady: true,
-        ownerActionId: 'act-cas-001',
+        ownerActionId: 'e1b2c3d4-e5f6-4a1b-8c2d-e3f4a5b6c701',
         idempotencyKey: 'idemp-cas-bad-version',
         expectedVersion: 2,
         now,
@@ -467,7 +539,7 @@ test('5. Obowiązkowy CAS, konflikt wersji i równoległe próby', async () => {
       () =>
         processOwnerAvailabilityReady({
           ownerConfirmedReady: true,
-          ownerActionId: 'act-cas-001',
+          ownerActionId: 'e1b2c3d4-e5f6-4a1b-8c2d-e3f4a5b6c701',
           idempotencyKey: `idemp-cas-invalid-${badVer}`,
           expectedVersion: badVer,
           now,
@@ -480,13 +552,13 @@ test('5. Obowiązkowy CAS, konflikt wersji i równoległe próby', async () => {
   const snapBefore = await readSection16StoreSnapshot()
   const p1 = processOwnerAvailabilityReady({
     ownerConfirmedReady: true,
-    ownerActionId: 'act-cas-par-1',
+    ownerActionId: 'e1b2c3d4-e5f6-4a1b-8c2d-e3f4a5b6c702',
     idempotencyKey: 'idemp-cas-par-1',
     now,
   })
   const p2 = processOwnerAvailabilityReady({
     ownerConfirmedReady: true,
-    ownerActionId: 'act-cas-par-2',
+    ownerActionId: 'e1b2c3d4-e5f6-4a1b-8c2d-e3f4a5b6c703',
     idempotencyKey: 'idemp-cas-par-2',
     now,
   })
@@ -523,7 +595,7 @@ test('6. Exact retry po wygaśnięciu oferty — ten sam rekord/TTL, zero nowego
   )
 
   const idempotencyKey = 'idemp-retry-exact-001'
-  const ownerActionId = 'act-retry-001'
+  const ownerActionId = 'f1b2c3d4-e5f6-4a1b-8c2d-e3f4a5b6c701'
 
   // First fresh execution
   const first = await processOwnerAvailabilityReady({
@@ -594,7 +666,7 @@ test('7. Konflikty retry dla zmiany ownerActionId/request/queuePosition/version/
   )
 
   const idempotencyKey = 'idemp-conflict-base-001'
-  const ownerActionId = 'act-conflict-001'
+  const ownerActionId = '71b2c3d4-e5f6-4a1b-8c2d-e3f4a5b6c701'
 
   await processOwnerAvailabilityReady({
     ownerConfirmedReady: true,
@@ -613,7 +685,7 @@ test('7. Konflikty retry dla zmiany ownerActionId/request/queuePosition/version/
     () =>
       processOwnerAvailabilityReady({
         ownerConfirmedReady: true,
-        ownerActionId: 'act-conflict-DIFFERENT',
+        ownerActionId: '71b2c3d4-e5f6-4a1b-8c2d-e3f4a5b6c702',
         idempotencyKey,
         offerTtlMinutes: 15,
         payload: { tag: 'initial' },
@@ -712,7 +784,7 @@ test('8. QUEUE_EMPTY bez mutacji', async () => {
     () =>
       processOwnerAvailabilityReady({
         ownerConfirmedReady: true,
-        ownerActionId: 'act-empty-001',
+        ownerActionId: '81b2c3d4-e5f6-4a1b-8c2d-e3f4a5b6c701',
         idempotencyKey: 'idemp-empty-001',
         now,
       }),
@@ -735,6 +807,9 @@ test('9. Descriptor bez PII i bez prawdziwego linku/tokena', async () => {
   const rawPhone = '+48600777888'
   const clientName = 'Jan Kowalski Tajny'
   const contactCiphertext = 'enc:valid_ciphertext_blob_abcdefghijk'
+  const intakeIdempotencyKey = 'pii-create-001'
+  const flowIdempotencyKey = 'idemp-pii-001'
+  const ownerActionId = '91b2c3d4-e5f6-4a1b-8c2d-e3f4a5b6c701'
 
   const req = await createAvailabilityNotificationRequest(
     {
@@ -742,42 +817,105 @@ test('9. Descriptor bez PII i bez prawdziwego linku/tokena', async () => {
       clientName,
       contactCiphertext,
       channel: 'sms',
-      idempotencyKey: 'pii-create-001',
+      idempotencyKey: intakeIdempotencyKey,
     },
     now,
   )
 
   const result = await processOwnerAvailabilityReady({
     ownerConfirmedReady: true,
-    ownerActionId: 'act-pii-001',
-    idempotencyKey: 'idemp-pii-001',
+    ownerActionId,
+    idempotencyKey: flowIdempotencyKey,
     now,
   })
 
   const desc = result.descriptor
 
-  // Negative PII assertions: properties must NOT exist on descriptor
+  // Negative property assertions: pseudo-data and sensitive fields must NOT exist on descriptor
   assert.equal('rawPhone' in desc, false, 'Descriptor nie może zawierać surowego numeru telefonu')
+  assert.equal('callerPhoneMasked' in desc, false, 'Descriptor nie może zawierać maskowanego telefonu')
+  assert.equal('callerPhoneFingerprint' in desc, false, 'Descriptor nie może zawierać pełnego fingerprintu')
+  assert.equal('fingerprintPrefix' in desc, false, 'Descriptor nie może zawierać częściowego fingerprintu')
   assert.equal('clientName' in desc, false, 'Descriptor nie może zawierać imienia klienta')
   assert.equal('contactCiphertext' in desc, false, 'Descriptor nie może zawierać contactCiphertext')
   assert.equal('clientNotes' in desc, false, 'Descriptor nie może zawierać notatek klienta')
+  assert.equal('idempotencyKey' in desc, false, 'Descriptor nie może zawierać klucza idempotencji')
+  assert.equal('phone' in desc, false, 'Descriptor nie może zawierać właściwości phone')
+  assert.equal('email' in desc, false, 'Descriptor nie może zawierać właściwości email')
 
-  // Full fingerprint check: only short 8-char prefix allowed
-  assert.equal('callerPhoneFingerprint' in desc, false, 'Descriptor nie może zawierać pełnego fingerprintu')
-  assert.equal(desc.fingerprintPrefix.length, 8)
-  assert.ok(req.callerPhoneFingerprint.startsWith(desc.fingerprintPrefix))
-  assert.notEqual(desc.fingerprintPrefix, req.callerPhoneFingerprint)
+  // Strict whitelist of descriptor keys
+  const allowedKeys = new Set([
+    'requestId',
+    'queuePosition',
+    'state',
+    'channel',
+    'ownerActionId',
+    'offeredAt',
+    'offerExpiresAt',
+    'offerTtlMinutes',
+    'paymentReference',
+    'paymentUrl',
+    'paymentToken',
+  ])
+  for (const key of Object.keys(desc)) {
+    assert.ok(allowedKeys.has(key), `Nieoczekiwane pole w descriptorze: ${key}`)
+  }
+
+  // Exact correlation values
+  assert.equal(desc.requestId, req.id)
+  assert.equal(desc.queuePosition, req.queuePosition)
+  assert.equal(desc.state, 'offer_sent')
+  assert.equal(desc.channel, 'sms')
+  assert.equal(desc.ownerActionId, ownerActionId)
+  assert.equal(desc.offeredAt, result.request.offeredAt)
+  assert.equal(desc.offerExpiresAt, result.request.offerExpiresAt)
+  assert.equal(desc.offerTtlMinutes, 15)
 
   // Payment safety assertions: explicitly null
   assert.equal(desc.paymentReference, null)
   assert.equal(desc.paymentUrl, null)
   assert.equal(desc.paymentToken, null)
 
-  // Stringified descriptor safety: no leak of phone digits or client name
+  // Stringified descriptor serialization checks
   const jsonStr = JSON.stringify(desc)
-  assert.equal(jsonStr.includes('600777888'), false)
-  assert.equal(jsonStr.includes('Jan Kowalski'), false)
-  assert.equal(jsonStr.includes('enc:valid_ciphertext'), false)
+
+  // 1. Raw phone absence
+  assert.equal(jsonStr.includes('600777888'), false, 'Zserializowany descriptor nie może zawierać cyfr telefonu')
+  assert.equal(jsonStr.includes('+48600777888'), false, 'Zserializowany descriptor nie może zawierać surowego telefonu')
+  assert.equal(jsonStr.includes('48600777888'), false, 'Zserializowany descriptor nie może zawierać telefonu z kodem kraju')
+
+  // 2. Masked phone absence
+  assert.ok(req.callerPhoneMasked && req.callerPhoneMasked.length > 0)
+  assert.equal(jsonStr.includes(req.callerPhoneMasked), false, 'Zserializowany descriptor nie może zawierać maskowanego telefonu')
+  assert.equal(jsonStr.includes('***'), false, 'Zserializowany descriptor nie może zawierać wzorca maskowania')
+
+  // 3. Full and partial fingerprint absence
+  assert.ok(req.callerPhoneFingerprint && req.callerPhoneFingerprint.length > 0)
+  assert.equal(jsonStr.includes(req.callerPhoneFingerprint), false, 'Zserializowany descriptor nie może zawierać pełnego fingerprintu')
+  assert.equal(jsonStr.includes(req.callerPhoneFingerprint.slice(0, 8)), false, 'Zserializowany descriptor nie może zawierać 8-znakowego prefiksu fingerprintu')
+  assert.equal(jsonStr.includes(req.callerPhoneFingerprint.slice(0, 6)), false, 'Zserializowany descriptor nie może zawierać 6-znakowego fragmentu fingerprintu')
+  assert.equal(jsonStr.includes(req.callerPhoneFingerprint.slice(0, 4)), false, 'Zserializowany descriptor nie może zawierać 4-znakowego fragmentu fingerprintu')
+
+  // 4. Client name absence
+  assert.equal(jsonStr.includes('Jan Kowalski'), false, 'Zserializowany descriptor nie może zawierać imienia klienta')
+  assert.equal(jsonStr.includes('Tajny'), false, 'Zserializowany descriptor nie może zawierać fragmentu imienia klienta')
+
+  // 5. Ciphertext absence
+  assert.equal(jsonStr.includes('enc:valid_ciphertext'), false, 'Zserializowany descriptor nie może zawierać contactCiphertext')
+  assert.equal(jsonStr.includes('enc:'), false, 'Zserializowany descriptor nie może zawierać prefiksu enc:')
+
+  // 6. Idempotency keys absence
+  assert.equal(jsonStr.includes(intakeIdempotencyKey), false, 'Zserializowany descriptor nie może zawierać klucza idempotencji zgłoszenia')
+  assert.equal(jsonStr.includes(flowIdempotencyKey), false, 'Zserializowany descriptor nie może zawierać klucza idempotencji przepływu')
+
+  // 7. Absence of prohibited field names in serialized JSON
+  assert.equal(jsonStr.includes('callerPhoneMasked'), false)
+  assert.equal(jsonStr.includes('fingerprintPrefix'), false)
+  assert.equal(jsonStr.includes('callerPhoneFingerprint'), false)
+  assert.equal(jsonStr.includes('idempotencyKey'), false)
+  assert.equal(jsonStr.includes('contactCiphertext'), false)
+  assert.equal(jsonStr.includes('clientName'), false)
+  assert.equal(jsonStr.includes('rawPhone'), false)
 })
 
 // ---------------------------------------------------------------------------
@@ -808,7 +946,7 @@ test('10. Zero wywołań adapterów', async () => {
   await processOwnerAvailabilityReady(
     {
       ownerConfirmedReady: true,
-      ownerActionId: 'act-adapter-001',
+      ownerActionId: 'a0b2c3d4-e5f6-4a1b-8c2d-e3f4a5b6c701',
       idempotencyKey: 'idemp-adapter-001',
       now,
     },
@@ -821,7 +959,7 @@ test('10. Zero wywołań adapterów', async () => {
   await processOwnerAvailabilityReady(
     {
       ownerConfirmedReady: true,
-      ownerActionId: 'act-adapter-001',
+      ownerActionId: 'a0b2c3d4-e5f6-4a1b-8c2d-e3f4a5b6c701',
       idempotencyKey: 'idemp-adapter-001',
       now,
     },
@@ -925,7 +1063,7 @@ test('11. Kompletne runtime mapery B na realistycznych rekordach Supabase i nega
     event_type: 'offer_sent',
     from_state: 'queued',
     to_state: 'offer_sent',
-    payload: { actionType: 'owner_availability_offer', ownerActionId: 'act-001' },
+    payload: { actionType: 'owner_availability_offer', ownerActionId: 'b0b2c3d4-e5f6-4a1b-8c2d-e3f4a5b6c701' },
     payload_hash: 'mock_payload_hash_hex_string',
     idempotency_key: 'idemp-mock-supa-ev-001',
     created_at: '2026-10-12T10:00:00.000Z',
@@ -937,7 +1075,10 @@ test('11. Kompletne runtime mapery B na realistycznych rekordach Supabase i nega
   assert.equal(mappedEvent.eventType, 'offer_sent')
   assert.equal(mappedEvent.fromState, 'queued')
   assert.equal(mappedEvent.toState, 'offer_sent')
-  assert.deepEqual(mappedEvent.payload, { actionType: 'owner_availability_offer', ownerActionId: 'act-001' })
+  assert.deepEqual(mappedEvent.payload, {
+    actionType: 'owner_availability_offer',
+    ownerActionId: 'b0b2c3d4-e5f6-4a1b-8c2d-e3f4a5b6c701',
+  })
   assert.equal(mappedEvent.payloadHash, 'mock_payload_hash_hex_string')
   assert.equal(mappedEvent.idempotencyKey, 'idemp-mock-supa-ev-001')
   assert.equal(mappedEvent.createdAt, '2026-10-12T10:00:00.000Z')

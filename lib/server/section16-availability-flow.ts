@@ -46,18 +46,30 @@ export class Section16QueueEmptyError extends Section16DomainError {
   }
 }
 
+export const CANONICAL_UUID_V4_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
+
+export function validateOwnerActionId(ownerActionId: unknown): string {
+  if (
+    typeof ownerActionId !== 'string' ||
+    !CANONICAL_UUID_V4_REGEX.test(ownerActionId)
+  ) {
+    throw new Section16ValidationError(
+      'Wymagany jest niezgadywalny, kanoniczny identyfikator akcji właściciela w formacie UUID v4 (ownerActionId)',
+    )
+  }
+  return ownerActionId
+}
+
 export interface AvailabilityOfferDescriptor {
   requestId: string
   queuePosition: number
   state: AvailabilityNotificationState
   channel: 'sms' | 'email'
-  callerPhoneMasked: string
-  fingerprintPrefix: string
   ownerActionId: string
   offeredAt: string
   offerExpiresAt: string
   offerTtlMinutes: number
-  idempotencyKey: string
   paymentReference: null
   paymentUrl: null
   paymentToken: null
@@ -130,6 +142,7 @@ export function createAvailabilityOfferDescriptor(
   ownerActionId: string,
   offerTtlMinutes: number,
 ): AvailabilityOfferDescriptor {
+  const validOwnerActionId = validateOwnerActionId(ownerActionId)
   if (!request.offeredAt || !request.offerExpiresAt) {
     throw new Section16ValidationError('Brak wymaganych znaczników czasu oferty w rekordzie')
   }
@@ -139,13 +152,10 @@ export function createAvailabilityOfferDescriptor(
     queuePosition: request.queuePosition,
     state: request.state,
     channel: request.channel,
-    callerPhoneMasked: request.callerPhoneMasked,
-    fingerprintPrefix: request.callerPhoneFingerprint ? request.callerPhoneFingerprint.slice(0, 8) : '',
-    ownerActionId,
+    ownerActionId: validOwnerActionId,
     offeredAt: request.offeredAt,
     offerExpiresAt: request.offerExpiresAt,
     offerTtlMinutes,
-    idempotencyKey: request.idempotencyKey,
     paymentReference: null,
     paymentUrl: null,
     paymentToken: null,
@@ -169,22 +179,8 @@ export async function processOwnerAvailabilityReady(
     )
   }
 
-  // 2. ownerActionId: mandatory non-empty unguessable action identifier
-  if (
-    !input.ownerActionId ||
-    typeof input.ownerActionId !== 'string' ||
-    input.ownerActionId.trim().length === 0
-  ) {
-    throw new Section16ValidationError(
-      'Wymagany jest niepusty identyfikator ręcznej akcji właściciela (ownerActionId)',
-    )
-  }
-  const ownerActionId = input.ownerActionId.trim()
-  if (ownerActionId.length > 128) {
-    throw new Section16ValidationError(
-      'ownerActionId przekracza dopuszczalną długość (maksymalnie 128 znaków)',
-    )
-  }
+  // 2. ownerActionId: mandatory unguessable canonical UUID v4 action identifier (min 122 bits randomness)
+  const ownerActionId = validateOwnerActionId(input.ownerActionId)
 
   // 3. idempotencyKey: mandatory valid key (1-128 chars)
   const idempotencyKey = validateIdempotencyKey(input.idempotencyKey)

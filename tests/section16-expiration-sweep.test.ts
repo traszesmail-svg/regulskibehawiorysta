@@ -1871,4 +1871,630 @@ test('17. Korekta parytetu: konsumpcja talk entitlementu po validUntil (reject-w
   assert.equal(snapAfterExact.talkEvents.length, snapBeforeExact.talkEvents.length)
 })
 
+// ============================================================================
+// 18. GRANICA NOW == DEADLINE DLA 5 OPERACJI SECTION 16
+// ============================================================================
+test('18. Granica now == deadline: propozycja terminu pilnego odrzucona bez mutacji, a sweep wygasza rekord', async () => {
+  const deadline = new Date('2026-10-12T10:00:00.000Z')
+  const now = new Date(deadline.getTime())
+  const id = await createUrgentIntakeWithDeadlines({
+    state: 'pending_proposal',
+    expiresAt: deadline.toISOString(),
+    version: 1,
+  })
+
+  const snapBefore = await readSection16StoreSnapshot()
+  const recBefore = snapBefore.urgentIntakes.find((r) => r.id === id)!
+  const eventCountBefore = snapBefore.urgentEvents.length
+
+  await assert.rejects(
+    () =>
+      proposeUrgentIntakeTimeslot(
+        {
+          requestId: id,
+          proposedDate: '2026-10-12',
+          proposedTime: '11:00',
+          idempotencyKey: 'eq-prop-key-1',
+        },
+        now,
+      ),
+    (err: any) =>
+      err instanceof Section16HoldExpiredError &&
+      err.message.includes('Zgłoszenie pilne wygasło przed propozycją terminu'),
+  )
+
+  const snapAfterReject = await readSection16StoreSnapshot()
+  const recAfterReject = snapAfterReject.urgentIntakes.find((r) => r.id === id)!
+  assert.deepEqual(recAfterReject, recBefore, 'Rekord po odrzuceniu przy now == deadline musi pozostać bez zmian')
+  assert.equal(snapAfterReject.urgentEvents.length, eventCountBefore, 'Brak nowych zdarzeń po odrzuceniu')
+
+  const sweepRes = await runSection16ExpirationSweep({
+    batchLimit: 50,
+    now,
+  })
+  assert.equal(sweepRes.urgentIntakesExpired, 1)
+  assert.equal(sweepRes.totalExpired, 1)
+
+  const snapAfterSweep = await readSection16StoreSnapshot()
+  const recSwept = snapAfterSweep.urgentIntakes.find((r) => r.id === id)!
+  assert.equal(recSwept.state, 'expired')
+  assert.equal(recSwept.version, recBefore.version + 1)
+  assert.equal(recSwept.updatedAt, now.toISOString())
+  assert.equal(snapAfterSweep.urgentEvents.length, eventCountBefore + 1)
+})
+
+test('19. Granica now == deadline: potwierdzenie płatności pilnej odrzucone bez mutacji, a sweep wygasza rekord', async () => {
+  const deadline = new Date('2026-10-12T10:15:00.000Z')
+  const now = new Date(deadline.getTime())
+  const id = await createUrgentIntakeWithDeadlines({
+    state: 'timeslot_proposed',
+    expiresAt: '2026-10-12T12:00:00.000Z',
+    holdExpiresAt: deadline.toISOString(),
+    version: 2,
+  })
+
+  const snapBefore = await readSection16StoreSnapshot()
+  const recBefore = snapBefore.urgentIntakes.find((r) => r.id === id)!
+  const eventCountBefore = snapBefore.urgentEvents.length
+
+  await assert.rejects(
+    () =>
+      confirmUrgentIntakePayment(
+        {
+          requestId: id,
+          paymentReference: 'rev:pay_eq_urg',
+          idempotencyKey: 'eq-pay-key-1',
+        },
+        now,
+      ),
+    (err: any) =>
+      err instanceof Section16HoldExpiredError &&
+      err.message.includes('Proponowany termin i blokada wygasły przed opłaceniem'),
+  )
+
+  const snapAfterReject = await readSection16StoreSnapshot()
+  const recAfterReject = snapAfterReject.urgentIntakes.find((r) => r.id === id)!
+  assert.deepEqual(recAfterReject, recBefore, 'Rekord po odrzuceniu przy now == deadline musi pozostać bez zmian')
+  assert.equal(snapAfterReject.urgentEvents.length, eventCountBefore)
+
+  const sweepRes = await runSection16ExpirationSweep({
+    batchLimit: 50,
+    now,
+  })
+  assert.equal(sweepRes.urgentIntakesExpired, 1)
+  assert.equal(sweepRes.totalExpired, 1)
+
+  const snapAfterSweep = await readSection16StoreSnapshot()
+  const recSwept = snapAfterSweep.urgentIntakes.find((r) => r.id === id)!
+  assert.equal(recSwept.state, 'expired')
+  assert.equal(recSwept.version, recBefore.version + 1)
+  assert.equal(recSwept.updatedAt, now.toISOString())
+  assert.equal(snapAfterSweep.urgentEvents.length, eventCountBefore + 1)
+})
+
+test('20. Granica now == deadline: wysłanie oferty availability odrzucone bez mutacji, a sweep wygasza rekord', async () => {
+  const deadline = new Date('2026-10-12T11:00:00.000Z')
+  const now = new Date(deadline.getTime())
+  const id = await createAvailabilityRequestWithDeadlines({
+    state: 'queued',
+    expiresAt: deadline.toISOString(),
+    version: 1,
+  })
+
+  const snapBefore = await readSection16StoreSnapshot()
+  const recBefore = snapBefore.notificationRequests.find((r) => r.id === id)!
+  const eventCountBefore = snapBefore.notificationEvents.length
+
+  await assert.rejects(
+    () =>
+      offerAvailabilityNotification(
+        {
+          requestId: id,
+          offerExpiresAt: '2026-10-12T11:15:00.000Z',
+          idempotencyKey: 'eq-offer-key-1',
+        },
+        now,
+      ),
+    (err: any) =>
+      err instanceof Section16HoldExpiredError &&
+      err.message.includes('Zgłoszenie w kolejce wygasło'),
+  )
+
+  const snapAfterReject = await readSection16StoreSnapshot()
+  const recAfterReject = snapAfterReject.notificationRequests.find((r) => r.id === id)!
+  assert.deepEqual(recAfterReject, recBefore, 'Rekord po odrzuceniu przy now == deadline musi pozostać bez zmian')
+  assert.equal(snapAfterReject.notificationEvents.length, eventCountBefore)
+
+  const sweepRes = await runSection16ExpirationSweep({
+    batchLimit: 50,
+    now,
+  })
+  assert.equal(sweepRes.availabilityNotificationsExpired, 1)
+  assert.equal(sweepRes.totalExpired, 1)
+
+  const snapAfterSweep = await readSection16StoreSnapshot()
+  const recSwept = snapAfterSweep.notificationRequests.find((r) => r.id === id)!
+  assert.equal(recSwept.state, 'expired')
+  assert.equal(recSwept.version, recBefore.version + 1)
+  assert.equal(recSwept.updatedAt, now.toISOString())
+  assert.equal(snapAfterSweep.notificationEvents.length, eventCountBefore + 1)
+})
+
+test('21. Granica now == deadline: potwierdzenie płatności oferty availability odrzucone bez mutacji, a sweep wygasza rekord', async () => {
+  const deadline = new Date('2026-10-12T11:30:00.000Z')
+  const now = new Date(deadline.getTime())
+  const id = await createAvailabilityRequestWithDeadlines({
+    state: 'offer_sent',
+    expiresAt: '2026-10-12T14:00:00.000Z',
+    offerExpiresAt: deadline.toISOString(),
+    version: 2,
+  })
+
+  const snapBefore = await readSection16StoreSnapshot()
+  const recBefore = snapBefore.notificationRequests.find((r) => r.id === id)!
+  const eventCountBefore = snapBefore.notificationEvents.length
+
+  await assert.rejects(
+    () =>
+      confirmNotificationOfferPayment(
+        {
+          requestId: id,
+          paymentReference: 'rev:avail_eq_pay',
+          idempotencyKey: 'eq-notif-pay-key-1',
+        },
+        now,
+      ),
+    (err: any) =>
+      err instanceof Section16HoldExpiredError &&
+      err.message.includes('Oferta dostępności wygasła przed opłaceniem'),
+  )
+
+  const snapAfterReject = await readSection16StoreSnapshot()
+  const recAfterReject = snapAfterReject.notificationRequests.find((r) => r.id === id)!
+  assert.deepEqual(recAfterReject, recBefore, 'Rekord po odrzuceniu przy now == deadline musi pozostać bez zmian')
+  assert.equal(snapAfterReject.notificationEvents.length, eventCountBefore)
+
+  const sweepRes = await runSection16ExpirationSweep({
+    batchLimit: 50,
+    now,
+  })
+  assert.equal(sweepRes.availabilityNotificationsExpired, 1)
+  assert.equal(sweepRes.totalExpired, 1)
+
+  const snapAfterSweep = await readSection16StoreSnapshot()
+  const recSwept = snapAfterSweep.notificationRequests.find((r) => r.id === id)!
+  assert.equal(recSwept.state, 'expired')
+  assert.equal(recSwept.version, recBefore.version + 1)
+  assert.equal(recSwept.updatedAt, now.toISOString())
+  assert.equal(snapAfterSweep.notificationEvents.length, eventCountBefore + 1)
+})
+
+test('22. Granica now == deadline: konsumpcja talk entitlementu odrzucona bez mutacji, a sweep wygasza rekord', async () => {
+  const deadline = new Date('2026-10-12T12:00:00.000Z')
+  const now = new Date(deadline.getTime())
+  const id = await createTalkEntitlementWithDeadlines({
+    state: 'active',
+    validFrom: '2026-10-12T08:00:00.000Z',
+    validUntil: deadline.toISOString(),
+    version: 1,
+  })
+
+  const snapBefore = await readSection16StoreSnapshot()
+  const recBefore = snapBefore.talkEntitlements.find((r) => r.id === id)!
+  const eventCountBefore = snapBefore.talkEvents.length
+
+  await assert.rejects(
+    () =>
+      consumeTalkEntitlement(
+        {
+          entitlementId: id,
+          callSessionId: randomUUID(),
+          idempotencyKey: 'eq-talk-consume-key-1',
+        },
+        now,
+      ),
+    (err: any) =>
+      err instanceof Section16HoldExpiredError &&
+      err.message.includes('Uprawnienie do rozmowy wygasło'),
+  )
+
+  const snapAfterReject = await readSection16StoreSnapshot()
+  const recAfterReject = snapAfterReject.talkEntitlements.find((r) => r.id === id)!
+  assert.deepEqual(recAfterReject, recBefore, 'Rekord po odrzuceniu przy now == deadline musi pozostać bez zmian')
+  assert.equal(snapAfterReject.talkEvents.length, eventCountBefore)
+
+  const sweepRes = await runSection16ExpirationSweep({
+    batchLimit: 50,
+    now,
+  })
+  assert.equal(sweepRes.talkEntitlementsExpired, 1)
+  assert.equal(sweepRes.totalExpired, 1)
+
+  const snapAfterSweep = await readSection16StoreSnapshot()
+  const recSwept = snapAfterSweep.talkEntitlements.find((r) => r.id === id)!
+  assert.equal(recSwept.state, 'expired')
+  assert.equal(recSwept.version, recBefore.version + 1)
+  assert.equal(recSwept.updatedAt, now.toISOString())
+  assert.equal(snapAfterSweep.talkEvents.length, eventCountBefore + 1)
+})
+
+// ============================================================================
+// 23. GRANICA 1 MS PRZED DEADLINE: KAŻDA Z 5 OPERACJI SECTION 16 DOPUSZCZONA
+// ============================================================================
+test('23. Granica 1 ms przed deadline: każda z 5 operacji Section 16 zostaje dopuszczona', async () => {
+  // 1. propose_urgent_intake_timeslot (1 ms przed expiresAt)
+  const d1 = new Date('2026-10-12T10:00:00.000Z')
+  const now1 = new Date(d1.getTime() - 1)
+  const id1 = await createUrgentIntakeWithDeadlines({
+    state: 'pending_proposal',
+    expiresAt: d1.toISOString(),
+    version: 1,
+  })
+  const res1 = await proposeUrgentIntakeTimeslot(
+    {
+      requestId: id1,
+      proposedDate: '2026-10-12',
+      proposedTime: '11:00',
+      holdExpiresAt: new Date(now1.getTime() + 15 * 60 * 1000).toISOString(),
+      idempotencyKey: 'before-prop-1',
+    },
+    now1,
+  )
+  assert.equal(res1.state, 'timeslot_proposed')
+  assert.equal(res1.version, 2)
+
+  // 2. confirm_urgent_intake_payment (1 ms przed holdExpiresAt)
+  const d2 = new Date('2026-10-12T10:15:00.000Z')
+  const now2 = new Date(d2.getTime() - 1)
+  const id2 = await createUrgentIntakeWithDeadlines({
+    state: 'timeslot_proposed',
+    expiresAt: '2026-10-12T12:00:00.000Z',
+    holdExpiresAt: d2.toISOString(),
+    version: 2,
+  })
+  const res2 = await confirmUrgentIntakePayment(
+    {
+      requestId: id2,
+      paymentReference: 'rev:pay_before_urg',
+      idempotencyKey: 'before-pay-urg-1',
+    },
+    now2,
+  )
+  assert.equal(res2.state, 'payment_confirmed')
+  assert.equal(res2.version, 3)
+
+  // 3. offer_availability_notification (1 ms przed expiresAt)
+  const d3 = new Date('2026-10-12T11:00:00.000Z')
+  const now3 = new Date(d3.getTime() - 1)
+  const id3 = await createAvailabilityRequestWithDeadlines({
+    state: 'queued',
+    expiresAt: d3.toISOString(),
+    version: 1,
+  })
+  const res3 = await offerAvailabilityNotification(
+    {
+      requestId: id3,
+      offerExpiresAt: new Date(now3.getTime() + 15 * 60 * 1000).toISOString(),
+      idempotencyKey: 'before-offer-1',
+    },
+    now3,
+  )
+  assert.equal(res3.state, 'offer_sent')
+  assert.equal(res3.version, 2)
+
+  // 4. confirm_notification_offer_payment (1 ms przed offerExpiresAt)
+  const d4 = new Date('2026-10-12T11:30:00.000Z')
+  const now4 = new Date(d4.getTime() - 1)
+  const id4 = await createAvailabilityRequestWithDeadlines({
+    state: 'offer_sent',
+    expiresAt: '2026-10-12T14:00:00.000Z',
+    offerExpiresAt: d4.toISOString(),
+    version: 2,
+  })
+  const res4 = await confirmNotificationOfferPayment(
+    {
+      requestId: id4,
+      paymentReference: 'rev:pay_before_notif',
+      idempotencyKey: 'before-pay-notif-1',
+    },
+    now4,
+  )
+  assert.equal(res4.state, 'accepted_paid')
+  assert.equal(res4.version, 3)
+
+  // 5. consume_talk_entitlement (1 ms przed validUntil)
+  const d5 = new Date('2026-10-12T12:00:00.000Z')
+  const now5 = new Date(d5.getTime() - 1)
+  const id5 = await createTalkEntitlementWithDeadlines({
+    state: 'active',
+    validFrom: '2026-10-12T08:00:00.000Z',
+    validUntil: d5.toISOString(),
+    version: 1,
+  })
+  const res5 = await consumeTalkEntitlement(
+    {
+      entitlementId: id5,
+      callSessionId: randomUUID(),
+      idempotencyKey: 'before-talk-consume-1',
+    },
+    now5,
+  )
+  assert.equal(res5.state, 'consumed')
+  assert.equal(res5.version, 2)
+})
+
+// ============================================================================
+// 24. EXACT RETRY Z PASUJĄCYM ZDARZENIEM PRZY NOW == DEADLINE ORAZ PO DEADLINE
+// ============================================================================
+test('24. Exact retry z pasującym zdarzeniem działa po deadline i przy równości now == deadline bez mutacji', async () => {
+  // 1. propose_urgent_intake_timeslot
+  const d1 = new Date('2026-10-12T10:00:00.000Z')
+  const req1Id = await createUrgentIntakeWithDeadlines({
+    state: 'timeslot_proposed',
+    expiresAt: d1.toISOString(),
+    holdExpiresAt: '2026-10-12T10:30:00.000Z',
+    version: 2,
+  })
+  const key1 = 'retry-exact-prop-key'
+  const payload1 = { date: '2026-10-12', time: '14:00' }
+  const hash1 = computeSection16PayloadHash(payload1)
+  await updateSection16StoreSnapshot((store) => {
+    store.urgentEvents.push({
+      id: randomUUID(),
+      requestId: req1Id,
+      eventType: 'timeslot_proposed',
+      fromState: 'pending_proposal',
+      toState: 'timeslot_proposed',
+      payload: payload1,
+      payloadHash: hash1,
+      idempotencyKey: key1,
+      createdAt: '2026-10-12T09:30:00.000Z',
+    })
+  })
+  const snap1Before = await readSection16StoreSnapshot()
+  const r1Eq = await proposeUrgentIntakeTimeslot(
+    { requestId: req1Id, proposedDate: '2026-10-12', proposedTime: '14:00', idempotencyKey: key1, payload: payload1 },
+    d1,
+  )
+  assert.equal(r1Eq.id, req1Id)
+  assert.equal(r1Eq.state, 'timeslot_proposed')
+  const r1Past = await proposeUrgentIntakeTimeslot(
+    { requestId: req1Id, proposedDate: '2026-10-12', proposedTime: '14:00', idempotencyKey: key1, payload: payload1 },
+    new Date(d1.getTime() + 60000),
+  )
+  assert.equal(r1Past.id, req1Id)
+  const snap1After = await readSection16StoreSnapshot()
+  assert.equal(snap1After.urgentEvents.length, snap1Before.urgentEvents.length)
+
+  // 2. confirm_urgent_intake_payment
+  const d2 = new Date('2026-10-12T10:15:00.000Z')
+  const req2Id = await createUrgentIntakeWithDeadlines({
+    state: 'payment_confirmed',
+    expiresAt: '2026-10-12T12:00:00.000Z',
+    holdExpiresAt: d2.toISOString(),
+    paymentReference: 'rev:retry_urg_pay',
+    version: 3,
+  })
+  const key2 = 'retry-exact-urg-pay-key'
+  const payload2 = { ref: 'rev:retry_urg_pay' }
+  const hash2 = computeSection16PayloadHash(payload2)
+  await updateSection16StoreSnapshot((store) => {
+    store.urgentEvents.push({
+      id: randomUUID(),
+      requestId: req2Id,
+      eventType: 'payment_confirmed',
+      fromState: 'timeslot_proposed',
+      toState: 'payment_confirmed',
+      payload: payload2,
+      payloadHash: hash2,
+      idempotencyKey: key2,
+      createdAt: '2026-10-12T10:00:00.000Z',
+    })
+  })
+  const snap2Before = await readSection16StoreSnapshot()
+  const r2Eq = await confirmUrgentIntakePayment(
+    { requestId: req2Id, paymentReference: 'rev:retry_urg_pay', idempotencyKey: key2, payload: payload2 },
+    d2,
+  )
+  assert.equal(r2Eq.id, req2Id)
+  const r2Past = await confirmUrgentIntakePayment(
+    { requestId: req2Id, paymentReference: 'rev:retry_urg_pay', idempotencyKey: key2, payload: payload2 },
+    new Date(d2.getTime() + 60000),
+  )
+  assert.equal(r2Past.id, req2Id)
+  const snap2After = await readSection16StoreSnapshot()
+  assert.equal(snap2After.urgentEvents.length, snap2Before.urgentEvents.length)
+
+  // 3. offer_availability_notification
+  const d3 = new Date('2026-10-12T11:00:00.000Z')
+  const req3Id = await createAvailabilityRequestWithDeadlines({
+    state: 'offer_sent',
+    expiresAt: d3.toISOString(),
+    offerExpiresAt: '2026-10-12T11:30:00.000Z',
+    version: 2,
+  })
+  const key3 = 'retry-exact-offer-key'
+  const payload3 = { channel: 'sms' }
+  const hash3 = computeSection16PayloadHash(payload3)
+  await updateSection16StoreSnapshot((store) => {
+    store.notificationEvents.push({
+      id: randomUUID(),
+      requestId: req3Id,
+      eventType: 'offer_sent',
+      fromState: 'queued',
+      toState: 'offer_sent',
+      payload: payload3,
+      payloadHash: hash3,
+      idempotencyKey: key3,
+      createdAt: '2026-10-12T10:45:00.000Z',
+    })
+  })
+  const snap3Before = await readSection16StoreSnapshot()
+  const r3Eq = await offerAvailabilityNotification(
+    { requestId: req3Id, offerExpiresAt: '2026-10-12T11:30:00.000Z', idempotencyKey: key3, payload: payload3 },
+    d3,
+  )
+  assert.equal(r3Eq.id, req3Id)
+  const r3Past = await offerAvailabilityNotification(
+    { requestId: req3Id, offerExpiresAt: '2026-10-12T11:30:00.000Z', idempotencyKey: key3, payload: payload3 },
+    new Date(d3.getTime() + 60000),
+  )
+  assert.equal(r3Past.id, req3Id)
+  const snap3After = await readSection16StoreSnapshot()
+  assert.equal(snap3After.notificationEvents.length, snap3Before.notificationEvents.length)
+
+  // 4. confirm_notification_offer_payment
+  const d4 = new Date('2026-10-12T11:30:00.000Z')
+  const req4Id = await createAvailabilityRequestWithDeadlines({
+    state: 'accepted_paid',
+    expiresAt: '2026-10-12T14:00:00.000Z',
+    offerExpiresAt: d4.toISOString(),
+    paymentReference: 'rev:retry_notif_pay',
+    version: 3,
+  })
+  const key4 = 'retry-exact-notif-pay-key'
+  const payload4 = { ref: 'rev:retry_notif_pay' }
+  const hash4 = computeSection16PayloadHash(payload4)
+  await updateSection16StoreSnapshot((store) => {
+    store.notificationEvents.push({
+      id: randomUUID(),
+      requestId: req4Id,
+      eventType: 'offer_accepted_paid',
+      fromState: 'offer_sent',
+      toState: 'accepted_paid',
+      payload: payload4,
+      payloadHash: hash4,
+      idempotencyKey: key4,
+      createdAt: '2026-10-12T11:15:00.000Z',
+    })
+  })
+  const snap4Before = await readSection16StoreSnapshot()
+  const r4Eq = await confirmNotificationOfferPayment(
+    { requestId: req4Id, paymentReference: 'rev:retry_notif_pay', idempotencyKey: key4, payload: payload4 },
+    d4,
+  )
+  assert.equal(r4Eq.id, req4Id)
+  const r4Past = await confirmNotificationOfferPayment(
+    { requestId: req4Id, paymentReference: 'rev:retry_notif_pay', idempotencyKey: key4, payload: payload4 },
+    new Date(d4.getTime() + 60000),
+  )
+  assert.equal(r4Past.id, req4Id)
+  const snap4After = await readSection16StoreSnapshot()
+  assert.equal(snap4After.notificationEvents.length, snap4Before.notificationEvents.length)
+
+  // 5. consume_talk_entitlement
+  const d5 = new Date('2026-10-12T12:00:00.000Z')
+  const cSession = randomUUID()
+  const req5Id = await createTalkEntitlementWithDeadlines({
+    state: 'consumed',
+    validFrom: '2026-10-12T08:00:00.000Z',
+    validUntil: d5.toISOString(),
+    version: 2,
+  })
+  const key5 = 'retry-exact-talk-key'
+  const payload5 = { session: cSession }
+  const hash5 = computeSection16PayloadHash(payload5)
+  await updateSection16StoreSnapshot((store) => {
+    store.talkEvents.push({
+      id: randomUUID(),
+      entitlementId: req5Id,
+      eventType: 'entitlement_consumed',
+      fromState: 'active',
+      toState: 'consumed',
+      payload: payload5,
+      payloadHash: hash5,
+      idempotencyKey: key5,
+      createdAt: '2026-10-12T11:45:00.000Z',
+    })
+  })
+  const snap5Before = await readSection16StoreSnapshot()
+  const r5Eq = await consumeTalkEntitlement(
+    { entitlementId: req5Id, callSessionId: cSession, idempotencyKey: key5, payload: payload5 },
+    d5,
+  )
+  assert.equal(r5Eq.id, req5Id)
+  const r5Past = await consumeTalkEntitlement(
+    { entitlementId: req5Id, callSessionId: cSession, idempotencyKey: key5, payload: payload5 },
+    new Date(d5.getTime() + 60000),
+  )
+  assert.equal(r5Past.id, req5Id)
+  const snap5After = await readSection16StoreSnapshot()
+  assert.equal(snap5After.talkEvents.length, snap5Before.talkEvents.length)
+})
+
+// ============================================================================
+// 25. STATYCZNY AUDYT MIGRACJI 11009 I CANONICAL SCHEMA
+// ============================================================================
+test('25. Statyczny audyt migracji 11009 i canonical schema: semantyka >=, brak martwych UPDATE, locki/idempotency i service-role-only ACL', () => {
+  const migPath = 'supabase/migrations/20261011009_section16_exclusive_deadline_semantics.sql'
+  const schemaPath = 'supabase/schema.sql'
+  const aclMigPath = 'supabase/migrations/20261011006_section16_append_only_acl.sql'
+
+  const migSql = readFileSync(migPath, 'utf8')
+  const schemaSql = readFileSync(schemaPath, 'utf8')
+  const aclMigSql = readFileSync(aclMigPath, 'utf8')
+
+  const targetFunctions = [
+    'propose_urgent_intake_timeslot',
+    'confirm_urgent_intake_payment',
+    'offer_availability_notification',
+    'confirm_notification_offer_payment',
+    'consume_talk_entitlement',
+  ]
+
+  // A. Migration 11009 checks
+  for (const fnName of targetFunctions) {
+    assert.ok(migSql.includes(`create or replace function public.${fnName}(`), `Migracja 11009 musi definiować ${fnName}`)
+    assert.ok(migSql.includes(`revoke all on function public.${fnName}`), `Migracja 11009 musi odbierać uprawnienia do ${fnName}`)
+    assert.ok(migSql.includes(`grant execute on function public.${fnName}`), `Migracja 11009 musi nadawać uprawnienie do ${fnName} dla service_role`)
+  }
+
+  // 1. Sprawdzenie semantyki >= we wszystkich 5 funkcjach w migracji
+  assert.ok(migSql.includes('v_now >= v_req.expires_at'), 'propose_urgent_intake_timeslot musi sprawdzać v_now >= v_req.expires_at')
+  assert.ok(migSql.includes('v_now >= v_req.hold_expires_at'), 'confirm_urgent_intake_payment musi sprawdzać v_now >= v_req.hold_expires_at')
+  assert.ok(migSql.includes('v_now >= v_req.expires_at'), 'offer_availability_notification musi sprawdzać v_now >= v_req.expires_at')
+  assert.ok(migSql.includes('v_now >= v_req.offer_expires_at'), 'confirm_notification_offer_payment musi sprawdzać v_now >= v_req.offer_expires_at')
+  assert.ok(migSql.includes('v_now >= v_ent.valid_until'), 'consume_talk_entitlement musi sprawdzać v_now >= v_ent.valid_until')
+
+  // 2. Brak niepożądanego > w blokach deadline
+  assert.equal(migSql.includes('v_now > v_req.expires_at'), false, 'Migracja 11009 nie może zawierać v_now > v_req.expires_at')
+  assert.equal(migSql.includes('v_now > v_req.hold_expires_at'), false, 'Migracja 11009 nie może zawierać v_now > v_req.hold_expires_at')
+  assert.equal(migSql.includes('v_now > v_req.offer_expires_at'), false, 'Migracja 11009 nie może zawierać v_now > v_req.offer_expires_at')
+  assert.equal(migSql.includes('v_now > v_ent.valid_until'), false, 'Migracja 11009 nie może zawierać v_now > v_ent.valid_until')
+
+  // 3. Brak martwych UPDATE ... state='expired' w migracji 11009
+  assert.equal(migSql.includes("state = 'expired'"), false, 'Migracja 11009 nie może zawierać żadnych UPDATE state = expired')
+
+  // 4. Bezpieczeństwo i locki w migracji 11009
+  assert.ok(migSql.includes("hashtext('urgent_intake_idempotency:' || p_idempotency_key)"), 'Advisory lock zachowany w urgent intake')
+  assert.ok(migSql.includes("hashtext('avail_notif_idempotency:' || p_idempotency_key)"), 'Advisory lock zachowany w notification')
+  assert.ok(migSql.includes("hashtext('talk_entitlement_idempotency:' || p_idempotency_key)"), 'Advisory lock zachowany w talk entitlement')
+  assert.equal(/grant\s+.*to\s+(public|anon|authenticated)/i.test(migSql), false, 'Brak grantów dla public/anon/authenticated w migracji 11009')
+
+  // B. Canonical schema.sql checks
+  // 1. Sprawdzenie semantyki >= we wszystkich 5 funkcjach w schema.sql
+  assert.ok(schemaSql.includes('v_now >= v_req.expires_at'), 'schema.sql musi sprawdzać v_now >= v_req.expires_at')
+  assert.ok(schemaSql.includes('v_now >= v_req.hold_expires_at'), 'schema.sql musi sprawdzać v_now >= v_req.hold_expires_at')
+  assert.ok(schemaSql.includes('v_now >= v_req.offer_expires_at'), 'schema.sql musi sprawdzać v_now >= v_req.offer_expires_at')
+  assert.ok(schemaSql.includes('v_now >= v_ent.valid_until'), 'schema.sql musi sprawdzać v_now >= v_ent.valid_until')
+
+  // 2. Brak niepożądanego > w tych 5 funkcjach w schema.sql
+  assert.equal(schemaSql.includes('v_now > v_req.expires_at'), false, 'schema.sql nie może zawierać v_now > v_req.expires_at')
+  assert.equal(schemaSql.includes('v_now > v_req.hold_expires_at'), false, 'schema.sql nie może zawierać v_now > v_req.hold_expires_at')
+  assert.equal(schemaSql.includes('v_now > v_req.offer_expires_at'), false, 'schema.sql nie może zawierać v_now > v_req.offer_expires_at')
+  assert.equal(schemaSql.includes('v_now > v_ent.valid_until'), false, 'schema.sql nie może zawierać v_now > v_ent.valid_until')
+
+  // 3. W schema.sql jedynym miejscem mutującym state = 'expired' jest sweeper sweep_expired_section16_records
+  const schemaLines = schemaSql.split('\n')
+  const expiredUpdateLines = schemaLines.filter((l) => l.includes("state = 'expired'"))
+  // Exactly 3 occurrences in sweeper (urgent_intake_requests, availability_notification_requests, consultation_talk_entitlements)
+  assert.equal(expiredUpdateLines.length, 3, 'W schema.sql jedynym właścicielem state = expired musi być sweep 11008')
+
+  // C. ACL 11006 nienaruszone
+  assert.ok(aclMigSql.includes('grant select, insert on table public.urgent_intake_events to service_role;'), 'ACL 11006 zachowane')
+  assert.ok(aclMigSql.includes('grant select, insert on table public.availability_notification_events to service_role;'), 'ACL 11006 zachowane')
+  assert.ok(aclMigSql.includes('grant select, insert on table public.consultation_talk_entitlement_events to service_role;'), 'ACL 11006 zachowane')
+})
+
+
 

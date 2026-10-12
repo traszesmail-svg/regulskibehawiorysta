@@ -2305,7 +2305,7 @@ export async function consumeTalkEntitlement(
       throw new Section16ValidationError('Okno ważności uprawnienia jeszcze się nie rozpoczęło')
     }
 
-    if (nowTime > Date.parse(ent.validUntil)) {
+    if (nowTime >= Date.parse(ent.validUntil)) {
       // PostgreSQL parity: RAISE EXCEPTION rolls back statement/transaction without mutating state or version.
       // Sweeper (sweepExpiredSection16Records) is the authoritative mechanism to expire records and emit events.
       throw new Section16HoldExpiredError('Uprawnienie do rozmowy wygasło')

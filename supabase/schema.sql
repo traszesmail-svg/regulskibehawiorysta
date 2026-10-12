@@ -2030,10 +2030,7 @@ begin
     raise exception 'TERMINAL_STATE: Nie można proponować terminu w stanie terminalnym %', v_req.state;
   end if;
 
-  if v_now > v_req.expires_at then
-    update public.urgent_intake_requests
-    set state = 'expired', updated_at = v_now, version = v_req.version + 1
-    where id = p_request_id;
+  if v_now >= v_req.expires_at then
     raise exception 'REQUEST_EXPIRED: Zgłoszenie pilne wygasło przed propozycją terminu';
   end if;
 
@@ -2140,10 +2137,7 @@ begin
     raise exception 'INVALID_STATE: Potwierdzenie płatności wymaga stanu timeslot_proposed (aktualny: %)', v_req.state;
   end if;
 
-  if v_req.hold_expires_at is not null and v_now > v_req.hold_expires_at then
-    update public.urgent_intake_requests
-    set state = 'expired', updated_at = v_now, version = v_req.version + 1
-    where id = p_request_id;
+  if v_req.hold_expires_at is not null and v_now >= v_req.hold_expires_at then
     raise exception 'HOLD_EXPIRED: Proponowany termin i blokada wygasły przed opłaceniem';
   end if;
 
@@ -2470,10 +2464,7 @@ begin
     raise exception 'TERMINAL_STATE: Nie można oferować dostępności w stanie %', v_req.state;
   end if;
 
-  if v_now > v_req.expires_at then
-    update public.availability_notification_requests
-    set state = 'expired', updated_at = v_now, version = v_req.version + 1
-    where id = p_request_id;
+  if v_now >= v_req.expires_at then
     raise exception 'REQUEST_EXPIRED: Zgłoszenie w kolejce wygasło';
   end if;
 
@@ -2574,10 +2565,7 @@ begin
     raise exception 'INVALID_STATE: Potwierdzenie oferty wymaga stanu offer_sent (aktualny: %)', v_req.state;
   end if;
 
-  if v_req.offer_expires_at is not null and v_now > v_req.offer_expires_at then
-    update public.availability_notification_requests
-    set state = 'expired', updated_at = v_now, version = v_req.version + 1
-    where id = p_request_id;
+  if v_req.offer_expires_at is not null and v_now >= v_req.offer_expires_at then
     raise exception 'OFFER_EXPIRED: Oferta dostępności wygasła przed opłaceniem';
   end if;
 
@@ -2979,10 +2967,7 @@ begin
     raise exception 'ENTITLEMENT_NOT_YET_VALID: Okno ważności uprawnienia jeszcze się nie rozpoczęło';
   end if;
 
-  if v_now > v_ent.valid_until then
-    update public.consultation_talk_entitlements
-    set state = 'expired', updated_at = v_now, version = v_ent.version + 1
-    where id = p_entitlement_id;
+  if v_now >= v_ent.valid_until then
     raise exception 'ENTITLEMENT_EXPIRED: Uprawnienie do rozmowy wygasło';
   end if;
 

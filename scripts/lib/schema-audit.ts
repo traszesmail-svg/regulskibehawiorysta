@@ -684,6 +684,7 @@ export const REQUIRED_FILES = [
   'supabase/migrations/20261011006_section16_append_only_acl.sql',
   'supabase/migrations/20261011007_section16_single_entitlement_for_paid_source.sql',
   'supabase/migrations/20261011008_section16_expiration_sweep.sql',
+  'supabase/migrations/20261011009_section16_exclusive_deadline_semantics.sql',
 ]
 
 function normalizeSchemaText(schemaText: string) {

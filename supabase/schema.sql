@@ -447,10 +447,20 @@ create table if not exists public.availability (
   is_booked boolean not null default false,
   locked_by_booking_id uuid references public.bookings(id) on delete set null,
   locked_until timestamptz,
+  section16_hold_request_id uuid,
+  section16_hold_expires_at timestamptz,
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now()),
   unique (booking_date, booking_time)
 );
+
+create index if not exists idx_availability_section16_hold_request
+  on public.availability (section16_hold_request_id)
+  where section16_hold_request_id is not null;
+
+create index if not exists idx_availability_section16_hold_expires
+  on public.availability (section16_hold_expires_at)
+  where section16_hold_expires_at is not null;
 
 create table if not exists public.promo_campaigns (
   id uuid primary key default gen_random_uuid(),
@@ -1669,6 +1679,9 @@ create table if not exists public.urgent_intake_requests (
   check (state <> 'payment_confirmed' or payment_reference is not null)
 );
 
+alter table public.availability drop constraint if exists availability_section16_hold_request_fk;
+alter table public.availability add constraint availability_section16_hold_request_fk foreign key (section16_hold_request_id) references public.urgent_intake_requests(id) on delete set null;
+
 create index if not exists urgent_intake_requests_fingerprint_idx
   on public.urgent_intake_requests (caller_phone_fingerprint, created_at desc);
 
@@ -1990,6 +2003,8 @@ as $$
 declare
   v_req public.urgent_intake_requests%rowtype;
   v_existing_event public.urgent_intake_events%rowtype;
+  v_slot public.availability%rowtype;
+  v_old_state text;
   v_now timestamptz := timezone('utc', now());
 begin
   if p_idempotency_key is null or length(trim(p_idempotency_key)) = 0 or length(trim(p_idempotency_key)) > 128 then
@@ -2046,6 +2061,55 @@ begin
     raise exception 'INVALID_HOLD: Czas wygaśnięcia blokady musi być w przyszłości';
   end if;
 
+  -- Model B: Lock and validate target slot in public availability calendar
+  select * into v_slot
+  from public.availability
+  where booking_date = p_proposed_date and booking_time = p_proposed_time
+  for update;
+
+  if not found then
+    raise exception 'SLOT_NOT_FOUND: Termin % % nie istnieje w kalendarzu', p_proposed_date, p_proposed_time;
+  end if;
+
+  if (p_proposed_date + p_proposed_time::time) at time zone 'Europe/Warsaw' <= v_now then
+    raise exception 'SLOT_UNAVAILABLE: Termin % % jest już przeszły', p_proposed_date, p_proposed_time;
+  end if;
+
+  if v_slot.is_booked then
+    raise exception 'SLOT_UNAVAILABLE: Termin % % jest już zajęty', p_proposed_date, p_proposed_time;
+  end if;
+
+  if v_slot.locked_by_booking_id is not null and (v_slot.locked_until is null or v_slot.locked_until > v_now) then
+    raise exception 'SLOT_LOCKED: Termin % % jest zablokowany przez inną rezerwację', p_proposed_date, p_proposed_time;
+  end if;
+
+  if v_slot.section16_hold_request_id is not null
+     and v_slot.section16_hold_request_id <> p_request_id
+     and v_slot.section16_hold_expires_at is not null
+     and v_slot.section16_hold_expires_at > v_now then
+    raise exception 'SLOT_ALREADY_HELD: Termin % % jest objęty aktywną blokadą Sekcji 16', p_proposed_date, p_proposed_time;
+  end if;
+
+  -- Reschedule atomicity: release previous slot held by this request
+  update public.availability
+  set
+    section16_hold_request_id = null,
+    section16_hold_expires_at = null,
+    updated_at = v_now
+  where section16_hold_request_id = p_request_id
+    and id <> v_slot.id
+    and is_booked = false;
+
+  -- Set hold on target slot
+  update public.availability
+  set
+    section16_hold_request_id = p_request_id,
+    section16_hold_expires_at = p_hold_expires_at,
+    updated_at = v_now
+  where id = v_slot.id;
+
+  v_old_state := v_req.state;
+
   update public.urgent_intake_requests
   set
     state = 'timeslot_proposed',
@@ -2069,7 +2133,7 @@ begin
   ) values (
     v_req.id,
     'timeslot_proposed',
-    'pending_proposal',
+    v_old_state,
     'timeslot_proposed',
     coalesce(p_payload, '{}'::jsonb),
     p_payload_hash,
@@ -2097,6 +2161,7 @@ as $$
 declare
   v_req public.urgent_intake_requests%rowtype;
   v_existing_event public.urgent_intake_events%rowtype;
+  v_slot public.availability%rowtype;
   v_now timestamptz := timezone('utc', now());
 begin
   if p_idempotency_key is null or length(trim(p_idempotency_key)) = 0 or length(trim(p_idempotency_key)) > 128 then
@@ -2148,6 +2213,37 @@ begin
   if p_payment_reference is null or length(trim(p_payment_reference)) = 0 then
     raise exception 'MISSING_PAYMENT_REFERENCE: Wymagana jest referencja potwierdzonej płatności';
   end if;
+
+  -- Validate active hold belonging strictly to this request (no date/time fallback)
+  select * into v_slot
+  from public.availability
+  where section16_hold_request_id = p_request_id
+  for update;
+
+  if not found then
+    raise exception 'HOLD_NOT_FOUND: Brak aktywnej blokady w kalendarzu dla zgłoszenia %', p_request_id;
+  end if;
+
+  if v_slot.booking_date <> v_req.proposed_date or v_slot.booking_time <> v_req.proposed_time then
+    raise exception 'SLOT_MISMATCH: Zablokowany termin % % nie zgadza się z terminem zgłoszenia % %',
+      v_slot.booking_date, v_slot.booking_time, v_req.proposed_date, v_req.proposed_time;
+  end if;
+
+  if v_slot.section16_hold_expires_at is not null and v_slot.section16_hold_expires_at <= v_now then
+    raise exception 'HOLD_EXPIRED: Blokada w kalendarzu wygasła przed potwierdzeniem płatności';
+  end if;
+
+  if v_slot.is_booked then
+    raise exception 'SLOT_UNAVAILABLE: Termin w kalendarzu jest już oznaczony jako zarezerwowany';
+  end if;
+
+  -- Mark availability slot booked
+  update public.availability
+  set
+    is_booked = true,
+    section16_hold_expires_at = null,
+    updated_at = v_now
+  where id = v_slot.id;
 
   update public.urgent_intake_requests
   set
@@ -2252,6 +2348,15 @@ begin
   if p_target_state = 'rejected' and v_old_state <> 'pending_proposal' then
     raise exception 'ILLEGAL_TRANSITION: Odrzucenie jest dozwolone wyłącznie ze stanu pending_proposal';
   end if;
+
+  -- Release availability hold on cancel/reject/expire
+  update public.availability
+  set
+    section16_hold_request_id = null,
+    section16_hold_expires_at = null,
+    updated_at = v_now
+  where section16_hold_request_id = p_request_id
+    and is_booked = false;
 
   update public.urgent_intake_requests
   set
@@ -3214,6 +3319,15 @@ begin
       updated_at = v_now
     where id = v_rec_urgent.id;
 
+    -- Release availability hold for expired urgent intake request
+    update public.availability
+    set
+      section16_hold_request_id = null,
+      section16_hold_expires_at = null,
+      updated_at = v_now
+    where section16_hold_request_id = v_rec_urgent.id
+      and is_booked = false;
+
     insert into public.urgent_intake_events (
       request_id,
       event_type,
@@ -3393,3 +3507,134 @@ $$;
 
 revoke all on function public.sweep_expired_section16_records(integer) from public, anon, authenticated;
 grant execute on function public.sweep_expired_section16_records(integer) to service_role;
+
+
+-- Atomic claim for commerce ebook access download
+-- Enforces usage count limit, expiration, order and access code validity under row lock
+create or replace function public.claim_commerce_access(
+  p_order_number text,
+  p_access_code text default null,
+  p_email text default null
+)
+returns setof public.lead_bookings
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_row public.lead_bookings%rowtype;
+  v_meta jsonb;
+  v_product_type text;
+  v_status text;
+  v_code_status text;
+  v_usage_count integer;
+  v_usage_limit integer;
+  v_expires_at timestamptz;
+  v_now timestamptz := timezone('utc', now());
+  v_norm_email text;
+  v_norm_code text;
+begin
+  if p_order_number is null or trim(p_order_number) = '' then
+    return;
+  end if;
+
+  if p_access_code is null or trim(p_access_code) = '' then
+    return;
+  end if;
+
+  if p_email is null or trim(p_email) = '' then
+    return;
+  end if;
+
+  select * into v_row
+  from public.lead_bookings
+  where preferred_slots = trim(p_order_number)
+  for update;
+
+  if not found then
+    return;
+  end if;
+
+  if v_row.admin_notes is null or trim(v_row.admin_notes) = '' then
+    return;
+  end if;
+
+  begin
+    v_meta := v_row.admin_notes::jsonb;
+  exception when others then
+    return;
+  end;
+
+  if coalesce(v_meta->>'commerce', 'false') <> 'true' then
+    return;
+  end if;
+
+  v_product_type := coalesce(v_meta->>'productType', '');
+  if v_product_type <> 'ebook' then
+    return;
+  end if;
+
+  v_status := coalesce(v_meta->>'status', '');
+  if v_status not in ('access_sent', 'paid') then
+    return;
+  end if;
+
+  v_code_status := coalesce(v_meta->>'accessCodeStatus', '');
+  if v_code_status <> 'active' then
+    return;
+  end if;
+
+  v_norm_code := upper(trim(p_access_code));
+  if v_row.calendar_url is null or v_row.calendar_url <> ('commerce-code:' || v_norm_code) then
+    return;
+  end if;
+
+  v_norm_email := lower(trim(p_email));
+  if lower(trim(v_row.email)) <> v_norm_email then
+    return;
+  end if;
+
+  if v_meta->>'accessCodeExpiresAt' is not null then
+    begin
+      v_expires_at := (v_meta->>'accessCodeExpiresAt')::timestamptz;
+      if v_now > v_expires_at then
+        return;
+      end if;
+    exception when others then
+      return;
+    end;
+  end if;
+
+  v_usage_count := coalesce((v_meta->>'accessCodeUsageCount')::integer, 0);
+  v_usage_limit := coalesce((v_meta->>'accessCodeUsageLimit')::integer, 3);
+
+  if v_usage_count >= v_usage_limit then
+    return;
+  end if;
+
+  v_usage_count := v_usage_count + 1;
+  if v_usage_count >= v_usage_limit then
+    v_code_status := 'used';
+  else
+    v_code_status := 'active';
+  end if;
+
+  v_meta := jsonb_set(
+    jsonb_set(v_meta, '{accessCodeUsageCount}', to_jsonb(v_usage_count)),
+    '{accessCodeStatus}',
+    to_jsonb(v_code_status)
+  );
+
+  update public.lead_bookings
+  set
+    admin_notes = v_meta::text,
+    updated_at = v_now
+  where id = v_row.id
+  returning * into v_row;
+
+  return next v_row;
+end;
+$$;
+
+revoke all on function public.claim_commerce_access(text, text, text) from public, anon, authenticated;
+grant execute on function public.claim_commerce_access(text, text, text) to service_role;

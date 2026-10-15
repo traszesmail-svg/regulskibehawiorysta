@@ -8,9 +8,10 @@ type Props = {
   orderNumber: string
   viewerToken: string
   phoneDisplay?: string | null
+  automaticConfirmation?: boolean
 }
 
-export function CommerceBlikActions({ orderNumber, viewerToken, phoneDisplay }: Props) {
+export function CommerceBlikActions({ orderNumber, viewerToken, phoneDisplay, automaticConfirmation = false }: Props) {
   const [copied, setCopied] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -37,7 +38,7 @@ export function CommerceBlikActions({ orderNumber, viewerToken, phoneDisplay }: 
       const payload = (await response.json()) as {
         redirectTo?: string
         error?: string
-        adminNotification?: 'sent' | 'already_reported' | 'failed'
+        adminNotification?: 'sent' | 'already_reported' | 'failed' | 'skipped'
         adminNotificationReason?: string | null
       }
 
@@ -50,11 +51,10 @@ export function CommerceBlikActions({ orderNumber, viewerToken, phoneDisplay }: 
         payload.adminNotification !== 'sent' &&
         payload.adminNotification !== 'already_reported'
       ) {
-        throw new Error(
-          payload.adminNotificationReason
-            ? `Zgłoszenie zapisane, ale mail do behawiorysty nie wyszedł: ${payload.adminNotificationReason}`
-            : 'Zgłoszenie zapisane, ale mail do behawiorysty nie wyszedł.',
-        )
+        console.warn('[commerce][blik] admin notification not sent', {
+          adminNotification: payload.adminNotification,
+          reason: payload.adminNotificationReason,
+        })
       }
 
       trackAnalyticsEvent('payment_reported', {
@@ -82,14 +82,20 @@ export function CommerceBlikActions({ orderNumber, viewerToken, phoneDisplay }: 
         </div>
       </div>
 
-      <div className="hero-actions centered-actions">
+      {!automaticConfirmation ? <div className="hero-actions centered-actions">
         <button type="button" className="button button-ghost big-button" onClick={copyOrderNumber}>
           {copied ? 'Skopiowano' : 'Kopiuj numer zamówienia'}
         </button>
         <button type="button" className="button button-primary big-button" onClick={reportPayment} disabled={loading}>
           {loading ? 'Wysyłam zgłoszenie...' : 'Zapłaciłem/am'}
         </button>
-      </div>
+      </div> : null}
+
+      {automaticConfirmation ? (
+        <div className="notice-box">
+          Po zaksięgowaniu wpływu przez Revolut dostęp zostanie aktywowany automatycznie. Nie klikaj dodatkowego potwierdzenia.
+        </div>
+      ) : null}
 
       {error ? <div className="error-box">{error}</div> : null}
     </div>

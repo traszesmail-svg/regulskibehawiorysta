@@ -200,6 +200,13 @@ export class Section16EntitlementAlreadyExistsError extends Section16DomainError
   }
 }
 
+export class Section16SlotUnavailableError extends Section16DomainError {
+  constructor(message = 'Wybrany termin jest niedostępny, zajęty lub zablokowany', code = 'SLOT_UNAVAILABLE') {
+    super(message, code)
+    this.name = 'Section16SlotUnavailableError'
+  }
+}
+
 // Data Entities
 export interface UrgentIntakeRequest {
   id: string

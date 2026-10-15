@@ -6,6 +6,13 @@ import { getSupabaseServerConfig, resolveDataMode } from '@/lib/server/env'
 import { createClient } from '@supabase/supabase-js'
 import { getBookingById } from '@/lib/server/db'
 import {
+  holdAvailabilitySlotForSection16,
+  releaseSection16AvailabilityHold,
+  confirmSection16AvailabilityBooking,
+  Section16SlotUnavailableError,
+} from './local-store'
+export { Section16SlotUnavailableError }
+import {
   UrgentIntakeRequest,
   UrgentIntakeEvent,
   UrgentIntakeDayChoice,
@@ -253,6 +260,27 @@ export function mapRpcError(error: any): never {
     message.includes('INVALID_PAYLOAD_HASH')
   ) {
     throw new Section16ValidationError(message)
+  }
+  if (
+    message.includes('SLOT_NOT_FOUND') ||
+    message.includes('SLOT_UNAVAILABLE') ||
+    message.includes('SLOT_LOCKED') ||
+    message.includes('SLOT_ALREADY_HELD') ||
+    message.includes('HOLD_NOT_FOUND') ||
+    message.includes('SLOT_MISMATCH')
+  ) {
+    const code = message.includes('SLOT_NOT_FOUND')
+      ? 'SLOT_NOT_FOUND'
+      : message.includes('HOLD_NOT_FOUND')
+        ? 'HOLD_NOT_FOUND'
+        : message.includes('SLOT_MISMATCH')
+          ? 'SLOT_MISMATCH'
+          : message.includes('SLOT_LOCKED')
+            ? 'SLOT_LOCKED'
+            : message.includes('SLOT_ALREADY_HELD')
+              ? 'SLOT_ALREADY_HELD'
+              : 'SLOT_UNAVAILABLE'
+    throw new Section16SlotUnavailableError(message, code)
   }
   throw new Section16DomainError(message, 'RPC_ERROR')
 }
@@ -1238,8 +1266,12 @@ function getDataMode(): 'local' | 'supabase' {
 // PATH A: URGENT INTAKE REQUESTS
 // ---------------------------------------------------------------------------
 
+export type CreateUrgentIntakeStoreInput = CreateUrgentIntakeInput & {
+  expectedVersion?: number
+}
+
 export async function createUrgentIntakeRequest(
-  input: CreateUrgentIntakeInput,
+  input: CreateUrgentIntakeStoreInput,
   nowDate: Date = new Date(),
 ): Promise<UrgentIntakeRequest> {
   const mode = getDataMode()
@@ -1262,6 +1294,9 @@ export async function createUrgentIntakeRequest(
   const requestId = input.requestId ?? randomUUID()
 
   if (mode === 'supabase') {
+    if (input.expectedVersion !== undefined && input.expectedVersion !== 1) {
+      throw new Section16ConcurrencyError(input.expectedVersion, 1)
+    }
     const supabase = getSupabaseClient()
     const { data, error } = await supabase.rpc('create_urgent_intake_request', {
       p_request_id: requestId,
@@ -1291,7 +1326,20 @@ export async function createUrgentIntakeRequest(
         throw new Section16IdempotencyConflictError(idempotencyKey)
       }
       const existingReq = store.urgentIntakes.find((r) => r.id === existingEvent.requestId)
-      if (existingReq) return existingReq
+      if (existingReq) {
+        if (input.expectedVersion !== undefined && existingReq.version !== input.expectedVersion) {
+          throw new Section16ConcurrencyError(input.expectedVersion, existingReq.version)
+        }
+        return existingReq
+      }
+    }
+
+    if (input.expectedVersion !== undefined && input.expectedVersion !== 1) {
+      throw new Section16ConcurrencyError(input.expectedVersion, 1)
+    }
+
+    if (store.urgentIntakes.some((r) => r.id === requestId)) {
+      throw new Section16ConcurrencyError(1, 0)
     }
 
     const nowIso = nowDate.toISOString()
@@ -1407,30 +1455,43 @@ export async function proposeUrgentIntakeTimeslot(
       throw new Section16ValidationError('Czas wygaśnięcia blokady musi być w przyszłości')
     }
 
-    const fromState = req.state
-    const nowIso = nowDate.toISOString()
-    req.state = 'timeslot_proposed'
-    req.proposedDate = input.proposedDate
-    req.proposedTime = input.proposedTime
-    req.proposedTimeslotIso = input.proposedTimeslotIso ?? null
-    req.holdExpiresAt = holdExpiresAt
-    req.version += 1
-    req.updatedAt = nowIso
-
-    store.urgentEvents.push({
-      id: randomUUID(),
+    await holdAvailabilitySlotForSection16({
+      bookingDate: input.proposedDate,
+      bookingTime: input.proposedTime,
       requestId: req.id,
-      eventType: 'timeslot_proposed',
-      fromState,
-      toState: 'timeslot_proposed',
-      payload: sanitizedPayload as Record<string, unknown>,
-      payloadHash,
-      idempotencyKey,
-      createdAt: nowIso,
+      holdExpiresAt,
+      now: nowDate,
     })
 
-    await writeStoreSnapshot(store)
-    return req
+    try {
+      const fromState = req.state
+      const nowIso = nowDate.toISOString()
+      req.state = 'timeslot_proposed'
+      req.proposedDate = input.proposedDate
+      req.proposedTime = input.proposedTime
+      req.proposedTimeslotIso = input.proposedTimeslotIso ?? null
+      req.holdExpiresAt = holdExpiresAt
+      req.version += 1
+      req.updatedAt = nowIso
+
+      store.urgentEvents.push({
+        id: randomUUID(),
+        requestId: req.id,
+        eventType: 'timeslot_proposed',
+        fromState,
+        toState: 'timeslot_proposed',
+        payload: sanitizedPayload as Record<string, unknown>,
+        payloadHash,
+        idempotencyKey,
+        createdAt: nowIso,
+      })
+
+      await writeStoreSnapshot(store)
+      return req
+    } catch (mutationError) {
+      await releaseSection16AvailabilityHold(req.id, nowDate).catch(() => {})
+      throw mutationError
+    }
   })
 }
 
@@ -1491,6 +1552,10 @@ export async function confirmUrgentIntakePayment(
 
     if (!input.paymentReference?.trim()) {
       throw new Section16PaymentRequiredError('Wymagana jest referencja potwierdzonej płatności')
+    }
+
+    if (req.proposedDate && req.proposedTime) {
+      await confirmSection16AvailabilityBooking(req.id, req.proposedDate, req.proposedTime, nowDate)
     }
 
     const nowIso = nowDate.toISOString()
@@ -1576,6 +1641,10 @@ export async function transitionUrgentIntakeState(
     req.version += 1
     req.updatedAt = nowIso
 
+    if (input.targetState === 'cancelled' || input.targetState === 'rejected' || input.targetState === 'expired') {
+      await releaseSection16AvailabilityHold(req.id, nowDate)
+    }
+
     store.urgentEvents.push({
       id: randomUUID(),
       requestId: req.id,
@@ -1623,6 +1692,99 @@ export async function getUrgentIntakeEventByIdempotencyKey(
 
   const store = await readStoreSnapshot()
   return store.urgentEvents.find((e) => e.idempotencyKey === idempotencyKey) ?? null
+}
+
+export interface ListUrgentIntakeRequestsOptions {
+  id?: string
+  state?: UrgentIntakeState | UrgentIntakeState[]
+  dayChoice?: UrgentIntakeDayChoice
+  targetDate?: string
+  limit?: number
+}
+
+export async function listUrgentIntakeRequests(
+  options: ListUrgentIntakeRequestsOptions = {},
+): Promise<UrgentIntakeRequest[]> {
+  const limit = options.limit ?? 50
+  if (
+    typeof limit !== 'number' ||
+    !Number.isInteger(limit) ||
+    limit < 1 ||
+    limit > 100
+  ) {
+    throw new Section16ValidationError('Parametr limit musi być liczbą całkowitą z zakresu 1..100')
+  }
+
+  if (options.id !== undefined && (!options.id || !SECTION16_UUID_REGEX.test(options.id.trim()))) {
+    throw new Section16ValidationError('Parametr id musi być poprawnym UUID')
+  }
+
+  if (options.dayChoice !== undefined && options.dayChoice !== 'today' && options.dayChoice !== 'tomorrow') {
+    throw new Section16ValidationError(`Nieprawidłowy wybór dnia: ${String(options.dayChoice)}`)
+  }
+
+  if (options.targetDate !== undefined && !/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(options.targetDate)) {
+    throw new Section16ValidationError(`Nieprawidłowy format daty docelowej: ${String(options.targetDate)}`)
+  }
+
+  const allowedStates = options.state !== undefined
+    ? (Array.isArray(options.state) ? options.state : [options.state])
+    : null
+  if (allowedStates) {
+    for (const s of allowedStates) {
+      if (!['pending_proposal', 'timeslot_proposed', 'payment_confirmed', 'expired', 'cancelled', 'rejected'].includes(s)) {
+        throw new Section16ValidationError(`Nieprawidłowy stan w filtrze: ${String(s)}`)
+      }
+    }
+  }
+
+  const mode = getDataMode()
+  if (mode === 'supabase') {
+    const supabase = getSupabaseClient()
+    let query = supabase
+      .from('urgent_intake_requests')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(limit)
+
+    if (options.id) {
+      query = query.eq('id', options.id.trim())
+    }
+    if (allowedStates) {
+      query = query.in('state', allowedStates)
+    }
+    if (options.dayChoice) {
+      query = query.eq('day_choice', options.dayChoice)
+    }
+    if (options.targetDate) {
+      query = query.eq('target_date', options.targetDate)
+    }
+
+    const { data, error } = await query
+    if (error) throw new Section16DomainError(error.message, 'DB_ERROR')
+    return (data || []).map(mapUrgentIntakeRequestRecord)
+  }
+
+  const store = await readStoreSnapshot()
+  let list = [...store.urgentIntakes]
+
+  list.sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))
+
+  if (options.id) {
+    const idTrimmed = options.id.trim()
+    list = list.filter((r) => r.id === idTrimmed)
+  }
+  if (allowedStates) {
+    list = list.filter((r) => allowedStates.includes(r.state))
+  }
+  if (options.dayChoice) {
+    list = list.filter((r) => r.dayChoice === options.dayChoice)
+  }
+  if (options.targetDate) {
+    list = list.filter((r) => r.targetDate === options.targetDate)
+  }
+
+  return list.slice(0, limit)
 }
 
 
@@ -2596,6 +2758,8 @@ export async function sweepExpiredSection16RecordsLocal(
       req.state = 'expired'
       req.version += 1
       req.updatedAt = nowIso
+
+      await releaseSection16AvailabilityHold(req.id, nowDate)
 
       store.urgentEvents.push({
         id: randomUUID(),

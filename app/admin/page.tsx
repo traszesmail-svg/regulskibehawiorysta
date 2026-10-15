@@ -109,6 +109,7 @@ function createAdminBookingGroups(bookings: BookingRecord[], now = new Date()) {
 
 const adminNavItems = [
   { href: '/admin', label: 'Dashboard' },
+  { href: '/admin/section16', label: 'Sekcja 16' },
   { href: '/admin/lead-bookings', label: 'Leady' },
   { href: '/admin/materialy', label: 'Materiały' },
   { href: '/admin/promocje', label: 'Kody' },
@@ -407,6 +408,7 @@ export default async function AdminPage() {
           needsActionBookings={bookingGroups.needsAction}
           desktopChildren={
             <>
+              <AdminTopbar />
               <section className="panel section-panel">
           <div className="section-head">
             <div>

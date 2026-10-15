@@ -79,6 +79,7 @@ const CONFIRM_TOKEN_PREFIX = 'commerce-confirm:'
 const ACCESS_CODE_PREFIX = 'commerce-code:'
 export const COMMERCE_MANUAL_NOTIFICATION_CLAIM_STALE_AFTER_MS = 10 * 60 * 1000
 const manualPaymentReportLocks = new Map<string, Promise<void>>()
+const orderClaimLocks = new Map<string, Promise<void>>()
 
 function nowIso(now = new Date()) {
   return now.toISOString()
@@ -140,6 +141,27 @@ async function withManualPaymentReportLock<T>(orderNumber: string, run: () => Pr
   }
 }
 
+async function withOrderClaimLock<T>(orderNumber: string, run: () => Promise<T>): Promise<T> {
+  const previous = orderClaimLocks.get(orderNumber) ?? Promise.resolve()
+  let releaseCurrent!: () => void
+  const current = new Promise<void>((resolve) => {
+    releaseCurrent = resolve
+  })
+  const queued = previous.then(() => current)
+  orderClaimLocks.set(orderNumber, queued)
+
+  await previous
+
+  try {
+    return await run()
+  } finally {
+    releaseCurrent()
+    if (orderClaimLocks.get(orderNumber) === queued) {
+      orderClaimLocks.delete(orderNumber)
+    }
+  }
+}
+
 async function readLocalStore(): Promise<CommerceStoreShape> {
   try {
     const raw = await readFile(getStorePath(), 'utf8')
@@ -156,7 +178,14 @@ async function writeLocalStore(store: CommerceStoreShape) {
   await writeFile(filePath, JSON.stringify(store, null, 2), 'utf8')
 }
 
+let supabaseClientOverrideForTest: any = null
+
+export function setCommerceSupabaseClientOverrideForTest(client: any) {
+  supabaseClientOverrideForTest = client
+}
+
 function getSupabaseClient() {
+  if (supabaseClientOverrideForTest) return supabaseClientOverrideForTest
   if (process.env.APP_DATA_MODE?.trim() !== 'supabase') return null
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim()
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim()
@@ -456,11 +485,17 @@ export async function findCommerceOrderByProduct(productType: CommerceOrder['pro
     .from('lead_bookings')
     .select('*')
     .eq('service', `commerce:${productType}:${productId}`.slice(0, 180))
+    .not('status', 'in', '("cancelled","expired")')
     .order('created_at', { ascending: false })
-    .limit(1)
 
-  if (error || !data?.[0]) return null
-  return leadRowToOrder(data[0] as LeadBookingRow)
+  if (error || !data) return null
+  for (const row of data as LeadBookingRow[]) {
+    const order = leadRowToOrder(row)
+    if (order && !['cancelled', 'expired'].includes(order.status)) {
+      return order
+    }
+  }
+  return null
 }
 
 export async function getCommerceOrder(orderNumber: string): Promise<CommerceOrder | null> {
@@ -554,6 +589,21 @@ export async function listCommerceOrdersByEmail(email: string): Promise<Commerce
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
 }
 
+export async function listPendingCommerceOrders(): Promise<CommerceOrder[]> {
+  const store = await readLocalStore()
+  const local = store.orders.filter((order) =>
+    order.productType === 'ebook' &&
+    ['created', 'waiting_manual_payment', 'payment_reported'].includes(order.status),
+  )
+  const supabase = getSupabaseClient()
+  if (!supabase) return local
+  const { data, error } = await supabase.from('lead_bookings').select('*').like('service', 'commerce:ebook:%')
+  if (error || !data) return local
+  return (data as LeadBookingRow[]).map(leadRowToOrder).filter((order): order is CommerceOrder =>
+    Boolean(order && ['created', 'waiting_manual_payment', 'payment_reported'].includes(order.status)),
+  )
+}
+
 export async function getCommerceOrderByConfirmationToken(token: string): Promise<CommerceOrder | null> {
   const supabaseOrder = await findSupabaseOrderBy('payment_link', `${CONFIRM_TOKEN_PREFIX}${token}`)
   if (supabaseOrder) return supabaseOrder
@@ -564,18 +614,30 @@ export async function getCommerceOrderByConfirmationToken(token: string): Promis
 
 export async function getCommerceOrderByAccessCode(code: string, email?: string | null): Promise<CommerceOrder | null> {
   const normalizedCode = code.trim().toUpperCase()
+  if (!normalizedCode) return null
+
+  const hasEmailFilter = email !== undefined && email !== null
+  const normalizedEmail = hasEmailFilter ? (email.trim() ? normalizeCommerceEmail(email) : '') : null
+
+  if (hasEmailFilter && !normalizedEmail) {
+    return null
+  }
+
   const supabaseOrder = await findSupabaseOrderBy('calendar_url', `${ACCESS_CODE_PREFIX}${normalizedCode}`)
-  if (supabaseOrder && (!email || supabaseOrder.customerEmail === normalizeCommerceEmail(email))) {
+  if (supabaseOrder) {
+    if (hasEmailFilter && supabaseOrder.customerEmail !== normalizedEmail) {
+      return null
+    }
     return supabaseOrder
   }
 
   const store = await readLocalStore()
   return (
-    store.orders.find(
-      (order) =>
-        order.accessCode === normalizedCode &&
-        (!email || order.customerEmail === normalizeCommerceEmail(email)),
-    ) ?? null
+    store.orders.find((order) => {
+      if (order.accessCode !== normalizedCode) return false
+      if (hasEmailFilter && order.customerEmail !== normalizedEmail) return false
+      return true
+    }) ?? null
   )
 }
 
@@ -768,6 +830,69 @@ export async function fulfillCommerceOrder(
   return saveOrder(order)
 }
 
+function isValidRevolutFingerprint(value: string) {
+  return /^revolut:[0-9a-f]{64}$/.test(value)
+}
+
+function isValidRevolutAmount(value: number) {
+  return Number.isFinite(value) && value > 0 && Number(value.toFixed(2)) === value
+}
+
+function isEligibleForAutomaticRevolutCommerceReconciliation(order: CommerceOrder, fingerprint: string, amount: number) {
+  return (
+    order.productType === 'ebook' &&
+    ['created', 'waiting_manual_payment', 'payment_reported'].includes(order.status) &&
+    order.providerPaymentId === null &&
+    Number(order.manualAmount.toFixed(2)) === amount &&
+    isValidRevolutFingerprint(fingerprint) &&
+    isValidRevolutAmount(amount)
+  )
+}
+
+/**
+ * Atomic payment claim for the automatic Revolut PDF path. Supabase owns the
+ * ledger plus state transition in one RPC; local mode uses a process lock as
+ * its single-writer boundary. This path never sends mail or SMS.
+ */
+export async function reconcileCommerceRevolutPaymentNotification(
+  orderNumber: string,
+  fingerprint: string,
+  amount: number,
+): Promise<CommerceOrder | null> {
+  const normalizedOrderNumber = orderNumber.trim().toUpperCase()
+  if (!normalizedOrderNumber || !isValidRevolutFingerprint(fingerprint) || !isValidRevolutAmount(amount)) {
+    return null
+  }
+
+  const supabase = getSupabaseClient()
+  if (supabase) {
+    const { data, error } = await supabase.rpc('reconcile_revolut_commerce_payment_notification', {
+      p_fingerprint: fingerprint,
+      p_order_number: normalizedOrderNumber,
+      p_amount: amount,
+      p_access_code: makeAccessCode(),
+    })
+    if (error) {
+      throw new Error(`Nie można bezpiecznie zaksięgować płatności Revolut za materiał: ${error.message}`)
+    }
+    const row = Array.isArray(data) ? data[0] : data
+    return row ? leadRowToOrder(row as LeadBookingRow) : null
+  }
+
+  return withOrderClaimLock(normalizedOrderNumber, async () => {
+    const order = await getCommerceOrder(normalizedOrderNumber)
+    if (!order || !isEligibleForAutomaticRevolutCommerceReconciliation(order, fingerprint, amount)) {
+      return null
+    }
+
+    // The lock makes a retry see the first immutable provider ID, while a
+    // different transaction ID cannot replace it or mint another access code.
+    return fulfillCommerceOrder(normalizedOrderNumber, 'blik_phone', {
+      providerPaymentId: fingerprint,
+    })
+  })
+}
+
 export async function rejectCommerceManualPayment(
   orderNumber: string,
   options?: {
@@ -795,12 +920,56 @@ export function canUseCommerceAccess(order: CommerceOrder) {
   return true
 }
 
-export async function recordCommerceAccessUse(orderNumber: string): Promise<CommerceOrder | null> {
-  const order = await getCommerceOrder(orderNumber)
-  if (!order || !canUseCommerceAccess(order)) return null
-  order.accessCodeUsageCount += 1
-  if (order.accessCodeUsageCount >= order.accessCodeUsageLimit) {
-    order.accessCodeStatus = 'used'
+export async function claimCommerceAccessUse(
+  orderNumber: string,
+  options?: { code?: string | null; email?: string | null },
+): Promise<CommerceOrder | null> {
+  const normalizedOrderNumber = orderNumber.trim().toUpperCase()
+  const supabase = getSupabaseClient()
+
+  if (supabase) {
+    const { data, error } = await supabase.rpc('claim_commerce_access', {
+      p_order_number: normalizedOrderNumber,
+      p_access_code: options?.code ? options.code.trim().toUpperCase() : null,
+      p_email: options?.email ? normalizeCommerceEmail(options.email) : null,
+    })
+
+    if (error) {
+      console.warn('[commerce] Supabase claim_commerce_access failed', error.message)
+      return null
+    }
+
+    const row = Array.isArray(data) ? data[0] : data
+    return row ? leadRowToOrder(row as LeadBookingRow) : null
   }
-  return saveOrder(order)
+
+  return withOrderClaimLock(normalizedOrderNumber, async () => {
+    const store = await readLocalStore()
+    const index = store.orders.findIndex((o) => o.orderNumber === normalizedOrderNumber)
+    if (index < 0) return null
+
+    const order = store.orders[index]
+    if (options?.code && order.accessCode !== options.code.trim().toUpperCase()) {
+      return null
+    }
+    if (options?.email && order.customerEmail !== normalizeCommerceEmail(options.email)) {
+      return null
+    }
+    if (!canUseCommerceAccess(order)) {
+      return null
+    }
+
+    order.accessCodeUsageCount += 1
+    if (order.accessCodeUsageCount >= order.accessCodeUsageLimit) {
+      order.accessCodeStatus = 'used'
+    }
+    order.updatedAt = nowIso()
+    store.orders[index] = order
+    await writeLocalStore(store)
+    return order
+  })
+}
+
+export async function recordCommerceAccessUse(orderNumber: string): Promise<CommerceOrder | null> {
+  return claimCommerceAccessUse(orderNumber)
 }

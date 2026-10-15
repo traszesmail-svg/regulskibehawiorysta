@@ -12,7 +12,7 @@ export function HomepageZapytajHero() {
         <span className="homepage-zapytaj-kicker">KRZYSZTOF REGULSKI · BEHAWIORYSTA PSÓW I KOTÓW</span>
         <h1 id="homepage-zapytaj-title">Martwi Cię zachowanie psa lub kota?</h1>
         <p className="homepage-zapytaj-lead">
-          Opowiedz, co się dzieje. Podczas krótkiej rozmowy ustalimy pierwszy kierunek działania i to, czy potrzebna jest dalsza pomoc.
+          Opowiedz, co się dzieje. Podczas krótkiej rozmowy ustalimy pierwszy kierunek działania i to, czy potrzebna jest dalsza pomoc. Po rozmowie możesz zadać jeszcze 2 pytania w Pokoju opiekuna przez 7 dni.
         </p>
 
         <div className="offer-facts" aria-label="Najważniejsze informacje">

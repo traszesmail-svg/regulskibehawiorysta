@@ -48,6 +48,7 @@ import {
   createAvailabilitySlot,
   createPendingBooking,
   markBookingPaid,
+  resetAvailabilityLocalStore,
 } from '../lib/server/local-store'
 import { createLocalDataSandbox } from '../scripts/lib/local-data-sandbox'
 import { getSupabaseSchemaAudit } from '../scripts/lib/schema-audit'
@@ -58,16 +59,20 @@ test.before(async () => {
   sandbox = await createLocalDataSandbox('section16-autonomous')
   process.env.APP_DATA_MODE = 'local'
   process.env.CALL_SESSION_PHONE_SECRET = 'test-secret-with-at-least-16-chars'
+  await resetSection16LocalStore()
+  await resetAvailabilityLocalStore()
 })
 
 test.beforeEach(async () => {
   process.env.APP_DATA_MODE = 'local'
   process.env.CALL_SESSION_PHONE_SECRET = 'test-secret-with-at-least-16-chars'
   await resetSection16LocalStore()
+  await resetAvailabilityLocalStore()
 })
 
 test.after(async () => {
   await resetSection16LocalStore()
+  await resetAvailabilityLocalStore()
   if (sandbox) {
     await sandbox.cleanup()
   }
@@ -189,6 +194,7 @@ test('Path A: valid lifecycle (create -> propose timeslot -> confirm payment)', 
   assert.equal(intake.paymentReference, null)
 
   // Propose timeslot
+  await createAvailabilitySlot(intake.targetDate, '15:30', undefined, now)
   const proposed = await proposeUrgentIntakeTimeslot(
     {
       requestId: intake.id,
@@ -264,6 +270,7 @@ test('Path A: timeslot hold expiration prevents payment confirmation', async () 
   )
 
   const holdExpiresAt = new Date(now.getTime() + 15 * 60 * 1000).toISOString() // +15 min
+  await createAvailabilitySlot(intake.targetDate, '14:00', undefined, now)
   await proposeUrgentIntakeTimeslot(
     {
       requestId: intake.id,
@@ -599,10 +606,12 @@ test('Talk Entitlements: valid lifecycle (create active -> consume with callSess
     },
     now,
   )
+  const targetDate = resolveWarsawIntakeTargetDate('today', now)
+  await createAvailabilitySlot(targetDate, '14:00', undefined, now)
   await proposeUrgentIntakeTimeslot(
     {
       requestId: urg.id,
-      proposedDate: resolveWarsawIntakeTargetDate('today', now),
+      proposedDate: targetDate,
       proposedTime: '14:00',
       proposedTimeslotIso: new Date(now.getTime() + 2 * 3600 * 1000).toISOString(),
       holdExpiresAt: new Date(now.getTime() + 30 * 60 * 1000).toISOString(),
@@ -684,10 +693,12 @@ test('Talk Entitlements: consumption after validUntil is rejected without mutati
     },
     now,
   )
+  const targetDate = resolveWarsawIntakeTargetDate('today', now)
+  await createAvailabilitySlot(targetDate, '14:00', undefined, now)
   await proposeUrgentIntakeTimeslot(
     {
       requestId: urg.id,
-      proposedDate: resolveWarsawIntakeTargetDate('today', now),
+      proposedDate: targetDate,
       proposedTime: '14:00',
       proposedTimeslotIso: new Date(now.getTime() + 2 * 3600 * 1000).toISOString(),
       holdExpiresAt: new Date(now.getTime() + 30 * 60 * 1000).toISOString(),
@@ -752,10 +763,12 @@ test('Talk Entitlements: revocation transitions active to revoked', async () => 
     },
     now,
   )
+  const targetDate = resolveWarsawIntakeTargetDate('today', now)
+  await createAvailabilitySlot(targetDate, '14:00', undefined, now)
   await proposeUrgentIntakeTimeslot(
     {
       requestId: urg.id,
-      proposedDate: resolveWarsawIntakeTargetDate('today', now),
+      proposedDate: targetDate,
       proposedTime: '14:00',
       proposedTimeslotIso: new Date(now.getTime() + 2 * 3600 * 1000).toISOString(),
       holdExpiresAt: new Date(now.getTime() + 30 * 60 * 1000).toISOString(),
@@ -865,6 +878,7 @@ test('Idempotency: all 11 mutation functions reject missing, empty, whitespace, 
   )
 
   // 2. proposeUrgentIntakeTimeslot
+  await createAvailabilitySlot(urgReq.targetDate, '15:00', undefined, now)
   for (const badKey of invalidKeys) {
     await assert.rejects(
       () =>
@@ -1090,6 +1104,7 @@ test('Idempotency: all 11 mutation functions reject missing, empty, whitespace, 
     },
     now,
   )
+  await createAvailabilitySlot(freshPaidUrg.targetDate, '16:00', undefined, now)
   await proposeUrgentIntakeTimeslot(
     {
       requestId: freshPaidUrg.id,
@@ -1193,6 +1208,7 @@ test('Idempotency: every mutation creates exactly one event; retries are idempot
   assert.equal(snap.urgentEvents.length, 1)
 
   // 2. Propose timeslot -> creates exactly 1 new event (total 2)
+  await createAvailabilitySlot(req1.targetDate, '14:30', undefined, now)
   await proposeUrgentIntakeTimeslot(
     {
       requestId: req1.id,
@@ -1418,6 +1434,7 @@ test('Talk Entitlements: binding to authoritative paid sources, rejecting arbitr
   )
 
   // Propose timeslot and confirm payment on urgent request
+  await createAvailabilitySlot(urgReq.targetDate, '15:00', undefined, now)
   await proposeUrgentIntakeTimeslot(
     {
       requestId: urgReq.id,

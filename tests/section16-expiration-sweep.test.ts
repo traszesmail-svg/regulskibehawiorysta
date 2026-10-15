@@ -4,6 +4,11 @@ import { readFileSync } from 'node:fs'
 import { randomUUID } from 'node:crypto'
 import { createLocalDataSandbox } from '../scripts/lib/local-data-sandbox'
 import {
+  createAvailabilitySlot,
+  holdAvailabilitySlotForSection16,
+  resetAvailabilityLocalStore,
+} from '../lib/server/local-store'
+import {
   resetSection16LocalStore,
   readSection16StoreSnapshot,
   updateSection16StoreSnapshot,
@@ -47,6 +52,7 @@ test.before(async () => {
   process.env.APP_DATA_MODE = 'local'
   process.env.CALL_SESSION_PHONE_SECRET = 'test-secret-with-at-least-16-chars'
   await resetSection16LocalStore()
+  await resetAvailabilityLocalStore()
 })
 
 test.after(async () => {
@@ -55,6 +61,7 @@ test.after(async () => {
 
 test.beforeEach(async () => {
   await resetSection16LocalStore()
+  await resetAvailabilityLocalStore()
 })
 
 // Helper to create an urgent intake in a specific state with custom deadlines
@@ -2130,11 +2137,12 @@ test('23. Granica 1 ms przed deadline: każda z 5 operacji Section 16 zostaje do
     expiresAt: d1.toISOString(),
     version: 1,
   })
+  await createAvailabilitySlot('2026-10-12', '13:00', undefined, now1)
   const res1 = await proposeUrgentIntakeTimeslot(
     {
       requestId: id1,
       proposedDate: '2026-10-12',
-      proposedTime: '11:00',
+      proposedTime: '13:00',
       holdExpiresAt: new Date(now1.getTime() + 15 * 60 * 1000).toISOString(),
       idempotencyKey: 'before-prop-1',
     },
@@ -2151,6 +2159,14 @@ test('23. Granica 1 ms przed deadline: każda z 5 operacji Section 16 zostaje do
     expiresAt: '2026-10-12T12:00:00.000Z',
     holdExpiresAt: d2.toISOString(),
     version: 2,
+  })
+  await createAvailabilitySlot('2026-10-12', '14:00', undefined, now2)
+  await holdAvailabilitySlotForSection16({
+    bookingDate: '2026-10-12',
+    bookingTime: '14:00',
+    requestId: id2,
+    holdExpiresAt: d2.toISOString(),
+    now: now2,
   })
   const res2 = await confirmUrgentIntakePayment(
     {

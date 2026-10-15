@@ -181,10 +181,9 @@ export function getDefaultReleaseSmokeRules(): ReleaseSmokeRule[] {
     {
       path: '/',
       required: [
-        'Masz problem z zachowaniem psa lub kota?',
-        'Zapytaj behawiorystę.',
+        'Martwi Cię zachowanie psa lub kota?',
         'Do 15 minut',
-        'Płatna rozmowa',
+        '2 pytania',
       ],
       forbiddenRaw: ['href="tel:', "href='tel:"],
       requireBuildMarker: true,

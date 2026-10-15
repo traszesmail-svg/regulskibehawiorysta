@@ -41,8 +41,9 @@ export function buildLimitedMetadataTitle(title: string, maxLength = 70) {
     return `${normalizedTitle}${suffix}`
   }
 
-  const clippedTitle = normalizedTitle
-    .slice(0, Math.max(12, availableLength - 3))
+  const initialClip = normalizedTitle.slice(0, Math.max(12, availableLength - 3)).trimEnd()
+  const wordBoundary = initialClip.lastIndexOf(' ')
+  const clippedTitle = (wordBoundary >= 12 ? initialClip.slice(0, wordBoundary) : initialClip)
     .trimEnd()
     .replace(/[,:;.-]+$/, '')
 

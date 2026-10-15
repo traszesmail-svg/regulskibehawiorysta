@@ -272,3 +272,30 @@ test('community campaign prices Zapytaj at 39.99, allows one email, and releases
     },
   )
 })
+
+test('QA pilot mode uses 0.01 PLN only with mock checkout and never in production', async () => {
+  await withEnv({
+    APP_DATA_MODE: 'local',
+    APP_PAYMENT_MODE: 'mock',
+    TEST_CHECKOUT_ENABLED: 'true',
+    PILOT_TEST_MODE: 'true',
+    VERCEL_ENV: 'preview',
+    CUSTOMER_EMAIL_MODE: 'disabled',
+    ADMIN_NOTIFICATION_EMAIL: null,
+    RESEND_API_KEY: null,
+  }, async () => {
+    const sandbox = await createLocalDataSandbox('promo-qa-one-grosz', process.cwd())
+    try {
+      const campaign = await createPromoCampaign({ clinicName: 'Pilot QA', kind: 'community', codeCount: 1, expiresAt: '2035-12-31' })
+      assert.equal(campaign.campaign.promotionPricePln, 0.01)
+      const slots = (await listAvailabilityAdmin()).filter((slot) => isAvailabilitySlotBookableForService(slot, 'szybka-konsultacja-15-min'))
+      const created = await createCommunityPromoBooking({
+        code: campaign.codes[0], ownerName: 'Pilot QA', problemType: 'separacja', animalType: 'Pies', petAge: '',
+        durationNotes: '', description: 'Kontrolowany test pilota.', phone: '', email: 'pilot-qa@example.com', slotId: slots[0].id,
+      })
+      assert.equal(created.booking.amount, 0.01)
+    } finally {
+      await sandbox.cleanup()
+    }
+  })
+})

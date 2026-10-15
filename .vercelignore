@@ -1,5 +1,6 @@
 .git
 .codex/
+.ai-bridge/
 AGENTS.md
 android/
 *.keystore

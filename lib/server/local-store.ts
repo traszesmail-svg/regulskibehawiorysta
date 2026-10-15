@@ -43,6 +43,16 @@ import {
   respondUrgentNowRequest as respondUrgentNowRequestRecord,
 } from '@/lib/server/urgent-now-store'
 import { createFunnelEventRecord, normalizeFunnelEventProperties } from '@/lib/server/funnel-events'
+import { Section16SlotUnavailableError, Section16HoldExpiredError } from './section16-types'
+
+export { Section16SlotUnavailableError }
+
+export function isSection16HoldActive(slot: AvailabilitySlot, now = new Date()): boolean {
+  if (!slot.section16HoldRequestId || !slot.section16HoldExpiresAt) {
+    return false
+  }
+  return Date.parse(slot.section16HoldExpiresAt) > now.getTime()
+}
 import {
   sendBookingConfirmationEmail,
   sendBookingPaymentConfirmedOwnerEmail,
@@ -413,6 +423,7 @@ function groupAvailability(slots: AvailabilitySlot[]): GroupedAvailability[] {
       isZapytajLiveSlot(slot.id) ||
       slot.isBooked ||
       slot.lockedByBookingId ||
+      isSection16HoldActive(slot) ||
       !isFutureAvailabilitySlot(slot.bookingDate, slot.bookingTime)
     ) {
       continue
@@ -549,9 +560,10 @@ export async function createAvailabilitySlot(
   bookingDate: string,
   bookingTime: string,
   slotId?: string,
+  now: Date = new Date(),
 ): Promise<AvailabilitySlot> {
   return withLock(async () => {
-    if (!isFutureAvailabilitySlot(bookingDate, bookingTime)) {
+    if (!isFutureAvailabilitySlot(bookingDate, bookingTime, now)) {
       throw new Error('Możesz dodać tylko przyszły termin.')
     }
 
@@ -572,6 +584,8 @@ export async function createAvailabilitySlot(
       isBooked: false,
       lockedByBookingId: null,
       lockedUntil: null,
+      section16HoldRequestId: null,
+      section16HoldExpiresAt: null,
       createdAt: nowIso,
       updatedAt: nowIso,
     }
@@ -614,7 +628,14 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
       : getBookableServiceAvailabilityWindow(store.availability, form.slotId, serviceType)
     const slot = slotWindow?.[0] ?? null
 
-    if (!slotWindow || !slot || slot.isBooked || slot.lockedByBookingId) {
+    if (
+      !slotWindow ||
+      !slot ||
+      slot.isBooked ||
+      slot.lockedByBookingId ||
+      isSection16HoldActive(slot) ||
+      slotWindow.some((item) => isSection16HoldActive(item))
+    ) {
       throw new Error('Wybrany termin nie jest już dostępny.')
     }
 
@@ -1195,7 +1216,7 @@ export async function moveBookingToRecoverySlot(
     }
 
     const targetSlot = store.availability.find((item) => item.id === targetSlotId)
-    if (!targetSlot || isZapytajLiveSlot(targetSlot.id) || !isFutureAvailabilitySlot(targetSlot.bookingDate, targetSlot.bookingTime)) {
+    if (!targetSlot || isZapytajLiveSlot(targetSlot.id) || !isFutureAvailabilitySlot(targetSlot.bookingDate, targetSlot.bookingTime) || isSection16HoldActive(targetSlot)) {
       throw new Error('Wybrany dodatkowy termin nie jest dostępny.')
     }
 
@@ -1208,7 +1229,7 @@ export async function moveBookingToRecoverySlot(
     }
 
     const unavailable = candidateSlots.some(
-      (slot) => !oldSlotIds.has(slot.id) && (slot.isBooked || Boolean(slot.lockedByBookingId)),
+      (slot) => !oldSlotIds.has(slot.id) && (slot.isBooked || Boolean(slot.lockedByBookingId) || isSection16HoldActive(slot)),
     )
     if (unavailable || !isAvailabilitySlotBookableForService(candidateSlots[0], serviceType)) {
       throw new Error('Wybrany dodatkowy termin został już zajęty.')
@@ -1756,6 +1777,160 @@ export async function updateBookingQuiz(
     booking.updatedAt = new Date().toISOString()
     await persistStore(store)
     return booking
+  })
+}
+
+export async function holdAvailabilitySlotForSection16(input: {
+  bookingDate: string
+  bookingTime: string
+  requestId: string
+  holdExpiresAt: string
+  now?: Date
+}): Promise<AvailabilitySlot> {
+  return withLock(async () => {
+    const store = await readStore()
+    const now = input.now ?? new Date()
+    const targetSlot = store.availability.find(
+      (slot) => slot.bookingDate === input.bookingDate && slot.bookingTime === input.bookingTime,
+    )
+
+    if (!targetSlot) {
+      throw new Section16SlotUnavailableError(
+        `Termin ${input.bookingDate} ${input.bookingTime} nie istnieje w kalendarzu`,
+        'SLOT_NOT_FOUND',
+      )
+    }
+
+    if (!isFutureAvailabilitySlot(targetSlot.bookingDate, targetSlot.bookingTime, now)) {
+      throw new Section16SlotUnavailableError(
+        `Termin ${input.bookingDate} ${input.bookingTime} jest już przeszły`,
+        'SLOT_UNAVAILABLE',
+      )
+    }
+
+    if (targetSlot.isBooked) {
+      throw new Section16SlotUnavailableError(
+        `Termin ${input.bookingDate} ${input.bookingTime} jest już zajęty`,
+        'SLOT_UNAVAILABLE',
+      )
+    }
+
+    if (
+      targetSlot.lockedByBookingId &&
+      (!targetSlot.lockedUntil || Date.parse(targetSlot.lockedUntil) > now.getTime())
+    ) {
+      throw new Section16SlotUnavailableError(
+        `Termin ${input.bookingDate} ${input.bookingTime} jest zablokowany przez inną rezerwację`,
+        'SLOT_LOCKED',
+      )
+    }
+
+    if (
+      targetSlot.section16HoldRequestId &&
+      targetSlot.section16HoldRequestId !== input.requestId &&
+      isSection16HoldActive(targetSlot, now)
+    ) {
+      throw new Section16SlotUnavailableError(
+        `Termin ${input.bookingDate} ${input.bookingTime} jest objęty aktywną blokadą Sekcji 16`,
+        'SLOT_ALREADY_HELD',
+      )
+    }
+
+    const nowIso = now.toISOString()
+
+    // Atomically release any previous slot held by this request (reschedule)
+    for (const slot of store.availability) {
+      if (
+        slot.section16HoldRequestId === input.requestId &&
+        slot.id !== targetSlot.id &&
+        !slot.isBooked
+      ) {
+        slot.section16HoldRequestId = null
+        slot.section16HoldExpiresAt = null
+        slot.updatedAt = nowIso
+      }
+    }
+
+    // Set hold on target slot
+    targetSlot.section16HoldRequestId = input.requestId
+    targetSlot.section16HoldExpiresAt = input.holdExpiresAt
+    targetSlot.updatedAt = nowIso
+
+    await persistStore(store)
+    return targetSlot
+  })
+}
+
+export async function releaseSection16AvailabilityHold(requestId: string, now = new Date()): Promise<void> {
+  return withLock(async () => {
+    const store = await readStore()
+    const nowIso = now.toISOString()
+    let changed = false
+
+    for (const slot of store.availability) {
+      if (slot.section16HoldRequestId === requestId && !slot.isBooked) {
+        slot.section16HoldRequestId = null
+        slot.section16HoldExpiresAt = null
+        slot.updatedAt = nowIso
+        changed = true
+      }
+    }
+
+    if (changed) {
+      await persistStore(store)
+    }
+  })
+}
+
+export async function confirmSection16AvailabilityBooking(
+  requestId: string,
+  bookingDate: string,
+  bookingTime: string,
+  now = new Date(),
+): Promise<void> {
+  return withLock(async () => {
+    const store = await readStore()
+    const nowIso = now.toISOString()
+
+    const heldSlot = store.availability.find(
+      (slot) => slot.section16HoldRequestId === requestId,
+    )
+
+    if (!heldSlot) {
+      throw new Section16SlotUnavailableError(
+        `Brak aktywnej blokady Sekcji 16 dla zgłoszenia ${requestId}`,
+        'HOLD_NOT_FOUND',
+      )
+    }
+
+    if (heldSlot.bookingDate !== bookingDate || heldSlot.bookingTime !== bookingTime) {
+      throw new Section16SlotUnavailableError(
+        `Zablokowany termin ${heldSlot.bookingDate} ${heldSlot.bookingTime} nie zgadza się z potwierdzanym ${bookingDate} ${bookingTime}`,
+        'SLOT_MISMATCH',
+      )
+    }
+
+    if (!isSection16HoldActive(heldSlot, now)) {
+      throw new Section16HoldExpiredError('Blokada terminu wygasła przed potwierdzeniem rezerwacji')
+    }
+
+    if (heldSlot.isBooked) {
+      throw new Section16SlotUnavailableError('Termin jest już oznaczony jako zarezerwowany', 'SLOT_UNAVAILABLE')
+    }
+
+    heldSlot.isBooked = true
+    heldSlot.section16HoldExpiresAt = null
+    heldSlot.updatedAt = nowIso
+
+    await persistStore(store)
+  })
+}
+
+export async function resetAvailabilityLocalStore(): Promise<void> {
+  return withLock(async () => {
+    const store = await readStore()
+    store.availability = []
+    await persistStore(store)
   })
 }
 

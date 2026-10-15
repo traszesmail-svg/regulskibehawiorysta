@@ -13,6 +13,17 @@ export { DEFAULT_PROMO_CODE_COUNT, MAX_PROMO_CODE_COUNT, PROMO_CODE_SERVICE_TYPE
 
 const PROMO_STORE_FILE = 'promo-codes.json'
 const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+const PRODUCTION_COMMUNITY_PROMO_PRICE_PLN = 39.99
+const QA_PILOT_COMMUNITY_PROMO_PRICE_PLN = 0.01
+
+function getCommunityPromoPricePln() {
+  const qaPilot = process.env.PILOT_TEST_MODE?.trim().toLowerCase() === 'true'
+    && process.env.TEST_CHECKOUT_ENABLED?.trim().toLowerCase() === 'true'
+    && process.env.APP_PAYMENT_MODE?.trim().toLowerCase() === 'mock'
+    && process.env.VERCEL_ENV !== 'production'
+
+  return qaPilot ? QA_PILOT_COMMUNITY_PROMO_PRICE_PLN : PRODUCTION_COMMUNITY_PROMO_PRICE_PLN
+}
 
 export class PromoCodeValidationError extends Error {
   constructor(message: string) {
@@ -186,7 +197,7 @@ async function readLocalStore(): Promise<PromoStoreShape> {
         ? parsed.campaigns.map((campaign) => ({
             ...campaign,
             kind: campaign.kind === 'community' ? 'community' : 'clinic',
-            promotionPricePln: campaign.kind === 'community' ? 39.99 : 0,
+            promotionPricePln: campaign.kind === 'community' ? getCommunityPromoPricePln() : 0,
             logoSrc: sanitizeClinicLogoSrc(campaign.logoSrc),
           }))
         : [],
@@ -306,7 +317,7 @@ function mapCampaignRow(row: PromoCampaignRow): PromoCampaignRecord {
     serviceType: resolveBookingServiceType(row.service_type, 0),
     codeCount: Number(row.code_count),
     kind,
-    promotionPricePln: kind === 'community' ? (storedPrice === 39.99 ? storedPrice : 39.99) : 0,
+    promotionPricePln: kind === 'community' ? (storedPrice === getCommunityPromoPricePln() ? storedPrice : getCommunityPromoPricePln()) : 0,
     status: row.status === 'paused' || row.status === 'archived' ? row.status : 'active',
     expiresAt: row.expires_at,
     createdAt: row.created_at,
@@ -586,7 +597,7 @@ export async function createPromoCampaign(input: CreatePromoCampaignInput): Prom
     codeCount: normalizeCodeCount(input.codeCount ?? (kind === 'community' ? 10 : DEFAULT_PROMO_CODE_COUNT)),
     expiresAt: normalizeExpiresAt(input.expiresAt),
     kind,
-    promotionPricePln: kind === 'community' ? 39.99 : 0,
+    promotionPricePln: kind === 'community' ? getCommunityPromoPricePln() : 0,
   }
 
   return (await createSupabasePromoCampaign(payload)) ?? createLocalPromoCampaign(payload)
@@ -1033,7 +1044,7 @@ export async function createCommunityPromoBooking(input: {
     customerEmail: input.email,
   })
 
-  if (promotion.campaignKind !== 'community' || promotion.promotionPricePln !== 39.99) {
+  if (promotion.campaignKind !== 'community' || promotion.promotionPricePln !== getCommunityPromoPricePln()) {
     throw new PromoCodeValidationError('Ten kod nie jest kodem grupowym dla tej strony.')
   }
 
@@ -1061,7 +1072,7 @@ export async function createCommunityPromoBooking(input: {
       serviceType: PROMO_CODE_SERVICE_TYPE,
     })
 
-    if (claim.kind !== 'community' || claim.promotionPricePln !== 39.99) {
+    if (claim.kind !== 'community' || claim.promotionPricePln !== getCommunityPromoPricePln()) {
       await releasePromoCodeClaim(claim)
       throw new PromoCodeValidationError('Ten kod nie jest kodem grupowym dla tej strony.')
     }

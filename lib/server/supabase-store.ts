@@ -58,6 +58,9 @@ import {
   UserRecord,
 } from '@/lib/types'
 import type { UrgentNowRequestRecord } from '@/lib/urgent-now'
+import { Section16SlotUnavailableError, Section16HoldExpiredError } from './section16-types'
+
+export { Section16SlotUnavailableError }
 
 function getBookingFunnelEventProperties(booking: BookingRecord): FunnelEventProperties {
   return getBookingAnalyticsContextParams({
@@ -77,6 +80,8 @@ type AvailabilityRow = {
   is_booked: boolean
   locked_by_booking_id: string | null
   locked_until: string | null
+  section16_hold_request_id?: string | null
+  section16_hold_expires_at?: string | null
   created_at: string
   updated_at: string
 }
@@ -566,6 +571,8 @@ function mapAvailabilityRow(row: AvailabilityRow): AvailabilitySlot {
     isBooked: row.is_booked,
     lockedByBookingId: row.locked_by_booking_id,
     lockedUntil: row.locked_until,
+    section16HoldRequestId: row.section16_hold_request_id ?? null,
+    section16HoldExpiresAt: row.section16_hold_expires_at ?? null,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   }
@@ -579,9 +586,18 @@ function mapAvailabilitySlotToRow(slot: AvailabilitySlot): AvailabilityRow {
     is_booked: slot.isBooked,
     locked_by_booking_id: slot.lockedByBookingId ?? null,
     locked_until: slot.lockedUntil ?? null,
+    section16_hold_request_id: slot.section16HoldRequestId ?? null,
+    section16_hold_expires_at: slot.section16HoldExpiresAt ?? null,
     created_at: slot.createdAt,
     updated_at: slot.updatedAt,
   }
+}
+
+export function isSection16HoldActive(slot: AvailabilitySlot, now = new Date()): boolean {
+  if (!slot.section16HoldRequestId || !slot.section16HoldExpiresAt) {
+    return false
+  }
+  return Date.parse(slot.section16HoldExpiresAt) > now.getTime()
 }
 
 function mapBookingRow(row: BookingRow): BookingRecord {
@@ -807,7 +823,12 @@ function groupAvailability(rows: AvailabilitySlot[]): GroupedAvailability[] {
   const grouped = new Map<string, AvailabilitySlot[]>()
 
   for (const slot of rows) {
-    if (slot.isBooked || slot.lockedByBookingId || !isFutureAvailabilitySlot(slot.bookingDate, slot.bookingTime)) {
+    if (
+      slot.isBooked ||
+      slot.lockedByBookingId ||
+      isSection16HoldActive(slot) ||
+      !isFutureAvailabilitySlot(slot.bookingDate, slot.bookingTime)
+    ) {
       continue
     }
 
@@ -1389,7 +1410,12 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
     throw slotError
   }
 
-  if (!slotData || slotData.is_booked || slotData.locked_by_booking_id) {
+  if (
+    !slotData ||
+    slotData.is_booked ||
+    slotData.locked_by_booking_id ||
+    (slotData.section16_hold_expires_at && Date.parse(slotData.section16_hold_expires_at) > Date.now())
+  ) {
     throw new Error('Wybrany termin nie jest już dostępny.')
   }
 
@@ -1408,7 +1434,7 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
   const dayAvailability = (await listAvailabilityRowsForDate(slot.bookingDate)).map(mapAvailabilityRow)
   const slotWindow = liveMode ? [slot] : getBookableServiceAvailabilityWindow(dayAvailability, form.slotId, serviceType)
 
-  if (!slotWindow?.length) {
+  if (!slotWindow?.length || slotWindow.some((slot) => isSection16HoldActive(slot))) {
     throw new Error('Wybrany termin nie jest już dostępny.')
   }
 
@@ -1569,6 +1595,7 @@ export async function createPendingBooking(form: BookingFormData): Promise<Booki
     .in('id', slotWindow.map((windowSlot) => windowSlot.id))
     .eq('is_booked', false)
     .is('locked_by_booking_id', null)
+    .or(`section16_hold_expires_at.is.null,section16_hold_expires_at.lte.${nowIso}`)
     .select('*')
 
   if (claimedSlots.error) {
@@ -1801,7 +1828,9 @@ async function moveBookingToRecoverySlotWithTarget(
 
   const oldSlots = await resolveBookingAvailabilityWindow(current)
   const oldSlotIds = new Set(oldSlots.map((slot) => slot.id))
-  const unavailable = candidateSlots.some((slot) => !oldSlotIds.has(slot.id) && (slot.isBooked || slot.lockedByBookingId))
+  const unavailable = candidateSlots.some(
+    (slot) => !oldSlotIds.has(slot.id) && (slot.isBooked || slot.lockedByBookingId || isSection16HoldActive(slot)),
+  )
   if (unavailable) throw new Error('Wybrany dodatkowy termin został już zajęty.')
 
   const supabase = getSupabaseAdmin()
@@ -1820,6 +1849,7 @@ async function moveBookingToRecoverySlotWithTarget(
     .in('id', targetIds)
     .eq('is_booked', false)
     .is('locked_by_booking_id', null)
+    .or(`section16_hold_expires_at.is.null,section16_hold_expires_at.lte.${nowIso}`)
     .select('id')
 
   if (claimed.error || !claimed.data || claimed.data.length !== targetIds.length) {
@@ -3168,6 +3198,165 @@ export async function updateBookingQuiz(
   }
 
   return data ? mapBookingRow(data as unknown as BookingRow) : null
+}
+
+export async function holdAvailabilitySlotForSection16(input: {
+  bookingDate: string
+  bookingTime: string
+  requestId: string
+  holdExpiresAt: string
+  now?: Date
+}): Promise<AvailabilitySlot> {
+  const supabase = getSupabaseAdmin()
+  const now = input.now ?? new Date()
+  const nowIso = now.toISOString()
+
+  const { data: slotRow, error: slotError } = await supabase
+    .from('availability')
+    .select('*')
+    .eq('booking_date', input.bookingDate)
+    .eq('booking_time', input.bookingTime)
+    .maybeSingle()
+
+  if (slotError) throw slotError
+  if (!slotRow) {
+    throw new Section16SlotUnavailableError(
+      `Termin ${input.bookingDate} ${input.bookingTime} nie istnieje w kalendarzu`,
+      'SLOT_NOT_FOUND',
+    )
+  }
+
+  const slot = mapAvailabilityRow(slotRow as AvailabilityRow)
+  if (!isFutureAvailabilitySlot(slot.bookingDate, slot.bookingTime, now)) {
+    throw new Section16SlotUnavailableError(
+      `Termin ${input.bookingDate} ${input.bookingTime} jest już przeszły`,
+      'SLOT_UNAVAILABLE',
+    )
+  }
+
+  if (slot.isBooked) {
+    throw new Section16SlotUnavailableError(
+      `Termin ${input.bookingDate} ${input.bookingTime} jest już zajęty`,
+      'SLOT_UNAVAILABLE',
+    )
+  }
+
+  if (
+    slot.lockedByBookingId &&
+    (!slot.lockedUntil || Date.parse(slot.lockedUntil) > now.getTime())
+  ) {
+    throw new Section16SlotUnavailableError(
+      `Termin ${input.bookingDate} ${input.bookingTime} jest zablokowany przez inną rezerwację`,
+      'SLOT_LOCKED',
+    )
+  }
+
+  if (
+    slot.section16HoldRequestId &&
+    slot.section16HoldRequestId !== input.requestId &&
+    isSection16HoldActive(slot, now)
+  ) {
+    throw new Section16SlotUnavailableError(
+      `Termin ${input.bookingDate} ${input.bookingTime} jest objęty aktywną blokadą Sekcji 16`,
+      'SLOT_ALREADY_HELD',
+    )
+  }
+
+  // Atomically release any previous slot held by this request (reschedule)
+  await supabase
+    .from('availability')
+    .update({
+      section16_hold_request_id: null,
+      section16_hold_expires_at: null,
+      updated_at: nowIso,
+    })
+    .eq('section16_hold_request_id', input.requestId)
+    .neq('id', slot.id)
+    .eq('is_booked', false)
+
+  // Set hold on target slot
+  const { data: updated, error: updateError } = await supabase
+    .from('availability')
+    .update({
+      section16_hold_request_id: input.requestId,
+      section16_hold_expires_at: input.holdExpiresAt,
+      updated_at: nowIso,
+    })
+    .eq('id', slot.id)
+    .select('*')
+    .single()
+
+  if (updateError) throw updateError
+  return mapAvailabilityRow(updated as AvailabilityRow)
+}
+
+export async function releaseSection16AvailabilityHold(requestId: string, now = new Date()): Promise<void> {
+  const supabase = getSupabaseAdmin()
+  const nowIso = now.toISOString()
+  await supabase
+    .from('availability')
+    .update({
+      section16_hold_request_id: null,
+      section16_hold_expires_at: null,
+      updated_at: nowIso,
+    })
+    .eq('section16_hold_request_id', requestId)
+    .eq('is_booked', false)
+}
+
+export async function confirmSection16AvailabilityBooking(
+  requestId: string,
+  bookingDate: string,
+  bookingTime: string,
+  now = new Date(),
+): Promise<void> {
+  const supabase = getSupabaseAdmin()
+  const nowIso = now.toISOString()
+
+  const { data: slotRow, error: selectError } = await supabase
+    .from('availability')
+    .select('*')
+    .eq('section16_hold_request_id', requestId)
+    .maybeSingle()
+
+  if (selectError) throw selectError
+  if (!slotRow) {
+    throw new Section16SlotUnavailableError(
+      `Brak aktywnej blokady Sekcji 16 dla zgłoszenia ${requestId}`,
+      'HOLD_NOT_FOUND',
+    )
+  }
+
+  const slot = mapAvailabilityRow(slotRow as AvailabilityRow)
+  if (slot.bookingDate !== bookingDate || slot.bookingTime !== bookingTime) {
+    throw new Section16SlotUnavailableError(
+      `Zablokowany termin ${slot.bookingDate} ${slot.bookingTime} nie zgadza się z potwierdzanym ${bookingDate} ${bookingTime}`,
+      'SLOT_MISMATCH',
+    )
+  }
+
+  if (!isSection16HoldActive(slot, now)) {
+    throw new Section16HoldExpiredError('Blokada terminu wygasła przed potwierdzeniem rezerwacji')
+  }
+
+  if (slot.isBooked) {
+    throw new Section16SlotUnavailableError('Termin jest już oznaczony jako zarezerwowany', 'SLOT_UNAVAILABLE')
+  }
+
+  const { error: updateError } = await supabase
+    .from('availability')
+    .update({
+      is_booked: true,
+      section16_hold_expires_at: null,
+      updated_at: nowIso,
+    })
+    .eq('id', slot.id)
+
+  if (updateError) throw updateError
+}
+
+export async function resetAvailabilityLocalStore(): Promise<void> {
+  // no-op in supabase mode
 }
 
 export {

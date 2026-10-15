@@ -35,8 +35,31 @@ import {
   Section16ValidationError,
   Section16NotFoundError,
 } from '../lib/server/section16-types'
+import { createAvailabilitySlot, resetAvailabilityLocalStore } from '../lib/server/local-store'
 
 let sandbox: Awaited<ReturnType<typeof createLocalDataSandbox>> | null = null
+
+async function seedDefaultFlowSlots() {
+  const ref = new Date('2026-10-12T00:00:00.000Z')
+  const dates = ['2026-10-12', '2026-10-13']
+  const times = [
+    '09:00',
+    '09:15',
+    '10:00',
+    '11:00',
+    '12:00',
+    '14:00',
+    '14:30',
+    '15:00',
+    '16:00',
+    '17:00',
+  ]
+  for (const date of dates) {
+    for (const time of times) {
+      await createAvailabilitySlot(date, time, undefined, ref).catch(() => {})
+    }
+  }
+}
 
 test.before(async () => {
   sandbox = await createLocalDataSandbox('section16-urgent-flow')
@@ -51,6 +74,8 @@ test.after(async () => {
 
 test.beforeEach(async () => {
   await resetSection16LocalStore()
+  await resetAvailabilityLocalStore()
+  await seedDefaultFlowSlots()
 })
 
 // ---------------------------------------------------------------------------
@@ -435,7 +460,7 @@ test('8. Granice TTL 5/120: dopuszczanie granic i odrzucanie wartości spoza zak
   )
   const resMin = await processOwnerProposalAndSetHold({
     requestId: reqMin.id,
-    response: '12.10.2026.14:00',
+    response: '12.10.2026.14:30',
     holdDurationMinutes: 5,
     idempotencyKey: 'prop-ttl-min',
     expectedVersion: reqMin.version,
@@ -455,7 +480,7 @@ test('8. Granice TTL 5/120: dopuszczanie granic i odrzucanie wartości spoza zak
   )
   const resMax = await processOwnerProposalAndSetHold({
     requestId: reqMax.id,
-    response: '12.10.2026.14:00',
+    response: '12.10.2026.15:00',
     holdDurationMinutes: 120,
     idempotencyKey: 'prop-ttl-max',
     expectedVersion: reqMax.version,

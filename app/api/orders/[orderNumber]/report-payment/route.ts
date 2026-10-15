@@ -24,7 +24,7 @@ import { sendCommerceManualPaymentReportedAdminEmail } from '@/lib/server/notifi
 
 type ReconciledReport = {
   order: CommerceOrder
-  adminNotification: 'sent' | 'already_reported' | 'failed'
+  adminNotification: 'sent' | 'already_reported' | 'failed' | 'skipped'
   adminNotificationReason: string | null
   failureKind: 'booking-unavailable' | 'admin-notification' | null
 }
@@ -144,7 +144,7 @@ async function reconcileReportedManualPayment(
     ) {
       return {
         order: current,
-        adminNotification: 'failed',
+        adminNotification: current.manualPaymentAdminNotificationState,
         adminNotificationReason:
           current.manualPaymentAdminNotificationFailure ?? 'Powiadomienie o zgłoszeniu wpłaty nie zostało wysłane.',
         failureKind: 'admin-notification',
@@ -155,6 +155,20 @@ async function reconcileReportedManualPayment(
       order: current,
       adminNotification: 'already_reported',
       adminNotificationReason: null,
+      failureKind: null,
+    }
+  }
+
+  if (current.productType === 'ebook') {
+    const completedWithoutEmail = await completeCommerceManualPaymentAdminNotification(current.orderNumber, viewerToken, {
+      status: 'skipped',
+      reason: 'Automatyczne rozliczenie Revolut jest jedyną ścieżką dla materiałów PDF; brak maila administracyjnego.',
+    })
+    if (!completedWithoutEmail) throw new Error('Nie udało się zapisać braku powiadomienia mailowego.')
+    return {
+      order: completedWithoutEmail,
+      adminNotification: 'skipped',
+      adminNotificationReason: 'Automatyczne rozliczenie Revolut jest jedyną ścieżką dla materiałów PDF; brak maila administracyjnego.',
       failureKind: null,
     }
   }
@@ -178,7 +192,7 @@ async function reconcileReportedManualPayment(
     })
     return {
       order: current,
-      adminNotification: 'failed',
+      adminNotification: emailResult.status,
       adminNotificationReason: emailResult.reason ?? null,
       failureKind: 'admin-notification',
     }
@@ -229,22 +243,19 @@ export async function POST(request: Request, props: { params: Promise<{ orderNum
     const order = reconciled.order
     const redirectTo = buildCommerceWaitingHref(order.orderNumber, viewerToken)
 
-    if (reconciled.failureKind) {
-      const bookingUnavailable = reconciled.failureKind === 'booking-unavailable'
+    if (reconciled.failureKind === 'booking-unavailable') {
       return NextResponse.json(
         {
           ok: false,
           alreadyReported: !report.reportedNow,
           orderNumber: order.orderNumber,
           status: order.status,
-          adminNotification: 'failed',
+          adminNotification: reconciled.adminNotification,
           adminNotificationReason: reconciled.adminNotificationReason,
           redirectTo,
-          error: bookingUnavailable
-            ? reconciled.adminNotificationReason ?? INACTIVE_CONSULTATION_BOOKING_MESSAGE
-            : 'Zgłoszenie wpłaty zostało zapisane, ale mail do behawiorysty nie wyszedł. Nie wysyłaj zgłoszenia ponownie; skontaktuj się przez formularz kontaktowy.',
+          error: reconciled.adminNotificationReason ?? INACTIVE_CONSULTATION_BOOKING_MESSAGE,
         },
-        { status: bookingUnavailable ? 409 : 502 },
+        { status: 409 },
       )
     }
 
@@ -254,7 +265,7 @@ export async function POST(request: Request, props: { params: Promise<{ orderNum
       orderNumber: order.orderNumber,
       status: order.status,
       adminNotification: reconciled.adminNotification,
-      adminNotificationReason: null,
+      adminNotificationReason: reconciled.adminNotificationReason,
       redirectTo,
       testAdminConfirmUrl:
         isCommerceTestModeAllowed() && order.adminConfirmationToken

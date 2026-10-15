@@ -40,6 +40,7 @@ export default async function BlikPaymentPage(props: {
   const orderReadUnavailable = orderResult.status === 'unavailable'
   const order = orderReadUnavailable ? null : orderResult.order
   const manual = getManualPaymentConfig()
+  const automaticRevolutConfirmation = process.env.PHONE_AGENT_AUTO_PAYMENT_RECONCILIATION?.trim() === 'true'
   const isClinicPhoneUpgrade = Boolean(order?.meta.clinicPhoneUpgrade)
   const needsActiveConsultationBooking =
     order?.productType === 'consultation' &&
@@ -81,6 +82,19 @@ export default async function BlikPaymentPage(props: {
               <Link href="/kontakt#formularz" className="button button-primary big-button">
                 Opisz krótko, co się dzieje
               </Link>
+            </div>
+          ) : order.status === 'cancelled' ? (
+            <div className="stack-gap">
+              <div className="section-eyebrow">Zamówienie {order.orderNumber}</div>
+              <h1>Zamówienie zostało anulowane</h1>
+              <div className="error-box">
+                To zamówienie zostało anulowane. Nie wykonuj wpłaty dla tego zamówienia. Jeśli masz pytania lub wpłata została już wysłana, skontaktuj się przez formularz.
+              </div>
+              <div className="hero-actions centered-actions">
+                <Link href="/kontakt#formularz" className="button button-primary big-button">
+                  Skontaktuj się
+                </Link>
+              </div>
             </div>
           ) : !manual.isAvailable ? (
             <div className="stack-gap">
@@ -129,9 +143,12 @@ export default async function BlikPaymentPage(props: {
                 orderNumber={order.orderNumber}
                 viewerToken={viewerToken}
                 phoneDisplay={manual.phoneDisplay ?? manual.phone}
+                automaticConfirmation={automaticRevolutConfirmation}
               />
               <div className="disclaimer">
-                Po wykonaniu wpłaty kliknij „Zapłaciłem/am”. {isClinicPhoneUpgrade ? 'Brak potwierdzenia nie odbiera bezpłatnego Jitsi; telefon włączymy dopiero po akceptacji.' : 'Dostęp zostanie aktywowany po ręcznym potwierdzeniu płatności.'}
+                {automaticRevolutConfirmation
+                  ? 'Po wpływie Revolut status zamówienia odświeży się automatycznie; nie wysyłamy maila administracyjnego.'
+                  : `Po wykonaniu wpłaty kliknij „Zapłaciłem/am”. ${isClinicPhoneUpgrade ? 'Brak potwierdzenia nie odbiera bezpłatnego Jitsi; telefon włączymy dopiero po akceptacji.' : 'Dostęp zostanie aktywowany po ręcznym potwierdzeniu płatności.'}`}
               </div>
             </>
           )}

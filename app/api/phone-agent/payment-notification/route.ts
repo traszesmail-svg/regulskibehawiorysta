@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { hasValidPhoneAgentAuthorization } from '@/lib/server/phone-agent'
 import {
   reconcilePaymentNotification,
+  reconcileCommercePaymentNotification,
   type PaymentNotificationPayload,
 } from '@/lib/server/payment-reconciliation'
 
@@ -28,7 +29,8 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = (await request.json()) as PaymentNotificationPayload
-    const result = await reconcilePaymentNotification(body)
+    const bookingResult = await reconcilePaymentNotification(body)
+    const result = bookingResult.matched ? bookingResult : await reconcileCommercePaymentNotification(body)
 
     return NextResponse.json(
       { ok: result.matched, result },

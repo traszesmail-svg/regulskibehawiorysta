@@ -115,6 +115,19 @@ export default async function WaitingPage(props: {
                 Opisz krótko, co się dzieje
               </Link>
             </div>
+          ) : order.status === 'cancelled' ? (
+            <div className="stack-gap">
+              <div className="section-eyebrow">Zamówienie {order.orderNumber}</div>
+              <h1>Zamówienie zostało anulowane</h1>
+              <div className="error-box">
+                To zamówienie zostało anulowane. Nie wykonuj wpłaty ani nie zgłaszaj jej ponownie. W razie wątpliwości skontaktuj się ze mną.
+              </div>
+              <div className="hero-actions centered-actions">
+                <Link href="/kontakt#formularz" className="button button-primary big-button">
+                  Skontaktuj się
+                </Link>
+              </div>
+            </div>
           ) : (
             <>
               <div className="section-eyebrow">Zamówienie {order.orderNumber}</div>

@@ -267,6 +267,180 @@ test('manual BLIK reconciliation records booking and notification phases without
   })
 })
 
+test('manual payment report succeeds when admin notification email is unavailable/skipped', async () => {
+  await withLocalCommerceStore(async () => {
+    const order = await createTestOrder()
+    assert.equal(order.status, 'created')
+    assert.equal(order.paidAt, null)
+    assert.equal(order.accessSentAt, null)
+
+    const expectedWaitingHref = buildCommerceWaitingHref(order.orderNumber, order.viewerToken)
+
+    // 1. Initial report: email is skipped/unavailable (default in test store without RESEND_API_KEY)
+    const initialResponse = await postCommercePaymentReport(
+      new Request(`https://regulskibehawiorysta.pl/api/orders/${encodeURIComponent(order.orderNumber)}/report-payment`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ viewerToken: order.viewerToken }),
+      }),
+      { params: Promise.resolve({ orderNumber: order.orderNumber }) },
+    )
+    const initialPayload = (await initialResponse.json()) as {
+      ok: boolean
+      alreadyReported: boolean
+      orderNumber: string
+      status: string
+      adminNotification: string
+      adminNotificationReason: string | null
+      redirectTo: string
+    }
+
+    // Status sukcesu (200, ok: true)
+    assert.equal(initialResponse.status, 200)
+    assert.equal(initialPayload.ok, true)
+    assert.equal(initialPayload.alreadyReported, false)
+    assert.equal(initialPayload.orderNumber, order.orderNumber)
+    assert.equal(initialPayload.status, 'payment_reported')
+    assert.equal(initialPayload.adminNotification, 'skipped')
+    assert.match(initialPayload.adminNotificationReason ?? '', /brak maila administracyjnego/i)
+
+    // redirectTo to safe waiting page with capability viewerToken
+    assert.equal(initialPayload.redirectTo, expectedWaitingHref)
+    const redirectUrl = new URL(initialPayload.redirectTo, 'https://regulskibehawiorysta.pl')
+    assert.equal(redirectUrl.searchParams.get('viewer'), order.viewerToken)
+
+    // Stored order status: payment_reported, operational failure state recorded
+    const stored = await getCommerceOrderForViewer(order.orderNumber, order.viewerToken)
+    assert.ok(stored)
+    assert.equal(stored.status, 'payment_reported')
+    assert.ok(stored.paymentReportedAt)
+    assert.equal(stored.manualPaymentAdminNotificationState, 'skipped')
+    assert.match(stored.manualPaymentAdminNotificationFailure ?? '', /brak maila administracyjnego/i)
+
+    // Brak uznania wpłaty za potwierdzoną
+    assert.equal(stored.paidAt, null)
+    assert.equal(stored.accessSentAt, null)
+    assert.notEqual(stored.status, 'paid')
+    assert.notEqual(stored.status, 'access_sent')
+
+    // Zachowaj capability viewerToken
+    assert.equal(stored.viewerToken, order.viewerToken)
+    assert.equal(hasCommerceOrderViewerAccess(stored, order.viewerToken), true)
+    assert.equal(await getCommerceOrderForViewer(order.orderNumber, null), null)
+    assert.equal(await getCommerceOrderForViewer(order.orderNumber, 'invalid-token'), null)
+    assert.equal(await getCommerceOrderForViewer(order.orderNumber, order.orderNumber), null)
+
+    const unauthorizedResponse = await postCommercePaymentReport(
+      new Request(`https://regulskibehawiorysta.pl/api/orders/${encodeURIComponent(order.orderNumber)}/report-payment`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ viewerToken: 'invalid-token' }),
+      }),
+      { params: Promise.resolve({ orderNumber: order.orderNumber }) },
+    )
+    assert.equal(unauthorizedResponse.status, 404)
+
+    // 2. Brak duplikatu po ponowieniu
+    const retryResponse = await postCommercePaymentReport(
+      new Request(`https://regulskibehawiorysta.pl/api/orders/${encodeURIComponent(order.orderNumber)}/report-payment`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ viewerToken: order.viewerToken }),
+      }),
+      { params: Promise.resolve({ orderNumber: order.orderNumber }) },
+    )
+    const retryPayload = (await retryResponse.json()) as {
+      ok: boolean
+      alreadyReported: boolean
+      orderNumber: string
+      status: string
+      adminNotification: string
+      adminNotificationReason: string | null
+      redirectTo: string
+    }
+
+    assert.equal(retryResponse.status, 200)
+    assert.equal(retryPayload.ok, true)
+    assert.equal(retryPayload.alreadyReported, true)
+    assert.equal(retryPayload.orderNumber, order.orderNumber)
+    assert.equal(retryPayload.status, 'payment_reported')
+    assert.equal(retryPayload.adminNotification, 'skipped')
+    assert.equal(retryPayload.redirectTo, expectedWaitingHref)
+
+    const storedAfterRetry = await getCommerceOrderForViewer(order.orderNumber, order.viewerToken)
+    assert.ok(storedAfterRetry)
+    assert.equal(storedAfterRetry.status, 'payment_reported')
+    assert.equal(storedAfterRetry.paidAt, null)
+    assert.equal(storedAfterRetry.accessSentAt, null)
+    assert.equal(storedAfterRetry.manualPaymentAdminNotificationState, 'skipped')
+
+    // 3. Consultation order with skipped email: records booking pending and succeeds without duplicate
+    const bookingDate = '2030-01-15'
+    const bookingTime = '11:00'
+    await createAvailabilitySlot(bookingDate, bookingTime)
+    const consultationBooking = await createPendingBooking({
+      ownerName: 'Konsultacja BLIK Skipped Mail',
+      serviceType: 'szybka-konsultacja-15-min',
+      problemType: 'separacja',
+      animalType: 'Pies',
+      petAge: '4 lata',
+      durationNotes: '',
+      description: 'Zgłoszenie wpłaty przy niedostępnym mailu administracyjnym.',
+      phone: '579163241',
+      email: `consultation-skipped-mail-${Date.now()}@example.com`,
+      slotId: `${bookingDate}-${bookingTime}`,
+    })
+    const consultationOrder = await createOrReuseConsultationCommerceOrder(
+      consultationBooking.booking.id,
+      consultationBooking.accessToken,
+    )
+
+    const consultResponse = await postCommercePaymentReport(
+      new Request(`https://regulskibehawiorysta.pl/api/orders/${encodeURIComponent(consultationOrder.orderNumber)}/report-payment`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ viewerToken: consultationOrder.viewerToken }),
+      }),
+      { params: Promise.resolve({ orderNumber: consultationOrder.orderNumber }) },
+    )
+    assert.equal(consultResponse.status, 200)
+    const consultPayload = (await consultResponse.json()) as {
+      ok: boolean
+      alreadyReported: boolean
+      status: string
+      adminNotification: string
+    }
+    assert.equal(consultPayload.ok, true)
+    assert.equal(consultPayload.alreadyReported, false)
+    assert.equal(consultPayload.status, 'payment_reported')
+    assert.equal(consultPayload.adminNotification, 'skipped')
+
+    const storedConsult = await getCommerceOrderForViewer(consultationOrder.orderNumber, consultationOrder.viewerToken)
+    assert.equal(storedConsult?.status, 'payment_reported')
+    assert.ok(storedConsult?.manualPaymentBookingPendingAt)
+    assert.equal(storedConsult?.paidAt, null)
+    assert.equal(storedConsult?.accessSentAt, null)
+    assert.equal(storedConsult?.manualPaymentAdminNotificationState, 'skipped')
+
+    // Retry for consultation order
+    const consultRetryResponse = await postCommercePaymentReport(
+      new Request(`https://regulskibehawiorysta.pl/api/orders/${encodeURIComponent(consultationOrder.orderNumber)}/report-payment`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ viewerToken: consultationOrder.viewerToken }),
+      }),
+      { params: Promise.resolve({ orderNumber: consultationOrder.orderNumber }) },
+    )
+    assert.equal(consultRetryResponse.status, 200)
+    const consultRetryPayload = (await consultRetryResponse.json()) as {
+      ok: boolean
+      alreadyReported: boolean
+    }
+    assert.equal(consultRetryPayload.ok, true)
+    assert.equal(consultRetryPayload.alreadyReported, true)
+  })
+})
+
 test('buyer-facing BLIK routes enforce the viewer token and BLIK GET stays read-only', () => {
   const ordersRoute = readSource('app', 'api', 'orders', 'route.ts')
   const checkoutSource = readSource('app', 'checkout', 'page.tsx')

@@ -52,6 +52,33 @@ export async function deleteAvailabilitySlot(slotId: string) {
   return getProvider().deleteAvailabilitySlot(slotId)
 }
 
+export async function holdAvailabilitySlotForSection16(input: {
+  bookingDate: string
+  bookingTime: string
+  requestId: string
+  holdExpiresAt: string
+  now?: Date
+}) {
+  return getProvider().holdAvailabilitySlotForSection16(input)
+}
+
+export async function releaseSection16AvailabilityHold(requestId: string, now?: Date) {
+  return getProvider().releaseSection16AvailabilityHold(requestId, now)
+}
+
+export async function confirmSection16AvailabilityBooking(
+  requestId: string,
+  bookingDate: string,
+  bookingTime: string,
+  now?: Date,
+) {
+  return getProvider().confirmSection16AvailabilityBooking(requestId, bookingDate, bookingTime, now)
+}
+
+export async function resetAvailabilityLocalStore() {
+  return getProvider().resetAvailabilityLocalStore()
+}
+
 export async function createPendingBooking(form: Parameters<StoreProvider['createPendingBooking']>[0]) {
   return getProvider().createPendingBooking(form)
 }

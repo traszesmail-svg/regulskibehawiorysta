@@ -56,7 +56,7 @@ export default async function ContactPage(props: {
           <section className={styles.hero} aria-labelledby="contact-title">
             <div>
               <span className={styles.eyebrow}>Kontakt · Regulski Behawiorysta</span>
-              <h1 id="contact-title" className={styles.title}>Dobry początek?<br /><em>Po prostu napisz.</em></h1>
+              <h1 id="contact-title" className={styles.title}>Dobry początek?{' '}<br /><em>Po prostu napisz.</em></h1>
               <p className={styles.intro}>Nie musisz wiedzieć, od czego zacząć. Opisz krótko, co dzieje się u Twojego psa lub kota — pomogę Ci wybrać odpowiednią formę wsparcia.</p>
               <div className={styles.actions}>
                 <a href="#formularz" className={styles.primary}>Napisz wiadomość <ArrowRight size={17} aria-hidden="true" /></a>
@@ -64,7 +64,7 @@ export default async function ContactPage(props: {
               </div>
               <div className={styles.signature}>
                 <span className={styles.signatureMark} aria-hidden="true">KR</span>
-                <div><strong>Krzysztof Regulski</strong><span>Wiadomości czytam i odpowiadam osobiście.</span></div>
+                <div><strong>Krzysztof Regulski</strong><span>Wiadomości czytam i odpowiadam na nie osobiście.</span></div>
               </div>
             </div>
             <figure className={styles.art}>

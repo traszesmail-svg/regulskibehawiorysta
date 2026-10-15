@@ -85,7 +85,7 @@ export default function ZapytajPage() {
             Martwi Cię zachowanie psa lub kota?
           </h1>
           <p className="zapytaj-hero-lead">
-            Opowiedz, co się dzieje. Podczas krótkiej rozmowy ustalimy pierwszy krok i to, czy potrzebna jest dalsza pomoc.
+            Opowiedz, co się dzieje. Podczas krótkiej rozmowy ustalimy pierwszy krok i to, czy potrzebna jest dalsza pomoc. Po rozmowie możesz zadać jeszcze 2 pytania w Pokoju opiekuna przez 7 dni.
           </p>
           <div className="offer-facts" aria-label="Najważniejsze informacje">
             <div className="offer-fact">

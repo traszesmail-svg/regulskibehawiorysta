@@ -188,7 +188,7 @@ export default function ProblemyPage() {
           <section className="problem-hub-hero problem-hub-map-hero" aria-labelledby="problem-hub-title">
             <div className="problem-hub-hero-copy">
               <h1 id="problem-hub-title">
-                <span>Mapa</span>
+                <span>Mapa </span>
                 <span>problemów</span>
               </h1>
               <p>

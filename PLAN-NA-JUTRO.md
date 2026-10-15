@@ -551,3 +551,220 @@ Nie udało się odzyskać konfiguracji klucza odpowiadającego certyfikatowi `d5
 - **Semantyka wygaszania (migracja 11009):** migracja `20261011009_section16_exclusive_deadline_semantics.sql` została wdrożona w linked Supabase, wprowadzając ścisłą semantykę terminów wygaszania dla rekordów sekcji 16.
 - **Telefon A — kandydat centrali GSM (wydanie 1.5.8 / 10508):** wydanie 1.5.7 zostało odrzucone w niezależnym odbiorze integracyjnym z powodu braków w podłączeniu produkcyjnym (brak produkcyjnego wywołania startu i rejestracji serwisu, brak runtime schedulera timeoutów, wyciek `Call.getDetails()` do logów, brak interfejsu obsługi aktywnej sesji/przerwania). Wydanie 1.5.8 zamknęło wszystkie 6 zidentyfikowanych braków: zaimplementowano procesowo-lokalny koordynator `ConferenceSessionCoordinator` z pre-flight checks (`AndroidConferencePrerequisites`), walidacją numerów wyłącznie w pamięci RAM sesji (zero zapisu na dysku, w SharedPreferences, heartbeat czy Supabase), rejestracją kontrolera przed pierwszym `placeCall()` i blokadą sesji współbieżnych. Połączono `InCallServiceBridge` z `ProductionTelecomAdapter` rozwiązując bezpiecznie wyścig startu serwisu. Wdrożono lifecycle-safe scheduler `ConferenceRuntimeScheduler` (timeouty 45s i 15s, tick limitu, anulowanie po stanie terminalnym, idempotencja per session ID, brak auto-redialu). Usunięto PII i `Call.getDetails()` z logcat oraz dodano audyt statyczny `ConferencePrivacyAuditTest`. W `MainActivity` (Sekcja 2.5) dodano bezpieczny interfejs testowy z dwuetapową zgodą, podglądem sesji i przyciskiem `PRZERWIJ I ROZŁĄCZ OBA POŁĄCZENIA`. Potwierdzono 4 pakiety testów JVM oraz 56 testów Node. Zbudowano i zainstalowano podpisane wydanie `1.5.8 / 10508` na Motoroli `ZY323XJ2V7` (`CALL_PHONE=true`, `ANSWER_PHONE_CALLS=true`, `SEND_SMS=false`, foreground `SmsQueueService`, heartbeat OK, 0 połączeń Telecom). Status integracyjny: `INTEGRATED_CANDIDATE_READY_FOR_OWNER_ROLE_AND_TWO_LEG_TEST`. Zdolność sieciowa operatora do konferencji GSM pozostaje: `UNVERIFIED_UNTIL_PHYSICAL_TWO_LEG_TEST`. W zadaniu wykonano 0 połączeń.
 - **Bramki bezpieczeństwa bezwzględnie zachowane:** brak zgody na wysyłanie SMS, wykonywanie połączeń telefonicznych, realne płatności, kontakt z klientami, pilotaż, zmiany publicznego UI oraz produkcyjny harmonogram cron.
+
+### 16.10.1. Lokalny odbiór endpointu propozycji pilnego terminu (2026-10-12)
+- Dodano `POST /api/admin/section16/urgent-requests/[id]/proposal`: autoryzacja administratora, kontrola Origin dla cookie i Basic Auth, ścisły JSON, idempotencja, kontrola wersji i minimalna odpowiedź bez danych klienta. Logi błędów nie zawierają obiektów wyjątków ani danych backendu.
+- Odbiór lokalny: 21/21 testów endpointu, TypeScript i kontrola różnic PASS. Sprawdzono także odrzucanie localhost w produkcji mimo lokalnego magazynu danych, brak zmian po odrzuceniu żądania i brak wywołań sieciowych w teście poprawnej propozycji.
+- `SECTION16_ADMIN_PROPOSALS_ENABLED` pozostaje domyślnie wyłączone. Brak wdrożenia. Endpoint zapisuje propozycję i termin wygaśnięcia w modelu sekcji 16; nie rezerwuje miejsca w publicznym kalendarzu, nie wysyła SMS ani e-maili i nie uruchamia płatności.
+- Dalsza integracja nadal wymaga podłączenia zgłoszeń i obsługi administracyjnej do tego modelu oraz osobnego odbioru konfliktów kalendarza i wykonania zewnętrznego. Starsza ścieżka `urgent_now_requests` nie została zastąpiona.
+
+### 16.10.2. Propozycja prac nocnych bez udziału właściciela (2026-10-12) i raport poranny (2026-10-13)
+- **Status:** zakończono lokalne prace nocne w etapach 1–4 oraz audyt etapu 5; etap 5 (Model B blokady kalendarza) pozostaje **W TOKU w AGY-1** (nieukończony). Domknięto raport poranny (etap 6). Wszystkie prace i testy wykonano wyłącznie lokalnie na danych syntetycznych. Brak deployu, brak migracji na produkcji, brak operacji na danych klientów.
+- **Ustalenie z kodu:** istnieje zakup poleconego PDF przez `/api/account/materials/recommendation` i checkout oraz strona BLIK na telefon. Publiczny `/api/materialy/order` odrzuca płatne materiały, a stary formularz PDF jest wycofany. Przepływ zakupu po rekomendacji został potwierdzony lokalnie na danych syntetycznych, bez realnej płatności i bez wdrożenia. Domyślnym zakresem jest domknięcie zakupu po rekomendacji; otwarcie publicznej sprzedaży bez konsultacji stanowi osobną zmianę oferty.
+1. **Priorytet: pełny zakup PDF przez BLIK na telefon.** Prześledzić polecenie materiału, cenę serwerową, utworzenie zamówienia, instrukcję przelewu na skonfigurowany numer, zgłoszenie wpłaty, ręczne potwierdzenie przez administratora i nadanie dostępu. Naprawić wykryte braki lokalnie. Nie żądać sześciocyfrowego kodu BLIK ani nie uznawać kliknięcia „zapłaciłem” za potwierdzoną wpłatę. Odbiór: pełny scenariusz na danych syntetycznych; brak pliku przed zatwierdzeniem; dokładnie jedno uprawnienie po zatwierdzeniu.
+2. **Bezpieczny dostęp do PDF i trwałość zamówień.** Sprawdzić ochronę plików, powiązanie dostępu z właściwym klientem i materiałem, istniejące terminy ważności, powtórzenia i równoległe żądania, anulowanie oraz restart procesu. Zidentyfikować używane magazyny danych i naprawić potwierdzone błędy w aktywnej ścieżce. Odbiór: cudzy token, nieopłacone lub wygasłe zamówienie nie udostępnia pliku; poprawny klient pobiera właściwy PDF. Migracje przygotować i testować lokalnie, bez uruchamiania ich na produkcji.
+3. **Odbiór zakupu PDF w przeglądarce.** Sprawdzić rzeczywiste ekrany desktop/mobile: wejście z rekomendacji, checkout, instrukcję BLIK, oczekiwanie i pobranie. Usunąć potwierdzone błędy funkcjonalne i drobne usterki responsywności, zachowując ofertę i istniejącą oprawę. Odbiór obejmuje wyrenderowane widoki i pobrany plik, a nie wyłącznie HTTP 200 lub build.
+4. **Kolejny fragment ścieżki pilnego terminu.** Po lokalnym odbiorze endpointu propozycji przygotować brakujące wejście administracyjne do tworzenia/odczytu zgłoszeń w modelu sekcji 16, używając istniejących zasad dostępu i idempotencji. Najpierw ustalić jeden konkretny zakres; nie przenosić automatycznie starego przepływu ani nie otwierać publicznego UI. Odbiór: lokalny scenariusz zgłoszenie → propozycja → ponowienie → wygaśnięcie, bez SMS, płatności i zapisów w zewnętrznym kalendarzu.
+5. **Granice czasu i konfliktów rezerwacji.** Zbadać konkretną granicę pomiędzy propozycją sekcji 16 a istniejącym kalendarzem; sprawdzić zajęty termin, równoczesne propozycje, spóźnione zatwierdzenie i zmianę czasu. Implementować tylko reguły już rozstrzygnięte w planie. Nierozstrzygnięte zasady biznesowe opisać do porannej decyzji i kontynuować inne niezależne prace.
+6. **Domknięcie raportu porannego.** Odebrano wyniki etapów 1–4 oraz audyt etapu 5 (szczegóły w raporcie poniżej). Wyraźnie oddzielono działanie lokalne od produkcyjnego i symulację zatwierdzenia BLIK od faktycznej wpłaty.
+- **Zakres pracy bez kolejnych akceptacji:** odczyty, lokalna implementacja i naprawy, testy z izolowanym magazynem i danymi syntetycznymi, lokalne sprawdzenia przeglądarkowe oraz przygotowanie migracji i instrukcji wdrożenia. Rzeczywiste płatności, potwierdzanie wpłat klientów, kontakt z klientami, automatyczne księgowanie Revolut, wdrożenie i uruchomienie produkcyjnych harmonogramów nie są częścią tego nocnego planu. Zgoda na testowe połączenia pozostaje ważna, lecz pełnego testu dwóch linii nie wykonuje się bez odbierającego uczestnika.
+- **Odłożone zgodnie z poleceniem właściciela:** diagnostyka alarmów/baterii/Tailscale według 16.11; konfiguracja Google i prywatnych danych na samym końcu według 16.12. Praca nocna wymaga działającej stacji PRACA DWA i obsługi callbacków; zakres końcowy zależy od wyników odbioru, nie od zadeklarowanej liczby godzin.
+
+#### Raport poranny — odebrany stan po pracach nocnych (13.10.2026)
+- **Zakup poleconego PDF:**
+  - Zrealizowano i odebrano lokalnie pełny przepływ zakupu: endpoint POST (`/api/account/materials/recommendation`), checkout, instrukcja płatności BLIK na telefon (`/platnosc/blik/[orderNumber]`), ręczne zgłoszenie wpłaty przez klienta (`POST /api/orders/[orderNumber]/report-payment`), ekran oczekiwania (`/oczekiwanie/[orderNumber]`) oraz dostęp do pliku po ręcznym potwierdzeniu wpłaty przez administratora (`/api/access/download`).
+  - Kliknięcie przez klienta przycisku „Zapłaciłem/am” nie potwierdza wpłaty i nie odblokowuje dostępu; rejestruje wyłącznie intencję/zgłoszenie wpłaty (`payment_reported`), a dostęp wymaga ręcznego zatwierdzenia przez administratora.
+- **Naprawa pętli accessUrl i błędu ekranu BLIK przy problemie z e-mailem:**
+  - Naprawiono pętlę `accessUrl` na ścieżce materiałów.
+  - Usunięto błąd, w którym zapisane pomyślnie w bazie zgłoszenie `payment_reported` przy niedostarczonym e-mailu powiadomienia do administratora zatrzymywało klienta na ekranie BLIK z fałszywym błędem.
+  - Odbiór przeglądarkowy potwierdził prawidłowe przejście klienta na stronę `/oczekiwanie/[orderNumber]` przy `adminNotification=failed`, z zachowaniem pól transakcyjnych `paidAt=null` i `accessSentAt=null`.
+- **Bezpieczny dostęp do PDF i trwałość zamówień:**
+  - Dostęp do materiału PDF bezwzględnie wymaga podania właściwego adresu e-mail oraz unikalnego kodu; wpisy z pustym, błędnym lub cudzym e-mailem są odrzucane bez wycieku danych.
+  - Zaimplementowano limity pobrań oraz atomowy claim uprawnienia (`claim_commerce_access`) eliminujący wyścigi równoległych żądań.
+  - Zamówienia w stanach `cancelled` oraz `expired` działają fail-closed — nie udostępniają pliku.
+  - Migracja bazodanowa `20261013001` (`supabase/migrations/20261013001_commerce_access_claim.sql`) jest tylko przygotowana i zweryfikowana lokalnie; **NIE została wdrożona** na bazie produkcyjnej.
+- **Panel /admin/section16:**
+  - Przygotowano i odebrano lokalnie panel do tworzenia i odczytu zgłoszeń w kanonicznym modelu sekcji 16.
+  - Zaimplementowano wyłącznie kanoniczne stany: `pending_proposal`, `timeslot_proposed`, `payment_confirmed`, `expired`, `cancelled`, `rejected`.
+  - Widoki desktop oraz mobile, a także link w `/admin` (topbar i nawigacja bez duplikacji na desktopie) zostały odebrane lokalnie.
+  - Endpointy administracyjne oraz panel pozostają **niewdrożone**, a feature gate (`SECTION16_ADMIN_PROPOSALS_ENABLED`) pozostaje domyślnie wyłączony.
+- **Testy odbiorcze (lokalne na danych syntetycznych):**
+  - Section16: **150/150 testów PASS** (model autonomiczny, przepływ availability, wygaszanie sweep, uprawnienia rozmowy, przepływ pilny, endpointy propozycji i zgłoszeń, widok panelu).
+  - Po poprawce płatności: **28/28 testów PASS** (bezpieczeństwo zgłoszenia płatności, bezpieczeństwo reconciliation Revolut, atomowy dostęp PDF, rekomendacje materiałów).
+  - Statyczna weryfikacja kodu: **TypeScript (`tsc --noEmit`) PASS** oraz **ESLint (`npm run lint`) PASS**.
+  - Wszystkie powyższe testy zostały przeprowadzone wyłącznie lokalnie na danych syntetycznych w środowisku izolowanym.
+- **Audyt konfliktów i zatwierdzony Model B (W TOKU w AGY-1):**
+  - Audyt granic czasu i konfliktów wykazał ryzyko powstania podwójnego terminu pomiędzy propozycją pilną Sekcji 16 a wspólnym publicznym kalendarzem dostępności.
+  - Właściciel w dniu 2026-10-13 zatwierdził **Model B**: aktywna propozycja Section16 musi blokować wspólną publiczną dostępność; zajęty slot ma być odrzucany, wygaśnięcie lub anulowanie zwalnia blokadę, a zmiana terminu (reschedule) ma być atomowa.
+  - **Implementacja tego etapu jest W TOKU w AGY-1 i nie wolno jej opisać jako ukończonej** — prace trwają, a blokada kalendarza nie jest zakończona.
+- **Bramki produkcyjne i stan nienaruszony:**
+  - Brak deployu (brak nowych wydań na Vercel).
+  - Brak realnych płatności oraz brak potwierdzeń wpłat rzeczywistych klientów.
+  - Brak wysyłki wiadomości SMS, brak połączeń telefonicznych i brak jakiegokolwiek kontaktu z klientami.
+
+### 16.11. Telefon A — niezawodność pracy bez nadzoru (etap późniejszy)
+- **Moment realizacji:** wrócić do tego etapu po kontrolowanym teście dwóch linii i przed uznaniem Motoroli za centralę, która może stale pracować na ładowarce bez nadzoru. Nie traktować tego jako następnego kroku ani jako zgody na uruchomienie połączeń lub pilotażu.
+- **Alarm e-mail „Regulski Behawiorysta nie działa”:** ustalić, który monitor wysyła komunikat, jaki warunek go wyzwala i czy dotyczy strony, aplikacji Operatora, heartbeat, sieci czy samego telefonu. Porównać czas alarmu z faktyczną dostępnością usługi, stanem ładowania, poziomem baterii (także przy wskazaniu około 50%) i ostatnim poprawnym meldunkiem. Rozróżnić rzeczywistą awarię od fałszywego alarmu; poprawić przyczynę i sprawdzić, czy powiadomienie jasno wskazuje niesprawny element.
+- **Wyłączanie telefonu przy około 30% baterii:** zebrać obserwacje z momentu wyłączenia i po ponownym uruchomieniu; sprawdzić stan akumulatora i kalibrację wskazania, ładowarkę, kabel, port, temperaturę, zasilanie oraz zdarzenia systemowe. Nie zakładać, że sam procent baterii dowodzi sprawności zasilania. Ustalić i usunąć przyczynę nieoczekiwanych wyłączeń przed pracą bez nadzoru.
+- **Checklista ustawień do odczytu i oceny (minimum 20):** przed zmianami zapisać aktualne wartości, oczekiwane działanie, ryzyko i sposób przywrócenia. Dobierać ustawienia pod Androida 11 i tę Motorolę; nie zakładać, że każda pozycja istnieje.
+  1. Kondycja baterii, nagłe spadki procentów i wyłączenia przy około 30%.
+  2. Temperatura baterii i urządzenia podczas ładowania oraz pracy sieciowej.
+  3. Zachowanie po pełnym naładowaniu i długim pozostawieniu na zasilaniu.
+  4. Zasilacz i kabel: stabilność, odpowiednia moc, przerwy i spadki ładowania.
+  5. Port ładowania: luzy, zabrudzenie, przerwy po poruszeniu wtyczką.
+  6. Wyjątki optymalizacji baterii dla aplikacji Operatora.
+  7. Optymalizacja baterii dla Tailscale i wpływ Doze/App Standby.
+  8. Ograniczenia pracy w tle i automatyczne ubijanie aplikacji przez Motorolę.
+  9. Autostart Operatora po restarcie systemu.
+  10. Autostart i automatyczne odtworzenie tunelu Tailscale po restarcie.
+  11. Stan Tailscale: zalogowana właściwa tożsamość, węzeł online i brak nieoczekiwanego wygaśnięcia dostępu.
+  12. Tailscale ACL i zakres dostępu do Motoroli ograniczony do potrzeb administracyjnych.
+  13. Tailscale: dostępność po Wi-Fi, zmianie sieci i odnowieniu DHCP.
+  14. Tailscale: automatyczne wznowienie po chwilowej utracie internetu i po wybudzeniu.
+  15. Tailscale: test dostępu po restarcie bez ręcznego otwierania aplikacji.
+  16. Tailscale VPN jako zawsze włączony — ocenić zgodność i zachowanie fail-closed przed ewentualnym włączeniem.
+  17. Wi-Fi: automatyczne łączenie z właściwą, zabezpieczoną siecią.
+  18. Wi-Fi: zachowanie podczas uśpienia ekranu i przy wyłączonym ekranie.
+  19. Dane komórkowe jako awaryjny kanał: stan, limit kosztów i przełączenie po utracie Wi-Fi.
+  20. Tryb samolotowy, oszczędzanie danych i inne ustawienia mogące odciąć sieć.
+  21. Ustawienia VPN, prywatnego DNS i proxy, które mogą blokować Tailscale lub heartbeat.
+  22. Data, godzina i automatyczna strefa czasowa potrzebne do poprawnych meldunków i alarmów.
+  23. Powiadomienia Operatora i Tailscale: kanały, priorytet, blokada na ekranie i alarm po utracie usługi.
+  24. Nie przeszkadzać, tryby snu i harmonogramy wyciszające alarmy.
+  25. Uprawnienie do powiadomień, działanie usługi foreground i widoczność stałego powiadomienia Operatora.
+  26. Rozmiar pamięci, wolne miejsce i zachowanie po zapełnieniu magazynu.
+  27. Automatyczne aktualizacje Androida, aplikacji Operatora i Tailscale oraz wymagany restart po aktualizacji.
+  28. Blokada ekranu, szyfrowanie, fizyczny dostęp i zasady odzyskiwania po restarcie.
+  29. ADB i debugowanie USB: wyłączyć do zwykłej pracy bez nadzoru po zakończeniu diagnostyki.
+  30. Rola domyślnego dialera i stan uprawnień po restarcie; pozostawić zgodnie z osobno odebranym modelem połączeń.
+  31. SIM: właściwe gniazdo, stan gotowości po restarcie, PIN oraz rejestracja głosu w T-Mobile.
+  32. Usługi operatora: połączenia oczekujące, konferencje, przekierowania, poczta głosowa i roaming — odczyt/uzgodnienie bez zmiany planu taryfowego.
+  33. Heartbeat: częstotliwość, świeżość, bateria/ładowanie/sieć i zgodność alertu z rzeczywistą niedostępnością.
+  34. Watchdog: wykrycie braku heartbeat, opóźnienie alarmu, brak fałszywych alarmów i bezpieczny brak automatycznego wybierania.
+  35. Zachowanie po utracie prądu: ponowny start, ładowanie, Operator, Tailscale i heartbeat po powrocie zasilania.
+  36. Zachowanie po utracie routera/internetu: brak nadmiernego zużycia baterii, ponawiania i alarmów seryjnych.
+- **Tailscale i stałe zasilanie:** szczególnie potwierdzić osiągalność telefonu na Tailscale przez długi czas, po uśpieniu, restarcie, utracie Wi-Fi/internetu i powrocie zasilania. Nie ujawniać kluczy, nazw prywatnych użytkowników ani numerów telefonu w raporcie.
+- **Odbiór etapu:** minimum 24 godziny kontrolowanej obserwacji na ładowarce oraz próby odzyskania po restarcie i utracie sieci. Udokumentować trafność alarmu e-mail, przyczynę wyłączeń, stan temperatury/ładowania, działanie Operatora, świeżość heartbeat oraz dostępność Tailscale. Przed zmianą każdej opcji zachować jej poprzednią wartość; zmiany wykonywać po jednej i cofać, jeśli pogarszają bezpieczeństwo lub niezawodność. Dopóki kryteria nie przejdą, status pracy bez nadzoru pozostaje `NIEPOTWIERDZONY`.
+- **Odbiór etapu:** udokumentować źródło i trafność alarmu e-mail, przyczynę wyłączania, stabilne ładowanie oraz ciągłość i automatyczny powrót Tailscale w kontrolowanej obserwacji. Dopóki te punkty nie przejdą testu, status pracy bez nadzoru pozostaje `NIEPOTWIERDZONY`.
+
+### 16.12. Końcowe uporządkowanie konta Google i prywatnych danych na Telefonie A
+- **Moment realizacji:** ostatni etap konfiguracji Telefonu A, po odbiorze funkcji centrali i niezawodności pracy bez nadzoru. Wrócić wtedy do wyboru konkretnej konfiguracji razem z właścicielem; teraz nie zmieniać konta, synchronizacji ani danych telefonu.
+- **Cel:** zachować zalogowanie Google i działanie używanej aplikacji Revolut, a jednocześnie nie przechowywać ani nie synchronizować na Motoroli prywatnych zdjęć, kontaktów, plików i innych danych, które nie są potrzebne centrali.
+- **Zakres przyszłego sprawdzenia:** ustalić, które elementy konta Google są rzeczywiście wymagane przez Revolut i aktualizacje aplikacji; przejrzeć synchronizację Zdjęć, Kontaktów, Dysku i kopii zapasowych oraz lokalne dane już obecne na urządzeniu. Przed wyłączeniem synchronizacji lub usunięciem czegokolwiek potwierdzić, gdzie są oryginały i kopie, oraz czy zmiana nie usunie danych z innych urządzeń lub chmury.
+- **Odbiór:** Revolut i wymagane usługi nadal działają po ponownym uruchomieniu telefonu, a na Motoroli nie pojawiają się nowe prywatne zdjęcia ani zbędne dane z konta. Żadnego czyszczenia lub wylogowania bez osobnego przeglądu skutków i decyzji właściciela.
+
+### 16.13. Stan po odbiorze 13.10.2026 i najbliższe zadania
+
+**Zrobione lokalnie:** Telefon A ma Operatora 1.5.8 / 10508. Działają heartbeat i autoryzowany zdalny ADB przez Tailscale na Wi-Fi oraz LTE bez kabla do komputera; próbę LTE potwierdzono przy wyłączonym Wi-Fi, zasilaniu z gniazdka i odczycie urządzenia przez ADB. `SEND_SMS` pozostaje cofnięte, aplikacja nie jest domyślnym dialerem. Kod Modelu B Sekcji 16 (hold kalendarza) jest przygotowany lokalnie; ukierunkowane testy Sekcji 16 przeszły 103/103 i poprawione testy regresji 53/53, `tsc --noEmit` i `git diff --check` przeszły. Zakup poleconego PDF, naprawy BLIK i panel Sekcji 16 są lokalnymi zmianami bez produkcyjnego wdrożenia.
+
+**Najbliższe zadanie: zdalny dostęp po restarcie bez kabla.** Obecne `adb tcpip 5555` potwierdzono tylko do najbliższego restartu. Sprawdzić na tej Motoroli opcję Androida 11 „Debugowanie bezprzewodowe”, sparować stację bez kabla, ustalić dostępny adres/port przez Tailscale i zachowanie na Wi-Fi oraz LTE. Zmierzyć, czy po kontrolowanym restarcie bez dotykania USB samoczynnie wracają Tailscale, heartbeat i autoryzowany ADB; odnotować czas powrotu, port, stan autoryzacji i ewentualną czynność wymaganą na ekranie. Jeśli standardowy Android nie przywróci ADB samoczynnie, nie obiecywać „zawsze włączonego ADB”: zaprojektować i odebrać zdalną diagnostykę przez istniejący bezpieczny kanał aplikacji, a ADB pozostawić kanałem serwisowym. Nie stosować rootowania ani trwałego otwarcia debugowania na publicznym internecie. Kryterium odbioru: dwa kontrolowane restarty bez kabla, dostęp diagnostyczny przez Wi-Fi i LTE po każdym albo udokumentowane ograniczenie i działający zamiennik. Wcześniejszy punkt 16.11 o wyłączeniu ADB wymaga ponownej decyzji po tym odbiorze.
+
+**Pozostało po lokalnym odbiorze punktu 1:** (1) test dostępu po restarcie i obserwacja telefonu na ładowarce, 30–60 min pracy oraz co najmniej 24 h obserwacji; (2) fizyczny test dwóch nóg GSM i scalenia z właścicielem, 30–45 min, status `UNVERIFIED_UNTIL_PHYSICAL_TWO_LEG_TEST`; (3) osobny etap wdrożeniowy: zastosować oczekujące migracje Supabase `20261013001` i `20261013002`, wdrożyć aplikację i sprawdzić produkcję, około 30–60 min po zgodzie na etap produkcyjny (`20261010001` jest już zastosowana zdalnie); (4) później uporządkowanie konta Google/prywatnych danych telefonu z punktu 16.12. Nie uruchamiać klientów, SMS, płatności, crona ani funkcji za flagą bez osobnego odbioru.
+
+**Odczyt produkcji 13.10.2026:** Vercel wskazał ostatni deployment produkcyjny `dpl_CvBweVTJnMKXcKvmkXfcTqhDQCpu` jako `Ready` z 11.10.2026, przypisany do `regulskibehawiorysta.pl` i `www.regulskibehawiorysta.pl`. W liście nazw zmiennych produkcyjnych brak `SECTION16_ADMIN_PROPOSALS_ENABLED`, więc kod z tą bramką pozostałby wyłączony. Lokalnie `HEAD` i `origin/main` to `5baee2d`, a zmiany PDF/BLIK/Model B są w drzewie roboczym. Stan wykonania trzech migracji w produkcyjnej bazie nie został tym odczytem potwierdzony; przed wdrożeniem trzeba go sprawdzić bezpośrednio w historii migracji Supabase.
+
+### 16.14. Globalny harmonogram pozostałych prac — 13.10.2026
+
+Szacunek dla **całego modelu z punktów 15–16**, łącznie z obiema nowymi ścieżkami usługi, telefonią i audio, pilotażem oraz kodami partnerskimi: **120–220 godzin pracy czynnej**. Przy pracy w pełnym wymiarze to orientacyjnie **4–7 tygodni pracy** i **6–12 tygodni kalendarzowo** z testami, decyzjami właściciela i udziałem osób zewnętrznych. To zakres szacunkowy, nie termin dostawy. Brak konferencji GSM u operatora może wymagać osobnej architektury i wydłużyć pracę o kilka tygodni. Samo uruchomienie już przygotowanych lokalnie zmian jest mniejszym etapem: orientacyjnie **2–5 dni**, po odbiorze i sprawdzeniu migracji.
+
+**Kolejność, którą należy realizować po jednej bramce:**
+
+1. **Domknąć istniejący lokalny pakiet PDF/BLIK/Model B Sekcji 16:** przejrzeć pełny diff i zakres, potwierdzić testy bezpieczeństwa, rzeczywiste ekrany desktop/mobile oraz pobranie PDF; ustalić stan trzech migracji w Supabase. Szacunek 8–16 h. Nie wdrażać przed odbiorem.
+
+   **Odbiór lokalny 13.10.2026: CZĘŚCIOWY, NIEZAMKNIĘTY DLA MODELU REVOLUT.** `tsc --noEmit`, lint i build przeszły; pakiet testów bezpieczeństwa/regresji przeszedł 179/179, a test poprawionego handlera propozycji 21/21. Ekrany BLIK, oczekiwania i panelu Sekcji 16 sprawdzono na 1440 px i 390 px, a plik PDF pobrano poprawnie. Ten odbiór dotyczył jednak starej ścieżki ręcznej: przycisku `Zapłaciłem/am`, `report-payment` i powiadomienia e-mail do administratora. Nie jest to odbiór docelowego modelu, w którym powiadomienie z Revolut na Motoroli automatycznie potwierdza właściwą wpłatę. `PHONE_AGENT_AUTO_PAYMENT_RECONCILIATION` i automatyczne rozliczanie zamówień materiałowych pozostają do wykonania i osobnego testu; nie wysyłać maili administracyjnych dla tej ścieżki. Historia Supabase: `20261010001` jest zastosowana zdalnie; `20261013001` i `20261013002` są tylko lokalne. Bez deployu i bez uruchamiania flagi.
+
+   **Korekta i wdrożenie:** dodano rozliczanie zamówienia ebooka na podstawie autoryzowanego powiadomienia `com.revolut.revolut`, kwoty i numeru `ZAM-XXXXXX`, z wymaganym identyfikatorem transakcji. Automatyczna ścieżka nie wysyła maila administracyjnego ani maila klienta i nie pokazuje przycisku `Zapłaciłem/am`. Migracje `20261013001` i `20261013002` zastosowano na Supabase, a wdrożenie produkcyjne `dpl_Gig4ihDDSuh4kXcieuRxue3L8Nrv` ma status READY. Flaga `PHONE_AGENT_AUTO_PAYMENT_RECONCILIATION` jest ustawiona dla Production. Pozostaje odbiór rzeczywistego powiadomienia Revolut na odblokowanej Motoroli.
+2. **Odebrać Telefon A jako centralę:** kontrolowany test dwóch nóg GSM, hold, merge, dźwięk i awaryjne rozłączenie; osobno sprawdzić zdalną diagnostykę po restarcie oraz heartbeat/Tailscale na Wi-Fi i LTE. Następnie co najmniej 24 h obserwacji zasilania i alarmów. Szacunek 8–24 h pracy czynnej plus czas obserwacji. Jeśli merge GSM nie działa, najpierw rozstrzygnąć alternatywę techniczną.
+
+   **Odbiór 13.10.2026: NIEZAKOŃCZONY / FAIL dla restartu.** Przed restartem ADB przez Tailscale działał na `100.118.102.42:5555`, telefon `ZY323XJ2V7`, Android 11, AC powered, USB powered false, bateria 81%, `SEND_SMS` nieaktywne. Po kontrolowanym `adb reboot` bez kabla urządzenie pozostało `offline` w ADB, a Tailscale zgłosił `offline; last seen 7m ago`; nie wrócił heartbeat ani kanał diagnostyczny w obserwowanym oknie. Przyczyna do obsłużenia: po restarcie Android wymaga pierwszego ręcznego odblokowania, a bez niego ADB pozostaje niedostępne; trzeba zaprojektować bezpieczny, automatyczny start/odblokowanie po restarcie albo zaakceptować, że ADB nie może być kanałem bezobsługowym. Tailscale musi również automatycznie wystartować i odzyskać połączenie. Fizycznego testu dwóch nóg GSM nie wykonano bez właściciela i pozostaje `UNVERIFIED_UNTIL_PHYSICAL_TWO_LEG_TEST`. Nie zmieniano ustawień trwałych, nie wysłano SMS i nie wykonano połączeń.
+3. **Wdrożyć odebrany pakiet lokalny:** zastosować oczekujące migracje `20261013001` i `20261013002`, wdrożyć kod i wykonać odbiór produkcyjny. Nie ponawiać zastosowanej już migracji `20261010001`. Feature flag Sekcji 16 pozostaje wyłączona do osobnej decyzji. Ten etap nie uruchamia SMS, rozmów ani realnych płatności testowych bez odrębnej decyzji. **ZAKOŃCZONE 13.10.2026:** obie migracje są zdalnie zastosowane, produkcja ma wdrożenie READY, a endpoint płatności odpowiada 401 dla nieautoryzowanego żądania (trasa działa i wymaga autoryzacji).
+4. **Dokończyć dwie ścieżki usługi z punktów 16.2–16.3:** pilny termin dziś/jutro oraz jednorazowe powiadomienie o dostępności, razem z SMS, parserem odpowiedzi, blokadą terminu, płatnością i uprawnieniem do rozmowy. Szacunek 35–60 h; zależny od decyzji o treściach, czasie blokady i płatnościach.
+5. **Dokończyć audio i publiczny interfejs:** briefing, komunikaty, naliczanie czasu, sygnały, pytania po rozmowie oraz dwa czytelne wejścia na stronie; dopiero po odbiorze usunąć starszą publiczną nawigację/status. Szacunek 25–45 h, z odbiorem wizualnym i funkcjonalnym. **LOKALNIE ODEBRANE 13.10.2026:** `CallRoom` ma briefing audio, timer, komunikaty końca i ostrzeżenia, sygnał Web Audio, limit pytań po rozmowie oraz ścieżkę odzyskiwania; testy `zapytaj-call-flow`, `voip-chat-limits` i `question-access` przeszły 6/6. Pozostaje osobny odbiór wizualny desktop/mobile i rzeczywistej rozmowy audio.
+6. **Uruchomić kontrolowany pilotaż jednej osoby, potem partnera:** najpierw pełny scenariusz z jednym świadomie zatwierdzonym uczestnikiem; później kody 30/50/100% dla jednej lecznicy, po decyzjach o finansowaniu, danych partnera i zgodzie na branding. Szacunek 35–75 h plus czas organizacji i odpowiedzi uczestników. **PRZYGOTOWANE LOKALNIE 13.10.2026:** ścieżka pilotażowa kodów jednorazowych, kampanii lecznicy, rabatów i zwolnienia kodu po wygaśnięciu działa; testy `promo-codes` i powiązane testy routingu przeszły 70/70 (12 pominiętych wizualnych). Dodano bezpieczny tryb QA `PILOT_TEST_MODE=true`, który ustawia 0,01 zł wyłącznie razem z `APP_PAYMENT_MODE=mock`, `TEST_CHECKOUT_ENABLED=true` i poza produkcją; test pełnej rezerwacji QA 0,01 zł przechodzi. Do zamknięcia pozostaje wskazanie jednej osoby, zgoda na realną rezerwację oraz dane i zgoda brandingowa partnera.
+
+AGY-1 i AGY-2 od 13.10.2026 wielokrotnie kończyły zadania `exitCode=3`; użytkownik wskazał wyczerpanie limitu AGY. Nie opierać odbioru na tych pustych raportach ani nie wysyłać kolejnych zadań przy wyczerpanym limicie. Dalsze kroki prowadzić samodzielnie po decyzji właściciela o następnym etapie. Stan planu nie jest zgodą na produkcyjne migracje, deploy, połączenia, SMS, płatności ani kontakt z klientami.
+## AKTUALNY STAN ODBIORU — 13.10.2026
+
+Ten blok jest źródłem bieżącego statusu. Starsze wpisy poniżej opisują historię prac i nie mogą nadpisywać tego stanu.
+
+- **Punkt 1 / PDF i Revolut:** kod, migracje i produkcyjny deploy są wykonane; pozostaje jeden rzeczywisty test powiadomienia Revolut i pobrania PDF.
+- **Punkt 2 / Motorola:** Tailscale i ADB przez LTE działały przed restartem; automatyczny powrót ADB po restarcie nie został potwierdzony. Test GSM dwóch nóg i obserwacja 24 h pozostają otwarte.
+- **Punkt 3 / deploy pakietu:** zakończony. Migracje `20261013001` i `20261013002` są zastosowane na Supabase, a produkcyjny deploy jest READY.
+- **Punkt 4 / pilny termin:** lokalnie przygotowany i przetestowany; bramka `SECTION16_ADMIN_PROPOSALS_ENABLED` pozostaje wyłączona do osobnego odbioru produkcyjnego.
+- **Punkt 5 / audio:** lokalnie przygotowany i przetestowany; pozostaje odbiór wizualny desktop/mobile oraz rzeczywista rozmowa audio.
+- **Punkt 6 / pilot:** kody i tryb QA 0,01 zł są przygotowane poza produkcją; nie wykonano jeszcze pilota z realnym uczestnikiem.
+- **Deploy:** poprawki PDF/Revolut i migracje punktu 3 są wdrożone. Nie wdrażać flag Sekcji 4 ani trybu QA 0,01 zł na produkcję.
+
+Wpisy oznaczone jako wcześniejsze, lokalne, „w toku” lub „bez deployu” zachowują wartość historyczną, ale nie są bieżącym stanem wykonania.
+
+### Odbiór telefonii GSM — 14.10.2026
+
+- **Próba 1 — FAIL przez zmianę uprawnień w trakcie rozmowy.** Logcat potwierdza, że Android zabił proces `pl.regulski.phoneagent` z powodem `permissions revoked` o 14:18:13.109. Telecom odpiął `AgentInCallService` o 14:18:13.215 (po 9,332 s) i uruchomił awaryjny interfejs Google. Pierwsza noga później stała się aktywna, ale automat już nie działał; nie powstała druga noga. Przyczyną przerwania była zmiana uprawnień/roli w trakcie aktywnego testu, nie błąd samego `onBind()` usługi.
+- **Próba 2 — częściowy PASS przepływu aplikacji, FAIL połączenia drugiej nogi.** Przy niezmienianiu uprawnień/roli przez całą rozmowę `AgentInCallService` odebrał połączenie, uzyskał `ACTIVE`, zawiesił pierwszą nogę i zainicjował drugą. Modem IMS zwrócił `callSessionStartFailed`, `end-cause 41`, `sip-error-code 0`; Telecom zapisał `ERROR_UNSPECIFIED`. 3GPP TS 24.008 definiuje przyczynę 41 jako `temporary failure`. Właściciel potwierdził, że druga karta/numer testowy (zaczynający się od 4) nie działa. To wyjaśnia niepowodzenie drugiej nogi; nie jest to dowód usterki automatu ani braku konferencji u operatora. Nie ponawiać połączeń na tę kartę do czasu jej naprawy lub podmiany.
+- Po błędzie automat rozłączył pierwszą, zawieszoną linię; `dumpsys telephony.registry` potwierdził stan idle. Telecom pokazał wsparcie konferencji IMS, ale nie doszło do aktywnego drugiego połączenia ani do merge, więc konferencja i audio dwóch rozmówców pozostają nieodebrane.
+- **Stan końcowy urządzenia:** Google Dialer domyślny, `SEND_SMS=false`, `CALL_PHONE=true`, `ANSWER_PHONE_CALLS=true`, brak aktywnych połączeń. Nie wysłano SMS. Nie ruszano autostartu po restarcie. Nie wykonano kolejnego wybierania.
+- **Wniosek operacyjny:** przed każdym testem ustawić rolę/uprawnienia, potem nie zmieniać ich od startu pierwszej nogi do zakończenia całej sesji. Po zakończeniu najpierw potwierdzić Telecom idle, dopiero potem przywrócić Google i cofnąć `SEND_SMS`. Dla drugiej nogi zachować kod IMS i uzyskać rozstrzygnięcie operatora/ponowną próbę dopiero jako osobny świadomie kontrolowany etap; nie wykonywać seryjnych prób.
+
+### Odbiór wizualny pokoju rozmowy — 14.10.2026
+
+- **CODE: PASS** dla ograniczonego, warunkowego mechanizmu zrzutów w `scripts/ui-smoke.ts`; zapis działa wyłącznie po ustawieniu `UI_SMOKE_SCREENSHOT_DIR`. Poza zrzutami smoke zachowuje dotychczasowy stan zgody. W kontekście zrzutów ustawiono wyłącznie `analytics consent=denied`, a nakładkę developerską Next.js wyłączono tylko na obrazie po zebraniu diagnostyki.
+- **FUNCTIONAL: PASS lokalnego smoke** (`npm run ui-smoke`, exit 0): pokój telefoniczny, zablokowany i aktywny pokój wideo oraz timer/odświeżenie przeszły. To nie jest test rzeczywistego połączenia audio ani urządzeń multimedialnych. Headlessowy Jitsi zgłosił brak wejścia audio (`gum.not_found`); zewnętrzne zasoby zgłosiły `ERR_BLOCKED_BY_CLIENT`.
+- **RESPONSIVE: PASS** po bezpośrednim obejrzeniu widoków 390×844 oraz 1280×960: panele i przyciski układają się w szerokości viewportu, bez widocznego poziomego przepełnienia.
+- **VISUAL: PASS** dla układu pokoju i paneli na desktopie i mobile. Diagnostyka smoke odnotowała różnice hydracji przy sztucznie przesuniętym zegarze przeglądarki (timer oraz nagłówek stanu wideo); nie zmieniono UI ani treści. Różnice wynikają ze scenariusza z zegarem klienta ustawionym niezależnie od zegara serwera i nie stanowią dowodu na błąd rzeczywistej rozmowy.
+- **SCOPE: PASS** — tylko harness testowy; żadnych zmian w aplikacji, deployu, realnych połączeń, SMS-ów ani płatności. Pozostaje oddzielny fizyczny odbiór rozmowy audio po naprawieniu lub wymianie drugiej karty testowej.
+
+### Aktualny stan pozostałych bramek — 14.10.2026
+
+- **Revolut/PDF:** lokalny audyt wykazał brak atomowego claimu dla zamówień PDF w równoległych powiadomieniach. Dodano fail-closed RPC i lokalną migrację `20261014001_atomic_revolut_commerce_reconciliation.sql`; syntetyczne testy potwierdzają dokładnie jedno rozliczenie przy duplikacie, dwóch różnych ID dla jednego zamówienia oraz ponowieniu HTTP bez drugiego grantu. `tests/payment-reconciliation-safety.test.ts` 8/8, `npx tsc --noEmit` i `git diff --check` PASS. Migracja i kod **pozostają wyłącznie lokalne** — bez Supabase/deployu. Wcześniej ustawiona produkcyjna flaga `PHONE_AGENT_AUTO_PAYMENT_RECONCILIATION` i wdrożenie nadal wymagają osobnego, świadomego odbioru po zabezpieczeniu tej poprawki; nie wykonywano płatności.
+- **Telefonia:** druga testowa karta (ta zaczynająca się od 4) jest niesprawna. Brak merge/audio pozostaje otwarty; nie ponawiać wybierania na tej karcie. Autostart/odzyskiwanie po restarcie pozostaje na końcu kolejki.
+- **Pilny termin, pilot i pozostałe wdrożenia:** lokalny kod nie zastępuje decyzji o publicznych treściach, oknie blokady, uczestniku, partnerze ani odrębnej zgody wdrożeniowej. Nie zmieniać produkcji, kontaktować uczestników ani uruchamiać SMS/płatności.
+### Aktualizacja wdrozenia 14.10.2026
+- Deployment dpl_8art3FajWxBfVFcRBP2Kgim7A8Uj READY; domena regulskibehawiorysta.pl odpowiada HTTP 200, trasa telefonu bez autoryzacji 401.
+- Migracja 20261014001 przeszla test PGlite dla sukcesu, replay, konkurujacych fingerprintow, braku kwoty i zlej kwoty. Nie zostala zastosowana na Supabase: zapytanie i lista migracji timeoutuja podczas tworzenia roli logowania. Kod produkcyjny fail-closed.
+- Flagi automatycznego rozliczania nie zmieniano; biezacej wartosci nie potwierdzono. Nie bylo prawdziwej platnosci, powiadomienia z Motoroli, SMS ani telefonu.
+
+### Pozostale zadania z planu
+1. Zastosowac migracje 14001 po odzyskaniu polaczenia z Supabase; potwierdzic historie i kontrolowanie odebrac PDF/Revolut.
+2. Naprawic lub wymienic druga karte; wykonac jeden kontrolowany test dwoch nog GSM z hold, merge, dwukierunkowym audio i awaryjnym rozlaczeniem.
+3. Sprawdzic powrot Tailscale, heartbeat i diagnostyki po restarcie bez kabla oraz 24 h obserwacji zasilania. Autostart zostaje na koniec.
+4. Odebrac prawdziwe audio; lokalny smoke i wizualny desktop/mobile sa zaliczone.
+5. Pozniej odebrac bramke pilnego terminu, decyzje o uczestniku pilota i partnerze/brandingu. Bez SMS, platnosci testowych i kontaktu z klientami przed osobnymi decyzjami.
+6. Na koncu dokonczyc niezawodnosc/autostart i przeglad prywatnych danych oraz synchronizacji konta Google.
+
+### Stan po naprawie Supabase i punktach 1-2 — 14.10.2026
+
+**Supabase / punkt 1 — PASS dla migracji i syntetycznego odbioru.**
+- Przyczyna awarii: produkcyjne Vercel SUPABASE_SERVICE_ROLE_KEY miało literalną wartość pustego stringa ""; aplikacja działała w trybie Supabase, lecz nie miała poprawnego klucza serwerowego. W logach występowały timeouty zapytań i odpowiedzi Supabase 521.
+- Wykonano jeden kontrolowany restart projektu Supabase. Aktualny stan projektu: ACTIVE_HEALTHY.
+- Zmienną zastąpiono aktualnym kluczem service_role pobranym z projektu Supabase i zapisaną jako Vercel Sensitive. Wdrożono produkcyjnie: dpl_wwkJdc2SjBadZLUnsC4mpxm2YVut, status READY, alias regulskibehawiorysta.pl.
+- Zastosowano wyłącznie oczekującą migrację 20261014001_atomic_revolut_commerce_reconciliation.sql; historia Supabase potwierdza wersję 20261014001. Tabela claimów ma RLS, a wykonanie RPC ma wyłącznie service_role.
+- Odbiór bez realnych pieniędzy: syntetyczne zamówienie i rozliczenie przez produkcyjne RPC, claim PDF, odmowa błędnego e-maila, odmowa replayu oraz drugiego fingerprintu. Cały test wykonano w transakcji zakończonej ROLLBACK; w bazie nie pozostał claim testowy. tests/payment-reconciliation-safety.test.ts: 8/8. Produkcyjny endpoint dostępności odpowiada HTTP 200 i zwraca 132 terminy; endpoint powiadomień bez autoryzacji zwraca 401.
+- Nie wykonano prawdziwej płatności Revolut, nie wysłano SMS i nie przetestowano odbioru prawdziwego powiadomienia z telefonu. To pozostaje osobną bramką finansową/telefoniczną. Status live=offline jest stanem usługi live; odczyt kalendarza działa.
+
+**Telefonia / punkt 2 — BLOCKED sprzętowo, bez ponownego dzwonienia.**
+- Telefon A jest dostępny przez USB ADB. gsm.sim.state=LOADED,ABSENT: pierwsza karta T-Mobile jest zarejestrowana w sieci, drugi slot nie ma karty. Telecom jest idle (mCallState=0).
+- Zdalne ADB 100.118.102.42:5555 odrzuca połączenie, mimo wcześniejszej osiągalności telefonu przez Tailscale.
+- Nie wykonano kolejnego połączenia. Włożyć/naprawić drugą kartę, potwierdzić jej rejestrację głosu, a potem wykonać jeden kontrolowany test dwóch nóg, hold, merge, audio i awaryjnego rozłączenia.
+
+**Dalej z planu:** (3) diagnostyka odzyskiwania Tailscale/heartbeat po restarcie i 24 h obserwacji zasilania; (4) odbiór rzeczywistego audio po naprawie dwóch SIM; (5) decyzje i odbiór bramki pilnego terminu oraz pilota; (6) na końcu autostart i przegląd synchronizacji/prywatnych danych Google. Nie uruchomiono pilotu, SMS-ów do klientów ani prawdziwych płatności testowych.
+
+### Korekta odbioru Supabase i telefonii — 14.10.2026
+
+- **Supabase, rozliczenia: PASS dla konfiguracji, migracji i testu syntetycznego.** Pusty `SUPABASE_SERVICE_ROLE_KEY` w Vercel wyjaśniał błędy autoryzacji aplikacji. Osobne timeouty `EAUTHQUERY` przy provisioningu roli puli Postgresa były odrębnym objawem; ich pierwotna przyczyna nie została ustalona. Po restarcie połączenie wróciło, migracje `20261014001` i `20261014002` są zastosowane. Druga dodaje wspólny atomowy fingerprint dla RPC rezerwacji i PDF.
+- Produkcyjny test użył syntetycznej rezerwacji i PDF za tę samą kwotę: pierwsze rozliczenie przeszło, ponowienie tego samego fingerprintu nie przyznało PDF. Całość zakończono `ROLLBACK`; nie pozostały dane testowe. Nie wykonano prawdziwej płatności, nie wysłano maila ani SMS. Dostępność: HTTP 200/132 terminy; endpoint powiadomień bez tokenu: 401. Aplikacja działa z deploymentu `dpl_wwkJdc2SjBadZLUnsC4mpxm2YVut` (READY); migracja bazy nie wymagała nowego buildu.
+- **Telefonia, test dwóch nóg: BLOCKED numerem docelowym.** Telefon testowy/numer `452151983` został wcześniej potwierdzony jako niedziałający. Karta T-Mobile w slocie 1 telefonu A jest zarejestrowana jako karta inicjująca; `LOADED,ABSENT` oznacza pusty slot 2 telefonu A i nie blokuje hold/merge. Zdalny port ADB odrzuca połączenie, lecz telefon działa przez USB. Nie ponawiano połączenia. Do odbioru pozostaje naprawić lub podmienić numer `452151983`, a następnie wykonać jedną kontrolowaną próbę hold, merge, dwukierunkowego audio i bezpiecznego rozłączenia.
+- **Dalej:** (3) sprawdzić Tailscale/heartbeat po restarcie i 24 h obserwacji; (4) odebrać prawdziwe audio po naprawie telefonu testowego; (5) zamknąć decyzje o pilocie i pilnym terminie; (6) na końcu autostart oraz przegląd synchronizacji/prywatnych danych Google.
+
+### Przegląd raportu Opus i odbiór wydania — 15.10.2026
+
+- **Potwierdzone i poprawione:** parser cytatów Markdown; gramatyka i odstępy w nagłówkach kontaktu/problemy; obcinanie tytułów SEO na granicy słów; zdublowany meta tag PWA; brak globalnego error boundary; nieaktualne asercje release smoke i checklista testów; nieprawdziwe daty `lastmod`; dopisano potwierdzone dwa pytania w Pokoju przez 7 dni do opisu usługi.
+- **Punkty raportu nie wymagające zmiany:** produkcja już zwraca HSTS `max-age=63072000`; `/api/contact` ma limiter; redukcja ruchu działa w CSS; `getProductJsonLd` nie jest używany, więc nie emituje mylącego schema Product; opis PDF poprawnie mówi o zakupie po rozmowie.
+- **Odłożone do osobnego przeglądu:** pominięty link do treści i masowe etykiety/alt wymagają audytu wielu układów i formularzy; polling, lazy loading, CSP i CSS wymagają pomiarów przed zmianami; twierdzenia prawne i nazewnictwo COAPE wymagają osobnego potwierdzenia. Zbiorczych liczb „500+” i „~330 WCAG” nie potraktowano jako zweryfikowanych ustaleń.
+- **Testy lokalne:** `npm test` — 405 PASS, 12 SKIP, 0 FAIL; sześć testów materiałów/admina — 70/70; cztery testy bezpieczeństwa/płatności/Sekcji 16 — 50/50; `npx tsc --noEmit`, `git diff --check` i `npm run build` — PASS. Brak realnych płatności, SMS-ów, połączeń i mutacji Supabase.
+- **Supabase:** `npx supabase migration list --linked` potwierdziło zgodność lokalnej i zdalnej historii do `20261014002`; migracji nie ponawiano. Wdrożenie kodu i testy produkcyjne pozostają następnym krokiem.
+
+### Weryfikacja lokalna — 15.10.2026
+
+- Pakiet lokalny PDF/Revolut i Sekcji 16: **CODE / FUNCTIONAL PASS** dla sprawdzonych ścieżek. Celowane testy `payment-reconciliation-safety`, `commerce-payment-security`, `section16-autonomous-model` i `section16-calendar-hold-integration`: **50/50 PASS**; `npx tsc --noEmit` oraz `git diff --check`: PASS.
+- Testy używały lokalnego magazynu i danych syntetycznych. Logi `phone_agent` pochodziły z izolowanych testów; nie wysłano prawdziwego SMS, nie wykonano płatności ani zmian produkcyjnych.
+- **DEVICE / fizyczny punkt 2: BLOCKED** — `adb devices -l` nie wykrył urządzenia. Test odzyskiwania Tailscale/heartbeat po restarcie i 24-godzinna obserwacja wymagają ponownego podłączenia telefonu. Test dwóch nóg GSM pozostaje zablokowany do czasu naprawy lub wymiany potwierdzonego niesprawnego numeru testowego.

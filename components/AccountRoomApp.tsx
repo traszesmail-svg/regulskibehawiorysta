@@ -179,6 +179,45 @@ export function AccountRoomApp({ initialView = 'start', initialSessionHint = fal
     ? getPublishedMaterialyGuideBySlug(latestAccountBooking.recommendedMaterialSlug)
     : null
 
+  const unlockedRecommendedMaterial = useMemo(() => {
+    if (!recommendedMaterial || !account?.materials) return null
+    return (
+      account.materials.find(
+        (m) =>
+          m.productType === 'ebook' &&
+          m.productName.trim().toLowerCase() === recommendedMaterial.title.trim().toLowerCase() &&
+          (m.status === 'paid' || m.status === 'access_sent'),
+      ) ?? null
+    )
+  }, [account?.materials, recommendedMaterial])
+
+  const recommendedMaterialDownloadUrl = useMemo(() => {
+    if (!unlockedRecommendedMaterial?.accessUrl) return null
+    try {
+      const url = new URL(unlockedRecommendedMaterial.accessUrl, 'https://local.test')
+      const code = url.searchParams.get('code')
+      const email = url.searchParams.get('email')
+      if (code && email) {
+        return `/api/access/download?code=${encodeURIComponent(code)}&email=${encodeURIComponent(email)}`
+      }
+    } catch {
+      // ignore
+    }
+    return unlockedRecommendedMaterial.accessUrl.replace('/pokoj?', '/api/access/download?')
+  }, [unlockedRecommendedMaterial])
+
+  const pendingRecommendedMaterial = useMemo(() => {
+    if (!recommendedMaterial || !account?.materials || unlockedRecommendedMaterial) return null
+    return (
+      account.materials.find(
+        (m) =>
+          m.productType === 'ebook' &&
+          m.productName.trim().toLowerCase() === recommendedMaterial.title.trim().toLowerCase() &&
+          (m.status === 'waiting_manual_payment' || m.status === 'payment_reported'),
+      ) ?? null
+    )
+  }, [account?.materials, recommendedMaterial, unlockedRecommendedMaterial])
+
   const loadAccount = useCallback(async () => {
     setError('')
     try {
@@ -532,13 +571,67 @@ export function AccountRoomApp({ initialView = 'start', initialSessionHint = fal
                 <h2 id="account-recommendation-title">Co robić dalej</h2>
                 {latestAccountBooking?.recommendedNextStep ? <p>{latestAccountBooking.recommendedNextStep}</p> : null}
                 {recommendedMaterial ? (
-                  <div className="account-recommended-material">
-                    <strong>{recommendedMaterial.title} · 19 zł</strong>
-                    <span>Materiał dobrany do tej rozmowy. Kupisz go tutaj, w swoim Pokoju.</span>
-                    <button type="button" className="button button-primary" onClick={() => void orderRecommendedMaterial()} disabled={orderingRecommendation}>
-                      {orderingRecommendation ? 'Przygotowuję…' : 'Przejdź do zakupu PDF'}
-                    </button>
-                  </div>
+                  unlockedRecommendedMaterial ? (
+                    <div className="account-recommended-material is-unlocked">
+                      <strong>{recommendedMaterial.title} · Materiał odblokowany</strong>
+                      <span>Materiał dobrany do tej rozmowy jest gotowy do pobrania.</span>
+                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '4px' }}>
+                        <a
+                          href={recommendedMaterialDownloadUrl ?? unlockedRecommendedMaterial.accessUrl ?? '#'}
+                          className="button button-primary"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Download size={17} aria-hidden="true" />
+                          Pobierz PDF
+                        </a>
+                        {unlockedRecommendedMaterial.accessUrl ? (
+                          <Link href={unlockedRecommendedMaterial.accessUrl} className="button button-ghost">
+                            Karta dostępu
+                          </Link>
+                        ) : null}
+                      </div>
+                    </div>
+                  ) : pendingRecommendedMaterial ? (
+                    <div className="account-recommended-material is-pending">
+                      <strong>
+                        {recommendedMaterial.title} ·{' '}
+                        {pendingRecommendedMaterial.status === 'payment_reported'
+                          ? 'Płatność zgłoszona'
+                          : 'Czeka na płatność'}
+                      </strong>
+                      <span>
+                        {pendingRecommendedMaterial.status === 'payment_reported'
+                          ? 'Wpłata czeka na potwierdzenie. Po zaksięgowaniu materiał odblokuje się tutaj.'
+                          : 'Zamówienie zostało rozpoczęte. Dokończ płatność, aby odblokować materiał.'}
+                      </span>
+                      <button
+                        type="button"
+                        className="button button-primary"
+                        onClick={() => void orderRecommendedMaterial()}
+                        disabled={orderingRecommendation}
+                      >
+                        {orderingRecommendation
+                          ? 'Przygotowuję…'
+                          : pendingRecommendedMaterial.status === 'payment_reported'
+                            ? 'Sprawdź status zamówienia'
+                            : 'Dokończ zamówienie PDF'}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="account-recommended-material">
+                      <strong>{recommendedMaterial.title} · 19 zł</strong>
+                      <span>Materiał dobrany do tej rozmowy. Kupisz go tutaj, w swoim Pokoju.</span>
+                      <button
+                        type="button"
+                        className="button button-primary"
+                        onClick={() => void orderRecommendedMaterial()}
+                        disabled={orderingRecommendation}
+                      >
+                        {orderingRecommendation ? 'Przygotowuję…' : 'Przejdź do zakupu PDF'}
+                      </button>
+                    </div>
+                  )
                 ) : null}
               </div>
               <button type="button" className="button button-ghost" onClick={() => setActiveView('rozmowa')}>

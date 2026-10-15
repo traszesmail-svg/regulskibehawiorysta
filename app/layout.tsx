@@ -89,7 +89,6 @@ export const metadata: Metadata = {
   },
   other: {
     'release-id': RELEASE_ID,
-    'mobile-web-app-capable': 'yes',
   },
 }
 

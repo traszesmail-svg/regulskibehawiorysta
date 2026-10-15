@@ -26,9 +26,7 @@ function buildAbsoluteUrl(baseUrl: string, path: string) {
   return new URL(path, baseUrl).toString()
 }
 
-const SITEMAP_FALLBACK_LAST_MODIFIED = new Date('2026-07-13T00:00:00.000Z')
-
-function getStableLastModified(path: string): Date {
+function getStableLastModified(path: string): Date | undefined {
   if (path.startsWith('/blog/')) {
     const post = getBlogPostBySlug(path.slice('/blog/'.length))
     if (post?.publishedAt) {
@@ -39,7 +37,7 @@ function getStableLastModified(path: string): Date {
     }
   }
 
-  return SITEMAP_FALLBACK_LAST_MODIFIED
+  return undefined
 }
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -47,9 +45,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const routeMap = new Map<string, MetadataRoute.Sitemap[number]>()
 
   for (const route of STATIC_ROUTES) {
+    const lastModified = getStableLastModified(route.path)
     routeMap.set(route.path, {
       url: buildAbsoluteUrl(baseUrl, route.path),
-      lastModified: getStableLastModified(route.path),
+      ...(lastModified ? { lastModified } : {}),
       changeFrequency: route.changeFrequency,
       priority: route.priority,
     })
@@ -59,9 +58,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     const blogPaths = listBlogRoutePaths()
     for (const path of blogPaths) {
       if (path && path !== '/blog') {
+        const lastModified = getStableLastModified(path)
         routeMap.set(path, {
           url: buildAbsoluteUrl(baseUrl, path),
-          lastModified: getStableLastModified(path),
+          ...(lastModified ? { lastModified } : {}),
           changeFrequency: 'weekly',
           priority: 0.75,
         })
@@ -74,9 +74,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
   try {
     const problemPagePaths = listProblemPagePaths()
     for (const path of problemPagePaths) {
+      const lastModified = getStableLastModified(path)
       routeMap.set(path, {
         url: buildAbsoluteUrl(baseUrl, path),
-        lastModified: getStableLastModified(path),
+        ...(lastModified ? { lastModified } : {}),
         changeFrequency: 'weekly',
         priority: 0.8,
       })

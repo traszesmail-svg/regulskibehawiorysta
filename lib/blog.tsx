@@ -1287,7 +1287,7 @@ function parseMarkdownBlocks(source: string): BlogMarkdownBlock[] {
       const quoteLines: string[] = []
 
       while (index < lines.length && (lines[index]?.trim() ?? '').startsWith('>')) {
-        quoteLines.push((lines[index] ?? '').replace(/^>\są/, ''))
+        quoteLines.push((lines[index] ?? '').replace(/^>\s?/, ''))
         index += 1
       }
 

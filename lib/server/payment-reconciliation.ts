@@ -1,5 +1,9 @@
 import { createHash } from 'node:crypto'
 import { listBookings, reconcileRevolutPaymentNotification } from '@/lib/server/db'
+import {
+  listPendingCommerceOrders,
+  reconcileCommerceRevolutPaymentNotification,
+} from '@/lib/server/commerce-store'
 import type { BookingRecord } from '@/lib/types'
 
 export type PaymentNotificationPayload = {
@@ -230,5 +234,39 @@ export async function reconcilePaymentNotification(
     bookingDate: paidBooking.bookingDate,
     bookingTime: paidBooking.bookingTime,
     summary: `Zaksięgowano wpłatę ${parsedAmount} zł dla rezerwacji ${paidBooking.id} (${paidBooking.ownerName}).`,
+  }
+}
+
+export async function reconcileCommercePaymentNotification(
+  payload: PaymentNotificationPayload,
+): Promise<PaymentReconciliationResult> {
+  const title = (payload.title ?? '').trim()
+  const text = (payload.text ?? '').trim()
+  if (payload.packageName !== 'com.revolut.revolut') return { matched: false, reason: 'To nie jest powiadomienie Revolut.' }
+  if (!isIncomingPaymentNotification(title, text)) return { matched: false, reason: 'Powiadomienie nie wskazuje na wpływ środków.' }
+  const parsedAmount = extractAmountFromNotification(title, text)
+  const fingerprint = getRevolutNotificationFingerprint(payload)
+  if (!parsedAmount || !fingerprint) {
+    return { matched: false, reason: 'Brak jednoznacznej kwoty albo identyfikatora transakcji Revolut.', parsedAmount, requiresManualReview: true }
+  }
+
+  const orders = await listPendingCommerceOrders()
+  const references = [...new Set((title + ' ' + text).toUpperCase().match(/ZAM-[A-Z0-9]{6}/g) ?? [])]
+  const candidates = orders.filter((order) => order.manualAmount === parsedAmount && (!references.length || references.includes(order.orderNumber)))
+  if (candidates.length !== 1) {
+    return { matched: false, reason: candidates.length ? 'Wpłata pasuje do więcej niż jednego zamówienia.' : 'Brak jednoznacznego zamówienia materiału dla tej kwoty i numeru.', parsedAmount, requiresManualReview: true }
+  }
+
+  const order = candidates[0]
+  const fulfilled = await reconcileCommerceRevolutPaymentNotification(order.orderNumber, fingerprint, parsedAmount)
+  if (!fulfilled) return { matched: false, reason: 'Nie udało się zaktualizować zamówienia materiału.', parsedAmount, requiresManualReview: true }
+  return {
+    matched: true,
+    bookingId: fulfilled.orderNumber,
+    amount: parsedAmount,
+    ownerName: fulfilled.customerName,
+    bookingDate: fulfilled.paidAt ?? fulfilled.updatedAt,
+    bookingTime: '',
+    summary: `Automatycznie potwierdzono wpłatę Revolut dla zamówienia ${fulfilled.orderNumber}.`,
   }
 }

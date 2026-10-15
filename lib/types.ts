@@ -137,6 +137,8 @@ export interface AvailabilitySlot {
   isBooked: boolean
   lockedByBookingId?: string | null
   lockedUntil?: string | null
+  section16HoldRequestId?: string | null
+  section16HoldExpiresAt?: string | null
   createdAt: string
   updatedAt: string
 }

@@ -10,8 +10,8 @@ import {
 } from '@/lib/materialy-catalog'
 import {
   canUseCommerceAccess,
+  claimCommerceAccessUse,
   getCommerceOrderByAccessCode,
-  recordCommerceAccessUse,
 } from '@/lib/server/commerce-store'
 import { PRIVATE_NO_STORE_HEADERS, consumeRequestRateLimit } from '@/lib/server/request-protection'
 
@@ -37,6 +37,10 @@ export async function GET(request: Request) {
   const email = url.searchParams.get('email')?.trim().toLowerCase() ?? ''
   const partRaw = url.searchParams.get('part') ?? '0'
   const part = Number.parseInt(partRaw, 10)
+
+  if (!code || !email) {
+    return NextResponse.json({ error: 'Kod jest nieprawidłowy albo wygasł.' }, { status: 400, headers: PRIVATE_NO_STORE_HEADERS })
+  }
 
   const order = await getCommerceOrderByAccessCode(code, email)
 
@@ -74,7 +78,10 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Plik PDF nie został znaleziony.' }, { status: 410, headers: PRIVATE_NO_STORE_HEADERS })
   }
 
-  await recordCommerceAccessUse(order.orderNumber)
+  const claimed = await claimCommerceAccessUse(order.orderNumber, { code, email })
+  if (!claimed) {
+    return NextResponse.json({ error: 'Kod jest nieprawidłowy albo wygasł.' }, { status: 400, headers: PRIVATE_NO_STORE_HEADERS })
+  }
 
   return new NextResponse(buffer, {
     headers: {

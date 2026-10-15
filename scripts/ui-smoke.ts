@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { access, rm } from 'fs/promises'
+import { access, mkdir, rm } from 'fs/promises'
 import path from 'path'
 import { spawn } from 'child_process'
 import { loadEnvConfig } from '@next/env'
@@ -20,11 +20,48 @@ const roomActiveTimeoutMs = 30000
 const retryActionTimeoutMs = 20000
 const uiSmokeOwnerName = 'UI Smoke'
 const uiSmokeEmail = 'ui-smoke@example.com'
-const homeHeading = /Behawiorysta psów i kotów online|Behawiorysta psow i kotow online/i
+const homeHeading = /Martwi Cię zachowanie psa lub kota\?|Martwi Cie zachowanie psa lub kota\?/i
 const materialyHeading = /Materia.*PDF.*opiekun/i
 const zapytajHeading = /Martwi Cię zachowanie psa lub kota\?|Martwi Cie zachowanie psa lub kota\?/i
 type RouteButtonLabels = { buttonLabels?: readonly (string | RegExp)[] }
 type CallRoomMode = 'phone' | 'video-live' | 'video-locked'
+
+function getScreenshotDirectory() {
+  const configuredDirectory = process.env.UI_SMOKE_SCREENSHOT_DIR?.trim()
+  return configuredDirectory ? path.resolve(rootDir, configuredDirectory) : null
+}
+
+async function captureCallRoomScreenshot(page: Page, fileName: string, focusLocator: Locator) {
+  const screenshotDirectory = getScreenshotDirectory()
+  if (!screenshotDirectory) return
+
+  await mkdir(screenshotDirectory, { recursive: true })
+  await focusLocator.scrollIntoViewIfNeeded()
+  await page.addStyleTag({ content: 'nextjs-portal { display: none !important; }' })
+  const screenshotPath = path.join(screenshotDirectory, fileName)
+  await page.screenshot({ path: screenshotPath })
+  console.log(`[ui-smoke screenshot] ${fileName}`)
+}
+
+async function setAnalyticsConsentDeniedForVisualSmoke(context: import('playwright-core').BrowserContext) {
+  if (!getScreenshotDirectory()) return
+
+  await context.addInitScript(() => {
+    window.localStorage.setItem('regulski-behawiorysta.analytics.consent', 'denied')
+  })
+}
+
+function attachCallRoomDiagnostics(page: Page, label: string) {
+  page.on('console', (message) => {
+    if (message.type() === 'error') {
+      console.log(`[call-room ${label}] console.error: ${message.text()}`)
+    }
+  })
+
+  page.on('pageerror', (error) => {
+    console.log(`[call-room ${label}] pageerror: ${error.stack ?? error.message}`)
+  })
+}
 
 function getBookableSmokeSlot() {
   return {
@@ -71,7 +108,9 @@ async function waitForServer() {
 
 function assignFreshServerAddress() {
   port = 3210 + Math.floor(Math.random() * 200)
-  appUrl = `http://127.0.0.1:${port}`
+  // The admin-session route redirects to localhost. Keep the initial origin
+  // aligned so its host-only secure cookie is sent on the redirect to /admin.
+  appUrl = `http://localhost:${port}`
 }
 
 async function resolveBrowserExecutablePathLegacy() {
@@ -536,7 +575,11 @@ async function runUiSmokeOnce() {
 
     server = spawn('cmd.exe', ['/c', 'npm', 'run', 'dev', '--', '--hostname', '127.0.0.1', '--port', String(port)], {
       cwd: rootDir,
-      env: process.env,
+      env: {
+        ...process.env,
+        APP_DATA_MODE: 'local',
+        APP_LOCAL_DATA_DIR: dataDir,
+      },
       stdio: 'ignore',
       windowsHide: true,
     })
@@ -559,13 +602,14 @@ async function runUiSmokeOnce() {
       locale: 'pl-PL',
       viewport: { width: 390, height: 844 },
     })
+    await setAnalyticsConsentDeniedForVisualSmoke(publicContext)
     const adminContext = await browser.newContext({
       locale: 'pl-PL',
       viewport: { width: 1440, height: 1200 },
-      httpCredentials: { username: 'admin', password: adminSecret },
     })
 
     const publicPage = await publicContext.newPage()
+    attachCallRoomDiagnostics(publicPage, 'phone')
     await publicPage.goto(appUrl, { waitUntil: 'domcontentloaded' })
     await publicPage
       .getByRole('heading', {
@@ -599,7 +643,7 @@ async function runUiSmokeOnce() {
       },
       {
         path: '/kontakt',
-        heading: /Napisz krótko, co się dzieje\. Pomogę Ci wybrać najrozsądniejszy pierwszy krok\./i,
+        heading: /Dobry początek\? Po prostu napisz\./i,
       },
       {
         path: '/materialy',
@@ -782,7 +826,10 @@ async function runUiSmokeOnce() {
     )
 
     const adminPage = await adminContext.newPage()
-    await adminPage.goto(`${appUrl}/admin`, { waitUntil: 'domcontentloaded' })
+    await adminPage.goto(`${appUrl}/admin/login`, { waitUntil: 'domcontentloaded' })
+    await adminPage.locator('input[name="password"]').fill(adminSecret)
+    await adminPage.locator('form[action="/api/admin/session"] button[type="submit"]').click()
+    await adminPage.waitForURL(`${appUrl}/admin`, { timeout: routeNavigationTimeoutMs })
     await adminPage.getByRole('heading', { name: /Rezerwacje, płatności i terminy/i }).waitFor()
     await adminPage.locator('.summary-card .stat-label').filter({ hasText: 'Do potwierdzenia' }).first().waitFor()
     await approveManualPaymentWithRetry(adminPage, bookingId, uiSmokeEmail)
@@ -854,6 +901,7 @@ async function runUiSmokeOnce() {
     await publicPage.goto(new URL(roomJoinHref, appUrl).toString(), { waitUntil: 'domcontentloaded' })
     const phoneRoomMode = await verifyCallRoomLoaded(publicPage, bookingId, uiSmokeOwnerName)
     assert.equal(phoneRoomMode, 'phone')
+    await captureCallRoomScreenshot(publicPage, 'phone-room-mobile.png', publicPage.locator('.room-sidebar').first())
 
     await publicPage.reload({ waitUntil: 'domcontentloaded' })
     assert.equal(await verifyCallRoomLoaded(publicPage, bookingId, uiSmokeOwnerName), phoneRoomMode)
@@ -885,6 +933,7 @@ async function runUiSmokeOnce() {
     assert.equal(videoPaidBooking?.paymentStatus, 'paid')
 
     const videoLockedPage = await publicContext.newPage()
+    attachCallRoomDiagnostics(videoLockedPage, 'video-locked')
     await videoLockedPage.goto(
       `${appUrl}/call/${videoBookingResult.booking.id}?access=${encodeURIComponent(videoBookingResult.accessToken)}`,
       { waitUntil: 'domcontentloaded' },
@@ -895,6 +944,7 @@ async function runUiSmokeOnce() {
       Boolean(lockedVideoIframeSrc?.includes('config.startAudioOnly=true')) &&
       Boolean(lockedVideoIframeSrc?.includes('config.startWithVideoMuted=true'))
     assert.equal(videoRoomIframeHasMeetingConfig, true)
+    await captureCallRoomScreenshot(videoLockedPage, 'video-room-locked-mobile.png', videoLockedPage.locator('.room-stage').first())
     await videoLockedPage.close()
 
     if (!browser) {
@@ -905,11 +955,13 @@ async function runUiSmokeOnce() {
       locale: 'pl-PL',
       viewport: { width: 1280, height: 960 },
     })
+    await setAnalyticsConsentDeniedForVisualSmoke(videoContext)
     const videoRoomDurationMinutes = getBookingServiceRoomDurationMinutes('konsultacja-behawioralna-online')
     let videoTimerAfterStart = ''
 
     try {
       const videoPage = await videoContext.newPage()
+      attachCallRoomDiagnostics(videoPage, 'video-live-desktop')
       const videoRoomStart = parseWarsawDateTime(
         videoBookingResult.booking.bookingDate,
         videoBookingResult.booking.bookingTime,
@@ -921,6 +973,30 @@ async function runUiSmokeOnce() {
       )
       assert.equal(await verifyCallRoomLoaded(videoPage, videoBookingResult.booking.id, 'UI Smoke Video', 'video-live'), 'video-live')
       assert.equal((await videoPage.getByRole('link', { name: /nowej karcie/i }).getAttribute('href'))?.includes('meet.jit.si'), true)
+      await captureCallRoomScreenshot(videoPage, 'video-room-live-desktop.png', videoPage.locator('.room-stage').first())
+
+      const videoMobileContext = await browser.newContext({
+        locale: 'pl-PL',
+        viewport: { width: 390, height: 844 },
+      })
+      await setAnalyticsConsentDeniedForVisualSmoke(videoMobileContext)
+
+      try {
+        const videoMobilePage = await videoMobileContext.newPage()
+        attachCallRoomDiagnostics(videoMobilePage, 'video-live-mobile')
+        await videoMobilePage.clock.install({ time: new Date(videoRoomStart.getTime() + 60 * 1000) })
+        await videoMobilePage.goto(
+          `${appUrl}/call/${videoBookingResult.booking.id}?access=${encodeURIComponent(videoBookingResult.accessToken)}`,
+          { waitUntil: 'domcontentloaded' },
+        )
+        assert.equal(
+          await verifyCallRoomLoaded(videoMobilePage, videoBookingResult.booking.id, 'UI Smoke Video', 'video-live'),
+          'video-live',
+        )
+        await captureCallRoomScreenshot(videoMobilePage, 'video-room-live-mobile.png', videoMobilePage.locator('.room-stage').first())
+      } finally {
+        await videoMobileContext.close()
+      }
 
       await startRoomTimerWithRetry(videoPage, videoRoomDurationMinutes)
       await videoPage.clock.runFor(2200)

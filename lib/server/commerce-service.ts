@@ -20,7 +20,6 @@ import {
   fulfillCommerceOrder,
   getCommerceOrder,
 } from '@/lib/server/commerce-store'
-import { sendCommerceAccessCodeCustomerEmail } from '@/lib/server/notifications'
 import { CLINIC_PHONE_UPGRADE_PRICE_PLN } from '@/lib/pricing'
 import { normalizePolishPhone } from '@/lib/phone'
 
@@ -258,11 +257,6 @@ export async function fulfillCommerceOrderAndNotify(
     throw new Error('Nie znaleziono zamówienia.')
   }
 
-  const alreadySent =
-    orderBefore.productType === 'ebook' &&
-    orderBefore.status === 'access_sent' &&
-    Boolean(orderBefore.accessCode)
-
   if (orderBefore.productType === 'consultation' && orderBefore.meta.bookingId && !orderBefore.meta.clinicPhoneUpgrade) {
     await markBookingPaid(orderBefore.meta.bookingId, {
       paymentMethod: paymentMethodForBooking(method),
@@ -280,10 +274,6 @@ export async function fulfillCommerceOrderAndNotify(
 
   if (orderBefore.productType === 'consultation' && orderBefore.meta.bookingId && orderBefore.meta.clinicPhoneUpgrade) {
     await markBookingClinicPhoneUpgrade(orderBefore.meta.bookingId, orderBefore.customerPhone ?? '')
-  }
-
-  if (!alreadySent && order.productType === 'ebook') {
-    await sendCommerceAccessCodeCustomerEmail(order)
   }
 
   return order

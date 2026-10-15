@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { OperatorStatusData } from '@/components/AdminOperatorMobileCard'
+import { startVisiblePolling } from '@/components/visible-polling'
 
 export function useOperatorStatus(initialData: OperatorStatusData | null | undefined) {
   const [data, setData] = useState<OperatorStatusData | null>(initialData ?? null)
@@ -48,9 +49,9 @@ export function useOperatorStatus(initialData: OperatorStatusData | null | undef
   }, [])
 
   useEffect(() => {
-    const timer = setInterval(() => { void refresh() }, 10000)
+    const stopPolling = startVisiblePolling(refresh, 10000, { immediate: false })
     return () => {
-      clearInterval(timer)
+      stopPolling()
       generation.current = generation.current + 1
       activeController.current?.abort()
       activeController.current = null

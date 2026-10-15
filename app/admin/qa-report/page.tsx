@@ -9,7 +9,7 @@ export default async function AdminQaReportPage() {
   const report = await readLatestQaReport()
 
   return (
-    <main className="page-wrap" data-analytics-disabled="true">
+    <main id="main-content" tabIndex={-1} className="page-wrap" data-analytics-disabled="true">
       <div className="container">
         <section className="panel section-panel">
           <div className="section-head">

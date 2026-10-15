@@ -5,7 +5,7 @@ export const metadata: Metadata = { title: 'Panel właściciela', robots: { inde
 export default async function AdminLoginPage({ searchParams }: { searchParams?: Promise<{ error?: string }> }) {
   const error = (await searchParams)?.error === '1'
   return (
-    <main className="page-wrap" style={{ minHeight: '100vh', display: 'grid', placeItems: 'center' }}>
+    <main id="main-content" tabIndex={-1} className="page-wrap" style={{ minHeight: '100vh', display: 'grid', placeItems: 'center' }}>
       <form action="/api/admin/session" method="post" className="list-card" style={{ width: 'min(100%, 360px)', padding: 24 }}>
         <div className="section-eyebrow">Panel właściciela</div>
         <h1 style={{ marginTop: 6 }}>Jedno hasło</h1>

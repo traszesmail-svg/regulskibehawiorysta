@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { MainContentStart } from '@/components/SkipToContent'
 import { INSTAGRAM_PROFILE_URL, SITE_HEADER_BRAND, SITE_HEADER_SUBTITLE, SITE_NAME } from '@/lib/site'
 
 // Legacy header kept only for older marketing layouts and special/internal flows.
@@ -218,6 +219,7 @@ export function Header() {
   const navClassName = isHome ? 'premium-home-nav header-nav' : 'header-nav'
 
   return (
+    <>
     <header className={headerClassName}>
       <div className={headerMainClassName}>
         <Link href="/" prefetch={false} className={brandClassName} aria-label={SITE_NAME}>
@@ -337,5 +339,7 @@ export function Header() {
         </div>
       ) : null}
     </header>
+    <MainContentStart />
+    </>
   )
 }

@@ -11,8 +11,6 @@ import { getOpinionServiceLabel, publicOpinionReviews } from '@/lib/opinion-revi
 import { getCanonicalBaseUrl } from '@/lib/server/env'
 import { SITE_NAME, SITE_TAGLINE } from '@/lib/site'
 
-export const dynamic = 'force-dynamic'
-
 export const metadata: Metadata = buildMarketingMetadata({
   title: 'Opinie o konsultacjach behawioralnych',
   path: '/opinie',

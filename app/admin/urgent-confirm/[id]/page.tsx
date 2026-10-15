@@ -24,7 +24,7 @@ export default async function UrgentConfirmPage(props: { params: Promise<{ id: s
   })
 
   return (
-    <main style={{ maxWidth: 720, margin: '72px auto', padding: '24px', fontFamily: 'system-ui, sans-serif' }}>
+    <main id="main-content" tabIndex={-1} style={{ maxWidth: 720, margin: '72px auto', padding: '24px', fontFamily: 'system-ui, sans-serif' }}>
       <Link href="/admin" style={{ color: '#2f7667', fontSize: 14 }}>
         ← Panel admina
       </Link>

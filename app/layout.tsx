@@ -7,6 +7,7 @@ import { Schema } from '@/components/schema'
 import { ScrollProgress } from '@/components/ScrollProgress'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { PwaRegister } from '@/components/PwaRegister'
+import { SkipToContent } from '@/components/SkipToContent'
 import { APP_THEME_ATTRIBUTE, THEME_STORAGE_KEY } from '@/lib/theme'
 import { getRootSchemaGraphJsonLd } from '@/lib/schema'
 import { getCanonicalBaseUrl, shouldBlockSearchIndexing } from '@/lib/server/env'
@@ -118,6 +119,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="pl" suppressHydrationWarning>
       <body className={`${manrope.variable} ${inter.variable} ${fraunces.variable} ${jetbrainsMono.variable}`} data-release-id={RELEASE_ID}>
+        <SkipToContent />
         <script dangerouslySetInnerHTML={{ __html: themeBootstrapScript }} />
         <Schema data={rootJsonLd} />
         <ThemeProvider>

@@ -1,6 +1,6 @@
 'use client';
 
-import { motion, useScroll } from 'framer-motion';
+import { motion, useReducedMotion, useScroll } from 'framer-motion';
 
 interface ScrollProgressProps {
   color?: string;
@@ -12,10 +12,13 @@ export function ScrollProgress({
   height = 3,
 }: ScrollProgressProps) {
   const { scrollYProgress } = useScroll();
+  const shouldReduceMotion = useReducedMotion();
+
+  if (shouldReduceMotion) return null;
 
   return (
     <motion.div
-      className="fixed top-0 left-0 right-0 z-50 origin-left pointer-events-none"
+      className="scroll-progress-indicator fixed top-0 left-0 right-0 z-50 origin-left pointer-events-none"
       style={{ scaleX: scrollYProgress, height, background: color, willChange: 'transform' }}
     />
   );

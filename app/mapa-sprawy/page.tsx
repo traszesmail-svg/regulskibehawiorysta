@@ -3,6 +3,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { ShortBehaviorMapFlow } from '@/components/ShortBehaviorMapFlow'
 import { Schema } from '@/components/schema'
+import { MainContentStart } from '@/components/SkipToContent'
 import {
   getCaseMapMarketingParams,
   getCaseMapSource,
@@ -62,6 +63,7 @@ export default async function BehaviorMapPage(props: { searchParams?: Promise<Se
           </div>
         </header>
 
+        <MainContentStart />
         <div id="mapa-zachowania-start" className={styles.flow}>
           <h1 className={styles.screenReaderTitle}>Mapa zachowania — spokojny następny krok dla psa lub kota</h1>
           <ShortBehaviorMapFlow initialProblemKey={context?.problemKey} initialCaseMapId={initialCaseMapId || null} marketingParams={marketingParams} source={source} />

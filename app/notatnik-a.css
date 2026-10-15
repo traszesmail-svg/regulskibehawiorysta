@@ -25357,6 +25357,9 @@ a.reference-info-row,
 .home-footer-legal a,
 .site-footer-legal a {
   display: inline-flex;
+  min-width: 24px;
+  min-height: 28px;
+  padding: 4px 2px;
   align-items: center;
   color: inherit;
   text-decoration: none;

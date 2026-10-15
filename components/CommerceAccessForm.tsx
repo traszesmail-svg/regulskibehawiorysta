@@ -34,11 +34,11 @@ export function CommerceAccessForm() {
     <form className="materialy-form" onSubmit={submit}>
       <label>
         E-mail z zamówienia
-        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        <input type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
       </label>
       <label>
         Kod dostępu
-        <input type="text" value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} required />
+        <input type="text" autoComplete="one-time-code" value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} required />
       </label>
       {error ? <p className="form-error">{error}</p> : null}
       <button type="submit" className="button button-primary big-button" disabled={loading}>

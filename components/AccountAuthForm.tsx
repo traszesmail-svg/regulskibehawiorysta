@@ -250,7 +250,7 @@ export function AccountAuthForm() {
         {mode !== 'new-password' ? (
           <label>
             E-mail
-            <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
+            <input type="email" autoComplete={mode === 'reset' ? 'email' : 'username'} value={email} onChange={(event) => setEmail(event.target.value)} required />
           </label>
         ) : null}
         {mode !== 'reset' ? (
@@ -258,6 +258,7 @@ export function AccountAuthForm() {
             Hasło
             <input
               type="password"
+              autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               minLength={8}

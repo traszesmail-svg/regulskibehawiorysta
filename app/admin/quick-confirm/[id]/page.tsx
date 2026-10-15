@@ -47,7 +47,7 @@ export default async function QuickConfirmPage(
 
   if (!valid) {
     return (
-      <main style={{ maxWidth: '520px', margin: '80px auto', padding: '32px 20px', fontFamily: 'sans-serif' }}>
+      <main id="main-content" tabIndex={-1} style={{ maxWidth: '520px', margin: '80px auto', padding: '32px 20px', fontFamily: 'sans-serif' }}>
         <h1 style={{ color: '#8a3022' }}>Nieprawidłowy link</h1>
         <p>Link wygasł albo jest nieprawidłowy. Otwórz panel admina bezpośrednio.</p>
       </main>
@@ -59,7 +59,7 @@ export default async function QuickConfirmPage(
 
   if (booking.status === 'paid') {
     return (
-      <main style={{ maxWidth: '520px', margin: '80px auto', padding: '32px 20px', fontFamily: 'sans-serif' }}>
+      <main id="main-content" tabIndex={-1} style={{ maxWidth: '520px', margin: '80px auto', padding: '32px 20px', fontFamily: 'sans-serif' }}>
         <h1 style={{ color: '#2f7667' }}>✓ Już potwierdzone</h1>
         <p>Ta rezerwacja jest już oznaczona jako opłacona.</p>
         <p><strong>{booking.name}</strong> — {booking.serviceLabel}</p>
@@ -70,7 +70,7 @@ export default async function QuickConfirmPage(
 
   if (booking.status === 'cancelled') {
     return (
-      <main style={{ maxWidth: '520px', margin: '80px auto', padding: '32px 20px', fontFamily: 'sans-serif' }}>
+      <main id="main-content" tabIndex={-1} style={{ maxWidth: '520px', margin: '80px auto', padding: '32px 20px', fontFamily: 'sans-serif' }}>
         <h1 style={{ color: '#8a3022' }}>Rezerwacja anulowana</h1>
         <p>Ta rezerwacja została wcześniej anulowana.</p>
       </main>
@@ -84,7 +84,7 @@ export default async function QuickConfirmPage(
   const slotWasParsed = !booking.confirmedDate && Boolean(parsedSlot)
 
   return (
-    <main style={{ maxWidth: '520px', margin: '80px auto', padding: '32px 20px', fontFamily: 'sans-serif' }}>
+    <main id="main-content" tabIndex={-1} style={{ maxWidth: '520px', margin: '80px auto', padding: '32px 20px', fontFamily: 'sans-serif' }}>
       <h1 style={{ fontSize: '22px', marginBottom: '4px' }}>Potwierdź płatność</h1>
       <p style={{ color: '#666', marginTop: 0, marginBottom: '24px' }}>
         {booking.name} · {booking.serviceLabel} ({booking.servicePrice})

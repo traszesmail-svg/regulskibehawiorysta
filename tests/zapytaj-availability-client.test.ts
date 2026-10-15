@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { afterEach, describe, it } from 'node:test'
+import { startVisiblePolling } from '@/components/visible-polling'
 import {
   readZapytajAvailability,
   resetZapytajAvailabilityReadCacheForTests,
@@ -107,5 +108,139 @@ describe('public availability client reader', () => {
     assert.equal(laterPayload.url, later)
     await readZapytajAvailability(current, { force: true })
     assert.deepEqual(urls, [current, later, current])
+  })
+})
+
+function pollingPage(initialHidden = false) {
+  const originalWindow = Object.getOwnPropertyDescriptor(globalThis, 'window')
+  const originalDocument = Object.getOwnPropertyDescriptor(globalThis, 'document')
+  const page = new EventTarget()
+  let hidden = initialHidden
+  let nextTimer = 0
+  const timers = new Map<number, () => void>()
+  Object.defineProperty(page, 'hidden', { get: () => hidden })
+  Object.defineProperty(globalThis, 'document', { configurable: true, value: page })
+  Object.defineProperty(globalThis, 'window', { configurable: true, value: {
+    setInterval: (callback: () => void) => { timers.set(++nextTimer, callback); return nextTimer },
+    clearInterval: (timer: number) => { timers.delete(timer) },
+  } })
+
+  return {
+    timers,
+    tick: () => { for (const callback of [...timers.values()]) callback() },
+    visibility: (nextHidden: boolean) => { hidden = nextHidden; page.dispatchEvent(new Event('visibilitychange')) },
+    restore: () => {
+      if (originalWindow) Object.defineProperty(globalThis, 'window', originalWindow)
+      else Reflect.deleteProperty(globalThis, 'window')
+      if (originalDocument) Object.defineProperty(globalThis, 'document', originalDocument)
+      else Reflect.deleteProperty(globalThis, 'document')
+    },
+  }
+}
+
+const settlePolling = () => new Promise<void>((resolve) => setImmediate(resolve))
+
+describe('visible page polling', () => {
+  it('makes no periodic GET while hidden and refreshes exactly once on visibility return', async () => {
+    const page = pollingPage()
+    let calls = 0
+    globalThis.fetch = (() => { calls += 1; return Promise.resolve(jsonResponse({ ok: true })) }) as typeof fetch
+    const stop = startVisiblePolling(() => fetch('/api/status'), 20_000)
+    try {
+      await settlePolling()
+      assert.equal(calls, 1)
+      page.visibility(true)
+      page.tick()
+      page.tick()
+      assert.equal(calls, 1)
+      assert.equal(page.timers.size, 0)
+
+      page.visibility(false)
+      page.visibility(false)
+      await settlePolling()
+      assert.equal(calls, 2)
+      assert.equal(page.timers.size, 1)
+      page.tick()
+      await settlePolling()
+      assert.equal(calls, 3)
+
+      stop()
+      page.visibility(true)
+      page.visibility(false)
+      page.tick()
+      assert.equal(calls, 3)
+      assert.equal(page.timers.size, 0)
+    } finally { stop(); page.restore() }
+  })
+
+  it('starts a hidden page without a read or timer, then resumes with a fresh read', async () => {
+    const page = pollingPage(true)
+    const reasons: boolean[] = []
+    const stop = startVisiblePolling((fromVisibility) => { reasons.push(fromVisibility) }, 4000)
+    try {
+      page.tick()
+      assert.deepEqual(reasons, [])
+      assert.equal(page.timers.size, 0)
+      page.visibility(false)
+      await settlePolling()
+      assert.deepEqual(reasons, [true])
+      assert.equal(page.timers.size, 1)
+    } finally { stop(); page.restore() }
+  })
+
+  it('serializes a slow GET and coalesces visibility resumes into one following refresh', async () => {
+    const page = pollingPage()
+    const completions: Array<() => void> = []
+    const reasons: boolean[] = []
+    let active = 0
+    let maximumActive = 0
+    const stop = startVisiblePolling((fromVisibility) => {
+      reasons.push(fromVisibility)
+      active += 1
+      maximumActive = Math.max(maximumActive, active)
+      return new Promise<void>((resolve) => completions.push(() => { active -= 1; resolve() }))
+    }, 4000)
+    try {
+      page.tick()
+      page.tick()
+      page.visibility(true)
+      page.visibility(false)
+      page.visibility(true)
+      page.visibility(false)
+      assert.deepEqual(reasons, [false])
+      completions.shift()!()
+      await settlePolling()
+      assert.deepEqual(reasons, [false, true])
+      assert.equal(maximumActive, 1)
+      assert.equal(page.timers.size, 1)
+      page.tick()
+      assert.deepEqual(reasons, [false, true])
+
+      // An unmount cancels both the interval and the queued visibility refresh.
+      page.visibility(true)
+      page.visibility(false)
+      stop()
+      completions.shift()!()
+      await settlePolling()
+      assert.deepEqual(reasons, [false, true])
+      assert.equal(page.timers.size, 0)
+    } finally { stop(); page.restore() }
+  })
+
+  it('preserves a delayed first poll for existing status watchers', async () => {
+    const page = pollingPage()
+    const reasons: boolean[] = []
+    const stop = startVisiblePolling((fromVisibility) => { reasons.push(fromVisibility) }, 7000, { immediate: false })
+    try {
+      assert.deepEqual(reasons, [])
+      page.tick()
+      await settlePolling()
+      assert.deepEqual(reasons, [false])
+      page.visibility(true)
+      page.visibility(false)
+      await settlePolling()
+      assert.deepEqual(reasons, [false, true])
+      assert.equal(page.timers.size, 1)
+    } finally { stop(); page.restore() }
   })
 })

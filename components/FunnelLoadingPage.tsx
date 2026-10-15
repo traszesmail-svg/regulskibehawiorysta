@@ -6,7 +6,7 @@ type FunnelLoadingPageProps = {
 
 export function FunnelLoadingPage({ eyebrow, title, message }: FunnelLoadingPageProps) {
   return (
-    <main className="page-wrap marketing-page funnel-loading-shell" aria-live="polite">
+    <main id="main-content" tabIndex={-1} className="page-wrap marketing-page funnel-loading-shell" aria-live="polite">
       <div className="container">
         <section className="panel centered-panel hero-surface loading-panel loading-panel-light booking-flow-panel">
           <div className="funnel-loading-head">

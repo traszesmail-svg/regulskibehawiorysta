@@ -22,7 +22,7 @@ export default async function ZapytajRecoveryPage({ searchParams }: { searchPara
 
   if (!booking) {
     return (
-      <main className="page-wrap">
+      <main id="main-content" tabIndex={-1} className="page-wrap">
         <div className="container">
           <section className="panel centered-panel">
             <h1>Link jest nieprawidłowy albo wygasł</h1>
@@ -46,7 +46,7 @@ export default async function ZapytajRecoveryPage({ searchParams }: { searchPara
     .slice(0, 24)
 
   return (
-    <main className="page-wrap">
+    <main id="main-content" tabIndex={-1} className="page-wrap">
       <div className="container">
         <section className="panel centered-panel" style={{ maxWidth: '720px', margin: '0 auto' }}>
           <div className="section-eyebrow">Zapytaj behawiorystę</div>

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { trackAnalyticsEvent } from '@/lib/analytics'
 import { buildCommerceOrderStatusHref } from '@/lib/commerce'
+import { startVisiblePolling } from '@/components/visible-polling'
 
 type StatusPayload = {
   status: string
@@ -110,12 +111,14 @@ export function CommerceWaitingStatus({
   useEffect(() => {
     if (ready && readyUrl) return
 
-    const timer = window.setInterval(async () => {
+    let cancelled = false
+    const refresh = async () => {
       try {
         const response = await fetch(buildCommerceOrderStatusHref(orderNumber, viewerToken), {
           cache: 'no-store',
         })
         const payload = (await response.json()) as StatusPayload
+        if (cancelled) return
         if (!response.ok) throw new Error(payload.error ?? 'Nie udało się sprawdzić statusu.')
         setStatus(payload.status)
         setTestAdminConfirmUrl(payload.testAdminConfirmUrl)
@@ -129,11 +132,13 @@ export function CommerceWaitingStatus({
           setAccessUrl(payload.accessUrl)
         }
       } catch (err) {
+        if (cancelled) return
         setError(err instanceof Error ? err.message : 'Nie udało się sprawdzić statusu.')
       }
-    }, 4000)
+    }
+    const stopPolling = startVisiblePolling(refresh, 4000, { immediate: false })
 
-    return () => window.clearInterval(timer)
+    return () => { cancelled = true; stopPolling() }
   }, [orderNumber, ready, readyUrl, viewerToken])
 
   if (ready && readyUrl) {

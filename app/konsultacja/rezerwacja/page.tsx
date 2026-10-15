@@ -27,7 +27,7 @@ export default async function ConsultationBookingPage({
 
   if (!accessBooking) {
     return (
-      <main className="page-wrap">
+      <main id="main-content" tabIndex={-1} className="page-wrap">
         <div className="container">
           <section className="panel centered-panel">
             <div className="section-eyebrow">Dostęp indywidualny</div>

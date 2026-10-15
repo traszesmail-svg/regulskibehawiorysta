@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { HardNavLink } from '@/components/HardNavLink'
 import { FUNNEL_CTA_LABELS } from '@/lib/funnel'
+import { startVisiblePolling } from '@/components/visible-polling'
 
 interface ConfirmationStatusWatcherProps {
   active: boolean
@@ -45,8 +46,8 @@ export function ConfirmationStatusWatcher({
     let lastKnownState = currentState
 
     setSecondsUntilRefresh(Math.ceil(intervalMs / 1000))
-    const refreshTimer = window.setInterval(() => {
-      void fetch(statusUrl, { cache: 'no-store' })
+    const refresh = () =>
+      fetch(statusUrl, { cache: 'no-store' })
         .then(async (response) => {
           if (!response.ok) {
             throw new Error(`Status request failed with ${response.status}.`)
@@ -91,7 +92,7 @@ export function ConfirmationStatusWatcher({
             return next
           })
         })
-    }, intervalMs)
+    const stopPolling = startVisiblePolling(refresh, intervalMs, { immediate: false })
 
     const countdownTimer = window.setInterval(() => {
       setSecondsUntilRefresh((current) => (current <= 1 ? Math.ceil(intervalMs / 1000) : current - 1))
@@ -99,7 +100,7 @@ export function ConfirmationStatusWatcher({
 
     return () => {
       cancelled = true
-      window.clearInterval(refreshTimer)
+      stopPolling()
       window.clearInterval(countdownTimer)
     }
   }, [active, currentState, intervalMs, statusUrl])

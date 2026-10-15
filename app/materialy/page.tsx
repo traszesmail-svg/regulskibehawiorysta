@@ -14,7 +14,10 @@ import {
   ShoppingCart,
 } from 'lucide-react'
 import { NotatnikPageShell, PUBLIC_SITE_NAV_ITEMS } from '@/components/NotatnikA'
+import { Schema } from '@/components/schema'
+import { getBreadcrumbJsonLd, getItemListJsonLd } from '@/lib/schema'
 import { buildMarketingMetadata } from '@/lib/seo'
+import { SITE_PRODUCTION_URL } from '@/lib/site'
 import { PUBLIC_OFFER_PRICE_LABELS } from '@/lib/public-offer-copy'
 import {
   PRICE_LABEL,
@@ -51,7 +54,6 @@ function MaterialyGuideCard({ guide }: { guide: MaterialyGuide }) {
         href={detailHref}
         prefetch={false}
         className="materialy-showcase-card-link"
-        aria-label={`Zobacz PDF: ${guide.title}`}
       >
         <span className="materialy-showcase-cover">
           <Image
@@ -60,7 +62,6 @@ function MaterialyGuideCard({ guide }: { guide: MaterialyGuide }) {
             fill
             sizes="(max-width: 620px) 64vw, (max-width: 1100px) 28vw, 190px"
             className="materialy-showcase-cover-image"
-            unoptimized
           />
           <span className={`materialy-showcase-price${isFree ? ' is-free' : ''}`}>
             {PRICE_LABEL[guide.priceCode]}
@@ -133,6 +134,34 @@ export default function MaterialyLandingPage() {
   const featuredGuides = [freeGuides[0], freeGuides[5]].filter(
     (guide): guide is MaterialyGuide => Boolean(guide),
   )
+  const pageUrl = new URL('/materialy', SITE_PRODUCTION_URL).toString()
+  const guideListId = `${pageUrl}#guides`
+  const structuredData = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      '@id': `${pageUrl}#page`,
+      url: pageUrl,
+      name: 'Materiały PDF dla opiekunów psów i kotów',
+      description: 'Krótkie materiały do samodzielnego przeczytania i wdrożenia.',
+      inLanguage: 'pl-PL',
+      mainEntity: { '@id': guideListId },
+    },
+    {
+      ...getItemListJsonLd(
+        [...freeGuides, ...p19Guides].map((guide) => ({
+          name: guide.title,
+          url: new URL(`/materialy/${guide.slug}`, SITE_PRODUCTION_URL).toString(),
+        })),
+        'https://schema.org/ItemListUnordered',
+      ),
+      '@id': guideListId,
+    },
+    getBreadcrumbJsonLd([
+      { name: 'Strona główna', path: '/' },
+      { name: 'Materiały PDF', path: '/materialy' },
+    ]),
+  ]
 
   return (
     <NotatnikPageShell
@@ -145,6 +174,7 @@ export default function MaterialyLandingPage() {
       pageClassName="homepage-shell materialy-page materialy-showcase-page"
       shellClassName="homepage-main materialy-shell materialy-showcase-shell"
     >
+      <Schema data={structuredData} />
       <section className="materialy-visual-hero" aria-labelledby="materialy-title">
         <div className="materialy-visual-hero-copy">
           <span className="materialy-visual-kicker">
@@ -191,7 +221,6 @@ export default function MaterialyLandingPage() {
                     fill
                     sizes="92px"
                     className="materialy-visual-mini-cover"
-                    unoptimized
                   />
                 </span>
               ))}

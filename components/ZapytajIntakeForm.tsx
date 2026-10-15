@@ -1,11 +1,12 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
 import { RefreshCw } from 'lucide-react'
 import { trackAnalyticsEvent } from '@/lib/analytics'
 import { addAvailabilityMonths, buildZapytajMonthDates } from '@/lib/zapytaj-availability-window'
 import { readZapytajAvailability } from '@/lib/zapytaj-availability-client'
+import { startVisiblePolling } from '@/components/visible-polling'
 
 type Species = 'pies' | 'kot' | ''
 type FormStatus = 'idle' | 'loading' | 'error'
@@ -72,9 +73,11 @@ export function ZapytajIntakeForm({ promotionMode = false, initialPromotionCode 
   const [notifyContact, setNotifyContact] = useState('')
   const [promotionCode, setPromotionCode] = useState(initialPromotionCode)
   const availabilityFrom = useRef('')
+  const availabilityRequest = useRef<Promise<void> | null>(null)
+  const availabilityActive = useRef(false)
   const [visibleMonth, setVisibleMonth] = useState(() => getWarsawDateKey().slice(0, 7))
 
-  async function refreshAvailability(showLoading = false, requestedFrom = availabilityFrom.current) {
+  const loadAvailability = useCallback(async (showLoading: boolean, requestedFrom: string, force: boolean) => {
     if (showLoading) setIsRefreshing(true)
 
     try {
@@ -83,8 +86,9 @@ export function ZapytajIntakeForm({ promotionMode = false, initialPromotionCode 
         // The API performs bounded availability reads in parallel.
         // Keep the client deadline above its 4s read limit and network overhead.
         signal: AbortSignal.timeout(12_000),
-        force: showLoading,
+        force: showLoading || force,
       })
+      if (!availabilityActive.current) return
 
       if (!payload.live || !Array.isArray(payload.slots) || !payload.window) {
         throw new Error('Nie udało się pobrać dostępności.')
@@ -103,19 +107,43 @@ export function ZapytajIntakeForm({ promotionMode = false, initialPromotionCode 
         return ''
       })
     } catch (error) {
+      if (!availabilityActive.current) return
       setAvailability(null)
       setAvailabilityError(error instanceof Error ? error.message : 'Dostępność jest chwilowo niedostępna.')
     } finally {
-      if (showLoading) setIsRefreshing(false)
-      setInitialLoading(false)
+      if (availabilityActive.current) {
+        if (showLoading) setIsRefreshing(false)
+        setInitialLoading(false)
+      }
     }
-  }
+  }, [])
+
+  const refreshAvailability = useCallback(async function refreshAvailability(showLoading = false, requestedFrom = availabilityFrom.current, force = false): Promise<void> {
+    if (!availabilityActive.current) return
+    const pending = availabilityRequest.current
+    if (pending) {
+      if (!showLoading && !force) return pending
+      // A requested month or explicit refresh must follow the current read,
+      // rather than race it or be silently dropped.
+      await pending
+      if (!availabilityActive.current || (!showLoading && document.hidden)) return
+      return refreshAvailability(showLoading, requestedFrom, force)
+    }
+
+    const request = loadAvailability(showLoading, requestedFrom, force)
+    availabilityRequest.current = request
+    try {
+      await request
+    } finally {
+      if (availabilityRequest.current === request) availabilityRequest.current = null
+    }
+  }, [loadAvailability])
 
   useEffect(() => {
-    void refreshAvailability()
-    const interval = window.setInterval(() => void refreshAvailability(), 20_000)
-    return () => window.clearInterval(interval)
-  }, [])
+    availabilityActive.current = true
+    const stopPolling = startVisiblePolling((fromVisibility) => refreshAvailability(false, availabilityFrom.current, fromVisibility), 20_000)
+    return () => { availabilityActive.current = false; stopPolling() }
+  }, [refreshAvailability])
 
   const selectedSlot = useMemo(
     () => availability?.slots.find((slot) => slot.id === selectedSlotId) ?? null,

@@ -5,6 +5,7 @@ import { unstable_noStore as noStore } from 'next/cache'
 import { headers } from 'next/headers'
 import { CallRoom } from '@/components/CallRoom'
 import { PreparationMaterialsCard } from '@/components/PreparationMaterialsCard'
+import { MainContentStart } from '@/components/SkipToContent'
 import {
   getBookingServiceRoomAccessLabel,
   getBookingServiceTitle,
@@ -43,6 +44,7 @@ function readSearchParam(value: string | string[] | undefined): string | null {
 
 function CallRoomHeader() {
   return (
+    <>
     <header className="call-room-header">
       <div className="call-room-brand" aria-label="Regulski Behawiorysta">
         <Image
@@ -67,6 +69,8 @@ function CallRoomHeader() {
         </a>
       </nav>
     </header>
+    <MainContentStart />
+    </>
   )
 }
 

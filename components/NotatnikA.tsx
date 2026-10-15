@@ -7,6 +7,7 @@ import { ThemeToggle } from '@/components/ThemeToggle'
 import { INSTAGRAM_PROFILE_URL } from '@/lib/site'
 import { REGULSKI_WEB_BADGE_LOGO } from '@/lib/regulski-web-assets'
 import { ZapytajHeaderStatus } from '@/components/ZapytajHeaderStatus'
+import { MainContentStart } from '@/components/SkipToContent'
 
 export type NotatnikNavItem = {
   href: string
@@ -113,7 +114,7 @@ function InstagramGlyph() {
 
 function NotatnikBrandLockup() {
   return (
-    <Link href="/" prefetch={false} className="notatnik-brand" aria-label="Wróć na stronę główną Regulski Behawiorysta">
+    <Link href="/" prefetch={false} className="notatnik-brand">
       <span className="notatnik-brand-credential" aria-hidden="true">
         <Image src={REGULSKI_WEB_BADGE_LOGO} alt="" width={180} height={180} priority />
       </span>
@@ -144,6 +145,7 @@ export function NotatnikTopbar({
   const resolvedShowUtilityLinks = profile === 'site' ? true : showUtilityLinks
 
   return (
+    <>
     <header id="notatnik-topbar" className={`notatnik-topbar notatnik-topbar-${profile}`} data-topbar-profile={profile}>
       <NotatnikBrandLockup />
 
@@ -197,6 +199,8 @@ export function NotatnikTopbar({
 
       {hasNavItems ? <NotatnikMobileMenu navItems={navItems} ctaHref={resolvedCtaHref} ctaLabel={resolvedCtaLabel} showCta={showTopbarCta} /> : null}
     </header>
+    <MainContentStart />
+    </>
   )
 }
 

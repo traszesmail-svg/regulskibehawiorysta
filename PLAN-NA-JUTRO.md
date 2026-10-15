@@ -1,4 +1,4 @@
-# Plan na jutro — Operator, Motorola i odbiór produkcyjny
+﻿# Plan na jutro — Operator, Motorola i odbiór produkcyjny
 
 ## Stan bieżący — 10.10.2026
 
@@ -768,3 +768,81 @@ Wpisy oznaczone jako wcześniejsze, lokalne, „w toku” lub „bez deployu” 
 - Pakiet lokalny PDF/Revolut i Sekcji 16: **CODE / FUNCTIONAL PASS** dla sprawdzonych ścieżek. Celowane testy `payment-reconciliation-safety`, `commerce-payment-security`, `section16-autonomous-model` i `section16-calendar-hold-integration`: **50/50 PASS**; `npx tsc --noEmit` oraz `git diff --check`: PASS.
 - Testy używały lokalnego magazynu i danych syntetycznych. Logi `phone_agent` pochodziły z izolowanych testów; nie wysłano prawdziwego SMS, nie wykonano płatności ani zmian produkcyjnych.
 - **DEVICE / fizyczny punkt 2: BLOCKED** — `adb devices -l` nie wykrył urządzenia. Test odzyskiwania Tailscale/heartbeat po restarcie i 24-godzinna obserwacja wymagają ponownego podłączenia telefonu. Test dwóch nóg GSM pozostaje zablokowany do czasu naprawy lub wymiany potwierdzonego niesprawnego numeru testowego.
+
+### Wdrożenie i odbiór produkcyjny — 15.10.2026
+
+- Zmiany zapisano w commicie `7fdcbc2` (`Harden commerce and Section 16 flows`) i wdrożono na Vercel Production; domena `regulskibehawiorysta.pl` wskazuje na ten build.
+- Produkcyjny `live-smoke` **PASS** dla markera `CLEAN_START_REPO_V1:main:7fdcbc2`: strona główna, przekierowanie `/termin`, `/mapa-sprawy` i `/polityka-prywatnosci` przeszły wymagane i zabronione frazy.
+- `npx supabase migration list --linked` wcześniej potwierdził zgodność historii lokalnej i zdalnej do `20261014002`; brak oczekujących migracji, niczego nie zastosowano ponownie.
+- Testy lokalne i build są odnotowane wyżej: `npm test` 405 PASS / 12 SKIP / 0 FAIL, TypeScript i build PASS. Nie wykonano prawdziwych płatności, SMS-ów ani połączeń.
+- Commit jest lokalnie na `main`, który pozostaje o jeden commit przed `origin/main`. W repo zostały lokalne pliki poza commitem: `.ai-bridge/`, `docs/`, `raportopus.md` oraz trzy pliki `data/*.json` bez różnicy treści względem HEAD.
+
+### Potwierdzenie pushu i stanu produkcji — 15.10.2026
+
+- Commit `7fdcbc2` wypchnięto na `origin/main`; `HEAD`, `origin/main` i `origin/HEAD` wskazują ten sam commit.
+- `vercel inspect https://regulskibehawiorysta.pl` potwierdził deployment `dpl_GApyFwMepBgtiX6gdVpzFnyjjXLH` jako Production / Ready z aliasami apex i `www`. Produkcyjny smoke test dla tego commita przeszedł.
+
+### Merytoryczna kwalifikacja raportu Opus — 15.10.2026
+
+Raport jest listą tropów, nie audytem potwierdzającym „500+ problemów”. Zawiera obserwacje z 5.10.2026, nieaktualne nazwy komponentów i rekomendacje bez pomiaru. Decyzje poniżej opierają się na obecnym kodzie i odbiorze release z 15.10.
+
+**Zasadne i już naprawione / potwierdzone:**
+- Parser cytatów, rekcja i odstępy nagłówków, obcinanie tytułu SEO, duplikat meta PWA, globalny `app/error.tsx`, stare asercje release checklist/smoke, benefit dwóch pytań oraz błędne daty `lastmod` zostały poprawione przed buildem i wdrożeniem `7fdcbc2`.
+- HSTS działa w produkcji (`max-age=63072000`); limiter `/api/contact` istnieje; opis materiałów PDF komunikuje warunek zakupu po rozmowie. Nie są to bieżące braki.
+- Helper `getProductJsonLd` istnieje w `lib/schema.ts`, ale nie ma wywołań na stronach PDF. Teza o aktualnie emitowanym mylącym `Product` jest fałszywa dla bieżącego serwisu.
+- `prefers-reduced-motion` występuje w globalnych arkuszach. To nie rozstrzyga, czy każda animacja JS respektuje preferencję, ale wyklucza ogólne twierdzenie, że projektu w ogóle jej brakuje.
+
+**Zasadne jako następny celowany audyt:**
+- Skip-to-content: w `app/layout.tsx` nie ma globalnego linka, a homepage nie ma `id="main-content"`. Warto wdrożyć go razem z poprawnym celem/ustawieniem fokusu na publicznych trasach i sprawdzić klawiaturą; samo dodanie linka bez celu nie zamknie problemu.
+- Dostępność formularzy i sterowania klawiaturą: raport wskazuje istotny obszar, ale nazwy plików i liczby są nieaktualne. Obecne `BookingForm`, `ContactLeadForm` i `ZapytajIntakeForm` zawierają widoczne etykiety, `htmlFor`/`id` oraz ARIA dla części kontrolek. Następny przegląd powinien objąć realne kluczowe ścieżki rezerwacji, płatności i kontaktu, z klawiaturą i czytnikiem/axe; elementy klikalne należy zastępować natywnym `button`/`a`, nie hurtowo dodawać `role="button"`.
+- Alt-y wymagają przeglądu znaczenia obrazu. `alt=""` jest poprawne dla ilustracji dekoracyjnych, więc nie wolno liczyć każdego pustego alt jako błędu. Twierdzenie o 26 brakach nie jest potwierdzone.
+
+**Nie uzasadnia zmiany bez dodatkowego dowodu lub pomiaru:**
+- Polling: pauzowanie odpytywania dostępności na ukrytej karcie może oszczędzać żądania; interwały timerów rozmów/rezerwacji nie powinny być mechanicznie zatrzymywane, bo czas ma płynąć także w tle. Audytować osobno konkretne pollery i ich koszt.
+- `next/dynamic`, preload fontów, LazyMotion, `loading.tsx`, CSS 1.7 MB, `priority` obrazów i optymalizacja ikon: najpierw zmierzyć bundle, LCP/INP/CLS i zachowanie tras. Rozmiar źródłowego CSS ani brak API `next/dynamic` sam nie dowodzi regresji.
+- Cache-Control wymaga reguł per endpoint. Odpowiedzi z danymi prywatnymi/administracyjnymi już używają `no-store`; nie dodawać jednego cache policy do wszystkich API.
+- Rozbudowa CSP może łamać skrypty inline, analytics i integracje. Tylko etapowe raportowanie naruszeń po inwentaryzacji źródeł ma sens.
+- Liczby „~330 WCAG”, „~420 React”, „~200 pól” i „~85 elementów” nie zawierają reprodukowalnego skanu ani listy bieżących lokalizacji; nie przyjmować ich jako wyniku.
+
+**Tezy błędne, nieaktualne albo wymagające decyzji właściciela:**
+- Jitsi w regulaminie pełnej konsultacji nie jest zaszłością: bieżąca oferta opisuje około 90-minutową konsultację przez Jitsi. Nie zmieniać regulaminu na telefoniczny bez zmiany usługi.
+- Powołanie `error.tsx` na WCAG 3.3.1 jest błędne: boundary jest użyteczny dla odporności i komunikatu awarii, ale kryterium 3.3.1 dotyczy identyfikacji błędu przy wprowadzaniu danych.
+- Zmiana żeńskiego opisu alt na męski wymaga sprawdzenia przedstawionej sceny, nie płci właściciela serwisu. Status COAPE należy trzymać przy potwierdzonym publicznym określeniu „dyplomant COAPE”; nie wymyślać zamiennej nomenklatury.
+- Teza o „bait-and-switch” przy PDF za 19 zł jest oceną lejka. Obecny opis ujawnia wymóg wcześniejszej rozmowy; zmiana cen, kolejności lub modelu sprzedaży wymaga decyzji biznesowej.
+- Twierdzenia o granicy farmakoterapii i zgodności RODO nie są rozstrzygnięte audytem kodu. Wymagają sprawdzenia konkretnych publicznych sformułowań i właściwej podstawy prawnej przed zmianą.
+
+**Priorytet roboczy po tym przeglądzie:** najpierw dostępność klawiaturowa (skip link + krytyczne formularze), potem ewentualne optymalizacje wyłącznie na podstawie pomiarów. Bez hurtowych zmian copy, CSS, CSP ani oferty na podstawie niezweryfikowanych liczb raportu.
+
+### Wyniki sprawdzenia i korekt uwag Opus — 15.10.2026 (ciąg dalszy)
+
+Każdą uwagę sprawdzono względem aktualnego kodu, zbudowanej aplikacji, testów lub pomiaru. Poniżej zapisuję rozstrzygnięcia i wykonane korekty; wcześniejsze podsumowanie pozostaje historią kwalifikacji, a ten aneks aktualizuje je po realizacji.
+
+**Zasadne — poprawione w tym etapie:**
+- Brak globalnego skip linka i poprawnego, fokusowalnego celu treści: dodano link oraz cele dla layoutu i specjalnych nagłówków. Test klawiatury (Tab → Enter → Tab) przeszedł na desktopie i mobile, także z JS wyłączonym.
+- Autouzupełnianie logowania, resetu hasła i dostępu do PDF: pola dostały właściwe wartości `autocomplete`.
+- Ruch wskaźnika postępu przy ustawieniu ograniczenia animacji: uwzględniono `prefers-reduced-motion`; kolor tekstu o kontraście poniżej 4,5:1 skorygowano, a kolor spełniający próg zostawiono. Dodano też obrys dla `forced-colors`.
+- Dane strukturalne strony `/materialy`: dodano zgodne z widoczną zawartością `CollectionPage`, `ItemList` i breadcrumbs; bez `Product`, `Offer` ani wymyślonych cen.
+- Niepotrzebne wymuszanie dynamicznego renderowania `/opinie`: usunięto; wynik builda potwierdza trasę statyczną.
+- Błąd na granicy całej aplikacji: dodano niezależny `app/global-error.tsx` z retry i powrotem do strony głównej. `app/error.tsx` pozostaje granicą segmentu.
+- Odpytywanie statusów dostępności w ukrytej karcie: sześć rzeczywistych pollerów GET wstrzymuje okresowe odczyty, wykonuje jeden odczyt po powrocie i pilnuje serializacji; zegary/countdown i POST nie zostały zmienione.
+- Obrazy okładek PDF na `/materialy`: usunięto `unoptimized`, co pozwoliło użyć optymalizacji Next.js. Lighthouse wykazał pozostałą szacowaną oszczędność ok. 249 KiB mobile i 33 KiB desktop, zamiast wcześniejszych ok. 2,752 KiB.
+- Dostępność stopki i marki: poprawiono rozmiar pól dotykowych linków prawnych oraz usunięto nazwę ARIA marki, która nie zgadzała się z widocznym tekstem.
+- Karty PDF: usunięto nadpisujące `aria-label`; ich nazwa dostępna wynika teraz z widocznej treści i zawiera tytuł. Wszystkie 16 kart objęto testem regresji.
+
+**Sprawdzone ponownie — brak podstaw do zmiany albo zarzut fałszywy/nieaktualny:**
+- HSTS działa w produkcji (`max-age=63072000`); limiter `/api/contact` jest zaimplementowany i wywoływany; H1 na stronach głównych i materiałów poprzedza nagłówki podrzędne.
+- Nie emitowano schematu `Product` z helpera bez użycia; brak tego zarzutu nie uzasadnia dodawania cen/ofert do danych strukturalnych.
+- Formularze publiczne mają widoczne etykiety i powiązania; zgłoszone nazwy komponentów, liczniki masowych braków, „85 klikalnych divów” oraz „52 niebezpieczne asercje” nie odtwarzają się jako usterki. Każdą asercję oceniano z uwzględnieniem wcześniejszego guard/throw.
+- Puste `alt` dla elementów dekoracyjnych jest prawidłowe; liczba „26 braków alt” nie stanowi zweryfikowanego wyniku. Opis obrazu przedstawiającego dwie kobiety i psa nie wymaga zmiany na podstawie płci właściciela serwisu.
+- Nazwy nieistniejących/starych komponentów, teza o braku obsługi reduced motion w całym projekcie, zarzut o Jitsi w aktualnym regulaminie, stare daty sitemap, błędne stwierdzenie o braku limitera, CSP/cache bez analizy endpointów oraz rozmiar źródłowego CSS jako rzekomy rozmiar dostarczany użytkownikowi nie są same w sobie potwierdzonymi błędami.
+- Wskazane obrazy z `priority` już miały ustawiony priorytet. Sam brak `next/dynamic`, preloadu wszystkich fontów lub `loading.tsx`, a także obecność `lucide-react`/pojedynczego użycia Framer Motion nie uzasadnia mechanicznej zmiany bez konkretnego pomiaru.
+- Zewnętrzne logo Magwet jest oficjalnym znakiem; kopiowanie do repo wymaga potwierdzenia źródła/licencji. Oceny zgodności RODO, zakresu farmakoterapii, profilu COAPE, treści prawnych, bezpłatnych/odpłatnych PDF i modelu konsultacji wymagają decyzji właściciela lub właściwej weryfikacji merytorycznej; nie zmieniano oferty ani zamrożonego copy.
+
+**Zweryfikowane wyniki i nierozwiązana obserwacja:**
+- `npm run build`: PASS; ESLint i kontrola typów PASS; 85 stron statycznych wygenerowano. `/materialy` i `/opinie` są statyczne.
+- Pełny `npm test` po wszystkich poprawkach: 420 PASS, 12 SKIP, 0 FAIL; regresja kart jest częścią pełnego zestawu. `git diff --check`: PASS.
+- Świeży Lighthouse `/materialy`: mobile accessibility/best-practices/SEO = 1/1/1, desktop = 1/1/1; audyty `label-content-name-mismatch` i `target-size` zaliczone. Desktop performance 0,97 (LCP 1,1 s); mobile performance 0,63 (LCP 6,1 s). Wyniki wydajności są zależne od lokalnego pomiaru i zmienne; wcześniejsze przebiegi dawały różne wyniki.
+- Pozostaje rzeczywisty problem wydajności mobile, widoczny również na `/` i `/opinie` w wcześniejszym przebiegu Lighthouse (LCP około 5,7–6,2 s, render-blocking/nieużywany CSS). Nie zmieniano szeroko globalnych arkuszy, bo bez wskazania odpowiedzialnych tras/reguł groziłoby to regresją na wielu stronach. To zasadny osobny cel optymalizacji oparty na profilowaniu tras, a nie zamknięta uwaga.
+- Nie zmieniano bazy Supabase: te poprawki nie wprowadzają migracji ani zmiany schematu.
+
+**Następny krok w planie:** przegląd obecnego profilu CSS/LCP na konkretnych trasach mobile i propozycja wąskiej optymalizacji z kontrolą regresji; utrzymać osobno decyzje właściciela o treściach prawnych, ofercie i zewnętrznych profilach.

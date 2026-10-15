@@ -9,6 +9,12 @@ export const metadata: Metadata = buildLegalMetadata(
   'Polityka prywatności',
   '/polityka-prywatnosci',
   'Polityka prywatności serwisu Regulski Behawiorysta: zakres danych, cele przetwarzania i prawa użytkownika.',
+  {
+    url: '/branding/specialist-krzysztof-social.jpg',
+    width: 1200,
+    height: 630,
+    alt: 'Krzysztof Regulski z kotem',
+  },
 )
 
 const summaryItems: LegalSummaryItem[] = [

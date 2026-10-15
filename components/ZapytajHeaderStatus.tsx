@@ -3,8 +3,7 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { getZapytajHeaderStatusLabel } from '@/lib/urgent-now-policy'
-import { readZapytajAvailability } from '@/lib/zapytaj-availability-client'
-import { startVisiblePolling } from '@/components/visible-polling'
+import { subscribeZapytajAvailability } from '@/lib/zapytaj-availability-polling'
 
 type HeaderAvailability = { status: 'available' | 'full' | 'weekend' | 'in_progress' | 'unavailable' | 'offline' | 'online_with_slot' | 'online_without_slot' | 'unknown' }
 
@@ -12,21 +11,13 @@ export function ZapytajHeaderStatus() {
   const [availability, setAvailability] = useState<HeaderAvailability | null>(null)
 
   useEffect(() => {
-    let active = true
-    const refresh = async (force = false) => {
-      try {
-        const payload = await readZapytajAvailability<{ live?: unknown; urgentNow?: HeaderAvailability }>('/api/zapytaj/availability', {
-          signal: AbortSignal.timeout(6_000),
-          force,
-        })
+    return subscribeZapytajAvailability<{ live?: unknown; urgentNow?: HeaderAvailability }>({
+      onData: (payload) => {
         if (!payload.live || !payload.urgentNow) throw new Error('availability unavailable')
-        if (active) setAvailability(payload.urgentNow)
-      } catch {
-        if (active) setAvailability({ status: 'unavailable' })
-      }
-    }
-    const stopPolling = startVisiblePolling(refresh, 30_000)
-    return () => { active = false; stopPolling() }
+        setAvailability(payload.urgentNow)
+      },
+      onError: () => setAvailability({ status: 'unavailable' }),
+    })
   }, [])
 
   const status = availability?.status ?? 'unknown'

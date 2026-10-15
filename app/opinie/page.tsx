@@ -14,6 +14,12 @@ import { SITE_NAME, SITE_TAGLINE } from '@/lib/site'
 export const metadata: Metadata = buildMarketingMetadata({
   title: 'Opinie o konsultacjach behawioralnych',
   path: '/opinie',
+  image: {
+    url: '/images/opinions/dog-cat-header.png',
+    width: 1200,
+    height: 760,
+    alt: 'Pies na spacerze i kot w domu — opinie opiekunów psów i kotów',
+  },
   description:
     'Opinie opiekunów psów i kotów po konsultacjach behawioralnych. Historie, które pokazują spokojny proces zmiany.',
 })

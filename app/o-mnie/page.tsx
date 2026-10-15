@@ -176,7 +176,7 @@ export default function AboutPage() {
         <section className="reference-section-card reference-about-publication-card">
           <div className="reference-about-publication-copy">
             <Image
-              src="https://magwet.pl/assets/magwet_logo_green-2c8e69910c786ae0c91c1e2a409bf5e8effee4241abbf9778fd43858d3cf696d.png"
+              src="/branding/magwet-logo.png"
               alt="Logo Magazynu Weterynaryjnego"
               width={220}
               height={56}

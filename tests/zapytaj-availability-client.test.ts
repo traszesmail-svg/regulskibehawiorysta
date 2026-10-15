@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { afterEach, describe, it } from 'node:test'
 import { startVisiblePolling } from '@/components/visible-polling'
+import { subscribeZapytajAvailability } from '@/lib/zapytaj-availability-polling'
 import {
   readZapytajAvailability,
   resetZapytajAvailabilityReadCacheForTests,
@@ -139,6 +140,121 @@ function pollingPage(initialHidden = false) {
 }
 
 const settlePolling = () => new Promise<void>((resolve) => setImmediate(resolve))
+
+describe('shared public availability polling', () => {
+  it('shares one schedule and GET across home/header subscribers, replays the snapshot, and cleans up the last subscriber', async () => {
+    const page = pollingPage()
+    let now = 1_000
+    let calls = 0
+    Date.now = () => now
+    globalThis.fetch = (() => Promise.resolve(jsonResponse({ sequence: ++calls }))) as typeof fetch
+    const home: unknown[] = [], header: unknown[] = [], late: unknown[] = []
+    const fail = (error: unknown) => { throw error }
+    const stopHome = subscribeZapytajAvailability({ onData: (payload) => home.push(payload), onError: fail })
+    const stopHeader = subscribeZapytajAvailability({ onData: (payload) => header.push(payload), onError: fail })
+    let stopLate = () => {}
+    try {
+      await settlePolling()
+      assert.equal(calls, 1)
+      assert.equal(page.timers.size, 1)
+      assert.deepEqual(home, [{ sequence: 1 }])
+      assert.equal(home[0], header[0])
+      stopLate = subscribeZapytajAvailability({ onData: (payload) => late.push(payload), onError: fail })
+      assert.equal(late[0], home[0])
+      assert.equal(calls, 1)
+      now += 20_000
+      page.tick()
+      await settlePolling()
+      assert.equal(calls, 2)
+      assert.equal(home[1], header[1])
+      assert.equal(header[1], late[1])
+      stopHome()
+      now += 20_000
+      page.tick()
+      await settlePolling()
+      assert.equal(calls, 3)
+      assert.equal(home.length, 2)
+      assert.equal(header.length, 3)
+      stopHeader()
+      stopLate()
+      assert.equal(page.timers.size, 0)
+      page.visibility(true)
+      page.visibility(false)
+      assert.equal(calls, 3)
+    } finally { stopHome(); stopHeader(); stopLate(); page.restore() }
+  })
+
+  it('pauses both consumers while hidden and forces one fresh shared GET on visibility return', async () => {
+    const page = pollingPage(true)
+    let calls = 0
+    globalThis.fetch = (() => Promise.resolve(jsonResponse({ sequence: ++calls }))) as typeof fetch
+    const home: unknown[] = [], header: unknown[] = []
+    const stopHome = subscribeZapytajAvailability({ onData: (payload) => home.push(payload), onError: () => {} })
+    const stopHeader = subscribeZapytajAvailability({ onData: (payload) => header.push(payload), onError: () => {} })
+    try {
+      page.tick()
+      assert.equal(calls, 0)
+      assert.equal(page.timers.size, 0)
+      page.visibility(false)
+      page.visibility(false)
+      await settlePolling()
+      assert.equal(calls, 1)
+      page.visibility(true)
+      page.tick()
+      assert.equal(calls, 1)
+      page.visibility(false)
+      await settlePolling()
+      assert.equal(calls, 2, 'a fresh GET bypasses the two-second cache')
+      assert.equal(page.timers.size, 1)
+      assert.deepEqual(home, header)
+      assert.deepEqual(home, [{ sequence: 1 }, { sequence: 2 }])
+    } finally { stopHome(); stopHeader(); page.restore() }
+  })
+
+  it('preserves per-subscriber deadlines without overlapping or cancelling the shared GET', async () => {
+    const page = pollingPage()
+    let calls = 0
+    let finish: (response: Response) => void = () => {}
+    globalThis.fetch = (() => { calls += 1; return new Promise<Response>((resolve) => { finish = resolve }) }) as typeof fetch
+    const short: unknown[] = [], long: unknown[] = [], shortErrors: unknown[] = [], longErrors: unknown[] = []
+    const stopShort = subscribeZapytajAvailability({ onData: (payload) => short.push(payload), onError: (error) => shortErrors.push(error), timeoutMs: 1 })
+    const stopLong = subscribeZapytajAvailability({ onData: (payload) => long.push(payload), onError: (error) => longErrors.push(error), timeoutMs: 1_000 })
+    try {
+      page.tick()
+      page.tick()
+      await new Promise((resolve) => setTimeout(resolve, 10))
+      assert.equal(calls, 1)
+      assert.equal(shortErrors.length, 1)
+      assert.equal(longErrors.length, 0)
+      finish(jsonResponse({ available: true }))
+      await settlePolling()
+      assert.deepEqual(short, [])
+      assert.deepEqual(long, [{ available: true }])
+    } finally { stopShort(); stopLong(); page.restore() }
+  })
+
+  it('delivers errors and recovery independently so one consumer validation cannot break the other', async () => {
+    const page = pollingPage()
+    let calls = 0
+    globalThis.fetch = (() => ++calls === 1 ? Promise.reject(new Error('upstream failed')) : Promise.resolve(jsonResponse({ available: true }))) as typeof fetch
+    const home: unknown[] = [], homeErrors: unknown[] = [], headerErrors: unknown[] = []
+    const stopHome = subscribeZapytajAvailability({ onData: (payload) => home.push(payload), onError: (error) => homeErrors.push(error) })
+    const stopHeader = subscribeZapytajAvailability({ onData: () => { throw new Error('header validation') }, onError: (error) => headerErrors.push(error) })
+    try {
+      await settlePolling()
+      assert.equal(homeErrors.length, 1)
+      assert.equal(homeErrors[0], headerErrors[0])
+      page.visibility(true)
+      page.visibility(false)
+      await settlePolling()
+      assert.equal(calls, 2)
+      assert.deepEqual(home, [{ available: true }])
+      assert.equal(homeErrors.length, 1)
+      assert.equal(headerErrors.length, 2)
+      assert.match(String(headerErrors[1]), /header validation/)
+    } finally { stopHome(); stopHeader(); page.restore() }
+  })
+})
 
 describe('visible page polling', () => {
   it('makes no periodic GET while hidden and refreshes exactly once on visibility return', async () => {

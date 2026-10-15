@@ -4,15 +4,23 @@ import { SITE_NAME, SITE_OG_IMAGE, SITE_SHORT_NAME, SPECIALIST_NAME } from '@/li
 
 const DEFAULT_OG_IMAGE = SITE_OG_IMAGE
 
+type MetadataImage = {
+  url: string
+  width: number
+  height: number
+  alt: string
+}
+
 type MarketingMetadataInput = {
   title: string
   path: string
   description: string
   appendLocalContext?: boolean
   maxTitleLength?: number
+  image?: MetadataImage
 }
 
-type TechnicalMetadataInput = MarketingMetadataInput & {
+type TechnicalMetadataInput = Omit<MarketingMetadataInput, 'image'> & {
   noIndex?: boolean
   follow?: boolean
 }
@@ -50,7 +58,7 @@ export function buildLimitedMetadataTitle(title: string, maxLength = 70) {
   return `${clippedTitle}...${suffix}`
 }
 
-export function buildMarketingMetadata({ title, path, description, appendLocalContext = true, maxTitleLength }: MarketingMetadataInput): Metadata {
+export function buildMarketingMetadata({ title, path, description, appendLocalContext = true, maxTitleLength, image = DEFAULT_OG_IMAGE }: MarketingMetadataInput): Metadata {
   const localizedDescription = appendLocalContext ? appendLocalSeoContext(description) : description
   const fullTitle = maxTitleLength ? buildLimitedMetadataTitle(title, maxTitleLength) : buildMetadataTitle(title)
 
@@ -67,13 +75,13 @@ export function buildMarketingMetadata({ title, path, description, appendLocalCo
       type: 'website',
       locale: 'pl_PL',
       url: path,
-      images: [DEFAULT_OG_IMAGE],
+      images: [image],
     },
     twitter: {
       card: 'summary_large_image',
       title: fullTitle,
       description: localizedDescription,
-      images: [DEFAULT_OG_IMAGE.url],
+      images: [image.url],
     },
   }
 }
@@ -155,11 +163,12 @@ export async function buildBookMetadata(serviceType: BookingServiceType = DEFAUL
   })
 }
 
-export function buildLegalMetadata(title: string, path: string, description: string): Metadata {
+export function buildLegalMetadata(title: string, path: string, description: string, image?: MetadataImage): Metadata {
   return buildMarketingMetadata({
     title,
     path,
     description,
     appendLocalContext: false,
+    image,
   })
 }

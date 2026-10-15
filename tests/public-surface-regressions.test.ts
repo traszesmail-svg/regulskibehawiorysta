@@ -13,12 +13,61 @@ import { Footer } from '@/components/Footer'
 import MaterialyLandingPage from '@/app/materialy/page'
 import OpinionsPage from '@/app/opinie/page'
 import GlobalError from '@/app/global-error'
-import { SITE_PRODUCTION_URL } from '@/lib/site'
+import { SITE_OG_IMAGE, SITE_PRODUCTION_URL } from '@/lib/site'
+import { buildLegalMetadata, buildMarketingMetadata } from '@/lib/seo'
 import { getOpinionServiceLabel, publicOpinionReviews } from '@/lib/opinion-reviews'
 
 ;(globalThis as unknown as { React: typeof React }).React = React
 
 const read = (...segments: string[]) => readFileSync(path.join(process.cwd(), ...segments), 'utf8')
+
+test('marketing and legal metadata optionally override both social images while preserving other metadata', () => {
+  const input = { title: 'Test metadanych', path: '/metadata-test', description: 'Opis strony.' }
+  const image = { url: '/example.jpg', width: 1200, height: 630, alt: 'Przykład' }
+  const baseline = buildMarketingMetadata(input)
+  assert.deepEqual(baseline.openGraph?.images, [SITE_OG_IMAGE])
+  assert.deepEqual(baseline.twitter?.images, [SITE_OG_IMAGE.url])
+  assert.deepEqual(buildMarketingMetadata({ ...input, image }), {
+    ...baseline,
+    openGraph: { ...baseline.openGraph, images: [image] },
+    twitter: { ...baseline.twitter, images: [image.url] },
+  })
+
+  const legalBaseline = buildLegalMetadata(input.title, input.path, input.description)
+  assert.deepEqual(legalBaseline.openGraph?.images, [SITE_OG_IMAGE])
+  assert.deepEqual(buildLegalMetadata(input.title, input.path, input.description, image), {
+    ...legalBaseline,
+    openGraph: { ...legalBaseline.openGraph, images: [image] },
+    twitter: { ...legalBaseline.twitter, images: [image.url] },
+  })
+})
+
+test('route social images use the existing matching assets with accurate URLs and dimensions', async () => {
+  const sharp = (await import('sharp')).default
+  const pages = [
+    { page: await import('@/app/kontakt/page'), url: '/branding/regulski-web/hero/hero-kontakt.webp', width: 1600, height: 900 },
+    { page: await import('@/app/opinie/page'), url: '/images/opinions/dog-cat-header.png', width: 1200, height: 760 },
+    { page: await import('@/app/regulamin/page'), url: '/branding/specialist-krzysztof-social.jpg', width: 1200, height: 630 },
+    { page: await import('@/app/polityka-prywatnosci/page'), url: '/branding/specialist-krzysztof-social.jpg', width: 1200, height: 630 },
+  ]
+  for (const { page, url, width, height } of pages) {
+    const images = page.metadata.openGraph?.images
+    assert.ok(Array.isArray(images))
+    assert.equal(images.length, 1)
+    const descriptor = images[0]
+    assert.ok(typeof descriptor === 'object' && descriptor !== null && 'url' in descriptor)
+    assert.deepEqual(descriptor, { url, width, height, alt: descriptor.alt })
+    assert.ok(typeof descriptor.alt === 'string' && descriptor.alt.length > 0)
+    assert.deepEqual(page.metadata.twitter?.images, [url])
+    const file = await sharp(path.join(process.cwd(), 'public', url)).metadata()
+    assert.deepEqual({ width: file.width, height: file.height }, { width, height })
+  }
+
+  // The available FAQ hero includes a withdrawn CTA, so keep the current default.
+  const faq = await import('@/app/faq/page')
+  assert.deepEqual(faq.metadata.openGraph?.images, [SITE_OG_IMAGE])
+  assert.deepEqual(faq.metadata.twitter?.images, [SITE_OG_IMAGE.url])
+})
 
 test('the shared brand link derives its accessible name from its complete visible label', () => {
   const $ = load(renderToStaticMarkup(createElement(NotatnikTopbar, { tag: 'Regulski', navItems: PUBLIC_SITE_NAV_ITEMS })))

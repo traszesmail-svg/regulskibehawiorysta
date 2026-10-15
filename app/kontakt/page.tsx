@@ -14,6 +14,12 @@ import styles from './contact.module.css'
 export const metadata: Metadata = buildMarketingMetadata({
   title: 'Kontakt — porozmawiajmy o Twoim zwierzęciu',
   path: '/kontakt',
+  image: {
+    url: '/branding/regulski-web/hero/hero-kontakt.webp',
+    width: 1600,
+    height: 900,
+    alt: 'Skontaktuj się z Regulski Behawiorysta — napisz wiadomość lub zarezerwuj pierwszy krok',
+  },
   description: 'Masz pytanie o współpracę lub wybór konsultacji? Napisz do Krzysztofa Regulskiego. Osobisty kontakt, jasne zasady i spokojny pierwszy krok.',
 })
 

@@ -10,6 +10,12 @@ export const metadata: Metadata = buildLegalMetadata(
   'Regulamin',
   '/regulamin',
   'Regulamin serwisu, materiałów bezpłatnych, rezerwacji, płatności, zmian terminu i reklamacji w serwisie Regulski.',
+  {
+    url: '/branding/specialist-krzysztof-social.jpg',
+    width: 1200,
+    height: 630,
+    alt: 'Krzysztof Regulski z kotem',
+  },
 )
 
 const summaryItems: LegalSummaryItem[] = [

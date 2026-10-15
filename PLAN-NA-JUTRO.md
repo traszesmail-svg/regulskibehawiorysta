@@ -846,3 +846,12 @@ Każdą uwagę sprawdzono względem aktualnego kodu, zbudowanej aplikacji, test�
 - Nie zmieniano bazy Supabase: te poprawki nie wprowadzają migracji ani zmiany schematu.
 
 **Następny krok w planie:** przegląd obecnego profilu CSS/LCP na konkretnych trasach mobile i propozycja wąskiej optymalizacji z kontrolą regresji; utrzymać osobno decyzje właściciela o treściach prawnych, ofercie i zewnętrznych profilach.
+
+### Wyniki pozostałych zasadnych uwag Gemini — 15.10.2026
+
+- Obrazy Open Graph/Twitter: dodano dopasowane istniejące obrazy dla `/kontakt`, `/opinie`, `/regulamin` i `/polityka-prywatnosci`; domyślne metadane pozostałych tras zachowują dotychczasowy obraz. FAQ pozostaje przy obrazie domyślnym, ponieważ kandydat zawiera wycofane CTA „Zarezerwuj Kwadrans”. Testy sprawdzają adresy, wymiary plików oraz oba kanały social.
+- Polling dostępności: widżet strony głównej i status nagłówka korzystają z jednego widocznego pollera i jednego GET co 20 s zamiast osobnych timerów 20/30 s. Zachowano indywidualne deadline’y 6 s, pauzę w tle, wspólne odświeżenie po powrocie, obsługę błędów oraz niezależność formularza i pozostałych pollerów.
+- Logo Magwet: obraz z oficjalnego adresu źródłowego (PNG 300×61) zapisano jako `public/branding/magwet-logo.png` i podłączono lokalnie na stronie „O mnie”, usuwając runtime zależność od hosta Magwet. Nie zmieniono treści publikacji ani opisów.
+- Wydajność CSS/LCP: profil Lighthouse potwierdza problem mobilny: `/` 6,2 s LCP, `/materialy` 6,1 s, `/opinie` 5,7 s; trzy wspólne globalne arkusze wykazują łącznie ok. 184 KiB nieużywanego CSS na każdej trasie, a praca `styleLayout` na stronie głównej wynosiła ok. 1,69 s. Nie wykonano hurtowego podziału globalnych arkuszy, bo są importowane wspólnie i obejmują wiele tras; ten wynik uzasadnia osobny, kontrolowany etap rozdzielenia stylów trasowych z pomiarem i kontrolą wizualną. Problem nie jest zamknięty.
+- Nie zmieniono modelu sprzedaży PDF, cen, treści prawnych ani oferty — te uwagi pozostają decyzją właściciela. Nie powstały migracje Supabase ani zmiany schematu.
+- Weryfikacja tej kontynuacji: `npm test` — 426 PASS, 12 SKIP, 0 FAIL; `npm run build` — PASS, lint, typy i 85 stron statycznych; ukierunkowane testy metadata 18/18 i pollingu 13/13 PASS; `git diff --check` PASS.

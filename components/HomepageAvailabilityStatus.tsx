@@ -2,8 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from 'react'
 import { CheckCircle2, RefreshCw } from 'lucide-react'
-import { readZapytajAvailability } from '@/lib/zapytaj-availability-client'
-import { startVisiblePolling } from '@/components/visible-polling'
+import { subscribeZapytajAvailability } from '@/lib/zapytaj-availability-polling'
 
 type LiveStatus = {
   status: 'unavailable' | 'offline' | 'available_now' | 'payment_pending' | 'in_call' | 'buffer'
@@ -48,31 +47,17 @@ export function HomepageAvailabilityStatus() {
       }
     }
 
-    let mounted = true
-    async function fetchAvailability(force = false) {
-      try {
-        const data = await readZapytajAvailability<AvailabilityPayload>('/api/zapytaj/availability', {
-          signal: AbortSignal.timeout(6_000),
-          force,
-        })
-        if (mounted) {
-          setAvailability(data)
-          setHasError(false)
-          setLoading(false)
-        }
-      } catch {
-        if (mounted) {
-          setHasError(true)
-          setLoading(false)
-        }
-      }
-    }
-
-    const stopPolling = startVisiblePolling(fetchAvailability, 20_000)
-    return () => {
-      mounted = false
-      stopPolling()
-    }
+    return subscribeZapytajAvailability<AvailabilityPayload>({
+      onData: (data) => {
+        setAvailability(data)
+        setHasError(false)
+        setLoading(false)
+      },
+      onError: () => {
+        setHasError(true)
+        setLoading(false)
+      },
+    })
   }, [])
 
   async function handleNotifySubmit(e: FormEvent) {
